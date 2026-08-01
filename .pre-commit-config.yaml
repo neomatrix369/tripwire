@@ -1,0 +1,107 @@
+# Maturity: trimmed serious — security-first for Tripwire.
+# Intentionally excluded vs full project-hygiene:
+#   mypy hard-fail, pytest coverage gates, xenon/vulture, nightly T4
+#
+# Stages:
+#   pre-commit: hygiene + secrets + bandit + ruff + cli fast tests
+#   pre-push:   cli tests + pip-audit (when Python deps change)
+#
+# Parallel: pre-commit run -j 4 --all-files
+
+repos:
+  # ── Hygiene ──────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^fixtures/
+      - id: end-of-file-fixer
+        exclude: ^fixtures/
+      - id: check-yaml
+      - id: check-toml
+      - id: check-json
+        exclude: ^fixtures/
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: detect-private-key
+        exclude: ^fixtures/
+      - id: debug-statements
+        exclude: ^fixtures/
+
+  # ── Shell, GitHub Actions, Markdown ─────────────────────
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        files: ^scripts/.*\.sh$
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.7
+    hooks:
+      - id: actionlint
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.43.0
+    hooks:
+      - id: markdownlint
+        args: [--config, .markdownlint.json]
+        files: \.md$
+        exclude: |
+          (?x)^(
+            fixtures/|
+            prototypes/|
+            internal-docs/|
+            \.claude/|
+            \.cursor/
+          )
+
+  # ── Secrets (primary security gate) ─────────────────────
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.22.1
+    hooks:
+      - id: gitleaks
+        args: [--config, .gitleaks.toml]
+
+  # ── Python SAST ──────────────────────────────────────────
+  - repo: local
+    hooks:
+      - id: bandit
+        name: bandit SAST (medium+)
+        entry: uv run bandit -c pyproject.toml -r sandbox guard scripts -q -ll
+        language: system
+        pass_filenames: false
+        types: [python]
+        exclude: ^fixtures/
+
+  # ── Python lint + format ─────────────────────────────────
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.4
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        exclude: ^fixtures/
+      - id: ruff-format
+        exclude: ^fixtures/
+
+  # ── Commit: CLI unit tests (no live credentials) ─────────
+  - repo: local
+    hooks:
+      - id: cli-fast-tests
+        name: CLI unit tests (node --test)
+        entry: bash -c 'cd cli && npm test'
+        language: system
+        pass_filenames: false
+        files: ^cli/
+        stages: [pre-commit]
+
+  # ── Pre-push: push-specific gates only ───────────────────
+  - repo: local
+    hooks:
+      - id: pre-push-gates
+        name: pre-push gates (cli tests, conditional pip-audit)
+        entry: bash scripts/pre-push-gates.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]

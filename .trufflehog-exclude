@@ -1,0 +1,4 @@
+fixtures/
+prototypes/
+internal-docs/
+.env.example

@@ -1,0 +1,36 @@
+# Tripwire — secrets scan config (trimmed project-hygiene).
+# Intentional vuln fixtures are allowlisted; real secrets must still fail CI.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlist for false positives and intentional scan fixtures"
+
+paths = [
+  '''^\.env$''',
+  '''^\.env\.''',
+  '''dist/''',
+  '''node_modules/''',
+  '''coverage/''',
+  '''\.venv/''',
+  '''uv\.lock''',
+  '''package-lock\.json''',
+  '''\.git/''',
+  '''\.mypy_cache/''',
+  '''\.pytest_cache/''',
+  '''\.ruff_cache/''',
+  # Intentional hardcoded secrets / vuln targets for scanner smoke tests
+  '''^fixtures/''',
+  '''fixtures/''',
+  # Dashboard prototype uses mock "sk-live-..." demo data for screenshots
+  '''^prototypes/''',
+  '''prototypes/''',
+]
+
+regexes = [
+  # Documented placeholder patterns in .env.example / docs
+  '''your[-_].*[-_](key|token|secret|password)''',
+  '''CHANGE_ME''',
+  '''xxx+''',
+]

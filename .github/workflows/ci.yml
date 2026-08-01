@@ -1,0 +1,121 @@
+name: CI
+
+# Trimmed Tripwire hygiene — security + lint + CLI tests.
+# Deferred vs full project-hygiene: coverage floors, xenon/vulture, nightly T4,
+# Meterian (optional later), mutation tests.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  repo-lint:
+    name: Repo lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - run: uv pip install --system -e ".[dev]"
+      - run: pre-commit run shellcheck --all-files
+      - run: pre-commit run actionlint --all-files
+      - run: pre-commit run markdownlint --all-files
+
+  static-analysis:
+    name: Static analysis (ruff + bandit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - run: uv pip install --system -e ".[dev]"
+      - run: ruff check sandbox guard scripts
+      - run: ruff format --check sandbox guard scripts
+      - run: bandit -c pyproject.toml -r sandbox guard scripts -q -ll
+
+  cli-tests:
+    name: CLI tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: cli/package-lock.json
+      - run: npm ci
+        working-directory: cli
+      - run: npm test
+        working-directory: cli
+      - run: npm audit --audit-level=high
+        working-directory: cli
+
+  secrets:
+    name: Secrets scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+
+  sast:
+    name: SAST — Semgrep + OSV-Scanner
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Semgrep SAST
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/owasp-top-ten
+            p/python
+            p/secrets
+      - name: OSV-Scanner (SCA)
+        uses: google/osv-scanner-action@v2
+        with:
+          scan-args: |-
+            --recursive
+            --skip-git
+            .
+
+  trivy:
+    name: Trivy (filesystem)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          scan-type: fs
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+          format: table
+          # Intentional vuln fixtures are scanner targets, not prod code
+          skip-dirs: fixtures,prototypes,internal-docs,cli/node_modules
+
+  trufflehog:
+    name: TruffleHog (incremental)
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: trufflesecurity/trufflehog@v3
+        with:
+          extra_args: --only-verified --exclude-paths=.trufflehog-exclude

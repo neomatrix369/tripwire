@@ -16,23 +16,35 @@ and `internal-docs/00_build/build-day-decisions.md`.
 - `docs/research/adapters/scanner-output-adapters.md` — scanner output shapes the
   `sandbox/scanners.py` adapters are built from; update both together.
 
-## Setup
-Requires Node ≥18, `psql` against a Supabase/Postgres URL, and (for live scans) Modal + scanner secrets.
+## Dev hygiene (trimmed)
+
+Security-first local gates — not the full serious-tier stack:
 
 ```bash
-psql "$SUPABASE_DB_URL" -f db/schema.sql
+./scripts/install-git-hooks.sh   # pre-commit + pre-push
+pre-commit run --all-files       # gitleaks, bandit, ruff, cli tests
+./scripts/quality-gates.sh --quick
+```
+
+CI (`.github/workflows/ci.yml`): secrets (gitleaks), SAST (Semgrep + OSV), Trivy, TruffleHog, ruff/bandit, CLI tests.
+Intentional vuln fixtures under `fixtures/` and mock data under `prototypes/` are excluded from secrets scanners.
+
+
+```bash
+# Copy .env.example → .env; set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_DB_URL
 
 cd cli && npm install && npm link   # gives you the `tripwire` command locally
-npm test                            # discovery + hashing unit tests (8), no live credentials needed
+npm test                            # discovery + hashing + schema probe unit tests
 
-# Env for real scans (not needed for unit tests / --dry-discover):
-#   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+# First-run DB bootstrap (also runs automatically on the first real `tripwire scan`):
+tripwire setup                      # or: ./scripts/setup-supabase.sh
+# Needs SUPABASE_DB_URL (postgresql://) to apply DDL; HTTP URL alone cannot.
 
-# sandbox side (Modal) — see fixtures/OPTIONAL_SCANNER_KEYS.md for the full secret list
+# sandbox side (Modal) — fill scanner keys in .env as needed
 pip install modal
-modal secret create tripwire-supabase SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=...
-modal secret create tripwire-scan-secrets SNYK_TOKEN=...
-modal deploy sandbox/scan_app.py
+./scripts/setup-modal.sh   # auth + sync tripwire-supabase / tripwire-scan-secrets + deploy
+# Flags: --secrets-only | --deploy-only | --non-interactive | --env-file PATH
+# Key allowlist: fixtures/OPTIONAL_SCANNER_KEYS.md
 ```
 
 ## Try it against the existing fixtures
@@ -43,14 +55,14 @@ tripwire scan ./fixtures/mcp/mcp_manifest.json
 ```
 
 `--dry-discover` prints discovered targets and exits without spawning Modal. A full `scan`
-needs Supabase + a deployed sandbox.
+needs Supabase (auto-bootstrapped on first scan / `tripwire setup`) + a deployed sandbox.
 
 ## What's real vs stubbed
 - **IMPLEMENTED:** full schema + rollup function; CLI discovery/hashing/idempotency/batching;
   scanner adapters shell out to the actual upstream CLIs (`skill-scanner`, `mcp-scanner`,
   `snyk-agent-scan`, `tessl`) with real flags and parse their documented output shapes;
   fixture set under `fixtures/` (see `fixtures/README.md`).
-- **VERIFIED (unit):** `cd cli && npm test` — discovery + content-hash tests (8 pass).
+- **VERIFIED (unit):** `cd cli && npm test` — discovery + content-hash + schema-probe tests.
 - **Stubbed (`# STUB`):** the sandbox's `_acquire_target` (git clone / upload / MCP
   introspection dispatch) — needs the real Modal image + credentials wired per
   `fixtures/OPTIONAL_SCANNER_KEYS.md` before it does anything against a live target.

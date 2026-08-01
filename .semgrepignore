@@ -1,0 +1,6 @@
+# Intentional vuln / mock fixtures — product scan targets, not first-party SAST scope
+fixtures/
+prototypes/
+internal-docs/
+cli/node_modules/
+.venv/
