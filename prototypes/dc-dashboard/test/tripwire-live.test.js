@@ -1053,6 +1053,126 @@ test('given schema sql when inspecting realtime then publication adds required t
     'schema must add findings to supabase_realtime publication');
 });
 
+// ── GWT-1 Detection (must-show #1+#2) — slice-2 ───────────────────────────
+
+test('given must-show skill and MCP live rows when loadData live then GWT-1 detection mapping holds', async () => {
+  /**
+   * Scenario: Live mapping exposes Detection evidence for shortlist skill + MCP.
+   * Slice: slice-2-gwt1-detection-acceptance
+   *
+   * Given heatmap + findings shaped like must-show #1+#2 scan results,
+   * When loadData maps Live Supabase rows into UI items,
+   * Then both items are non-grey; skill has file/line; MCP has tool name(s).
+   */
+  // -- Given --
+  const skillId = '11111111-1111-1111-1111-111111111111';
+  const mcpId = '22222222-2222-2222-2222-222222222222';
+  const skillRunId = '33333333-3333-3333-3333-333333333333';
+  const mcpRunId = '44444444-4444-4444-4444-444444444444';
+  installWindow({
+    SUPABASE_URL: 'https://proj.supabase.co',
+    SUPABASE_ANON_KEY: 'anon',
+  });
+  mockFetchByTable({
+    items: [
+      {
+        id: skillId,
+        type: 'skill',
+        name: 'vuln-prompt-injection-notes',
+        identifier: 'fixtures/skills/vuln-prompt-injection-notes',
+        heatmap_status: 'red',
+        risk_score: 2.0,
+        quality_score: null,
+        install_locus: 'local',
+        source_availability: 'source_on_disk',
+      },
+      {
+        id: mcpId,
+        type: 'mcp_server',
+        name: 'vuln-command-injection-server',
+        identifier: 'fixtures/mcp/vuln-command-injection-server',
+        heatmap_status: 'amber',
+        risk_score: 1.2,
+        quality_score: null,
+        install_locus: 'local',
+        source_availability: 'source_on_disk',
+      },
+    ],
+    scan_runs: [
+      {
+        id: skillRunId,
+        item_id: skillId,
+        status: 'complete',
+        started_at: '2026-08-01T18:00:00Z',
+        completed_at: '2026-08-01T18:01:00Z',
+      },
+      {
+        id: mcpRunId,
+        item_id: mcpId,
+        status: 'complete',
+        started_at: '2026-08-01T18:00:00Z',
+        completed_at: '2026-08-01T18:01:30Z',
+      },
+    ],
+    scan_run_scanners: [
+      { scan_run_id: skillRunId, scanner_source: 'Cisco Skill Scanner', status: 'completed', checks_run: 12 },
+      { scan_run_id: mcpRunId, scanner_source: 'Cisco MCP Scanner', status: 'completed', checks_run: 8 },
+    ],
+    findings: [
+      {
+        scan_run_id: skillRunId,
+        severity: 'red',
+        category: 'prompt_injection',
+        file_path: 'SKILL.md',
+        location: '12',
+        entity_kind: null,
+        entity_name: null,
+        scanner_source: 'Cisco Skill Scanner',
+        message: 'hidden SYSTEM OVERRIDE instruction block',
+        snippet: null,
+        cwe_ids: null,
+      },
+      {
+        scan_run_id: mcpRunId,
+        severity: 'red',
+        category: 'command_injection',
+        file_path: null,
+        location: null,
+        entity_kind: 'tool',
+        entity_name: 'run_shell',
+        scanner_source: 'Cisco MCP Scanner',
+        message: 'command injection surface on tool run_shell',
+        snippet: null,
+        cwe_ids: ['CWE-78'],
+      },
+    ],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+  const skill = result.data.items.find((i) => i.name === 'vuln-prompt-injection-notes');
+  const mcp = result.data.items.find((i) => i.name === 'vuln-command-injection-server');
+
+  // -- Then --
+  assert.equal(result.source, 'live', 'GWT-1 requires Live-mapped data, not mock');
+  assert.ok(skill, 'must-show skill item must be present');
+  assert.ok(mcp, 'must-show MCP item must be present');
+  assert.notEqual(skill.status, 'grey', 'skill heatmap/status must be non-grey');
+  assert.notEqual(mcp.status, 'grey', 'MCP heatmap/status must be non-grey');
+  assert.ok(
+    skill.findings.some((f) => f.file_path || f.location),
+    'skill Detection drill-down must expose file_path or location'
+  );
+  assert.ok(
+    mcp.findings.some(
+      (f) => f.entity_name || (Array.isArray(f.related_tool_names) && f.related_tool_names.length)
+    ),
+    'MCP Detection drill-down must expose entity_name or related_tool_names'
+  );
+  restoreFetch();
+});
+
 // ── Smoke / live helpers ──────────────────────────────────────────────────
 
 function hasLiveConfigForSmoke() {

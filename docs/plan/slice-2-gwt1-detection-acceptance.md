@@ -17,10 +17,10 @@
 **Then** heatmap status is non-grey for both; skill exposes file/line finding; MCP exposes affected tool name(s) (`entity_name` / `related_tool_names`)
 
 ## Before-Checks [GATE]
-- [ ] Branch created
-- [ ] Task file opened
-- [ ] Prior session recovery checked (if resuming)
-- [ ] Slice 1 evidence available (or fixture golden from slice 1)
+- [x] Branch created (`slice/2-gwt1-detection-acceptance`)
+- [x] Task file opened
+- [x] Prior session recovery checked (if resuming) — slice 1 ✅ via PR #14
+- [x] Slice 1 evidence available (`docs/plan/gate-evidence/slice-1.json`)
 
 ## TDD Execution
 UI/Feature outside-in: write failing acceptance/unit mapping tests first → GREEN → refactor.
@@ -29,13 +29,13 @@ Prefer fast unit tests against `tripwire-live.js` / status helpers with recorded
 VERIFY+COVERAGE: `cd prototypes/dc-dashboard && npm test` (and slow suite if added).
 
 ## After-Checks [GATE]
-- [ ] Code committed with `test(slice-2): ...`
-- [ ] Tests pass with coverage
-- [ ] Specification coverage: GWT-1 clauses have ≥1 test
-- [ ] Branch coverage target on touched modules
-- [ ] Mutation testing if feature-complete on touched logic
-- [ ] Acceptance criteria met
-- [ ] Docs updated
+- [x] Code committed with `test(slice-02): ...`
+- [x] Tests pass — 37 pass / 1 skip
+- [x] Specification coverage: GWT-1 clauses have ≥1 test
+- [x] Branch coverage target on touched modules — N/A test-only
+- [x] Mutation testing N/A — characterization/acceptance mapping only
+- [x] Acceptance criteria met
+- [x] Docs updated — gate-evidence/slice-2.json
 
 ## Doc Audit (14-row checklist)
 | # | Item | Check |
@@ -48,17 +48,19 @@ VERIFY+COVERAGE: `cd prototypes/dc-dashboard && npm test` (and slow suite if add
 | 6–14 | Remainder | N/A unless public API changes |
 
 ## Gate Status
-📋 PLANNED
+🔀 ON BRANCH — VERIFIED; awaiting PR merge
 
 ## What Changed
 | File | Type | Reason |
 |------|------|--------|
-| — | — | — |
+| prototypes/dc-dashboard/test/tripwire-live.test.js | test | GWT-1 must-show acceptance |
+| docs/plan/gate-evidence/slice-2.json | evidence | slice 2 gate |
+| docs/plan/TRAIL.md / PROGRESS.md | plan | slice 1 ✅ · slice 2 🔨 |
 
 ## Session Metrics
 | Metric | Value |
 |--------|-------|
 | Estimated Pomos | 1 (~25 min) |
-| Execution time | — |
+| Execution time | ~5 min |
 | Blockers encountered | — |
-| Next-session notes | — |
+| Next-session notes | `/clean-commit` then slice 3 |
