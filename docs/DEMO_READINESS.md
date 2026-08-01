@@ -1,9 +1,13 @@
 # Demo readiness
 
 Checklist and runbook for a live Tripwire demo (CLI scan → Supabase → dashboard).
-Smoke results below were recorded **2026-08-01** against this workspace.
+Smoke results below were re-checked **2026-08-01 ~15:05 UTC+1** on branch `fix/demo-blocking-issues` (PR [#11](https://github.com/neomatrix369/tripwire/pull/11)).
 
 Evidence labels: **VERIFIED** = observed this session · **IMPLEMENTED** = reachable in code · **SKIP** = not exercised here (manual steps given).
+
+**Overall verdict: PARTIAL** — filmable now with Mock Detection + Live CLI Sandbox; Live findings UI is thin for the “precise entity” beat. Full Tessl/Snyk depth still open.
+
+**Demo video script & production:** [DEMO_VIDEO_SCRIPT.md](./DEMO_VIDEO_SCRIPT.md) (shot list, VO, capture runbook, Remotion drop-in).
 
 ---
 
@@ -18,27 +22,43 @@ Evidence labels: **VERIFIED** = observed this session · **IMPLEMENTED** = reach
 
 ---
 
+## Film-now vs Mock vs Live
+
+| Surface | Verdict | Film with |
+|---------|---------|-----------|
+| CLI `--help` / `scan --force` | **READY** | Live terminal |
+| Dry-discover skill + MCP fixture | **READY** | Live (optional B-roll) |
+| Modal `tripwire-scan` deploy + packing | **READY** | Live CLI Sandbox beat |
+| Cisco findings on vuln skill fixture | **READY** | Live scan (narrate Cisco); Tessl/Snyk may `unreachable` |
+| Dashboard Mock (12 items, file/line + MCP entity) | **READY** | **Prefer for Detection** |
+| Dashboard Live list (items heatmap) | **PARTIAL** | OK for “we store results”; colors messy on some vuln rows |
+| Dashboard Live findings detail | **PARTIAL** | file/line on some Cisco rows **VERIFIED**; **0 `entity_name`** — weak for MCP precision VO |
+| Tessl / Snyk completed | **NOT READY** | Narrate skips; don’t claim depth |
+| Drift pair / Guard hook | **NOT READY** / skip | Out of Remotion cut |
+
+---
+
 ## Prioritized checklist
 
 ### P0 — Critical
 
-| # | Item | Why it matters | How to smoke-test | Expected | Status (2026-08-01) |
-|---|------|----------------|-------------------|----------|---------------------|
-| 1 | `.env` from `.env.example` with `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL` | CLI setup/scan cannot talk to Supabase or apply DDL | Confirm non-empty keys exist (do not print values). `tripwire setup` → `{"status":"ready"}` | Setup ready; no auth/DB errors | **PASS** — setup returned ready; `items` table reachable |
-| 2 | Node CLI installed (`cd cli && npm install && npm link`) | `tripwire` is the demo entry point | `tripwire --help`; `cd cli && npm test` | Help lists `setup` / `scan`; 10 tests pass | **PASS** — CLI on PATH; **10/10** unit tests |
-| 3 | Schema applied (`db/schema.sql`) | Scans and dashboard need tables + `tripwire_rollup_item` | `tripwire setup`; or probe `items` via Supabase client | Tables present; setup idempotent | **PASS** — setup ready; `items` probe OK (count≥1) |
-| 4 | Modal app `tripwire-scan` deployed **with** `scanners.py` packaged | Live `tripwire scan` runs in Modal; import of `scanners` must succeed | `modal app list` shows `tripwire-scan` **deployed**; then `tripwire scan ./fixtures/skills/vuln-prompt-injection-notes` | Sandbox runs scanners; JSON reports `scan_run_ids` | **PASS (packaging)** — fixed via `add_local_python_source("scanners", copy=True)` in `sandbox/scan_app.py`; redeployed 2026-08-01. Live run mounts `PythonPackage:scanners`, no import error. |
-| 5 | Dashboard mock path (no live config) | Guaranteed visual if live data is empty/broken | `node scripts/serve-dashboard.mjs` (or static-serve `dc-dashboard`); open `Tripwire.dc.html`; choose **Mock (demo data)** | Heatmap + findings from `tripwire-data.js` (12 items) | **PASS** — HTTP 200 for HTML/`tripwire-live.js`/`tripwire-data.js`; mock import → 12 items; config file correctly **404** until synced |
+| # | Item | Why it matters | How to smoke-test | Expected | Status (2026-08-01 re-review) |
+|---|------|----------------|-------------------|----------|-------------------------------|
+| 1 | `.env` from `.env.example` with `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL` | CLI setup/scan cannot talk to Supabase or apply DDL | Confirm non-empty keys exist (do not print values). `tripwire setup` → `{"status":"ready"}` | Setup ready; no auth/DB errors | **READY** — keys SET (lens only); prior setup ready |
+| 2 | Node CLI installed (`cd cli && npm install && npm link`) | `tripwire` is the demo entry point | `tripwire --help`; `tripwire scan --help` lists `--force`; `cd cli && npm test` | Help lists `setup` / `scan` / `--force`; unit tests pass | **READY** — CLI on PATH; **17/17** unit tests (incl. `--force`); `--force` in scan help **VERIFIED** |
+| 3 | Schema applied (`db/schema.sql`) | Scans and dashboard need tables + `tripwire_rollup_item` | `tripwire setup`; or probe `items` via Supabase client | Tables present; setup idempotent | **READY** — Live REST `items` **12** rows **VERIFIED** |
+| 4 | Modal app `tripwire-scan` deployed **with** `scanners.py` packaged | Live `tripwire scan` runs in Modal; import of `scanners` must succeed | `modal app list` shows `tripwire-scan` **deployed** | Sandbox runs scanners; JSON reports `scan_run_ids` | **READY** — `tripwire-scan` **deployed** (created 2026-08-01) **VERIFIED** |
+| 5 | Dashboard mock path | Guaranteed visual if live data is thin/broken | Serve `dc-dashboard`; open `Tripwire.dc.html`; **Mock (demo data)** | Heatmap + findings from `tripwire-data.js` (12 items) | **READY** — HTTP 200 HTML/`tripwire-data.js`/`tripwire-live.js`; **12** mock items **VERIFIED** |
 
 ### P1 — High (core demo path)
 
 | # | Item | Why it matters | How to smoke-test | Expected | Status |
 |---|------|----------------|-------------------|----------|--------|
-| 6 | Dry-discover fixtures | Proves discovery without spending Modal time | `tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner` and `... ./fixtures/mcp/mcp_manifest.json` | JSON list of skill / MCP targets | **PASS** |
-| 7 | Full fixture scan (after P0#4 fix) | End-to-end story: findings in Supabase | `tripwire scan ./fixtures/skills/vuln-prompt-injection-notes` (or green baseline). Idempotent skip if unchanged — scan a fresh fixture or change content | Non-empty `scan_run_ids`; findings rows | **PASS** — packing **VERIFIED** (`[acquire] packed local target (720 bytes)`); scan_run `896a3c11-…` `partial-failed` (Tessl/Snyk unreachable); Cisco×3 **completed**; **7 findings** incl. red `prompt_injection`. Idempotent skip still applies for unchanged content. |
-| 8 | Live dashboard config | Shows real scan results in UI | `./scripts/sync-dashboard-config.sh` then serve `dc-dashboard`; or `node scripts/serve-dashboard.mjs`. Unit: `cd prototypes/dc-dashboard && npm test` | Chip **Live · Supabase** (or **Live · empty**) | **PASS** — was empty anon → “Not configured”; anon now in `.env` + synced config; Live REST returns items; tests **9/9** |
-| 9 | Scanner secrets synced to Modal | Without keys, engines report `skipped_missing_credential` | `./scripts/setup-modal.sh --secrets-only` (or full setup); confirm keys you need are in `.env` per `fixtures/OPTIONAL_SCANNER_KEYS.md` | Secrets present; demos still narrate skips as OK | **SKIP** — not re-synced this session; README notes prior operator deploy 2026-08-01. Re-run before demo if keys changed |
-| 10 | `_acquire_target` unit tests | Confidence local/git/MCP/archive dispatch works | `.venv/bin/python -m pytest sandbox/test_acquire_target.py -v` (install `pytest` if needed) | All tests pass | **PASS** — **30/30** (includes archive pack/extract + filesystem-path guard) |
+| 6 | Dry-discover fixtures | Proves discovery without spending Modal time | `tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner` and MCP server dir | JSON list of skill / MCP targets | **READY** — skill + `vuln-command-injection-server` as `mcp_server` **VERIFIED** (needs staged discovery MCP-marker fix — see below) |
+| 7 | Full fixture scan | End-to-end story: findings in Supabase | `tripwire scan --force ./fixtures/skills/vuln-prompt-injection-notes` | Non-empty `scan_run_ids`; findings rows | **READY** — packing + Cisco findings **VERIFIED** earlier today; use `--force` to bypass hash skip |
+| 8 | Live dashboard config | Shows real scan results in UI | `./scripts/sync-dashboard-config.sh` then serve; or `node scripts/serve-dashboard.mjs`. Unit: `cd prototypes/dc-dashboard && npm test` | Chip **Live · Supabase** | **PARTIAL** — config sync + Live REST **VERIFIED** (12 items, 48 findings); findings UI thin on entity precision; dashboard tests **9 pass / 1 skip** |
+| 9 | Scanner secrets synced to Modal | Without keys, engines report `skipped_missing_credential` | `./scripts/setup-modal.sh --secrets-only`; see `fixtures/OPTIONAL_SCANNER_KEYS.md` | Secrets present; narrate skips as OK | **PARTIAL** — not re-synced this pass; Tessl/Snyk still expected `unreachable` without Node20 image + `TESSL_TOKEN` |
+| 10 | `_acquire_target` unit tests | Confidence local/git/MCP/archive dispatch works | `.venv/bin/python -m pytest sandbox/test_acquire_target.py -v` | All tests pass | **READY** — **30/30** (prior session; not re-run this pass) |
 
 ### P2 — Medium
 

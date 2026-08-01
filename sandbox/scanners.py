@@ -3,10 +3,12 @@
 Evidence labels (matching docs/research/adapters/scanner-output-adapters.md convention):
 RESEARCH = shape taken from primary docs, not yet round-tripped through Supabase on a
 real fixture. Everything below is RESEARCH — reconcile against the pinned CLI version's
---help / --json output before this blocks a merge (mcp-scanner especially: current docs
-use global --format/--analyzers flags ahead of a mode, while an earlier validation pass
-used config/vulnerable-package/behavioral subcommands — pin a version and confirm which
-shape it actually emits).
+--help / --json output before this blocks a merge.
+
+mcp-scanner CLI (cisco-ai-mcp-scanner ≥4.x, VERIFIED against upstream README 2026-08-01):
+global flags (--format / --analyzers / --log-level) MUST precede a mode subcommand
+(remote | stdio | behavioral | …). A bare path/URL as a positional between flags makes
+argparse print usage and exit nonzero — Tripwire maps that stderr to status=unreachable.
 """
 
 import json
@@ -125,7 +127,10 @@ def _map_skill_findings(parsed, source):
 
 # ---- Cisco MCP Scanner ------------------------------------------------------
 # docs/research/adapters/scanner-output-adapters.md §4
-# Capture: mcp-scanner --format raw <target> --analyzers yara,llm,api,behavioral
+# Live engines:  mcp-scanner --format raw --analyzers yara[,llm][,api] <mode> …
+#   remote → remote --server-url <url>
+#   local  → stdio --stdio-command … --stdio-arg …
+# Source tier: mcp-scanner --format raw behavioral <workdir>  (needs LLM key)
 
 _MCP_ANALYZER_LABEL = {
     "yara_analyzer": "Cisco MCP Scanner: YARA",
@@ -134,28 +139,93 @@ _MCP_ANALYZER_LABEL = {
     "behavioral_analyzer": "Cisco MCP Scanner: Behavioral Code Scanning",
 }
 
+_MCP_LIVE_KEYS = ("yara_analyzer", "llm_analyzer", "api_analyzer")
 
-def run_cisco_mcp_scanner(workdir, target):
-    if not _which("mcp-scanner"):
-        return [], [_unreachable("Cisco MCP Scanner: YARA", "mcp-scanner not installed in image")]
 
+def _has_workdir_source(workdir):
+    return os.path.isdir(workdir) and any(os.scandir(workdir))
+
+
+def _mcp_live_analyzers():
     analyzers = ["yara"]
     if os.environ.get("MCP_SCANNER_LLM_API_KEY"):
         analyzers.append("llm")
     if os.environ.get("MCP_SCANNER_API_KEY") and os.environ.get("MCP_SCANNER_ENDPOINT"):
         analyzers.append("api")
-    has_source = os.path.isdir(workdir) and any(os.scandir(workdir))
-    if has_source:
-        analyzers.append("behavioral")
+    return analyzers
 
-    code, out, err = _run(
-        ["mcp-scanner", "--format", "raw", target, "--analyzers", ",".join(analyzers)]
-    )
-    if code != 0:
-        return [], [_unreachable(label, err) for label in _MCP_ANALYZER_LABEL.values()]
 
-    envelope = _safe_json(out) or {}
-    findings, seen_analyzers, checks = [], set(), {}
+def _mcp_stdio_mode_args(workdir):
+    """Return stdio subcommand argv for a local MCP server tree, or None."""
+    run_sh = os.path.join(workdir, "run.sh")
+    if os.path.isfile(run_sh):
+        return ["stdio", "--stdio-command", "bash", "--stdio-arg", run_sh]
+    for name, cmd in (
+        ("server.py", "python"),
+        ("main.py", "python"),
+        ("server.js", "node"),
+        ("index.js", "node"),
+    ):
+        path = os.path.join(workdir, name)
+        if os.path.isfile(path):
+            return ["stdio", "--stdio-command", cmd, "--stdio-arg", path]
+    return None
+
+
+def _mcp_mode_args(workdir, target):
+    """Pick remote vs stdio mode. Prefer stdio when the sandbox has source on disk."""
+    has_source = _has_workdir_source(workdir)
+    if isinstance(target, str) and target.startswith(("http://", "https://")) and not has_source:
+        return ["remote", "--server-url", target]
+    return _mcp_stdio_mode_args(workdir)
+
+
+def build_mcp_live_cmd(analyzers, mode_args):
+    """Global flags before mode — required by mcp-scanner argparse."""
+    return [
+        "mcp-scanner",
+        "--log-level",
+        "error",
+        "--format",
+        "raw",
+        "--analyzers",
+        ",".join(analyzers),
+        *mode_args,
+    ]
+
+
+def build_mcp_behavioral_cmd(workdir):
+    return [
+        "mcp-scanner",
+        "--log-level",
+        "error",
+        "--format",
+        "raw",
+        "behavioral",
+        workdir,
+    ]
+
+
+def _normalize_analyzer_key(name):
+    if not name:
+        return name
+    return name if name.endswith("_analyzer") else f"{name}_analyzer"
+
+
+def _taxonomy_category(entry):
+    tax = entry.get("mcp_taxonomies") or []
+    if not tax:
+        return "unknown"
+    first = tax[0]
+    if isinstance(first, dict):
+        return first.get("scanner_category") or "unknown"
+    if isinstance(first, str):
+        return first
+    return "unknown"
+
+
+def _map_mcp_envelope(envelope, analyzers_fallback):
+    findings, checks = [], {}
     for result in envelope.get("scan_results", []) or []:
         entity_kind = result.get("item_type")
         entity_name = (
@@ -164,43 +234,96 @@ def run_cisco_mcp_scanner(workdir, target):
         for analyzer_key, entry in (result.get("findings") or {}).items():
             if not isinstance(entry, dict):
                 continue
-            seen_analyzers.add(analyzer_key)
-            checks[analyzer_key] = checks.get(analyzer_key, 0) + 1
+            key = _normalize_analyzer_key(analyzer_key)
+            checks[key] = checks.get(key, 0) + 1
             severity = _collapse_severity(entry.get("severity"))
             if severity is None:  # SAFE — no finding row
                 continue
             findings.append(
                 {
                     "severity": severity,
-                    "category": (entry.get("mcp_taxonomies") or ["unknown"])[0],
+                    "category": _taxonomy_category(entry),
                     "entity_kind": entity_kind,
                     "entity_name": entity_name,
                     "message": entry.get("threat_summary")
                     or ", ".join(entry.get("threat_names", []))
                     or "flagged",
-                    "scanner_source": _MCP_ANALYZER_LABEL.get(analyzer_key, analyzer_key),
+                    "scanner_source": _MCP_ANALYZER_LABEL.get(key, key),
                 }
             )
 
-    rows = []
-    requested = envelope.get("requested_analyzers") or [a + "_analyzer" for a in analyzers]
-    for analyzer_key in requested:
-        label = _MCP_ANALYZER_LABEL.get(analyzer_key, analyzer_key)
-        rows.append(
-            {
-                "scanner_source": label,
-                "status": "completed",
-                "checks_run": checks.get(analyzer_key, 1),
-            }
-        )
-    for missing_key, label in _MCP_ANALYZER_LABEL.items():
-        if missing_key not in requested:
-            reason = (
-                "not_applicable"
-                if missing_key == "behavioral_analyzer" and not has_source
-                else "skipped_missing_credential"
+    raw_requested = envelope.get("requested_analyzers") or analyzers_fallback
+    requested = [_normalize_analyzer_key(a) for a in raw_requested]
+    rows = [
+        {
+            "scanner_source": _MCP_ANALYZER_LABEL.get(key, key),
+            "status": "completed",
+            "checks_run": checks.get(key, 1),
+        }
+        for key in requested
+        if key in _MCP_ANALYZER_LABEL
+    ]
+    return findings, rows, requested
+
+
+def run_cisco_mcp_scanner(workdir, target):
+    if not _which("mcp-scanner"):
+        return [], [
+            _unreachable(
+                _MCP_ANALYZER_LABEL["yara_analyzer"],
+                "mcp-scanner not installed in image",
             )
-            rows.append(_skipped(label, reason))
+        ]
+
+    findings, rows = [], []
+    live = _mcp_live_analyzers()
+    has_source = _has_workdir_source(workdir)
+    mode_args = _mcp_mode_args(workdir, target)
+
+    if mode_args is None:
+        detail = (
+            "no mcp-scanner mode: need remote --server-url or stdio launch "
+            "(run.sh / server.py / main.py / server.js / index.js in workdir)"
+        )
+        for name in live:
+            rows.append(_unreachable(_MCP_ANALYZER_LABEL[_normalize_analyzer_key(name)], detail))
+    else:
+        code, out, err = _run(build_mcp_live_cmd(live, mode_args))
+        if code != 0:
+            for name in live:
+                rows.append(_unreachable(_MCP_ANALYZER_LABEL[_normalize_analyzer_key(name)], err))
+        else:
+            f, r, _requested = _map_mcp_envelope(_safe_json(out) or {}, live)
+            findings += f
+            rows += r
+
+    reported = {row["scanner_source"] for row in rows}
+    for key in _MCP_LIVE_KEYS:
+        label = _MCP_ANALYZER_LABEL[key]
+        if label not in reported:
+            rows.append(_skipped(label))
+
+    beh_label = _MCP_ANALYZER_LABEL["behavioral_analyzer"]
+    if not has_source:
+        rows.append(_skipped(beh_label, "not_applicable"))
+    elif not os.environ.get("MCP_SCANNER_LLM_API_KEY"):
+        rows.append(_skipped(beh_label))
+    else:
+        code, out, err = _run(build_mcp_behavioral_cmd(workdir))
+        if code != 0:
+            rows.append(_unreachable(beh_label, err))
+        else:
+            envelope = _safe_json(out) or {}
+            # Force behavioral into requested_analyzers so the row maps correctly
+            # even when the subcommand omits that envelope field.
+            if not envelope.get("requested_analyzers"):
+                envelope = {**envelope, "requested_analyzers": ["behavioral"]}
+            f, r, _ = _map_mcp_envelope(envelope, ["behavioral"])
+            findings += f
+            beh_rows = [row for row in r if row["scanner_source"] == beh_label]
+            rows += beh_rows or [
+                {"scanner_source": beh_label, "status": "completed", "checks_run": 1}
+            ]
 
     return findings, rows
 
