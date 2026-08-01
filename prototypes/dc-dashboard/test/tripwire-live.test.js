@@ -1173,6 +1173,102 @@ test('given must-show skill and MCP live rows when loadData live then GWT-1 dete
   restoreFetch();
 });
 
+// ── GWT-2 Sandbox evidence (must-show MCP) — slice-3 ──────────────────────
+
+test('given must-show MCP completed scan_run when loadData live then GWT-2 sandbox evidence holds', async () => {
+  /**
+   * Scenario: Live mapping exposes Sandbox evidence for shortlist MCP.
+   * Slice: slice-3-gwt2-sandbox-evidence-acceptance
+   *
+   * Given a completed sandbox scan payload for vuln-command-injection-server,
+   * When loadData maps the latest scan_run into the UI item,
+   * Then sandbox id / timing / egress (or policy) fields are present for on-camera beat.
+   */
+  // -- Given --
+  const mcpId = '55555555-5555-5555-5555-555555555555';
+  const mcpRunId = '66666666-6666-6666-6666-666666666666';
+  installWindow({
+    SUPABASE_URL: 'https://proj.supabase.co',
+    SUPABASE_ANON_KEY: 'anon',
+  });
+  mockFetchByTable({
+    items: [
+      {
+        id: mcpId,
+        type: 'mcp_server',
+        name: 'vuln-command-injection-server',
+        identifier: 'fixtures/mcp/vuln-command-injection-server',
+        heatmap_status: 'amber',
+        risk_score: 1.2,
+        quality_score: null,
+        install_locus: 'local',
+        source_availability: 'source_on_disk',
+      },
+    ],
+    scan_runs: [
+      {
+        id: mcpRunId,
+        item_id: mcpId,
+        status: 'complete',
+        started_at: '2026-08-01T18:00:00Z',
+        completed_at: '2026-08-01T18:01:30Z',
+      },
+    ],
+    scan_run_scanners: [
+      {
+        scan_run_id: mcpRunId,
+        scanner_source: 'Cisco MCP Scanner',
+        status: 'completed',
+        checks_run: 8,
+        started_at: '2026-08-01T18:00:05Z',
+        completed_at: '2026-08-01T18:01:20Z',
+      },
+    ],
+    findings: [
+      {
+        scan_run_id: mcpRunId,
+        severity: 'red',
+        category: 'command_injection',
+        file_path: null,
+        location: null,
+        entity_kind: 'tool',
+        entity_name: 'run_shell',
+        scanner_source: 'Cisco MCP Scanner',
+        message: 'command injection surface on tool run_shell',
+        snippet: null,
+        cwe_ids: ['CWE-78'],
+      },
+    ],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+  const mcp = result.data.items.find((i) => i.name === 'vuln-command-injection-server');
+
+  // -- Then --
+  assert.equal(result.source, 'live', 'GWT-2 requires Live-mapped data, not mock');
+  assert.ok(mcp, 'must-show MCP item must be present');
+  assert.ok(mcp.sandbox, 'sandbox evidence panel must be populated when Live run is complete');
+  assert.ok(mcp.sandbox.id, 'sandbox identity (id) must be present for on-camera Sandbox beat');
+  assert.equal(mcp.sandbox.id, mcpRunId, 'sandbox id maps from latest scan_run id');
+  assert.ok(mcp.sandbox.started, 'sandbox started timing must be present');
+  assert.ok(mcp.sandbox.completed, 'sandbox completed timing must be present when run is complete');
+  assert.ok(
+    typeof mcp.sandbox.egressPhase === 'string' && mcp.sandbox.egressPhase.length > 0,
+    'sandbox egress/policy phase must be a non-empty string (camera-usable, not blank)'
+  );
+  assert.ok(
+    Array.isArray(mcp.scanners) && mcp.scanners.length > 0,
+    'scanner/policy evidence must be present alongside sandbox identity'
+  );
+  assert.ok(
+    mcp.scanners.some((s) => s.source && s.status),
+    'at least one scanner row must expose source + status for Sandbox beat'
+  );
+  restoreFetch();
+});
+
 // ── Smoke / live helpers ──────────────────────────────────────────────────
 
 function hasLiveConfigForSmoke() {

@@ -77,8 +77,8 @@ freshness:
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
 | 1 | [slice-1-walking-skeleton-live-path](slice-1-walking-skeleton-live-path.md) | Walking Skeleton — Live Demo Path | Must | ✅ | none | #14 | ~5 min |
-| 2 | [slice-2-gwt1-detection-acceptance](slice-2-gwt1-detection-acceptance.md) | GWT-1 Detection Acceptance | Must | 🔀 | 1 | — | ~4 min |
-| 3 | [slice-3-gwt2-sandbox-evidence-acceptance](slice-3-gwt2-sandbox-evidence-acceptance.md) | GWT-2 Sandbox Evidence Acceptance | Must | 📋 | 1 | — | ~4 min |
+| 2 | [slice-2-gwt1-detection-acceptance](slice-2-gwt1-detection-acceptance.md) | GWT-1 Detection Acceptance | Must | ✅ | 1 | #15 | ~4 min |
+| 3 | [slice-3-gwt2-sandbox-evidence-acceptance](slice-3-gwt2-sandbox-evidence-acceptance.md) | GWT-2 Sandbox Evidence Acceptance | Must | 🔀 | 1 | — | ~4 min |
 | 4 | [slice-4-vo-remotion-assemble](slice-4-vo-remotion-assemble.md) | VO + Remotion Assemble (GWT-3) | Must | 📋 | 2,3 | — | ~4 min |
 | 5 | [slice-5-gate-evidence-docs-sync](slice-5-gate-evidence-docs-sync.md) | Gate Evidence + Docs Sync | Should | 📋 | 1,2,3,4 | — | ~3 min |
 | 6 | [slice-6-orchestrator-characterization](slice-6-orchestrator-characterization.md) | Orchestrator / Modal Characterization | Could | 📋 | none | — | ~3 min |
@@ -100,4 +100,3 @@ freshness:
 - Phase 4 Agent Guard
 - Phase 5 Reconciler / Overmind
 - Dashboard redesign / blast-radius / `--from-instructions`
-l
