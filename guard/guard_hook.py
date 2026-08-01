@@ -4,8 +4,10 @@ synchronously before the call executes and be able to block it.
 
 Fails closed: unscanned or below-threshold => deny. Never triggers a synchronous scan
 on a cache miss (a full Modal spin-up is too slow to sit inline)."""
+
 import hashlib
 import os
+
 from supabase import create_client
 
 _SEVERITY_ORDER = {"green": 0, "amber": 1, "red": 2, "grey": 3, "error": 3}
@@ -28,7 +30,14 @@ def check_call(content_bytes: bytes) -> dict:
         return {"allow": True, "reason": "monitoring disabled", "status": None}
 
     content_hash = hash_target(content_bytes)
-    item = supabase.table("items").select("*").eq("content_hash", content_hash).maybe_single().execute().data
+    item = (
+        supabase.table("items")
+        .select("*")
+        .eq("content_hash", content_hash)
+        .maybe_single()
+        .execute()
+        .data
+    )
 
     if not item or item["heatmap_status"] == "grey":
         return {"allow": False, "reason": "never scanned — guard fails closed", "status": "grey"}
@@ -37,9 +46,17 @@ def check_call(content_bytes: bytes) -> dict:
     item_level = _SEVERITY_ORDER.get(item["heatmap_status"], 3)
 
     if item_level >= threshold_level:
-        return {"allow": False, "reason": f"rated {item['heatmap_status']} — at/above threshold", "status": item["heatmap_status"]}
+        return {
+            "allow": False,
+            "reason": f"rated {item['heatmap_status']} — at/above threshold",
+            "status": item["heatmap_status"],
+        }
 
-    return {"allow": True, "reason": f"rated {item['heatmap_status']} — below threshold", "status": item["heatmap_status"]}
+    return {
+        "allow": True,
+        "reason": f"rated {item['heatmap_status']} — below threshold",
+        "status": item["heatmap_status"],
+    }
 
 
 # For MCP tool calls: checked holistically at the whole-server level (spec Phase 4 —
