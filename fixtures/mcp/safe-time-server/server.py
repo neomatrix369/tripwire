@@ -1,10 +1,9 @@
 """Minimal safe MCP time server fixture for Snyk agent-scan smoke tests.
 
 Pinned to mcp==1.12.0 in mcp_manifest.json — FastMCP moved/removed in mcp 2.x.
+Do not enable postponed annotations: mcp 1.12 FastMCP calls issubclass() on
+parameter annotations and breaks when they are strings.
 """
-
-from __future__ import annotations
-
 from datetime import datetime, timezone
 
 from mcp.server.fastmcp import FastMCP
