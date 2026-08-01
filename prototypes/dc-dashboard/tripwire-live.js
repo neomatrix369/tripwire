@@ -4,10 +4,11 @@
  * Fetches items, scan_runs, scan_run_scanners, and findings from Supabase
  * and reshapes them into the same structure as tripwire-data.js (mock).
  *
- * Falls back to mock data when:
+ * Uses demo data when Live is selected but:
  *  - window.__TRIPWIRE_CONFIG is not set (config file missing)
  *  - SUPABASE_URL or SUPABASE_ANON_KEY is empty
- *  - Any fetch fails
+ *  - Any fetch fails (source: mock-failed → chip "Connection error")
+ * Empty successful responses stay on Live (source: live-empty).
  */
 
 const STATUS_FROM_RISK = (risk) => {
@@ -73,6 +74,11 @@ async function fetchLiveData() {
         ? "error"
         : STATUS_FROM_RISK(item.risk_score);
 
+    const partialNote =
+      latestRun?.status === "partial-failed"
+        ? "Some scanners unreachable — risk from completed engines"
+        : null;
+
     return {
       id: item.id,
       type: item.type || "skill",
@@ -85,7 +91,10 @@ async function fetchLiveData() {
       avail: item.source_availability || "unknown",
       lastScan: latestRun?.completed_at || latestRun?.started_at || null,
       drifted: false,
-      errorMessage: latestRun?.status === "failed" ? "Scan run failed" : null,
+      errorMessage:
+        latestRun?.status === "failed"
+          ? "Scan run failed"
+          : partialNote,
       findings: latestFindings.map((f) => ({
         severity: f.severity,
         category: f.category,
@@ -102,6 +111,7 @@ async function fetchLiveData() {
         source: s.scanner_source,
         status: s.status,
         checks_run: s.checks_run,
+        detail: s.detail || null,
         output: {},
       })),
       trend: [],
@@ -132,23 +142,32 @@ async function loadMockData() {
 }
 
 async function loadLiveData() {
-  try {
-    const live = await fetchLiveData();
-    if (live && live.items.length > 0) {
-      console.info("[tripwire-dashboard] loaded", live.items.length, "items from Supabase");
-      return { data: live, source: 'live' };
-    }
-  } catch (err) {
-    console.warn("[tripwire-dashboard] live fetch failed, falling back to mock data:", err.message);
+  const cfg = window.__TRIPWIRE_CONFIG;
+  if (!cfg || !cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {
+    console.info("[tripwire-dashboard] Supabase not configured — using demo data");
     const mock = await import("./tripwire-data.js");
-    return { data: mock.default, source: 'mock-failed' };
+    return { data: mock.default, source: "mock" };
   }
 
-  const mock = await import("./tripwire-data.js");
-  const cfg = window.__TRIPWIRE_CONFIG;
-  const reason = (!cfg || !cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) ? 'mock' : 'mock-empty';
-  console.info("[tripwire-dashboard] using mock data");
-  return { data: mock.default, source: reason };
+  try {
+    const live = await fetchLiveData();
+    if (!live) {
+      console.info("[tripwire-dashboard] Supabase not configured — using demo data");
+      const mock = await import("./tripwire-data.js");
+      return { data: mock.default, source: "mock" };
+    }
+    if (live.items.length > 0) {
+      console.info("[tripwire-dashboard] loaded", live.items.length, "items from Supabase");
+      return { data: live, source: "live" };
+    }
+    // Connected successfully but DB has no rows — do not swap in mock demo data.
+    console.info("[tripwire-dashboard] Supabase connected — 0 items");
+    return { data: live, source: "live-empty" };
+  } catch (err) {
+    console.warn("[tripwire-dashboard] live fetch failed:", err.message);
+    const mock = await import("./tripwire-data.js");
+    return { data: mock.default, source: "mock-failed" };
+  }
 }
 
 export default async function loadData(mode = 'live') {

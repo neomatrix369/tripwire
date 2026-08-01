@@ -4,40 +4,68 @@ Reference UX and demo assets. Not the shipped product UI.
 
 | Path | What |
 |------|------|
-| `dc-dashboard/` | Data Commons HTML dashboard (`Tripwire.dc.html` + `support.js`). Open `Tripwire.dc.html` in a browser from that folder. Supports **live Supabase** data or falls back to mock data (`tripwire-data.js`). |
+| `dc-dashboard/` | Data Commons HTML dashboard (`Tripwire.dc.html` + `support.js`). Supports **live Supabase** data or mock data (`tripwire-data.js`). |
 
 ## Viewing the dashboard
 
-A **data-source dropdown** in the header lets you switch between Live (Supabase) and Mock (demo data). The choice persists across refreshes via `sessionStorage`, defaulting to **Live** when no preference is stored.
+The **data-source dropdown** lives on the **Guard** tab (the control page for monitoring settings). Switching between Live (Supabase) and Mock (demo data) there applies globally — Dashboard, CLI, and Guard tabs all use the selected source. The choice persists via `sessionStorage`, defaulting to **Live**.
 
-The status chip next to the dropdown always reflects the actual data state:
+A **status chip** appears next to the data-source dropdown on the **Guard** tab, showing the resolved connection state. It is not displayed on the main Dashboard header.
 
-- **Live · Supabase** — successfully fetching from Supabase
-- **Demo data** — user selected Mock in the dropdown
-- **Fallback · no config** — Live selected but Supabase not configured
-- **Fallback · live fetch failed** — Supabase configured but the fetch errored
-- **Fallback · no live items** — Supabase returned 0 items
+Status chip meanings:
 
-### Demo data (no config needed)
+- **Live · Supabase** — items loaded from Supabase
+- **Live · empty** — connected; 0 items (not demo data)
+- **Demo data** — Mock selected
+- **Missing API key** — Live selected but browser config has no usable key (shows demo data)
+- **Connection error** — configured but fetch failed (shows demo data)
 
-Select **Mock (demo data)** in the dropdown, or open `dc-dashboard/Tripwire.dc.html` without a config file — the dashboard loads demo data from `tripwire-data.js`.
+There is no “fallback…” chip wording.
+
+### Why you may see “Live” + “Missing API key”
+
+Dropdown = **Live**; chip = **Missing API key** when `tripwire-dashboard.config.js` loads with empty `SUPABASE_ANON_KEY` (common if only `SUPABASE_SERVICE_ROLE_KEY` is in `.env`). Live mode does **not** call Supabase in that case.
+
+### Demo data
+
+Select **Mock (demo data)**, or open the HTML without a working Live config.
 
 ### Live Supabase data
 
-1. Copy `tripwire-dashboard.config.example.js` → `tripwire-dashboard.config.js` (gitignored).
-2. Fill in `SUPABASE_URL` and `SUPABASE_ANON_KEY` (anon/public key from Supabase → Project Settings → API).
-3. Open `Tripwire.dc.html` in a browser and ensure **Live (Supabase)** is selected in the dropdown.
-4. If the live fetch fails or returns no items, data falls back to demo data automatically (chip shows the reason).
+**Recommended (works with service_role already in `.env`):**
 
-**Never use the service_role key in the browser config** — only the anon/public key (RLS-gated).
+```bash
+node scripts/serve-dashboard.mjs
+# http://127.0.0.1:8765/Tripwire.dc.html → Live (Supabase)
+```
 
-## Database bootstrap (shared with CLI)
+Writes a local-only config pointing at the 127.0.0.1 REST proxy (never puts `service_role` in the browser).
 
-The dashboard does not apply schema. First-time Supabase setup is:
+**Direct browser → Supabase** (needs `SUPABASE_ANON_KEY` in `.env`):
+
+```bash
+./scripts/sync-dashboard-config.sh
+cd prototypes/dc-dashboard && python3 -m http.server 8765
+```
+
+If the chip says **Missing API key**, `tripwire-dashboard.config.js` has URL but an empty anon key — Live never calls Supabase. Set anon + sync, or use `serve-dashboard.mjs`.
+
+Also run `tripwire setup --force` once so anon SELECT policies + GRANTs from `db/schema.sql` are applied.
+
+**Never put `service_role` in the browser config.**
+
+## Database bootstrap
 
 ```bash
 tripwire setup                 # or ./scripts/setup-supabase.sh
-# also auto-runs on the first real `tripwire scan` when tables are missing
 ```
 
 Requires `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_DB_URL` in `.env`.
+
+## Tests
+
+```bash
+cd prototypes/dc-dashboard && npm test
+```
+
+Covers Live config gating, mocked Supabase table fetches, item mapping, empty vs error sources, and chip copy. Optional Live smoke runs only when `tripwire-dashboard.config.js` has a real URL + key (skipped otherwise — not a CI failure).

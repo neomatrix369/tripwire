@@ -2,27 +2,60 @@
 
 Each scan_run gets its own ephemeral sandbox. Disk here is scratch only —
 findings/logs are written directly to Supabase, never relayed through the CLI.
+
+Local directory targets are packed on the host by ``main`` (local_entrypoint)
+and shipped as a gzipped tar to ``scan_item`` — host paths are not visible on
+Modal's remote filesystem (see Modal guide: pass local data as function args).
 """
 
+from __future__ import annotations
+
+import io
 import os
 import shutil
 import subprocess
+import sys
+import tarfile
 from datetime import UTC, datetime
+from pathlib import Path
 
 import modal
-from scanners import run_all_scanners
+
+# Sibling modules live in sandbox/; ensure they are importable when this file is
+# loaded from repo root (modal deploy/run sandbox/scan_app.py).
+_SANDBOX_DIR = Path(__file__).resolve().parent
+if str(_SANDBOX_DIR) not in sys.path:
+    sys.path.insert(0, str(_SANDBOX_DIR))
+
+from scanners import run_all_scanners  # noqa: E402
 
 app = modal.App("tripwire-scan")
 
+# Bake scanners.py into the image (copy=True). Mount-only defaults leave remote
+# workers without the sibling module → ModuleNotFoundError: scanners.
+#
+# Node 20+ from official tarball (Debian apt nodejs is still 18; Tessl needs ≥20).
+# Preinstall snyk-agent-scan via uv tool so cold `uvx …@latest` is not the path.
+_NODE_VERSION = "20.18.1"
 image = (
     modal.Image.debian_slim(python_version="3.11")
-    .apt_install("git", "curl", "nodejs", "npm")
-    .run_commands("curl -LsSf https://astral.sh/uv/install.sh | sh")
+    .apt_install("git", "curl", "ca-certificates", "xz-utils")
+    .run_commands(
+        f"curl -fsSL https://nodejs.org/dist/v{_NODE_VERSION}/node-v{_NODE_VERSION}-linux-x64.tar.xz "
+        f"| tar -xJ -C /usr/local --strip-components=1",
+        "curl -LsSf https://astral.sh/uv/install.sh | sh",
+        "ln -sf /root/.local/bin/uv /usr/local/bin/uv",
+        "ln -sf /root/.local/bin/uvx /usr/local/bin/uvx",
+        "uv tool install snyk-agent-scan",
+        "ln -sf /root/.local/bin/snyk-agent-scan /usr/local/bin/snyk-agent-scan",
+        "node --version && npm --version && snyk-agent-scan --help >/dev/null",
+    )
     .pip_install(
         "supabase",
         "cisco-ai-skill-scanner",
         "cisco-ai-mcp-scanner",
     )
+    .add_local_python_source("scanners", copy=True)
 )
 
 TIMEOUT_SECONDS = (
@@ -38,7 +71,13 @@ TIMEOUT_SECONDS = (
     ],
     timeout=TIMEOUT_SECONDS,
 )
-def scan_item(target: str, item_type: str, scan_run_id: str, item_id: str):
+def scan_item(
+    target: str,
+    item_type: str,
+    scan_run_id: str,
+    item_id: str,
+    target_archive: bytes | None = None,
+):
     import os
 
     from supabase import create_client
@@ -47,7 +86,7 @@ def scan_item(target: str, item_type: str, scan_run_id: str, item_id: str):
 
     workdir = "/tmp/scan-target"
     try:
-        _acquire_target(target, item_type, workdir)
+        _acquire_target(target, item_type, workdir, target_archive=target_archive)
         results = run_all_scanners(workdir=workdir, item_type=item_type, target=target)
     except (
         Exception
@@ -83,6 +122,25 @@ def scan_item(target: str, item_type: str, scan_run_id: str, item_id: str):
     # scratch disk teardown is implicit — the Modal sandbox itself is ephemeral and discarded here.
 
 
+@app.local_entrypoint()
+def main(target: str, item_type: str, item_id: str, scan_run_id: str):
+    """Host-side wrapper: pack local dirs, then invoke the remote sandbox.
+
+    Invoked by the CLI via ``modal run sandbox/scan_app.py`` (not ``::scan_item``)
+    so this code runs where the fixture filesystem is visible.
+    """
+    archive = _maybe_pack_local_target(target)
+    if archive is not None:
+        print(f"[acquire] packed local target ({len(archive)} bytes) → remote sandbox")
+    scan_item.remote(
+        target=target,
+        item_type=item_type,
+        scan_run_id=scan_run_id,
+        item_id=item_id,
+        target_archive=archive,
+    )
+
+
 _CLONE_TIMEOUT = int(os.environ.get("TRIPWIRE_CLONE_TIMEOUT", 120))
 
 
@@ -105,15 +163,56 @@ def _is_git_url(target: str) -> bool:
     return False
 
 
-def _acquire_target(target: str, item_type: str, workdir: str):
+def _looks_like_filesystem_path(target: str) -> bool:
+    """True for host paths that should have been uploaded or copied, not protocol URLs."""
+    if "://" in target or target.startswith("git@"):
+        return False
+    return True
+
+
+def _maybe_pack_local_target(target: str) -> bytes | None:
+    """On the host: tar a local directory so the remote sandbox can extract it.
+
+    Returns None for git URLs, protocol targets, and missing paths (remote
+    acquire will either clone, introspect, or raise).
+    """
+    if _is_git_url(target):
+        return None
+    if not os.path.isdir(target):
+        return None
+    return _pack_local_dir(target)
+
+
+def _pack_local_dir(src: str) -> bytes:
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w:gz") as tar:
+        tar.add(src, arcname=".")
+    return buf.getvalue()
+
+
+def _extract_archive(archive: bytes, workdir: str) -> None:
+    buf = io.BytesIO(archive)
+    with tarfile.open(fileobj=buf, mode="r:gz") as tar:
+        tar.extractall(workdir, filter="data")
+
+
+def _acquire_target(
+    target: str,
+    item_type: str,
+    workdir: str,
+    target_archive: bytes | None = None,
+):
     """Dispatch on target shape to populate *workdir* with scannable content.
 
     • Git URL  → shallow clone (depth=1, single-branch).
-    • Local path (directory on disk) → recursive copy.
+    • Uploaded archive (bytes from local_entrypoint) → extract into workdir.
+    • Local path (directory on disk — same machine only) → recursive copy.
+    • Filesystem-looking path with no archive and not on disk → raise
+      (prevents silent empty workdir when CLI forgot to pack).
     • Anything else (MCP server URL, stdio transport, etc.) → introspection-only:
       create an empty workdir and let scanners use *target* directly via protocol.
 
-    Raises on clone / copy failure so scan_item marks the run as failed.
+    Raises on clone / copy / missing-upload failure so scan_item marks the run as failed.
     """
     os.makedirs(workdir, exist_ok=True)
 
@@ -121,9 +220,18 @@ def _acquire_target(target: str, item_type: str, workdir: str):
         _clone_repo(target, workdir)
         return
 
+    if target_archive is not None:
+        _extract_archive(target_archive, workdir)
+        return
+
     if os.path.isdir(target):
         _copy_local(target, workdir)
         return
+
+    if _looks_like_filesystem_path(target):
+        raise RuntimeError(
+            f"local target not available in sandbox and no archive uploaded: {target}"
+        )
 
     # Introspection-only: empty workdir is intentional — scanners that need
     # source on disk will report not_applicable; protocol scanners use `target`.

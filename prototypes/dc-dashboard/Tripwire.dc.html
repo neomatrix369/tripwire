@@ -74,15 +74,6 @@
     <div style="flex:1"></div>
     <button onClick="{{ guardTab.onClick }}" style="{{ guardTab.style }}">{{ guardTab.label }}</button>
     <div style="width:1px;height:16px;background:var(--border-subtle);margin:0 4px"></div>
-    <select onChange="{{ setDataSourceMode }}" value="{{ dataSourceMode }}" style="background:var(--bg-input);border:1px solid var(--border-default);color:var(--text-primary);font-family:var(--font-mono);font-size:10px;font-weight:600;letter-spacing:.04em;padding:4px 24px 4px 8px;border-radius:5px;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22><path d=%225 6 0 0h10%22 fill=%22%238fa3be%22/></svg>');background-repeat:no-repeat;background-position:right 6px center;transition:border-color 200ms">
-      <option value="live" style="background:var(--bg-surface);color:var(--text-primary)">Live (Supabase)</option>
-      <option value="mock" style="background:var(--bg-surface);color:var(--text-primary)">Mock (demo data)</option>
-    </select>
-    <div style="display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10px;font-weight:600;letter-spacing:.04em;padding:3px 10px;border-radius:5px;border:1px solid {{ dataSourceChip.borderColor }};background:{{ dataSourceChip.bgColor }};color:{{ dataSourceChip.textColor }};white-space:nowrap" title="{{ dataSourceChip.tooltip }}">
-      <div style="width:6px;height:6px;border-radius:50%;background:{{ dataSourceChip.dotColor }};flex-shrink:0"></div>
-      {{ dataSourceChip.label }}
-    </div>
-    <div style="width:1px;height:16px;background:var(--border-subtle);margin:0 4px"></div>
     <div style="display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary)">
       <div style="width:7px;height:7px;border-radius:50%;background:{{ monitoringDotColor }}"></div>
       {{ monitoringLabel }}
@@ -337,6 +328,22 @@
     <div style="flex:1;padding:24px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;max-width:760px">
       <div style="display:flex;align-items:center;gap:16px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:8px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
         <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px">Data Source</div>
+          <div style="font-size:12px;color:var(--text-secondary)">Controls whether the entire dashboard (all tabs) loads live data from Supabase or uses built-in demo fixtures.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <select onChange="{{ setDataSourceMode }}" value="{{ dataSourceMode }}" style="background:var(--bg-input);border:1px solid var(--border-default);color:var(--text-primary);font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.04em;padding:6px 28px 6px 10px;border-radius:6px;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22><path d=%225 6 0 0h10%22 fill=%22%238fa3be%22/></svg>');background-repeat:no-repeat;background-position:right 8px center;transition:border-color 200ms">
+            <option value="live" style="background:var(--bg-surface);color:var(--text-primary)">Live (Supabase)</option>
+            <option value="mock" style="background:var(--bg-surface);color:var(--text-primary)">Mock (demo data)</option>
+          </select>
+          <div style="display:flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:10px;font-weight:600;letter-spacing:.04em;padding:3px 9px;border-radius:5px;border:1px solid {{ dataSourceChip.borderColor }};background:{{ dataSourceChip.bgColor }};color:{{ dataSourceChip.textColor }};white-space:nowrap" title="{{ dataSourceChip.tooltip }}">
+            <div style="width:5px;height:5px;border-radius:50%;background:{{ dataSourceChip.dotColor }};flex-shrink:0"></div>
+            {{ dataSourceChip.label }}
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:8px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
+        <div style="flex:1">
           <div style="font-size:13px;font-weight:600;margin-bottom:4px">Monitoring</div>
           <div style="font-size:12px;color:var(--text-secondary)">{{ monitoringHelpText }}</div>
         </div>
@@ -545,10 +552,11 @@ class Component extends DCLogic {
     const dataSourceChips = {
       loading: { label: 'Loading…', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: '#192638', tooltip: 'Checking data source…' },
       live: { label: 'Live · Supabase', dotColor: '#34d399', textColor: '#34d399', bgColor: 'rgba(52,211,153,0.1)', borderColor: 'rgba(52,211,153,0.3)', tooltip: 'Fetching real data from Supabase' },
+      'live-empty': { label: 'Live · empty', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Connected to Supabase — no items yet' },
       'mock-selected': { label: 'Demo data', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: '#192638', tooltip: 'Using built-in demo data (user selected)' },
-      mock: { label: 'Fallback · no config', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Supabase not configured — fell back to demo data' },
-      'mock-failed': { label: 'Fallback · live fetch failed', dotColor: '#f43f5e', textColor: '#f43f5e', bgColor: 'rgba(244,63,94,0.1)', borderColor: 'rgba(244,63,94,0.3)', tooltip: 'Supabase configured but fetch failed — fell back to demo data' },
-      'mock-empty': { label: 'Fallback · no live items', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Supabase returned 0 items — fell back to demo data' }
+      mock: { label: 'Missing API key', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Run: node scripts/serve-dashboard.mjs  (or set SUPABASE_ANON_KEY + ./scripts/sync-dashboard-config.sh)' },
+      'mock-failed': { label: 'Connection error', dotColor: '#f43f5e', textColor: '#f43f5e', bgColor: 'rgba(244,63,94,0.1)', borderColor: 'rgba(244,63,94,0.3)', tooltip: 'Could not reach Supabase (auth, RLS, or network) — showing demo data' },
+      'mock-empty': { label: 'Live · empty', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Connected to Supabase — no items yet' }
     };
     const dataSourceChip = dataSourceChips[s.dataSource] || dataSourceChips.loading;
 
