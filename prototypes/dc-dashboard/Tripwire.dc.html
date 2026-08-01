@@ -3,33 +3,88 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./tripwire-dashboard.config.js" onerror=""></script>
 <script src="./support.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  @font-face { font-family: 'ui-fallback'; src: local('Arial'); }
-  body { margin: 0; background: #0a0e14; }
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-thumb { background: #263140; border-radius: 4px; }
-  a { color: #4f8cff; }
-  a:hover { color: #7aa8ff; }
+  :root {
+    --bg-base: #0b1019;
+    --bg-surface: #111a27;
+    --bg-elevated: #182436;
+    --bg-input: #080c14;
+    --bg-deep: #050810;
+    --border-subtle: #192638;
+    --border-default: #1e2d42;
+    --text-primary: #e8edf4;
+    --text-secondary: #8fa3be;
+    --text-muted: #506880;
+    --accent: #4da2ff;
+    --accent-dim: rgba(77,162,255,0.12);
+    --red: #f43f5e;
+    --amber: #f59e0b;
+    --green: #34d399;
+    --grey: #6b7a8e;
+    --violet: #a78bfa;
+    --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+  }
+  body { margin: 0; background: var(--bg-base); }
+  *, *::before, *::after { box-sizing: border-box; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: #7ec0ff; }
+  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  input:focus-visible { outline: none; border-color: var(--accent) !important; }
+  div[style*="cursor:pointer"]:hover { filter: brightness(1.12); }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(16px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 </style>
 </helmet>
-<div style="display:flex;flex-direction:column;height:100vh;background:#0a0e14;color:#e6eaf0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden">
+<div style="display:flex;flex-direction:column;height:100vh;background:var(--bg-base);color:var(--text-primary);font-family:var(--font-sans);overflow:hidden">
 
-  <div style="display:flex;align-items:center;height:56px;padding:0 24px;border-bottom:1px solid #1e2733;gap:8px;flex-shrink:0;background:#0d121a">
-    <div style="width:8px;height:8px;border-radius:2px;background:#4f8cff;margin-right:6px"></div>
-    <div style="font-weight:700;font-size:14px;letter-spacing:0.06em;color:#e6eaf0;margin-right:20px">TRIPWIRE</div>
+  <div style="display:flex;align-items:center;height:52px;padding:0 20px;border-bottom:1px solid var(--border-subtle);gap:10px;flex-shrink:0;background:var(--bg-surface)">
+    <div style="font-family:var(--font-mono);font-weight:700;font-size:13px;letter-spacing:0.08em;color:var(--accent);margin-right:16px;display:flex;align-items:center;gap:8px">
+      <svg width="14" height="16" viewBox="0 0 14 16" fill="none" style="opacity:0.85"><path d="M7 1L13 4V9.5C13 12.5 10 14.5 7 15.5C4 14.5 1 12.5 1 9.5V4L7 1Z" stroke="currentColor" stroke-width="1.2" fill="currentColor" fill-opacity="0.15"/><circle cx="7" cy="7.5" r="1.5" fill="currentColor"/></svg>
+      TRIPWIRE
+    </div>
     <sc-for list="{{ primaryTabs }}" as="tab" hint-placeholder-count="2">
       <button onClick="{{ tab.onClick }}" style="{{ tab.style }}">{{ tab.label }}</button>
     </sc-for>
     <div style="flex:1"></div>
     <button onClick="{{ guardTab.onClick }}" style="{{ guardTab.style }}">{{ guardTab.label }}</button>
-    <div style="width:1px;height:16px;background:#1e2733;margin:0 6px"></div>
-    <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#90a0b8">
-      <div style="width:8px;height:8px;border-radius:50%;background:{{ monitoringDotColor }}"></div>
+    <div style="width:1px;height:16px;background:var(--border-subtle);margin:0 4px"></div>
+    <select onChange="{{ setDataSourceMode }}" value="{{ dataSourceMode }}" style="background:var(--bg-input);border:1px solid var(--border-default);color:var(--text-primary);font-family:var(--font-mono);font-size:10px;font-weight:600;letter-spacing:.04em;padding:4px 24px 4px 8px;border-radius:5px;cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22><path d=%225 6 0 0h10%22 fill=%22%238fa3be%22/></svg>');background-repeat:no-repeat;background-position:right 6px center;transition:border-color 200ms">
+      <option value="live" style="background:var(--bg-surface);color:var(--text-primary)">Live (Supabase)</option>
+      <option value="mock" style="background:var(--bg-surface);color:var(--text-primary)">Mock (demo data)</option>
+    </select>
+    <div style="display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10px;font-weight:600;letter-spacing:.04em;padding:3px 10px;border-radius:5px;border:1px solid {{ dataSourceChip.borderColor }};background:{{ dataSourceChip.bgColor }};color:{{ dataSourceChip.textColor }};white-space:nowrap" title="{{ dataSourceChip.tooltip }}">
+      <div style="width:6px;height:6px;border-radius:50%;background:{{ dataSourceChip.dotColor }};flex-shrink:0"></div>
+      {{ dataSourceChip.label }}
+    </div>
+    <div style="width:1px;height:16px;background:var(--border-subtle);margin:0 4px"></div>
+    <div style="display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary)">
+      <div style="width:7px;height:7px;border-radius:50%;background:{{ monitoringDotColor }}"></div>
       {{ monitoringLabel }}
     </div>
   </div>
@@ -39,47 +94,47 @@
       <div style="flex:1;display:flex;flex-direction:column;min-width:0">
         <div style="display:flex;gap:10px;padding:16px 20px 0 20px;flex-wrap:wrap">
           <sc-for list="{{ overviewStats }}" as="stat" hint-placeholder-count="7">
-            <div style="flex:1;min-width:110px;background:#121822;border:1px solid #1e2733;border-top:2px solid {{ stat.color }};border-radius:8px;padding:12px 14px">
-              <div style="font-size:22px;font-weight:700;color:{{ stat.color }}">{{ stat.value }}</div>
-              <div style="font-size:10px;color:#8fa3bf;text-transform:uppercase;letter-spacing:.05em;margin-top:2px">{{ stat.label }}</div>
+            <div style="flex:1;min-width:100px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-top:2px solid {{ stat.color }};border-radius:8px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
+              <div style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:{{ stat.color }};line-height:1.1">{{ stat.value }}</div>
+              <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px">{{ stat.label }}</div>
             </div>
           </sc-for>
         </div>
-        <div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid #1e2733;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap">
           <sc-for list="{{ typeTabs }}" as="tt" hint-placeholder-count="3">
             <button onClick="{{ tt.onClick }}" style="{{ tt.style }}">{{ tt.label }}</button>
           </sc-for>
-          <div style="width:1px;height:20px;background:#1e2733"></div>
+          <div style="width:1px;height:20px;background:var(--border-subtle)"></div>
           <sc-for list="{{ statusChips }}" as="sch" hint-placeholder-count="6">
             <button onClick="{{ sch.onClick }}" style="{{ sch.style }}">{{ sch.label }}</button>
           </sc-for>
           <div style="flex:1"></div>
-          <input type="text" placeholder="Search by name…" value="{{ searchQuery }}" onChange="{{ onSearchChange }}" style="background:#0d121a;border:1px solid #1e2733;color:#e6eaf0;font-size:12px;padding:7px 10px;border-radius:6px;width:180px" />
-          <div style="width:1px;height:20px;background:#1e2733"></div>
+          <input type="text" placeholder="Search by name…" value="{{ searchQuery }}" onChange="{{ onSearchChange }}" style="background:var(--bg-input);border:1px solid var(--border-subtle);color:var(--text-primary);font-family:var(--font-sans);font-size:12px;padding:7px 12px;border-radius:6px;width:180px;outline:none;transition:border-color 200ms" />
+          <div style="width:1px;height:20px;background:var(--border-subtle)"></div>
           <sc-for list="{{ viewToggle }}" as="vt" hint-placeholder-count="2">
             <button onClick="{{ vt.onClick }}" style="{{ vt.style }}">{{ vt.label }}</button>
           </sc-for>
         </div>
         <sc-if value="{{ isGridView }}" hint-placeholder-val="{{ true }}">
           <div style="flex:1;overflow-y:auto;padding:20px">
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
               <sc-for list="{{ gridItems }}" as="item" hint-placeholder-count="8">
-                <div onClick="{{ item.onSelect }}" style="background:#121822;border:1px solid #1e2733;border-left:4px solid {{ item.meta.color }};border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:8px">
+                <div onClick="{{ item.onSelect }}" style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-left:3px solid {{ item.meta.color }};border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:all 200ms ease;box-shadow:0 1px 2px rgba(0,0,0,0.15);animation:fadeUp 300ms ease both">
                   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-                    <div style="font-size:13px;font-weight:600;color:#e6eaf0;word-break:break-word">{{ item.name }}</div>
-                    <div style="font-size:10px;font-weight:700;color:{{ item.meta.color }};background:{{ item.meta.color }}22;padding:2px 6px;border-radius:4px;white-space:nowrap">{{ item.meta.glyph }} {{ item.meta.label }}</div>
+                    <div style="font-size:13px;font-weight:600;color:var(--text-primary);word-break:break-word">{{ item.name }}</div>
+                    <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.meta.color }};background:{{ item.meta.color }}18;padding:2px 7px;border-radius:4px;white-space:nowrap;border:1px solid {{ item.meta.color }}30">{{ item.meta.glyph }} {{ item.meta.label }}</div>
                   </div>
-                  <div style="font-size:10px;color:#5b6b82;text-transform:uppercase;letter-spacing:.05em">{{ item.typeLabel }}</div>
-                  <div style="display:flex;gap:12px;font-size:11px;color:#90a0b8">
+                  <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ item.typeLabel }}</div>
+                  <div style="display:flex;gap:12px;font-size:11px;color:var(--text-secondary)">
                     <span>risk {{ item.riskLabel }}</span>
                     <span>{{ item.timeLabel }}</span>
                   </div>
                   <sc-if value="{{ item.drifted }}">
-                    <div style="font-size:10px;color:#f5a524;background:#f5a52422;display:inline-flex;padding:2px 6px;border-radius:4px;width:fit-content">⟳ changed since last scan</div>
+                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--amber);background:rgba(245,158,11,0.1);display:inline-flex;padding:2px 7px;border-radius:4px;width:fit-content;border:1px solid rgba(245,158,11,0.2)">⟳ changed since last scan</div>
                   </sc-if>
                   <div style="display:flex;gap:6px;flex-wrap:wrap">
-                    <div style="font-size:10px;color:#8fa3bf;background:#1a212c;padding:2px 6px;border-radius:4px">{{ item.locusLabel }}</div>
-                    <div style="font-size:10px;color:#8fa3bf;background:#1a212c;padding:2px 6px;border-radius:4px">{{ item.availLabel }}</div>
+                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);background:var(--bg-elevated);padding:2px 7px;border-radius:4px">{{ item.locusLabel }}</div>
+                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);background:var(--bg-elevated);padding:2px 7px;border-radius:4px">{{ item.availLabel }}</div>
                   </div>
                 </div>
               </sc-for>
@@ -89,33 +144,33 @@
 
         <sc-if value="{{ isListView }}" hint-placeholder-val="{{ false }}">
           <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:20px">
-            <div style="border:1px solid #1e2733;border-radius:8px;overflow:hidden">
-              <div style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;background:#0d121a;border-bottom:1px solid #1e2733">
+            <div style="border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
+              <div style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle)">
                 <sc-for list="{{ listColumns }}" as="col" hint-placeholder-count="6">
-                  <button onClick="{{ col.onClick }}" style="background:none;border:none;text-align:left;padding:10px 14px;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#8fa3bf;cursor:pointer;font-weight:700">{{ col.label }}{{ col.arrow }}</button>
+                  <button onClick="{{ col.onClick }}" style="background:none;border:none;text-align:left;padding:10px 14px;font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);cursor:pointer;font-weight:600">{{ col.label }}{{ col.arrow }}</button>
                 </sc-for>
               </div>
               <sc-for list="{{ listRows }}" as="row" hint-placeholder-count="8">
-                <div onClick="{{ row.onSelect }}" style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;border-bottom:1px solid #1e2733;cursor:pointer;align-items:center">
-                  <div style="padding:10px 14px;font-size:12px;color:#e6eaf0;word-break:break-word">{{ row.name }}</div>
-                  <div style="padding:10px 14px;font-size:11px;color:#8fa3bf">{{ row.typeLabel }}</div>
-                  <div style="padding:10px 14px;font-size:11px;color:#8fa3bf">{{ row.timeLabel }}</div>
-                  <div style="padding:10px 14px"><span style="font-size:10px;font-weight:700;color:{{ row.meta.color }};background:{{ row.meta.color }}22;padding:2px 6px;border-radius:4px">{{ row.meta.glyph }} {{ row.meta.label }}</span></div>
-                  <div style="padding:10px 14px;font-size:12px;color:#e6eaf0">{{ row.riskLabel }}</div>
-                  <div style="padding:10px 14px;font-size:11px;color:#8fa3bf">{{ row.sourceLabel }}</div>
+                <div onClick="{{ row.onSelect }}" style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;border-bottom:1px solid var(--border-subtle);cursor:pointer;align-items:center;transition:background 150ms">
+                  <div style="padding:10px 14px;font-size:12px;color:var(--text-primary);word-break:break-word">{{ row.name }}</div>
+                  <div style="padding:10px 14px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary)">{{ row.typeLabel }}</div>
+                  <div style="padding:10px 14px;font-size:11px;color:var(--text-secondary)">{{ row.timeLabel }}</div>
+                  <div style="padding:10px 14px"><span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ row.meta.color }};background:{{ row.meta.color }}18;padding:2px 7px;border-radius:4px;border:1px solid {{ row.meta.color }}30">{{ row.meta.glyph }} {{ row.meta.label }}</span></div>
+                  <div style="padding:10px 14px;font-family:var(--font-mono);font-size:12px;color:var(--text-primary)">{{ row.riskLabel }}</div>
+                  <div style="padding:10px 14px;font-size:11px;color:var(--text-secondary)">{{ row.sourceLabel }}</div>
                 </div>
               </sc-for>
             </div>
 
             <div>
-              <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin-bottom:8px">Scan history</div>
-              <div style="border:1px solid #1e2733;border-radius:8px;overflow:hidden">
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Scan history</div>
+              <div style="border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
                 <sc-for list="{{ historyRows }}" as="h" hint-placeholder-count="6">
-                  <div style="display:flex;justify-content:space-between;gap:10px;padding:8px 14px;border-bottom:1px solid #1e2733;font-size:12px">
-                    <span style="color:#e6eaf0">{{ h.name }}</span>
-                    <span style="color:#5b6b82">{{ h.timeLabel }}</span>
-                    <span style="color:#8fa3bf">{{ h.duration }}</span>
-                    <span style="color:{{ h.meta.color }}">{{ h.meta.label }}</span>
+                  <div style="display:flex;justify-content:space-between;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border-subtle);font-size:12px">
+                    <span style="color:var(--text-primary)">{{ h.name }}</span>
+                    <span style="color:var(--text-muted)">{{ h.timeLabel }}</span>
+                    <span style="color:var(--text-secondary)">{{ h.duration }}</span>
+                    <span style="font-family:var(--font-mono);color:{{ h.meta.color }}">{{ h.meta.label }}</span>
                   </div>
                 </sc-for>
               </div>
@@ -125,84 +180,131 @@
       </div>
 
       <sc-if value="{{ selectedView }}" hint-placeholder-val="{{ false }}">
-        <div style="width:460px;flex-shrink:0;background:#0d121a;border-left:1px solid #1e2733;padding:20px;overflow-y:auto">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px">
+        <div style="width:460px;flex-shrink:0;background:var(--bg-surface);border-left:1px solid var(--border-subtle);padding:20px;overflow-y:auto;animation:slideIn 250ms ease both;box-shadow:-4px 0 16px rgba(0,0,0,0.25)">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
             <div style="font-size:15px;font-weight:700;word-break:break-word;padding-right:12px">{{ selectedView.name }}</div>
-            <button onClick="{{ closeDrawer }}" style="background:none;border:none;color:#5b6b82;font-size:20px;cursor:pointer;line-height:1;flex-shrink:0">×</button>
+            <button onClick="{{ closeDrawer }}" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;line-height:1;flex-shrink:0;transition:color 150ms">×</button>
           </div>
-          <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin-bottom:16px">{{ selectedView.typeLabel }} · {{ selectedView.identifier }}</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:16px">{{ selectedView.typeLabel }} · {{ selectedView.identifier }}</div>
 
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-            <div style="font-size:11px;font-weight:700;color:{{ selectedView.meta.color }};background:{{ selectedView.meta.color }}22;padding:3px 8px;border-radius:4px">{{ selectedView.meta.glyph }} {{ selectedView.meta.label }}</div>
-            <div style="font-size:11px;color:#8fa3bf;background:#1a212c;padding:3px 8px;border-radius:4px">{{ selectedView.locusLabel }}</div>
-            <div style="font-size:11px;color:#8fa3bf;background:#1a212c;padding:3px 8px;border-radius:4px">{{ selectedView.availLabel }}</div>
+            <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.meta.color }};background:{{ selectedView.meta.color }}18;padding:3px 8px;border-radius:4px;border:1px solid {{ selectedView.meta.color }}30">{{ selectedView.meta.glyph }} {{ selectedView.meta.label }}</div>
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);background:var(--bg-elevated);padding:3px 8px;border-radius:4px">{{ selectedView.locusLabel }}</div>
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);background:var(--bg-elevated);padding:3px 8px;border-radius:4px">{{ selectedView.availLabel }}</div>
           </div>
 
-          <div style="font-size:12px;color:#90a0b8;margin-bottom:16px">risk_score {{ selectedView.riskLabel }} · last scan {{ selectedView.timeLabel }}</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px">risk_score {{ selectedView.riskLabel }} · last scan {{ selectedView.timeLabel }}</div>
 
           <sc-if value="{{ selectedView.errorMessage }}">
-            <div style="background:#a855f722;border:1px solid #a855f7;color:#eaccff;font-size:12px;padding:10px;border-radius:6px;margin-bottom:16px">{{ selectedView.errorMessage }}</div>
+            <div style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);color:#d4bcff;font-size:12px;padding:10px 12px;border-radius:6px;margin-bottom:16px">{{ selectedView.errorMessage }}</div>
           </sc-if>
 
           <sc-if value="{{ selectedView.trendPoints }}">
             <div style="margin-bottom:20px">
-              <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin-bottom:6px">Risk over time</div>
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Risk over time</div>
               <svg width="220" height="48" style="display:block">
-                <polyline points="{{ selectedView.trendPoints }}" fill="none" stroke="#4f8cff" stroke-width="2"></polyline>
+                <polyline points="{{ selectedView.trendPoints }}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
               </svg>
             </div>
           </sc-if>
 
           <sc-if value="{{ selectedView.diff }}">
             <div style="margin-bottom:20px">
-              <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin-bottom:6px">Diff vs previous scan</div>
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Diff vs previous scan</div>
               <sc-for list="{{ selectedView.diff.new }}" as="d" hint-placeholder-count="1">
-                <div style="font-size:12px;color:#f5a524;margin-bottom:4px">+ new: {{ d.message }}</div>
+                <div style="font-size:12px;color:var(--amber);margin-bottom:4px">+ new: {{ d.message }}</div>
               </sc-for>
-              <div style="font-size:11px;color:#5b6b82">resolved: {{ selectedView.diff.resolved.length }} · persisted: {{ selectedView.diff.persisted.length }}</div>
+              <div style="font-size:11px;color:var(--text-muted)">resolved: {{ selectedView.diff.resolved.length }} · persisted: {{ selectedView.diff.persisted.length }}</div>
             </div>
           </sc-if>
 
           <sc-if value="{{ selectedView.disagreement }}">
-            <div style="font-size:11px;color:#c9a3ff;background:#a855f722;padding:8px 10px;border-radius:6px;margin-bottom:16px">Scanners disagree on this finding — flagged for Phase 5 reconciler review.</div>
+            <div style="font-size:11px;color:#d4bcff;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.2);padding:8px 12px;border-radius:6px;margin-bottom:16px">Scanners disagree on this finding — flagged for Phase 5 reconciler review.</div>
           </sc-if>
 
-          <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin-bottom:8px">Findings ({{ selectedView.findingsView.length }})</div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Findings ({{ selectedView.findingsView.length }})</div>
           <sc-for list="{{ selectedView.findingsView }}" as="f" hint-placeholder-count="1">
-            <div style="background:#121822;border:1px solid #1e2733;border-left:3px solid {{ f.sevColor }};border-radius:6px;padding:10px 12px;margin-bottom:8px">
-              <div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#8fa3bf;margin-bottom:4px">
+            <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-left:3px solid {{ f.sevColor }};border-radius:6px;padding:10px 12px;margin-bottom:8px">
+              <div style="display:flex;justify-content:space-between;gap:8px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:4px">
                 <span>{{ f.category }}</span><span>{{ f.scanner }}</span>
               </div>
-              <div style="font-size:12px;color:#e6eaf0;margin-bottom:4px">{{ f.message }}</div>
+              <div style="font-size:12px;color:var(--text-primary);margin-bottom:4px">{{ f.message }}</div>
               <sc-if value="{{ f.entity_name }}">
-                <div style="font-size:11px;color:#4f8cff">tool: {{ f.entity_name }}</div>
+                <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent)">tool: {{ f.entity_name }}</div>
               </sc-if>
               <sc-if value="{{ f.file_path }}">
-                <div style="font-size:11px;color:#5b6b82;font-family:ui-monospace,monospace">{{ f.file_path }}:{{ f.location }}</div>
+                <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">{{ f.file_path }}:{{ f.location }}</div>
               </sc-if>
               <sc-if value="{{ f.snippet }}">
-                <div style="font-family:ui-monospace,monospace;font-size:11px;background:#0a0e14;padding:6px 8px;border-radius:4px;margin-top:6px;color:#f0a3a3;overflow-x:auto">{{ f.snippet }}</div>
+                <div style="font-family:var(--font-mono);font-size:11px;background:var(--bg-deep);padding:6px 8px;border-radius:4px;margin-top:6px;color:#f0a3a3;overflow-x:auto">{{ f.snippet }}</div>
               </sc-if>
             </div>
           </sc-for>
 
           <sc-if value="{{ selectedView.sandbox }}">
-            <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin:16px 0 8px">Sandbox evidence</div>
-            <div style="background:#121822;border:1px solid #1e2733;border-radius:6px;padding:10px 12px;font-size:12px;color:#90a0b8">
-              <div>sandbox_id: <span style="color:#e6eaf0;font-family:ui-monospace,monospace">{{ selectedView.sandbox.id }}</span></div>
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px">Sandbox evidence</div>
+            <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--text-secondary)">
+              <div>sandbox_id: <span style="color:var(--text-primary);font-family:var(--font-mono)">{{ selectedView.sandbox.id }}</span></div>
               <div style="margin-top:4px">egress policy: {{ selectedView.sandbox.egressPhase }}</div>
               <sc-for list="{{ selectedView.sandbox.denied }}" as="deny" hint-placeholder-count="0">
-                <div style="color:#f5a524;margin-top:4px">⛔ denied egress: {{ deny.host }} — {{ deny.reason }}</div>
+                <div style="color:var(--amber);margin-top:4px">⛔ denied egress: {{ deny.host }} — {{ deny.reason }}</div>
               </sc-for>
-              <div style="margin-top:4px;color:#22c55e">✓ cleanup confirmed</div>
+              <div style="margin-top:4px;color:var(--green)">✓ cleanup confirmed</div>
             </div>
           </sc-if>
 
-          <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin:16px 0 8px">Scanner coverage</div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px">Scanner outputs ({{ selectedView.scannersView.length }})</div>
           <sc-for list="{{ selectedView.scannersView }}" as="scv" hint-placeholder-count="2">
-            <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #1e2733;gap:8px">
-              <span style="color:#e6eaf0">{{ scv.source }}</span>
-              <span style="color:#90a0b8;white-space:nowrap">{{ scv.status }} · {{ scv.checks_run }} checks</span>
+            <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-left:3px solid {{ scv.statusColor }};border-radius:6px;margin-bottom:6px;overflow:hidden">
+              <div onClick="{{ scv.onToggle }}" style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;cursor:pointer;gap:8px;user-select:none;transition:background 150ms">
+                <div style="display:flex;align-items:center;gap:8px;min-width:0">
+                  <span style="font-size:10px;color:var(--text-secondary);flex-shrink:0;width:12px;text-align:center">{{ scv.chevron }}</span>
+                  <span style="font-size:12px;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ scv.source }}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+                  <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ scv.statusColor }};background:{{ scv.statusColor }}18;padding:2px 6px;border-radius:4px;white-space:nowrap;border:1px solid {{ scv.statusColor }}30">{{ scv.statusLabel }}</span>
+                  <sc-if value="{{ scv.checks_run }}">
+                    <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);white-space:nowrap">{{ scv.checks_run }} checks</span>
+                  </sc-if>
+                  <sc-if value="{{ scv.durationLabel }}">
+                    <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);white-space:nowrap">{{ scv.durationLabel }}</span>
+                  </sc-if>
+                </div>
+              </div>
+              <sc-if value="{{ scv.expanded }}">
+                <div style="border-top:1px solid var(--border-subtle);padding:8px 10px 10px 30px;font-size:11px;color:var(--text-secondary)">
+                  <sc-if value="{{ scv.output.raw_summary }}">
+                    <div style="margin-bottom:6px;color:var(--text-primary)">{{ scv.output.raw_summary }}</div>
+                  </sc-if>
+                  <sc-if value="{{ scv.output.reason }}">
+                    <div style="color:var(--amber);margin-bottom:6px">⊘ {{ scv.output.reason }}</div>
+                  </sc-if>
+                  <sc-if value="{{ scv.output.error }}">
+                    <div style="color:var(--red);margin-bottom:6px">⚠ {{ scv.output.error }}</div>
+                  </sc-if>
+                  <sc-if value="{{ scv.output.quality_score }}">
+                    <div style="margin-bottom:6px">Quality score: <span style="color:var(--accent);font-family:var(--font-mono);font-weight:600">{{ scv.output.quality_score }}</span>/100</div>
+                  </sc-if>
+                  <sc-if value="{{ scv.findingsForScanner.length }}">
+                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 4px">Findings from this scanner</div>
+                    <sc-for list="{{ scv.findingsForScanner }}" as="sf" hint-placeholder-count="0">
+                      <div style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-left:2px solid {{ sf.sevColor }};border-radius:4px;padding:6px 8px;margin-bottom:4px">
+                        <div style="font-size:11px;color:var(--text-primary);margin-bottom:2px">{{ sf.message }}</div>
+                        <sc-if value="{{ sf.file_path }}">
+                          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">{{ sf.file_path }}:{{ sf.location }}</div>
+                        </sc-if>
+                        <sc-if value="{{ sf.snippet }}">
+                          <div style="font-family:var(--font-mono);font-size:10px;background:var(--bg-deep);padding:4px 6px;border-radius:3px;margin-top:4px;color:#f0a3a3;overflow-x:auto">{{ sf.snippet }}</div>
+                        </sc-if>
+                      </div>
+                    </sc-for>
+                  </sc-if>
+                  <sc-if value="{{ scv.hasDetailJson }}">
+                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 4px">Raw output</div>
+                    <div style="font-family:var(--font-mono);font-size:10px;background:var(--bg-deep);padding:6px 8px;border-radius:4px;color:var(--text-secondary);overflow-x:auto;white-space:pre-wrap;max-height:180px;overflow-y:auto">{{ scv.outputJson }}</div>
+                  </sc-if>
+                </div>
+              </sc-if>
             </div>
           </sc-for>
         </div>
@@ -217,15 +319,15 @@
           <button onClick="{{ cb.onClick }}" style="{{ cb.style }}">▶ {{ cb.label }}</button>
         </sc-for>
       </div>
-      <div style="flex:1;background:#05070b;border:1px solid #1e2733;border-radius:8px;padding:16px;overflow-y:auto;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;color:#8fe388">
+      <div style="flex:1;background:var(--bg-deep);border:1px solid var(--border-subtle);border-radius:8px;padding:16px;overflow-y:auto;font-family:var(--font-mono);font-size:13px;color:#8fe388;box-shadow:inset 0 2px 8px rgba(0,0,0,0.3)">
         <sc-if value="{{ cliEmpty }}" hint-placeholder-val="{{ true }}">
-          <div style="color:#5b6b82">Pick a scenario above to run a simulated tripwire command.</div>
+          <div style="color:var(--text-muted)">Pick a scenario above to run a simulated tripwire command.</div>
         </sc-if>
         <sc-for list="{{ cliVisibleLines }}" as="line" hint-placeholder-count="0">
           <div style="margin-bottom:6px;white-space:pre-wrap">{{ line }}</div>
         </sc-for>
         <sc-if value="{{ cliRunning }}" hint-placeholder-val="{{ false }}">
-          <div style="color:#4f8cff">▌</div>
+          <div style="color:var(--accent)">▌</div>
         </sc-if>
       </div>
     </div>
@@ -233,17 +335,17 @@
 
   <sc-if value="{{ activeTabIsGuard }}" hint-placeholder-val="{{ false }}">
     <div style="flex:1;padding:24px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;max-width:760px">
-      <div style="display:flex;align-items:center;gap:16px;background:#121822;border:1px solid #1e2733;border-radius:8px;padding:16px">
+      <div style="display:flex;align-items:center;gap:16px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:8px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
         <div style="flex:1">
           <div style="font-size:13px;font-weight:600;margin-bottom:4px">Monitoring</div>
-          <div style="font-size:12px;color:#90a0b8">{{ monitoringHelpText }}</div>
+          <div style="font-size:12px;color:var(--text-secondary)">{{ monitoringHelpText }}</div>
         </div>
         <button onClick="{{ toggleMonitoring }}" style="{{ monitoringBtnStyle }}">{{ monitoringBtnLabel }}</button>
       </div>
-      <div style="display:flex;align-items:center;gap:16px;background:#121822;border:1px solid #1e2733;border-radius:8px;padding:16px">
+      <div style="display:flex;align-items:center;gap:16px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:8px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
         <div style="flex:1">
           <div style="font-size:13px;font-weight:600;margin-bottom:4px">Threshold</div>
-          <div style="font-size:12px;color:#90a0b8">Calls at or above this severity are blocked</div>
+          <div style="font-size:12px;color:var(--text-secondary)">Calls at or above this severity are blocked</div>
         </div>
         <div style="display:flex;gap:8px">
           <sc-for list="{{ thresholdOptions }}" as="th" hint-placeholder-count="2">
@@ -252,29 +354,29 @@
         </div>
       </div>
 
-      <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin-top:8px">Simulated tool calls</div>
+      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:8px">Simulated tool calls</div>
       <sc-for list="{{ guardRows }}" as="row" hint-placeholder-count="3">
-        <div style="background:#121822;border:1px solid #1e2733;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+        <div style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
             <div>
-              <div style="font-size:13px;font-weight:600">{{ row.tool }}</div>
-              <div style="font-size:11px;color:#5b6b82">on {{ row.server }} · item status: {{ row.itemStatusLabel }}</div>
+              <div style="font-family:var(--font-mono);font-size:13px;font-weight:600">{{ row.tool }}</div>
+              <div style="font-size:11px;color:var(--text-muted)">on {{ row.server }} · item status: {{ row.itemStatusLabel }}</div>
             </div>
-            <button onClick="{{ row.onSimulate }}" style="background:#1a212c;border:1px solid #2a3644;color:#e6eaf0;font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;white-space:nowrap">Simulate call</button>
+            <button onClick="{{ row.onSimulate }}" style="background:var(--bg-elevated);border:1px solid var(--border-default);color:var(--text-primary);font-family:var(--font-sans);font-size:12px;padding:6px 14px;border-radius:6px;cursor:pointer;white-space:nowrap;transition:all 150ms">Simulate call</button>
           </div>
           <sc-if value="{{ row.resultView }}" hint-placeholder-val="{{ false }}">
-            <div style="font-size:12px;padding:8px 10px;border-radius:6px;background:{{ row.resultView.bg }};color:{{ row.resultView.color }}">{{ row.resultView.text }}</div>
+            <div style="font-size:12px;padding:8px 12px;border-radius:6px;background:{{ row.resultView.bg }};color:{{ row.resultView.color }}">{{ row.resultView.text }}</div>
           </sc-if>
         </div>
       </sc-for>
     </div>
   </sc-if>
 
-  <div style="display:flex;align-items:center;gap:14px;padding:8px 20px;border-top:1px solid #1e2733;font-size:11px;color:#5b6b82;flex-shrink:0;background:#0d121a;flex-wrap:wrap">
-    <span style="color:#8fa3bf">Last scan: {{ footerLastScan }}</span>
-    <div style="width:1px;height:14px;background:#1e2733"></div>
-    <span style="color:#90a0b8">Primary stack: Tripwire · Modal · Supabase · Cursor</span>
-    <div style="width:1px;height:14px;background:#1e2733"></div>
+  <div style="display:flex;align-items:center;gap:14px;padding:8px 20px;border-top:1px solid var(--border-subtle);font-size:11px;color:var(--text-muted);flex-shrink:0;background:var(--bg-surface);flex-wrap:wrap">
+    <span style="font-family:var(--font-mono);color:var(--text-secondary)">Last scan: {{ footerLastScan }}</span>
+    <div style="width:1px;height:14px;background:var(--border-subtle)"></div>
+    <span style="color:var(--text-secondary)">Primary stack: Tripwire · Modal · Supabase · Cursor</span>
+    <div style="width:1px;height:14px;background:var(--border-subtle)"></div>
     <span>Scanners: Cisco Skill/MCP Scanner · Snyk · Tessl</span>
     <span>· Partner: <a href="https://www.ossprey.com/?utm_source=luma" target="_blank" rel="noopener">Ossprey</a></span>
   </div>
@@ -286,6 +388,8 @@ class Component extends DCLogic {
   state = {
     activeTab: 'dashboard',
     data: null,
+    dataSource: 'loading',
+    dataSourceMode: sessionStorage.getItem('tripwire-data-source-mode') || 'live',
     typeFilter: 'all',
     statusFilter: 'all',
     selectedId: null,
@@ -298,12 +402,30 @@ class Component extends DCLogic {
     viewMode: 'grid',
     searchQuery: '',
     sortKey: 'name',
-    sortDir: 'asc'
+    sortDir: 'asc',
+    expandedScanners: {}
   };
 
   componentDidMount() {
-    import('./tripwire-data.js').then(m => this.setState({ data: m.default }));
+    this._loadDataForMode(this.state.dataSourceMode);
   }
+
+  _loadDataForMode(mode) {
+    this.setState({ dataSource: 'loading' });
+    import('./tripwire-live.js').then(m => m.default(mode)).then(result => {
+      this.setState({ data: result.data, dataSource: result.source });
+    }).catch(err => {
+      console.error('[tripwire-dashboard] data load error:', err);
+      this.setState({ dataSource: 'mock-failed' });
+    });
+  }
+
+  setDataSourceMode = (e) => {
+    const mode = e.target.value;
+    sessionStorage.setItem('tripwire-data-source-mode', mode);
+    this.setState({ dataSourceMode: mode, selectedId: null, expandedScanners: {} });
+    this._loadDataForMode(mode);
+  };
 
   componentWillUnmount() {
     clearInterval(this._cliTimer);
@@ -312,13 +434,17 @@ class Component extends DCLogic {
   setTab = (t) => this.setState({ activeTab: t });
   setTypeFilter = (v) => this.setState({ typeFilter: v });
   setStatusFilter = (v) => this.setState({ statusFilter: v });
-  selectItem = (id) => this.setState({ selectedId: id });
+  selectItem = (id) => this.setState({ selectedId: id, expandedScanners: {} });
   closeDrawer = () => this.setState({ selectedId: null });
   toggleMonitoring = () => this.setState(s => ({ monitoringEnabled: !s.monitoringEnabled, guardResults: {} }));
   setThreshold = (v) => this.setState({ threshold: v, guardResults: {} });
   setViewMode = (v) => this.setState({ viewMode: v });
   setSearchQuery = (e) => this.setState({ searchQuery: e.target.value });
   setSort = (key) => this.setState(s => ({ sortKey: key, sortDir: s.sortKey === key ? (s.sortDir === 'asc' ? 'desc' : 'asc') : 'asc' }));
+  toggleScanner = (itemId, idx) => this.setState(s => {
+    const key = itemId + ':' + idx;
+    return { expandedScanners: { ...s.expandedScanners, [key]: !s.expandedScanners[key] } };
+  });
 
   runCli = (key) => {
     const data = this.state.data;
@@ -368,7 +494,7 @@ class Component extends DCLogic {
 
   btnStyle(active, base) {
     const b = base || {};
-    return `font-size:${b.size||'12px'};font-weight:${active?'700':'500'};padding:${b.pad||'7px 12px'};border-radius:6px;cursor:pointer;border:1px solid ${active?(b.activeBorder||'#4f8cff'):'#1e2733'};background:${active?(b.activeBg||'#4f8cff22'):'transparent'};color:${active?(b.activeColor||'#e6eaf0'):'#8fa3bf'};white-space:nowrap`;
+    return `font-family:var(--font-sans);font-size:${b.size||'12px'};font-weight:${active?'600':'400'};padding:${b.pad||'6px 12px'};border-radius:6px;cursor:pointer;border:1px solid ${active?(b.activeBorder||'#4da2ff'):'#192638'};background:${active?(b.activeBg||'rgba(77,162,255,0.12)'):'transparent'};color:${active?(b.activeColor||'#e8edf4'):'#8fa3be'};white-space:nowrap;transition:all 150ms ease`;
   }
 
   locusLabel(v) { return { local: 'Local', cloud: 'Cloud', unknown: 'Locus unknown' }[v] || v; }
@@ -396,11 +522,11 @@ class Component extends DCLogic {
     const s = this.state;
     const data = s.data;
     const statusMeta = {
-      red: { color: '#ef4444', label: 'RED', glyph: '●' },
-      amber: { color: '#f5a524', label: 'AMBER', glyph: '▲' },
-      green: { color: '#22c55e', label: 'GREEN', glyph: '✓' },
-      grey: { color: '#64748b', label: 'UNSCANNED', glyph: '–' },
-      error: { color: '#a855f7', label: 'ERROR', glyph: '!' }
+      red: { color: '#f43f5e', label: 'RED', glyph: '●' },
+      amber: { color: '#f59e0b', label: 'AMBER', glyph: '▲' },
+      green: { color: '#34d399', label: 'GREEN', glyph: '✓' },
+      grey: { color: '#6b7a8e', label: 'UNSCANNED', glyph: '–' },
+      error: { color: '#a78bfa', label: 'ERROR', glyph: '!' }
     };
 
     const primaryTabs = ['dashboard', 'cli'].map(key => ({
@@ -413,8 +539,18 @@ class Component extends DCLogic {
     const guardTab = {
       onClick: () => this.setTab('guard'),
       label: 'Guard',
-      style: `font-size:11px;font-weight:${guardActive ? '600' : '400'};padding:5px 10px;border-radius:5px;cursor:pointer;border:1px solid ${guardActive ? '#2a3644' : 'transparent'};background:${guardActive ? '#1a212c' : 'transparent'};color:${guardActive ? '#c3cbd6' : '#5b6b82'}`
+      style: `font-family:var(--font-sans);font-size:11px;font-weight:${guardActive ? '600' : '400'};padding:5px 10px;border-radius:5px;cursor:pointer;border:1px solid ${guardActive ? '#1e2d42' : 'transparent'};background:${guardActive ? '#182436' : 'transparent'};color:${guardActive ? '#e8edf4' : '#506880'};transition:all 150ms ease`
     };
+
+    const dataSourceChips = {
+      loading: { label: 'Loading…', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: '#192638', tooltip: 'Checking data source…' },
+      live: { label: 'Live · Supabase', dotColor: '#34d399', textColor: '#34d399', bgColor: 'rgba(52,211,153,0.1)', borderColor: 'rgba(52,211,153,0.3)', tooltip: 'Fetching real data from Supabase' },
+      'mock-selected': { label: 'Demo data', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: '#192638', tooltip: 'Using built-in demo data (user selected)' },
+      mock: { label: 'Fallback · no config', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Supabase not configured — fell back to demo data' },
+      'mock-failed': { label: 'Fallback · live fetch failed', dotColor: '#f43f5e', textColor: '#f43f5e', bgColor: 'rgba(244,63,94,0.1)', borderColor: 'rgba(244,63,94,0.3)', tooltip: 'Supabase configured but fetch failed — fell back to demo data' },
+      'mock-empty': { label: 'Fallback · no live items', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Supabase returned 0 items — fell back to demo data' }
+    };
+    const dataSourceChip = dataSourceChips[s.dataSource] || dataSourceChips.loading;
 
     const base = {
       activeTabIsDashboard: s.activeTab === 'dashboard',
@@ -422,13 +558,16 @@ class Component extends DCLogic {
       activeTabIsGuard: s.activeTab === 'guard',
       primaryTabs,
       guardTab,
-      monitoringDotColor: s.monitoringEnabled ? '#22c55e' : '#64748b',
+      dataSourceChip,
+      dataSourceMode: s.dataSourceMode,
+      setDataSourceMode: this.setDataSourceMode,
+      monitoringDotColor: s.monitoringEnabled ? '#34d399' : '#6b7a8e',
       monitoringLabel: s.monitoringEnabled ? 'Guard active' : 'Guard paused',
       monitoringHelpText: s.monitoringEnabled
         ? 'Guard intercepts every skill/tool call and checks its rating before it runs.'
         : 'Monitoring is off — all calls pass through unchecked.',
       monitoringBtnLabel: s.monitoringEnabled ? 'Turn off' : 'Turn on',
-      monitoringBtnStyle: `font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid ${s.monitoringEnabled ? '#2a3644' : '#22c55e'};background:${s.monitoringEnabled ? '#1a212c' : '#22c55e22'};color:${s.monitoringEnabled ? '#e6eaf0' : '#22c55e'}`,
+      monitoringBtnStyle: `font-family:var(--font-sans);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid ${s.monitoringEnabled ? '#1e2d42' : '#34d399'};background:${s.monitoringEnabled ? '#182436' : 'rgba(52,211,153,0.12)'};color:${s.monitoringEnabled ? '#e8edf4' : '#34d399'};transition:all 150ms ease`,
       thresholdOptions: [
         { key: 'red', label: 'Red only' },
         { key: 'red_and_amber', label: 'Red + Amber' }
@@ -440,7 +579,7 @@ class Component extends DCLogic {
       viewToggle: ['grid', 'list'].map(v => ({
         key: v, label: v === 'grid' ? 'Grid' : 'List',
         onClick: () => this.setViewMode(v),
-        style: this.btnStyle(s.viewMode === v, { activeBg: '#1a212c', activeBorder: '#4f8cff', activeColor: '#e6eaf0' })
+        style: this.btnStyle(s.viewMode === v, { activeBg: '#182436', activeBorder: '#4da2ff', activeColor: '#e8edf4' })
       })),
       listColumns: [
         { key: 'name', label: 'Name' }, { key: 'type', label: 'Type' },
@@ -464,7 +603,7 @@ class Component extends DCLogic {
       { key: 'all', label: 'All items' },
       { key: 'skill', label: 'Skills' },
       { key: 'mcp_server', label: 'MCP Servers' }
-    ].map(t => ({ ...t, onClick: () => this.setTypeFilter(t.key), style: this.btnStyle(s.typeFilter === t.key, { activeBg: '#1a212c', activeBorder: '#4f8cff', activeColor: '#e6eaf0' }) }));
+    ].map(t => ({ ...t, onClick: () => this.setTypeFilter(t.key), style: this.btnStyle(s.typeFilter === t.key, { activeBg: '#182436', activeBorder: '#4da2ff', activeColor: '#e8edf4' }) }));
 
     const statusChips = [
       { key: 'all', label: 'All' },
@@ -473,7 +612,7 @@ class Component extends DCLogic {
       { key: 'green', label: '✓ Green' },
       { key: 'grey', label: '– Unscanned' },
       { key: 'error', label: '! Error' }
-    ].map(c => ({ ...c, onClick: () => this.setStatusFilter(c.key), style: this.btnStyle(s.statusFilter === c.key, { activeBg: (statusMeta[c.key]?.color || '#4f8cff') + '22', activeBorder: statusMeta[c.key]?.color || '#4f8cff', activeColor: statusMeta[c.key]?.color || '#e6eaf0' }) }));
+    ].map(c => ({ ...c, onClick: () => this.setStatusFilter(c.key), style: this.btnStyle(s.statusFilter === c.key, { activeBg: (statusMeta[c.key]?.color || '#4da2ff') + '22', activeBorder: statusMeta[c.key]?.color || '#4da2ff', activeColor: statusMeta[c.key]?.color || '#e8edf4' }) }));
 
     const q = s.searchQuery.trim().toLowerCase();
     const filtered = data.items.filter(it =>
@@ -496,7 +635,7 @@ class Component extends DCLogic {
     const counts = { red: 0, amber: 0, green: 0, grey: 0, error: 0 };
     data.items.forEach(it => { counts[it.status] = (counts[it.status] || 0) + 1; });
     const overviewStats = [
-      { label: 'Total items', value: data.items.length, color: '#4f8cff' },
+      { label: 'Total items', value: data.items.length, color: '#4da2ff' },
       { label: 'Red', value: counts.red, color: statusMeta.red.color },
       { label: 'Amber', value: counts.amber, color: statusMeta.amber.color },
       { label: 'Green', value: counts.green, color: statusMeta.green.color },
@@ -504,6 +643,15 @@ class Component extends DCLogic {
       { label: 'Error', value: counts.error, color: statusMeta.error.color },
       { label: 'Changed since last scan', value: data.items.filter(it => it.drifted).length, color: statusMeta.amber.color }
     ];
+
+    const scannerStatusColor = (st) => ({
+      completed: '#34d399', skipped_missing_credential: '#6b7a8e',
+      unreachable: '#f43f5e', not_applicable: '#506880'
+    }[st] || '#6b7a8e');
+    const scannerStatusLabel = (st) => ({
+      completed: '✓ Completed', skipped_missing_credential: '⊘ Skipped',
+      unreachable: '✗ Unreachable', not_applicable: '— N/A'
+    }[st] || st);
 
     const selected = s.selectedId ? data.items.find(i => i.id === s.selectedId) : null;
     const selectedView = selected ? {
@@ -516,22 +664,43 @@ class Component extends DCLogic {
       availLabel: this.availLabel(selected.avail),
       trendPoints: this.trendPath(selected.trend),
       findingsView: selected.findings.map(f => ({ ...f, sevColor: statusMeta[f.severity].color })),
-      scannersView: selected.scanners
+      scannersView: selected.scanners.map((sc, idx) => {
+        const key = selected.id + ':' + idx;
+        const expanded = !!s.expandedScanners[key];
+        const out = sc.output || {};
+        const findingsForScanner = selected.findings
+          .filter(f => f.scanner === sc.source)
+          .map(f => ({ ...f, sevColor: statusMeta[f.severity]?.color || '#6b7a8e' }));
+        const durationMs = out.duration_ms;
+        return {
+          ...sc,
+          expanded,
+          chevron: expanded ? '▾' : '▸',
+          statusColor: scannerStatusColor(sc.status),
+          statusLabel: scannerStatusLabel(sc.status),
+          durationLabel: durationMs != null ? (durationMs / 1000).toFixed(1) + 's' : null,
+          output: out,
+          findingsForScanner,
+          hasDetailJson: !!(out.findings_detail || out.issues_detail || out.scan_results_summary || out.analyzers_run),
+          outputJson: JSON.stringify(out.findings_detail || out.issues_detail || out.scan_results_summary || out, null, 2),
+          onToggle: () => this.toggleScanner(selected.id, idx)
+        };
+      })
     } : null;
 
     const cliButtons = Object.keys(data.cliScenarios).map(key => ({
       key, label: data.cliScenarios[key].label,
       onClick: () => this.runCli(key),
-      style: this.btnStyle(s.cliScenarioKey === key, { activeBg: '#4f8cff22', activeBorder: '#4f8cff' })
+      style: this.btnStyle(s.cliScenarioKey === key, { activeBg: 'rgba(77,162,255,0.12)', activeBorder: '#4da2ff' })
     }));
     const cli = s.cliScenarioKey ? data.cliScenarios[s.cliScenarioKey] : null;
     const cliVisibleLines = cli ? cli.lines.slice(0, s.cliRevealCount) : [];
 
     const resultCopy = {
-      'deny': { bg: '#ef444422', color: '#ff9b9b', text: '⛔ DENIED — rated at/above threshold; call blocked before it ran.' },
-      'allow': { bg: '#22c55e22', color: '#7ee6a8', text: '✓ ALLOWED — below threshold, call proceeded.' },
-      'deny-unscanned': { bg: '#64748b33', color: '#c3cbd6', text: '⛔ DENIED — never scanned. Guard fails closed on unknown items.' },
-      'allow-monitoring-off': { bg: '#f5a52422', color: '#ffd699', text: '⚠ ALLOWED — monitoring is off, call passed through unchecked.' }
+      'deny': { bg: 'rgba(244,63,94,0.12)', color: '#fda4af', text: '⛔ DENIED — rated at/above threshold; call blocked before it ran.' },
+      'allow': { bg: 'rgba(52,211,153,0.12)', color: '#6ee7b7', text: '✓ ALLOWED — below threshold, call proceeded.' },
+      'deny-unscanned': { bg: 'rgba(107,122,142,0.18)', color: '#cbd5e1', text: '⛔ DENIED — never scanned. Guard fails closed on unknown items.' },
+      'allow-monitoring-off': { bg: 'rgba(245,158,11,0.12)', color: '#fcd34d', text: '⚠ ALLOWED — monitoring is off, call passed through unchecked.' }
     };
 
     const guardRows = data.guardScenarios.map(g => {
