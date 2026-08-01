@@ -4,8 +4,8 @@
 ## Quick Status
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| 1 | [slice-1-walking-skeleton-live-path](slice-1-walking-skeleton-live-path.md) | Must | 🔀 | 2026-08-01 | — | ~50 min |
-| 2 | [slice-2-gwt1-detection-acceptance](slice-2-gwt1-detection-acceptance.md) | Must | 📋 | — | — | ~25 min |
+| 1 | [slice-1-walking-skeleton-live-path](slice-1-walking-skeleton-live-path.md) | Must | ✅ | 2026-08-01 | 2026-08-01 | ~50 min |
+| 2 | [slice-2-gwt1-detection-acceptance](slice-2-gwt1-detection-acceptance.md) | Must | 🔀 | 2026-08-01 | — | ~25 min |
 | 3 | [slice-3-gwt2-sandbox-evidence-acceptance](slice-3-gwt2-sandbox-evidence-acceptance.md) | Must | 📋 | — | — | ~25 min |
 | 4 | [slice-4-vo-remotion-assemble](slice-4-vo-remotion-assemble.md) | Must | 📋 | — | — | ~25 min |
 | 5 | [slice-5-gate-evidence-docs-sync](slice-5-gate-evidence-docs-sync.md) | Should | 📋 | — | — | ~25 min |
@@ -32,4 +32,5 @@
 ## Skill Execution Log
 | Date | Branch | Skill | Slice | Outcome | Notes |
 |------|--------|-------|-------|---------|-------|
-| 2026-08-01 | slice/1-walking-skeleton-live-path | nw-execute (adapted) | 1 | VERIFIED pending commit | Live scan + boolean probe; gate-evidence written |
+| 2026-08-01 | slice/1-walking-skeleton-live-path | nw-execute (adapted) | 1 | ✅ PASSED (PR #14) | Live scan + boolean probe; gate-evidence written |
+| 2026-08-01 | slice/2-gwt1-detection-acceptance | slice-workflow | 2 | VERIFIED pending commit | GWT-1 acceptance test added |

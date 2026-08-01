@@ -1,0 +1,14 @@
+{
+  "slice": "slice-2-gwt1-detection-acceptance",
+  "date": "2026-08-01",
+  "branch": "slice/2-gwt1-detection-acceptance",
+  "gwt": "GWT-1 Detection (must-show skill + MCP)",
+  "commands": [
+    {
+      "cmd": "cd prototypes/dc-dashboard && npm test",
+      "result": "38 tests, 37 pass, 1 skip, 0 fail"
+    }
+  ],
+  "acceptance_test": "given must-show skill and MCP live rows when loadData live then GWT-1 detection mapping holds",
+  "verdict": "VERIFIED"
+}

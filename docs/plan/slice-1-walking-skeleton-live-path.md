@@ -69,7 +69,7 @@ On PASS: `gate_cache_write "fast" "$(git rev-parse HEAD)"` when applicable.
 | 14 | No orphaned file references | OK |
 
 ## Gate Status
-🔀 ON BRANCH — evidence VERIFIED; awaiting PR merge for ✅ PASSED
+✅ PASSED — merged via PR #14
 
 ## What Changed
 | File | Type | Reason |
