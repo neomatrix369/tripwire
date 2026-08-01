@@ -18,7 +18,7 @@ export function loadEnv() {
 
   for (const path of candidates) {
     if (!existsSync(path)) continue;
-    config({ path });
+    config({ path, quiet: true });
     return path;
   }
   return null;

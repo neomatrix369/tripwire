@@ -58,6 +58,16 @@ async function discoverDefaults() {
   return found;
 }
 
+async function tryExpandManifest(filePath) {
+  try {
+    const json = JSON.parse(await readFile(filePath, 'utf8'));
+    if (json.mcpServers && typeof json.mcpServers === 'object') {
+      return Object.keys(json.mcpServers).map(name => ({ manifestEntry: name, manifest: filePath }));
+    }
+  } catch { /* not a valid manifest, treat as regular target */ }
+  return null;
+}
+
 export async function discoverTargets({ targets, targetsFile, useDefaults }) {
   let raw = targets && targets.length ? targets : [];
   if (targetsFile) {
@@ -70,8 +80,13 @@ export async function discoverTargets({ targets, targetsFile, useDefaults }) {
   }
   const resolved = [];
   for (const t of raw) {
-    if (!/^https?:\/\//.test(t) && await isDir(t) && !existsSync(path.join(t, 'SKILL.md'))) {
-      // folder of multiple skills
+    if (/^https?:\/\//.test(t)) {
+      resolved.push(t);
+    } else if (t.endsWith('.json') && existsSync(t)) {
+      const expanded = await tryExpandManifest(t);
+      if (expanded) resolved.push(...expanded);
+      else resolved.push(t);
+    } else if (await isDir(t) && !existsSync(path.join(t, 'SKILL.md'))) {
       resolved.push(...(await expandFolder(t)));
     } else {
       resolved.push(t);
