@@ -30,6 +30,7 @@ program
   .argument('[targets...]', 'paths, git URLs, or live MCP endpoints; omit for machine defaults')
   .option('--targets <file>', 'JSON file with a "targets" array')
   .option('--concurrency <n>', 'max concurrent sandboxes', '5')
+  .option('--force', 're-scan even if content hash is unchanged')
   .option('--no-defaults', 'error instead of scanning machine defaults on empty args')
   .option('--dry-discover', 'print discovered targets and exit, spawn nothing')
   .action(async (targets, opts) => {
@@ -43,7 +44,7 @@ program
       process.exitCode = 1;
       return;
     }
-    await runScan(list, { concurrency: Number(opts.concurrency) });
+    await runScan(list, { concurrency: Number(opts.concurrency), force: Boolean(opts.force) });
   });
 
 program.parseAsync(process.argv);

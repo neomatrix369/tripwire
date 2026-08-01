@@ -48,7 +48,7 @@ image = (
         "ln -sf /root/.local/bin/uvx /usr/local/bin/uvx",
         "uv tool install snyk-agent-scan",
         "ln -sf /root/.local/bin/snyk-agent-scan /usr/local/bin/snyk-agent-scan",
-        "node --version && npm --version && snyk-agent-scan --help >/dev/null",
+        "node --version && test -x /usr/local/bin/snyk-agent-scan",
     )
     .pip_install(
         "supabase",

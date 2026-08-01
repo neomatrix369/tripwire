@@ -264,6 +264,86 @@ test('given successful supabase rows when loadData live then maps UI item shape'
   restoreFetch();
 });
 
+test('given partial-failed run with heatmap risk when loadData live then keeps risk status not hard error', async () => {
+  // -- Given --
+  const itemId = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
+  const runId = 'dddddddd-dddd-dddd-dddd-dddddddddddd';
+  installWindow({
+    SUPABASE_URL: 'https://proj.supabase.co',
+    SUPABASE_ANON_KEY: 'anon',
+  });
+  mockFetchByTable({
+    items: [
+      {
+        id: itemId,
+        type: 'skill',
+        name: 'vuln-prompt-injection-notes',
+        identifier: 'fixtures/skills/vuln-prompt-injection-notes',
+        heatmap_status: 'red',
+        risk_score: 2.1,
+        quality_score: null,
+        install_locus: 'local',
+        source_availability: 'source_on_disk',
+      },
+    ],
+    scan_runs: [
+      {
+        id: runId,
+        item_id: itemId,
+        status: 'partial-failed',
+        started_at: '2026-08-01T14:00:00Z',
+        completed_at: '2026-08-01T14:01:00Z',
+      },
+    ],
+    scan_run_scanners: [
+      {
+        scan_run_id: runId,
+        scanner_source: 'Cisco Skill Scanner: static/bytecode/pipeline',
+        status: 'completed',
+        checks_run: 3,
+      },
+      {
+        scan_run_id: runId,
+        scanner_source: 'Tessl',
+        status: 'unreachable',
+        checks_run: 0,
+        detail: 'Node.js version 18 is not supported',
+      },
+    ],
+    findings: [
+      {
+        scan_run_id: runId,
+        severity: 'red',
+        category: 'prompt_injection',
+        file_path: 'SKILL.md',
+        location: '1',
+        entity_kind: null,
+        entity_name: null,
+        scanner_source: 'Cisco Skill Scanner: static/bytecode/pipeline',
+        message: 'prompt injection',
+        snippet: null,
+        cwe_ids: null,
+      },
+    ],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+  const item = result.data.items[0];
+
+  // -- Then --
+  assert.equal(result.source, 'live');
+  assert.equal(item.status, 'red', 'rollup heatmap_status must win over partial-failed');
+  assert.equal(item.risk, 2.1);
+  assert.match(item.errorMessage || '', /unreachable/i);
+  assert.notEqual(item.status, 'error');
+  const tessl = item.scanners.find((s) => s.source === 'Tessl');
+  assert.equal(tessl.status, 'unreachable');
+  assert.match(tessl.detail || '', /Node\.js/);
+  restoreFetch();
+});
+
 test('given zero items when loadData live then source is live-empty not mock', async () => {
   // -- Given --
   installWindow({

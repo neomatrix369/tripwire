@@ -54,7 +54,7 @@ Evidence labels: **VERIFIED** = observed this session · **IMPLEMENTED** = reach
 | # | Item | Why it matters | How to smoke-test | Expected | Status |
 |---|------|----------------|-------------------|----------|--------|
 | 15 | Guard hook (`guard/`) | Phase 4 story only | Mention as roadmap; do not block demo | N/A | **SKIP** — not required for Phase 1–3 demo |
-| 16 | Full scanner depth (Snyk / Cisco / Tessl) | Richer findings | Optional keys in `.env`; re-sync Modal | More completed scanners, fewer skips | **PARTIAL** — Cisco **VERIFIED** on packed fixture; Tessl needs Node≥20; Snyk cold-install unreachable this run |
+| 16 | Full scanner depth (Snyk / Cisco / Tessl) | Richer findings | Optional keys in `.env`; re-sync Modal | More completed scanners, fewer skips | **IN PROGRESS** — Cisco **VERIFIED**; image fix (Node 20 + preinstalled Snyk) **IMPLEMENTED** — redeploy + `TESSL_TOKEN` still required |
 | 17 | Hygiene gates | Pre-demo confidence | `cd cli && npm test`; optional `./scripts/quality-gates.sh --quick` | Green | **PARTIAL** — CLI tests PASS; full quality-gates **SKIP** |
 
 ---
@@ -74,12 +74,16 @@ Evidence labels: **VERIFIED** = observed this session · **IMPLEMENTED** = reach
 | Modal secret sync | P1 | SKIP | Re-run if keys changed |
 | `test_acquire_target` | P1 | PASS | 30/30 |
 | Fixtures on disk | P2 | PASS | See `fixtures/README.md` |
-| Drift / full scanners / guard | P2–P3 | SKIP | Tessl needs Node≥20 in image; Snyk cold-install flaky |
+| Drift / full scanners / guard | P2–P3 | SKIP | Redeploy Node20+Snyk image; Tessl needs `TESSL_TOKEN` |
 
 ### Top blockers right now
 
-1. **Tessl / Snyk still unreachable in sandbox** — Tessl needs Node ≥20 (image has v18); Snyk `uvx` cold-install noisy/unreachable on this run. Cisco Skill Scanner path is demo-ready.
-2. **Idempotent skip** — re-scanning unchanged fixtures yields no new run; bump content or pick another fixture for a fresh Modal run.
+1. **Redeploy Modal image** after Node 20 + preinstalled `snyk-agent-scan` (`./scripts/setup-modal.sh --deploy-only`). Until then Tessl/Snyk may still show `unreachable` on the old image.
+2. **Apply rollup DDL** — `tripwire setup` (or re-run `db/schema.sql`) so `partial-failed` computes risk instead of hard `error`, and `scan_run_scanners.detail` exists.
+3. **Idempotent skip** — re-scanning unchanged fixtures yields no new run; bump content or pick another fixture for a fresh Modal run.
+4. **Tessl auth** — even with Node ≥20, Tessl still needs a valid `TESSL_TOKEN` (and upload/workspace access) in Modal secrets.
+
+Orphan `status=running` rows: `node scripts/reconcile-stuck-scan-runs.mjs` (known prefixes from 2026-08-01 crashes).
 
 Live dashboard (direct anon or `node scripts/serve-dashboard.mjs`) is **no longer a blocker**. Local-path upload is **no longer a blocker**.
 
@@ -87,7 +91,7 @@ Live dashboard (direct anon or `node scripts/serve-dashboard.mjs`) is **no longe
 
 ## CLI → Modal sandbox (filming beat)
 
-**Verdict: READY** — film **CLI kickoff → `[acquire] packed` → Cisco findings** (red prompt_injection on the vuln fixture). Tessl/Snyk may still show `unreachable`; narrate Cisco as the detection beat or use Mock for a fuller heatmap.
+**Verdict: READY** — film **CLI kickoff → `[acquire] packed` → Cisco findings** (red prompt_injection on the vuln fixture). After redeploy (Node 20 + preinstalled Snyk) and `tripwire setup --force` (softened rollup), heatmap should show risk colors even if Tessl/Snyk stay `unreachable`. Narrate Cisco as the detection beat; Mock remains a denser heatmap safety net.
 
 ### Path (IMPLEMENTED)
 

@@ -36,7 +36,7 @@ async function upsertItem(supabase, target) {
   return { item: inserted, cached: false };
 }
 
-export async function runScan(targets, { concurrency = 5 } = {}) {
+export async function runScan(targets, { concurrency = 5, force = false } = {}) {
   await ensureSchema();
   const supabase = getSupabase();
   let batchId = null;
@@ -49,7 +49,7 @@ export async function runScan(targets, { concurrency = 5 } = {}) {
 
   const scanRunIds = await mapWithConcurrency(targets, concurrency, async (target) => {
     const { item, cached } = await upsertItem(supabase, target);
-    if (cached) {
+    if (cached && !force) {
       console.log(`[skip] ${target.target} — content unchanged since last scan`);
       return null;
     }
@@ -63,6 +63,7 @@ export async function runScan(targets, { concurrency = 5 } = {}) {
     } catch (err) {
       console.error(`[error] sandbox failed for ${target.target}: ${err.message}`);
       await supabase.from('scan_runs').update({ status: 'failed', completed_at: new Date().toISOString() }).eq('id', run.id);
+      await supabase.rpc('tripwire_rollup_item', { p_item_id: item.id });
     }
     return run.id;
   });
