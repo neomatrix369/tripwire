@@ -17,23 +17,23 @@
 **Then** sandbox evidence fields (id / timing / policy or egress phase as exposed today) are present and suitable for on-camera Sandbox beat — not empty when Live data is complete
 
 ## Before-Checks [GATE]
-- [ ] Branch created
-- [ ] Task file opened
-- [ ] Prior session recovery checked (if resuming)
-- [ ] Slice 1 evidence or golden payload available
+- [x] Branch created (`slice/3-gwt2-sandbox-evidence-acceptance`)
+- [x] Task file opened
+- [x] Prior session recovery checked — slice 1 ✅ (#14), slice 2 ✅ (#15)
+- [x] Slice 1 evidence available (`docs/plan/gate-evidence/slice-1.json`)
 
 ## TDD Execution
 Outside-in acceptance/unit mapping tests → GREEN → refactor.
 VERIFY+COVERAGE: `cd prototypes/dc-dashboard && npm test`.
 
 ## After-Checks [GATE]
-- [ ] Code committed with `test(slice-3): ...`
-- [ ] Tests pass with coverage
-- [ ] Specification coverage: GWT-2 clauses have ≥1 test
-- [ ] Branch coverage target on touched modules
-- [ ] Mutation testing if logic changed
-- [ ] Acceptance criteria met
-- [ ] Docs updated
+- [x] Code committed with `test(slice-03): ...`
+- [x] Tests pass — 38 pass / 1 skip
+- [x] Specification coverage: GWT-2 clauses have ≥1 test
+- [x] Branch coverage target on touched modules — N/A test-only
+- [x] Mutation testing N/A — characterization/acceptance mapping only
+- [x] Acceptance criteria met
+- [x] Docs updated — gate-evidence/slice-3.json
 
 ## Doc Audit (14-row checklist)
 | # | Item | Check |
@@ -41,17 +41,19 @@ VERIFY+COVERAGE: `cd prototypes/dc-dashboard && npm test`.
 | 1–14 | See slice-2 pattern | N/A unless behaviour change |
 
 ## Gate Status
-📋 PLANNED
+🔀 ON BRANCH — VERIFIED; awaiting PR merge
 
 ## What Changed
 | File | Type | Reason |
 |------|------|--------|
-| — | — | — |
+| prototypes/dc-dashboard/test/tripwire-live.test.js | test | GWT-2 must-show MCP sandbox acceptance |
+| docs/plan/gate-evidence/slice-3.json | evidence | slice 3 gate |
+| docs/plan/TRAIL.md / PROGRESS.md | plan | slice 2 ✅ · slice 3 🔀 |
 
 ## Session Metrics
 | Metric | Value |
 |--------|-------|
 | Estimated Pomos | 1 (~25 min) |
-| Execution time | — |
+| Execution time | ~5 min |
 | Blockers encountered | — |
-| Next-session notes | — |
+| Next-session notes | `/merge-pr-to-main` after approval; then slice 4 |

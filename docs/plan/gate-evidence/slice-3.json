@@ -1,0 +1,14 @@
+{
+  "slice": "slice-3-gwt2-sandbox-evidence-acceptance",
+  "date": "2026-08-02",
+  "branch": "slice/3-gwt2-sandbox-evidence-acceptance",
+  "gwt": "GWT-2 Sandbox evidence (must-show MCP)",
+  "commands": [
+    {
+      "cmd": "cd prototypes/dc-dashboard && npm test",
+      "result": "39 tests, 38 pass, 1 skip, 0 fail"
+    }
+  ],
+  "acceptance_test": "given must-show MCP completed scan_run when loadData live then GWT-2 sandbox evidence holds",
+  "verdict": "VERIFIED"
+}

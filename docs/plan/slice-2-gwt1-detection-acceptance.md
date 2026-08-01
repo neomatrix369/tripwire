@@ -48,7 +48,7 @@ VERIFY+COVERAGE: `cd prototypes/dc-dashboard && npm test` (and slow suite if add
 | 6–14 | Remainder | N/A unless public API changes |
 
 ## Gate Status
-🔀 ON BRANCH — VERIFIED; awaiting PR merge
+✅ PASSED — PR #15 merged
 
 ## What Changed
 | File | Type | Reason |
