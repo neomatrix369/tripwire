@@ -35,16 +35,23 @@
 # Platform plumbing (Phase 0/1 — separate Modal secret)
 #   SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY → secret `tripwire-supabase`
 #
-# Update / recreate secrets when adding keys:
+# Update / recreate secrets when adding keys (preferred):
+#
+#   ./scripts/setup-modal.sh --secrets-only
+#   # or full auth + secrets + deploy: ./scripts/setup-modal.sh
+#
+# The script reads repo-root `.env`, keeps only non-empty allowlisted keys
+# (lists above), overwrites Modal secrets with `--force`, and never echoes values.
+# Tier A (no scanner keys) gets sentinel TRIPWIRE_SCANNER_TIER=A so the secret
+# is non-empty (Modal requires ≥1 key).
+#
+# Manual CLI fallback (same allowlist):
 #
 #   unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy ALL_PROXY all_proxy
-#   export PYENV_VERSION=3.12.11
-#
 #   modal secret create tripwire-supabase \
 #     SUPABASE_URL="$SUPABASE_URL" \
-#     SUPABASE_SERVICE_ROLE_KEY="$SUPABASE_SERVICE_ROLE_KEY"
-#
-#   modal secret delete tripwire-scan-secrets --yes
+#     SUPABASE_SERVICE_ROLE_KEY="$SUPABASE_SERVICE_ROLE_KEY" \
+#     --force
 #   modal secret create tripwire-scan-secrets \
 #     SNYK_TOKEN="$SNYK_TOKEN" \
 #     TESSL_TOKEN="$TESSL_TOKEN" \
@@ -58,6 +65,8 @@
 #     AI_DEFENSE_API_KEY="$AI_DEFENSE_API_KEY" \
 #     MCP_SCANNER_API_KEY="$MCP_SCANNER_API_KEY" \
 #     MCP_SCANNER_ENDPOINT="${MCP_SCANNER_ENDPOINT:-https://us.api.inspect.aidefense.security.cisco.com/api/v1}" \
-#     VIRUSTOTAL_API_KEY="$VIRUSTOTAL_API_KEY"
+#     VIRUSTOTAL_API_KEY="$VIRUSTOTAL_API_KEY" \
+#     --force
 #
-# Upstream key names above — do not invent `CISCO_AI_DEFENSE_API_KEY` or `TRIPWIRE_*` env aliases.
+# Upstream key names above — do not invent `CISCO_AI_DEFENSE_API_KEY` aliases.
+# (TRIPWIRE_SCANNER_TIER is the setup-script Tier A sentinel only — not a scanner key.)
