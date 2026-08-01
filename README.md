@@ -2,6 +2,19 @@
 
 AI skill / MCP server security scanning platform.
 
+<!-- Primary stack (what runs Tripwire) -->
+[![Cursor](https://img.shields.io/badge/Cursor-000000?style=for-the-badge&logo=cursor&logoColor=white)](https://cursor.com)
+[![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=for-the-badge)](https://modal.com)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![Tripwire](https://img.shields.io/badge/Tripwire-1a1a2e?style=for-the-badge)](https://github.com/neomatrix369/tripwire)
+
+<!-- Scanner & partner (who we scan with / who sponsors) -->
+[![Cisco Skill/MCP Scanner](https://img.shields.io/badge/Cisco%20Skill%2FMCP%20Scanner-1BA0D7?style=flat&logo=cisco&logoColor=white)](https://developer.cisco.com)
+[![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
+[![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
+[![Overmind](https://img.shields.io/badge/Overmind-Phase%205-6B7280?style=flat)](https://overmind.tech)
+[![Ossprey](https://img.shields.io/badge/Ossprey-Sponsor-0F766E?style=flat)](https://www.ossprey.com/?utm_source=luma)
+
 Local build notes (gitignored): `internal-docs/00_build/security-scanning-platform-spec.md`
 and `internal-docs/00_build/build-day-decisions.md`.
 
@@ -14,8 +27,7 @@ and `internal-docs/00_build/build-day-decisions.md`.
 - `fixtures/` — scan targets for smoke tests (spec §8 table). See `fixtures/README.md` for the
   current green/amber/red set (safe baselines, drift pair, vuln skills/MCP servers).
 - `prototypes/dc-dashboard/` — Data Commons HTML dashboard (Live Supabase or Mock). See `prototypes/README.md`; prefer `node scripts/serve-dashboard.mjs`.
-- `docs/DEMO_READINESS.md` — prioritized smoke checklist + demo-day runbook (cold start → demo-ready).
-- `docs/DEMO_VIDEO_SCRIPT.md` — shot map + capture runbook; stills + VO live in Remotion (`claude-remotion-kickstart/public/projects/tripwire/`).
+- **Demo docs (moved to Remotion repo):** `claude-remotion-kickstart/public/projects/tripwire/docs/DEMO_READINESS.md` (smoke checklist + runbook) and `DEMO_VIDEO_SCRIPT.md` (shot map + capture runbook). Full path: `hackathons/openai-build-week-london-2026/claude-remotion-kickstart/public/projects/tripwire/docs/` in the `ai-ml-dl-stuff` monorepo.
 - `docs/research/adapters/scanner-output-adapters.md` — scanner output shapes the
   `sandbox/scanners.py` adapters are built from; update both together.
 
@@ -91,3 +103,6 @@ needs Supabase (auto-bootstrapped on first scan / `tripwire setup`) + a deployed
 - **RESEARCH, not VERIFIED:** the exact JSON field names in `sandbox/scanners.py` — cross-check
   against the pinned CLI version's own `--help`/output before this blocks a merge (mirrors the
   evidence labeling already used in `docs/research/adapters/scanner-output-adapters.md`).
+
+## Contribute
+See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports: [SECURITY.md](SECURITY.md).
