@@ -4,6 +4,9 @@ Each scan_run gets its own ephemeral sandbox. Disk here is scratch only —
 findings/logs are written directly to Supabase, never relayed through the CLI.
 """
 
+import os
+import shutil
+import subprocess
 from datetime import UTC, datetime
 
 import modal
@@ -44,9 +47,7 @@ def scan_item(target: str, item_type: str, scan_run_id: str, item_id: str):
 
     workdir = "/tmp/scan-target"
     try:
-        _acquire_target(
-            target, item_type, workdir
-        )  # STUB: git clone / file copy / MCP introspection
+        _acquire_target(target, item_type, workdir)
         results = run_all_scanners(workdir=workdir, item_type=item_type, target=target)
     except (
         Exception
@@ -82,11 +83,62 @@ def scan_item(target: str, item_type: str, scan_run_id: str, item_id: str):
     # scratch disk teardown is implicit — the Modal sandbox itself is ephemeral and discarded here.
 
 
-def _acquire_target(target: str, item_type: str, workdir: str):
-    """STUB: real implementation dispatches on target shape —
-    local upload (already copied in by the CLI), `git clone` for a repo URL,
-    or a live MCP protocol handshake for introspection-only servers.
-    Never happens at image build time — always at runtime, inside this sandbox."""
-    import os
+_CLONE_TIMEOUT = int(os.environ.get("TRIPWIRE_CLONE_TIMEOUT", 120))
 
+
+def _is_git_url(target: str) -> bool:
+    """True when *target* looks like a clonable git repository URL.
+
+    Unambiguous schemes (git://, git@, ssh://) are always git.
+    https:// is git (GitHub/GitLab/etc are the dominant case for Tripwire).
+    http:// is only git when the path ends with .git — bare http:// is how
+    MCP servers expose SSE/streamable-HTTP transport and must not be cloned.
+    """
+    if target.startswith(("git://", "git@", "ssh://")):
+        return True
+    if target.startswith("https://"):
+        return True
+    if target.startswith("http://") and target.rstrip("/").endswith(".git"):
+        return True
+    if target.rstrip("/").endswith(".git"):
+        return True
+    return False
+
+
+def _acquire_target(target: str, item_type: str, workdir: str):
+    """Dispatch on target shape to populate *workdir* with scannable content.
+
+    • Git URL  → shallow clone (depth=1, single-branch).
+    • Local path (directory on disk) → recursive copy.
+    • Anything else (MCP server URL, stdio transport, etc.) → introspection-only:
+      create an empty workdir and let scanners use *target* directly via protocol.
+
+    Raises on clone / copy failure so scan_item marks the run as failed.
+    """
     os.makedirs(workdir, exist_ok=True)
+
+    if _is_git_url(target):
+        _clone_repo(target, workdir)
+        return
+
+    if os.path.isdir(target):
+        _copy_local(target, workdir)
+        return
+
+    # Introspection-only: empty workdir is intentional — scanners that need
+    # source on disk will report not_applicable; protocol scanners use `target`.
+
+
+def _clone_repo(url: str, workdir: str):
+    result = subprocess.run(
+        ["git", "clone", "--depth", "1", "--single-branch", url, workdir],
+        capture_output=True,
+        text=True,
+        timeout=_CLONE_TIMEOUT,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"git clone failed (exit {result.returncode}): {result.stderr[:500]}")
+
+
+def _copy_local(src: str, workdir: str):
+    shutil.copytree(src, workdir, dirs_exist_ok=True)

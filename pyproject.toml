@@ -37,6 +37,9 @@ select = ["E", "F", "I", "N", "W", "UP"]
 # E702 deferred — scanner adapters still use compact semicolon chaining.
 ignore = ["E501", "E702"]
 
+[tool.pytest.ini_options]
+pythonpath = ["sandbox"]
+
 [tool.bandit]
 exclude_dirs = ["tests", ".venv", "fixtures", "prototypes", "cli", "internal-docs"]
 # B101: assert used in tests / guards
