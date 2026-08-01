@@ -49,8 +49,11 @@ create table if not exists scan_run_scanners (
   scan_run_id    uuid not null references scan_runs(id),
   scanner_source text not null,
   status         text not null check (status in ('completed','skipped_missing_credential','unreachable','not_applicable')),
-  checks_run     integer
+  checks_run     integer,
+  detail         text  -- optional stderr / reason (e.g. unreachable engines)
 );
+-- Additive for DBs created before `detail` existed:
+alter table scan_run_scanners add column if not exists detail text;
 
 create table if not exists findings (
   id                 uuid primary key default gen_random_uuid(),
@@ -96,7 +99,36 @@ create table if not exists config (
 );
 insert into config (id) values (1) on conflict (id) do nothing;
 
+-- ─── Row Level Security ──────────────────────────────────────────────────────
+-- Anon (browser dashboard) may SELECT; writes require service_role (bypasses RLS).
+alter table items              enable row level security;
+alter table scan_runs          enable row level security;
+alter table scan_run_scanners  enable row level security;
+alter table findings           enable row level security;
+
+do $$ begin
+  if not exists (select 1 from pg_policies where policyname = 'anon_read_items') then
+    create policy anon_read_items             on items              for select to anon using (true);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'anon_read_scan_runs') then
+    create policy anon_read_scan_runs         on scan_runs          for select to anon using (true);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'anon_read_scan_run_scanners') then
+    create policy anon_read_scan_run_scanners on scan_run_scanners  for select to anon using (true);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'anon_read_findings') then
+    create policy anon_read_findings          on findings           for select to anon using (true);
+  end if;
+end $$;
+
+-- PostgREST needs table GRANTs in addition to RLS policies (tables created via
+-- raw SQL as postgres do not always inherit default API grants).
+grant usage on schema public to anon, authenticated;
+grant select on table items, scan_runs, scan_run_scanners, findings to anon, authenticated;
+
 -- Rollup function: recompute an item's heatmap_status/risk_score from its latest scan_run.
+-- partial-failed still computes risk from completed engines (Cisco findings must paint
+-- red/amber/green, not hard ERROR). failed / running / empty partial → error.
 create or replace function tripwire_rollup_item(p_item_id uuid) returns void as $$
 declare
   v_latest_run_id uuid;
@@ -115,13 +147,20 @@ begin
     return;
   end if;
 
-  if v_latest_status <> 'complete' then
+  -- Hard failure / still-running / unknown: paint error (no risk from incomplete work).
+  if v_latest_status not in ('complete', 'partial-failed') then
     update items set heatmap_status = 'error', updated_at = now() where id = p_item_id;
     return;
   end if;
 
   select coalesce(sum(checks_run), 0) into v_total_checks
   from scan_run_scanners where scan_run_id = v_latest_run_id and status = 'completed';
+
+  -- partial-failed with zero completed engines has nothing to score → error.
+  if v_latest_status = 'partial-failed' and v_total_checks = 0 then
+    update items set heatmap_status = 'error', risk_score = null, updated_at = now() where id = p_item_id;
+    return;
+  end if;
 
   select count(*) filter (where severity = 'red'), count(*) filter (where severity = 'amber')
   into v_red_count, v_amber_count

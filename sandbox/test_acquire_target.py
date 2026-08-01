@@ -1,0 +1,310 @@
+"""Unit tests for _acquire_target dispatch logic.
+
+Author: tripwire
+Created: 2026-08-01
+Scope: git clone, local copy, archive upload/extract, filesystem-path guard,
+       introspection-only empty workdir; _is_git_url / _maybe_pack_local_target
+
+Tests the paths (git clone, local copy, archive extract, introspection-only)
+using tmp dirs and subprocess mocking — no network, no Modal, no Supabase.
+"""
+
+import os
+import subprocess
+import sys
+import types
+from unittest.mock import patch
+
+import pytest
+
+# scan_app imports `modal` and `supabase` at module level; stub them so the
+# test suite works without those heavy dependencies installed.
+for _mod in ("modal", "supabase"):
+    if _mod not in sys.modules:
+        sys.modules[_mod] = types.ModuleType(_mod)
+
+# modal.App, modal.Image, modal.Secret — used at import-time by scan_app
+_modal = sys.modules["modal"]
+
+
+class _FakeImage:
+    def debian_slim(self, **kw):
+        return self
+
+    def apt_install(self, *a):
+        return self
+
+    def run_commands(self, *a):
+        return self
+
+    def pip_install(self, *a):
+        return self
+
+    def add_local_python_source(self, *a, **kw):
+        return self
+
+
+class _FakeApp:
+    def __init__(self, *a, **kw):
+        pass
+
+    def function(self, **kw):
+        def decorator(fn):
+            return fn
+
+        return decorator
+
+    def local_entrypoint(self, **kw):
+        def decorator(fn):
+            return fn
+
+        return decorator
+
+
+class _FakeSecret:
+    @staticmethod
+    def from_name(n):
+        return n
+
+
+_modal.App = _FakeApp  # type: ignore[attr-defined]
+_modal.Image = _FakeImage()  # type: ignore[attr-defined]
+_modal.Secret = _FakeSecret  # type: ignore[attr-defined]
+
+from scan_app import (  # noqa: E402
+    _acquire_target,
+    _extract_archive,
+    _is_git_url,
+    _looks_like_filesystem_path,
+    _maybe_pack_local_target,
+    _pack_local_dir,
+)
+
+# ── _is_git_url classification ──────────────────────────────────────────────
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://github.com/org/repo.git",
+        "https://github.com/org/repo",
+        "git://github.com/org/repo.git",
+        "git@github.com:org/repo.git",
+        "ssh://git@github.com/org/repo.git",
+        "https://gitlab.example.com/team/project",
+    ],
+)
+def test_is_git_url_recognises_git_urls(url):
+    assert _is_git_url(url) is True
+
+
+@pytest.mark.parametrize(
+    "target",
+    [
+        "/tmp/local-skill",
+        "./relative/path",
+        "stdio://some-mcp-server",
+        "http://mcp-server.example.com:8080/sse",
+    ],
+)
+def test_is_git_url_rejects_non_git_targets(target):
+    assert _is_git_url(target) is False
+
+
+# ── Filesystem-path detection ───────────────────────────────────────────────
+
+
+@pytest.mark.parametrize(
+    "target",
+    [
+        "./fixtures/skills/vuln-prompt-injection-notes",
+        "/abs/path/to/skill",
+        "relative/skill-dir",
+    ],
+)
+def test_looks_like_filesystem_path_for_host_paths(target):
+    assert _looks_like_filesystem_path(target) is True
+
+
+@pytest.mark.parametrize(
+    "target",
+    [
+        "stdio://my-mcp-server",
+        "http://localhost:8080/sse",
+        "https://github.com/org/repo",
+        "git@github.com:org/repo.git",
+    ],
+)
+def test_looks_like_filesystem_path_rejects_protocol_targets(target):
+    assert _looks_like_filesystem_path(target) is False
+
+
+# ── Git clone path ──────────────────────────────────────────────────────────
+
+
+def test_acquire_target_clones_git_url(tmp_path):
+    workdir = str(tmp_path / "scan-target")
+    fake_result = subprocess.CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+
+    with patch("scan_app.subprocess.run", return_value=fake_result) as mock_run:
+        _acquire_target("https://github.com/org/repo.git", "skill", workdir)
+
+    mock_run.assert_called_once()
+    args = mock_run.call_args[0][0]
+    assert args[0] == "git"
+    assert "clone" in args
+    assert "--depth" in args
+    assert "https://github.com/org/repo.git" in args
+    assert workdir in args
+    assert os.path.isdir(workdir)
+
+
+def test_acquire_target_raises_on_clone_failure(tmp_path):
+    workdir = str(tmp_path / "scan-target")
+    fake_result = subprocess.CompletedProcess(
+        args=[], returncode=128, stdout="", stderr="fatal: repo not found"
+    )
+
+    with patch("scan_app.subprocess.run", return_value=fake_result):
+        with pytest.raises(RuntimeError, match="git clone failed"):
+            _acquire_target("https://github.com/org/repo.git", "skill", workdir)
+
+
+# ── Local copy path ─────────────────────────────────────────────────────────
+
+
+def test_acquire_target_copies_local_directory(tmp_path):
+    src = tmp_path / "source-skill"
+    src.mkdir()
+    (src / "SKILL.md").write_text("# Test skill")
+    (src / "sub").mkdir()
+    (src / "sub" / "helper.py").write_text("pass")
+
+    workdir = str(tmp_path / "scan-target")
+    _acquire_target(str(src), "skill", workdir)
+
+    assert os.path.isfile(os.path.join(workdir, "SKILL.md"))
+    assert os.path.isfile(os.path.join(workdir, "sub", "helper.py"))
+
+
+# ── Archive upload path (host → Modal) ──────────────────────────────────────
+
+
+def test_pack_and_extract_roundtrip_preserves_skill_md(tmp_path):
+    """
+    Scenario: Host packs a fixture dir; remote extract restores SKILL.md.
+    Slice: local-path upload
+
+    Given a local skill directory with SKILL.md and a nested file,
+    When it is packed then extracted into a fresh workdir,
+    Then both files are present under the workdir.
+    """
+    ### Given
+    src = tmp_path / "fixture-skill"
+    src.mkdir()
+    (src / "SKILL.md").write_text("# Injected skill\n")
+    (src / "notes").mkdir()
+    (src / "notes" / "extra.txt").write_text("payload")
+    workdir = str(tmp_path / "scan-target")
+    os.makedirs(workdir)
+
+    ### When
+    archive = _pack_local_dir(str(src))
+    _extract_archive(archive, workdir)
+
+    ### Then
+    assert os.path.isfile(os.path.join(workdir, "SKILL.md")), "SKILL.md missing after extract"
+    assert os.path.isfile(os.path.join(workdir, "notes", "extra.txt")), "nested file missing"
+
+
+def test_maybe_pack_local_target_returns_bytes_for_directory(tmp_path):
+    ### Given
+    src = tmp_path / "skill"
+    src.mkdir()
+    (src / "SKILL.md").write_text("x")
+
+    ### When
+    archive = _maybe_pack_local_target(str(src))
+
+    ### Then
+    assert archive is not None
+    assert isinstance(archive, bytes)
+    assert len(archive) > 0
+
+
+@pytest.mark.parametrize(
+    "target",
+    [
+        "https://github.com/org/repo.git",
+        "stdio://mcp",
+        "http://localhost:8080/sse",
+        "/no/such/directory-on-host",
+    ],
+)
+def test_maybe_pack_local_target_returns_none_when_not_local_dir(target):
+    assert _maybe_pack_local_target(target) is None
+
+
+def test_acquire_target_extracts_uploaded_archive(tmp_path):
+    """
+    Scenario: Remote sandbox receives archive bytes and populates workdir.
+    Slice: local-path upload
+
+    Given a packed local skill and a remote-style path that does not exist on disk,
+    When _acquire_target is called with target_archive,
+    Then SKILL.md appears in workdir (upload path, not local copy).
+    """
+    ### Given
+    src = tmp_path / "host-skill"
+    src.mkdir()
+    (src / "SKILL.md").write_text("# From host\n")
+    archive = _pack_local_dir(str(src))
+    workdir = str(tmp_path / "scan-target")
+    # Path string looks local but is absent on this "remote" filesystem:
+    remote_looking = str(tmp_path / "does-not-exist-on-remote" / "vuln-skill")
+
+    ### When
+    _acquire_target(remote_looking, "skill", workdir, target_archive=archive)
+
+    ### Then
+    skill_path = os.path.join(workdir, "SKILL.md")
+    assert os.path.isfile(skill_path), "expected SKILL.md from uploaded archive"
+    assert open(skill_path).read() == "# From host\n"
+
+
+def test_acquire_target_raises_when_local_path_missing_without_archive(tmp_path):
+    """
+    Scenario: Filesystem-looking target with no upload fails loudly (no empty workdir).
+    Slice: local-path upload guard
+
+    Given a host-style path that is not on disk and no target_archive,
+    When _acquire_target runs,
+    Then it raises RuntimeError instead of silently leaving an empty workdir.
+    """
+    ### Given
+    workdir = str(tmp_path / "scan-target")
+    missing = str(tmp_path / "fixtures" / "skills" / "missing-skill")
+
+    ### When / Then
+    with pytest.raises(RuntimeError, match="no archive uploaded"):
+        _acquire_target(missing, "skill", workdir)
+
+
+# ── Introspection-only path ─────────────────────────────────────────────────
+
+
+def test_acquire_target_creates_empty_workdir_for_introspection(tmp_path):
+    workdir = str(tmp_path / "scan-target")
+    _acquire_target("stdio://my-mcp-server", "mcp_server", workdir)
+
+    assert os.path.isdir(workdir)
+    assert os.listdir(workdir) == []
+
+
+def test_acquire_target_creates_empty_workdir_for_http_mcp(tmp_path):
+    """HTTP MCP servers are introspection-only (not git repos)."""
+    workdir = str(tmp_path / "scan-target")
+    _acquire_target("http://localhost:8080/sse", "mcp_server", workdir)
+
+    assert os.path.isdir(workdir)
+    assert os.listdir(workdir) == []

@@ -45,8 +45,12 @@ def _skipped(source, reason="skipped_missing_credential"):
 
 
 def _unreachable(source, stderr):
-    print("[{}] unreachable: {}".format(source, (stderr or "")[:400]))
-    return {"scanner_source": source, "status": "unreachable", "checks_run": 0}
+    detail = (stderr or "").strip()
+    print(f"[{source}] unreachable: {detail[:400]}")
+    row = {"scanner_source": source, "status": "unreachable", "checks_run": 0}
+    if detail:
+        row["detail"] = detail[:4000]
+    return row
 
 
 def _safe_json(text):
@@ -203,26 +207,29 @@ def run_cisco_mcp_scanner(workdir, target):
 
 # ---- Snyk Agent Scan ---------------------------------------------------------
 # docs/research/adapters/scanner-output-adapters.md §2
-# Capture: uvx snyk-agent-scan@latest --ci --dangerously-run-mcp-servers --json <path>
+# Prefer image-preinstalled `snyk-agent-scan` (uv tool install); fall back to uvx.
+
+
+def _snyk_cmd(workdir):
+    flags = ["--ci", "--dangerously-run-mcp-servers", "--json", workdir]
+    if _which("snyk-agent-scan"):
+        return ["snyk-agent-scan", *flags]
+    if _which("uvx"):
+        return ["uvx", "snyk-agent-scan@latest", *flags]
+    return None
 
 
 def run_snyk(workdir):
     source = "Snyk"
     if not os.environ.get("SNYK_TOKEN"):
         return [], [_skipped(source)]
-    if not _which("uvx"):
-        return [], [_unreachable(source, "uvx not available (uv missing from image)")]
-
-    code, out, err = _run(
-        [
-            "uvx",
-            "snyk-agent-scan@latest",
-            "--ci",
-            "--dangerously-run-mcp-servers",
-            "--json",
-            workdir,
+    cmd = _snyk_cmd(workdir)
+    if cmd is None:
+        return [], [
+            _unreachable(source, "snyk-agent-scan not installed and uvx missing from image")
         ]
-    )
+
+    code, out, err = _run(cmd)
     if code != 0:
         return [], [_unreachable(source, err)]
 

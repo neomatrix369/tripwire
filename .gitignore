@@ -19,6 +19,9 @@ internal-docs/
 *.key
 secrets/
 
+# Dashboard local config (contains Supabase anon key)
+prototypes/dc-dashboard/tripwire-dashboard.config.js
+
 # OS / editor
 .DS_Store
 Thumbs.db
