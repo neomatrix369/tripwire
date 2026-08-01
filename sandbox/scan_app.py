@@ -4,6 +4,7 @@ Each scan_run gets its own ephemeral sandbox. Disk here is scratch only —
 findings/logs are written directly to Supabase, never relayed through the CLI.
 """
 
+import os
 from datetime import UTC, datetime
 
 import modal
@@ -22,9 +23,9 @@ image = (
     )
 )
 
-TIMEOUT_SECONDS = (
-    300  # hard sandbox-level timeout (spec Phase 1): kill whole sandbox, mark scan_run failed
-)
+TIMEOUT_SECONDS = int(
+    os.environ.get("TRIPWIRE_SANDBOX_TIMEOUT", 900)
+)  # hard sandbox-level timeout: kill whole sandbox, mark scan_run failed
 
 
 @app.function(

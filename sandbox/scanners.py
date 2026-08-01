@@ -14,7 +14,7 @@ import os
 import shutil
 import subprocess
 
-SCAN_TIMEOUT = 240  # leaves headroom under the sandbox's 300s hard timeout
+SCAN_TIMEOUT = int(os.environ.get("TRIPWIRE_SCANNER_TIMEOUT", 600))
 
 # Severity collapse (docs/research/adapters/scanner-output-adapters.md §1, PROPOSED)
 _SNYK_CODE_CATEGORY = {
