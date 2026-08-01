@@ -1,10 +1,28 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import { discoverTargets } from '../src/discovery.js';
+import { ensureSchema } from '../src/ensureSchema.js';
+import { loadEnv } from '../src/loadEnv.js';
 import { runScan } from '../src/orchestrator.js';
+
+loadEnv();
 
 const program = new Command();
 program.name('tripwire').description('Scan AI skills and MCP servers for security issues');
+
+program
+  .command('setup')
+  .description('Apply db/schema.sql to Supabase if tables are missing (uses SUPABASE_DB_URL)')
+  .option('--force', 're-apply schema even if probe says ready', false)
+  .action(async (opts) => {
+    try {
+      const result = await ensureSchema({ force: Boolean(opts.force) });
+      console.log(JSON.stringify(result));
+    } catch (err) {
+      console.error(err.message || err);
+      process.exitCode = 1;
+    }
+  });
 
 program
   .command('scan', { isDefault: true })

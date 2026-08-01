@@ -1,8 +1,9 @@
 -- Tripwire schema (Supabase / Postgres). Source of truth: spec Section 4.
+-- Idempotent: safe to re-run via `tripwire setup` / first-scan auto-bootstrap.
 
 create extension if not exists pgcrypto;
 
-create table items (
+create table if not exists items (
   id               uuid primary key default gen_random_uuid(),
   type             text not null check (type in ('skill', 'mcp_server')),
   name             text not null,
@@ -19,9 +20,9 @@ create table items (
   updated_at       timestamptz not null default now(),
   unique (content_hash)
 );
-create index items_identifier_idx on items (identifier);
+create index if not exists items_identifier_idx on items (identifier);
 
-create table scan_batches (
+create table if not exists scan_batches (
   id                 uuid primary key default gen_random_uuid(),
   source_path        text not null,
   item_count         integer not null,
@@ -29,7 +30,7 @@ create table scan_batches (
   created_at         timestamptz not null default now()
 );
 
-create table scan_runs (
+create table if not exists scan_runs (
   id            uuid primary key default gen_random_uuid(),
   item_id       uuid not null references items(id),
   batch_id      uuid references scan_batches(id),
@@ -41,9 +42,9 @@ create table scan_runs (
   started_at    timestamptz not null default now(),
   completed_at  timestamptz
 );
-create index scan_runs_item_idx on scan_runs (item_id, started_at desc);
+create index if not exists scan_runs_item_idx on scan_runs (item_id, started_at desc);
 
-create table scan_run_scanners (
+create table if not exists scan_run_scanners (
   id             uuid primary key default gen_random_uuid(),
   scan_run_id    uuid not null references scan_runs(id),
   scanner_source text not null,
@@ -51,7 +52,7 @@ create table scan_run_scanners (
   checks_run     integer
 );
 
-create table findings (
+create table if not exists findings (
   id                 uuid primary key default gen_random_uuid(),
   scan_run_id        uuid not null references scan_runs(id),
   item_id            uuid not null references items(id),
@@ -74,10 +75,10 @@ create table findings (
   scanner_source     text not null,
   created_at         timestamptz not null default now()
 );
-create index findings_item_idx on findings (item_id);
-create index findings_scan_run_idx on findings (scan_run_id);
+create index if not exists findings_item_idx on findings (item_id);
+create index if not exists findings_scan_run_idx on findings (scan_run_id);
 
-create table coverage (
+create table if not exists coverage (
   id             uuid primary key default gen_random_uuid(),
   scan_run_id    uuid not null references scan_runs(id),
   scanner_source text not null,
@@ -86,7 +87,7 @@ create table coverage (
   scanned        boolean not null
 );
 
-create table config (
+create table if not exists config (
   id                  int primary key default 1,
   monitoring_enabled  boolean not null default true,
   threshold           text not null default 'red',

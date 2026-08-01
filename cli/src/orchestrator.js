@@ -1,3 +1,4 @@
+import { ensureSchema } from './ensureSchema.js';
 import { getSupabase } from './supabaseClient.js';
 import { hashLocalPath } from './hash.js';
 import { spawnScanSandbox } from './modalClient.js';
@@ -36,6 +37,7 @@ async function upsertItem(supabase, target) {
 }
 
 export async function runScan(targets, { concurrency = 5 } = {}) {
+  await ensureSchema();
   const supabase = getSupabase();
   let batchId = null;
   if (targets.length > 1) {
