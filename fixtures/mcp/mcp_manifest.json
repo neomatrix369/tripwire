@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "safe-time-server": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "fixtures/mcp/safe-time-server/run.sh"
+      ]
+    }
+  }
+}

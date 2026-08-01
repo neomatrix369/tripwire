@@ -1,0 +1,83 @@
+# Trusted Source Domains for Evidence-Driven Research
+# Used by knowledge-researcher agent to validate source credibility
+# Seeded 2026-08-01 from nw-research defaults + Tripwire scanner domains.
+
+academic:
+  description: "Peer-reviewed academic and research institutions"
+  domains:
+    - "*.edu"
+    - "*.ac.uk"
+    - "scholar.google.com"
+    - "arxiv.org"
+    - "ieee.org"
+    - "acm.org"
+  reputation: high
+
+official:
+  description: "Government, standards organizations, and official documentation"
+  domains:
+    - "*.gov"
+    - "w3.org"
+    - "ietf.org"
+    - "nist.gov"
+    - "docs.python.org"
+    - "developer.cisco.com"
+    - "docs.snyk.io"
+    - "docs.tessl.io"
+    - "supabase.com/docs"
+  reputation: high
+
+industry_leaders:
+  description: "Established technology companies and recognized industry experts"
+  domains:
+    - "github.com"
+    - "stackoverflow.com"
+    - "infoq.com"
+  reputation: medium-high
+
+technical_documentation:
+  description: "Official technical documentation and established platforms"
+  domains:
+    - "readthedocs.org"
+    - "pypi.org"
+    - "modal.com/docs"
+  reputation: high
+
+# Tripwire-specific scanner / vendor primary sources (prefer these for adapter work)
+tripwire_scanners:
+  description: "Primary upstreams for Phase 2 scanner adapters"
+  domains:
+    - "github.com/cisco-ai-defense"
+    - "github.com/snyk"
+    - "developer.cisco.com/docs/ai-defense"
+    - "docs.snyk.io"
+    - "docs.tessl.io"
+    - "pypi.org/project/cisco-ai-skill-scanner"
+    - "pypi.org/project/cisco-ai-mcp-scanner"
+  reputation: high
+
+excluded:
+  description: "Sources excluded due to low quality control or bias"
+  domains:
+    - "*.blogspot.com"
+    - "wordpress.com"
+    - "tumblr.com"
+    - "pastebin.com"
+    - "quora.com"
+  reason: "Unverified sources, potential bias, low quality control"
+  action: "Reject and log warning"
+
+validation_rules:
+  minimum_sources_per_claim: 2
+  cross_reference_required: true
+  reputation_scoring:
+    high: 1.0
+    medium-high: 0.8
+    medium: 0.6
+    low: 0.0
+  required_metadata:
+    - source_url
+    - domain
+    - access_date
+    - reputation_score
+    - verification_status
