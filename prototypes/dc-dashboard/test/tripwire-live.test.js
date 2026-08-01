@@ -465,6 +465,118 @@ test(
   }
 );
 
+test('given running run with stale green heatmap when loadData live then status is running', async () => {
+  // -- Given --
+  const itemId = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee';
+  const runId = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
+  installWindow({
+    SUPABASE_URL: 'https://proj.supabase.co',
+    SUPABASE_ANON_KEY: 'anon',
+  });
+  mockFetchByTable({
+    items: [
+      {
+        id: itemId,
+        type: 'skill',
+        name: 'in-flight',
+        identifier: 'in-flight',
+        heatmap_status: 'green',
+        risk_score: 0.1,
+        quality_score: null,
+        install_locus: 'local',
+        source_availability: 'source_on_disk',
+      },
+    ],
+    scan_runs: [
+      {
+        id: runId,
+        item_id: itemId,
+        status: 'running',
+        started_at: '2026-08-01T15:00:00Z',
+        completed_at: null,
+      },
+    ],
+    scan_run_scanners: [],
+    findings: [],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+  const item = result.data.items[0];
+
+  // -- Then --
+  assert.equal(item.status, 'running', 'collapsed card must show SCANNING over stale heatmap');
+  assert.equal(item.lastScan, null);
+  assert.equal(item.scanStartedAt, '2026-08-01T15:00:00Z');
+  restoreFetch();
+});
+
+test('given error heatmap with red findings when loadData live then status is red', async () => {
+  // -- Given --
+  const itemId = '12121212-1212-1212-1212-121212121212';
+  const runId = '34343434-3434-3434-3434-343434343434';
+  installWindow({
+    SUPABASE_URL: 'https://proj.supabase.co',
+    SUPABASE_ANON_KEY: 'anon',
+  });
+  mockFetchByTable({
+    items: [
+      {
+        id: itemId,
+        type: 'skill',
+        name: 'messy-heatmap',
+        identifier: 'messy-heatmap',
+        heatmap_status: 'error',
+        risk_score: null,
+        quality_score: null,
+        install_locus: 'local',
+        source_availability: 'source_on_disk',
+      },
+    ],
+    scan_runs: [
+      {
+        id: runId,
+        item_id: itemId,
+        status: 'partial-failed',
+        started_at: '2026-08-01T16:00:00Z',
+        completed_at: '2026-08-01T16:01:00Z',
+      },
+    ],
+    scan_run_scanners: [
+      {
+        scan_run_id: runId,
+        scanner_source: 'Cisco',
+        status: 'completed',
+        checks_run: 3,
+      },
+    ],
+    findings: [
+      {
+        scan_run_id: runId,
+        severity: 'red',
+        category: 'prompt_injection',
+        file_path: 'SKILL.md',
+        location: '1',
+        entity_kind: null,
+        entity_name: null,
+        scanner_source: 'Cisco',
+        message: 'prompt injection',
+        snippet: null,
+        cwe_ids: null,
+      },
+    ],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+
+  // -- Then --
+  assert.equal(result.data.items[0].status, 'red');
+  restoreFetch();
+});
+
 function hasLiveConfigForSmoke() {
   if (!existsSync(CONFIG_PATH)) return false;
   const cfg = readLiveConfigForSmoke();

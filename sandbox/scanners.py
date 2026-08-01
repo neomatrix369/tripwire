@@ -408,9 +408,11 @@ def _collapse_severity(raw):
     r = raw.upper()
     if r in ("CRITICAL", "HIGH"):
         return "red"
-    if r == "MEDIUM":
+    # MEDIUM and LOW are actionable vulns → amber. INFO soft-findings → green.
+    # Aggregate "green" (no vuln) is absence of red/amber findings, not a LOW row.
+    if r in ("MEDIUM", "LOW"):
         return "amber"
-    if r in ("LOW", "INFO"):
+    if r in ("INFO", "INFORMATIONAL"):
         return "green"
     return None  # SAFE / empty — no finding row
 

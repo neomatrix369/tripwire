@@ -5,9 +5,11 @@ Smoke results below were re-checked **2026-08-01 ~15:05 UTC+1** on branch `fix/d
 
 Evidence labels: **VERIFIED** = observed this session · **IMPLEMENTED** = reachable in code · **SKIP** = not exercised here (manual steps given).
 
-**Overall verdict: PARTIAL** — filmable now with Mock Detection + Live CLI Sandbox; Live findings UI is thin for the “precise entity” beat. Full Tessl/Snyk depth still open.
+**Overall verdict: PARTIAL** for full live E2E (Tessl/Snyk / thin Live entity fields). **READY for stills+VO** via **Mock / demo data only** (stills re-verified 2026-08-01: Guard select **Mock (demo data)**, chip **Demo data** — not Live · Supabase).
 
-**Demo video script & production:** [DEMO_VIDEO_SCRIPT.md](./DEMO_VIDEO_SCRIPT.md) (shot list, VO, capture runbook, Remotion drop-in).
+**Demo video script + capture:** [DEMO_VIDEO_SCRIPT.md](./DEMO_VIDEO_SCRIPT.md) — all storyboard stills / Detection+Sandbox VO assume Mock.
+**Audio VO (canonical in Remotion repo):** `…/claude-remotion-kickstart/public/projects/tripwire/VO_AUDIO.md` (+ `.txt`) — **RECORDED** (~73.9s / 73.888s `audio/vo.mp3`; `ENABLE_VO = true`).
+**Stills (canonical in Remotion repo):** `…/claude-remotion-kickstart/public/projects/tripwire/stills/` (`01`–`05`; capture in Mock mode).
 
 ---
 
@@ -31,7 +33,7 @@ Evidence labels: **VERIFIED** = observed this session · **IMPLEMENTED** = reach
 | Modal `tripwire-scan` deploy + packing | **READY** | Live CLI Sandbox beat |
 | Cisco findings on vuln skill fixture | **READY** | Live scan (narrate Cisco); Tessl/Snyk may `unreachable` |
 | Dashboard Mock (12 items, file/line + MCP entity) | **READY** | **Prefer for Detection** |
-| Dashboard Live list (items heatmap) | **PARTIAL** | OK for “we store results”; colors messy on some vuln rows |
+| Dashboard Live list (items heatmap) | **PARTIAL** | OK for “we store results”; Live status mapping fixed 2026-08-01 (execution vs result colors; see `prototypes/dc-dashboard/tripwire-status.js`) |
 | Dashboard Live findings detail | **PARTIAL** | file/line on some Cisco rows **VERIFIED**; **0 `entity_name`** — weak for MCP precision VO |
 | Tessl / Snyk completed | **NOT READY** | Narrate skips; don’t claim depth |
 | Drift pair / Guard hook | **NOT READY** / skip | Out of Remotion cut |
@@ -84,13 +86,13 @@ Evidence labels: **VERIFIED** = observed this session · **IMPLEMENTED** = reach
 | Item | Priority | Status | Notes |
 |------|----------|--------|-------|
 | Env + `tripwire setup` | P0 | PASS | `{"status":"ready"}` |
-| CLI help + unit tests | P0 | PASS | 10/10 |
+| CLI help + unit tests | P0 | PASS | 17/17 (incl. `--force`) |
 | Schema / `items` probe | P0 | PASS | Reachable |
 | Modal `tripwire-scan` deploy | P0 | **PASS** | `scanners` packaged (`copy=True`); redeployed |
 | Dashboard mock assets | P0 | PASS | Serve folder; Mock mode |
 | Dry-discover fixtures | P1 | PASS | Skill + MCP manifest |
 | Live fixture scan | P1 | **PASS** | Packing **VERIFIED**; Cisco findings (7) incl. red prompt_injection; Tessl/Snyk still unreachable |
-| Live dashboard config | P1 | **PASS** | Anon key synced; Live reads items (5); `npm test` 9/9 |
+| Live dashboard config | P1 | **PASS** | Anon key synced; Live REST **VERIFIED** (12 items / 48 findings); entity precision still thin; `npm test` 9 pass / 1 skip |
 | Modal secret sync | P1 | SKIP | Re-run if keys changed |
 | `test_acquire_target` | P1 | PASS | 30/30 |
 | Fixtures on disk | P2 | PASS | See `fixtures/README.md` |

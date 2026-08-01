@@ -11,12 +11,7 @@
  * Empty successful responses stay on Live (source: live-empty).
  */
 
-const STATUS_FROM_RISK = (risk) => {
-  if (risk == null) return "grey";
-  if (risk >= 1.5) return "red";
-  if (risk >= 0.3) return "amber";
-  return "green";
-};
+import { resolveItemStatus } from "./tripwire-status.js";
 
 async function supabaseGet(baseUrl, anonKey, table, params = "") {
   const url = `${baseUrl}/rest/v1/${table}?${params}`;
@@ -69,13 +64,31 @@ async function fetchLiveData() {
     const latestScanners = latestRunId ? scannersByRun[latestRunId] || [] : [];
     const latestFindings = latestRunId ? findingsByRun[latestRunId] || [] : [];
 
-    const status =
-      latestRun?.status === "failed"
-        ? "error"
-        : STATUS_FROM_RISK(item.risk_score);
+    const runStatus = latestRun?.status || null;
+    const isRunning = runStatus === "running";
+
+    const mappedFindings = latestFindings.map((f) => ({
+      severity: f.severity,
+      category: f.category,
+      file_path: f.file_path,
+      location: f.location,
+      entity_kind: f.entity_kind,
+      entity_name: f.entity_name,
+      scanner: f.scanner_source,
+      message: f.message,
+      snippet: f.snippet,
+      cwe_ids: f.cwe_ids,
+    }));
+
+    const status = resolveItemStatus({
+      runStatus,
+      heatmapStatus: item.heatmap_status,
+      riskScore: item.risk_score,
+      findings: mappedFindings,
+    });
 
     const partialNote =
-      latestRun?.status === "partial-failed"
+      runStatus === "partial-failed"
         ? "Some scanners unreachable — risk from completed engines"
         : null;
 
@@ -84,36 +97,42 @@ async function fetchLiveData() {
       type: item.type || "skill",
       name: item.name,
       identifier: item.identifier || item.name,
-      status: item.heatmap_status || status,
+      status,
       risk: item.risk_score,
       quality: item.quality_score,
       locus: item.install_locus || "unknown",
       avail: item.source_availability || "unknown",
-      lastScan: latestRun?.completed_at || latestRun?.started_at || null,
+      lastScan: isRunning ? null : (latestRun?.completed_at || latestRun?.started_at || null),
       drifted: false,
+      scanStartedAt: isRunning ? latestRun.started_at : null,
       errorMessage:
-        latestRun?.status === "failed"
+        runStatus === "failed"
           ? "Scan run failed"
           : partialNote,
-      findings: latestFindings.map((f) => ({
-        severity: f.severity,
-        category: f.category,
-        file_path: f.file_path,
-        location: f.location,
-        entity_kind: f.entity_kind,
-        entity_name: f.entity_name,
-        scanner: f.scanner_source,
-        message: f.message,
-        snippet: f.snippet,
-        cwe_ids: f.cwe_ids,
-      })),
-      scanners: latestScanners.map((s) => ({
-        source: s.scanner_source,
-        status: s.status,
-        checks_run: s.checks_run,
-        detail: s.detail || null,
-        output: {},
-      })),
+      findings: mappedFindings,
+      scanners: latestScanners.map((s) => {
+        const output = {};
+        if (s.detail) {
+          if (s.status === "completed") {
+            output.raw_summary = s.detail;
+          } else {
+            output.reason = s.detail;
+          }
+        }
+        if (
+          s.scanner_source === "Tessl" &&
+          item.quality_score != null
+        ) {
+          output.quality_score = item.quality_score;
+        }
+        return {
+          source: s.scanner_source,
+          status: s.status,
+          checks_run: s.checks_run,
+          detail: s.detail || null,
+          output,
+        };
+      }),
       trend: [],
       sandbox: latestRun
         ? {

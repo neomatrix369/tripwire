@@ -16,20 +16,45 @@ async function mapWithConcurrency(items, limit, fn) {
   return results;
 }
 
+function normalizeIdentifier(targetPath) {
+  return String(targetPath || '').replace(/^\.\//, '').replace(/\/+$/, '');
+}
+
 async function upsertItem(supabase, target) {
   let contentHash = null;
+  const identifier = normalizeIdentifier(target.target);
   if (target.avail === 'source_on_disk') {
     contentHash = await hashLocalPath(target.target);
   } else {
     // cloneable / introspection_only: hashed inside the sandbox after clone/introspection.
-    contentHash = 'pending:' + target.target;
+    contentHash = 'pending:' + identifier;
   }
-  const { data: existing } = await supabase.from('items').select('*').eq('content_hash', contentHash).maybeSingle();
-  if (existing) return { item: existing, cached: true };
+  const { data: byHash } = await supabase.from('items').select('*').eq('content_hash', contentHash).maybeSingle();
+  if (byHash) return { item: byHash, cached: true };
+
+  // Reuse the latest row for this path so the live heatmap does not accumulate
+  // duplicate identifier rows when content_hash changes between scans.
+  const { data: byIdent } = await supabase
+    .from('items')
+    .select('*')
+    .eq('identifier', identifier)
+    .order('updated_at', { ascending: false })
+    .limit(1);
+  const existing = Array.isArray(byIdent) ? byIdent[0] : null;
+  if (existing) {
+    const { data: updated, error: updateError } = await supabase
+      .from('items')
+      .update({ content_hash: contentHash, updated_at: new Date().toISOString() })
+      .eq('id', existing.id)
+      .select()
+      .single();
+    if (updateError) throw updateError;
+    return { item: updated, cached: false };
+  }
 
   const { data: inserted, error } = await supabase.from('items').insert({
-    type: target.type, name: target.target.split('/').pop() || target.target,
-    identifier: target.target, content_hash: contentHash,
+    type: target.type, name: identifier.split('/').pop() || identifier,
+    identifier, content_hash: contentHash,
     install_locus: target.locus || 'unknown', source_availability: target.avail || 'unknown'
   }).select().single();
   if (error) throw error;

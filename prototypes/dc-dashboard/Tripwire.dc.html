@@ -53,6 +53,10 @@
     from { opacity: 0; transform: translateX(16px); }
     to { opacity: 1; transform: translateX(0); }
   }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
@@ -110,10 +114,10 @@
           <div style="flex:1;overflow-y:auto;padding:20px">
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
               <sc-for list="{{ gridItems }}" as="item" hint-placeholder-count="8">
-                <div onClick="{{ item.onSelect }}" style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-left:3px solid {{ item.meta.color }};border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:all 200ms ease;box-shadow:0 1px 2px rgba(0,0,0,0.15);animation:fadeUp 300ms ease both">
+                <div onClick="{{ item.onSelect }}" style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-left:3px solid {{ item.statusColor }};border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:all 200ms ease;box-shadow:0 1px 2px rgba(0,0,0,0.15);animation:fadeUp 300ms ease both">
                   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
                     <div style="font-size:13px;font-weight:600;color:var(--text-primary);word-break:break-word">{{ item.name }}</div>
-                    <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.meta.color }};background:{{ item.meta.color }}18;padding:2px 7px;border-radius:4px;white-space:nowrap;border:1px solid {{ item.meta.color }}30">{{ item.meta.glyph }} {{ item.meta.label }}</div>
+                    <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.statusColor }};background:{{ item.statusColor }}18;padding:2px 7px;border-radius:4px;white-space:nowrap;border:1px solid {{ item.statusColor }}30">{{ item.statusGlyph }} {{ item.statusLabel }}</div>
                   </div>
                   <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ item.typeLabel }}</div>
                   <div style="display:flex;gap:12px;font-size:11px;color:var(--text-secondary)">
@@ -146,7 +150,7 @@
                   <div style="padding:10px 14px;font-size:12px;color:var(--text-primary);word-break:break-word">{{ row.name }}</div>
                   <div style="padding:10px 14px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary)">{{ row.typeLabel }}</div>
                   <div style="padding:10px 14px;font-size:11px;color:var(--text-secondary)">{{ row.timeLabel }}</div>
-                  <div style="padding:10px 14px"><span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ row.meta.color }};background:{{ row.meta.color }}18;padding:2px 7px;border-radius:4px;border:1px solid {{ row.meta.color }}30">{{ row.meta.glyph }} {{ row.meta.label }}</span></div>
+                  <div style="padding:10px 14px"><span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ row.statusColor }};background:{{ row.statusColor }}18;padding:2px 7px;border-radius:4px;border:1px solid {{ row.statusColor }}30">{{ row.statusGlyph }} {{ row.statusLabel }}</span></div>
                   <div style="padding:10px 14px;font-family:var(--font-mono);font-size:12px;color:var(--text-primary)">{{ row.riskLabel }}</div>
                   <div style="padding:10px 14px;font-size:11px;color:var(--text-secondary)">{{ row.sourceLabel }}</div>
                 </div>
@@ -161,7 +165,7 @@
                     <span style="color:var(--text-primary)">{{ h.name }}</span>
                     <span style="color:var(--text-muted)">{{ h.timeLabel }}</span>
                     <span style="color:var(--text-secondary)">{{ h.duration }}</span>
-                    <span style="font-family:var(--font-mono);color:{{ h.meta.color }}">{{ h.meta.label }}</span>
+                    <span style="font-family:var(--font-mono);color:{{ h.statusColor }}">{{ h.statusLabel }}</span>
                   </div>
                 </sc-for>
               </div>
@@ -179,7 +183,7 @@
           <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:16px">{{ selectedView.typeLabel }} · {{ selectedView.identifier }}</div>
 
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-            <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.meta.color }};background:{{ selectedView.meta.color }}18;padding:3px 8px;border-radius:4px;border:1px solid {{ selectedView.meta.color }}30">{{ selectedView.meta.glyph }} {{ selectedView.meta.label }}</div>
+            <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.statusColor }};background:{{ selectedView.statusColor }}18;padding:3px 8px;border-radius:4px;border:1px solid {{ selectedView.statusColor }}30">{{ selectedView.statusGlyph }} {{ selectedView.statusLabel }}</div>
             <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);background:var(--bg-elevated);padding:3px 8px;border-radius:4px">{{ selectedView.locusLabel }}</div>
             <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);background:var(--bg-elevated);padding:3px 8px;border-radius:4px">{{ selectedView.availLabel }}</div>
           </div>
@@ -414,17 +418,38 @@ class Component extends DCLogic {
   };
 
   componentDidMount() {
-    this._loadDataForMode(this.state.dataSourceMode);
+    import('./tripwire-status.js').then(m => {
+      this._statusKit = m;
+      this._loadDataForMode(this.state.dataSourceMode);
+    }).catch(err => {
+      console.error('[tripwire-dashboard] status kit load error:', err);
+      this._loadDataForMode(this.state.dataSourceMode);
+    });
   }
 
   _loadDataForMode(mode) {
     this.setState({ dataSource: 'loading' });
     import('./tripwire-live.js').then(m => m.default(mode)).then(result => {
       this.setState({ data: result.data, dataSource: result.source });
+      this._managePoll(result.data, mode);
     }).catch(err => {
       console.error('[tripwire-dashboard] data load error:', err);
       this.setState({ dataSource: 'mock-failed' });
     });
+  }
+
+  _managePoll(data, mode) {
+    clearInterval(this._pollTimer);
+    if (mode !== 'live') return;
+    const hasRunning = data && data.items && data.items.some(it => it.status === 'running');
+    if (!hasRunning) return;
+    this._pollTimer = setInterval(() => {
+      import('./tripwire-live.js').then(m => m.default('live')).then(result => {
+        this.setState({ data: result.data, dataSource: result.source });
+        const stillRunning = result.data && result.data.items && result.data.items.some(it => it.status === 'running');
+        if (!stillRunning) clearInterval(this._pollTimer);
+      }).catch(() => {});
+    }, 8000);
   }
 
   setDataSourceMode = (e) => {
@@ -436,6 +461,7 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     clearInterval(this._cliTimer);
+    clearInterval(this._pollTimer);
   }
 
   setTab = (t) => this.setState({ activeTab: t });
@@ -525,14 +551,63 @@ class Component extends DCLogic {
     return secs.toFixed(1) + 's';
   }
 
-  renderVals() {
-    const s = this.state;
-    const data = s.data;
-    const statusMeta = {
+  decorateItemStatus(it) {
+    const kit = this._statusKit;
+    const statusMeta = kit?.STATUS_META || {
       red: { color: '#f43f5e', label: 'RED', glyph: '●' },
       amber: { color: '#f59e0b', label: 'AMBER', glyph: '▲' },
       green: { color: '#34d399', label: 'GREEN', glyph: '✓' },
       grey: { color: '#6b7a8e', label: 'UNSCANNED', glyph: '–' },
+      running: { color: '#4da2ff', label: 'SCANNING', glyph: '◌' },
+      error: { color: '#a78bfa', label: 'ERROR', glyph: '!' }
+    };
+    const decorated = kit?.decorateStatus
+      ? kit.decorateStatus(it.status)
+      : (() => {
+          const meta = statusMeta[it.status] || statusMeta.grey;
+          return {
+            status: it.status,
+            meta,
+            statusColor: meta.color,
+            statusLabel: meta.label,
+            statusGlyph: meta.glyph
+          };
+        })();
+    return { ...it, ...decorated };
+  }
+
+  severityColor(severity) {
+    const kit = this._statusKit;
+    if (kit?.severityColor) return kit.severityColor(severity);
+    const statusMeta = {
+      red: '#f43f5e', amber: '#f59e0b', green: '#34d399', grey: '#6b7a8e'
+    };
+    const key = (severity || '').toLowerCase();
+    return statusMeta[key] || statusMeta.grey;
+  }
+
+  scannerExecMeta(st) {
+    const kit = this._statusKit;
+    if (kit?.scannerExecMeta) return kit.scannerExecMeta(st);
+    const fallback = {
+      completed: { color: '#34d399', label: '✓ Completed' },
+      skipped_missing_credential: { color: '#6b7a8e', label: '⊘ Skipped' },
+      unreachable: { color: '#a78bfa', label: '✗ Unreachable' },
+      not_applicable: { color: '#506880', label: '— N/A' },
+      failed: { color: '#a78bfa', label: '✗ Failed' }
+    };
+    return fallback[st] || { color: '#6b7a8e', label: st || 'unknown' };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const data = s.data;
+    const statusMeta = this._statusKit?.STATUS_META || {
+      red: { color: '#f43f5e', label: 'RED', glyph: '●' },
+      amber: { color: '#f59e0b', label: 'AMBER', glyph: '▲' },
+      green: { color: '#34d399', label: 'GREEN', glyph: '✓' },
+      grey: { color: '#6b7a8e', label: 'UNSCANNED', glyph: '–' },
+      running: { color: '#4da2ff', label: 'SCANNING', glyph: '◌' },
       error: { color: '#a78bfa', label: 'ERROR', glyph: '!' }
     };
 
@@ -619,6 +694,7 @@ class Component extends DCLogic {
       { key: 'amber', label: '▲ Amber' },
       { key: 'green', label: '✓ Green' },
       { key: 'grey', label: '– Unscanned' },
+      { key: 'running', label: '◌ Scanning' },
       { key: 'error', label: '! Error' }
     ].map(c => ({ ...c, onClick: () => this.setStatusFilter(c.key), style: this.btnStyle(s.statusFilter === c.key, { activeBg: (statusMeta[c.key]?.color || '#4da2ff') + '22', activeBorder: statusMeta[c.key]?.color || '#4da2ff', activeColor: statusMeta[c.key]?.color || '#e8edf4' }) }));
 
@@ -629,56 +705,54 @@ class Component extends DCLogic {
       (!q || it.name.toLowerCase().includes(q))
     );
 
-    const gridItems = filtered.map(it => ({
-      ...it,
-      meta: statusMeta[it.status],
-      typeLabel: it.type === 'skill' ? 'Skill' : 'MCP Server',
-      riskLabel: it.risk == null ? '—' : it.risk.toFixed(2),
-      timeLabel: it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
-      locusLabel: this.locusLabel(it.locus),
-      availLabel: this.availLabel(it.avail),
-      onSelect: () => this.selectItem(it.id)
-    }));
+    const gridItems = filtered.map(it => {
+      const decorated = this.decorateItemStatus(it);
+      return {
+        ...decorated,
+        typeLabel: it.type === 'skill' ? 'Skill' : 'MCP Server',
+        riskLabel: it.risk == null ? '—' : it.risk.toFixed(2),
+        timeLabel: it.scanStartedAt ? 'scanning since ' + this.fmtTime(it.scanStartedAt) : it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
+        locusLabel: this.locusLabel(it.locus),
+        availLabel: this.availLabel(it.avail),
+        onSelect: () => this.selectItem(it.id)
+      };
+    });
 
-    const counts = { red: 0, amber: 0, green: 0, grey: 0, error: 0 };
+    const counts = { red: 0, amber: 0, green: 0, grey: 0, running: 0, error: 0 };
     data.items.forEach(it => { counts[it.status] = (counts[it.status] || 0) + 1; });
     const overviewStats = [
       { label: 'Total items', value: data.items.length, color: '#4da2ff' },
       { label: 'Red', value: counts.red, color: statusMeta.red.color },
       { label: 'Amber', value: counts.amber, color: statusMeta.amber.color },
       { label: 'Green', value: counts.green, color: statusMeta.green.color },
+      { label: 'Scanning', value: counts.running, color: statusMeta.running.color },
       { label: 'Unscanned', value: counts.grey, color: statusMeta.grey.color },
       { label: 'Error', value: counts.error, color: statusMeta.error.color },
       { label: 'Changed since last scan', value: data.items.filter(it => it.drifted).length, color: statusMeta.amber.color }
     ];
 
-    const scannerStatusColor = (st) => ({
-      completed: '#34d399', skipped_missing_credential: '#6b7a8e',
-      unreachable: '#f43f5e', not_applicable: '#506880'
-    }[st] || '#6b7a8e');
-    const scannerStatusLabel = (st) => ({
-      completed: '✓ Completed', skipped_missing_credential: '⊘ Skipped',
-      unreachable: '✗ Unreachable', not_applicable: '— N/A'
-    }[st] || st);
+    const scannerStatusColor = (st) => this.scannerExecMeta(st).color;
+    const scannerStatusLabel = (st) => this.scannerExecMeta(st).label;
 
     const selected = s.selectedId ? data.items.find(i => i.id === s.selectedId) : null;
-    const selectedView = selected ? {
-      ...selected,
-      meta: statusMeta[selected.status],
+    const selectedView = selected ? (() => {
+      const decorated = this.decorateItemStatus(selected);
+      return {
+      ...decorated,
       typeLabel: selected.type === 'skill' ? 'Skill' : 'MCP Server',
       riskLabel: selected.risk == null ? '—' : selected.risk.toFixed(2),
-      timeLabel: selected.lastScan ? this.fmtTime(selected.lastScan) : 'never scanned',
+      timeLabel: selected.scanStartedAt ? 'scanning since ' + this.fmtTime(selected.scanStartedAt) : selected.lastScan ? this.fmtTime(selected.lastScan) : 'never scanned',
       locusLabel: this.locusLabel(selected.locus),
       availLabel: this.availLabel(selected.avail),
       trendPoints: this.trendPath(selected.trend),
-      findingsView: selected.findings.map(f => ({ ...f, sevColor: statusMeta[f.severity].color })),
+      findingsView: selected.findings.map(f => ({ ...f, sevColor: this.severityColor(f.severity) })),
       scannersView: selected.scanners.map((sc, idx) => {
         const key = selected.id + ':' + idx;
         const expanded = !!s.expandedScanners[key];
         const out = sc.output || {};
         const findingsForScanner = selected.findings
           .filter(f => f.scanner === sc.source)
-          .map(f => ({ ...f, sevColor: statusMeta[f.severity]?.color || '#6b7a8e' }));
+          .map(f => ({ ...f, sevColor: this.severityColor(f.severity) }));
         const durationMs = out.duration_ms;
         return {
           ...sc,
@@ -694,7 +768,8 @@ class Component extends DCLogic {
           onToggle: () => this.toggleScanner(selected.id, idx)
         };
       })
-    } : null;
+    };
+    })() : null;
 
     const cliButtons = Object.keys(data.cliScenarios).map(key => ({
       key, label: data.cliScenarios[key].label,
@@ -724,27 +799,34 @@ class Component extends DCLogic {
     const lastScanTimes = data.items.map(i => i.lastScan).filter(Boolean).sort().reverse();
     const footerLastScan = lastScanTimes.length ? this.fmtTime(lastScanTimes[0]) : 'never';
 
-    const statusOrder = { red: 0, amber: 1, green: 2, grey: 3, error: 4 };
+    const statusOrder = { running: 0, red: 1, amber: 2, green: 3, grey: 4, error: 5 };
     const listRows = [...filtered].sort((a, b) => {
       const av = this.sortValue(a, s.sortKey, statusOrder), bv = this.sortValue(b, s.sortKey, statusOrder);
       if (av < bv) return s.sortDir === 'asc' ? -1 : 1;
       if (av > bv) return s.sortDir === 'asc' ? 1 : -1;
       return 0;
-    }).map(it => ({
-      ...it, meta: statusMeta[it.status],
+    }).map(it => {
+      const decorated = this.decorateItemStatus(it);
+      return {
+      ...decorated,
       typeLabel: it.type === 'skill' ? 'Skill' : 'MCP Server',
-      timeLabel: it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
+      timeLabel: it.scanStartedAt ? 'scanning since ' + this.fmtTime(it.scanStartedAt) : it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
       riskLabel: it.risk == null ? '—' : it.risk.toFixed(2),
       sourceLabel: this.locusLabel(it.locus) + ' · ' + this.availLabel(it.avail),
       onSelect: () => this.selectItem(it.id)
-    }));
+    };
+    });
 
-    const historyRows = data.items.filter(it => it.lastScan).sort((a, b) => b.lastScan.localeCompare(a.lastScan)).slice(0, 8).map(it => ({
+    const historyRows = data.items.filter(it => it.lastScan).sort((a, b) => b.lastScan.localeCompare(a.lastScan)).slice(0, 8).map(it => {
+      const decorated = this.decorateItemStatus(it);
+      return {
       name: it.name,
       timeLabel: this.fmtTime(it.lastScan),
       duration: it.sandbox ? this.durationLabel(it.sandbox.started, it.sandbox.completed) : '—',
-      meta: statusMeta[it.status]
-    }));
+      statusColor: decorated.statusColor,
+      statusLabel: decorated.statusLabel
+    };
+    });
 
     return {
       ...base, typeTabs, statusChips, gridItems, overviewStats, selectedView,

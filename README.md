@@ -15,6 +15,7 @@ and `internal-docs/00_build/build-day-decisions.md`.
   current green/amber/red set (safe baselines, drift pair, vuln skills/MCP servers).
 - `prototypes/dc-dashboard/` — Data Commons HTML dashboard (Live Supabase or Mock). See `prototypes/README.md`; prefer `node scripts/serve-dashboard.mjs`.
 - `docs/DEMO_READINESS.md` — prioritized smoke checklist + demo-day runbook (cold start → demo-ready).
+- `docs/DEMO_VIDEO_SCRIPT.md` — shot map + capture runbook; stills + VO live in Remotion (`claude-remotion-kickstart/public/projects/tripwire/`).
 - `docs/research/adapters/scanner-output-adapters.md` — scanner output shapes the
   `sandbox/scanners.py` adapters are built from; update both together.
 
@@ -38,7 +39,7 @@ Intentional vuln fixtures under `fixtures/` and mock data under `prototypes/` ar
 # Optional for direct browser Live dashboard: SUPABASE_ANON_KEY (or use serve-dashboard.mjs)
 
 cd cli && npm install && npm link   # gives you the `tripwire` command locally
-npm test                            # discovery + hashing + schema probe unit tests (10)
+npm test                            # discovery + hashing + schema probe + --force unit tests (17)
 
 # First-run DB bootstrap (also runs automatically on the first real `tripwire scan`):
 tripwire setup                      # or: ./scripts/setup-supabase.sh
@@ -77,7 +78,7 @@ needs Supabase (auto-bootstrapped on first scan / `tripwire setup`) + a deployed
   (git clone, local copy, host→sandbox tar upload via `local_entrypoint`, MCP
   introspection-only empty workdir); dashboard Live/Mock + `serve-dashboard.mjs` /
   `sync-dashboard-config.sh`.
-- **VERIFIED (unit):** `cd cli && npm test` — 10 pass (discovery, content-hash, schema-probe);
+- **VERIFIED (unit):** `cd cli && npm test` — 17 pass (discovery, content-hash, schema-probe, `--force`);
   `pytest sandbox/test_acquire_target.py` — 30 pass; `cd prototypes/dc-dashboard && npm test`
   — 9 pass (Live gating / chip copy; optional Live smoke skipped without config).
 - **VERIFIED (operator, 2026-08-01):** Modal secrets + `tripwire-scan` deploy with
