@@ -199,9 +199,7 @@ def test_given_callback_when_run_all_then_callback_called_per_scanner_group() ->
     callback_calls = []
 
     def on_done(findings, rows, quality_score=None):
-        callback_calls.append(
-            {"findings": findings, "rows": rows, "quality_score": quality_score}
-        )
+        callback_calls.append({"findings": findings, "rows": rows, "quality_score": quality_score})
 
     ### When
     with (
@@ -248,7 +246,8 @@ def test_given_no_callback_when_run_all_then_works_unchanged() -> None:
             return_value=([], [{"scanner_source": "YARA", "status": "completed", "checks_run": 1}]),
         ),
         patch.object(
-            scanners, "run_snyk",
+            scanners,
+            "run_snyk",
             return_value=([], [{"scanner_source": "Snyk", "status": "completed", "checks_run": 1}]),
         ),
     ):

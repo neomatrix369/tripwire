@@ -9,12 +9,10 @@ Scope: _is_column_error detection; _safe_insert fallback on PGRST204;
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, call, patch
+from unittest.mock import MagicMock
 
 import pytest
-
 import scan_app
-
 
 # ---------------------------------------------------------------------------
 # _is_column_error
@@ -212,7 +210,8 @@ def test_given_non_column_error_when_safe_insert_then_raises_runtime_error() -> 
     ### When / Then
     with pytest.raises(RuntimeError, match="JWT expired"):
         scan_app._safe_insert(
-            mock_sb, "scan_run_scanners",
+            mock_sb,
+            "scan_run_scanners",
             {"scan_run_id": "x", "scanner_source": "y", "status": "completed", "checks_run": 0},
             "test",
         )
@@ -240,7 +239,9 @@ def test_given_supabase_error_when_safe_update_then_raises_runtime_error() -> No
 
     ### When / Then
     with pytest.raises(RuntimeError, match="mark scan_run failed"):
-        scan_app._safe_update(mock_sb, "scan_runs", {"status": "failed"}, "id", "run-1", "mark scan_run failed")
+        scan_app._safe_update(
+            mock_sb, "scan_runs", {"status": "failed"}, "id", "run-1", "mark scan_run failed"
+        )
 
 
 def test_given_supabase_error_when_safe_rpc_then_raises_runtime_error() -> None:

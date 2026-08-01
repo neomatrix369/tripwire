@@ -173,9 +173,12 @@ def _scan_item_inner(
 ) -> None:
     def _mark_failed() -> None:
         _safe_update(
-            supabase, "scan_runs",
+            supabase,
+            "scan_runs",
             {"status": "failed", "completed_at": datetime.now(UTC).isoformat()},
-            "id", scan_run_id, "mark scan_run failed",
+            "id",
+            scan_run_id,
+            "mark scan_run failed",
         )
         _safe_rpc(supabase, "tripwire_rollup_item", {"p_item_id": item_id}, "rollup after failure")
 
@@ -217,28 +220,38 @@ def _scan_item_inner(
                 )
                 if not resp.data:
                     _safe_insert(
-                        supabase, "scan_run_scanners", payload,
+                        supabase,
+                        "scan_run_scanners",
+                        payload,
                         "scan_run_scanners insert",
                     )
             except Exception:
                 try:
                     _safe_insert(
-                        supabase, "scan_run_scanners", payload,
+                        supabase,
+                        "scan_run_scanners",
+                        payload,
                         "scan_run_scanners insert (update-fallback)",
                     )
                 except Exception as exc:
-                    print(f"[scan] warning: scanner row write failed for {row.get('scanner_source')}: {exc}")
+                    print(
+                        f"[scan] warning: scanner row write failed for {row.get('scanner_source')}: {exc}"
+                    )
         for finding in findings:
             _safe_insert(
-                supabase, "findings",
+                supabase,
+                "findings",
                 {**finding, "scan_run_id": scan_run_id, "item_id": item_id},
                 "findings insert",
             )
         if quality_score is not None:
             _safe_update(
-                supabase, "items",
+                supabase,
+                "items",
                 {"quality_score": quality_score},
-                "id", item_id, "update quality_score",
+                "id",
+                item_id,
+                "update quality_score",
             )
 
     try:
@@ -254,9 +267,12 @@ def _scan_item_inner(
         raise
 
     _safe_update(
-        supabase, "scan_runs",
+        supabase,
+        "scan_runs",
         {"status": results["overall_status"], "completed_at": datetime.now(UTC).isoformat()},
-        "id", scan_run_id, "mark scan_run completed",
+        "id",
+        scan_run_id,
+        "mark scan_run completed",
     )
     _safe_rpc(supabase, "tripwire_rollup_item", {"p_item_id": item_id}, "rollup after scan")
 
