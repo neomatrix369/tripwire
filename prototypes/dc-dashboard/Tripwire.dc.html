@@ -248,7 +248,15 @@
             </div>
           </sc-if>
 
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px">Scanner outputs ({{ selectedView.scannersView.length }})</div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px">Scanner outputs ({{ selectedView.scannersViewLabel }})</div>
+          <sc-if value="{{ selectedView.scanningPlaceholder }}">
+            <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-left:3px solid var(--accent);border-radius:6px;padding:12px 14px;margin-bottom:6px">
+              <div style="color:var(--accent);animation:pulse 1.5s ease-in-out infinite;font-size:12px;margin-bottom:4px">◌ Scan in progress — waiting for Modal scanner output…</div>
+              <sc-if value="{{ selectedView.scanStartedAtLabel }}">
+                <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">Started {{ selectedView.scanStartedAtLabel }}</div>
+              </sc-if>
+            </div>
+          </sc-if>
           <sc-for list="{{ selectedView.scannersView }}" as="scv" hint-placeholder-count="2">
             <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-left:3px solid {{ scv.statusColor }};border-radius:6px;margin-bottom:6px;overflow:hidden">
               <div onClick="{{ scv.onToggle }}" style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;cursor:pointer;gap:8px;user-select:none;transition:background 150ms">
@@ -268,6 +276,9 @@
               </div>
               <sc-if value="{{ scv.expanded }}">
                 <div style="border-top:1px solid var(--border-subtle);padding:8px 10px 10px 30px;font-size:11px;color:var(--text-secondary)">
+                  <sc-if value="{{ scv.isRunning }}">
+                    <div style="color:var(--accent);margin-bottom:6px;animation:pulse 1.5s ease-in-out infinite">◌ Scanner running on Modal sandbox…</div>
+                  </sc-if>
                   <sc-if value="{{ scv.output.raw_summary }}">
                     <div style="margin-bottom:6px;color:var(--text-primary)">{{ scv.output.raw_summary }}</div>
                   </sc-if>
@@ -279,6 +290,10 @@
                   </sc-if>
                   <sc-if value="{{ scv.output.quality_score }}">
                     <div style="margin-bottom:6px">Quality score: <span style="color:var(--accent);font-family:var(--font-mono);font-weight:600">{{ scv.output.quality_score }}</span>/100</div>
+                  </sc-if>
+                  <sc-if value="{{ scv.output.console_output }}">
+                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 4px">Modal console output</div>
+                    <div style="font-family:var(--font-mono);font-size:10px;background:var(--bg-deep);padding:6px 8px;border-radius:4px;color:#8fe388;overflow-x:auto;white-space:pre-wrap;max-height:200px;overflow-y:auto;line-height:1.5">{{ scv.output.console_output }}</div>
                   </sc-if>
                   <sc-if value="{{ scv.findingsForScanner.length }}">
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 4px">Findings from this scanner</div>
@@ -414,7 +429,8 @@ class Component extends DCLogic {
     searchQuery: '',
     sortKey: 'name',
     sortDir: 'asc',
-    expandedScanners: {}
+    expandedScanners: {},
+    realtimeConnected: false
   };
 
   componentDidMount() {
@@ -440,16 +456,70 @@ class Component extends DCLogic {
 
   _managePoll(data, mode) {
     clearInterval(this._pollTimer);
+    this._teardownRealtime();
     if (mode !== 'live') return;
+
+    const cfg = window.__TRIPWIRE_CONFIG;
+    if (cfg?.SUPABASE_URL && cfg?.SUPABASE_ANON_KEY) {
+      this._tryRealtime(cfg, data);
+      return;
+    }
+    this._startPollFallback(data);
+  }
+
+  _tryRealtime(cfg, data) {
+    import('./tripwire-realtime.js').then(rt => {
+      this._rt = rt;
+      return rt.subscribe(cfg, (payload) => {
+        console.info('[tripwire] realtime event:', payload.eventType, payload.table);
+        this._reloadLive();
+      });
+    }).then(status => {
+      if (status === 'SUBSCRIBED') {
+        console.info('[tripwire] Realtime connected — 8s polling disabled');
+        this.setState({ realtimeConnected: true });
+        const hasRunning = data?.items?.some(it => it.status === 'running');
+        if (hasRunning) {
+          this._pollTimer = setInterval(() => this._reloadLive(), 30000);
+        }
+      } else {
+        console.warn('[tripwire] Realtime unavailable — falling back to 8s poll');
+        this._startPollFallback(data);
+      }
+    }).catch(err => {
+      console.warn('[tripwire] Realtime init failed:', err?.message, '— using 8s poll');
+      this._startPollFallback(data);
+    });
+  }
+
+  _startPollFallback(data) {
+    clearInterval(this._pollTimer);
     const hasRunning = data && data.items && data.items.some(it => it.status === 'running');
     if (!hasRunning) return;
     this._pollTimer = setInterval(() => {
       import('./tripwire-live.js').then(m => m.default('live')).then(result => {
         this.setState({ data: result.data, dataSource: result.source });
         const stillRunning = result.data && result.data.items && result.data.items.some(it => it.status === 'running');
-        if (!stillRunning) clearInterval(this._pollTimer);
+        if (!stillRunning && !this._rt) clearInterval(this._pollTimer);
       }).catch(() => {});
     }, 8000);
+  }
+
+  _reloadLive() {
+    const now = Date.now();
+    if (this._lastReload && now - this._lastReload < 2000) return;
+    this._lastReload = now;
+    import('./tripwire-live.js').then(m => m.default('live')).then(result => {
+      this.setState({ data: result.data, dataSource: result.source });
+    }).catch(() => {});
+  }
+
+  _teardownRealtime() {
+    if (this._rt) {
+      this._rt.unsubscribe();
+      this._rt = null;
+    }
+    this.setState({ realtimeConnected: false });
   }
 
   setDataSourceMode = (e) => {
@@ -462,6 +532,10 @@ class Component extends DCLogic {
   componentWillUnmount() {
     clearInterval(this._cliTimer);
     clearInterval(this._pollTimer);
+    if (this._rt) {
+      this._rt.unsubscribe();
+      this._rt = null;
+    }
   }
 
   setTab = (t) => this.setState({ activeTab: t });
@@ -590,6 +664,7 @@ class Component extends DCLogic {
     const kit = this._statusKit;
     if (kit?.scannerExecMeta) return kit.scannerExecMeta(st);
     const fallback = {
+      running: { color: '#4da2ff', label: '◌ Running' },
       completed: { color: '#34d399', label: '✓ Completed' },
       skipped_missing_credential: { color: '#6b7a8e', label: '⊘ Skipped' },
       unreachable: { color: '#a78bfa', label: '✗ Unreachable' },
@@ -626,14 +701,16 @@ class Component extends DCLogic {
 
     const dataSourceChips = {
       loading: { label: 'Loading…', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: '#192638', tooltip: 'Checking data source…' },
-      live: { label: 'Live · Supabase', dotColor: '#34d399', textColor: '#34d399', bgColor: 'rgba(52,211,153,0.1)', borderColor: 'rgba(52,211,153,0.3)', tooltip: 'Fetching real data from Supabase' },
+      live: { label: 'Live · Supabase', dotColor: '#34d399', textColor: '#34d399', bgColor: 'rgba(52,211,153,0.1)', borderColor: 'rgba(52,211,153,0.3)', tooltip: 'Fetching real data from Supabase (polling)' },
+      'live-realtime': { label: 'Live · Realtime', dotColor: '#34d399', textColor: '#34d399', bgColor: 'rgba(52,211,153,0.15)', borderColor: 'rgba(52,211,153,0.4)', tooltip: 'Supabase Realtime — updates arrive within ~1s of Modal writes' },
       'live-empty': { label: 'Live · empty', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Connected to Supabase — no items yet' },
       'mock-selected': { label: 'Demo data', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: '#192638', tooltip: 'Using built-in demo data (user selected)' },
       mock: { label: 'Missing API key', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Run: node scripts/serve-dashboard.mjs  (or set SUPABASE_ANON_KEY + ./scripts/sync-dashboard-config.sh)' },
       'mock-failed': { label: 'Connection error', dotColor: '#f43f5e', textColor: '#f43f5e', bgColor: 'rgba(244,63,94,0.1)', borderColor: 'rgba(244,63,94,0.3)', tooltip: 'Could not reach Supabase (auth, RLS, or network) — showing demo data' },
       'mock-empty': { label: 'Live · empty', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Connected to Supabase — no items yet' }
     };
-    const dataSourceChip = dataSourceChips[s.dataSource] || dataSourceChips.loading;
+    const chipKey = s.realtimeConnected && s.dataSource === 'live' ? 'live-realtime' : s.dataSource;
+    const dataSourceChip = dataSourceChips[chipKey] || dataSourceChips.loading;
 
     const base = {
       activeTabIsDashboard: s.activeTab === 'dashboard',
@@ -746,6 +823,10 @@ class Component extends DCLogic {
       availLabel: this.availLabel(selected.avail),
       trendPoints: this.trendPath(selected.trend),
       findingsView: selected.findings.map(f => ({ ...f, sevColor: this.severityColor(f.severity) })),
+      scanningPlaceholder: selected.status === 'running' && selected.scanners.length === 0,
+      scanStartedAtLabel: selected.scanStartedAt ? this.fmtTime(selected.scanStartedAt) : null,
+      scannersViewLabel: selected.status === 'running' && selected.scanners.length === 0
+        ? 'scanning…' : String(selected.scanners.length),
       scannersView: selected.scanners.map((sc, idx) => {
         const key = selected.id + ':' + idx;
         const expanded = !!s.expandedScanners[key];
@@ -758,6 +839,7 @@ class Component extends DCLogic {
           ...sc,
           expanded,
           chevron: expanded ? '▾' : '▸',
+          isRunning: sc.status === 'running',
           statusColor: scannerStatusColor(sc.status),
           statusLabel: scannerStatusLabel(sc.status),
           durationLabel: durationMs != null ? (durationMs / 1000).toFixed(1) + 's' : null,

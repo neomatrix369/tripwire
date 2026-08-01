@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import io
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -62,6 +63,74 @@ TIMEOUT_SECONDS = (
     300  # hard sandbox-level timeout (spec Phase 1): kill whole sandbox, mark scan_run failed
 )
 
+_PGRST_COLUMN_RE = re.compile(
+    r"PGRST204|could not find the .* column .* in the schema cache", re.IGNORECASE
+)
+
+_LEGACY_SCANNER_KEYS = frozenset({"scan_run_id", "scanner_source", "status", "checks_run"})
+
+
+def _is_column_error(exc: Exception) -> bool:
+    return bool(_PGRST_COLUMN_RE.search(str(exc)))
+
+
+def _to_runtime_error(exc: Exception, context: str) -> RuntimeError:
+    """Convert any Supabase/PostgREST exception to a plain RuntimeError.
+
+    Modal's local client may not have ``postgrest`` installed; deserializing a
+    ``postgrest.exceptions.APIError`` then fails with a confusing
+    ``ExecutionError``.  Plain ``RuntimeError`` always deserializes cleanly.
+    """
+    return RuntimeError(f"{context}: {exc}")
+
+
+def _safe_insert(supabase, table: str, row: dict, context: str) -> None:
+    """Insert *row* into *table*, falling back to legacy-safe columns on PGRST204.
+
+    If the first attempt fails because PostgREST can't find a column (the DB
+    hasn't had ``db/schema.sql`` migration applied), retry with only the
+    columns that existed in every schema version.  ``detail`` data is folded
+    into the ``detail`` field (truncated) so scan context survives the fallback.
+    """
+    try:
+        supabase.table(table).insert(row).execute()
+    except Exception as exc:
+        if not _is_column_error(exc):
+            raise _to_runtime_error(exc, context) from exc
+        print(
+            f"[tripwire] WARN column-missing ({exc}); retrying {table} "
+            f"insert with legacy columns — apply db/schema.sql to fix"
+        )
+        fallback = {k: v for k, v in row.items() if k in _LEGACY_SCANNER_KEYS}
+        console = row.get("console_output", "")
+        detail = row.get("detail", "")
+        merged = f"{detail}\n---\n{console}".strip(" \n-") if console else detail
+        if merged:
+            fallback["detail"] = merged[:4000]
+        try:
+            supabase.table(table).insert(fallback).execute()
+        except Exception as inner:
+            raise _to_runtime_error(
+                inner,
+                f"Supabase {table} insert failed even with legacy columns. "
+                "Apply db/schema.sql migration (tripwire setup --force)",
+            ) from inner
+
+
+def _safe_update(supabase, table: str, data: dict, eq_col: str, eq_val: str, context: str) -> None:
+    """Wrap a Supabase update, converting PostgREST errors to RuntimeError."""
+    try:
+        supabase.table(table).update(data).eq(eq_col, eq_val).execute()
+    except Exception as exc:
+        raise _to_runtime_error(exc, context) from exc
+
+
+def _safe_rpc(supabase, fn: str, params: dict, context: str) -> None:
+    try:
+        supabase.rpc(fn, params).execute()
+    except Exception as exc:
+        raise _to_runtime_error(exc, context) from exc
+
 
 @app.function(
     image=image,
@@ -84,42 +153,112 @@ def scan_item(
 
     supabase = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_ROLE_KEY"])
 
+    try:
+        _scan_item_inner(supabase, target, item_type, scan_run_id, item_id, target_archive)
+    except RuntimeError:
+        raise
+    except Exception as exc:
+        raise _to_runtime_error(exc, "scan_item unexpected error") from exc
+
+    # scratch disk teardown is implicit — the Modal sandbox itself is ephemeral and discarded here.
+
+
+def _scan_item_inner(
+    supabase,
+    target: str,
+    item_type: str,
+    scan_run_id: str,
+    item_id: str,
+    target_archive: bytes | None,
+) -> None:
+    def _mark_failed() -> None:
+        _safe_update(
+            supabase, "scan_runs",
+            {"status": "failed", "completed_at": datetime.now(UTC).isoformat()},
+            "id", scan_run_id, "mark scan_run failed",
+        )
+        _safe_rpc(supabase, "tripwire_rollup_item", {"p_item_id": item_id}, "rollup after failure")
+
     workdir = "/tmp/scan-target"
     try:
         _acquire_target(target, item_type, workdir, target_archive=target_archive)
-        results = run_all_scanners(workdir=workdir, item_type=item_type, target=target)
-    except (
-        Exception
-    ):  # acquisition or scanner-runner crash — whole run fails, never silently "complete"
-        supabase.table("scan_runs").update(
-            {"status": "failed", "completed_at": datetime.now(UTC).isoformat()}
-        ).eq("id", scan_run_id).execute()
-        supabase.rpc("tripwire_rollup_item", {"p_item_id": item_id}).execute()
+    except Exception:
+        _mark_failed()
         raise
 
-    for finding in results["findings"]:
-        supabase.table("findings").insert(
-            {**finding, "scan_run_id": scan_run_id, "item_id": item_id}
-        ).execute()
-    for scanner_row in results["scanner_rows"]:
-        supabase.table("scan_run_scanners").insert(
-            {**scanner_row, "scan_run_id": scan_run_id}
-        ).execute()
-    if results["quality_score"] is not None:
-        supabase.table("items").update({"quality_score": results["quality_score"]}).eq(
-            "id", item_id
-        ).execute()
+    def _on_scanner_start(sources):
+        """Insert running placeholder rows so the dashboard shows progress."""
+        now = datetime.now(UTC).isoformat()
+        for source in sources:
+            try:
+                supabase.table("scan_run_scanners").insert(
+                    {
+                        "scan_run_id": scan_run_id,
+                        "scanner_source": source,
+                        "status": "running",
+                        "started_at": now,
+                    }
+                ).execute()
+            except Exception as exc:
+                print(f"[scan] warning: could not insert running row for {source}: {exc}")
 
-    supabase.table("scan_runs").update(
-        {
-            "status": results["overall_status"],
-            "completed_at": datetime.now(UTC).isoformat(),
-        }
-    ).eq("id", scan_run_id).execute()
+    def _on_scanner_done(findings, scanner_rows, quality_score=None):
+        """Write results — update existing running row or insert fresh."""
+        now = datetime.now(UTC).isoformat()
+        for row in scanner_rows:
+            payload = {**row, "scan_run_id": scan_run_id, "completed_at": now}
+            try:
+                resp = (
+                    supabase.table("scan_run_scanners")
+                    .update(payload)
+                    .eq("scan_run_id", scan_run_id)
+                    .eq("scanner_source", row["scanner_source"])
+                    .execute()
+                )
+                if not resp.data:
+                    _safe_insert(
+                        supabase, "scan_run_scanners", payload,
+                        "scan_run_scanners insert",
+                    )
+            except Exception:
+                try:
+                    _safe_insert(
+                        supabase, "scan_run_scanners", payload,
+                        "scan_run_scanners insert (update-fallback)",
+                    )
+                except Exception as exc:
+                    print(f"[scan] warning: scanner row write failed for {row.get('scanner_source')}: {exc}")
+        for finding in findings:
+            _safe_insert(
+                supabase, "findings",
+                {**finding, "scan_run_id": scan_run_id, "item_id": item_id},
+                "findings insert",
+            )
+        if quality_score is not None:
+            _safe_update(
+                supabase, "items",
+                {"quality_score": quality_score},
+                "id", item_id, "update quality_score",
+            )
 
-    supabase.rpc("tripwire_rollup_item", {"p_item_id": item_id}).execute()
+    try:
+        results = run_all_scanners(
+            workdir=workdir,
+            item_type=item_type,
+            target=target,
+            on_scanner_done=_on_scanner_done,
+            on_scanner_start=_on_scanner_start,
+        )
+    except Exception:
+        _mark_failed()
+        raise
 
-    # scratch disk teardown is implicit — the Modal sandbox itself is ephemeral and discarded here.
+    _safe_update(
+        supabase, "scan_runs",
+        {"status": results["overall_status"], "completed_at": datetime.now(UTC).isoformat()},
+        "id", scan_run_id, "mark scan_run completed",
+    )
+    _safe_rpc(supabase, "tripwire_rollup_item", {"p_item_id": item_id}, "rollup after scan")
 
 
 @app.local_entrypoint()

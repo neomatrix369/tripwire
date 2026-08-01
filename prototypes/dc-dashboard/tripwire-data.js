@@ -92,7 +92,13 @@ const items = [
 
   { id:'i11', type:'skill', name:'new-onboarding-helper', identifier:'new-onboarding-helper', status:'grey', risk:null, quality:null, locus:'unknown', avail:'unknown', lastScan:null, findings:[], scanners:[], trend:[] },
 
-  { id:'i13', type:'skill', name:'data-pipeline-runner', identifier:'data-pipeline-runner', status:'running', risk:null, quality:null, locus:'local', avail:'source_on_disk', lastScan:null, scanStartedAt:new Date(Date.now() - 45000).toISOString(), findings:[], scanners:[], trend:[],
+  { id:'i13', type:'skill', name:'data-pipeline-runner', identifier:'data-pipeline-runner', status:'running', risk:null, quality:null, locus:'local', avail:'source_on_disk', lastScan:null, scanStartedAt:new Date(Date.now() - 45000).toISOString(), findings:[], scanners:[
+    {source:'Cisco Skill Scanner: static/bytecode/pipeline', status:'completed', checks_run:28, output:{raw_summary:'28 checks passed — no findings', console_output:'{"findings": [], "findings_count": 28}\nScan completed.'}},
+    {source:'Cisco Skill Scanner: LLM-judge', status:'running', checks_run:null, output:{}},
+    {source:'Cisco Skill Scanner: AI Defense', status:'running', checks_run:null, output:{}},
+    {source:'Tessl', status:'running', checks_run:null, output:{}},
+    {source:'Snyk', status:'running', checks_run:null, output:{}}
+  ], trend:[],
   sandbox:{id:'sb_running1', started:new Date(Date.now() - 45000).toISOString(), completed:null, egressPhase:'static allowlist', denied:[], cleanup:false} },
 
   { id:'i12', type:'mcp_server', name:'mcp-scan-timeout-server', identifier:'mcp-scan-timeout-server', status:'error', risk:null, locus:'local', avail:'source_on_disk', lastScan:'2026-07-31T22:30:00Z', errorMessage:'Sandbox hard timeout after 300s — scan killed before completion.', findings:[], scanners:[

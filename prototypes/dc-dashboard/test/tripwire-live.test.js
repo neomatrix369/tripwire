@@ -337,6 +337,10 @@ test('given partial-failed run with heatmap risk when loadData live then keeps r
   assert.equal(item.status, 'red', 'rollup heatmap_status must win over partial-failed');
   assert.equal(item.risk, 2.1);
   assert.match(item.errorMessage || '', /unreachable/i);
+  assert.equal(
+    item.errorMessage,
+    '1 out of 2 scanners unreachable — risk from completed engines',
+  );
   assert.notEqual(item.status, 'error');
   const tessl = item.scanners.find((s) => s.source === 'Tessl');
   assert.equal(tessl.status, 'unreachable');
@@ -509,6 +513,8 @@ test('given running run with stale green heatmap when loadData live then status 
   assert.equal(item.status, 'running', 'collapsed card must show SCANNING over stale heatmap');
   assert.equal(item.lastScan, null);
   assert.equal(item.scanStartedAt, '2026-08-01T15:00:00Z');
+  assert.equal(item.scanners.length, 0,
+    'no scan_run_scanners rows yet — dashboard must show placeholder');
   restoreFetch();
 });
 
@@ -729,6 +735,325 @@ test('given completed scanner without detail and no findings when loadData live 
     'Tessl scanner without detail must still get synthesized summary');
   restoreFetch();
 });
+
+test('given running scanner with console_output when loadData live then output.console_output relayed', async () => {
+  // -- Given --
+  const itemId = 'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1';
+  const runId = 'b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2';
+  installWindow({
+    SUPABASE_URL: 'https://proj.supabase.co',
+    SUPABASE_ANON_KEY: 'anon',
+  });
+  mockFetchByTable({
+    items: [
+      {
+        id: itemId, type: 'skill', name: 'scanning-skill',
+        identifier: 'scanning-skill', heatmap_status: 'green',
+        risk_score: 0.1, quality_score: null,
+        install_locus: 'local', source_availability: 'source_on_disk',
+      },
+    ],
+    scan_runs: [
+      {
+        id: runId, item_id: itemId, status: 'running',
+        started_at: '2026-08-01T17:00:00Z', completed_at: null,
+      },
+    ],
+    scan_run_scanners: [
+      {
+        scan_run_id: runId,
+        scanner_source: 'Cisco Skill Scanner: static/bytecode/pipeline',
+        status: 'completed', checks_run: 5,
+        detail: '5 checks passed — no findings',
+        console_output: '{"findings": [], "findings_count": 5}\nScan completed successfully.',
+        started_at: '2026-08-01T17:00:01Z',
+        completed_at: '2026-08-01T17:00:15Z',
+      },
+      {
+        scan_run_id: runId,
+        scanner_source: 'Snyk',
+        status: 'running', checks_run: null,
+        detail: null,
+        console_output: null,
+        started_at: '2026-08-01T17:00:15Z',
+        completed_at: null,
+      },
+    ],
+    findings: [],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+  const item = result.data.items[0];
+
+  // -- Then --
+  assert.equal(item.status, 'running', 'item must show SCANNING while run is in flight');
+
+  const cisco = item.scanners.find(
+    (s) => s.source === 'Cisco Skill Scanner: static/bytecode/pipeline'
+  );
+  assert.equal(cisco.status, 'completed', 'completed scanner must keep completed status');
+  assert.equal(cisco.output.raw_summary, '5 checks passed — no findings',
+    'completed scanner detail relayed as raw_summary');
+  assert.equal(cisco.output.console_output,
+    '{"findings": [], "findings_count": 5}\nScan completed successfully.',
+    'console_output from Modal must be relayed into output.console_output');
+  assert.equal(cisco.output.duration_ms, 14000,
+    'duration_ms must be computed from started_at/completed_at');
+  assert.equal(cisco.started_at, '2026-08-01T17:00:01Z',
+    'started_at from scan_run_scanners must be surfaced');
+  assert.equal(cisco.completed_at, '2026-08-01T17:00:15Z',
+    'completed_at from scan_run_scanners must be surfaced');
+
+  const snyk = item.scanners.find((s) => s.source === 'Snyk');
+  assert.equal(snyk.status, 'running', 'in-flight scanner must stay running');
+  assert.equal(snyk.output.console_output, undefined,
+    'null console_output must not create output.console_output');
+  assert.equal(snyk.output.duration_ms, undefined,
+    'running scanner without completed_at must not have duration');
+  restoreFetch();
+});
+
+test('given completed scanner with console_output when loadData live then console text in output', async () => {
+  // -- Given --
+  const itemId = 'c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3';
+  const runId = 'd4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4';
+  const consoleText = [
+    '=== Snyk Agent Scan ===',
+    'Scanning /tmp/scan-target...',
+    'Found 2 issues in 1 file',
+    'E004: Prompt injection in SKILL.md:12',
+    'W008: Hardcoded secret in config.py:3',
+  ].join('\n');
+  installWindow({
+    SUPABASE_URL: 'https://proj.supabase.co',
+    SUPABASE_ANON_KEY: 'anon',
+  });
+  mockFetchByTable({
+    items: [
+      {
+        id: itemId, type: 'skill', name: 'scanned-skill',
+        identifier: 'scanned-skill', heatmap_status: 'red',
+        risk_score: 2.0, quality_score: null,
+        install_locus: 'local', source_availability: 'source_on_disk',
+      },
+    ],
+    scan_runs: [
+      {
+        id: runId, item_id: itemId, status: 'complete',
+        started_at: '2026-08-01T16:00:00Z', completed_at: '2026-08-01T16:02:00Z',
+      },
+    ],
+    scan_run_scanners: [
+      {
+        scan_run_id: runId, scanner_source: 'Snyk',
+        status: 'completed', checks_run: 2,
+        detail: '2 checks — 2 findings (red): Prompt injection in SKILL.md:12',
+        console_output: consoleText,
+        started_at: '2026-08-01T16:01:00Z',
+        completed_at: '2026-08-01T16:01:45Z',
+      },
+    ],
+    findings: [
+      {
+        scan_run_id: runId, severity: 'red', category: 'prompt_injection',
+        file_path: 'SKILL.md', location: '12',
+        entity_kind: null, entity_name: null,
+        scanner_source: 'Snyk',
+        message: 'Prompt injection in SKILL.md:12',
+        snippet: null, cwe_ids: null,
+      },
+    ],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+  const scanner = result.data.items[0].scanners[0];
+
+  // -- Then --
+  assert.equal(scanner.output.console_output, consoleText,
+    'Modal console output must be passed through faithfully');
+  assert.match(scanner.output.raw_summary, /2 checks/,
+    'detail must still surface as raw_summary');
+  assert.equal(scanner.output.duration_ms, 45000,
+    'duration computed from scanner started_at to completed_at');
+  restoreFetch();
+});
+
+test('given running scanner with detail when loadData live then detail maps to raw_summary', async () => {
+  // -- Given --
+  const itemId = 'e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e5';
+  const runId = 'f6f6f6f6-f6f6-f6f6-f6f6-f6f6f6f6f6f6';
+  installWindow({
+    SUPABASE_URL: 'https://proj.supabase.co',
+    SUPABASE_ANON_KEY: 'anon',
+  });
+  mockFetchByTable({
+    items: [
+      {
+        id: itemId, type: 'mcp_server', name: 'mid-scan-server',
+        identifier: 'mid-scan-server', heatmap_status: 'grey',
+        risk_score: null, quality_score: null,
+        install_locus: 'cloud', source_availability: 'cloneable',
+      },
+    ],
+    scan_runs: [
+      {
+        id: runId, item_id: itemId, status: 'running',
+        started_at: '2026-08-01T17:30:00Z', completed_at: null,
+      },
+    ],
+    scan_run_scanners: [
+      {
+        scan_run_id: runId,
+        scanner_source: 'Cisco MCP Scanner: YARA',
+        status: 'running', checks_run: null,
+        detail: 'Starting Cisco MCP Scanner: YARA…',
+        console_output: null,
+        started_at: '2026-08-01T17:30:01Z',
+        completed_at: null,
+      },
+    ],
+    findings: [],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+  const scanner = result.data.items[0].scanners[0];
+
+  // -- Then --
+  assert.equal(scanner.status, 'running',
+    'running scanner status must be preserved');
+  assert.equal(scanner.output.raw_summary, 'Starting Cisco MCP Scanner: YARA…',
+    'running scanner detail must map to raw_summary (not reason)');
+  assert.equal(scanner.output.reason, undefined,
+    'running scanner detail must not map to reason');
+  restoreFetch();
+});
+
+test('given mock mode running item when loadData mock then scanners array has running entries', async () => {
+  // -- Given --
+  installWindow(undefined);
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('mock');
+  const running = result.data.items.find((i) => i.status === 'running');
+
+  // -- Then --
+  assert.ok(running, 'mock data must include a running item');
+  assert.ok(running.scanners.length > 0,
+    'mock running item must have scanner rows so the drawer shows progress');
+  const completed = running.scanners.filter((s) => s.status === 'completed');
+  const stillRunning = running.scanners.filter((s) => s.status === 'running');
+  assert.ok(completed.length >= 1,
+    'mock running item must have at least one completed scanner');
+  assert.ok(stillRunning.length >= 1,
+    'mock running item must have at least one running scanner');
+  restoreFetch();
+});
+
+// ── Realtime integration tests ─────────────────────────────────────────────
+
+const REALTIME_MODULE = join(DASHBOARD_ROOT, 'tripwire-realtime.js');
+
+test('given tripwire-realtime module exists then it exports subscribe unsubscribe connected', async () => {
+  // -- Given --
+  assert.ok(existsSync(REALTIME_MODULE), 'tripwire-realtime.js must exist');
+
+  // -- When --
+  const source = readFileSync(REALTIME_MODULE, 'utf8');
+
+  // -- Then --
+  assert.match(source, /export\s+(async\s+)?function\s+subscribe/,
+    'must export a subscribe function');
+  assert.match(source, /export\s+function\s+unsubscribe/,
+    'must export an unsubscribe function');
+  assert.match(source, /export\s+function\s+connected/,
+    'must export a connected function');
+});
+
+test('given realtime module when no config then subscribe returns null', async () => {
+  // -- Given --
+  const url = `${pathToFileURL(REALTIME_MODULE).href}?t=${Date.now()}-${Math.random()}`;
+  const rt = await import(url);
+
+  // -- When --
+  const result = await rt.subscribe(null, () => {});
+
+  // -- Then --
+  assert.equal(result, null, 'subscribe must return null when config is missing');
+});
+
+test('given realtime module when empty anon key then subscribe returns null', async () => {
+  // -- Given --
+  const url = `${pathToFileURL(REALTIME_MODULE).href}?t=${Date.now()}-${Math.random()}`;
+  const rt = await import(url);
+
+  // -- When --
+  const result = await rt.subscribe(
+    { SUPABASE_URL: 'https://example.supabase.co', SUPABASE_ANON_KEY: '' },
+    () => {},
+  );
+
+  // -- Then --
+  assert.equal(result, null, 'subscribe must return null for empty anon key');
+});
+
+test('given dashboard html when inspecting chip labels then live-realtime chip exists', () => {
+  // -- Given --
+  const html = readFileSync(HTML_PATH, 'utf8');
+  const chipBlock = html.match(/const dataSourceChips = \{[\s\S]*?\n\s*\};/);
+  assert.ok(chipBlock, 'dataSourceChips block must exist');
+
+  // -- When --
+  const block = chipBlock[0];
+
+  // -- Then --
+  assert.match(block, /live-realtime/,
+    'chip map must have a live-realtime entry');
+  assert.match(block, /Live · Realtime/,
+    'realtime chip label must say Live · Realtime');
+});
+
+test('given dashboard html when inspecting state then realtimeConnected initialised false', () => {
+  // -- Given --
+  const html = readFileSync(HTML_PATH, 'utf8');
+
+  // -- When / Then --
+  assert.match(html, /realtimeConnected:\s*false/,
+    'state must initialise realtimeConnected to false');
+});
+
+test('given dashboard html when inspecting chip logic then realtimeConnected drives chip key', () => {
+  // -- Given --
+  const html = readFileSync(HTML_PATH, 'utf8');
+
+  // -- When / Then --
+  assert.match(html, /s\.realtimeConnected\s*&&\s*s\.dataSource\s*===\s*'live'/,
+    'chip key must check realtimeConnected && live source');
+  assert.match(html, /'live-realtime'/,
+    'chipKey expression must reference live-realtime');
+});
+
+test('given schema sql when inspecting realtime then publication adds required tables', () => {
+  // -- Given --
+  const schemaPath = join(DASHBOARD_ROOT, '..', '..', 'db', 'schema.sql');
+  const sql = readFileSync(schemaPath, 'utf8');
+
+  // -- When / Then --
+  assert.match(sql, /supabase_realtime\s+add\s+table\s+scan_runs/i,
+    'schema must add scan_runs to supabase_realtime publication');
+  assert.match(sql, /supabase_realtime\s+add\s+table\s+scan_run_scanners/i,
+    'schema must add scan_run_scanners to supabase_realtime publication');
+  assert.match(sql, /supabase_realtime\s+add\s+table\s+findings/i,
+    'schema must add findings to supabase_realtime publication');
+});
+
+// ── Smoke / live helpers ──────────────────────────────────────────────────
 
 function hasLiveConfigForSmoke() {
   if (!existsSync(CONFIG_PATH)) return false;

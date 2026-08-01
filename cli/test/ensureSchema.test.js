@@ -19,3 +19,14 @@ test('isMissingSchemaError detects PostgREST missing-table shapes', () => {
   assert.equal(isMissingSchemaError({ message: 'JWT expired' }), false);
   assert.equal(isMissingSchemaError(null), false);
 });
+
+test('isMissingSchemaError detects PGRST204 missing-column errors', () => {
+  assert.equal(
+    isMissingSchemaError({ code: 'PGRST204', message: "Could not find the 'completed_at' column of 'scan_run_scanners' in the schema cache" }),
+    true
+  );
+  assert.equal(
+    isMissingSchemaError({ message: "Could not find the 'console_output' column of 'scan_run_scanners' in the schema cache" }),
+    true
+  );
+});

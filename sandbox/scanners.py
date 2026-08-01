@@ -17,6 +17,7 @@ import shutil
 import subprocess
 
 SCAN_TIMEOUT = 240  # leaves headroom under the sandbox's 300s hard timeout
+MAX_CONSOLE_CHARS = 3000  # per-scanner console capture limit for Supabase detail
 
 # Severity collapse (docs/research/adapters/scanner-output-adapters.md §1, PROPOSED)
 _SNYK_CODE_CATEGORY = {
@@ -46,12 +47,14 @@ def _skipped(source, reason="skipped_missing_credential"):
     return {"scanner_source": source, "status": reason, "checks_run": 0}
 
 
-def _unreachable(source, stderr):
+def _unreachable(source, stderr, console_output=None):
     detail = (stderr or "").strip()
     print(f"[{source}] unreachable: {detail[:400]}")
     row = {"scanner_source": source, "status": "unreachable", "checks_run": 0}
     if detail:
         row["detail"] = detail[:4000]
+    if console_output:
+        row["console_output"] = console_output
     return row
 
 
@@ -73,12 +76,32 @@ def _safe_json(text):
     return None
 
 
+def _truncate_console(text, max_chars=MAX_CONSOLE_CHARS):
+    """Truncate raw console text, preserving head and tail for context."""
+    if not text or len(text) <= max_chars:
+        return text or None
+    half = max_chars // 2 - 30
+    omitted = len(text) - 2 * half
+    return f"{text[:half]}\n…[{omitted} chars omitted]…\n{text[-half:]}"
+
+
+def _build_console(stdout, stderr):
+    """Build a truncated console capture from scanner subprocess output."""
+    parts = []
+    if stdout and stdout.strip():
+        parts.append(stdout.strip())
+    if stderr and stderr.strip():
+        prefix = "--- stderr ---\n" if parts else ""
+        parts.append(f"{prefix}{stderr.strip()}")
+    return _truncate_console("\n".join(parts)) if parts else None
+
+
 # ---- Cisco Skill Scanner ----------------------------------------------------
 # docs/research/adapters/scanner-output-adapters.md §3
 # Capture: skill-scanner scan <path> --format json  (avoid --output: flaky on a tested build)
 
 
-def _completed(source, checks_run, findings_for_scanner):
+def _completed(source, checks_run, findings_for_scanner, console_output=None):
     """Build a completed scanner row with a human-readable detail summary."""
     n_findings = len(findings_for_scanner)
     if n_findings == 0:
@@ -92,12 +115,15 @@ def _completed(source, checks_run, findings_for_scanner):
         if len(brief) > 80:
             brief = brief[:77] + "…"
         detail = f"{checks_run} checks — {n_findings} finding{'s' if n_findings != 1 else ''} ({worst}): {brief}"
-    return {
+    row = {
         "scanner_source": source,
         "status": "completed",
         "checks_run": checks_run,
         "detail": detail,
     }
+    if console_output:
+        row["console_output"] = console_output
+    return row
 
 
 def run_cisco_skill_scanner(workdir):
@@ -109,12 +135,13 @@ def run_cisco_skill_scanner(workdir):
 
     def _invoke(extra_flags, source):
         code, out, err = _run(["skill-scanner", "scan", workdir, "--format", "json", *extra_flags])
+        console = _build_console(out, err)
         if code != 0:
-            return [_unreachable(source, err)], []
+            return [_unreachable(source, err, console_output=console)], []
         parsed = _safe_json(out) or {}
         mapped = _map_skill_findings(parsed, source)
         checks = parsed.get("findings_count", len(parsed.get("findings", [])) or 1)
-        return [_completed(source, checks, mapped)], mapped
+        return [_completed(source, checks, mapped, console_output=console)], mapped
 
     r, f = _invoke([], source_static)
     rows += r
@@ -316,11 +343,20 @@ def run_cisco_mcp_scanner(workdir, target):
             rows.append(_unreachable(_MCP_ANALYZER_LABEL[_normalize_analyzer_key(name)], detail))
     else:
         code, out, err = _run(build_mcp_live_cmd(live, mode_args))
+        console = _build_console(out, err)
         if code != 0:
             for name in live:
-                rows.append(_unreachable(_MCP_ANALYZER_LABEL[_normalize_analyzer_key(name)], err))
+                rows.append(
+                    _unreachable(
+                        _MCP_ANALYZER_LABEL[_normalize_analyzer_key(name)],
+                        err,
+                        console_output=console,
+                    )
+                )
         else:
             f, r, _requested = _map_mcp_envelope(_safe_json(out) or {}, live)
+            for row in r:
+                row["console_output"] = console
             findings += f
             rows += r
 
@@ -337,18 +373,19 @@ def run_cisco_mcp_scanner(workdir, target):
         rows.append(_skipped(beh_label))
     else:
         code, out, err = _run(build_mcp_behavioral_cmd(workdir))
+        beh_console = _build_console(out, err)
         if code != 0:
-            rows.append(_unreachable(beh_label, err))
+            rows.append(_unreachable(beh_label, err, console_output=beh_console))
         else:
             envelope = _safe_json(out) or {}
-            # Force behavioral into requested_analyzers so the row maps correctly
-            # even when the subcommand omits that envelope field.
             if not envelope.get("requested_analyzers"):
                 envelope = {**envelope, "requested_analyzers": ["behavioral"]}
             f, r, _ = _map_mcp_envelope(envelope, ["behavioral"])
             findings += f
             beh_rows = [row for row in r if row["scanner_source"] == beh_label]
-            rows += beh_rows or [_completed(beh_label, 1, [])]
+            for row in beh_rows:
+                row["console_output"] = beh_console
+            rows += beh_rows or [_completed(beh_label, 1, [], console_output=beh_console)]
 
     return findings, rows
 
@@ -359,12 +396,11 @@ def run_cisco_mcp_scanner(workdir, target):
 
 
 def _snyk_cmd(workdir, item_type):
-    # Skills require --skills (boolean or path). Without it, snyk-agent-scan
-    # treats the path as MCP config and exits nonzero with empty stderr.
+    # --ci always requires --dangerously-run-mcp-servers (Snyk Agent Scan policy).
+    # Skills additionally need --skills so the path is treated as SKILL.md, not MCP config.
+    flags = ["--ci", "--dangerously-run-mcp-servers", "--json", workdir]
     if item_type == "skill":
-        flags = ["--ci", "--skills", "--json", workdir]
-    else:
-        flags = ["--ci", "--dangerously-run-mcp-servers", "--json", workdir]
+        flags = ["--ci", "--dangerously-run-mcp-servers", "--skills", "--json", workdir]
     if _which("snyk-agent-scan"):
         return ["snyk-agent-scan", *flags]
     if _which("uvx"):
@@ -383,23 +419,26 @@ def run_snyk(workdir, item_type="mcp_server"):
         ]
 
     code, out, err = _run(cmd)
-    if code != 0:
-        return [], [_unreachable(source, err or out or f"exit {code}")]
+    console = _build_console(out, err)
+    root = _safe_json(out) or _safe_json(err) or {}
+    if not isinstance(root, dict) or not root:
+        return [], [_unreachable(source, err or out or f"exit {code}", console_output=console)]
 
-    root = _safe_json(out) or {}
     findings, checks = [], 0
-    for abs_path, path_result in root.items():
+    path_errors = []
+    for _abs_path, path_result in root.items():
         if not isinstance(path_result, dict):
             continue
         if path_result.get("error"):
-            continue  # path-level failure — does not fabricate a finding
+            path_errors.append(str(path_result.get("error")))
+            continue
         for issue in path_result.get("issues", []) or []:
             checks += 1
             code_ = issue.get("code", "")
             severity = (
                 "red" if code_.startswith("E") else ("amber" if code_.startswith("W") else None)
             )
-            if severity is None:  # X* runtime/engine codes are not security findings
+            if severity is None:
                 continue
             findings.append(
                 {
@@ -409,7 +448,16 @@ def run_snyk(workdir, item_type="mcp_server"):
                     "scanner_source": source,
                 }
             )
-    return findings, [_completed(source, checks or 1, findings)]
+
+    if findings or checks or not path_errors:
+        return findings, [_completed(source, checks or 1, findings, console_output=console)]
+    return [], [
+        _unreachable(
+            source,
+            "; ".join(path_errors) or err or out or f"exit {code}",
+            console_output=console,
+        )
+    ]
 
 
 # ---- Tessl (skills quality axis only, never findings) -----------------------
@@ -439,17 +487,17 @@ def run_tessl(workdir):
         return None, [_skipped("Tessl")]
     if not _which("npx"):
         return None, [_unreachable("Tessl", "npx not available (node/npm missing from image)")]
-    # Current Tessl CLI (0.93+): `tessl skill review --json <path>`
-    # Legacy `review run … --workspace` fails with upload URL 403 on headless tokens.
     code, out, err = _run(["npx", "--yes", "tessl@latest", "skill", "review", "--json", workdir])
+    console = _build_console(out, err)
     if code != 0:
-        return None, [_unreachable("Tessl", err or out)]
+        return None, [_unreachable("Tessl", err or out, console_output=console)]
     parsed = _safe_json(out) or {}
     score = _tessl_quality_score(parsed)
     detail = f"quality_score = {score}" if score is not None else "1 check completed"
-    return score, [
-        {"scanner_source": "Tessl", "status": "completed", "checks_run": 1, "detail": detail}
-    ]
+    row = {"scanner_source": "Tessl", "status": "completed", "checks_run": 1, "detail": detail}
+    if console:
+        row["console_output"] = console
+    return score, [row]
 
 
 def _collapse_severity(raw):
@@ -467,24 +515,66 @@ def _collapse_severity(raw):
     return None  # SAFE / empty — no finding row
 
 
-def run_all_scanners(workdir, item_type, target):
+SKILL_SCANNER_SOURCES = [
+    "Cisco Skill Scanner: static/bytecode/pipeline",
+    "Cisco Skill Scanner: LLM-judge",
+    "Cisco Skill Scanner: AI Defense",
+]
+
+MCP_SCANNER_SOURCES = list(_MCP_ANALYZER_LABEL.values())
+
+TESSL_SOURCES = ["Tessl"]
+SNYK_SOURCES = ["Snyk"]
+
+
+def run_all_scanners(workdir, item_type, target, on_scanner_done=None, on_scanner_start=None):
+    """Run all applicable scanners, optionally relaying results incrementally.
+
+    When *on_scanner_start* is provided it is called before each scanner group
+    with the list of scanner_source names about to run.  This lets the caller
+    insert ``status='running'`` placeholder rows so the dashboard has something
+    to display immediately (within one poll cycle).
+
+    When *on_scanner_done* is provided it is called after each scanner group
+    finishes with ``(findings, scanner_rows, quality_score)``.  This lets the
+    caller (scan_app) persist rows/findings to Supabase as they arrive so the
+    dashboard shows progress scanner-by-scanner.
+    """
     findings, scanner_rows = [], []
     quality_score = None
 
+    def _relay(f, r, qs=None):
+        if on_scanner_done:
+            on_scanner_done(f, r, qs)
+
+    def _signal_start(sources):
+        if on_scanner_start:
+            on_scanner_start(sources)
+
     if item_type == "skill":
+        _signal_start(SKILL_SCANNER_SOURCES)
         f, r = run_cisco_skill_scanner(workdir)
         findings += f
         scanner_rows += r
-        quality_score, r = run_tessl(workdir)
+        _relay(f, r)
+        _signal_start(TESSL_SOURCES)
+        qs, r = run_tessl(workdir)
+        if qs is not None:
+            quality_score = qs
         scanner_rows += r
+        _relay([], r, qs)
     else:
+        _signal_start(MCP_SCANNER_SOURCES)
         f, r = run_cisco_mcp_scanner(workdir, target)
         findings += f
         scanner_rows += r
+        _relay(f, r)
 
+    _signal_start(SNYK_SOURCES)
     f, r = run_snyk(workdir, item_type)
     findings += f
     scanner_rows += r
+    _relay(f, r)
 
     any_unreachable = any(row["status"] == "unreachable" for row in scanner_rows)
     overall_status = "partial-failed" if any_unreachable else "complete"
