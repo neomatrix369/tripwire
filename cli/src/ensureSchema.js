@@ -10,22 +10,34 @@ export function schemaPath() {
   return join(dirname(fileURLToPath(import.meta.url)), '../../db/schema.sql');
 }
 
-/** True when PostgREST/Postgres says the tripwire tables are missing. */
+/** True when PostgREST/Postgres says tables or columns are missing. */
 export function isMissingSchemaError(error) {
   if (!error) return false;
   const blob = `${error.code || ''} ${error.message || ''} ${error.details || ''}`;
-  return /PGRST205|could not find the table|relation ["'].*["'] does not exist|schema cache/i.test(blob);
+  return /PGRST20[45]|could not find the (table|.*column)|relation ["'].*["'] does not exist|schema cache/i.test(blob);
 }
 
 /**
- * Probe via HTTP API whether `items` is queryable.
+ * Probe via HTTP API whether core tables and migration columns are queryable.
+ * Checks both `items` (table existence) and `scan_run_scanners.completed_at`
+ * (column-level migration), so `ensureSchema --force` is triggered when the
+ * DB has stale columns.
  * @returns {'ready'|'missing'}
  */
 export async function probeSchema(supabase = getSupabase()) {
-  const { error } = await supabase.from('items').select('id').limit(1);
-  if (!error) return 'ready';
-  if (isMissingSchemaError(error)) return 'missing';
-  throw new Error(`Supabase probe failed: ${error.message || error.code || 'unknown error'}`);
+  const { error: itemsErr } = await supabase.from('items').select('id').limit(1);
+  if (itemsErr) {
+    if (isMissingSchemaError(itemsErr)) return 'missing';
+    throw new Error(`Supabase probe failed: ${itemsErr.message || itemsErr.code || 'unknown error'}`);
+  }
+
+  const { error: colErr } = await supabase
+    .from('scan_run_scanners')
+    .select('completed_at')
+    .limit(1);
+  if (colErr && isMissingSchemaError(colErr)) return 'missing';
+
+  return 'ready';
 }
 
 export async function applySchema({ dbUrl = process.env.SUPABASE_DB_URL } = {}) {

@@ -48,12 +48,25 @@ create table if not exists scan_run_scanners (
   id             uuid primary key default gen_random_uuid(),
   scan_run_id    uuid not null references scan_runs(id),
   scanner_source text not null,
-  status         text not null check (status in ('completed','skipped_missing_credential','unreachable','not_applicable')),
+  status         text not null check (status in ('running','completed','failed','skipped_missing_credential','unreachable','not_applicable')),
   checks_run     integer,
-  detail         text  -- optional stderr / reason (e.g. unreachable engines)
+  detail         text,  -- human-readable summary (e.g. "3 checks — 1 finding (red): injection")
+  console_output text,  -- raw stdout/stderr from scanner subprocess (truncated)
+  started_at     timestamptz,
+  completed_at   timestamptz
 );
--- Additive for DBs created before `detail` existed:
+-- Additive migrations for DBs created before these columns existed:
 alter table scan_run_scanners add column if not exists detail text;
+alter table scan_run_scanners add column if not exists console_output text;
+alter table scan_run_scanners add column if not exists started_at timestamptz;
+alter table scan_run_scanners add column if not exists completed_at timestamptz;
+-- Widen status enum for existing DBs (idempotent: no-op if already correct).
+do $$ begin
+  alter table scan_run_scanners drop constraint if exists scan_run_scanners_status_check;
+  alter table scan_run_scanners add constraint scan_run_scanners_status_check
+    check (status in ('running','completed','failed','skipped_missing_credential','unreachable','not_applicable'));
+exception when others then null;
+end $$;
 
 create table if not exists findings (
   id                 uuid primary key default gen_random_uuid(),
@@ -185,3 +198,23 @@ begin
   update scan_runs set risk_score = v_risk where id = v_latest_run_id;
 end;
 $$ language plpgsql;
+
+-- ─── Supabase Realtime ──────────────────────────────────────────────────────
+-- Enable Realtime publication so the browser dashboard receives INSERT/UPDATE
+-- events within ~1s of Modal writing scanner results (replaces 8s polling).
+-- The supabase_realtime publication already exists on Supabase-hosted projects.
+-- Run once in the SQL Editor or via `psql`.
+do $$ begin
+  alter publication supabase_realtime add table scan_runs;
+exception when others then null;
+end $$;
+
+do $$ begin
+  alter publication supabase_realtime add table scan_run_scanners;
+exception when others then null;
+end $$;
+
+do $$ begin
+  alter publication supabase_realtime add table findings;
+exception when others then null;
+end $$;

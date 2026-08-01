@@ -126,6 +126,7 @@ export function severityColor(severity) {
  * Unreachable/failed use violet (error), not vuln-red.
  */
 export const SCANNER_EXEC_META = {
+  running: { color: STATUS_META.running.color, label: "◌ Running" },
   completed: { color: STATUS_META.green.color, label: "✓ Completed" },
   skipped_missing_credential: { color: STATUS_META.grey.color, label: "⊘ Skipped" },
   unreachable: { color: STATUS_META.error.color, label: "✗ Unreachable" },

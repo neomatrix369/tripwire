@@ -87,9 +87,13 @@ async function fetchLiveData() {
       findings: mappedFindings,
     });
 
+    const unreachableCount = latestScanners.filter(
+      (s) => s.status === "unreachable"
+    ).length;
+    const totalScanners = latestScanners.length;
     const partialNote =
       runStatus === "partial-failed"
-        ? "Some scanners unreachable — risk from completed engines"
+        ? `${unreachableCount} out of ${totalScanners} scanners unreachable — risk from completed engines`
         : null;
 
     return {
@@ -116,7 +120,7 @@ async function fetchLiveData() {
         );
         const output = {};
         if (s.detail) {
-          if (s.status === "completed") {
+          if (s.status === "completed" || s.status === "running") {
             output.raw_summary = s.detail;
           } else {
             output.reason = s.detail;
@@ -137,6 +141,12 @@ async function fetchLiveData() {
             output.raw_summary = `${checks} checks — ${nFindings} finding${nFindings !== 1 ? "s" : ""} (${worst}): ${label}`;
           }
         }
+        if (s.console_output) {
+          output.console_output = s.console_output;
+        }
+        if (s.started_at && s.completed_at) {
+          output.duration_ms = new Date(s.completed_at) - new Date(s.started_at);
+        }
         if (
           s.scanner_source === "Tessl" &&
           item.quality_score != null
@@ -148,6 +158,8 @@ async function fetchLiveData() {
           status: s.status,
           checks_run: s.checks_run,
           detail: s.detail || null,
+          started_at: s.started_at || null,
+          completed_at: s.completed_at || null,
           output,
         };
       }),

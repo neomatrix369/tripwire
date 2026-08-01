@@ -115,3 +115,14 @@ test('given scanner unreachable when scannerExecMeta then uses error violet not 
   assert.equal(severityColor('red'), STATUS_META.red.color);
   assert.equal(severityColor('LOW'), STATUS_META.amber.color);
 });
+
+test('given scanner running when scannerExecMeta then uses scanning blue', () => {
+  // -- Given / When --
+  const meta = scannerExecMeta('running');
+
+  // -- Then --
+  assert.equal(meta.color, STATUS_META.running.color,
+    'running scanner must use SCANNING blue color');
+  assert.match(meta.label, /Running/i,
+    'running scanner label must say Running');
+});
