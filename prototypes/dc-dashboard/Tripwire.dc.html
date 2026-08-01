@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  @font-face { font-family: 'ui-fallback'; src: local('Arial'); }
+  body { margin: 0; background: #0a0e14; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #263140; border-radius: 4px; }
+  a { color: #4f8cff; }
+  a:hover { color: #7aa8ff; }
+</style>
+</helmet>
+<div style="display:flex;flex-direction:column;height:100vh;background:#0a0e14;color:#e6eaf0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden">
+
+  <div style="display:flex;align-items:center;height:56px;padding:0 24px;border-bottom:1px solid #1e2733;gap:8px;flex-shrink:0;background:#0d121a">
+    <div style="width:8px;height:8px;border-radius:2px;background:#4f8cff;margin-right:6px"></div>
+    <div style="font-weight:700;font-size:14px;letter-spacing:0.06em;color:#e6eaf0;margin-right:20px">TRIPWIRE</div>
+    <sc-for list="{{ primaryTabs }}" as="tab" hint-placeholder-count="2">
+      <button onClick="{{ tab.onClick }}" style="{{ tab.style }}">{{ tab.label }}</button>
+    </sc-for>
+    <div style="flex:1"></div>
+    <button onClick="{{ guardTab.onClick }}" style="{{ guardTab.style }}">{{ guardTab.label }}</button>
+    <div style="width:1px;height:16px;background:#1e2733;margin:0 6px"></div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#90a0b8">
+      <div style="width:8px;height:8px;border-radius:50%;background:{{ monitoringDotColor }}"></div>
+      {{ monitoringLabel }}
+    </div>
+  </div>
+
+  <sc-if value="{{ activeTabIsDashboard }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;flex:1;min-height:0">
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+        <div style="display:flex;gap:10px;padding:16px 20px 0 20px;flex-wrap:wrap">
+          <sc-for list="{{ overviewStats }}" as="stat" hint-placeholder-count="7">
+            <div style="flex:1;min-width:110px;background:#121822;border:1px solid #1e2733;border-top:2px solid {{ stat.color }};border-radius:8px;padding:12px 14px">
+              <div style="font-size:22px;font-weight:700;color:{{ stat.color }}">{{ stat.value }}</div>
+              <div style="font-size:10px;color:#8fa3bf;text-transform:uppercase;letter-spacing:.05em;margin-top:2px">{{ stat.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid #1e2733;flex-wrap:wrap">
+          <sc-for list="{{ typeTabs }}" as="tt" hint-placeholder-count="3">
+            <button onClick="{{ tt.onClick }}" style="{{ tt.style }}">{{ tt.label }}</button>
+          </sc-for>
+          <div style="width:1px;height:20px;background:#1e2733"></div>
+          <sc-for list="{{ statusChips }}" as="sch" hint-placeholder-count="6">
+            <button onClick="{{ sch.onClick }}" style="{{ sch.style }}">{{ sch.label }}</button>
+          </sc-for>
+          <div style="flex:1"></div>
+          <input type="text" placeholder="Search by name…" value="{{ searchQuery }}" onChange="{{ onSearchChange }}" style="background:#0d121a;border:1px solid #1e2733;color:#e6eaf0;font-size:12px;padding:7px 10px;border-radius:6px;width:180px" />
+          <div style="width:1px;height:20px;background:#1e2733"></div>
+          <sc-for list="{{ viewToggle }}" as="vt" hint-placeholder-count="2">
+            <button onClick="{{ vt.onClick }}" style="{{ vt.style }}">{{ vt.label }}</button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ isGridView }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:1;overflow-y:auto;padding:20px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px">
+              <sc-for list="{{ gridItems }}" as="item" hint-placeholder-count="8">
+                <div onClick="{{ item.onSelect }}" style="background:#121822;border:1px solid #1e2733;border-left:4px solid {{ item.meta.color }};border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:8px">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+                    <div style="font-size:13px;font-weight:600;color:#e6eaf0;word-break:break-word">{{ item.name }}</div>
+                    <div style="font-size:10px;font-weight:700;color:{{ item.meta.color }};background:{{ item.meta.color }}22;padding:2px 6px;border-radius:4px;white-space:nowrap">{{ item.meta.glyph }} {{ item.meta.label }}</div>
+                  </div>
+                  <div style="font-size:10px;color:#5b6b82;text-transform:uppercase;letter-spacing:.05em">{{ item.typeLabel }}</div>
+                  <div style="display:flex;gap:12px;font-size:11px;color:#90a0b8">
+                    <span>risk {{ item.riskLabel }}</span>
+                    <span>{{ item.timeLabel }}</span>
+                  </div>
+                  <sc-if value="{{ item.drifted }}">
+                    <div style="font-size:10px;color:#f5a524;background:#f5a52422;display:inline-flex;padding:2px 6px;border-radius:4px;width:fit-content">⟳ changed since last scan</div>
+                  </sc-if>
+                  <div style="display:flex;gap:6px;flex-wrap:wrap">
+                    <div style="font-size:10px;color:#8fa3bf;background:#1a212c;padding:2px 6px;border-radius:4px">{{ item.locusLabel }}</div>
+                    <div style="font-size:10px;color:#8fa3bf;background:#1a212c;padding:2px 6px;border-radius:4px">{{ item.availLabel }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isListView }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:20px">
+            <div style="border:1px solid #1e2733;border-radius:8px;overflow:hidden">
+              <div style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;background:#0d121a;border-bottom:1px solid #1e2733">
+                <sc-for list="{{ listColumns }}" as="col" hint-placeholder-count="6">
+                  <button onClick="{{ col.onClick }}" style="background:none;border:none;text-align:left;padding:10px 14px;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#8fa3bf;cursor:pointer;font-weight:700">{{ col.label }}{{ col.arrow }}</button>
+                </sc-for>
+              </div>
+              <sc-for list="{{ listRows }}" as="row" hint-placeholder-count="8">
+                <div onClick="{{ row.onSelect }}" style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;border-bottom:1px solid #1e2733;cursor:pointer;align-items:center">
+                  <div style="padding:10px 14px;font-size:12px;color:#e6eaf0;word-break:break-word">{{ row.name }}</div>
+                  <div style="padding:10px 14px;font-size:11px;color:#8fa3bf">{{ row.typeLabel }}</div>
+                  <div style="padding:10px 14px;font-size:11px;color:#8fa3bf">{{ row.timeLabel }}</div>
+                  <div style="padding:10px 14px"><span style="font-size:10px;font-weight:700;color:{{ row.meta.color }};background:{{ row.meta.color }}22;padding:2px 6px;border-radius:4px">{{ row.meta.glyph }} {{ row.meta.label }}</span></div>
+                  <div style="padding:10px 14px;font-size:12px;color:#e6eaf0">{{ row.riskLabel }}</div>
+                  <div style="padding:10px 14px;font-size:11px;color:#8fa3bf">{{ row.sourceLabel }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div>
+              <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin-bottom:8px">Scan history</div>
+              <div style="border:1px solid #1e2733;border-radius:8px;overflow:hidden">
+                <sc-for list="{{ historyRows }}" as="h" hint-placeholder-count="6">
+                  <div style="display:flex;justify-content:space-between;gap:10px;padding:8px 14px;border-bottom:1px solid #1e2733;font-size:12px">
+                    <span style="color:#e6eaf0">{{ h.name }}</span>
+                    <span style="color:#5b6b82">{{ h.timeLabel }}</span>
+                    <span style="color:#8fa3bf">{{ h.duration }}</span>
+                    <span style="color:{{ h.meta.color }}">{{ h.meta.label }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <sc-if value="{{ selectedView }}" hint-placeholder-val="{{ false }}">
+        <div style="width:460px;flex-shrink:0;background:#0d121a;border-left:1px solid #1e2733;padding:20px;overflow-y:auto">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px">
+            <div style="font-size:15px;font-weight:700;word-break:break-word;padding-right:12px">{{ selectedView.name }}</div>
+            <button onClick="{{ closeDrawer }}" style="background:none;border:none;color:#5b6b82;font-size:20px;cursor:pointer;line-height:1;flex-shrink:0">×</button>
+          </div>
+          <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin-bottom:16px">{{ selectedView.typeLabel }} · {{ selectedView.identifier }}</div>
+
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+            <div style="font-size:11px;font-weight:700;color:{{ selectedView.meta.color }};background:{{ selectedView.meta.color }}22;padding:3px 8px;border-radius:4px">{{ selectedView.meta.glyph }} {{ selectedView.meta.label }}</div>
+            <div style="font-size:11px;color:#8fa3bf;background:#1a212c;padding:3px 8px;border-radius:4px">{{ selectedView.locusLabel }}</div>
+            <div style="font-size:11px;color:#8fa3bf;background:#1a212c;padding:3px 8px;border-radius:4px">{{ selectedView.availLabel }}</div>
+          </div>
+
+          <div style="font-size:12px;color:#90a0b8;margin-bottom:16px">risk_score {{ selectedView.riskLabel }} · last scan {{ selectedView.timeLabel }}</div>
+
+          <sc-if value="{{ selectedView.errorMessage }}">
+            <div style="background:#a855f722;border:1px solid #a855f7;color:#eaccff;font-size:12px;padding:10px;border-radius:6px;margin-bottom:16px">{{ selectedView.errorMessage }}</div>
+          </sc-if>
+
+          <sc-if value="{{ selectedView.trendPoints }}">
+            <div style="margin-bottom:20px">
+              <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin-bottom:6px">Risk over time</div>
+              <svg width="220" height="48" style="display:block">
+                <polyline points="{{ selectedView.trendPoints }}" fill="none" stroke="#4f8cff" stroke-width="2"></polyline>
+              </svg>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ selectedView.diff }}">
+            <div style="margin-bottom:20px">
+              <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin-bottom:6px">Diff vs previous scan</div>
+              <sc-for list="{{ selectedView.diff.new }}" as="d" hint-placeholder-count="1">
+                <div style="font-size:12px;color:#f5a524;margin-bottom:4px">+ new: {{ d.message }}</div>
+              </sc-for>
+              <div style="font-size:11px;color:#5b6b82">resolved: {{ selectedView.diff.resolved.length }} · persisted: {{ selectedView.diff.persisted.length }}</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ selectedView.disagreement }}">
+            <div style="font-size:11px;color:#c9a3ff;background:#a855f722;padding:8px 10px;border-radius:6px;margin-bottom:16px">Scanners disagree on this finding — flagged for Phase 5 reconciler review.</div>
+          </sc-if>
+
+          <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin-bottom:8px">Findings ({{ selectedView.findingsView.length }})</div>
+          <sc-for list="{{ selectedView.findingsView }}" as="f" hint-placeholder-count="1">
+            <div style="background:#121822;border:1px solid #1e2733;border-left:3px solid {{ f.sevColor }};border-radius:6px;padding:10px 12px;margin-bottom:8px">
+              <div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#8fa3bf;margin-bottom:4px">
+                <span>{{ f.category }}</span><span>{{ f.scanner }}</span>
+              </div>
+              <div style="font-size:12px;color:#e6eaf0;margin-bottom:4px">{{ f.message }}</div>
+              <sc-if value="{{ f.entity_name }}">
+                <div style="font-size:11px;color:#4f8cff">tool: {{ f.entity_name }}</div>
+              </sc-if>
+              <sc-if value="{{ f.file_path }}">
+                <div style="font-size:11px;color:#5b6b82;font-family:ui-monospace,monospace">{{ f.file_path }}:{{ f.location }}</div>
+              </sc-if>
+              <sc-if value="{{ f.snippet }}">
+                <div style="font-family:ui-monospace,monospace;font-size:11px;background:#0a0e14;padding:6px 8px;border-radius:4px;margin-top:6px;color:#f0a3a3;overflow-x:auto">{{ f.snippet }}</div>
+              </sc-if>
+            </div>
+          </sc-for>
+
+          <sc-if value="{{ selectedView.sandbox }}">
+            <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin:16px 0 8px">Sandbox evidence</div>
+            <div style="background:#121822;border:1px solid #1e2733;border-radius:6px;padding:10px 12px;font-size:12px;color:#90a0b8">
+              <div>sandbox_id: <span style="color:#e6eaf0;font-family:ui-monospace,monospace">{{ selectedView.sandbox.id }}</span></div>
+              <div style="margin-top:4px">egress policy: {{ selectedView.sandbox.egressPhase }}</div>
+              <sc-for list="{{ selectedView.sandbox.denied }}" as="deny" hint-placeholder-count="0">
+                <div style="color:#f5a524;margin-top:4px">⛔ denied egress: {{ deny.host }} — {{ deny.reason }}</div>
+              </sc-for>
+              <div style="margin-top:4px;color:#22c55e">✓ cleanup confirmed</div>
+            </div>
+          </sc-if>
+
+          <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin:16px 0 8px">Scanner coverage</div>
+          <sc-for list="{{ selectedView.scannersView }}" as="scv" hint-placeholder-count="2">
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:6px 0;border-bottom:1px solid #1e2733;gap:8px">
+              <span style="color:#e6eaf0">{{ scv.source }}</span>
+              <span style="color:#90a0b8;white-space:nowrap">{{ scv.status }} · {{ scv.checks_run }} checks</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ activeTabIsCli }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;padding:20px;gap:14px;overflow:hidden">
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <sc-for list="{{ cliButtons }}" as="cb" hint-placeholder-count="3">
+          <button onClick="{{ cb.onClick }}" style="{{ cb.style }}">▶ {{ cb.label }}</button>
+        </sc-for>
+      </div>
+      <div style="flex:1;background:#05070b;border:1px solid #1e2733;border-radius:8px;padding:16px;overflow-y:auto;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;color:#8fe388">
+        <sc-if value="{{ cliEmpty }}" hint-placeholder-val="{{ true }}">
+          <div style="color:#5b6b82">Pick a scenario above to run a simulated tripwire command.</div>
+        </sc-if>
+        <sc-for list="{{ cliVisibleLines }}" as="line" hint-placeholder-count="0">
+          <div style="margin-bottom:6px;white-space:pre-wrap">{{ line }}</div>
+        </sc-for>
+        <sc-if value="{{ cliRunning }}" hint-placeholder-val="{{ false }}">
+          <div style="color:#4f8cff">▌</div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ activeTabIsGuard }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;padding:24px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;max-width:760px">
+      <div style="display:flex;align-items:center;gap:16px;background:#121822;border:1px solid #1e2733;border-radius:8px;padding:16px">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px">Monitoring</div>
+          <div style="font-size:12px;color:#90a0b8">{{ monitoringHelpText }}</div>
+        </div>
+        <button onClick="{{ toggleMonitoring }}" style="{{ monitoringBtnStyle }}">{{ monitoringBtnLabel }}</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;background:#121822;border:1px solid #1e2733;border-radius:8px;padding:16px">
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px">Threshold</div>
+          <div style="font-size:12px;color:#90a0b8">Calls at or above this severity are blocked</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <sc-for list="{{ thresholdOptions }}" as="th" hint-placeholder-count="2">
+            <button onClick="{{ th.onClick }}" style="{{ th.style }}">{{ th.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="font-size:11px;color:#5b6b82;text-transform:uppercase;margin-top:8px">Simulated tool calls</div>
+      <sc-for list="{{ guardRows }}" as="row" hint-placeholder-count="3">
+        <div style="background:#121822;border:1px solid #1e2733;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+            <div>
+              <div style="font-size:13px;font-weight:600">{{ row.tool }}</div>
+              <div style="font-size:11px;color:#5b6b82">on {{ row.server }} · item status: {{ row.itemStatusLabel }}</div>
+            </div>
+            <button onClick="{{ row.onSimulate }}" style="background:#1a212c;border:1px solid #2a3644;color:#e6eaf0;font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;white-space:nowrap">Simulate call</button>
+          </div>
+          <sc-if value="{{ row.resultView }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12px;padding:8px 10px;border-radius:6px;background:{{ row.resultView.bg }};color:{{ row.resultView.color }}">{{ row.resultView.text }}</div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <div style="display:flex;align-items:center;gap:14px;padding:8px 20px;border-top:1px solid #1e2733;font-size:11px;color:#5b6b82;flex-shrink:0;background:#0d121a;flex-wrap:wrap">
+    <span style="color:#8fa3bf">Last scan: {{ footerLastScan }}</span>
+    <div style="width:1px;height:14px;background:#1e2733"></div>
+    <span style="color:#90a0b8">Primary stack: Tripwire · Modal · Supabase · Cursor</span>
+    <div style="width:1px;height:14px;background:#1e2733"></div>
+    <span>Scanners: Cisco Skill/MCP Scanner · Snyk · Tessl</span>
+    <span>· Partner: <a href="https://www.ossprey.com/?utm_source=luma" target="_blank" rel="noopener">Ossprey</a></span>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    activeTab: 'dashboard',
+    data: null,
+    typeFilter: 'all',
+    statusFilter: 'all',
+    selectedId: null,
+    cliScenarioKey: null,
+    cliRevealCount: 0,
+    cliRunning: false,
+    guardResults: {},
+    monitoringEnabled: true,
+    threshold: 'red',
+    viewMode: 'grid',
+    searchQuery: '',
+    sortKey: 'name',
+    sortDir: 'asc'
+  };
+
+  componentDidMount() {
+    import('./tripwire-data.js').then(m => this.setState({ data: m.default }));
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._cliTimer);
+  }
+
+  setTab = (t) => this.setState({ activeTab: t });
+  setTypeFilter = (v) => this.setState({ typeFilter: v });
+  setStatusFilter = (v) => this.setState({ statusFilter: v });
+  selectItem = (id) => this.setState({ selectedId: id });
+  closeDrawer = () => this.setState({ selectedId: null });
+  toggleMonitoring = () => this.setState(s => ({ monitoringEnabled: !s.monitoringEnabled, guardResults: {} }));
+  setThreshold = (v) => this.setState({ threshold: v, guardResults: {} });
+  setViewMode = (v) => this.setState({ viewMode: v });
+  setSearchQuery = (e) => this.setState({ searchQuery: e.target.value });
+  setSort = (key) => this.setState(s => ({ sortKey: key, sortDir: s.sortKey === key ? (s.sortDir === 'asc' ? 'desc' : 'asc') : 'asc' }));
+
+  runCli = (key) => {
+    const data = this.state.data;
+    if (!data || this.state.cliRunning) return;
+    const total = data.cliScenarios[key].lines.length;
+    clearInterval(this._cliTimer);
+    this.setState({ cliScenarioKey: key, cliRevealCount: 0, cliRunning: true });
+    this._cliTimer = setInterval(() => {
+      this.setState(s => {
+        const next = s.cliRevealCount + 1;
+        if (next >= total) { clearInterval(this._cliTimer); return { cliRevealCount: total, cliRunning: false }; }
+        return { cliRevealCount: next };
+      });
+    }, 420);
+  };
+
+  simulateGuardCall = (id) => {
+    this.setState(s => {
+      const scenario = s.data.guardScenarios.find(g => g.id === id);
+      let result;
+      if (!s.monitoringEnabled) {
+        result = 'allow-monitoring-off';
+      } else if (scenario.outcome === 'deny-unscanned') {
+        result = 'deny-unscanned';
+      } else {
+        const item = s.data.items.find(it => it.id === scenario.itemId);
+        const order = { green: 0, amber: 1, red: 2 };
+        const thresholdLevel = s.threshold === 'red' ? 2 : 1;
+        const itemLevel = order[item.status] ?? 2;
+        result = itemLevel >= thresholdLevel ? 'deny' : 'allow';
+      }
+      return { guardResults: { ...s.guardResults, [id]: result } };
+    });
+  };
+
+  fmtTime(iso) {
+    const d = new Date(iso);
+    return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  trendPath(trend) {
+    if (!trend || trend.length < 2) return null;
+    const w = 220, h = 44, max = Math.max(2.5, ...trend.map(t => t.r));
+    const step = w / (trend.length - 1);
+    return trend.map((t, i) => `${i * step},${h - (t.r / max) * h}`).join(' ');
+  }
+
+  btnStyle(active, base) {
+    const b = base || {};
+    return `font-size:${b.size||'12px'};font-weight:${active?'700':'500'};padding:${b.pad||'7px 12px'};border-radius:6px;cursor:pointer;border:1px solid ${active?(b.activeBorder||'#4f8cff'):'#1e2733'};background:${active?(b.activeBg||'#4f8cff22'):'transparent'};color:${active?(b.activeColor||'#e6eaf0'):'#8fa3bf'};white-space:nowrap`;
+  }
+
+  locusLabel(v) { return { local: 'Local', cloud: 'Cloud', unknown: 'Locus unknown' }[v] || v; }
+  availLabel(v) { return { source_on_disk: 'Source on disk', cloneable: 'Cloneable', introspection_only: 'Introspection only', unavailable: 'Unavailable', unknown: 'Scannability unknown' }[v] || v; }
+
+  sortValue(it, key, statusOrder) {
+    switch (key) {
+      case 'name': return it.name.toLowerCase();
+      case 'type': return it.type;
+      case 'lastScan': return it.lastScan || '';
+      case 'status': return statusOrder[it.status] ?? 99;
+      case 'risk': return it.risk == null ? -1 : it.risk;
+      case 'locus': return it.locus || '';
+      default: return '';
+    }
+  }
+
+  durationLabel(started, completed) {
+    if (!started || !completed) return '—';
+    const secs = (new Date(completed) - new Date(started)) / 1000;
+    return secs.toFixed(1) + 's';
+  }
+
+  renderVals() {
+    const s = this.state;
+    const data = s.data;
+    const statusMeta = {
+      red: { color: '#ef4444', label: 'RED', glyph: '●' },
+      amber: { color: '#f5a524', label: 'AMBER', glyph: '▲' },
+      green: { color: '#22c55e', label: 'GREEN', glyph: '✓' },
+      grey: { color: '#64748b', label: 'UNSCANNED', glyph: '–' },
+      error: { color: '#a855f7', label: 'ERROR', glyph: '!' }
+    };
+
+    const primaryTabs = ['dashboard', 'cli'].map(key => ({
+      key,
+      label: key === 'cli' ? 'CLI' : key.charAt(0).toUpperCase() + key.slice(1),
+      onClick: () => this.setTab(key),
+      style: this.btnStyle(s.activeTab === key, { size: '13px' })
+    }));
+    const guardActive = s.activeTab === 'guard';
+    const guardTab = {
+      onClick: () => this.setTab('guard'),
+      label: 'Guard',
+      style: `font-size:11px;font-weight:${guardActive ? '600' : '400'};padding:5px 10px;border-radius:5px;cursor:pointer;border:1px solid ${guardActive ? '#2a3644' : 'transparent'};background:${guardActive ? '#1a212c' : 'transparent'};color:${guardActive ? '#c3cbd6' : '#5b6b82'}`
+    };
+
+    const base = {
+      activeTabIsDashboard: s.activeTab === 'dashboard',
+      activeTabIsCli: s.activeTab === 'cli',
+      activeTabIsGuard: s.activeTab === 'guard',
+      primaryTabs,
+      guardTab,
+      monitoringDotColor: s.monitoringEnabled ? '#22c55e' : '#64748b',
+      monitoringLabel: s.monitoringEnabled ? 'Guard active' : 'Guard paused',
+      monitoringHelpText: s.monitoringEnabled
+        ? 'Guard intercepts every skill/tool call and checks its rating before it runs.'
+        : 'Monitoring is off — all calls pass through unchecked.',
+      monitoringBtnLabel: s.monitoringEnabled ? 'Turn off' : 'Turn on',
+      monitoringBtnStyle: `font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid ${s.monitoringEnabled ? '#2a3644' : '#22c55e'};background:${s.monitoringEnabled ? '#1a212c' : '#22c55e22'};color:${s.monitoringEnabled ? '#e6eaf0' : '#22c55e'}`,
+      thresholdOptions: [
+        { key: 'red', label: 'Red only' },
+        { key: 'red_and_amber', label: 'Red + Amber' }
+      ].map(o => ({ ...o, onClick: () => this.setThreshold(o.key), style: this.btnStyle(s.threshold === o.key, {}) })),
+      isGridView: s.viewMode !== 'list',
+      isListView: s.viewMode === 'list',
+      searchQuery: s.searchQuery,
+      onSearchChange: this.setSearchQuery,
+      viewToggle: ['grid', 'list'].map(v => ({
+        key: v, label: v === 'grid' ? 'Grid' : 'List',
+        onClick: () => this.setViewMode(v),
+        style: this.btnStyle(s.viewMode === v, { activeBg: '#1a212c', activeBorder: '#4f8cff', activeColor: '#e6eaf0' })
+      })),
+      listColumns: [
+        { key: 'name', label: 'Name' }, { key: 'type', label: 'Type' },
+        { key: 'lastScan', label: 'Last scanned' }, { key: 'status', label: 'Health' },
+        { key: 'risk', label: 'Score' }, { key: 'locus', label: 'Source' }
+      ].map(c => ({ ...c, onClick: () => this.setSort(c.key), arrow: s.sortKey === c.key ? (s.sortDir === 'asc' ? ' ▲' : ' ▼') : '' }))
+    };
+
+    if (!data) {
+      return {
+        ...base,
+        gridItems: [], typeTabs: [], statusChips: [], overviewStats: [],
+        selectedView: null,
+        cliButtons: [], cliVisibleLines: [], cliEmpty: true, cliRunning: false,
+        guardRows: [], footerLastScan: '—',
+        listRows: [], historyRows: []
+      };
+    }
+
+    const typeTabs = [
+      { key: 'all', label: 'All items' },
+      { key: 'skill', label: 'Skills' },
+      { key: 'mcp_server', label: 'MCP Servers' }
+    ].map(t => ({ ...t, onClick: () => this.setTypeFilter(t.key), style: this.btnStyle(s.typeFilter === t.key, { activeBg: '#1a212c', activeBorder: '#4f8cff', activeColor: '#e6eaf0' }) }));
+
+    const statusChips = [
+      { key: 'all', label: 'All' },
+      { key: 'red', label: '● Red' },
+      { key: 'amber', label: '▲ Amber' },
+      { key: 'green', label: '✓ Green' },
+      { key: 'grey', label: '– Unscanned' },
+      { key: 'error', label: '! Error' }
+    ].map(c => ({ ...c, onClick: () => this.setStatusFilter(c.key), style: this.btnStyle(s.statusFilter === c.key, { activeBg: (statusMeta[c.key]?.color || '#4f8cff') + '22', activeBorder: statusMeta[c.key]?.color || '#4f8cff', activeColor: statusMeta[c.key]?.color || '#e6eaf0' }) }));
+
+    const q = s.searchQuery.trim().toLowerCase();
+    const filtered = data.items.filter(it =>
+      (s.typeFilter === 'all' || it.type === s.typeFilter) &&
+      (s.statusFilter === 'all' || it.status === s.statusFilter) &&
+      (!q || it.name.toLowerCase().includes(q))
+    );
+
+    const gridItems = filtered.map(it => ({
+      ...it,
+      meta: statusMeta[it.status],
+      typeLabel: it.type === 'skill' ? 'Skill' : 'MCP Server',
+      riskLabel: it.risk == null ? '—' : it.risk.toFixed(2),
+      timeLabel: it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
+      locusLabel: this.locusLabel(it.locus),
+      availLabel: this.availLabel(it.avail),
+      onSelect: () => this.selectItem(it.id)
+    }));
+
+    const counts = { red: 0, amber: 0, green: 0, grey: 0, error: 0 };
+    data.items.forEach(it => { counts[it.status] = (counts[it.status] || 0) + 1; });
+    const overviewStats = [
+      { label: 'Total items', value: data.items.length, color: '#4f8cff' },
+      { label: 'Red', value: counts.red, color: statusMeta.red.color },
+      { label: 'Amber', value: counts.amber, color: statusMeta.amber.color },
+      { label: 'Green', value: counts.green, color: statusMeta.green.color },
+      { label: 'Unscanned', value: counts.grey, color: statusMeta.grey.color },
+      { label: 'Error', value: counts.error, color: statusMeta.error.color },
+      { label: 'Changed since last scan', value: data.items.filter(it => it.drifted).length, color: statusMeta.amber.color }
+    ];
+
+    const selected = s.selectedId ? data.items.find(i => i.id === s.selectedId) : null;
+    const selectedView = selected ? {
+      ...selected,
+      meta: statusMeta[selected.status],
+      typeLabel: selected.type === 'skill' ? 'Skill' : 'MCP Server',
+      riskLabel: selected.risk == null ? '—' : selected.risk.toFixed(2),
+      timeLabel: selected.lastScan ? this.fmtTime(selected.lastScan) : 'never scanned',
+      locusLabel: this.locusLabel(selected.locus),
+      availLabel: this.availLabel(selected.avail),
+      trendPoints: this.trendPath(selected.trend),
+      findingsView: selected.findings.map(f => ({ ...f, sevColor: statusMeta[f.severity].color })),
+      scannersView: selected.scanners
+    } : null;
+
+    const cliButtons = Object.keys(data.cliScenarios).map(key => ({
+      key, label: data.cliScenarios[key].label,
+      onClick: () => this.runCli(key),
+      style: this.btnStyle(s.cliScenarioKey === key, { activeBg: '#4f8cff22', activeBorder: '#4f8cff' })
+    }));
+    const cli = s.cliScenarioKey ? data.cliScenarios[s.cliScenarioKey] : null;
+    const cliVisibleLines = cli ? cli.lines.slice(0, s.cliRevealCount) : [];
+
+    const resultCopy = {
+      'deny': { bg: '#ef444422', color: '#ff9b9b', text: '⛔ DENIED — rated at/above threshold; call blocked before it ran.' },
+      'allow': { bg: '#22c55e22', color: '#7ee6a8', text: '✓ ALLOWED — below threshold, call proceeded.' },
+      'deny-unscanned': { bg: '#64748b33', color: '#c3cbd6', text: '⛔ DENIED — never scanned. Guard fails closed on unknown items.' },
+      'allow-monitoring-off': { bg: '#f5a52422', color: '#ffd699', text: '⚠ ALLOWED — monitoring is off, call passed through unchecked.' }
+    };
+
+    const guardRows = data.guardScenarios.map(g => {
+      const item = data.items.find(i => i.id === g.itemId);
+      const r = s.guardResults[g.id];
+      return {
+        ...g, item, itemStatusLabel: item.status,
+        onSimulate: () => this.simulateGuardCall(g.id),
+        resultView: r ? resultCopy[r] : null
+      };
+    });
+
+    const lastScanTimes = data.items.map(i => i.lastScan).filter(Boolean).sort().reverse();
+    const footerLastScan = lastScanTimes.length ? this.fmtTime(lastScanTimes[0]) : 'never';
+
+    const statusOrder = { red: 0, amber: 1, green: 2, grey: 3, error: 4 };
+    const listRows = [...filtered].sort((a, b) => {
+      const av = this.sortValue(a, s.sortKey, statusOrder), bv = this.sortValue(b, s.sortKey, statusOrder);
+      if (av < bv) return s.sortDir === 'asc' ? -1 : 1;
+      if (av > bv) return s.sortDir === 'asc' ? 1 : -1;
+      return 0;
+    }).map(it => ({
+      ...it, meta: statusMeta[it.status],
+      typeLabel: it.type === 'skill' ? 'Skill' : 'MCP Server',
+      timeLabel: it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
+      riskLabel: it.risk == null ? '—' : it.risk.toFixed(2),
+      sourceLabel: this.locusLabel(it.locus) + ' · ' + this.availLabel(it.avail),
+      onSelect: () => this.selectItem(it.id)
+    }));
+
+    const historyRows = data.items.filter(it => it.lastScan).sort((a, b) => b.lastScan.localeCompare(a.lastScan)).slice(0, 8).map(it => ({
+      name: it.name,
+      timeLabel: this.fmtTime(it.lastScan),
+      duration: it.sandbox ? this.durationLabel(it.sandbox.started, it.sandbox.completed) : '—',
+      meta: statusMeta[it.status]
+    }));
+
+    return {
+      ...base, typeTabs, statusChips, gridItems, overviewStats, selectedView,
+      closeDrawer: this.closeDrawer,
+      cliButtons, cliVisibleLines, cliEmpty: !s.cliScenarioKey, cliRunning: s.cliRunning,
+      guardRows, toggleMonitoring: this.toggleMonitoring,
+      footerLastScan, listRows, historyRows
+    };
+  }
+}
+
+</script>
+</body>
+</html>

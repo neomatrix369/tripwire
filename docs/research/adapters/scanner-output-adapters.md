@@ -1,11 +1,11 @@
 # Scanner output → Tripwire findings adapters (research)
 
-**Status:** RESEARCH (in progress — schemas inventoried from primary docs; fixture VERIFIED maps still open)  
-**Started:** 2026-08-01  
+**Status:** RESEARCH (in progress — schemas inventoried from primary docs; fixture VERIFIED maps still open)
+**Started:** 2026-08-01
 **Purpose:** Document how each scanner emits results, how to capture them, proposed maps into Supabase (`findings` + Storage), and **cited references**.
 
-**Product SoT:** [`../security-scanning-platform-spec.md`](../security-scanning-platform-spec.md) §4 · §8  
-**Trusted domains:** [`.nwave/trusted-source-domains.yaml`](../../../.nwave/trusted-source-domains.yaml)  
+**Product SoT:** [`../security-scanning-platform-spec.md`](../security-scanning-platform-spec.md) §4 · §8
+**Trusted domains:** [`.nwave/trusted-source-domains.yaml`](../../../.nwave/trusted-source-domains.yaml)
 **Also mirrored for nWave layout:** `docs/research/adapters/` (symlink or copy of this file when finalized)
 
 Evidence labels: **RESEARCH** | **PROPOSED** | **DECIDED** | **VERIFIED**
@@ -71,12 +71,12 @@ Root = map `absolute_path → ScanPathResult`:
 | `reference` | `[server_index, entity_index]` → resolve skill file **or** MCP tool/prompt for anchors |
 | `extra_data` | → optional `snippet` / advisory fields if present |
 
-**Severity:** `E*` → red; `W*` → amber (tune per code at VERIFIED).  
+**Severity:** `E*` → red; `W*` → amber (tune per code at VERIFIED).
 **Runtime failures:** `X*` / `error.is_failure` → engine status, not security findings.
 
 **Anchors (PROPOSED):**
 
-- Skill: Anchor A from `servers[i].server.path` (type `skill`) + entity file when `entity_index` set  
+- Skill: Anchor A from `servers[i].server.path` (type `skill`) + entity file when `entity_index` set
 - MCP: Anchor B from signature tools/prompts when `entity_index` set; whole-server when `entity_index` is null
 
 ### References
@@ -181,7 +181,7 @@ Product note that file `--output` was flaky on a tested build: re-test on pin; p
 
 **Anchors (PROPOSED):**
 
-- Live introspect: Anchor B — `entity_kind` from `item_type`, `entity_name` from `tool_name` / `prompt_name` / `resource_name`  
+- Live introspect: Anchor B — `entity_kind` from `item_type`, `entity_name` from `tool_name` / `prompt_name` / `resource_name`
 - Behavioral source tier: Anchor A when file/line present (confirm on behavioral docs + samples)
 
 ### References
@@ -238,15 +238,15 @@ Golden samples: `fixtures/scanner-samples/{engine}/{fixture-name}.json` once smo
 
 ## 8. Work remaining
 
-- [x] Seed `.nwave/trusted-source-domains.yaml`  
-- [x] Inventory primary docs + pull JSON schemas for Snyk, Cisco Skill Scanner, Cisco MCP Scanner  
-- [ ] Tessl `--json` field inventory from docs.tessl.io  
-- [ ] Full Snyk issue-code → Tripwire category table  
-- [ ] Cisco category / AITech → Tripwire taxonomy table  
-- [ ] Pin versions + reconcile mcp-scanner CLI vs spec §8  
-- [ ] Capture golden outputs on Tripwire fixtures  
-- [ ] Storage key layout ADR one-liner  
-- [ ] Mark each adapter VERIFIED after Supabase round-trip  
+- [x] Seed `.nwave/trusted-source-domains.yaml`
+- [x] Inventory primary docs + pull JSON schemas for Snyk, Cisco Skill Scanner, Cisco MCP Scanner
+- [ ] Tessl `--json` field inventory from docs.tessl.io
+- [ ] Full Snyk issue-code → Tripwire category table
+- [ ] Cisco category / AITech → Tripwire taxonomy table
+- [ ] Pin versions + reconcile mcp-scanner CLI vs spec §8
+- [ ] Capture golden outputs on Tripwire fixtures
+- [ ] Storage key layout ADR one-liner
+- [ ] Mark each adapter VERIFIED after Supabase round-trip
 
 ---
 
