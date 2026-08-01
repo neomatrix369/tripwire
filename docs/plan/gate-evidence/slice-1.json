@@ -1,0 +1,48 @@
+{
+  "slice": "slice-1-walking-skeleton-live-path",
+  "date": "2026-08-01",
+  "branch": "slice/1-walking-skeleton-live-path",
+  "gwt": "Walking Skeleton Live Demo Path (GWT-1+GWT-2 observational)",
+  "commands": [
+    {
+      "cmd": "node cli/bin/tripwire.js scan --dry-discover fixtures/skills/vuln-prompt-injection-notes fixtures/mcp/vuln-command-injection-server",
+      "result": "discovered skill + mcp_server local targets"
+    },
+    {
+      "cmd": "node cli/bin/tripwire.js scan --force --concurrency 2 fixtures/skills/vuln-prompt-injection-notes fixtures/mcp/vuln-command-injection-server",
+      "result": "exit 0",
+      "batch_id": "4e7b5db6-b084-4d0b-af07-9c996dd0dc66",
+      "scan_run_ids": [
+        "80883cda-308c-4fc4-af65-c2f92cfde4ce",
+        "7f2da995-f62c-4ef1-a7a4-f6e34055bc3d"
+      ],
+      "modal_apps": [
+        "https://modal.com/apps/neomatrix369/main/ap-rIKd2PtPoXXZHM27EaKBYu",
+        "https://modal.com/apps/neomatrix369/main/ap-4Po7FFhlEUKYhuz9uGTMHn"
+      ]
+    }
+  ],
+  "supabase_boolean_probe": {
+    "item_count": 2,
+    "skill": {
+      "heatmap_status": "red",
+      "run_status": "complete",
+      "findings_count": 93,
+      "has_file_line": true
+    },
+    "mcp": {
+      "heatmap_status": "amber",
+      "run_status": "complete",
+      "findings_count": 10,
+      "has_tool": true
+    },
+    "pass_gwt1": true,
+    "pass_gwt2": true
+  },
+  "notes": [
+    "nw-execute adapted to docs/plan slice-workflow (no .nwave/config.yaml).",
+    "Probe printed booleans/counts only; no finding bodies or secrets.",
+    "Operator should confirm Live dashboard UI on camera before treating film as done (slice 4)."
+  ],
+  "verdict": "VERIFIED"
+}
