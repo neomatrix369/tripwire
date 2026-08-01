@@ -6,6 +6,27 @@
       "args": [
         "fixtures/mcp/safe-time-server/run.sh"
       ]
+    },
+    "vuln-command-injection-server": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "fixtures/mcp/vuln-command-injection-server/run.sh"
+      ]
+    },
+    "vuln-hardcoded-secret-server": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "fixtures/mcp/vuln-hardcoded-secret-server/run.sh"
+      ]
+    },
+    "vuln-unauthenticated-http-server": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "fixtures/mcp/vuln-unauthenticated-http-server/run.sh"
+      ]
     }
   }
 }
