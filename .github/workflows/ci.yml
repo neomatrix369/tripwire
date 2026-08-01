@@ -16,7 +16,7 @@ jobs:
     name: Repo lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version-file: ".python-version"
@@ -32,7 +32,7 @@ jobs:
     name: Static analysis (ruff + bandit)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version-file: ".python-version"
@@ -48,7 +48,7 @@ jobs:
     name: CLI tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -69,7 +69,7 @@ jobs:
       contents: read
       pull-requests: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: gitleaks/gitleaks-action@v3
@@ -81,7 +81,7 @@ jobs:
     name: SAST — Semgrep + OSV-Scanner
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Semgrep SAST
         uses: returntocorp/semgrep-action@v1
         with:
@@ -101,7 +101,7 @@ jobs:
     name: Trivy (filesystem)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Trivy filesystem scan
         uses: aquasecurity/trivy-action@v0.36.0
         with:
@@ -117,7 +117,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'schedule'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: trufflesecurity/trufflehog@v3.96.0
