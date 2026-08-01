@@ -96,6 +96,28 @@ create table if not exists config (
 );
 insert into config (id) values (1) on conflict (id) do nothing;
 
+-- ─── Row Level Security ──────────────────────────────────────────────────────
+-- Anon (browser dashboard) may SELECT; writes require service_role (bypasses RLS).
+alter table items              enable row level security;
+alter table scan_runs          enable row level security;
+alter table scan_run_scanners  enable row level security;
+alter table findings           enable row level security;
+
+do $$ begin
+  if not exists (select 1 from pg_policies where policyname = 'anon_read_items') then
+    create policy anon_read_items             on items              for select to anon using (true);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'anon_read_scan_runs') then
+    create policy anon_read_scan_runs         on scan_runs          for select to anon using (true);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'anon_read_scan_run_scanners') then
+    create policy anon_read_scan_run_scanners on scan_run_scanners  for select to anon using (true);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'anon_read_findings') then
+    create policy anon_read_findings          on findings           for select to anon using (true);
+  end if;
+end $$;
+
 -- Rollup function: recompute an item's heatmap_status/risk_score from its latest scan_run.
 create or replace function tripwire_rollup_item(p_item_id uuid) returns void as $$
 declare

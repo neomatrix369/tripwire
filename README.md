@@ -14,6 +14,7 @@ and `internal-docs/00_build/build-day-decisions.md`.
 - `fixtures/` — scan targets for smoke tests (spec §8 table). See `fixtures/README.md` for the
   current green/amber/red set (safe baselines, drift pair, vuln skills/MCP servers).
 - `prototypes/dc-dashboard/` — Data Commons HTML dashboard simulator (mock data; for screenshots / Phase 3 UX reference). Open `Tripwire.dc.html` from that folder.
+- `docs/DEMO_READINESS.md` — prioritized smoke checklist + demo-day runbook (cold start → demo-ready).
 - `docs/research/adapters/scanner-output-adapters.md` — scanner output shapes the
   `sandbox/scanners.py` adapters are built from; update both together.
 
