@@ -18,8 +18,20 @@ AI skill / MCP server security scanning platform.
 Local build notes (gitignored): `internal-docs/00_build/security-scanning-platform-spec.md`
 and `internal-docs/00_build/build-day-decisions.md`.
 
+## Who is this for?
+
+| Persona | Start here |
+|---------|------------|
+| See it in 2 minutes | [prototypes/README.md](prototypes/README.md) (Mock dashboard) |
+| Scan my skills/MCP | [Setup](#setup) → `tripwire scan --dry-discover` |
+| Run the full platform | [Setup](#setup) + [fixtures/README.md](fixtures/README.md) |
+| Operate Modal/Supabase | [.env.example](.env.example) + [OPTIONAL_SCANNER_KEYS.md](fixtures/OPTIONAL_SCANNER_KEYS.md) |
+| Contribute | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Compliance / audit | [prototypes/README.md](prototypes/README.md) + [fixtures/README.md](fixtures/README.md) |
+| Security reporter | [SECURITY.md](SECURITY.md) |
+
 ## Layout
-- `db/schema.sql` — Postgres/Supabase DDL + rollup; anon SELECT for Live dashboard.
+- `db/schema.sql` — Postgres/Supabase DDL + rollup; anon SELECT + Realtime publication for Live dashboard.
 - `cli/` — `tripwire` Node CLI (discovery, hashing, idempotency, bootstrap, Modal spawn).
 - `sandbox/` — Modal app + adapters; host packs dirs, sandbox extracts.
 - `scripts/` — setup (Supabase/Modal), `serve-dashboard.mjs`, hygiene gates.
@@ -48,13 +60,15 @@ Intentional vuln fixtures under `fixtures/` and mock data under `prototypes/` ar
 # Optional for direct browser Live dashboard: SUPABASE_ANON_KEY (or use serve-dashboard.mjs)
 
 cd cli && npm install && npm link   # gives you the `tripwire` command locally
-npm test                            # discovery + hashing + schema probe + --force unit tests (17)
+npm test                            # discovery + hashing + schema probe + --force unit tests (18)
 
 # First-run DB bootstrap (also runs automatically on the first real `tripwire scan`):
 tripwire setup                      # or: ./scripts/setup-supabase.sh
 # Needs SUPABASE_DB_URL (postgresql://) to apply DDL; HTTP URL alone cannot.
 # If db.<ref>.supabase.co does not resolve, use the Session pooler URI from
 # Supabase → Project Settings → Database (and confirm the project is not paused).
+# Re-run `tripwire setup --force` after pulling schema changes (console columns,
+# Realtime publication) — probe also checks scan_run_scanners.completed_at exists.
 
 # sandbox side (Modal) — fill scanner keys in .env as needed
 pip install modal
@@ -78,18 +92,25 @@ tripwire scan ./fixtures/mcp/mcp_manifest.json
 needs Supabase (auto-bootstrapped on first scan / `tripwire setup`) + a deployed sandbox.
 
 ## What's real vs stubbed
-- **IMPLEMENTED:** full schema + rollup function + anon SELECT policies/GRANTs; CLI
+- **IMPLEMENTED:** full schema + rollup function + anon SELECT policies/GRANTs + Realtime
+  publication on `scan_runs` / `scan_run_scanners` / `findings`; `scan_run_scanners`
+  incremental writes from Modal (`running` placeholders, `console_output`,
+  `started_at`/`completed_at`; PGRST204-safe fallback when columns missing); CLI
   discovery/hashing/idempotency/batching; `tripwire setup` / first-scan schema bootstrap
-  (`cli/src/ensureSchema.js`); `./scripts/setup-modal.sh` secret sync + deploy; scanner
-  adapters shell out to the actual upstream CLIs (`skill-scanner`, `mcp-scanner`,
-  `snyk-agent-scan`, `tessl`) with real flags and parse their documented output shapes;
-  fixture set under `fixtures/` (see `fixtures/README.md`); `_acquire_target` dispatch
-  (git clone, local copy, host→sandbox tar upload via `local_entrypoint`, MCP
-  introspection-only empty workdir); dashboard Live/Mock + `serve-dashboard.mjs` /
-  `sync-dashboard-config.sh`.
-- **VERIFIED (unit):** `cd cli && npm test` — 17 pass (discovery, content-hash, schema-probe, `--force`);
-  `pytest sandbox/test_acquire_target.py` — 30 pass; `cd prototypes/dc-dashboard && npm test`
-  — 9 pass (Live gating / chip copy; optional Live smoke skipped without config).
+  (`cli/src/ensureSchema.js`, probes `completed_at` column); `./scripts/setup-modal.sh`
+  secret sync + deploy; scanner adapters shell out to the actual upstream CLIs
+  (`skill-scanner`, `mcp-scanner`, `snyk-agent-scan`, `tessl`) with real flags and parse
+  their documented output shapes; fixture set under `fixtures/` (see `fixtures/README.md`);
+  `_acquire_target` dispatch (git clone, local copy, host→sandbox tar upload via
+  `local_entrypoint`, MCP introspection-only empty workdir); dashboard Live/Mock with
+  Supabase Realtime (~1s) + 8s poll fallback, SCANNING in-flight UI, scanner console
+  output in drawer, partial-failed “n out of m scanners unreachable” copy;
+  `serve-dashboard.mjs` / `sync-dashboard-config.sh`.
+- **VERIFIED (unit):** `cd cli && npm test` — 18 pass (discovery, content-hash,
+  schema-probe incl. `completed_at`, `--force`); `pytest sandbox/test_acquire_target.py`
+  — 30 pass; `cd prototypes/dc-dashboard && npm test` — 36 pass, 1 skipped (Live
+  gating, Realtime wiring, SCANNING/console/unreachable mapping; optional Live smoke
+  skipped without config).
 - **VERIFIED (operator, 2026-08-01):** Modal secrets + `tripwire-scan` deploy with
   `scanners` packaged (`add_local_python_source(..., copy=True)`); host tar packing
   (`modal run sandbox/scan_app.py` → `[acquire] packed …`) delivers fixture `SKILL.md` to
