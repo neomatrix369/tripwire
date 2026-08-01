@@ -21,6 +21,7 @@
 #                                Local smoke: `tessl login` (browser SSO) is enough.
 #                                Modal/CI: create workspace API key after SSO
 #                                (`tessl api-key create --workspace <name>` or Tessl UI).
+#   TESSL_WORKSPACE            — optional; scanners default to "default"
 #
 # Tier C (Full depth — paid Cisco AI Defense)
 #   AI_DEFENSE_API_KEY         — Cisco Skill Scanner `--use-aidefense`
@@ -34,6 +35,8 @@
 #
 # Platform plumbing (Phase 0/1 — separate Modal secret)
 #   SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY → secret `tripwire-supabase`
+#   SUPABASE_DB_URL → local/`tripwire setup` DDL only (not Modal). Prefer Session pooler
+#   URI when Direct `db.<ref>.supabase.co` fails DNS (project paused / IPv6).
 #
 # Update / recreate secrets when adding keys (preferred):
 #
