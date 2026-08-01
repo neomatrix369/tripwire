@@ -14,9 +14,17 @@ const DEFAULT_MCP_MANIFESTS = [
   '.cursor/mcp.json', '.mcp.json',
   path.join(os.homedir(), '.cursor/mcp.json')
 ];
+const MCP_SERVER_MARKERS = [
+  'server.py', 'server.js', 'index.js', 'index.ts', 'main.py',
+  'package.json', 'pyproject.toml', 'run.sh'
+];
 
 async function isDir(p) {
   try { return (await stat(p)).isDirectory(); } catch { return false; }
+}
+
+function looksLikeMcpServer(dirPath) {
+  return MCP_SERVER_MARKERS.some(f => existsSync(path.join(dirPath, f)));
 }
 
 async function detectType(target) {
@@ -33,10 +41,10 @@ async function expandFolder(folder) {
   const entries = await readdir(folder, { withFileTypes: true });
   const found = [];
   for (const e of entries) {
-    if (e.isDirectory()) {
-      const sub = path.join(folder, e.name);
-      if (existsSync(path.join(sub, 'SKILL.md'))) found.push(sub);
-    }
+    if (!e.isDirectory()) continue;
+    const sub = path.join(folder, e.name);
+    if (existsSync(path.join(sub, 'SKILL.md'))) found.push(sub);
+    else if (looksLikeMcpServer(sub)) found.push(sub);
   }
   return found;
 }
@@ -87,7 +95,11 @@ export async function discoverTargets({ targets, targetsFile, useDefaults }) {
       if (expanded) resolved.push(...expanded);
       else resolved.push(t);
     } else if (await isDir(t) && !existsSync(path.join(t, 'SKILL.md'))) {
-      resolved.push(...(await expandFolder(t)));
+      if (looksLikeMcpServer(t)) {
+        resolved.push(t);
+      } else {
+        resolved.push(...(await expandFolder(t)));
+      }
     } else {
       resolved.push(t);
     }

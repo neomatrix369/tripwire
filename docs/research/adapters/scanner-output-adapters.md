@@ -29,8 +29,8 @@ Adapters always: upload raw blob → emit `Finding[]` → write `scan_run_scanne
 | Upstream | Tripwire `severity` |
 |---|---|
 | CRITICAL, HIGH, `E*` (Snyk) | `red` |
-| MEDIUM, most `W*` (Snyk) | `amber` |
-| LOW, INFO | `green` (or drop non-actionable INFO — decide at VERIFIED) |
+| MEDIUM, LOW, most `W*` (Snyk) | `amber` |
+| INFO | `green` (soft / informational only — does not raise card risk) |
 | SAFE / empty issues | no finding row |
 
 Finalize after fixture smokes.

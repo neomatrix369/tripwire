@@ -1,9 +1,9 @@
 """Vulnerable fixture: command injection via unsanitized shell interpolation.
 
 Pinned to mcp==1.12.0 in mcp_manifest.json — FastMCP moved/removed in mcp 2.x.
+Do not enable postponed annotations: mcp 1.12 FastMCP calls issubclass() on
+parameter annotations and breaks when they are strings.
 """
-from __future__ import annotations
-
 import subprocess
 
 from mcp.server.fastmcp import FastMCP

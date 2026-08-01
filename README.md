@@ -2,21 +2,31 @@
 
 AI skill / MCP server security scanning platform.
 
+<!-- Primary stack (what runs Tripwire) -->
+[![Cursor](https://img.shields.io/badge/Cursor-000000?style=for-the-badge&logo=cursor&logoColor=white)](https://cursor.com)
+[![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=for-the-badge)](https://modal.com)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![Tripwire](https://img.shields.io/badge/Tripwire-1a1a2e?style=for-the-badge)](https://github.com/neomatrix369/tripwire)
+
+<!-- Scanner & partner (who we scan with / who sponsors) -->
+[![Cisco Skill/MCP Scanner](https://img.shields.io/badge/Cisco%20Skill%2FMCP%20Scanner-1BA0D7?style=flat&logo=cisco&logoColor=white)](https://developer.cisco.com)
+[![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
+[![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
+[![Overmind](https://img.shields.io/badge/Overmind-Phase%205-6B7280?style=flat)](https://overmind.tech)
+[![Ossprey](https://img.shields.io/badge/Ossprey-Sponsor-0F766E?style=flat)](https://www.ossprey.com/?utm_source=luma)
+
 Local build notes (gitignored): `internal-docs/00_build/security-scanning-platform-spec.md`
 and `internal-docs/00_build/build-day-decisions.md`.
 
 ## Layout
-- `db/schema.sql` — Postgres/Supabase DDL + `tripwire_rollup_item` rollup function (spec §4); idempotent (`IF NOT EXISTS`); anon SELECT policies + GRANTs for dashboard Live mode.
-- `cli/` — the `tripwire` Node CLI: discovery, content hashing, idempotency, schema bootstrap (`setup` / first-scan), Supabase writes, Modal spawn, batching.
-- `sandbox/` — Modal Python app (`scan_app.py`) + scanner adapters (`scanners.py`). Local dirs are packed on the host (`local_entrypoint`) and extracted in the sandbox.
-- `scripts/` — `setup-supabase.sh`, `setup-modal.sh`, `serve-dashboard.mjs`, `sync-dashboard-config.sh`, and trimmed hygiene gates (`install-git-hooks.sh`, `quality-gates.sh`, …).
-- `guard/` — PreToolUse-style hook (Phase 4, `guard_hook.py`).
-- `fixtures/` — scan targets for smoke tests (spec §8 table). See `fixtures/README.md` for the
-  current green/amber/red set (safe baselines, drift pair, vuln skills/MCP servers).
-- `prototypes/dc-dashboard/` — Data Commons HTML dashboard (Live Supabase or Mock). See `prototypes/README.md`; prefer `node scripts/serve-dashboard.mjs`.
-- `docs/DEMO_READINESS.md` — prioritized smoke checklist + demo-day runbook (cold start → demo-ready).
-- `docs/research/adapters/scanner-output-adapters.md` — scanner output shapes the
-  `sandbox/scanners.py` adapters are built from; update both together.
+- `db/schema.sql` — Postgres/Supabase DDL + rollup; anon SELECT for Live dashboard.
+- `cli/` — `tripwire` Node CLI (discovery, hashing, idempotency, bootstrap, Modal spawn).
+- `sandbox/` — Modal app + adapters; host packs dirs, sandbox extracts.
+- `scripts/` — setup (Supabase/Modal), `serve-dashboard.mjs`, hygiene gates.
+- `guard/` — PreToolUse-style hook (Phase 4). `fixtures/` — smoke targets (see `fixtures/README.md`).
+- `prototypes/dc-dashboard/` — Live/Mock dashboard (`node scripts/serve-dashboard.mjs`).
+- Demo docs: Remotion repo `…/claude-remotion-kickstart/public/projects/tripwire/docs/`.
+- `docs/research/adapters/scanner-output-adapters.md` — keep in sync with `sandbox/scanners.py`.
 
 ## Dev hygiene (trimmed)
 
@@ -38,7 +48,7 @@ Intentional vuln fixtures under `fixtures/` and mock data under `prototypes/` ar
 # Optional for direct browser Live dashboard: SUPABASE_ANON_KEY (or use serve-dashboard.mjs)
 
 cd cli && npm install && npm link   # gives you the `tripwire` command locally
-npm test                            # discovery + hashing + schema probe unit tests (10)
+npm test                            # discovery + hashing + schema probe + --force unit tests (17)
 
 # First-run DB bootstrap (also runs automatically on the first real `tripwire scan`):
 tripwire setup                      # or: ./scripts/setup-supabase.sh
@@ -77,7 +87,7 @@ needs Supabase (auto-bootstrapped on first scan / `tripwire setup`) + a deployed
   (git clone, local copy, host→sandbox tar upload via `local_entrypoint`, MCP
   introspection-only empty workdir); dashboard Live/Mock + `serve-dashboard.mjs` /
   `sync-dashboard-config.sh`.
-- **VERIFIED (unit):** `cd cli && npm test` — 10 pass (discovery, content-hash, schema-probe);
+- **VERIFIED (unit):** `cd cli && npm test` — 17 pass (discovery, content-hash, schema-probe, `--force`);
   `pytest sandbox/test_acquire_target.py` — 30 pass; `cd prototypes/dc-dashboard && npm test`
   — 9 pass (Live gating / chip copy; optional Live smoke skipped without config).
 - **VERIFIED (operator, 2026-08-01):** Modal secrets + `tripwire-scan` deploy with
@@ -90,3 +100,6 @@ needs Supabase (auto-bootstrapped on first scan / `tripwire setup`) + a deployed
 - **RESEARCH, not VERIFIED:** the exact JSON field names in `sandbox/scanners.py` — cross-check
   against the pinned CLI version's own `--help`/output before this blocks a merge (mirrors the
   evidence labeling already used in `docs/research/adapters/scanner-output-adapters.md`).
+
+## Contribute
+See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports: [SECURITY.md](SECURITY.md).

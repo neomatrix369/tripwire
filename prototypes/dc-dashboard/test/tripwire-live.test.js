@@ -465,6 +465,271 @@ test(
   }
 );
 
+test('given running run with stale green heatmap when loadData live then status is running', async () => {
+  // -- Given --
+  const itemId = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee';
+  const runId = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
+  installWindow({
+    SUPABASE_URL: 'https://proj.supabase.co',
+    SUPABASE_ANON_KEY: 'anon',
+  });
+  mockFetchByTable({
+    items: [
+      {
+        id: itemId,
+        type: 'skill',
+        name: 'in-flight',
+        identifier: 'in-flight',
+        heatmap_status: 'green',
+        risk_score: 0.1,
+        quality_score: null,
+        install_locus: 'local',
+        source_availability: 'source_on_disk',
+      },
+    ],
+    scan_runs: [
+      {
+        id: runId,
+        item_id: itemId,
+        status: 'running',
+        started_at: '2026-08-01T15:00:00Z',
+        completed_at: null,
+      },
+    ],
+    scan_run_scanners: [],
+    findings: [],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+  const item = result.data.items[0];
+
+  // -- Then --
+  assert.equal(item.status, 'running', 'collapsed card must show SCANNING over stale heatmap');
+  assert.equal(item.lastScan, null);
+  assert.equal(item.scanStartedAt, '2026-08-01T15:00:00Z');
+  restoreFetch();
+});
+
+test('given error heatmap with red findings when loadData live then status is red', async () => {
+  // -- Given --
+  const itemId = '12121212-1212-1212-1212-121212121212';
+  const runId = '34343434-3434-3434-3434-343434343434';
+  installWindow({
+    SUPABASE_URL: 'https://proj.supabase.co',
+    SUPABASE_ANON_KEY: 'anon',
+  });
+  mockFetchByTable({
+    items: [
+      {
+        id: itemId,
+        type: 'skill',
+        name: 'messy-heatmap',
+        identifier: 'messy-heatmap',
+        heatmap_status: 'error',
+        risk_score: null,
+        quality_score: null,
+        install_locus: 'local',
+        source_availability: 'source_on_disk',
+      },
+    ],
+    scan_runs: [
+      {
+        id: runId,
+        item_id: itemId,
+        status: 'partial-failed',
+        started_at: '2026-08-01T16:00:00Z',
+        completed_at: '2026-08-01T16:01:00Z',
+      },
+    ],
+    scan_run_scanners: [
+      {
+        scan_run_id: runId,
+        scanner_source: 'Cisco',
+        status: 'completed',
+        checks_run: 3,
+      },
+    ],
+    findings: [
+      {
+        scan_run_id: runId,
+        severity: 'red',
+        category: 'prompt_injection',
+        file_path: 'SKILL.md',
+        location: '1',
+        entity_kind: null,
+        entity_name: null,
+        scanner_source: 'Cisco',
+        message: 'prompt injection',
+        snippet: null,
+        cwe_ids: null,
+      },
+    ],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+
+  // -- Then --
+  assert.equal(result.data.items[0].status, 'red');
+  restoreFetch();
+});
+
+test('given completed scanner with detail when loadData live then output.raw_summary from detail', async () => {
+  // -- Given --
+  const itemId = '55555555-5555-5555-5555-555555555555';
+  const runId = '66666666-6666-6666-6666-666666666666';
+  installWindow({
+    SUPABASE_URL: 'https://proj.supabase.co',
+    SUPABASE_ANON_KEY: 'anon',
+  });
+  mockFetchByTable({
+    items: [
+      {
+        id: itemId, type: 'skill', name: 'has-detail',
+        identifier: 'has-detail', heatmap_status: 'green',
+        risk_score: 0.1, quality_score: null,
+        install_locus: 'local', source_availability: 'source_on_disk',
+      },
+    ],
+    scan_runs: [
+      {
+        id: runId, item_id: itemId, status: 'complete',
+        started_at: '2026-08-01T10:00:00Z', completed_at: '2026-08-01T10:01:00Z',
+      },
+    ],
+    scan_run_scanners: [
+      {
+        scan_run_id: runId, scanner_source: 'Snyk',
+        status: 'completed', checks_run: 18,
+        detail: '18 checks passed — no findings',
+      },
+    ],
+    findings: [],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+  const scanner = result.data.items[0].scanners[0];
+
+  // -- Then --
+  assert.equal(scanner.output.raw_summary, '18 checks passed — no findings',
+    'completed scanner with detail must surface it as raw_summary');
+  restoreFetch();
+});
+
+test('given completed scanner without detail when loadData live then synthesizes raw_summary from findings', async () => {
+  // -- Given --
+  const itemId = '77777777-7777-7777-7777-777777777777';
+  const runId = '88888888-8888-8888-8888-888888888888';
+  installWindow({
+    SUPABASE_URL: 'https://proj.supabase.co',
+    SUPABASE_ANON_KEY: 'anon',
+  });
+  mockFetchByTable({
+    items: [
+      {
+        id: itemId, type: 'mcp_server', name: 'no-detail-server',
+        identifier: 'no-detail-server', heatmap_status: 'red',
+        risk_score: 2.0, quality_score: null,
+        install_locus: 'local', source_availability: 'source_on_disk',
+      },
+    ],
+    scan_runs: [
+      {
+        id: runId, item_id: itemId, status: 'complete',
+        started_at: '2026-08-01T11:00:00Z', completed_at: '2026-08-01T11:01:00Z',
+      },
+    ],
+    scan_run_scanners: [
+      {
+        scan_run_id: runId, scanner_source: 'Cisco MCP Scanner: YARA',
+        status: 'completed', checks_run: 24,
+      },
+    ],
+    findings: [
+      {
+        scan_run_id: runId, severity: 'red', category: 'hardcoded_secrets',
+        file_path: 'config.py', location: '8',
+        entity_kind: null, entity_name: null,
+        scanner_source: 'Cisco MCP Scanner: YARA',
+        message: 'Hardcoded API key literal found in source.',
+        snippet: null, cwe_ids: null,
+      },
+    ],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+  const scanner = result.data.items[0].scanners[0];
+
+  // -- Then --
+  assert.match(scanner.output.raw_summary, /24 checks/,
+    'synthesized summary must include checks_run');
+  assert.match(scanner.output.raw_summary, /1 finding/,
+    'synthesized summary must include finding count');
+  assert.match(scanner.output.raw_summary, /red/,
+    'synthesized summary must include severity');
+  assert.match(scanner.output.raw_summary, /Hardcoded API key/,
+    'synthesized summary must include finding brief');
+  restoreFetch();
+});
+
+test('given completed scanner without detail and no findings when loadData live then synthesizes clean pass summary', async () => {
+  // -- Given --
+  const itemId = '99999999-9999-9999-9999-999999999999';
+  const runId = 'aaaaaaaa-aaaa-aaaa-aaaa-bbbbbbbbbbbb';
+  installWindow({
+    SUPABASE_URL: 'https://proj.supabase.co',
+    SUPABASE_ANON_KEY: 'anon',
+  });
+  mockFetchByTable({
+    items: [
+      {
+        id: itemId, type: 'skill', name: 'clean-skill',
+        identifier: 'clean-skill', heatmap_status: 'green',
+        risk_score: 0.0, quality_score: 95,
+        install_locus: 'local', source_availability: 'source_on_disk',
+      },
+    ],
+    scan_runs: [
+      {
+        id: runId, item_id: itemId, status: 'complete',
+        started_at: '2026-08-01T12:00:00Z', completed_at: '2026-08-01T12:01:00Z',
+      },
+    ],
+    scan_run_scanners: [
+      {
+        scan_run_id: runId, scanner_source: 'Cisco Skill Scanner: static/bytecode/pipeline',
+        status: 'completed', checks_run: 34,
+      },
+      {
+        scan_run_id: runId, scanner_source: 'Tessl',
+        status: 'completed', checks_run: 1,
+      },
+    ],
+    findings: [],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+  const scanners = result.data.items[0].scanners;
+
+  // -- Then --
+  assert.equal(scanners[0].output.raw_summary, '34 checks passed — no findings',
+    'completed scanner with no findings must show clean pass summary');
+  assert.equal(scanners[1].output.quality_score, 95,
+    'Tessl scanner must include quality_score');
+  assert.equal(scanners[1].output.raw_summary, '1 checks passed — no findings',
+    'Tessl scanner without detail must still get synthesized summary');
+  restoreFetch();
+});
+
 function hasLiveConfigForSmoke() {
   if (!existsSync(CONFIG_PATH)) return false;
   const cfg = readLiveConfigForSmoke();

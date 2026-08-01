@@ -3,10 +3,12 @@
 Evidence labels (matching docs/research/adapters/scanner-output-adapters.md convention):
 RESEARCH = shape taken from primary docs, not yet round-tripped through Supabase on a
 real fixture. Everything below is RESEARCH — reconcile against the pinned CLI version's
---help / --json output before this blocks a merge (mcp-scanner especially: current docs
-use global --format/--analyzers flags ahead of a mode, while an earlier validation pass
-used config/vulnerable-package/behavioral subcommands — pin a version and confirm which
-shape it actually emits).
+--help / --json output before this blocks a merge.
+
+mcp-scanner CLI (cisco-ai-mcp-scanner ≥4.x, VERIFIED against upstream README 2026-08-01):
+global flags (--format / --analyzers / --log-level) MUST precede a mode subcommand
+(remote | stdio | behavioral | …). A bare path/URL as a positional between flags makes
+argparse print usage and exit nonzero — Tripwire maps that stderr to status=unreachable.
 """
 
 import json
@@ -54,15 +56,48 @@ def _unreachable(source, stderr):
 
 
 def _safe_json(text):
+    if not text:
+        return None
     try:
         return json.loads(text)
     except (json.JSONDecodeError, TypeError):
-        return None
+        pass
+    # CLIs sometimes prefix progress/npm notices before the JSON object.
+    start = text.find("{")
+    end = text.rfind("}")
+    if start >= 0 and end > start:
+        try:
+            return json.loads(text[start : end + 1])
+        except (json.JSONDecodeError, TypeError):
+            return None
+    return None
 
 
 # ---- Cisco Skill Scanner ----------------------------------------------------
 # docs/research/adapters/scanner-output-adapters.md §3
 # Capture: skill-scanner scan <path> --format json  (avoid --output: flaky on a tested build)
+
+
+def _completed(source, checks_run, findings_for_scanner):
+    """Build a completed scanner row with a human-readable detail summary."""
+    n_findings = len(findings_for_scanner)
+    if n_findings == 0:
+        detail = f"{checks_run} checks passed — no findings"
+    else:
+        severities = [f.get("severity", "unknown") for f in findings_for_scanner]
+        worst = (
+            "red" if "red" in severities else ("amber" if "amber" in severities else severities[0])
+        )
+        brief = findings_for_scanner[0].get("message", "flagged")
+        if len(brief) > 80:
+            brief = brief[:77] + "…"
+        detail = f"{checks_run} checks — {n_findings} finding{'s' if n_findings != 1 else ''} ({worst}): {brief}"
+    return {
+        "scanner_source": source,
+        "status": "completed",
+        "checks_run": checks_run,
+        "detail": detail,
+    }
 
 
 def run_cisco_skill_scanner(workdir):
@@ -77,13 +112,9 @@ def run_cisco_skill_scanner(workdir):
         if code != 0:
             return [_unreachable(source, err)], []
         parsed = _safe_json(out) or {}
-        return [
-            {
-                "scanner_source": source,
-                "status": "completed",
-                "checks_run": parsed.get("findings_count", len(parsed.get("findings", [])) or 1),
-            }
-        ], _map_skill_findings(parsed, source)
+        mapped = _map_skill_findings(parsed, source)
+        checks = parsed.get("findings_count", len(parsed.get("findings", [])) or 1)
+        return [_completed(source, checks, mapped)], mapped
 
     r, f = _invoke([], source_static)
     rows += r
@@ -125,7 +156,10 @@ def _map_skill_findings(parsed, source):
 
 # ---- Cisco MCP Scanner ------------------------------------------------------
 # docs/research/adapters/scanner-output-adapters.md §4
-# Capture: mcp-scanner --format raw <target> --analyzers yara,llm,api,behavioral
+# Live engines:  mcp-scanner --format raw --analyzers yara[,llm][,api] <mode> …
+#   remote → remote --server-url <url>
+#   local  → stdio --stdio-command … --stdio-arg …
+# Source tier: mcp-scanner --format raw behavioral <workdir>  (needs LLM key)
 
 _MCP_ANALYZER_LABEL = {
     "yara_analyzer": "Cisco MCP Scanner: YARA",
@@ -134,28 +168,93 @@ _MCP_ANALYZER_LABEL = {
     "behavioral_analyzer": "Cisco MCP Scanner: Behavioral Code Scanning",
 }
 
+_MCP_LIVE_KEYS = ("yara_analyzer", "llm_analyzer", "api_analyzer")
 
-def run_cisco_mcp_scanner(workdir, target):
-    if not _which("mcp-scanner"):
-        return [], [_unreachable("Cisco MCP Scanner: YARA", "mcp-scanner not installed in image")]
 
+def _has_workdir_source(workdir):
+    return os.path.isdir(workdir) and any(os.scandir(workdir))
+
+
+def _mcp_live_analyzers():
     analyzers = ["yara"]
     if os.environ.get("MCP_SCANNER_LLM_API_KEY"):
         analyzers.append("llm")
     if os.environ.get("MCP_SCANNER_API_KEY") and os.environ.get("MCP_SCANNER_ENDPOINT"):
         analyzers.append("api")
-    has_source = os.path.isdir(workdir) and any(os.scandir(workdir))
-    if has_source:
-        analyzers.append("behavioral")
+    return analyzers
 
-    code, out, err = _run(
-        ["mcp-scanner", "--format", "raw", target, "--analyzers", ",".join(analyzers)]
-    )
-    if code != 0:
-        return [], [_unreachable(label, err) for label in _MCP_ANALYZER_LABEL.values()]
 
-    envelope = _safe_json(out) or {}
-    findings, seen_analyzers, checks = [], set(), {}
+def _mcp_stdio_mode_args(workdir):
+    """Return stdio subcommand argv for a local MCP server tree, or None."""
+    run_sh = os.path.join(workdir, "run.sh")
+    if os.path.isfile(run_sh):
+        return ["stdio", "--stdio-command", "bash", "--stdio-arg", run_sh]
+    for name, cmd in (
+        ("server.py", "python"),
+        ("main.py", "python"),
+        ("server.js", "node"),
+        ("index.js", "node"),
+    ):
+        path = os.path.join(workdir, name)
+        if os.path.isfile(path):
+            return ["stdio", "--stdio-command", cmd, "--stdio-arg", path]
+    return None
+
+
+def _mcp_mode_args(workdir, target):
+    """Pick remote vs stdio mode. Prefer stdio when the sandbox has source on disk."""
+    has_source = _has_workdir_source(workdir)
+    if isinstance(target, str) and target.startswith(("http://", "https://")) and not has_source:
+        return ["remote", "--server-url", target]
+    return _mcp_stdio_mode_args(workdir)
+
+
+def build_mcp_live_cmd(analyzers, mode_args):
+    """Global flags before mode — required by mcp-scanner argparse."""
+    return [
+        "mcp-scanner",
+        "--log-level",
+        "error",
+        "--format",
+        "raw",
+        "--analyzers",
+        ",".join(analyzers),
+        *mode_args,
+    ]
+
+
+def build_mcp_behavioral_cmd(workdir):
+    return [
+        "mcp-scanner",
+        "--log-level",
+        "error",
+        "--format",
+        "raw",
+        "behavioral",
+        workdir,
+    ]
+
+
+def _normalize_analyzer_key(name):
+    if not name:
+        return name
+    return name if name.endswith("_analyzer") else f"{name}_analyzer"
+
+
+def _taxonomy_category(entry):
+    tax = entry.get("mcp_taxonomies") or []
+    if not tax:
+        return "unknown"
+    first = tax[0]
+    if isinstance(first, dict):
+        return first.get("scanner_category") or "unknown"
+    if isinstance(first, str):
+        return first
+    return "unknown"
+
+
+def _map_mcp_envelope(envelope, analyzers_fallback):
+    findings, checks = [], {}
     for result in envelope.get("scan_results", []) or []:
         entity_kind = result.get("item_type")
         entity_name = (
@@ -164,43 +263,92 @@ def run_cisco_mcp_scanner(workdir, target):
         for analyzer_key, entry in (result.get("findings") or {}).items():
             if not isinstance(entry, dict):
                 continue
-            seen_analyzers.add(analyzer_key)
-            checks[analyzer_key] = checks.get(analyzer_key, 0) + 1
+            key = _normalize_analyzer_key(analyzer_key)
+            checks[key] = checks.get(key, 0) + 1
             severity = _collapse_severity(entry.get("severity"))
             if severity is None:  # SAFE — no finding row
                 continue
             findings.append(
                 {
                     "severity": severity,
-                    "category": (entry.get("mcp_taxonomies") or ["unknown"])[0],
+                    "category": _taxonomy_category(entry),
                     "entity_kind": entity_kind,
                     "entity_name": entity_name,
                     "message": entry.get("threat_summary")
                     or ", ".join(entry.get("threat_names", []))
                     or "flagged",
-                    "scanner_source": _MCP_ANALYZER_LABEL.get(analyzer_key, analyzer_key),
+                    "scanner_source": _MCP_ANALYZER_LABEL.get(key, key),
                 }
             )
 
+    raw_requested = envelope.get("requested_analyzers") or analyzers_fallback
+    requested = [_normalize_analyzer_key(a) for a in raw_requested]
     rows = []
-    requested = envelope.get("requested_analyzers") or [a + "_analyzer" for a in analyzers]
-    for analyzer_key in requested:
-        label = _MCP_ANALYZER_LABEL.get(analyzer_key, analyzer_key)
-        rows.append(
-            {
-                "scanner_source": label,
-                "status": "completed",
-                "checks_run": checks.get(analyzer_key, 1),
-            }
-        )
-    for missing_key, label in _MCP_ANALYZER_LABEL.items():
-        if missing_key not in requested:
-            reason = (
-                "not_applicable"
-                if missing_key == "behavioral_analyzer" and not has_source
-                else "skipped_missing_credential"
+    for key in requested:
+        if key not in _MCP_ANALYZER_LABEL:
+            continue
+        source = _MCP_ANALYZER_LABEL[key]
+        scanner_findings = [f for f in findings if f.get("scanner_source") == source]
+        rows.append(_completed(source, checks.get(key, 1), scanner_findings))
+    return findings, rows, requested
+
+
+def run_cisco_mcp_scanner(workdir, target):
+    if not _which("mcp-scanner"):
+        return [], [
+            _unreachable(
+                _MCP_ANALYZER_LABEL["yara_analyzer"],
+                "mcp-scanner not installed in image",
             )
-            rows.append(_skipped(label, reason))
+        ]
+
+    findings, rows = [], []
+    live = _mcp_live_analyzers()
+    has_source = _has_workdir_source(workdir)
+    mode_args = _mcp_mode_args(workdir, target)
+
+    if mode_args is None:
+        detail = (
+            "no mcp-scanner mode: need remote --server-url or stdio launch "
+            "(run.sh / server.py / main.py / server.js / index.js in workdir)"
+        )
+        for name in live:
+            rows.append(_unreachable(_MCP_ANALYZER_LABEL[_normalize_analyzer_key(name)], detail))
+    else:
+        code, out, err = _run(build_mcp_live_cmd(live, mode_args))
+        if code != 0:
+            for name in live:
+                rows.append(_unreachable(_MCP_ANALYZER_LABEL[_normalize_analyzer_key(name)], err))
+        else:
+            f, r, _requested = _map_mcp_envelope(_safe_json(out) or {}, live)
+            findings += f
+            rows += r
+
+    reported = {row["scanner_source"] for row in rows}
+    for key in _MCP_LIVE_KEYS:
+        label = _MCP_ANALYZER_LABEL[key]
+        if label not in reported:
+            rows.append(_skipped(label))
+
+    beh_label = _MCP_ANALYZER_LABEL["behavioral_analyzer"]
+    if not has_source:
+        rows.append(_skipped(beh_label, "not_applicable"))
+    elif not os.environ.get("MCP_SCANNER_LLM_API_KEY"):
+        rows.append(_skipped(beh_label))
+    else:
+        code, out, err = _run(build_mcp_behavioral_cmd(workdir))
+        if code != 0:
+            rows.append(_unreachable(beh_label, err))
+        else:
+            envelope = _safe_json(out) or {}
+            # Force behavioral into requested_analyzers so the row maps correctly
+            # even when the subcommand omits that envelope field.
+            if not envelope.get("requested_analyzers"):
+                envelope = {**envelope, "requested_analyzers": ["behavioral"]}
+            f, r, _ = _map_mcp_envelope(envelope, ["behavioral"])
+            findings += f
+            beh_rows = [row for row in r if row["scanner_source"] == beh_label]
+            rows += beh_rows or [_completed(beh_label, 1, [])]
 
     return findings, rows
 
@@ -210,8 +358,13 @@ def run_cisco_mcp_scanner(workdir, target):
 # Prefer image-preinstalled `snyk-agent-scan` (uv tool install); fall back to uvx.
 
 
-def _snyk_cmd(workdir):
-    flags = ["--ci", "--dangerously-run-mcp-servers", "--json", workdir]
+def _snyk_cmd(workdir, item_type):
+    # Skills require --skills (boolean or path). Without it, snyk-agent-scan
+    # treats the path as MCP config and exits nonzero with empty stderr.
+    if item_type == "skill":
+        flags = ["--ci", "--skills", "--json", workdir]
+    else:
+        flags = ["--ci", "--dangerously-run-mcp-servers", "--json", workdir]
     if _which("snyk-agent-scan"):
         return ["snyk-agent-scan", *flags]
     if _which("uvx"):
@@ -219,11 +372,11 @@ def _snyk_cmd(workdir):
     return None
 
 
-def run_snyk(workdir):
+def run_snyk(workdir, item_type="mcp_server"):
     source = "Snyk"
     if not os.environ.get("SNYK_TOKEN"):
         return [], [_skipped(source)]
-    cmd = _snyk_cmd(workdir)
+    cmd = _snyk_cmd(workdir, item_type)
     if cmd is None:
         return [], [
             _unreachable(source, "snyk-agent-scan not installed and uvx missing from image")
@@ -231,7 +384,7 @@ def run_snyk(workdir):
 
     code, out, err = _run(cmd)
     if code != 0:
-        return [], [_unreachable(source, err)]
+        return [], [_unreachable(source, err or out or f"exit {code}")]
 
     root = _safe_json(out) or {}
     findings, checks = [], 0
@@ -256,10 +409,29 @@ def run_snyk(workdir):
                     "scanner_source": source,
                 }
             )
-    return findings, [{"scanner_source": source, "status": "completed", "checks_run": checks or 1}]
+    return findings, [_completed(source, checks or 1, findings)]
 
 
 # ---- Tessl (skills quality axis only, never findings) -----------------------
+
+
+def _tessl_quality_score(parsed):
+    """Extract Tessl quality score (0–100) from current CLI --json shape."""
+    if not isinstance(parsed, dict):
+        return None
+    if isinstance(parsed.get("score"), int | float):
+        return parsed["score"]
+    review = parsed.get("review")
+    if isinstance(review, dict) and isinstance(review.get("reviewScore"), int | float):
+        return review["reviewScore"]
+    scores = []
+    for key in ("descriptionJudge", "contentJudge"):
+        node = parsed.get(key)
+        if isinstance(node, dict) and isinstance(node.get("normalizedScore"), int | float):
+            scores.append(float(node["normalizedScore"]) * 100.0)
+    if scores:
+        return sum(scores) / len(scores)
+    return None
 
 
 def run_tessl(workdir):
@@ -267,15 +439,16 @@ def run_tessl(workdir):
         return None, [_skipped("Tessl")]
     if not _which("npx"):
         return None, [_unreachable("Tessl", "npx not available (node/npm missing from image)")]
-    workspace = os.environ.get("TESSL_WORKSPACE", "default")
-    code, out, err = _run(
-        ["npx", "tessl@latest", "review", "run", workdir, "--workspace", workspace, "--json"]
-    )
+    # Current Tessl CLI (0.93+): `tessl skill review --json <path>`
+    # Legacy `review run … --workspace` fails with upload URL 403 on headless tokens.
+    code, out, err = _run(["npx", "--yes", "tessl@latest", "skill", "review", "--json", workdir])
     if code != 0:
-        return None, [_unreachable("Tessl", err)]
+        return None, [_unreachable("Tessl", err or out)]
     parsed = _safe_json(out) or {}
-    return parsed.get("score"), [
-        {"scanner_source": "Tessl", "status": "completed", "checks_run": 1}
+    score = _tessl_quality_score(parsed)
+    detail = f"quality_score = {score}" if score is not None else "1 check completed"
+    return score, [
+        {"scanner_source": "Tessl", "status": "completed", "checks_run": 1, "detail": detail}
     ]
 
 
@@ -285,9 +458,11 @@ def _collapse_severity(raw):
     r = raw.upper()
     if r in ("CRITICAL", "HIGH"):
         return "red"
-    if r == "MEDIUM":
+    # MEDIUM and LOW are actionable vulns → amber. INFO soft-findings → green.
+    # Aggregate "green" (no vuln) is absence of red/amber findings, not a LOW row.
+    if r in ("MEDIUM", "LOW"):
         return "amber"
-    if r in ("LOW", "INFO"):
+    if r in ("INFO", "INFORMATIONAL"):
         return "green"
     return None  # SAFE / empty — no finding row
 
@@ -307,7 +482,7 @@ def run_all_scanners(workdir, item_type, target):
         findings += f
         scanner_rows += r
 
-    f, r = run_snyk(workdir)
+    f, r = run_snyk(workdir, item_type)
     findings += f
     scanner_rows += r
 
