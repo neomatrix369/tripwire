@@ -56,15 +56,48 @@ def _unreachable(source, stderr):
 
 
 def _safe_json(text):
+    if not text:
+        return None
     try:
         return json.loads(text)
     except (json.JSONDecodeError, TypeError):
-        return None
+        pass
+    # CLIs sometimes prefix progress/npm notices before the JSON object.
+    start = text.find("{")
+    end = text.rfind("}")
+    if start >= 0 and end > start:
+        try:
+            return json.loads(text[start : end + 1])
+        except (json.JSONDecodeError, TypeError):
+            return None
+    return None
 
 
 # ---- Cisco Skill Scanner ----------------------------------------------------
 # docs/research/adapters/scanner-output-adapters.md §3
 # Capture: skill-scanner scan <path> --format json  (avoid --output: flaky on a tested build)
+
+
+def _completed(source, checks_run, findings_for_scanner):
+    """Build a completed scanner row with a human-readable detail summary."""
+    n_findings = len(findings_for_scanner)
+    if n_findings == 0:
+        detail = f"{checks_run} checks passed — no findings"
+    else:
+        severities = [f.get("severity", "unknown") for f in findings_for_scanner]
+        worst = (
+            "red" if "red" in severities else ("amber" if "amber" in severities else severities[0])
+        )
+        brief = findings_for_scanner[0].get("message", "flagged")
+        if len(brief) > 80:
+            brief = brief[:77] + "…"
+        detail = f"{checks_run} checks — {n_findings} finding{'s' if n_findings != 1 else ''} ({worst}): {brief}"
+    return {
+        "scanner_source": source,
+        "status": "completed",
+        "checks_run": checks_run,
+        "detail": detail,
+    }
 
 
 def run_cisco_skill_scanner(workdir):
@@ -79,13 +112,9 @@ def run_cisco_skill_scanner(workdir):
         if code != 0:
             return [_unreachable(source, err)], []
         parsed = _safe_json(out) or {}
-        return [
-            {
-                "scanner_source": source,
-                "status": "completed",
-                "checks_run": parsed.get("findings_count", len(parsed.get("findings", [])) or 1),
-            }
-        ], _map_skill_findings(parsed, source)
+        mapped = _map_skill_findings(parsed, source)
+        checks = parsed.get("findings_count", len(parsed.get("findings", [])) or 1)
+        return [_completed(source, checks, mapped)], mapped
 
     r, f = _invoke([], source_static)
     rows += r
@@ -254,15 +283,13 @@ def _map_mcp_envelope(envelope, analyzers_fallback):
 
     raw_requested = envelope.get("requested_analyzers") or analyzers_fallback
     requested = [_normalize_analyzer_key(a) for a in raw_requested]
-    rows = [
-        {
-            "scanner_source": _MCP_ANALYZER_LABEL.get(key, key),
-            "status": "completed",
-            "checks_run": checks.get(key, 1),
-        }
-        for key in requested
-        if key in _MCP_ANALYZER_LABEL
-    ]
+    rows = []
+    for key in requested:
+        if key not in _MCP_ANALYZER_LABEL:
+            continue
+        source = _MCP_ANALYZER_LABEL[key]
+        scanner_findings = [f for f in findings if f.get("scanner_source") == source]
+        rows.append(_completed(source, checks.get(key, 1), scanner_findings))
     return findings, rows, requested
 
 
@@ -321,9 +348,7 @@ def run_cisco_mcp_scanner(workdir, target):
             f, r, _ = _map_mcp_envelope(envelope, ["behavioral"])
             findings += f
             beh_rows = [row for row in r if row["scanner_source"] == beh_label]
-            rows += beh_rows or [
-                {"scanner_source": beh_label, "status": "completed", "checks_run": 1}
-            ]
+            rows += beh_rows or [_completed(beh_label, 1, [])]
 
     return findings, rows
 
@@ -333,8 +358,13 @@ def run_cisco_mcp_scanner(workdir, target):
 # Prefer image-preinstalled `snyk-agent-scan` (uv tool install); fall back to uvx.
 
 
-def _snyk_cmd(workdir):
-    flags = ["--ci", "--dangerously-run-mcp-servers", "--json", workdir]
+def _snyk_cmd(workdir, item_type):
+    # Skills require --skills (boolean or path). Without it, snyk-agent-scan
+    # treats the path as MCP config and exits nonzero with empty stderr.
+    if item_type == "skill":
+        flags = ["--ci", "--skills", "--json", workdir]
+    else:
+        flags = ["--ci", "--dangerously-run-mcp-servers", "--json", workdir]
     if _which("snyk-agent-scan"):
         return ["snyk-agent-scan", *flags]
     if _which("uvx"):
@@ -342,11 +372,11 @@ def _snyk_cmd(workdir):
     return None
 
 
-def run_snyk(workdir):
+def run_snyk(workdir, item_type="mcp_server"):
     source = "Snyk"
     if not os.environ.get("SNYK_TOKEN"):
         return [], [_skipped(source)]
-    cmd = _snyk_cmd(workdir)
+    cmd = _snyk_cmd(workdir, item_type)
     if cmd is None:
         return [], [
             _unreachable(source, "snyk-agent-scan not installed and uvx missing from image")
@@ -354,7 +384,7 @@ def run_snyk(workdir):
 
     code, out, err = _run(cmd)
     if code != 0:
-        return [], [_unreachable(source, err)]
+        return [], [_unreachable(source, err or out or f"exit {code}")]
 
     root = _safe_json(out) or {}
     findings, checks = [], 0
@@ -379,10 +409,29 @@ def run_snyk(workdir):
                     "scanner_source": source,
                 }
             )
-    return findings, [{"scanner_source": source, "status": "completed", "checks_run": checks or 1}]
+    return findings, [_completed(source, checks or 1, findings)]
 
 
 # ---- Tessl (skills quality axis only, never findings) -----------------------
+
+
+def _tessl_quality_score(parsed):
+    """Extract Tessl quality score (0–100) from current CLI --json shape."""
+    if not isinstance(parsed, dict):
+        return None
+    if isinstance(parsed.get("score"), int | float):
+        return parsed["score"]
+    review = parsed.get("review")
+    if isinstance(review, dict) and isinstance(review.get("reviewScore"), int | float):
+        return review["reviewScore"]
+    scores = []
+    for key in ("descriptionJudge", "contentJudge"):
+        node = parsed.get(key)
+        if isinstance(node, dict) and isinstance(node.get("normalizedScore"), int | float):
+            scores.append(float(node["normalizedScore"]) * 100.0)
+    if scores:
+        return sum(scores) / len(scores)
+    return None
 
 
 def run_tessl(workdir):
@@ -390,15 +439,16 @@ def run_tessl(workdir):
         return None, [_skipped("Tessl")]
     if not _which("npx"):
         return None, [_unreachable("Tessl", "npx not available (node/npm missing from image)")]
-    workspace = os.environ.get("TESSL_WORKSPACE", "default")
-    code, out, err = _run(
-        ["npx", "tessl@latest", "review", "run", workdir, "--workspace", workspace, "--json"]
-    )
+    # Current Tessl CLI (0.93+): `tessl skill review --json <path>`
+    # Legacy `review run … --workspace` fails with upload URL 403 on headless tokens.
+    code, out, err = _run(["npx", "--yes", "tessl@latest", "skill", "review", "--json", workdir])
     if code != 0:
-        return None, [_unreachable("Tessl", err)]
+        return None, [_unreachable("Tessl", err or out)]
     parsed = _safe_json(out) or {}
-    return parsed.get("score"), [
-        {"scanner_source": "Tessl", "status": "completed", "checks_run": 1}
+    score = _tessl_quality_score(parsed)
+    detail = f"quality_score = {score}" if score is not None else "1 check completed"
+    return score, [
+        {"scanner_source": "Tessl", "status": "completed", "checks_run": 1, "detail": detail}
     ]
 
 
@@ -432,7 +482,7 @@ def run_all_scanners(workdir, item_type, target):
         findings += f
         scanner_rows += r
 
-    f, r = run_snyk(workdir)
+    f, r = run_snyk(workdir, item_type)
     findings += f
     scanner_rows += r
 

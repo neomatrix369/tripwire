@@ -111,12 +111,30 @@ async function fetchLiveData() {
           : partialNote,
       findings: mappedFindings,
       scanners: latestScanners.map((s) => {
+        const scannerFindings = mappedFindings.filter(
+          (f) => f.scanner === s.scanner_source
+        );
         const output = {};
         if (s.detail) {
           if (s.status === "completed") {
             output.raw_summary = s.detail;
           } else {
             output.reason = s.detail;
+          }
+        } else if (s.status === "completed") {
+          const nFindings = scannerFindings.length;
+          const checks = s.checks_run || 1;
+          if (nFindings === 0) {
+            output.raw_summary = `${checks} checks passed — no findings`;
+          } else {
+            const worst = scannerFindings.find((f) => f.severity === "red")
+              ? "red"
+              : scannerFindings.find((f) => f.severity === "amber")
+                ? "amber"
+                : "info";
+            const brief = scannerFindings[0].message || "flagged";
+            const label = brief.length > 80 ? brief.slice(0, 77) + "…" : brief;
+            output.raw_summary = `${checks} checks — ${nFindings} finding${nFindings !== 1 ? "s" : ""} (${worst}): ${label}`;
           }
         }
         if (
