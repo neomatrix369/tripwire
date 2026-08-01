@@ -26,6 +26,7 @@ program
 
 program
   .command('scan', { isDefault: true })
+  .description('Discover and scan AI skills/MCP servers (default command)')
   .argument('[targets...]', 'paths, git URLs, or live MCP endpoints; omit for machine defaults')
   .option('--targets <file>', 'JSON file with a "targets" array')
   .option('--concurrency <n>', 'max concurrent sandboxes', '5')

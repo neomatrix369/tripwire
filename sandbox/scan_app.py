@@ -4,6 +4,8 @@ Each scan_run gets its own ephemeral sandbox. Disk here is scratch only —
 findings/logs are written directly to Supabase, never relayed through the CLI.
 """
 
+from datetime import UTC, datetime
+
 import modal
 from scanners import run_all_scanners
 
@@ -49,9 +51,9 @@ def scan_item(target: str, item_type: str, scan_run_id: str, item_id: str):
     except (
         Exception
     ):  # acquisition or scanner-runner crash — whole run fails, never silently "complete"
-        supabase.table("scan_runs").update({"status": "failed", "completed_at": "now()"}).eq(
-            "id", scan_run_id
-        ).execute()
+        supabase.table("scan_runs").update(
+            {"status": "failed", "completed_at": datetime.now(UTC).isoformat()}
+        ).eq("id", scan_run_id).execute()
         supabase.rpc("tripwire_rollup_item", {"p_item_id": item_id}).execute()
         raise
 
@@ -71,7 +73,7 @@ def scan_item(target: str, item_type: str, scan_run_id: str, item_id: str):
     supabase.table("scan_runs").update(
         {
             "status": results["overall_status"],
-            "completed_at": "now()",
+            "completed_at": datetime.now(UTC).isoformat(),
         }
     ).eq("id", scan_run_id).execute()
 
