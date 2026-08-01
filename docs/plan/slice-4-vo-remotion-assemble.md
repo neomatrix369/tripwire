@@ -12,8 +12,8 @@
 `slice/4-vo-remotion-assemble`
 
 ## Spec (GWT / User Story)
-**Given** GWT-1 and GWT-2 pass on a dress-rehearsal Live path  
-**When** VO + Remotion assembly run for Detection + Sandbox  
+**Given** GWT-1 and GWT-2 pass on a dress-rehearsal Live path
+**When** VO + Remotion assembly run for Detection + Sandbox
 **Then** video has no Drift/Phase-5 claims and both must-show beats are filmable from real UI
 
 ## Before-Checks [GATE]
@@ -23,7 +23,7 @@
 - [ ] Slices 2 and 3 ✅ (or explicit waiver logged in DECISIONS.md)
 
 ## TDD Execution
-Spike-like verify/assemble: checklist against demo script; no production Tripwire code required unless capture reveals a bug (then file follow-up).  
+Spike-like verify/assemble: checklist against demo script; no production Tripwire code required unless capture reveals a bug (then file follow-up).
 VERIFY: render or export path exists; script wording audit vs GWT-3.
 
 ## After-Checks [GATE]

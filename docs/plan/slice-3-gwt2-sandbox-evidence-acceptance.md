@@ -12,8 +12,8 @@
 `slice/3-gwt2-sandbox-evidence-acceptance`
 
 ## Spec (GWT / User Story)
-**Given** a completed sandbox scan payload for the MCP must-show item  
-**When** Live loader maps the latest `scan_run` into the UI item  
+**Given** a completed sandbox scan payload for the MCP must-show item
+**When** Live loader maps the latest `scan_run` into the UI item
 **Then** sandbox evidence fields (id / timing / policy or egress phase as exposed today) are present and suitable for on-camera Sandbox beat — not empty when Live data is complete
 
 ## Before-Checks [GATE]
@@ -23,7 +23,7 @@
 - [ ] Slice 1 evidence or golden payload available
 
 ## TDD Execution
-Outside-in acceptance/unit mapping tests → GREEN → refactor.  
+Outside-in acceptance/unit mapping tests → GREEN → refactor.
 VERIFY+COVERAGE: `cd prototypes/dc-dashboard && npm test`.
 
 ## After-Checks [GATE]

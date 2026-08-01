@@ -12,8 +12,8 @@
 `slice/1-walking-skeleton-live-path`
 
 ## Spec (GWT / User Story)
-**Given** Supabase + Modal credentials are configured and must-show fixtures exist on disk  
-**When** operator runs `tripwire scan` on `vuln-prompt-injection-notes` and `vuln-command-injection-server`, then opens Live dashboard  
+**Given** Supabase + Modal credentials are configured and must-show fixtures exist on disk
+**When** operator runs `tripwire scan` on `vuln-prompt-injection-notes` and `vuln-command-injection-server`, then opens Live dashboard
 **Then** both items show non-grey heatmap status, skill has file/line drill-down, MCP lists affected tool name(s), sandbox evidence panel is populated from Live (not Mock-only)
 
 ## Design Context
@@ -36,7 +36,7 @@
 - [x] Prior session recovery checked (if resuming) — N/A fresh
 
 ## TDD Execution
-Outside-in: capture/verify acceptance evidence first; add automated tests in slices 2–3.  
+Outside-in: capture/verify acceptance evidence first; add automated tests in slices 2–3.
 VERIFY+COVERAGE: run existing `cli` + `sandbox` + `prototypes/dc-dashboard` unit suites; write `docs/plan/gate-evidence/slice-1.json` with dated command outputs / screenshots paths.
 
 On PASS: `gate_cache_write "fast" "$(git rev-parse HEAD)"` when applicable.

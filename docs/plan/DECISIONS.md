@@ -19,10 +19,6 @@
 | 2026-08-01 | model-split | Planning: claude-opus-4-8 · Execution: claude-sonnet-5 | User M1 confirm as-is |
 | 2026-08-01 | frontend-advisor | skip | Already decided — dc-dashboard as-is |
 | 2026-08-01 | execution-strategy | /nw-execute sequential | User E1; no parallel 2∥3 |
-| 2026-08-01 | cost-gate | /code-review ultra | n | Not confirmed y; default skip for A execute |
+| 2026-08-01 | cost-gate | /code-review ultra = n | Not confirmed y; default skip for A execute |
 | 2026-08-01 | next-wave | A — /nw-execute slice 1 | User chose start now; ask 1+C after A completes |
 | 2026-08-01 | nw-execute adapt | docs/plan slice-workflow | No `.nwave/config.yaml`/roadmap; execute TRAIL slices via slice stubs + TDD |
-
-
-
-

@@ -12,8 +12,8 @@
 `slice/2-gwt1-detection-acceptance`
 
 ## Spec (GWT / User Story)
-**Given** shortlist skill and MCP finding payloads shaped like Live scan results for #1+#2  
-**When** dashboard Live mapping / drill-down helpers process those payloads  
+**Given** shortlist skill and MCP finding payloads shaped like Live scan results for #1+#2
+**When** dashboard Live mapping / drill-down helpers process those payloads
 **Then** heatmap status is non-grey for both; skill exposes file/line finding; MCP exposes affected tool name(s) (`entity_name` / `related_tool_names`)
 
 ## Before-Checks [GATE]
@@ -23,7 +23,7 @@
 - [ ] Slice 1 evidence available (or fixture golden from slice 1)
 
 ## TDD Execution
-UI/Feature outside-in: write failing acceptance/unit mapping tests first → GREEN → refactor.  
+UI/Feature outside-in: write failing acceptance/unit mapping tests first → GREEN → refactor.
 Prefer fast unit tests against `tripwire-live.js` / status helpers with recorded shapes; full Modal E2E stays in slow path if needed.
 
 VERIFY+COVERAGE: `cd prototypes/dc-dashboard && npm test` (and slow suite if added).

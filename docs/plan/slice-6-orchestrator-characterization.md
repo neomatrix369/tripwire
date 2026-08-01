@@ -12,8 +12,8 @@
 `slice/6-orchestrator-characterization`
 
 ## Spec (GWT / User Story)
-**Given** a discovered target and mocked Supabase + spawn  
-**When** `runScan` runs with and without `--force` against unchanged content hash  
+**Given** a discovered target and mocked Supabase + spawn
+**When** `runScan` runs with and without `--force` against unchanged content hash
 **Then** unchanged content skips spawn when not forced; forced path invokes sandbox spawn with expected args shape
 
 ## Before-Checks [GATE]
@@ -22,7 +22,7 @@
 - [ ] Prior session recovery checked (if resuming)
 
 ## TDD Execution
-Backend inside-out characterization: assert current behaviour; do not “fix” product while greening.  
+Backend inside-out characterization: assert current behaviour; do not “fix” product while greening.
 VERIFY+COVERAGE: `cd cli && npm test`.
 
 ## After-Checks [GATE]

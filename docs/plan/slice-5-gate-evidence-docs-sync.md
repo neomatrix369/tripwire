@@ -12,8 +12,8 @@
 `slice/5-gate-evidence-docs-sync`
 
 ## Spec (GWT / User Story)
-**Given** slices 1–4 have passed with evidence  
-**When** operator syncs planning + build-day checklists  
+**Given** slices 1–4 have passed with evidence
+**When** operator syncs planning + build-day checklists
 **Then** `docs/plan/gate-evidence/slice-N.json` exist for Must slices and build-day 3-lite Done reflects verified state (no stale ☐ contradicting ship evidence)
 
 ## Before-Checks [GATE]
