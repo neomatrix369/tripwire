@@ -1,0 +1,56 @@
+# Added by code-review-graph
+.code-review-graph/
+
+# Local agent / MCP config (project rules under .cursor/rules are tracked)
+.claude/
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
+.mcp.json
+
+# Local-only notes directory (never publish)
+internal-docs/
+
+# Local secrets — keep .env.example tracked
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.dmypy.json
+.testmondata*
+
+# Node
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+*.tsbuildinfo
+coverage/
+
+# Test / quality artifacts
+.test-results/
+.reports/
+
+# Logs / caches
+*.log
+.cache/
+tmp/
+.gate-cache/
