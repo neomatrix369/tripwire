@@ -42,12 +42,12 @@ fi
 mkdir -p .test-results .reports/coverage
 
 if [[ "${PY_CHANGED:-0}" -gt 0 ]]; then
-  echo "--- pytest + coverage (fail_under=45) ---"
+  echo "--- pytest + coverage (fail_under=95, sandbox ship-path) ---"
   uv run pytest sandbox/ -q --tb=short \
-    --cov=sandbox --cov=guard \
+    --cov=sandbox \
     --cov-report=term-missing \
     --cov-report="json:.reports/coverage/coverage.json" \
-    --cov-fail-under=45 \
+    --cov-fail-under=95 \
     --junitxml=.test-results/junit.xml \
     -o addopts=
 else

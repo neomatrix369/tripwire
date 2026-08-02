@@ -35,11 +35,12 @@ pre-commit run --all-files          # lint, mypy, bandit, gitleaks, fast tests
 - **Nightly** (`.github/workflows/nightly.yml`): full TruffleHog, SBOM, Meterian;
   mutmut and Chalk run but are **non-gating** (`|| true` — green Nightly does not mean mutation/Chalk passed)
 
-**Coverage today (VERIFIED config):** Python `fail_under=45` with `branch=true`
-(`pyproject.toml` / CI). CLI and `prototypes/dc-dashboard` tests run without a coverage gate.
+**Coverage today (VERIFIED config):** Python ship-path `sandbox/` `fail_under=95`
+with `branch=true` (`pyproject.toml` / CI); `guard/` omitted from denominator
+(slice 11). CLI and Live ACL gates land in slices 12–13.
 
-**Coverage target (DECIDED — slices 8, 11–13 after 17):** ship-path ~95% on
-`cli/src`, `sandbox/`, Live ACL modules; `guard/` / `support.js` out of bar.
+**Coverage target (DECIDED — slices 12–13):** ship-path ~95% on `cli/src` and
+Live ACL modules; `support.js` out of bar.
 Track [docs/plan/PROGRESS.md](docs/plan/PROGRESS.md) (stubs under
 [docs/plan/README.md](docs/plan/README.md) wave folders); close per
 [docs/plan/GATE_CONTRACT.md](docs/plan/GATE_CONTRACT.md).

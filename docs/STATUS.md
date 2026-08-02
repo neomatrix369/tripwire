@@ -61,14 +61,13 @@ Reachable through production entry points / config:
 ## DECIDED (not yet IMPLEMENTED / VERIFIED)
 
 Ship-path coverage uplift (~95% instrumented on `cli/src`, `sandbox/`, Live ACL JS;
-omit `guard/` and `support.js`) — audit matrix ✅ (slice 7); operator onboarding ✅
-(slice 17 — `docs/user-guide/`). Floors still open (slices **8**, **11–13**). Path:
-**8 → 11 → 12 → 13**. Groups: [plan/PROGRESS.md](./plan/PROGRESS.md),
+omit `guard/` and `support.js`) — audit matrix ✅ (slice 7); onboarding ✅ (17);
+skill parse ✅ (8); **Python sandbox floor ✅** (slice 11 — `fail_under=95`,
+measured ~98%). Floors still open: slices **12–13** (CLI + Live ACL). Path:
+**12 → 13**. Groups: [plan/PROGRESS.md](./plan/PROGRESS.md),
 [plan/DECISIONS.md](./plan/DECISIONS.md), [plan/GATE_CONTRACT.md](./plan/GATE_CONTRACT.md).
 
-Current CI Python floor remains **`fail_under=45`** (`pyproject.toml` / CI) with
-measured ~47% (2026-08-02). Node CLI and dashboard have **no** coverage gate yet.
-Do not treat 95% as current capability until slices 11–13 are VERIFIED.
+Node CLI and dashboard have **no** coverage gate yet until slices 12–13.
 
 Live Modal/Supabase E2E as a CI Must remains **Won't** for this wave (slow/optional
 skip-without-config stays). Demo/hackathon film day (VO/Remotion slice 4; film-day
