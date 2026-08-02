@@ -31,3 +31,7 @@
 | 2026-08-02 | health-check | Gap 2: Routing fingerprint | AUTO-FIXED on TRAIL Original Material |
 | 2026-08-02 | sync-docs | Coverage wave docs | STATUS DECIDED + CONTRIBUTING floors + docs/README plan links; README NO_CHANGE |
 | 2026-08-02 | urgency | Slice 7 Gate A = trust strip | Overmind/Ossprey badges + HTML/CI strings + Guard Future + Nightly non-gating + stale branch refs run first in slice 7 before coverage-audit.md; P1 pulled from deferred 14/16 |
+| 2026-08-02 | sync-docs | Badge strip APPLIED | Overmind/Ossprey removed from public md/HTML/CI comments; badges only when functionality exists |
+| 2026-08-02 | planning | Added slices 15–16 | Path B Add — claim audit canvas (15) + Realtime/demo/prototype remediations (16); depends on 7 |
+| 2026-08-02 | slice-7 | Gate A+B written | coverage-audit.md + trust strip on branch `slice/7-coverage-audit-matrix` (PR #26) |
+| 2026-08-02 | moscow | Demo/hackathon demoted | Slice 4 VO/Remotion → Could; slice 16 demo prose → Could. Critical path = trust/coverage: Must 7→8→11→12→13; Should 9→10→14→15 |

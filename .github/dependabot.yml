@@ -1,5 +1,5 @@
 # Dependency update bots for Tripwire CI/runtime stacks.
-# Product partner badges (Cursor · Modal · Supabase · scanners · Ossprey) live in README / docs/.
+# Stack badges (Cursor · Modal · Supabase · scanners) live in README / docs/.
 version: 2
 updates:
   - package-ecosystem: github-actions

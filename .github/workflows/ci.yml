@@ -5,7 +5,7 @@ name: CI
 #
 # Status badge: README + docs/README.md (CI).
 # Primary stack (docs): Cursor · Modal · Supabase · Tripwire
-# Scanners / partners (docs): Cisco Skill/MCP · Snyk · Tessl · Overmind (Phase 5) · Ossprey
+# Scanners (docs): Cisco Skill/MCP · Snyk · Tessl
 
 on:
   push:

@@ -46,7 +46,6 @@ C4Container
     Container(sandbox, "Sandbox app", "Python / Modal", "Acquire target, run adapters")
     ContainerDb(db, "Database", "Postgres / Supabase", "schema.sql, Realtime")
     Container(dash, "Dashboard", "HTML / JS", "Live or Mock findings UI")
-    Container(guard, "Guard hook", "Hook", "PreToolUse-style (Phase 4)")
   }
 
   System_Ext(scanners, "Upstream scanners")
@@ -65,11 +64,16 @@ C4Container
 - `cli/` — `tripwire` Node CLI
 - `sandbox/` — Modal app + scanner adapters (`scanners.py`)
 - `db/schema.sql` — Postgres/Supabase DDL + rollup; anon SELECT + Realtime
-- `prototypes/dc-dashboard/` — Live/Mock dashboard
+- `prototypes/dc-dashboard/` — Live/Mock dashboard (Horizon A ship UI; prototype path)
 - `scripts/` — setup (Supabase/Modal), `serve-dashboard.mjs`, hygiene gates
-- `guard/` — PreToolUse-style hook (Phase 4)
 - `fixtures/` — smoke targets — [fixtures/README.md](../fixtures/README.md)
 - `docs/research/adapters/scanner-output-adapters.md` — keep in sync with `sandbox/scanners.py`
+
+### Future (not current Horizon A containers)
+
+- `guard/` — PreToolUse-style Agent Guard hook (**Phase 4**, Won't for Horizon A).
+  Code stub may exist; it is **not** a shipped production entry point yet.
+  See [STATUS.md](./STATUS.md) and [plan/TRAIL.md](./plan/TRAIL.md) Forward.
 
 ---
 
@@ -136,5 +140,3 @@ from the code.
 [![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
 [![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
 [![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
-[![Overmind](https://img.shields.io/badge/Overmind-Phase%205-6B7280?style=flat)](https://overmind.tech)
-[![Ossprey](https://img.shields.io/badge/Ossprey-Sponsor-0F766E?style=flat)](https://www.ossprey.com/?utm_source=luma)

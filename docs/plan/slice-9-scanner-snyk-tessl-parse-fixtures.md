@@ -1,6 +1,6 @@
 # Slice 9: Snyk / Tessl Parse Fixtures (Delta)
 
-> Scenario: Brownfield | MoSCoW: Must
+> Scenario: Brownfield | MoSCoW: Should
 
 ## Slice Workflow Bundle
 - Slice name: slice-9-scanner-snyk-tessl-parse-fixtures
