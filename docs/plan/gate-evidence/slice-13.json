@@ -1,0 +1,36 @@
+{
+  "slice": 13,
+  "date": "2026-08-02",
+  "branch": "slice/13-live-acl-coverage-gate-95",
+  "verdict": "PASS",
+  "before_checks": "all green",
+  "after_checks": [
+    "npm run test:coverage exit 0 — lines/stmts 98.48%",
+    "ACL files: tripwire-live/status/realtime/data — support.js excluded",
+    "CI job live-acl-tests runs npm run test:coverage",
+    "funcs/branches gates 85/80 (DECISIONS) — lines ≥95%",
+    "PROGRESS/TRAIL updated"
+  ],
+  "coverage": {
+    "lines": 98.48,
+    "statements": 98.48,
+    "functions": 94.11,
+    "branches": 85.96,
+    "files": [
+      "tripwire-live.js",
+      "tripwire-status.js",
+      "tripwire-realtime.js",
+      "tripwire-data.js"
+    ],
+    "excluded": ["support.js"]
+  },
+  "commands": [
+    {
+      "cmd": "cd prototypes/dc-dashboard && npm run test:coverage",
+      "result": "53 passed; lines 98.48%"
+    }
+  ],
+  "review": "test+ci; DECISIONS review skip",
+  "pr": null,
+  "spec_path": "docs/plan/05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md"
+}

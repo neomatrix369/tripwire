@@ -9,16 +9,15 @@
 | 2 | [`02-B-…`](02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`03-C-…`](03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
 | 4 | [`04-D-…`](04-D-operator-onboarding/) | **D — Operator onboarding** | **17** | ✅ |
-| 5 | [`05-E-…`](05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → (9∥10) → 11 → 12 → 13 → 14 | 📋 **next** |
+| 5 | [`05-E-…`](05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ · Should 9→10→14 | ✅ Musts |
 | 6 | [`06-F-…`](06-F-claim-audit/) | **F — Claim audit** | 15 · 16 | 📋 · 16 📦 |
 
-**Open critical path (within E):** `13`
+**Open critical path (within E):** E Musts complete — Should 9→10→14 · F/15
 
 ## Execution order (open work)
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| 1 | E | 13 | [live-acl-coverage-gate-95](05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Must | 📋 **Next** |
 | — | E | 9 → 10 → 14 | Should coverage deltas / STATUS sync | Should | 📋 |
 | — | F | 15 | claim audit (16 📦) | Should | 📋 |
 
@@ -56,7 +55,7 @@
 | 10 | [slice-10-scan-item-inner-characterization](05-E-ship-path-coverage/slice-10-scan-item-inner-characterization.md) | Should | 📋 | — | — | ~25 min |
 | 11 | [slice-11-python-ship-path-coverage-95](05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~50 min |
 | 12 | [slice-12-cli-coverage-gate-95](05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
-| 13 | [slice-13-live-acl-coverage-gate-95](05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Must | 📋 | — | — | ~25 min |
+| 13 | [slice-13-live-acl-coverage-gate-95](05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
 | 14 | [slice-14-coverage-status-docs-sync](05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Should | 📋 | — | — | ~25 min |
 
 ### F — Claim audit
@@ -109,5 +108,6 @@
 | 2026-08-02 | slice/8-scanner-skill-parse-fixtures | slice-workflow | 8 | ✅ PASSED | Wave E — skill parse fixtures |
 | 2026-08-02 | slice/11-python-ship-path-coverage-95 | slice-workflow | 11 | ✅ PASSED | Wave E — sandbox ≥95% |
 | 2026-08-02 | slice/12-cli-coverage-gate-95 | slice-workflow | 12 | ✅ PASSED | Wave E — CLI c8 ≥95% lines |
+| 2026-08-02 | slice/13-live-acl-coverage-gate-95 | slice-workflow | 13 | ✅ PASSED | Wave E — Live ACL c8 ≥95% lines |
 | 2026-08-02 | main / plan | GATE_CONTRACT | all | 📋 policy | Hard close rule |
 | 2026-08-02 | docs/gate-contract-onboarding-priority | sync-docs + clean-commit | 7, plan | pushed | Groups + close slice 7 on trackers |

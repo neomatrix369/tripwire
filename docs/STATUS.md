@@ -62,12 +62,10 @@ Reachable through production entry points / config:
 
 Ship-path coverage uplift (~95% instrumented on `cli/src`, `sandbox/`, Live ACL JS;
 omit `guard/` and `support.js`) — audit matrix ✅ (slice 7); onboarding ✅ (17);
-skill parse ✅ (8); **Python sandbox floor ✅** (slice 11); **CLI floor ✅**
-(slice 12 — c8 lines ~99.75%). Floor still open: slice **13** (Live ACL). Path:
-**13**. Groups: [plan/PROGRESS.md](./plan/PROGRESS.md),
+skill parse ✅ (8); **Python sandbox ✅** (11); **CLI ✅** (12); **Live ACL ✅**
+(13 — c8 lines ~98.5% on live/status/realtime/data; `support.js` out of bar).
+Ship-path coverage Musts closed. Groups: [plan/PROGRESS.md](./plan/PROGRESS.md),
 [plan/DECISIONS.md](./plan/DECISIONS.md), [plan/GATE_CONTRACT.md](./plan/GATE_CONTRACT.md).
-
-Live ACL dashboard modules have **no** coverage gate yet until slice 13.
 
 Live Modal/Supabase E2E as a CI Must remains **Won't** for this wave (slow/optional
 skip-without-config stays). Demo/hackathon film day (VO/Remotion slice 4; film-day
