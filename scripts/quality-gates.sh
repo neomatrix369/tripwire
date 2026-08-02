@@ -99,12 +99,12 @@ fi
 
 # ── T2: Tests + audit ─────────────────────────────────────────────────────────
 run_bg "pytest+cov" uv run pytest sandbox/ -q --tb=short \
-  --cov=sandbox --cov=guard \
+  --cov=sandbox \
   --cov-report=term-missing \
   --cov-report="html:.reports/coverage/html" \
   --cov-report="xml:.reports/coverage/coverage.xml" \
   --cov-report="json:.reports/coverage/coverage.json" \
-  --cov-fail-under=45 \
+  --cov-fail-under=95 \
   --junitxml=.test-results/junit.xml \
   -o addopts=
 run_bg "cli tests" bash -c 'cd cli && npm test'

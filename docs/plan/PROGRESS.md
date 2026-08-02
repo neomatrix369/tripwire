@@ -12,15 +12,14 @@
 | 5 | [`05-E-…`](05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → (9∥10) → 11 → 12 → 13 → 14 | 📋 **next** |
 | 6 | [`06-F-…`](06-F-claim-audit/) | **F — Claim audit** | 15 · 16 | 📋 · 16 📦 |
 
-**Open critical path (within E):** `11 → 12 → 13`
+**Open critical path (within E):** `12 → 13`
 
 ## Execution order (open work)
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| 1 | E | 11 | [python-ship-path-coverage-95](05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Must | 📋 **Next** |
-| 2 | E | 12 | [cli-coverage-gate-95](05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | Must | 📋 |
-| 3 | E | 13 | [live-acl-coverage-gate-95](05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Must | 📋 |
+| 1 | E | 12 | [cli-coverage-gate-95](05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | Must | 📋 **Next** |
+| 2 | E | 13 | [live-acl-coverage-gate-95](05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Must | 📋 |
 | — | E | 9 → 10 → 14 | Should coverage deltas / STATUS sync | Should | 📋 |
 | — | F | 15 | claim audit (16 📦) | Should | 📋 |
 
@@ -56,7 +55,7 @@
 | 8 | [slice-8-scanner-skill-parse-fixtures](05-E-ship-path-coverage/slice-8-scanner-skill-parse-fixtures.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
 | 9 | [slice-9-scanner-snyk-tessl-parse-fixtures](05-E-ship-path-coverage/slice-9-scanner-snyk-tessl-parse-fixtures.md) | Should | 📋 | — | — | ~25 min |
 | 10 | [slice-10-scan-item-inner-characterization](05-E-ship-path-coverage/slice-10-scan-item-inner-characterization.md) | Should | 📋 | — | — | ~25 min |
-| 11 | [slice-11-python-ship-path-coverage-95](05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Must | 📋 | — | — | ~50 min |
+| 11 | [slice-11-python-ship-path-coverage-95](05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~50 min |
 | 12 | [slice-12-cli-coverage-gate-95](05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | Must | 📋 | — | — | ~25 min |
 | 13 | [slice-13-live-acl-coverage-gate-95](05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Must | 📋 | — | — | ~25 min |
 | 14 | [slice-14-coverage-status-docs-sync](05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Should | 📋 | — | — | ~25 min |
@@ -109,5 +108,6 @@
 | 2026-08-02 | main / plan | docs onboarding | 17 | 📋 | Wave D — next Must |
 | 2026-08-02 | slice/17-user-guide-onboarding | slice-workflow | 17 | ✅ PASSED | Wave D — user-guide Phase 1 |
 | 2026-08-02 | slice/8-scanner-skill-parse-fixtures | slice-workflow | 8 | ✅ PASSED | Wave E — skill parse fixtures |
+| 2026-08-02 | slice/11-python-ship-path-coverage-95 | slice-workflow | 11 | ✅ PASSED | Wave E — sandbox ≥95% |
 | 2026-08-02 | main / plan | GATE_CONTRACT | all | 📋 policy | Hard close rule |
 | 2026-08-02 | docs/gate-contract-onboarding-priority | sync-docs + clean-commit | 7, plan | pushed | Groups + close slice 7 on trackers |

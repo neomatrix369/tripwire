@@ -27,9 +27,9 @@
 - Bulk `pragma: no cover` on scanners
 
 ## Before-Checks [GATE]
-- [ ] Branch created
-- [ ] Slices 8, 9, 10 ✅
-- [ ] Baseline coverage re-measured after 8–10
+- [x] Branch created
+- [x] Slices 8, 9, 10 ✅ — 9/10 Should waived (DECISIONS 2026-08-02); coverage filled in this slice
+- [x] Baseline coverage re-measured after 8–10
 
 ## TDD Execution
 [Walking Skeleton — 2 Pomos] Measure → fill residual holes with high-level tests → raise floor stepwise if needed (70→90→95) in this slice’s commits → final fail_under=95.
@@ -37,15 +37,15 @@
 VERIFY: `pytest sandbox/ --cov=sandbox --cov-fail-under=95` (guard omitted from source)
 
 ## After-Checks [GATE]
-- [ ] `pytest sandbox/ --cov=sandbox --cov-fail-under=95` exit 0 (exact % in evidence)
-- [ ] `fail_under = 95` (or equivalent) in `pyproject.toml` and CI workflow for ship-path job
-- [ ] `guard/` omitted from ship-path coverage source / denominator (grep or config snippet in evidence)
-- [ ] Residual excludes &lt;5% only if listed + justified in evidence or DECISIONS
-- [ ] `docs/plan/gate-evidence/slice-11.json` has `"verdict": "PASS"` + `commands[]`
-- [ ] PROGRESS/TRAIL updated; ✅ only after merge
+- [x] `pytest sandbox/ --cov=sandbox --cov-fail-under=95` exit 0 (exact % in evidence)
+- [x] `fail_under = 95` (or equivalent) in `pyproject.toml` and CI workflow for ship-path job
+- [x] `guard/` omitted from ship-path coverage source / denominator (grep or config snippet in evidence)
+- [x] Residual excludes &lt;5% only if listed + justified in evidence or DECISIONS
+- [x] `docs/plan/gate-evidence/slice-11.json` has `"verdict": "PASS"` + `commands[]`
+- [x] PROGRESS/TRAIL updated; ✅ only after merge
 
 ## Gate Status
-📋 PLANNED
+✅ PASSED
 
 ## Session Metrics
 | Metric | Value |

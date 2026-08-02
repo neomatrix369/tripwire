@@ -51,17 +51,18 @@ addopts = "-v --tb=short --junitxml=.test-results/junit.xml"
 
 [tool.coverage.run]
 branch = true
-source = ["sandbox", "guard"]
+# Ship-path Python bar (slice 11): sandbox only — guard/ is Phase 4 / out of bar.
+source = ["sandbox"]
 omit = [
     "sandbox/test_*.py",
+    "sandbox/conftest.py",
     "*/__pycache__/*",
 ]
 
 [tool.coverage.report]
 show_missing = true
-# Measured ~47% with branch=true (2026-08-02); floor ≤ measured per project-hygiene skill.
-# Line-only coverage was ~71%; raise toward 70/80 as guard + scanner tests grow.
-fail_under = 45
+# Ship-path sandbox ≥95% (slice 11). guard/ omitted from denominator.
+fail_under = 95
 precision = 1
 
 [tool.coverage.html]

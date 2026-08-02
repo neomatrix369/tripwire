@@ -124,7 +124,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 8 | [slice-8-scanner-skill-parse-fixtures](05-E-ship-path-coverage/slice-8-scanner-skill-parse-fixtures.md) | Scanner Skill Parse Fixtures (Delta) | Must | ✅ | 7 | — | ~4 min |
 | 9 | [slice-9-scanner-snyk-tessl-parse-fixtures](05-E-ship-path-coverage/slice-9-scanner-snyk-tessl-parse-fixtures.md) | Snyk / Tessl Parse Fixtures (Delta) | Should | 📋 | 7 | — | ~4 min |
 | 10 | [slice-10-scan-item-inner-characterization](05-E-ship-path-coverage/slice-10-scan-item-inner-characterization.md) | scan_item_inner Characterization (Delta) | Should | 📋 | 7 | — | ~4 min |
-| 11 | [slice-11-python-ship-path-coverage-95](05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Python Ship-Path Coverage ≥95% | Must | 📋 | 8 (9,10 Should) | — | ~5 min |
+| 11 | [slice-11-python-ship-path-coverage-95](05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Python Ship-Path Coverage ≥95% | Must | ✅ | 8 (9,10 Should) | — | ~5 min |
 | 12 | [slice-12-cli-coverage-gate-95](05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | CLI Coverage Gate ≥95% (Delta) | Must | 📋 | 6 | — | ~4 min |
 | 13 | [slice-13-live-acl-coverage-gate-95](05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Live ACL Coverage Gate ≥95% (Delta) | Must | 📋 | 2,3 | — | ~4 min |
 | 14 | [slice-14-coverage-status-docs-sync](05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Coverage Status + Docs Sync (Delta) | Should | 📋 | 11,12,13 | — | ~3 min |
@@ -155,7 +155,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 ## Execute priority (by wave — 2026-08-02)
 
 1. Waves **A–D** ✅ — Live/GWT, characterization/evidence, trust+audit, onboarding
-2. Wave **E** Must: 11 → 12 → 13 — **next** (8 ✅) · Should: 9 → 10 → 14
+2. Wave **E** Must: 12 → 13 — **next** (8 ✅, 11 ✅) · Should: 9 → 10 → 14
 3. Wave **F** Should: 15 · 16 📦 (demo remediations deferred with 4)
 
 See also PROGRESS.md **Slice groups** and [GATE_CONTRACT.md](GATE_CONTRACT.md).
