@@ -23,7 +23,8 @@ flowchart LR
 See the dashboard in about two minutes. No Supabase or Modal required if you use
 **Mock (demo data)**.
 
-**Prerequisites:** Git, Node.js
+**Prerequisites:** Git, **Node.js 22** (see `.nvmrc`). Tool matrix:
+[docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md).
 
 ```bash
 git clone https://github.com/neomatrix369/tripwire.git
@@ -31,6 +32,7 @@ cd tripwire
 node scripts/serve-dashboard.mjs
 # open http://127.0.0.1:8765/Tripwire.dc.html
 # Guard tab → data source → Mock (demo data)
+# Live is the UI default — you must select Mock for a no-cloud demo
 ```
 
 **Success:** Dashboard loads; status chip shows **Demo data** (or Live if you
@@ -43,8 +45,10 @@ More: [prototypes/README.md](prototypes/README.md)
 ## Scanner user
 
 Install the CLI and discover (or scan) a fixture without reading the whole repo.
+No Supabase or Modal accounts required for `--dry-discover`.
 
-**Prerequisites:** Git, Node.js, npm
+**Prerequisites:** Git, **Node.js 22**, npm —
+[docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md).
 
 ```bash
 cd cli && npm install && npm link
@@ -67,11 +71,17 @@ Fixtures: [fixtures/README.md](fixtures/README.md)
 
 Run the full stack: DB bootstrap, Modal sandbox, real scan, Live dashboard.
 
-**Prerequisites:** Node.js, Python + `modal`, Supabase project, Modal account
+**Prerequisites:** Node.js 22, Python 3.12 + `modal`, Supabase project, Modal
+account. Complete setup guides **before** copying `.env`:
+
+1. [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
+2. [docs/user-guide/supabase-setup.md](docs/user-guide/supabase-setup.md)
+3. [docs/user-guide/modal-setup.md](docs/user-guide/modal-setup.md)
+4. [docs/user-guide/env-vars.md](docs/user-guide/env-vars.md) — every key + source
 
 ```bash
 cp .env.example .env
-# Set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_DB_URL (postgresql://)
+# Fill SUPABASE_* (and optional scanner keys) using env-vars.md
 # Prefer Session pooler URI if db.<ref>.supabase.co does not resolve
 # Optional Live browser: SUPABASE_ANON_KEY — or use serve-dashboard.mjs proxy
 
@@ -82,7 +92,7 @@ tripwire setup                 # apply DDL; or ./scripts/setup-supabase.sh
 pip install modal
 ./scripts/setup-modal.sh       # auth + secrets sync + deploy
 # Flags: --secrets-only | --deploy-only | --non-interactive | --env-file PATH
-# Keys: fixtures/OPTIONAL_SCANNER_KEYS.md
+# Keys: docs/user-guide/env-vars.md · fixtures/OPTIONAL_SCANNER_KEYS.md
 
 tripwire scan ./fixtures/skills/safe-csv-cleaner
 tripwire scan ./fixtures/mcp/mcp_manifest.json
@@ -94,8 +104,9 @@ node scripts/serve-dashboard.mjs
 **Success:** Scan creates rows in Supabase; dashboard Live chip shows items (or
 empty if no rows yet). Operator evidence notes: [docs/STATUS.md](docs/STATUS.md).
 
-Also: [.env.example](.env.example) ·
-[fixtures/OPTIONAL_SCANNER_KEYS.md](fixtures/OPTIONAL_SCANNER_KEYS.md)
+Also: [env-vars.md](docs/user-guide/env-vars.md) ·
+[.env.example](.env.example) ·
+[OPTIONAL_SCANNER_KEYS.md](fixtures/OPTIONAL_SCANNER_KEYS.md)
 
 ---
 
