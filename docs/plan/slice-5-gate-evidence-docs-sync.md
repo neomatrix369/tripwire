@@ -17,39 +17,42 @@
 **Then** `docs/plan/gate-evidence/slice-N.json` exist for Must slices and build-day 3-lite Done reflects verified state (no stale ☐ contradicting ship evidence)
 
 ## Before-Checks [GATE]
-- [ ] Branch created
-- [ ] Task file opened
-- [ ] Slices 1–4 complete or deferred with reason
+- [x] Branch created (`slice/5-gate-evidence-docs-sync`)
+- [x] Task file opened
+- [x] Slices 1–4 complete or deferred with reason — 1–3 ✅; 4 🔴 deferred (Remotion missing; DECISIONS.md); 6 ✅
 
 ## TDD Execution
 Docs-only; verify links resolve; no production TDD.
 
 ## After-Checks [GATE]
-- [ ] Docs committed
-- [ ] TRAIL/PROGRESS statuses accurate
-- [ ] Acceptance criteria met
-- [ ] Doc audit complete
+- [x] Docs committed with `docs(slice-05): ...`
+- [x] TRAIL/PROGRESS statuses accurate
+- [x] Acceptance criteria met (Must evidence present; build-day 3-lite ticked; VO left open)
+- [x] Doc audit complete
 
 ## Doc Audit (14-row checklist)
 | # | Item | Check |
 |-|------|-------|
-| 1 | README updated | if ship claims change |
-| 13 | Related links cross-referenced | — |
-| 14 | No orphaned file references | — |
-| Others | as applicable | — |
+| 1 | README updated | N/A — no public ship-claim change |
+| 13 | Related links cross-referenced | gate-evidence ↔ TRAIL/PROGRESS |
+| 14 | No orphaned file references | slice-1..4 + slice-6 JSON present |
+| Others | build-day sync | local gitignored file updated |
 
 ## Gate Status
-📋 PLANNED
+🔀 ON BRANCH — VERIFIED; awaiting PR merge
 
 ## What Changed
 | File | Type | Reason |
 |------|------|--------|
-| — | — | — |
+| docs/plan/PROGRESS.md / TRAIL.md | plan | slice 6 ✅ · slice 5 🔀 |
+| docs/plan/gate-evidence/slice-5.json | evidence | sync record |
+| docs/plan/DECISIONS.md | plan | slice-4 waiver for slice-5 entry |
+| internal-docs/.../build-day-decisions.md | local | 3-lite boxes (gitignored) |
 
 ## Session Metrics
 | Metric | Value |
 |--------|-------|
 | Estimated Pomos | 1 (~25 min) |
-| Execution time | — |
-| Blockers encountered | — |
-| Next-session notes | — |
+| Execution time | ~10 min |
+| Blockers encountered | slice 4 Remotion (waived for docs sync) |
+| Next-session notes | `/create-pr` → `/merge-pr-to-main`; then Remotion or ask 1+C |
