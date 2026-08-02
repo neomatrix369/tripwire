@@ -32,24 +32,24 @@ Must coverage wave. **Execute after slice 17** (and slice 7). Technical depends-
 - Live CLI / Modal invocation
 
 ## Before-Checks [GATE]
-- [ ] Branch created
-- [ ] Slice 7 ✅ or audit matrix available
-- [ ] Context pack + adapter research opened
-- [ ] Confirmed skill parse bodies still uncovered
+- [x] Branch created
+- [x] Slice 7 ✅ or audit matrix available
+- [x] Context pack + adapter research opened
+- [x] Confirmed skill parse bodies still uncovered
 
 ## TDD Execution
 Outside-in: failing fixture tests → GREEN with `_run`/`_which` stubs → refactor tests.
 VERIFY: `pytest sandbox/ -q --tb=short`
 
 ## After-Checks [GATE]
-- [ ] `pytest sandbox/ -q --tb=short` exit 0
-- [ ] Fixture tests exist for skill happy path, malformed payload, and severity map (paths listed in evidence)
-- [ ] Coverage on touched skill-parse functions: baseline % → after % recorded in `gate-evidence/slice-8.json` (after ≥ baseline)
-- [ ] `docs/plan/gate-evidence/slice-8.json` has `"verdict": "PASS"` + `commands[]`
-- [ ] PROGRESS/TRAIL updated; ✅ only after merge (🔀 while PR open)
+- [x] `pytest sandbox/ -q --tb=short` exit 0
+- [x] Fixture tests exist for skill happy path, malformed payload, and severity map (paths listed in evidence)
+- [x] Coverage on touched skill-parse functions: baseline % → after % recorded in `gate-evidence/slice-8.json` (after ≥ baseline)
+- [x] `docs/plan/gate-evidence/slice-8.json` has `"verdict": "PASS"` + `commands[]`
+- [x] PROGRESS/TRAIL updated; ✅ only after merge (🔀 while PR open)
 
 ## Gate Status
-📋 PLANNED
+✅ PASSED
 
 ## Session Metrics
 | Metric | Value |

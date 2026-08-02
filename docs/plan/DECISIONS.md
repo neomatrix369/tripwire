@@ -45,3 +45,5 @@
 | 2026-08-02 | refs | Path sync after layout | Trackers, STATUS, docs index, coverage-audit, gate-evidence `spec_path`, plan README, Cursor onboarding plan → wave folders. No `docs/plan/slice-N-*.md` at plan root. |
 | 2026-08-02 | slice-17 | ✅ PASSED (docs-only) | Phase 1 user-guide (prereqs/supabase/modal/env-vars) + QUICKSTART/README/docs index/CONTRIBUTING wire. Review: docs-only exception (GATE_CONTRACT). Next Must: **8**. |
 | 2026-08-02 | slice-17 | docs-only review skip | No `/nw-review` — documentation-only slice; GATE_CONTRACT exception recorded here. |
+| 2026-08-02 | slice-8 | ✅ PASSED | Cisco skill parse fixtures (happy/malformed/severity/_safe_json); stub `_run`/`_which` only. Sandbox cov ~47%→58.2%. |
+| 2026-08-02 | slice-8 | review | Test-only fixture delta — no production code change; `/nw-review` skipped with this note. |

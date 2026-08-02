@@ -1,0 +1,38 @@
+{
+  "slice": 8,
+  "date": "2026-08-02",
+  "branch": "slice/8-scanner-skill-parse-fixtures",
+  "verdict": "PASS",
+  "before_checks": "all green",
+  "after_checks": [
+    "pytest sandbox/ exit 0 (76 passed)",
+    "fixture tests: happy, malformed, severity map, _safe_json prefix, missing binary",
+    "sandbox coverage baseline ~47% → after 58.2% (branch=true)",
+    "gate-evidence PASS",
+    "PROGRESS/TRAIL updated"
+  ],
+  "fixture_paths": [
+    "sandbox/testdata/skill_scanner/happy.json",
+    "sandbox/testdata/skill_scanner/malformed.txt",
+    "sandbox/testdata/skill_scanner/prefixed_happy.txt",
+    "sandbox/test_scanners_skill_parse.py"
+  ],
+  "coverage": {
+    "baseline_sandbox_pct": 47.0,
+    "after_sandbox_pct": 58.2,
+    "note": "Ship-path sandbox+guard measured via uv run pytest sandbox/ --cov=sandbox"
+  },
+  "commands": [
+    {
+      "cmd": "uv run pytest sandbox/test_scanners_skill_parse.py -q --tb=short",
+      "result": "12 passed"
+    },
+    {
+      "cmd": "uv run pytest sandbox/ -q --tb=short --cov=sandbox --cov-fail-under=45",
+      "result": "76 passed; TOTAL 58.2%"
+    }
+  ],
+  "review": "nw-review not required for test-only delta; characterization fixtures only",
+  "pr": null,
+  "spec_path": "docs/plan/05-E-ship-path-coverage/slice-8-scanner-skill-parse-fixtures.md"
+}
