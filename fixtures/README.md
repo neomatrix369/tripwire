@@ -1,5 +1,8 @@
 # Fixtures
 
+Came from [QUICKSTART](../QUICKSTART.md)? Use these paths with `tripwire scan` /
+`--dry-discover` on the Scanner or Platform operator paths.
+
 Real scan targets matching the spec's §8 fixture table — a small, curated set (not
 exhaustive), enough to demo each heatmap state and the main finding anchor types.
 

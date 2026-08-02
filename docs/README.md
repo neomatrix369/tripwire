@@ -1,0 +1,59 @@
+# Documentation index
+
+Guides for **Tripwire**, by who you are and what you want to do.
+
+**Repo entry:** [README.md](../README.md) · **Fastest run:** [QUICKSTART.md](../QUICKSTART.md)
+
+> Same personas as [README → Run it](../README.md#run-it). This page is the **doc map**.
+
+---
+
+## Who is this for?
+
+| Persona | Start here | Then |
+|---------|------------|------|
+| **Demo viewer** | [QUICKSTART → Demo](../QUICKSTART.md#demo-viewer) | [prototypes/README.md](../prototypes/README.md) |
+| **Scanner user** | [QUICKSTART → Scanner](../QUICKSTART.md#scanner-user) | [fixtures/README.md](../fixtures/README.md) |
+| **Platform operator** | [QUICKSTART → Platform](../QUICKSTART.md#platform-operator) | [.env.example](../.env.example) · [OPTIONAL_SCANNER_KEYS.md](../fixtures/OPTIONAL_SCANNER_KEYS.md) |
+| **Operate secrets / Modal** | [.env.example](../.env.example) | [OPTIONAL_SCANNER_KEYS.md](../fixtures/OPTIONAL_SCANNER_KEYS.md) |
+| **Contributor** | [CONTRIBUTING.md](../CONTRIBUTING.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) · [plan/PROGRESS.md](./plan/PROGRESS.md) |
+| **Compliance / audit** | [prototypes/README.md](../prototypes/README.md) | [fixtures/README.md](../fixtures/README.md) · [STATUS.md](./STATUS.md) |
+| **Security reporter** | [SECURITY.md](../SECURITY.md) | — |
+| **Agent / slice worker** | [AGENTS.md](../AGENTS.md) · [CLAUDE.md](../CLAUDE.md) | [plan/PROGRESS.md](./plan/PROGRESS.md) · [plan/TRAIL.md](./plan/TRAIL.md) |
+
+---
+
+## Core docs
+
+| Doc | What it covers |
+|-----|----------------|
+| [QUICKSTART.md](../QUICKSTART.md) | Demo / scanner / platform paths |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | C4 L1–L2 diagrams, key flows, repo layout |
+| [STATUS.md](./STATUS.md) | RESEARCH / IMPLEMENTED / VERIFIED claims |
+| [CONTRIBUTING.md](../CONTRIBUTING.md) | Dev setup, hygiene gates, PR conventions |
+| [SECURITY.md](../SECURITY.md) | Vulnerability reporting |
+
+---
+
+## Research & plan
+
+| Doc | What it covers |
+|-----|----------------|
+| [research/adapters/scanner-output-adapters.md](./research/adapters/scanner-output-adapters.md) | Scanner CLI output shapes (keep in sync with `sandbox/scanners.py`) |
+| [plan/PROGRESS.md](./plan/PROGRESS.md) | Slice status |
+| [plan/DECISIONS.md](./plan/DECISIONS.md) | Planning decisions |
+| [plan/TRAIL.md](./plan/TRAIL.md) | Execution trail |
+
+---
+
+## Common tasks → doc
+
+| Task | Doc / command |
+|------|----------------|
+| Mock dashboard in 2 minutes | [QUICKSTART → Demo](../QUICKSTART.md#demo-viewer) |
+| Dry-discover a fixture | [QUICKSTART → Scanner](../QUICKSTART.md#scanner-user) |
+| Full stack scan | [QUICKSTART → Platform](../QUICKSTART.md#platform-operator) |
+| Understand system shape | [ARCHITECTURE.md](./ARCHITECTURE.md) |
+| What is verified today? | [STATUS.md](./STATUS.md) |
+| Quality gates / hooks | [CONTRIBUTING.md](../CONTRIBUTING.md) |
+| Continue a slice | [plan/PROGRESS.md](./plan/PROGRESS.md) |

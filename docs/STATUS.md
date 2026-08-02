@@ -1,0 +1,73 @@
+# Capability status
+
+Evidence-labelled claims for Tripwire:
+RESEARCH · PROPOSED · DECIDED · IMPLEMENTED · VERIFIED · SUPERSEDED.
+
+Repo entry: [README.md](../README.md) · Get started: [QUICKSTART.md](../QUICKSTART.md)
+
+---
+
+## IMPLEMENTED
+
+Reachable through production entry points / config:
+
+- Full schema + rollup function + anon SELECT policies/GRANTs + Realtime
+  publication on `scan_runs` / `scan_run_scanners` / `findings` — `db/schema.sql`,
+  applied via `tripwire setup` / `cli/src/ensureSchema.js`
+- `scan_run_scanners` incremental writes from Modal (`running` placeholders,
+  `console_output`, `started_at`/`completed_at`; PGRST204-safe fallback when
+  columns missing) — `sandbox/`
+- CLI discovery / hashing / idempotency / batching — `cli/` (`tripwire scan`)
+- `tripwire setup` / first-scan schema bootstrap (probes `completed_at` column) —
+  `cli/src/ensureSchema.js`
+- `./scripts/setup-modal.sh` secret sync + deploy
+- Scanner adapters shell out to upstream CLIs (`skill-scanner`, `mcp-scanner`,
+  `snyk-agent-scan`, `tessl`) with real flags and parse documented output shapes —
+  `sandbox/scanners.py`
+- Fixture set under `fixtures/` — see [fixtures/README.md](../fixtures/README.md)
+- `_acquire_target` dispatch (git clone, local copy, host→sandbox tar upload via
+  `local_entrypoint`, MCP introspection-only empty workdir) — `sandbox/`
+- Dashboard Live/Mock with Supabase Realtime (~1s) + 8s poll fallback, SCANNING
+  in-flight UI, scanner console in drawer, partial-failed “n out of m scanners
+  unreachable” copy — `prototypes/dc-dashboard/`;
+  `scripts/serve-dashboard.mjs` / `scripts/sync-dashboard-config.sh`
+
+---
+
+## VERIFIED (unit)
+
+- `cd cli && npm test` — discovery, content-hash, schema-probe (incl. `completed_at`),
+  `--force`
+- `pytest sandbox/test_acquire_target.py` — acquire-target dispatch
+- `cd prototypes/dc-dashboard && npm test` — Live gating, Realtime wiring,
+  SCANNING/console/unreachable mapping; optional Live smoke skipped without config
+
+---
+
+## VERIFIED (operator, 2026-08-01)
+
+- Modal secrets + `tripwire-scan` deploy with `scanners` packaged
+  (`add_local_python_source(..., copy=True)`)
+- Host tar packing (`modal run sandbox/scan_app.py` → `[acquire] packed …`)
+  delivers fixture `SKILL.md` to scanners — Cisco completed with findings
+  (incl. red prompt_injection); Tessl/Snyk may still be unreachable
+  (Node≥20 / `uvx` cold-install)
+- Live dashboard reads items when anon key synced (or via local proxy)
+- Live `tripwire setup` against Direct `db.*` host was **not** verified here
+  (`ENOTFOUND`); use Session pooler URI when needed
+
+---
+
+## RESEARCH (not VERIFIED)
+
+Exact JSON field names in `sandbox/scanners.py` — cross-check against the pinned
+CLI version's `--help`/output before this blocks a merge. See
+[scanner-output-adapters.md](./research/adapters/scanner-output-adapters.md).
+
+---
+
+## Future (not current behaviour)
+
+Known fixture gaps (not urgent) are listed under
+[fixtures/README.md](../fixtures/README.md) (“Not yet built”). Do not treat those
+as shipped capabilities.
