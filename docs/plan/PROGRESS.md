@@ -9,7 +9,7 @@
 | 3 | [slice-3-gwt2-sandbox-evidence-acceptance](slice-3-gwt2-sandbox-evidence-acceptance.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
 | 4 | [slice-4-vo-remotion-assemble](slice-4-vo-remotion-assemble.md) | Must | 🔴 | 2026-08-02 | — | ~25 min |
 | 5 | [slice-5-gate-evidence-docs-sync](slice-5-gate-evidence-docs-sync.md) | Should | 📋 | — | — | ~25 min |
-| 6 | [slice-6-orchestrator-characterization](slice-6-orchestrator-characterization.md) | Could | 📋 | — | — | ~25 min |
+| 6 | [slice-6-orchestrator-characterization](slice-6-orchestrator-characterization.md) | Could | 🔀 | 2026-08-02 | — | ~25 min |
 
 **Status Legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 DEFERRED`
 
@@ -35,4 +35,5 @@
 | 2026-08-01 | slice/1-walking-skeleton-live-path | nw-execute (adapted) | 1 | ✅ PASSED (PR #14) | Live scan + boolean probe; gate-evidence written |
 | 2026-08-01 | slice/2-gwt1-detection-acceptance | slice-workflow | 2 | ✅ PASSED (PR #15) | GWT-1 acceptance test |
 | 2026-08-02 | slice/3-gwt2-sandbox-evidence-acceptance | slice-workflow | 3 | ✅ PASSED (PR #16) | GWT-2 sandbox evidence acceptance |
-| 2026-08-02 | slice/4-vo-remotion-assemble | slice-workflow | 4 | 🔴 BLOCKED | Remotion sibling + VO assets missing |
+| 2026-08-02 | slice/4-vo-remotion-assemble | slice-workflow | 4 | 🔴 BLOCKED (PR #17) | Remotion sibling + VO assets missing |
+| 2026-08-02 | slice/6-orchestrator-characterization | slice-workflow | 6 | 🔀 ON BRANCH | skip/force spawn characterization |
