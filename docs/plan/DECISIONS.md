@@ -24,3 +24,9 @@
 | 2026-08-01 | nw-execute adapt | docs/plan slice-workflow | No `.nwave/config.yaml`/roadmap; execute TRAIL slices via slice stubs + TDD |
 | 2026-08-02 | slice-4 blocker | Remotion sibling missing | `claude-remotion-kickstart` not on disk / not listed under neomatrix369; VO assets absent in internal-docs; GWT-3 script audit PASS in-repo |
 | 2026-08-02 | slice-5 entry | Waive “slices 1–4 complete” | Slice 4 remains 🔴; proceed with docs sync for verified 1–3 (+6) and leave VO/capture open in build-day |
+| 2026-08-02 | coverage-target | Ship-path ~95% instrumented | User locked; behavior matrix primary; floors after Must ATs |
+| 2026-08-02 | coverage-scope | Ship path only | cli/src + sandbox (excl tests) + Live ACL JS; omit guard, support.js, Remotion, scripts |
+| 2026-08-02 | coverage-e2e | Live Modal/Supabase CI Must = Won't | Stay slow/optional skip-without-config |
+| 2026-08-02 | planning | Added slices 7–14 | Path B Add via enhanced-flow-planner; delta-only vs existing suites; internal-docs context pack mandatory |
+| 2026-08-02 | health-check | Gap 2: Routing fingerprint | AUTO-FIXED on TRAIL Original Material |
+| 2026-08-02 | sync-docs | Coverage wave docs | STATUS DECIDED + CONTRIBUTING floors + docs/README plan links; README NO_CHANGE |

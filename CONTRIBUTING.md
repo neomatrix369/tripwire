@@ -29,6 +29,16 @@ pre-commit run --all-files          # lint, mypy, bandit, gitleaks, fast tests
 - **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog
 - **Nightly** (`.github/workflows/nightly.yml`): mutmut, full TruffleHog, SBOM, Meterian, Chalk
 
+**Coverage today (VERIFIED config):** Python `fail_under=45` with `branch=true`
+(`pyproject.toml` / CI). CLI and `prototypes/dc-dashboard` tests run without a
+coverage gate.
+
+**Coverage target (DECIDED — slices 7–14):** ship-path ~95% on `cli/src`,
+`sandbox/`, and Live ACL modules (`tripwire-live.js` / `status` / `realtime` /
+`data`); `guard/` and `support.js` out of bar. Track progress in
+[docs/plan/PROGRESS.md](docs/plan/PROGRESS.md) and claims in
+[docs/STATUS.md](docs/STATUS.md).
+
 Intentional vuln fixtures under `fixtures/` and mock data under `prototypes/`
 are excluded from secrets scanners.
 
