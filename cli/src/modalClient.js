@@ -1,12 +1,13 @@
-import { spawn } from 'node:child_process';
+import { spawn as defaultSpawn } from 'node:child_process';
 
 // Spawns the Modal sandbox for one scan_run via the local entrypoint
 // (sandbox/scan_app.py::main). That host-side wrapper packs local directories into
 // a tar and passes bytes to remote scan_item — host paths are not on Modal's FS.
 // Do not invoke ::scan_item directly; that skips packing and leaves an empty workdir.
-export function spawnScanSandbox({ target, itemType, itemId, scanRunId }) {
+// `spawnImpl` is injectable for characterization tests (no live Modal).
+export function spawnScanSandbox({ target, itemType, itemId, scanRunId, spawnImpl = defaultSpawn }) {
   return new Promise((resolve, reject) => {
-    const proc = spawn('modal', [
+    const proc = spawnImpl('modal', [
       'run', 'sandbox/scan_app.py',
       '--target', target, '--item-type', itemType, '--item-id', itemId, '--scan-run-id', scanRunId
     ], { stdio: 'inherit' });

@@ -1,0 +1,23 @@
+{
+  "slice": "slice-6-orchestrator-characterization",
+  "date": "2026-08-02",
+  "branch": "slice/6-orchestrator-characterization",
+  "gwt": "Orchestrator / Modal characterization (skip vs force spawn)",
+  "commands": [
+    {
+      "cmd": "cd cli && npm test",
+      "result": "22 tests, 22 pass, 0 fail"
+    }
+  ],
+  "acceptance_tests": [
+    "given unchanged content_hash when runScan without force then skips spawn",
+    "given unchanged content_hash when runScan with force then spawns with expected args shape",
+    "given new content when runScan then inserts run and spawns sandbox",
+    "spawnScanSandbox invokes modal run scan_app.py with expected argv (mocked child_process)"
+  ],
+  "seams": {
+    "runScan": "optional ensureSchemaFn / getSupabaseFn / spawnFn (defaults unchanged)",
+    "spawnScanSandbox": "optional spawnImpl (defaults to child_process.spawn)"
+  },
+  "verdict": "VERIFIED"
+}

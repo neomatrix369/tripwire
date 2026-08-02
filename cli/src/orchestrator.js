@@ -61,9 +61,16 @@ async function upsertItem(supabase, target) {
   return { item: inserted, cached: false };
 }
 
-export async function runScan(targets, { concurrency = 5, force = false } = {}) {
-  await ensureSchema();
-  const supabase = getSupabase();
+export async function runScan(targets, {
+  concurrency = 5,
+  force = false,
+  // Injectable seams for characterization tests (defaults preserve production path).
+  ensureSchemaFn = ensureSchema,
+  getSupabaseFn = getSupabase,
+  spawnFn = spawnScanSandbox,
+} = {}) {
+  await ensureSchemaFn();
+  const supabase = getSupabaseFn();
   let batchId = null;
   if (targets.length > 1) {
     const { data: batch } = await supabase.from('scan_batches').insert({
@@ -84,7 +91,7 @@ export async function runScan(targets, { concurrency = 5, force = false } = {}) 
     if (runError) throw runError;
 
     try {
-      await spawnScanSandbox({ target: target.target, itemType: target.type, itemId: item.id, scanRunId: run.id });
+      await spawnFn({ target: target.target, itemType: target.type, itemId: item.id, scanRunId: run.id });
     } catch (err) {
       console.error(`[error] sandbox failed for ${target.target}: ${err.message}`);
       await supabase.from('scan_runs').update({ status: 'failed', completed_at: new Date().toISOString() }).eq('id', run.id);
