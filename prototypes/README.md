@@ -2,9 +2,13 @@
 
 Reference UX and demo assets. Not the shipped product UI.
 
-| Path | What |
-|------|------|
+Came from [QUICKSTART](../QUICKSTART.md)? Use the **Demo viewer** path, then return here for Live vs Mock detail.
+
+
+| Path            | What                                                                                                                                |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `dc-dashboard/` | Data Commons HTML dashboard (`Tripwire.dc.html` + `support.js`). Supports **live Supabase** data or mock data (`tripwire-data.js`). |
+
 
 ## Viewing the dashboard
 
@@ -14,15 +18,13 @@ A **status chip** appears next to the data-source dropdown on the **Guard** tab,
 
 Status chip meanings:
 
-- **Live · Realtime** — Supabase Realtime subscribed; updates within ~1s of Modal writes
-- **Live · Supabase** — items loaded from Supabase (poll-only or initial load)
+- **Live · Supabase** — items loaded from Supabase
 - **Live · empty** — connected; 0 items (not demo data)
 - **Demo data** — Mock selected
 - **Missing API key** — Live selected but browser config has no usable key (shows demo data)
 - **Connection error** — configured but fetch failed (shows demo data)
 
-There is no “fallback…” chip wording. When Realtime is unavailable, in-flight scans still
-refresh via an **8s poll** (or 30s while Realtime is connected and a run is `running`).
+There is no “fallback…” chip wording.
 
 ### Why you may see “Live” + “Missing API key”
 
@@ -52,27 +54,14 @@ cd prototypes/dc-dashboard && python3 -m http.server 8765
 
 If the chip says **Missing API key**, `tripwire-dashboard.config.js` has URL but an empty anon key — Live never calls Supabase. Set anon + sync, or use `serve-dashboard.mjs`.
 
-Also run `tripwire setup --force` once so anon SELECT policies + GRANTs + Realtime
-publication from `db/schema.sql` are applied. The CLI probe also checks
-`scan_run_scanners.completed_at` — stale DBs without console/timestamp columns trigger
-re-apply on the next setup or first scan.
+Also run `tripwire setup --force` once so anon SELECT policies + GRANTs from `db/schema.sql` are applied.
 
 **Never put `service_role` in the browser config.**
-
-### In-flight scans (Live)
-
-While Modal writes results, cards show **SCANNING** (execution status wins over stale
-heatmap). Open a card’s scanner drawer to see per-engine progress, **Modal console
-output** (`console_output`), and durations from `started_at`/`completed_at`. Partial
-failures surface copy like “**n out of m scanners unreachable — risk from completed
-engines**”. Without the schema migration, scans still complete but console columns and
-Realtime may be absent (Modal falls back to legacy-safe inserts).
 
 ## Database bootstrap
 
 ```bash
 tripwire setup                 # or ./scripts/setup-supabase.sh
-tripwire setup --force         # re-apply after schema.sql changes (console + Realtime)
 ```
 
 Requires `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_DB_URL` in `.env`.
@@ -83,10 +72,7 @@ Requires `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_DB_URL` in `
 cd prototypes/dc-dashboard && npm test
 ```
 
-Covers Live config gating, mocked Supabase fetches, SCANNING/in-flight mapping,
-console output relay, Realtime module wiring, unreachable partial-failed copy, and chip
-labels. Optional Live smoke runs only when `tripwire-dashboard.config.js` has a real URL
-+ key (skipped otherwise — not a CI failure). `npm test` — 36 pass, 1 skipped.
+Covers Live config gating, mocked Supabase table fetches, item mapping, empty vs error sources, and chip copy. Optional Live smoke runs only when `tripwire-dashboard.config.js` has a real URL + key (skipped otherwise — not a CI failure).
 
 ---
 

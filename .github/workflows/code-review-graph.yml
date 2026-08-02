@@ -1,5 +1,7 @@
 name: Code Review Graph
 
+# PR assist only — not a product scanner. Partner/stack badges live in README / docs/README.md.
+
 on:
   pull_request:
 
