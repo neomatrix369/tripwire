@@ -4,11 +4,9 @@ Reference UX and demo assets. Not the shipped product UI.
 
 Came from [QUICKSTART](../QUICKSTART.md)? Use the **Demo viewer** path, then return here for Live vs Mock detail.
 
-
 | Path            | What                                                                                                                                |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `dc-dashboard/` | Data Commons HTML dashboard (`Tripwire.dc.html` + `support.js`). Supports **live Supabase** data or mock data (`tripwire-data.js`). |
-
 
 ## Viewing the dashboard
 
@@ -86,5 +84,3 @@ Covers Live config gating, mocked Supabase table fetches, item mapping, empty vs
 [![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
 [![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
 [![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
-[![Overmind](https://img.shields.io/badge/Overmind-Phase%205-6B7280?style=flat)](https://overmind.tech)
-[![Ossprey](https://img.shields.io/badge/Ossprey-Sponsor-0F766E?style=flat)](https://www.ossprey.com/?utm_source=luma)

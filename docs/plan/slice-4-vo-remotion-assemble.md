@@ -1,6 +1,6 @@
 # Slice 4: VO + Remotion Assemble (GWT-3)
 
-> Scenario: Brownfield | MoSCoW: Must
+> Scenario: Brownfield | MoSCoW: Could (demo/hackathon — demoted 2026-08-02)
 
 ## Slice Workflow Bundle
 - Slice name: slice-4-vo-remotion-assemble

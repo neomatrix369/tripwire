@@ -61,10 +61,10 @@ Reachable through production entry points / config:
 ## DECIDED (not yet IMPLEMENTED / VERIFIED)
 
 Ship-path coverage uplift (~95% instrumented on `cli/src`, `sandbox/`, Live ACL JS;
-omit `guard/` and `support.js`) — planning slices **7–14** on branch
-`plan/coverage-slices-7-14`. See [plan/PROGRESS.md](./plan/PROGRESS.md),
-[plan/DECISIONS.md](./plan/DECISIONS.md), and slice stubs
-`docs/plan/slice-7-*.md` … `slice-14-*.md`.
+omit `guard/` and `support.js`) — planning slices **7–14** (stubs on `main`;
+execute on per-slice branches e.g. `slice/7-coverage-audit-matrix`). See
+[plan/PROGRESS.md](./plan/PROGRESS.md), [plan/DECISIONS.md](./plan/DECISIONS.md),
+and slice stubs `docs/plan/slice-7-*.md` … `slice-14-*.md`.
 
 Current CI Python floor remains **`fail_under=45`** (`pyproject.toml` / CI) with
 measured ~47% (2026-08-02). Node CLI and dashboard have **no** coverage gate yet.
@@ -90,8 +90,8 @@ Known fixture gaps (not urgent) are listed under
 [fixtures/README.md](../fixtures/README.md) (“Not yet built”). Do not treat those
 as shipped capabilities.
 
-Coverage audit matrix artifact (`docs/plan/coverage-audit.md`) is owned by
-slice 7 — not written yet.
+Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
+(slice 7). Claim-audit follow-ups: slices 15–16.
 
 ---
 
@@ -105,5 +105,3 @@ slice 7 — not written yet.
 [![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
 [![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
 [![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
-[![Overmind](https://img.shields.io/badge/Overmind-Phase%205-6B7280?style=flat)](https://overmind.tech)
-[![Ossprey](https://img.shields.io/badge/Ossprey-Sponsor-0F766E?style=flat)](https://www.ossprey.com/?utm_source=luma)

@@ -27,7 +27,9 @@ pre-commit run --all-files          # lint, mypy, bandit, gitleaks, fast tests
 - **Commit:** ruff, mypy, bandit, gitleaks, pytest-testmon, `cli` unit tests
 - **Push:** full pytest + coverage floor; conditional pip-audit / npm audit
 - **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog
-- **Nightly** (`.github/workflows/nightly.yml`): mutmut, full TruffleHog, SBOM, Meterian, Chalk
+- **Nightly** (`.github/workflows/nightly.yml`): full TruffleHog, SBOM, Meterian;
+  mutmut and Chalk run but are **non-gating** (`|| true` — green Nightly does not
+  mean mutation/Chalk passed)
 
 **Coverage today (VERIFIED config):** Python `fail_under=45` with `branch=true`
 (`pyproject.toml` / CI). CLI and `prototypes/dc-dashboard` tests run without a
@@ -64,5 +66,3 @@ are excluded from secrets scanners.
 [![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
 [![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
 [![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
-[![Overmind](https://img.shields.io/badge/Overmind-Phase%205-6B7280?style=flat)](https://overmind.tech)
-[![Ossprey](https://img.shields.io/badge/Ossprey-Sponsor-0F766E?style=flat)](https://www.ossprey.com/?utm_source=luma)

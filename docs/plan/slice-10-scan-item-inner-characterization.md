@@ -1,6 +1,6 @@
 # Slice 10: scan_item_inner Characterization (Delta)
 
-> Scenario: Brownfield | MoSCoW: Must
+> Scenario: Brownfield | MoSCoW: Should
 
 ## Slice Workflow Bundle
 - Slice name: slice-10-scan-item-inner-characterization

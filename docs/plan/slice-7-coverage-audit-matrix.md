@@ -64,11 +64,11 @@ slices), and locks targets (ship-path ~95%; exclude guard/support.js)
 - Full claim-audit canvas + Live 3B (slice 15)
 
 ## Before-Checks [GATE]
-- [ ] Branch created (`slice/7-coverage-audit-matrix`)
-- [ ] Task file opened
-- [ ] Context pack opened (internal-docs 00_build + demo script + docs/STATUS)
-- [ ] Confirmed no prior `docs/plan/coverage-audit.md`
-- [ ] Inventory Overmind/Ossprey hits (markdown, HTML footer, workflow comments)
+- [x] Branch created (`slice/7-coverage-audit-matrix`)
+- [x] Task file opened
+- [x] Context pack opened (internal-docs 00_build + demo script + docs/STATUS)
+- [x] Confirmed no prior `docs/plan/coverage-audit.md` (now written)
+- [x] Inventory Overmind/Ossprey hits (markdown, HTML footer, workflow comments)
 
 ## TDD Execution
 Docs-only.
@@ -78,16 +78,16 @@ Docs-only.
    STATUS IMPLEMENTED + nw-review claim themes
 
 ## After-Checks [GATE]
-- [ ] Grep: no public Overmind/Ossprey **badges** / HTML partner lines / CI comment
-      partner lists (TRAIL Forward Won't OK)
-- [ ] ARCHITECTURE: Guard only under Future (not current L2 container)
-- [ ] CONTRIBUTING: Nightly mutmut/Chalk marked non-gating
-- [ ] STATUS/PROGRESS: no stale `plan/coverage-slices-7-14` as current execute branch
-- [ ] `docs/plan/coverage-audit.md` committed
-- [ ] Specification coverage: every matrix row has AT/unit/missing label
-- [ ] DECISIONS rows: sync-docs badge strip; 95% / ship-path / Live E2E Won't-for-CI
-- [ ] Acceptance criteria met
-- [ ] Gate evidence `docs/plan/gate-evidence/slice-7.json` at PASS
+- [x] Grep: no public Overmind/Ossprey **badges** / HTML partner lines / CI comment
+      partner lists (TRAIL Forward Won't OK; Mock Phase 5 disagreement copy may remain)
+- [x] ARCHITECTURE: Guard only under Future (not current L2 container)
+- [x] CONTRIBUTING: Nightly mutmut/Chalk marked non-gating
+- [x] STATUS/PROGRESS: no stale `plan/coverage-slices-7-14` as current execute branch
+- [x] `docs/plan/coverage-audit.md` written (commit with this PR)
+- [x] Specification coverage: every matrix row has AT/unit/missing label
+- [x] DECISIONS rows: sync-docs badge strip; 95% / ship-path / Live E2E Won't-for-CI
+- [x] Acceptance criteria met
+- [x] Gate evidence `docs/plan/gate-evidence/slice-7.json` written (ON_BRANCH → PASSED at merge)
 
 ## Doc Audit (14-row checklist)
 | # | Item | Check |
@@ -99,7 +99,7 @@ Docs-only.
 | 5–14 | Plan artifact + cross-links | coverage-audit.md ↔ TRAIL/PROGRESS |
 
 ## Gate Status
-📋 PLANNED — stub amended 2026-08-02 (trust strip = first gate)
+🔀 ON BRANCH — Gate A+B applied 2026-08-02 (PR #26); mark ✅ after merge
 
 ## Session Metrics
 | Metric | Value |

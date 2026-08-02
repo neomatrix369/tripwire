@@ -80,17 +80,19 @@ freshness:
 | 1 | [slice-1-walking-skeleton-live-path](slice-1-walking-skeleton-live-path.md) | Walking Skeleton — Live Demo Path | Must | ✅ | none | #14 | ~5 min |
 | 2 | [slice-2-gwt1-detection-acceptance](slice-2-gwt1-detection-acceptance.md) | GWT-1 Detection Acceptance | Must | ✅ | 1 | #15 | ~4 min |
 | 3 | [slice-3-gwt2-sandbox-evidence-acceptance](slice-3-gwt2-sandbox-evidence-acceptance.md) | GWT-2 Sandbox Evidence Acceptance | Must | ✅ | 1 | #16 | ~4 min |
-| 4 | [slice-4-vo-remotion-assemble](slice-4-vo-remotion-assemble.md) | VO + Remotion Assemble (GWT-3) | Must | 🔴 | 2,3 | #17 | ~4 min |
+| 4 | [slice-4-vo-remotion-assemble](slice-4-vo-remotion-assemble.md) | VO + Remotion Assemble (GWT-3) | Could | 🔴 | 2,3 | #17 | ~4 min |
 | 5 | [slice-5-gate-evidence-docs-sync](slice-5-gate-evidence-docs-sync.md) | Gate Evidence + Docs Sync | Should | ✅ | 1,2,3,4 | #19 | ~3 min |
 | 6 | [slice-6-orchestrator-characterization](slice-6-orchestrator-characterization.md) | Orchestrator / Modal Characterization | Could | ✅ | none | #18 | ~3 min |
-| 7 | [slice-7-coverage-audit-matrix](slice-7-coverage-audit-matrix.md) | Coverage Audit Matrix + Docs Parity | Must | 📋 | none | — | ~4 min |
+| 7 | [slice-7-coverage-audit-matrix](slice-7-coverage-audit-matrix.md) | Coverage Audit Matrix + Docs Parity | Must | 🔀 | none | #26 | ~4 min |
 | 8 | [slice-8-scanner-skill-parse-fixtures](slice-8-scanner-skill-parse-fixtures.md) | Scanner Skill Parse Fixtures (Delta) | Must | 📋 | 7 | — | ~4 min |
-| 9 | [slice-9-scanner-snyk-tessl-parse-fixtures](slice-9-scanner-snyk-tessl-parse-fixtures.md) | Snyk / Tessl Parse Fixtures (Delta) | Must | 📋 | 7 | — | ~4 min |
-| 10 | [slice-10-scan-item-inner-characterization](slice-10-scan-item-inner-characterization.md) | scan_item_inner Characterization (Delta) | Must | 📋 | 7 | — | ~4 min |
-| 11 | [slice-11-python-ship-path-coverage-95](slice-11-python-ship-path-coverage-95.md) | Python Ship-Path Coverage ≥95% | Must | 📋 | 8,9,10 | — | ~5 min |
+| 9 | [slice-9-scanner-snyk-tessl-parse-fixtures](slice-9-scanner-snyk-tessl-parse-fixtures.md) | Snyk / Tessl Parse Fixtures (Delta) | Should | 📋 | 7 | — | ~4 min |
+| 10 | [slice-10-scan-item-inner-characterization](slice-10-scan-item-inner-characterization.md) | scan_item_inner Characterization (Delta) | Should | 📋 | 7 | — | ~4 min |
+| 11 | [slice-11-python-ship-path-coverage-95](slice-11-python-ship-path-coverage-95.md) | Python Ship-Path Coverage ≥95% | Must | 📋 | 8 (9,10 Should) | — | ~5 min |
 | 12 | [slice-12-cli-coverage-gate-95](slice-12-cli-coverage-gate-95.md) | CLI Coverage Gate ≥95% (Delta) | Must | 📋 | 6 | — | ~4 min |
 | 13 | [slice-13-live-acl-coverage-gate-95](slice-13-live-acl-coverage-gate-95.md) | Live ACL Coverage Gate ≥95% (Delta) | Must | 📋 | 2,3 | — | ~4 min |
 | 14 | [slice-14-coverage-status-docs-sync](slice-14-coverage-status-docs-sync.md) | Coverage Status + Docs Sync (Delta) | Should | 📋 | 11,12,13 | — | ~3 min |
+| 15 | [slice-15-horizon-a-claim-audit](slice-15-horizon-a-claim-audit.md) | Horizon A Factual Claim Audit | Should | 📋 | 7 | — | ~4 min |
+| 16 | [slice-16-docs-claim-remediations](slice-16-docs-claim-remediations.md) | Docs Claim Remediations (Realtime/Demo/Prototype) | Could | 📋 | 15 | — | ~3 min |
 
 **Status legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 DEFERRED`
 
@@ -100,10 +102,18 @@ freshness:
 | interview_summary.md | ✅ written |
 | PROGRESS.md | ✅ written |
 | DECISIONS.md | ✅ in progress |
-| coverage-audit.md | 📋 pending — slice 7 |
+| coverage-audit.md | ✅ written — slice 7 |
 | GAP_ANALYSIS.md | pending |
 | HANDOFF.md | pending — `/memory-distiller` at session end |
 | gate-evidence/ | ✅ slices 1–6; 7–14 at each PASS |
+
+## Execute priority (MoSCoW — 2026-08-02)
+
+1. **Must:** 7 (in flight) → 8 → 11 → 12 → 13
+2. **Should:** 9 → 10 → 14 → 15
+3. **Could (demo/hackathon / polish):** 4 (VO/Remotion, blocked), 16 (demo/prototype prose); 6 already ✅
+
+Demo/hackathon deliverables are no longer on the critical path.
 
 ## Forward (Won't for A — ask 1+C later)
 - Drift / trend / diff / `identifier` UI
