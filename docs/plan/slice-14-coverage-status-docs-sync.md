@@ -25,6 +25,9 @@
 ## Out of scope (already exists)
 - Slice 5 gate-evidence backfill for slices 1–6
 - Unblocking Remotion/slice 4
+- Overmind/Ossprey badge strip, Guard→Future in ARCHITECTURE, Nightly
+  mutmut/Chalk non-gating one-liner — owned by **slice 7** Gate A (regression-
+  check only here: grep still clean)
 
 ## Before-Checks [GATE]
 - [ ] Branch created
@@ -36,6 +39,7 @@ Docs-only.
 
 ## After-Checks [GATE]
 - [ ] STATUS/PROGRESS/DECISIONS updated
+- [ ] Regression: no Overmind/Ossprey public badges; Nightly non-gating still documented
 - [ ] Acceptance criteria met
 - [ ] Gate evidence `slice-14.json` at PASS
 
