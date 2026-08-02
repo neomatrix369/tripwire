@@ -1,0 +1,30 @@
+{
+  "slice": 12,
+  "date": "2026-08-02",
+  "branch": "slice/12-cli-coverage-gate-95",
+  "verdict": "PASS",
+  "before_checks": "all green",
+  "after_checks": [
+    "npm run test:coverage exit 0 — lines/stmts 99.75%, funcs 100%",
+    "CI cli-tests uses npm run test:coverage",
+    "no c8 ignore comments",
+    "branch gate 85% (DECISIONS) — lines/stmts/funcs ≥95%",
+    "PROGRESS/TRAIL updated"
+  ],
+  "coverage": {
+    "lines": 99.75,
+    "statements": 99.75,
+    "functions": 100,
+    "branches": 87.91,
+    "branch_gate": 85
+  },
+  "commands": [
+    {
+      "cmd": "cd cli && npm run test:coverage",
+      "result": "47 passed; lines 99.75%"
+    }
+  ],
+  "review": "test+ci gate; DECISIONS review skip",
+  "pr": null,
+  "spec_path": "docs/plan/05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md"
+}

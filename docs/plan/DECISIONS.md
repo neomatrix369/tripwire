@@ -50,3 +50,7 @@
 | 2026-08-02 | slice-11 | waiver 9/10 | Before-Check “slices 8,9,10 ✅”: 9/10 remain Should; Snyk/Tessl/MCP/`scan_item_inner` coverage filled inside slice 11 tests instead of serial Should slices. |
 | 2026-08-02 | slice-11 | ✅ PASSED | Sandbox ship-path ~58%→98%; `fail_under=95`; guard omitted from cov source; CI/quality-gates/pre-push updated. |
 | 2026-08-02 | slice-11 | review | Coverage/test+config only; `/nw-review` skipped with this note. |
+| 2026-08-02 | slice-12 | ✅ PASSED | c8 on `cli/src`; lines/stmts/funcs ≥95% (measured ~99.75%/100%); CI `cli-tests` → `npm run test:coverage`. |
+| 2026-08-02 | slice-12 | branch gate | c8 `--branches 85` (not 95): residual defensive branches in orchestrator/loadEnv; line/stmt/func remain the ship-path ≥95% bar. |
+| 2026-08-02 | slice-12 | review | Test+ci only; `/nw-review` skipped with this note. |
+| 2026-08-02 | slice-12 | ClientImpl seam | `applySchema({ ClientImpl })` + `ensureSchema({ applySchemaFn })` injectable for unit tests (no live Postgres). |

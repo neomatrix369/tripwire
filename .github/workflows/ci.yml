@@ -114,7 +114,7 @@ jobs:
           cache-dependency-path: cli/package-lock.json
       - run: npm ci
         working-directory: cli
-      - run: npm test
+      - run: npm run test:coverage
         working-directory: cli
       - run: npm audit --audit-level=high
         working-directory: cli
