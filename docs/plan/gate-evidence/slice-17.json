@@ -1,0 +1,59 @@
+{
+  "slice": 17,
+  "date": "2026-08-02",
+  "branch": "slice/17-user-guide-onboarding",
+  "verdict": "PASS",
+  "before_checks": "all green",
+  "after_checks": [
+    "user-guide files exist",
+    "env-vars rows cover .env.example keys",
+    "QUICKSTART Platform links setup before cp .env; Demo Node 22 + Mock",
+    "README Run-it → prereqs/env-vars; docs/README Choose Your Path; CONTRIBUTING step 0 ≤80",
+    "README 4 H2s ≤100 lines",
+    "no Overmind/Ossprey in README/QUICKSTART/CONTRIBUTING",
+    "PROGRESS/TRAIL critical path 8 → 11–13",
+    "gate-evidence PASS"
+  ],
+  "env_key_inventory": [
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_DB_URL",
+    "SNYK_TOKEN",
+    "SKILL_SCANNER_LLM_API_KEY",
+    "SKILL_SCANNER_LLM_MODEL",
+    "SKILL_SCANNER_LLM_PROVIDER",
+    "SKILL_SCANNER_LLM_BASE_URL",
+    "MCP_SCANNER_LLM_API_KEY",
+    "MCP_SCANNER_LLM_MODEL",
+    "MCP_SCANNER_LLM_BASE_URL",
+    "TESSL_TOKEN",
+    "AI_DEFENSE_API_KEY",
+    "MCP_SCANNER_API_KEY",
+    "MCP_SCANNER_ENDPOINT",
+    "VIRUSTOTAL_API_KEY",
+    "MODAL_TOKEN_ID (commented)",
+    "MODAL_TOKEN_SECRET (commented)",
+    "SKILL_SCANNER_LLM_API_VERSION (commented)",
+    "MCP_SCANNER_LLM_API_VERSION (commented)",
+    "TESSL_WORKSPACE (commented)",
+    "AI_DEFENSE_API_URL (commented)"
+  ],
+  "commands": [
+    {
+      "cmd": "ls docs/user-guide/{prerequisites,supabase-setup,modal-setup,env-vars}.md",
+      "result": "all four exist"
+    },
+    {
+      "cmd": "rg '^## ' README.md; wc -l README.md CONTRIBUTING.md",
+      "result": "4 H2s; README 77; CONTRIBUTING 71"
+    },
+    {
+      "cmd": "rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md",
+      "result": "empty"
+    }
+  ],
+  "review": "docs-only DECISIONS 2026-08-02",
+  "pr": null,
+  "spec_path": "docs/plan/04-D-operator-onboarding/slice-17-user-guide-onboarding.md"
+}

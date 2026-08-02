@@ -8,21 +8,20 @@
 | 1 | [`01-A-…`](01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 · 4 | ✅ · 4 📦 |
 | 2 | [`02-B-…`](02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`03-C-…`](03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
-| 4 | [`04-D-…`](04-D-operator-onboarding/) | **D — Operator onboarding** | **17** | 📋 **next** |
-| 5 | [`05-E-…`](05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → (9∥10) → 11 → 12 → 13 → 14 | 📋 |
+| 4 | [`04-D-…`](04-D-operator-onboarding/) | **D — Operator onboarding** | **17** | ✅ |
+| 5 | [`05-E-…`](05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → (9∥10) → 11 → 12 → 13 → 14 | 📋 **next** |
 | 6 | [`06-F-…`](06-F-claim-audit/) | **F — Claim audit** | 15 · 16 | 📋 · 16 📦 |
 
-**Open critical path (within D→E):** `17 → 8 → 11 → 12 → 13`
+**Open critical path (within E):** `8 → 11 → 12 → 13`
 
 ## Execution order (open work)
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| 1 | D | **17** | [user-guide-onboarding](04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | Must | 📋 **Next** |
-| 2 | E | 8 | [scanner-skill-parse-fixtures](05-E-ship-path-coverage/slice-8-scanner-skill-parse-fixtures.md) | Must | 📋 |
-| 3 | E | 11 | [python-ship-path-coverage-95](05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Must | 📋 |
-| 4 | E | 12 | [cli-coverage-gate-95](05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | Must | 📋 |
-| 5 | E | 13 | [live-acl-coverage-gate-95](05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Must | 📋 |
+| 1 | E | 8 | [scanner-skill-parse-fixtures](05-E-ship-path-coverage/slice-8-scanner-skill-parse-fixtures.md) | Must | 📋 **Next** |
+| 2 | E | 11 | [python-ship-path-coverage-95](05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Must | 📋 |
+| 3 | E | 12 | [cli-coverage-gate-95](05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | Must | 📋 |
+| 4 | E | 13 | [live-acl-coverage-gate-95](05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Must | 📋 |
 | — | E | 9 → 10 → 14 | Should coverage deltas / STATUS sync | Should | 📋 |
 | — | F | 15 | claim audit (16 📦) | Should | 📋 |
 
@@ -50,7 +49,7 @@
 ### D — Operator onboarding
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| **17** | [slice-17-user-guide-onboarding](04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | Must | 📋 | — | — | ~50 min |
+| **17** | [slice-17-user-guide-onboarding](04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~50 min |
 
 ### E — Ship-path coverage
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
@@ -80,10 +79,10 @@
 | 4 (historical) | Remotion sibling + VO assets missing | 📦 closed with demo/hackathon deferral — reinstate slice 4 if film day returns |
 
 ## Forward Roadmap
-- Waves **A–C** done. Next: **D (17)** → **E** Musts 8 → 11–13 → **F (15)** as Should
+- Waves **A–D** done. Next: **E** Musts 8 → 11–13 → **F (15)** as Should
 - E Should (9, 10, 14) beside or after Must coverage
 - **Deferred / Won't (A):** 4 (in A), 16 (in F) — reinstate only if a new demo need arises
-- Slice 17 = RPF-style prereqs/env procurement; Phase 2 guides = later slice (18+)
+- Slice 17 ✅ = RPF-style prereqs/env procurement; Phase 2 guides = later slice (18+)
 - Gate close: [GATE_CONTRACT.md](GATE_CONTRACT.md)
 - After E Musts: ask 1+C vs continue F claim audit
 - Won't for A: Drift, Phase 4/5, redesign, blast-radius, instruction→install→scan; Live E2E CI Must; support.js 95%; demo video / hackathon film day
@@ -109,5 +108,6 @@
 | 2026-08-02 | slice/7-coverage-audit-matrix | slice-workflow | 7 | ✅ PASSED (#26/#27) | Wave C — trust strip + audit |
 | 2026-08-02 | main / plan | enhanced-flow-planner Add | 15–16 | 📋/📦 | Wave F; 16 deferred with demo close |
 | 2026-08-02 | main / plan | docs onboarding | 17 | 📋 | Wave D — next Must |
+| 2026-08-02 | slice/17-user-guide-onboarding | slice-workflow | 17 | ✅ PASSED | Wave D — user-guide Phase 1 |
 | 2026-08-02 | main / plan | GATE_CONTRACT | all | 📋 policy | Hard close rule |
 | 2026-08-02 | docs/gate-contract-onboarding-priority | sync-docs + clean-commit | 7, plan | pushed | Groups + close slice 7 on trackers |

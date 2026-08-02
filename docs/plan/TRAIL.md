@@ -83,8 +83,8 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 1 | [`01-A-live-path-gwt/`](01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 (4 attempted) | A done; 4 📦 |
 | 2 | [`02-B-characterization-evidence/`](02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`03-C-trust-coverage-audit/`](03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
-| 4 | [`04-D-operator-onboarding/`](04-D-operator-onboarding/) | **D — Operator onboarding** | **17** | 📋 **next** |
-| 5 | [`05-E-ship-path-coverage/`](05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → (9∥10) → 11 → 12 → 13 → 14 | 📋 |
+| 4 | [`04-D-operator-onboarding/`](04-D-operator-onboarding/) | **D — Operator onboarding** | **17** | ✅ |
+| 5 | [`05-E-ship-path-coverage/`](05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → (9∥10) → 11 → 12 → 13 → 14 | 📋 **next** |
 | 6 | [`06-F-claim-audit/`](06-F-claim-audit/) | **F — Claim audit** | 15 (16 deferred) | 📋 / 📦 |
 
 **Status legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 DEFERRED`
@@ -111,13 +111,13 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 |---|------|------|--------|--------|------------|-------|-----------|
 | 7 | [slice-7-coverage-audit-matrix](03-C-trust-coverage-audit/slice-7-coverage-audit-matrix.md) | Coverage Audit Matrix + Docs Parity | Must | ✅ | none | #26/#27 | ~4 min |
 
-### D — Operator onboarding (next)
+### D — Operator onboarding (executed 2026-08-02)
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
-| **17** | [slice-17-user-guide-onboarding](04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | User-Guide Onboarding (Prereqs + Env) | Must | 📋 | 7 | — | ~5 min |
+| **17** | [slice-17-user-guide-onboarding](04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | User-Guide Onboarding (Prereqs + Env) | Must | ✅ | 7 | — | ~5 min |
 
-### E — Ship-path coverage (after D)
+### E — Ship-path coverage (next)
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
@@ -154,10 +154,9 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 
 ## Execute priority (by wave — 2026-08-02)
 
-1. Waves **A–C** ✅ — Live/GWT, characterization/evidence, trust+audit
-2. Wave **D** Must: **17** (onboarding) — **next**
-3. Wave **E** Must: 8 → 11 → 12 → 13 · Should: 9 → 10 → 14
-4. Wave **F** Should: 15 · 16 📦 (demo remediations deferred with 4)
+1. Waves **A–D** ✅ — Live/GWT, characterization/evidence, trust+audit, onboarding
+2. Wave **E** Must: 8 → 11 → 12 → 13 — **next** · Should: 9 → 10 → 14
+3. Wave **F** Should: 15 · 16 📦 (demo remediations deferred with 4)
 
 See also PROGRESS.md **Slice groups** and [GATE_CONTRACT.md](GATE_CONTRACT.md).
 

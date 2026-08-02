@@ -42,5 +42,6 @@
 | 2026-08-02 | slice-7 | ✅ PASSED | After-Checks re-verified on `main` post PRs #26/#27; `gate-evidence/slice-7.json` → PASS. Next Must: **17**. |
 | 2026-08-02 | slice-groups | Execution-wave grouping | TRAIL/PROGRESS group A→F by run order: A Live/GWT → B char+sync → C audit → D onboarding(17) → E coverage → F claims. Not numeric slice order. |
 | 2026-08-02 | slice-layout | Group folders under docs/plan/ | Slices live in `01-A-…` … `06-F-…` by execution wave; trackers link into folders. |
-| 2026-08-02 | naming | Wave F rename | **Claim honesty** → **Claim audit**; folder `06-F-claim-audit/`. |
 | 2026-08-02 | refs | Path sync after layout | Trackers, STATUS, docs index, coverage-audit, gate-evidence `spec_path`, plan README, Cursor onboarding plan → wave folders. No `docs/plan/slice-N-*.md` at plan root. |
+| 2026-08-02 | slice-17 | ✅ PASSED (docs-only) | Phase 1 user-guide (prereqs/supabase/modal/env-vars) + QUICKSTART/README/docs index/CONTRIBUTING wire. Review: docs-only exception (GATE_CONTRACT). Next Must: **8**. |
+| 2026-08-02 | slice-17 | docs-only review skip | No `/nw-review` — documentation-only slice; GATE_CONTRACT exception recorded here. |

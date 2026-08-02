@@ -24,12 +24,15 @@ watch findings. System shape: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Run it
 
+Prerequisites first: [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md).
+Secrets SSOT: [docs/user-guide/env-vars.md](docs/user-guide/env-vars.md).
+
 | Persona | Start here | What you will do |
 |---------|------------|------------------|
-| Demo in 2 min | [QUICKSTART → Demo](QUICKSTART.md#demo-viewer) | Open Mock dashboard, no cloud |
-| Scan skills/MCP | [QUICKSTART → Scanner](QUICKSTART.md#scanner-user) | `npm link` + `--dry-discover` |
-| Full platform | [QUICKSTART → Platform](QUICKSTART.md#platform-operator) | Supabase + Modal + Live scan |
-| Operate secrets | [.env.example](.env.example) | Fill keys — [OPTIONAL_SCANNER_KEYS](fixtures/OPTIONAL_SCANNER_KEYS.md) |
+| Demo in 2 min | [QUICKSTART → Demo](QUICKSTART.md#demo-viewer) | Node 22; select **Mock** (Live is default) |
+| Scan skills/MCP | [QUICKSTART → Scanner](QUICKSTART.md#scanner-user) | `npm link` + `--dry-discover` (no cloud) |
+| Full platform | [QUICKSTART → Platform](QUICKSTART.md#platform-operator) | Accounts → env-vars → Supabase + Modal + Live |
+| Operate secrets | [env-vars.md](docs/user-guide/env-vars.md) | Procure keys — [.env.example](.env.example) |
 | Compliance / audit | [prototypes/README.md](prototypes/README.md) | Mock UI + [fixtures](fixtures/README.md) |
 | Security reporter | [SECURITY.md](SECURITY.md) | Private disclosure path |
 
@@ -37,7 +40,7 @@ watch findings. System shape: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ```bash
 node scripts/serve-dashboard.mjs
-# Guard tab → Mock (demo data)
+# Guard tab → data source → Mock (demo data) — Live is the default
 ```
 
 **Scanner user**
@@ -50,13 +53,14 @@ tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
 **Platform operator**
 
 ```bash
-cp .env.example .env   # SUPABASE_* + optional scanner keys
+# After prerequisites → supabase-setup → modal-setup → env-vars:
+cp .env.example .env
 cd cli && npm install && npm link && cd ..
 tripwire setup && ./scripts/setup-modal.sh
 tripwire scan ./fixtures/skills/safe-csv-cleaner
 ```
 
-Details for every path: [QUICKSTART.md](QUICKSTART.md).
+Details: [QUICKSTART.md](QUICKSTART.md).
 
 ## Contribute
 

@@ -41,20 +41,20 @@
 **Platform** — Given no `.env`; When prerequisites → supabase-setup → modal-setup → env-vars → QUICKSTART Platform; Then required SUPABASE_* sources known, `tripwire setup` + `setup-modal.sh` + fixture scan toward Live.
 
 ## Before-Checks [GATE]
-- [ ] Branch `slice/17-user-guide-onboarding`
-- [ ] Phase 1 only (no Phase 2 creep)
-- [ ] `.env.example` key inventory for env-vars coverage
-- [ ] README baseline: 4 H2s, ≤100 lines
+- [x] Branch `slice/17-user-guide-onboarding`
+- [x] Phase 1 only (no Phase 2 creep)
+- [x] `.env.example` key inventory for env-vars coverage
+- [x] README baseline: 4 H2s, ≤100 lines
 
 ## After-Checks [GATE]
-- [ ] `docs/user-guide/{prerequisites,supabase-setup,modal-setup,env-vars}.md` all exist
-- [ ] Every key in `.env.example` has a row in `env-vars.md` (diff inventory in evidence)
-- [ ] QUICKSTART Platform section links setup guides before `cp .env.example`; Demo states Node 22 + select Mock
-- [ ] README Run-it → prereqs/env-vars; `docs/README.md` Choose Your Path; CONTRIBUTING step 0 + `wc -l` ≤80
-- [ ] README still exactly 4 H2s and ≤100 lines (`rg '^## ' README.md` + `wc -l`)
-- [ ] `rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md` empty
-- [ ] PROGRESS/TRAIL critical path shows **17** → 8 → 11–13 (wave D→E; 7 ✅)
-- [ ] `docs/plan/gate-evidence/slice-17.json` `"verdict": "PASS"` + commands; ✅ only after merge
+- [x] `docs/user-guide/{prerequisites,supabase-setup,modal-setup,env-vars}.md` all exist
+- [x] Every key in `.env.example` has a row in `env-vars.md` (diff inventory in evidence)
+- [x] QUICKSTART Platform section links setup guides before `cp .env.example`; Demo states Node 22 + select Mock
+- [x] README Run-it → prereqs/env-vars; `docs/README.md` Choose Your Path; CONTRIBUTING step 0 + `wc -l` ≤80
+- [x] README still exactly 4 H2s and ≤100 lines (`rg '^## ' README.md` + `wc -l`)
+- [x] `rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md` empty
+- [x] PROGRESS/TRAIL critical path shows **8** → 11–13 (wave E; 17 ✅)
+- [x] `docs/plan/gate-evidence/slice-17.json` `"verdict": "PASS"` + commands; ✅ only after merge
 
 ## Doc Audit
 | # | Check |
@@ -75,7 +75,7 @@
 - Templates: `.env.example`, `fixtures/OPTIONAL_SCANNER_KEYS.md`
 
 ## Gate Status
-📋 PLANNED
+✅ PASSED
 
 ## Session Metrics
 | Metric | Value |

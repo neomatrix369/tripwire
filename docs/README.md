@@ -12,14 +12,22 @@ Guides for **Tripwire**, by who you are and what you want to do.
 
 | Persona | Start here | Then |
 |---------|------------|------|
-| **Demo viewer** | [QUICKSTART → Demo](../QUICKSTART.md#demo-viewer) | [prototypes/README.md](../prototypes/README.md) |
-| **Scanner user** | [QUICKSTART → Scanner](../QUICKSTART.md#scanner-user) | [fixtures/README.md](../fixtures/README.md) |
-| **Platform operator** | [QUICKSTART → Platform](../QUICKSTART.md#platform-operator) | [.env.example](../.env.example) · [OPTIONAL_SCANNER_KEYS.md](../fixtures/OPTIONAL_SCANNER_KEYS.md) |
-| **Operate secrets / Modal** | [.env.example](../.env.example) | [OPTIONAL_SCANNER_KEYS.md](../fixtures/OPTIONAL_SCANNER_KEYS.md) |
+| **Demo viewer** | [user-guide/prerequisites](./user-guide/prerequisites.md) | [QUICKSTART → Demo](../QUICKSTART.md#demo-viewer) (select **Mock**) |
+| **Scanner user** | [user-guide/prerequisites](./user-guide/prerequisites.md) | [QUICKSTART → Scanner](../QUICKSTART.md#scanner-user) |
+| **Platform operator** | [prerequisites](./user-guide/prerequisites.md) → [supabase](./user-guide/supabase-setup.md) → [modal](./user-guide/modal-setup.md) → [env-vars](./user-guide/env-vars.md) | [QUICKSTART → Platform](../QUICKSTART.md#platform-operator) |
+| **Operate secrets / Modal** | [env-vars.md](./user-guide/env-vars.md) | [OPTIONAL_SCANNER_KEYS.md](../fixtures/OPTIONAL_SCANNER_KEYS.md) |
 | **Contributor** | [CONTRIBUTING.md](../CONTRIBUTING.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) · [plan/PROGRESS.md](./plan/PROGRESS.md) |
 | **Compliance / audit** | [prototypes/README.md](../prototypes/README.md) | [fixtures/README.md](../fixtures/README.md) · [STATUS.md](./STATUS.md) |
 | **Security reporter** | [SECURITY.md](../SECURITY.md) | — |
 | **Agent / slice worker** | [AGENTS.md](../AGENTS.md) · [CLAUDE.md](../CLAUDE.md) | [plan/PROGRESS.md](./plan/PROGRESS.md) · [plan/TRAIL.md](./plan/TRAIL.md) |
+
+### Choose Your Path
+
+| Path | Cloud? | First docs |
+|------|--------|------------|
+| Demo | No | [prerequisites](./user-guide/prerequisites.md) → QUICKSTART Demo → select Mock |
+| Scanner | No | [prerequisites](./user-guide/prerequisites.md) → `--dry-discover` |
+| Platform | Yes | prerequisites → supabase-setup → modal-setup → env-vars → QUICKSTART Platform |
 
 ---
 
@@ -28,6 +36,8 @@ Guides for **Tripwire**, by who you are and what you want to do.
 | Doc | What it covers |
 |-----|----------------|
 | [QUICKSTART.md](../QUICKSTART.md) | Demo / scanner / platform paths |
+| [user-guide/prerequisites.md](./user-guide/prerequisites.md) | Persona × tool matrix; Node 22 / Python 3.12 |
+| [user-guide/env-vars.md](./user-guide/env-vars.md) | Procurement SSOT for `.env.example` keys |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | C4 L1–L2 diagrams, key flows, repo layout |
 | [STATUS.md](./STATUS.md) | RESEARCH / IMPLEMENTED / VERIFIED claims |
 | [CONTRIBUTING.md](../CONTRIBUTING.md) | Dev setup, hygiene gates, PR conventions |
@@ -41,11 +51,11 @@ Guides for **Tripwire**, by who you are and what you want to do.
 |-----|----------------|
 | [research/adapters/scanner-output-adapters.md](./research/adapters/scanner-output-adapters.md) | Scanner CLI output shapes (keep in sync with `sandbox/scanners.py`) |
 | [plan/README.md](./plan/README.md) | Wave folders `01-A-…` … `06-F-…` + tracker map |
-| [plan/PROGRESS.md](./plan/PROGRESS.md) | Slice groups A–F (execution order); next **D/17** → E coverage |
+| [plan/PROGRESS.md](./plan/PROGRESS.md) | Slice groups A–F (execution order); next **E/8** → 11–13 |
 | [plan/DECISIONS.md](./plan/DECISIONS.md) | Planning decisions (incl. ship-path ~95%; demo/hackathon closed) |
 | [plan/GATE_CONTRACT.md](./plan/GATE_CONTRACT.md) | Before/After close rule — ✅ only when all gates met |
 | [plan/TRAIL.md](./plan/TRAIL.md) | Execution trail + context pack (`internal-docs/00_build/`) |
-| [plan/04-D-operator-onboarding/](./plan/04-D-operator-onboarding/) | Next Must: wave D / slice 17 onboarding (then E coverage) |
+| [plan/04-D-operator-onboarding/](./plan/04-D-operator-onboarding/) | Wave D / slice 17 onboarding ✅ · next E coverage |
 
 ---
 

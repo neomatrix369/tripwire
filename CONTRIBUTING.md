@@ -2,11 +2,16 @@
 
 ## Dev setup
 
-Follow [QUICKSTART.md](QUICKSTART.md) (Platform operator path) for `.env`, CLI
-link, `tripwire setup`, and Modal deploy. Short version:
+0. Tools + versions: [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
+   (Node 22 / Python 3.12). Platform accounts:
+   [supabase-setup](docs/user-guide/supabase-setup.md) →
+   [modal-setup](docs/user-guide/modal-setup.md) →
+   [env-vars](docs/user-guide/env-vars.md) before copying `.env`.
 
-1. Copy `.env.example` → `.env` (Supabase + optional scanner keys —
-   `fixtures/OPTIONAL_SCANNER_KEYS.md`).
+Follow [QUICKSTART.md](QUICKSTART.md) (Platform operator path). Short version:
+
+1. Copy `.env.example` → `.env` using [env-vars.md](docs/user-guide/env-vars.md)
+   (`fixtures/OPTIONAL_SCANNER_KEYS.md` for Modal allowlist).
 2. `cd cli && npm install && npm link`
 3. `tripwire setup` (needs `SUPABASE_DB_URL`) and `./scripts/setup-modal.sh`
 4. Run checks below.

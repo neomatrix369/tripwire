@@ -61,10 +61,9 @@ Reachable through production entry points / config:
 ## DECIDED (not yet IMPLEMENTED / VERIFIED)
 
 Ship-path coverage uplift (~95% instrumented on `cli/src`, `sandbox/`, Live ACL JS;
-omit `guard/` and `support.js`) — audit matrix ✅ (slice 7); floors still open
-(slices **8**, **11–13**). Operator onboarding docs (prereqs / env procurement) are
-**Must** next — wave **D** slice **17** — before coverage wave **E**. Path:
-**17 → 8 → 11 → 12 → 13**. Groups: [plan/PROGRESS.md](./plan/PROGRESS.md),
+omit `guard/` and `support.js`) — audit matrix ✅ (slice 7); operator onboarding ✅
+(slice 17 — `docs/user-guide/`). Floors still open (slices **8**, **11–13**). Path:
+**8 → 11 → 12 → 13**. Groups: [plan/PROGRESS.md](./plan/PROGRESS.md),
 [plan/DECISIONS.md](./plan/DECISIONS.md), [plan/GATE_CONTRACT.md](./plan/GATE_CONTRACT.md).
 
 Current CI Python floor remains **`fail_under=45`** (`pyproject.toml` / CI) with
