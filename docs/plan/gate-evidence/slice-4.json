@@ -1,0 +1,25 @@
+{
+  "slice": "slice-4-vo-remotion-assemble",
+  "date": "2026-08-02",
+  "branch": "slice/4-vo-remotion-assemble",
+  "gwt": "GWT-3 VO + Remotion assemble (Detection + Sandbox)",
+  "verdict": "BLOCKED",
+  "script_wording_audit": {
+    "authority": "internal-docs/01_demo_video/00-tripwire-demo-script.md",
+    "locked_beats": ["cold_open", "detection", "sandbox", "close"],
+    "drift_or_phase5_on_critical_path": false,
+    "must_show_detection_and_sandbox": true,
+    "pass": true
+  },
+  "dependencies": {
+    "gwt1_gwt2": "verified via slices 1-3 (PRs #14 #15 #16)"
+  },
+  "blocker": {
+    "remotion_repo_expected": "claude-remotion-kickstart (branch video/tripwire)",
+    "remotion_path_found": null,
+    "vo_audio_found": false,
+    "transcript_found": false,
+    "render_output_found": false,
+    "need_from_operator": "absolute path or git clone URL for Remotion project + location of VO/transcript/footage if already recorded"
+  }
+}

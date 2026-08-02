@@ -41,7 +41,7 @@ VERIFY+COVERAGE: `cd prototypes/dc-dashboard && npm test`.
 | 1–14 | See slice-2 pattern | N/A unless behaviour change |
 
 ## Gate Status
-🔀 ON BRANCH — VERIFIED; awaiting PR merge
+✅ PASSED — PR #16 merged
 
 ## What Changed
 | File | Type | Reason |
