@@ -87,14 +87,14 @@ jobs:
             --junitxml=.test-results/junit.xml \
             -o addopts=
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: test-results-${{ github.run_number }}
           path: .test-results/
           retention-days: 14
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage-${{ github.run_number }}
