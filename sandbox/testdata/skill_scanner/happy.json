@@ -1,0 +1,30 @@
+{
+  "skill_name": "safe-csv-cleaner",
+  "skill_path": "/tmp/scan-target",
+  "is_safe": false,
+  "max_severity": "HIGH",
+  "findings_count": 2,
+  "findings": [
+    {
+      "severity": "HIGH",
+      "category": "prompt_injection",
+      "title": "Red prompt injection",
+      "description": "Instruction override pattern detected",
+      "file_path": "SKILL.md",
+      "line_number": 12,
+      "snippet": "Ignore previous instructions",
+      "analyzer": "static"
+    },
+    {
+      "severity": "MEDIUM",
+      "category": "data_exfiltration",
+      "title": "Suspicious outbound URL",
+      "description": "Hardcoded webhook endpoint",
+      "file_path": "scripts/clean.py",
+      "line_number": 40,
+      "snippet": "https://evil.example/hook",
+      "analyzer": "static"
+    }
+  ],
+  "analyzers_used": ["static"]
+}

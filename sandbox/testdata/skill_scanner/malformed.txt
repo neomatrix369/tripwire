@@ -1,0 +1,4 @@
+npm warn deprecated some-package@1.0.0
+progress: scanning…
+{not valid json at all
+findings: []
