@@ -30,3 +30,4 @@
 | 2026-08-02 | planning | Added slices 7–14 | Path B Add via enhanced-flow-planner; delta-only vs existing suites; internal-docs context pack mandatory |
 | 2026-08-02 | health-check | Gap 2: Routing fingerprint | AUTO-FIXED on TRAIL Original Material |
 | 2026-08-02 | sync-docs | Coverage wave docs | STATUS DECIDED + CONTRIBUTING floors + docs/README plan links; README NO_CHANGE |
+| 2026-08-02 | urgency | Slice 7 Gate A = trust strip | Overmind/Ossprey badges + HTML/CI strings + Guard Future + Nightly non-gating + stale branch refs run first in slice 7 before coverage-audit.md; P1 pulled from deferred 14/16 |

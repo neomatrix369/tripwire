@@ -27,7 +27,7 @@
 | 4 | Sibling Remotion repo `claude-remotion-kickstart` (branch `video/tripwire`) not found on disk or under `neomatrix369` GitHub; no VO audio/transcript/render artifacts in `internal-docs/01_demo_video/` | 🔴 open — need path or clone URL |
 
 ## Forward Roadmap
-- Next execute: **slice 7** (coverage audit) on branch `plan/coverage-slices-7-14` then per-slice branches as needed.
+- Next execute: **slice 7** on `slice/7-coverage-audit-matrix` — Gate A trust strip (badges/Guard Future/Nightly honesty) then Gate B `coverage-audit.md`; then per-slice branches for 8+.
 - After coverage wave (7–14): ask whether to expand to **1+C** (product Phase 3 full + Guard/Reconciler as Should).
 - Won't for A: Drift demo, Phase 4/5, redesign, blast-radius, instruction→install→scan; Live E2E CI Must; support.js 95%.
 - Horizon A open: unblock slice 4 (VO/Remotion) for done=2b (independent of coverage wave).
