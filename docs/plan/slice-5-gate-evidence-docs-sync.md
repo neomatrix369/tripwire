@@ -39,7 +39,7 @@ Docs-only; verify links resolve; no production TDD.
 | Others | build-day sync | local gitignored file updated |
 
 ## Gate Status
-🔀 ON BRANCH — VERIFIED; awaiting PR merge
+✅ PASSED — PR #19 merged
 
 ## What Changed
 | File | Type | Reason |
