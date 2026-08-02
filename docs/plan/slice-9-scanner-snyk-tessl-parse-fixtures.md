@@ -38,9 +38,11 @@ Fixture-driven characterization → GREEN → refactor.
 VERIFY: `pytest sandbox/ -q --tb=short`
 
 ## After-Checks [GATE]
-- [ ] Tests pass
-- [ ] Specification coverage: Snyk + Tessl + collapse edges
-- [ ] Gate evidence `slice-9.json` at PASS
+- [ ] `pytest sandbox/ -q --tb=short` exit 0
+- [ ] Fixture tests cover Snyk parse, Tessl parse, and at least one collapse/edge case (paths in evidence)
+- [ ] Coverage on touched Snyk/Tessl parse paths: baseline → after % in `gate-evidence/slice-9.json`
+- [ ] `docs/plan/gate-evidence/slice-9.json` has `"verdict": "PASS"` + `commands[]`
+- [ ] PROGRESS/TRAIL updated; ✅ only after merge
 
 ## Gate Status
 📋 PLANNED

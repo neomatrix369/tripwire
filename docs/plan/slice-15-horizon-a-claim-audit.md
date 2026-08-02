@@ -13,6 +13,9 @@
 ## Branch
 `slice/15-horizon-a-claim-audit`
 
+## Priority note
+Should-tier. Prefer after **slice 17** (onboarding docs) so claim audit sees user-guide paths; still depends on slice 7 for Gate A trust strip.
+
 ## Context references (mandatory)
 - Product SoT: `internal-docs/00_build/security-scanning-platform-spec.md`
 - Build gates: `internal-docs/00_build/build-day-decisions.md`
@@ -28,9 +31,10 @@ and whole-repo claim close-out
 evidence; Live result logged or 3C requested
 
 ## Out of scope
-- Remediating FAIL rows (slice 16 / coverage wave)
+- Remediating FAIL rows (slice 16 📦 deferred with demo/hackathon; reinstate if needed)
 - Phase 4/5 product implementation
 - Raising coverage floors
+- VO/Remotion / film-day claims (slice 4 📦)
 
 ## Before-Checks [GATE]
 - [ ] Branch created
@@ -41,10 +45,12 @@ evidence; Live result logged or 3C requested
 Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 
 ## After-Checks [GATE]
-- [ ] Claim inventory closed with evidence paths
-- [ ] Unit suite results recorded
-- [ ] Live 3B attempt logged or 3C asked
-- [ ] Gate evidence `docs/plan/gate-evidence/slice-15.json` at PASS
+- [ ] Findings artifact exists (`docs/plan/claim-audit.md` or canvas path) with every inventoried claim marked PASS/FAIL/PARTIAL + evidence path
+- [ ] Unit suite command + result recorded in evidence (e.g. `npm test` / `pytest` counts)
+- [ ] Live 3B attempt logged in evidence **or** 3C ask recorded in DECISIONS/PROGRESS
+- [ ] No remediations required for ✅ (slice 16 📦); FAIL rows may remain documented
+- [ ] `docs/plan/gate-evidence/slice-15.json` has `"verdict": "PASS"` + `commands[]`
+- [ ] PROGRESS/TRAIL updated; ✅ only after merge
 
 ## Gate Status
 📋 PLANNED
@@ -53,4 +59,4 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 | Metric | Value |
 |--------|-------|
 | Estimated Pomos | 1–2 |
-| Next-session notes | Slice 16 remediates remaining FAIL docs |
+| Next-session notes | Audit-only; slice 16 deferred — log FAIL rows; fix via 17 or reinstate 16 if needed |

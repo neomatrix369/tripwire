@@ -35,11 +35,10 @@ pre-commit run --all-files          # lint, mypy, bandit, gitleaks, fast tests
 (`pyproject.toml` / CI). CLI and `prototypes/dc-dashboard` tests run without a
 coverage gate.
 
-**Coverage target (DECIDED — slices 7–14):** ship-path ~95% on `cli/src`,
-`sandbox/`, and Live ACL modules (`tripwire-live.js` / `status` / `realtime` /
-`data`); `guard/` and `support.js` out of bar. Track progress in
-[docs/plan/PROGRESS.md](docs/plan/PROGRESS.md) and claims in
-[docs/STATUS.md](docs/STATUS.md).
+**Coverage target (DECIDED — slices 8, 11–13 after 17):** ship-path ~95% on
+`cli/src`, `sandbox/`, Live ACL modules; `guard/` / `support.js` out of bar.
+Track [docs/plan/PROGRESS.md](docs/plan/PROGRESS.md); close slices per
+[docs/plan/GATE_CONTRACT.md](docs/plan/GATE_CONTRACT.md).
 
 Intentional vuln fixtures under `fixtures/` and mock data under `prototypes/`
 are excluded from secrets scanners.

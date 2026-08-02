@@ -37,9 +37,12 @@ Instrument ACL modules → measure → fill holes → gate ≥95%.
 VERIFY: `cd prototypes/dc-dashboard && npm test` (with coverage)
 
 ## After-Checks [GATE]
-- [ ] ≥95% on ACL file set; support.js excluded
-- [ ] Tests pass
-- [ ] Gate evidence `slice-13.json` at PASS
+- [ ] `cd prototypes/dc-dashboard && npm test` (with coverage) exit 0
+- [ ] Measured ≥95% on Live ACL file set; `%` + file list in evidence
+- [ ] `support.js` excluded from the 95% denominator (config or evidence note)
+- [ ] CI or package script enforces the gate (command/job named in evidence)
+- [ ] `docs/plan/gate-evidence/slice-13.json` has `"verdict": "PASS"` + `commands[]`
+- [ ] PROGRESS/TRAIL updated; ✅ only after merge
 
 ## Gate Status
 📋 PLANNED

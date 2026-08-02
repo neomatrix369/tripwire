@@ -99,7 +99,7 @@ Docs-only.
 | 5–14 | Plan artifact + cross-links | coverage-audit.md ↔ TRAIL/PROGRESS |
 
 ## Gate Status
-🔀 ON BRANCH — Gate A+B applied 2026-08-02 (PR #26); mark ✅ after merge
+✅ PASSED — Gate A+B on `main` (PRs #26/#27). After-Checks re-verified 2026-08-02; evidence `verdict: PASS`.
 
 ## Session Metrics
 | Metric | Value |
@@ -107,4 +107,4 @@ Docs-only.
 | Estimated Pomos | 1–2 (~25–50 min) |
 | Execution time | — |
 | Blockers encountered | — |
-| Next-session notes | Execute Gate A then B; then slice 8 |
+| Next-session notes | Next Must: slice **17** (user-guide), then coverage 8 → 11–13 |

@@ -35,9 +35,11 @@ Add instrumentation → measure → fill uncovered modules → gate 80 then 95 (
 VERIFY: `cd cli && npm test` (with coverage script)
 
 ## After-Checks [GATE]
-- [ ] CI cli-tests enforces ≥95% on `cli/src`
-- [ ] Tests pass
-- [ ] Gate evidence `slice-12.json` at PASS
+- [ ] `cd cli && npm test` (coverage script) exit 0; measured ≥95% on `cli/src` recorded in evidence
+- [ ] CI `cli-tests` job fails below 95% (workflow snippet or job name in evidence)
+- [ ] No new holes closed only with `/* c8 ignore */` without DECISIONS justification
+- [ ] `docs/plan/gate-evidence/slice-12.json` has `"verdict": "PASS"` + `commands[]`
+- [ ] PROGRESS/TRAIL updated; ✅ only after merge
 
 ## Gate Status
 📋 PLANNED

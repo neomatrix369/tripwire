@@ -53,5 +53,5 @@
 | Raise floors ≥95% (py / cli / Live ACL) | **11–13** | Must |
 | STATUS sync after uplift | 14 | Should |
 | Full claim-audit canvas + Live 3B | 15 | Should |
-| Realtime/demo/prototype prose | 16 | Could |
-| VO/Remotion demo video | 4 | Could (blocked) |
+| Realtime/demo/prototype prose | 16 | Won't (A) 📦 — reinstate if needed |
+| VO/Remotion demo video | 4 | Won't (A) 📦 — reinstate if needed |

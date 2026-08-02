@@ -40,10 +40,11 @@ Guides for **Tripwire**, by who you are and what you want to do.
 | Doc | What it covers |
 |-----|----------------|
 | [research/adapters/scanner-output-adapters.md](./research/adapters/scanner-output-adapters.md) | Scanner CLI output shapes (keep in sync with `sandbox/scanners.py`) |
-| [plan/PROGRESS.md](./plan/PROGRESS.md) | Slice status (Horizon A 1–6; coverage wave **7–14** 📋) |
-| [plan/DECISIONS.md](./plan/DECISIONS.md) | Planning decisions (incl. ship-path ~95% coverage) |
+| [plan/PROGRESS.md](./plan/PROGRESS.md) | Slice status — critical path **17 → 8 → 11–13** (7 ✅) |
+| [plan/DECISIONS.md](./plan/DECISIONS.md) | Planning decisions (incl. ship-path ~95%; demo/hackathon closed) |
+| [plan/GATE_CONTRACT.md](./plan/GATE_CONTRACT.md) | Before/After close rule — ✅ only when all gates met |
 | [plan/TRAIL.md](./plan/TRAIL.md) | Execution trail + context pack (`internal-docs/00_build/`) |
-| [plan/slice-7-coverage-audit-matrix.md](./plan/slice-7-coverage-audit-matrix.md) | Next Must: coverage audit (then 8–14) |
+| [plan/slice-17-user-guide-onboarding.md](./plan/slice-17-user-guide-onboarding.md) | Next Must: user-guide onboarding (then coverage 8→11–13) |
 
 ---
 

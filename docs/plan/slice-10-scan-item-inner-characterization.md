@@ -36,9 +36,11 @@ Characterization: lock current behaviour; do not “fix” product while greenin
 VERIFY: `pytest sandbox/ -q --tb=short`
 
 ## After-Checks [GATE]
-- [ ] Tests pass
-- [ ] Specification coverage: start/done/fail paths for inner scan
-- [ ] Gate evidence `slice-10.json` at PASS
+- [ ] `pytest sandbox/ -q --tb=short` exit 0
+- [ ] Direct tests exercise `_scan_item_inner` (or sealed equivalent) start, done, and fail paths (names in evidence)
+- [ ] Characterization locks current behaviour — no silent product “fixes” without DECISIONS row
+- [ ] `docs/plan/gate-evidence/slice-10.json` has `"verdict": "PASS"` + `commands[]`
+- [ ] PROGRESS/TRAIL updated; ✅ only after merge
 
 ## Gate Status
 📋 PLANNED
