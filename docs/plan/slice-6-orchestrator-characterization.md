@@ -41,7 +41,7 @@ Injectable seams (defaults preserve production):
 | 1–14 | N/A for Could characterization unless API docs change | — |
 
 ## Gate Status
-🔀 ON BRANCH — VERIFIED; awaiting PR merge
+✅ PASSED — PR #18 merged
 
 ## What Changed
 | File | Type | Reason |

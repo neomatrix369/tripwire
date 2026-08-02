@@ -23,3 +23,4 @@
 | 2026-08-01 | next-wave | A — /nw-execute slice 1 | User chose start now; ask 1+C after A completes |
 | 2026-08-01 | nw-execute adapt | docs/plan slice-workflow | No `.nwave/config.yaml`/roadmap; execute TRAIL slices via slice stubs + TDD |
 | 2026-08-02 | slice-4 blocker | Remotion sibling missing | `claude-remotion-kickstart` not on disk / not listed under neomatrix369; VO assets absent in internal-docs; GWT-3 script audit PASS in-repo |
+| 2026-08-02 | slice-5 entry | Waive “slices 1–4 complete” | Slice 4 remains 🔴; proceed with docs sync for verified 1–3 (+6) and leave VO/capture open in build-day |

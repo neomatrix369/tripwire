@@ -1,0 +1,33 @@
+{
+  "slice": "slice-5-gate-evidence-docs-sync",
+  "date": "2026-08-02",
+  "branch": "slice/5-gate-evidence-docs-sync",
+  "gwt": "Gate evidence + docs sync (horizon A)",
+  "verdict": "VERIFIED",
+  "gate_evidence_present": {
+    "slice-1.json": true,
+    "slice-2.json": true,
+    "slice-3.json": true,
+    "slice-4.json": true,
+    "slice-6.json": true,
+    "notes": "slice-4 verdict is BLOCKED (Remotion); Must slices 1–3 VERIFIED; Could slice 6 VERIFIED"
+  },
+  "build_day_sync": {
+    "path": "internal-docs/00_build/build-day-decisions.md",
+    "gitignored": true,
+    "ticked": [
+      "Phase 0 Done",
+      "Phase 1 Done",
+      "Phase 2 fixtures + must-show scans + Phase 2 Done",
+      "3-lite Done",
+      "Confirm Detection + Sandbox showable for video"
+    ],
+    "left_open": [
+      "Dress rehearsal (full camera path)",
+      "VO / Whisper / Remotion skeleton",
+      "Capture + assemble",
+      "Phase 3 full (Drift)"
+    ]
+  },
+  "slice_4_disposition": "deferred pending Remotion sibling path — before-check waived with reason in DECISIONS.md"
+}
