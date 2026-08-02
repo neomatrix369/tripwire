@@ -10,5 +10,6 @@
     }
   ],
   "acceptance_test": "given must-show skill and MCP live rows when loadData live then GWT-1 detection mapping holds",
-  "verdict": "VERIFIED"
+  "verdict": "VERIFIED",
+  "spec_path": "docs/plan/01-A-live-path-gwt/slice-2-gwt1-detection-acceptance.md"
 }

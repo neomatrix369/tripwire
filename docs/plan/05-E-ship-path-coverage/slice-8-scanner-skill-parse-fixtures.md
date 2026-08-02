@@ -11,6 +11,9 @@
 ## Branch
 `slice/8-scanner-skill-parse-fixtures`
 
+## Priority note
+Must coverage wave. **Execute after slice 17** (and slice 7). Technical depends-on remains 7; roadmap order is 7 → 17 → **8** → 11–13.
+
 ## Context references (mandatory)
 - Product SoT: `internal-docs/00_build/security-scanning-platform-spec.md` (Phase 2 adapters)
 - Adapter research: `internal-docs/00_build/research/scanner-output-adapters.md`
@@ -39,10 +42,11 @@ Outside-in: failing fixture tests → GREEN with `_run`/`_which` stubs → refac
 VERIFY: `pytest sandbox/ -q --tb=short`
 
 ## After-Checks [GATE]
-- [ ] Tests pass
-- [ ] Specification coverage: skill happy + malformed + map severity
-- [ ] Branch coverage on touched parse paths improved (toward slice 11)
-- [ ] Gate evidence `slice-8.json` at PASS
+- [ ] `pytest sandbox/ -q --tb=short` exit 0
+- [ ] Fixture tests exist for skill happy path, malformed payload, and severity map (paths listed in evidence)
+- [ ] Coverage on touched skill-parse functions: baseline % → after % recorded in `gate-evidence/slice-8.json` (after ≥ baseline)
+- [ ] `docs/plan/gate-evidence/slice-8.json` has `"verdict": "PASS"` + `commands[]`
+- [ ] PROGRESS/TRAIL updated; ✅ only after merge (🔀 while PR open)
 
 ## Gate Status
 📋 PLANNED

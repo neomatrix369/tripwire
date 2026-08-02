@@ -1,25 +1,40 @@
 {
   "slice": 7,
-  "gate_status": "ON_BRANCH",
-  "branch": "slice/7-coverage-audit-matrix",
-  "pr": 26,
   "date": "2026-08-02",
+  "branch": "main",
+  "pr": [
+    26,
+    27
+  ],
+  "verdict": "PASS",
+  "before_checks": "all green",
+  "after_checks": [
+    "grep public Overmind/Ossprey badges empty",
+    "ARCHITECTURE Guard under Future only",
+    "CONTRIBUTING Nightly mutmut/Chalk non-gating",
+    "no stale plan/coverage-slices-7-14 as execute branch",
+    "docs/plan/coverage-audit.md present",
+    "matrix rows labelled AT/unit/missing"
+  ],
+  "commands": [
+    {
+      "cmd": "rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md docs/STATUS.md docs/ARCHITECTURE.md",
+      "result": "empty (no badge hits)"
+    },
+    {
+      "cmd": "test -f docs/plan/coverage-audit.md",
+      "result": "ok"
+    }
+  ],
+  "review": "docs-only; landed via PRs #26/#27",
   "gates": {
     "A_trust_strip": {
-      "status": "APPLIED",
-      "evidence": [
-        "Overmind/Ossprey badges removed from public markdown",
-        "Tripwire.dc.html footer scanners Cisco/Snyk/Tessl only",
-        "CI/nightly/dependabot comments updated",
-        "ARCHITECTURE Guard moved to Future section",
-        "CONTRIBUTING Nightly mutmut/Chalk non-gating",
-        "STATUS/PROGRESS branch refs updated"
-      ]
+      "status": "PASS"
     },
     "B_coverage_audit": {
-      "status": "APPLIED",
+      "status": "PASS",
       "artifact": "docs/plan/coverage-audit.md"
     }
   },
-  "note": "Mark PASSED after PR #26 merge and After-Checks greps verified on main"
+  "spec_path": "docs/plan/03-C-trust-coverage-audit/slice-7-coverage-audit-matrix.md"
 }

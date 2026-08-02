@@ -1,6 +1,6 @@
 # Slice 4: VO + Remotion Assemble (GWT-3)
 
-> Scenario: Brownfield | MoSCoW: Could (demo/hackathon — demoted 2026-08-02)
+> Scenario: Brownfield | MoSCoW: **Won't (A)** | Status: 📦 DEFERRED (demo/hackathon over 2026-08-02 — reinstate if film day returns)
 
 ## Slice Workflow Bundle
 - Slice name: slice-4-vo-remotion-assemble
@@ -59,7 +59,7 @@ Searched common sibling paths under `ai-ml-dl-stuff/` and `gh` repos for `neomat
 | Others | N/A | video outside product runtime |
 
 ## Gate Status
-🔴 BLOCKED — Remotion sibling + VO assets not located
+📦 DEFERRED — demo/hackathon closed; Remotion blocker not pursued. Reinstate this slice if a new demo need arises.
 
 ## What Changed
 | File | Type | Reason |
@@ -73,4 +73,4 @@ Searched common sibling paths under `ai-ml-dl-stuff/` and `gh` repos for `neomat
 | Estimated Pomos | 1 (~25 min) |
 | Execution time | ~10 min (audit + blocker) |
 | Blockers encountered | Remotion path / VO assets |
-| Next-session notes | Unblock with clone path or URL; then Prompt 1 → Prompt 2 assemble |
+| Next-session notes | No active work. Reinstate only if operator requests demo video again. |

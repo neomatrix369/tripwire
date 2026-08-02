@@ -37,10 +37,12 @@
 VERIFY: `pytest sandbox/ --cov=sandbox --cov-fail-under=95` (guard omitted from source)
 
 ## After-Checks [GATE]
-- [ ] `fail_under=95` in pyproject + CI
-- [ ] guard omitted from ship-path coverage source
-- [ ] Measured ≥95% on sandbox
-- [ ] Gate evidence `slice-11.json` at PASS
+- [ ] `pytest sandbox/ --cov=sandbox --cov-fail-under=95` exit 0 (exact % in evidence)
+- [ ] `fail_under = 95` (or equivalent) in `pyproject.toml` and CI workflow for ship-path job
+- [ ] `guard/` omitted from ship-path coverage source / denominator (grep or config snippet in evidence)
+- [ ] Residual excludes &lt;5% only if listed + justified in evidence or DECISIONS
+- [ ] `docs/plan/gate-evidence/slice-11.json` has `"verdict": "PASS"` + `commands[]`
+- [ ] PROGRESS/TRAIL updated; ✅ only after merge
 
 ## Gate Status
 📋 PLANNED

@@ -61,17 +61,19 @@ Reachable through production entry points / config:
 ## DECIDED (not yet IMPLEMENTED / VERIFIED)
 
 Ship-path coverage uplift (~95% instrumented on `cli/src`, `sandbox/`, Live ACL JS;
-omit `guard/` and `support.js`) — planning slices **7–14** (stubs on `main`;
-execute on per-slice branches e.g. `slice/7-coverage-audit-matrix`). See
-[plan/PROGRESS.md](./plan/PROGRESS.md), [plan/DECISIONS.md](./plan/DECISIONS.md),
-and slice stubs `docs/plan/slice-7-*.md` … `slice-14-*.md`.
+omit `guard/` and `support.js`) — audit matrix ✅ (slice 7); floors still open
+(slices **8**, **11–13**). Operator onboarding docs (prereqs / env procurement) are
+**Must** next — wave **D** slice **17** — before coverage wave **E**. Path:
+**17 → 8 → 11 → 12 → 13**. Groups: [plan/PROGRESS.md](./plan/PROGRESS.md),
+[plan/DECISIONS.md](./plan/DECISIONS.md), [plan/GATE_CONTRACT.md](./plan/GATE_CONTRACT.md).
 
 Current CI Python floor remains **`fail_under=45`** (`pyproject.toml` / CI) with
 measured ~47% (2026-08-02). Node CLI and dashboard have **no** coverage gate yet.
 Do not treat 95% as current capability until slices 11–13 are VERIFIED.
 
 Live Modal/Supabase E2E as a CI Must remains **Won't** for this wave (slow/optional
-skip-without-config stays).
+skip-without-config stays). Demo/hackathon film day (VO/Remotion slice 4; film-day
+prose slice 16) is **Won't (A)** — reinstate only if a new demo need arises.
 
 ---
 
@@ -91,7 +93,8 @@ Known fixture gaps (not urgent) are listed under
 as shipped capabilities.
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
-(slice 7). Claim-audit follow-ups: slices 15–16.
+(slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` … `06-F-claim-audit/`).
+Claim audit (slice 15) remains Should; slice 16 remediations deferred.
 
 ---
 

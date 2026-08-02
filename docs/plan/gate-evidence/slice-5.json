@@ -10,7 +10,7 @@
     "slice-3.json": true,
     "slice-4.json": true,
     "slice-6.json": true,
-    "notes": "slice-4 verdict is BLOCKED (Remotion); Must slices 1–3 VERIFIED; Could slice 6 VERIFIED"
+    "notes": "slice-4 verdict is BLOCKED (Remotion); Must slices 1\u20133 VERIFIED; Could slice 6 VERIFIED"
   },
   "build_day_sync": {
     "path": "internal-docs/00_build/build-day-decisions.md",
@@ -29,5 +29,6 @@
       "Phase 3 full (Drift)"
     ]
   },
-  "slice_4_disposition": "deferred pending Remotion sibling path — before-check waived with reason in DECISIONS.md"
+  "slice_4_disposition": "deferred pending Remotion sibling path \u2014 before-check waived with reason in DECISIONS.md",
+  "spec_path": "docs/plan/02-B-characterization-evidence/slice-5-gate-evidence-docs-sync.md"
 }
