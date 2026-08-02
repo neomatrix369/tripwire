@@ -26,23 +26,23 @@
 - Live Modal integration tests as CI Must
 
 ## Before-Checks [GATE]
-- [ ] Branch created
-- [ ] Slice 6 ✅ (characterization seams available)
-- [ ] Confirm no c8/nyc gate in cli package.json
+- [x] Branch created
+- [x] Slice 6 ✅ (characterization seams available)
+- [x] Confirm no c8/nyc gate in cli package.json
 
 ## TDD Execution
 Add instrumentation → measure → fill uncovered modules → gate 80 then 95 (or direct 95 if already close).
 VERIFY: `cd cli && npm test` (with coverage script)
 
 ## After-Checks [GATE]
-- [ ] `cd cli && npm test` (coverage script) exit 0; measured ≥95% on `cli/src` recorded in evidence
-- [ ] CI `cli-tests` job fails below 95% (workflow snippet or job name in evidence)
-- [ ] No new holes closed only with `/* c8 ignore */` without DECISIONS justification
-- [ ] `docs/plan/gate-evidence/slice-12.json` has `"verdict": "PASS"` + `commands[]`
-- [ ] PROGRESS/TRAIL updated; ✅ only after merge
+- [x] `cd cli && npm test` (coverage script) exit 0; measured ≥95% on `cli/src` recorded in evidence
+- [x] CI `cli-tests` job fails below 95% (workflow snippet or job name in evidence)
+- [x] No new holes closed only with `/* c8 ignore */` without DECISIONS justification
+- [x] `docs/plan/gate-evidence/slice-12.json` has `"verdict": "PASS"` + `commands[]`
+- [x] PROGRESS/TRAIL updated; ✅ only after merge
 
 ## Gate Status
-📋 PLANNED
+✅ PASSED
 
 ## Session Metrics
 | Metric | Value |

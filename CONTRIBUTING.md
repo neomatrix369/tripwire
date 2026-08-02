@@ -36,11 +36,10 @@ pre-commit run --all-files          # lint, mypy, bandit, gitleaks, fast tests
   mutmut and Chalk run but are **non-gating** (`|| true` — green Nightly does not mean mutation/Chalk passed)
 
 **Coverage today (VERIFIED config):** Python ship-path `sandbox/` `fail_under=95`
-with `branch=true` (`pyproject.toml` / CI); `guard/` omitted from denominator
-(slice 11). CLI and Live ACL gates land in slices 12–13.
+(`pyproject.toml` / CI; `guard/` omitted). CLI `npm run test:coverage` (c8) lines
+≥95% (slice 12). Live ACL gate lands in slice 13; `support.js` out of bar.
 
-**Coverage target (DECIDED — slices 12–13):** ship-path ~95% on `cli/src` and
-Live ACL modules; `support.js` out of bar.
+**Coverage target (DECIDED — slice 13):** Live ACL modules ≥95%.
 Track [docs/plan/PROGRESS.md](docs/plan/PROGRESS.md) (stubs under
 [docs/plan/README.md](docs/plan/README.md) wave folders); close per
 [docs/plan/GATE_CONTRACT.md](docs/plan/GATE_CONTRACT.md).

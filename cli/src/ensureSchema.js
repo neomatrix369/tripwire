@@ -40,7 +40,10 @@ export async function probeSchema(supabase = getSupabase()) {
   return 'ready';
 }
 
-export async function applySchema({ dbUrl = process.env.SUPABASE_DB_URL } = {}) {
+export async function applySchema({
+  dbUrl = process.env.SUPABASE_DB_URL,
+  ClientImpl = Client,
+} = {}) {
   const url = (dbUrl || '').trim();
   if (!url) {
     throw new Error(
@@ -53,7 +56,7 @@ export async function applySchema({ dbUrl = process.env.SUPABASE_DB_URL } = {}) 
   }
 
   const sql = readFileSync(schemaPath(), 'utf8');
-  const client = new Client({
+  const client = new ClientImpl({
     connectionString: url,
     ssl: url.includes('localhost') || url.includes('127.0.0.1') ? false : { rejectUnauthorized: false },
   });
@@ -76,14 +79,18 @@ export async function applySchema({ dbUrl = process.env.SUPABASE_DB_URL } = {}) 
  * Ensure schema exists. Applies db/schema.sql when probe says missing.
  * @returns {{ status: 'ready'|'applied' }}
  */
-export async function ensureSchema({ force = false, supabase = getSupabase() } = {}) {
+export async function ensureSchema({
+  force = false,
+  supabase = getSupabase(),
+  applySchemaFn = applySchema,
+} = {}) {
   if (!force) {
     const state = await probeSchema(supabase);
     if (state === 'ready') return { status: 'ready' };
   }
 
   console.error('[tripwire] Applying db/schema.sql to Supabase…');
-  await applySchema();
+  await applySchemaFn();
 
   const after = await probeSchema(supabase);
   if (after !== 'ready') {
