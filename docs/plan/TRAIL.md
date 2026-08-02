@@ -74,32 +74,73 @@ freshness:
 ```
 
 
-## Slices
-| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
-|---|------|------|--------|--------|------------|-------|-----------|
-| 1 | [slice-1-walking-skeleton-live-path](slice-1-walking-skeleton-live-path.md) | Walking Skeleton — Live Demo Path | Must | ✅ | none | #14 | ~5 min |
-| 2 | [slice-2-gwt1-detection-acceptance](slice-2-gwt1-detection-acceptance.md) | GWT-1 Detection Acceptance | Must | ✅ | 1 | #15 | ~4 min |
-| 3 | [slice-3-gwt2-sandbox-evidence-acceptance](slice-3-gwt2-sandbox-evidence-acceptance.md) | GWT-2 Sandbox Evidence Acceptance | Must | ✅ | 1 | #16 | ~4 min |
-| 4 | [slice-4-vo-remotion-assemble](slice-4-vo-remotion-assemble.md) | VO + Remotion Assemble (GWT-3) | Won't (A) | 📦 | 2,3 | #17 | ~4 min |
-| 5 | [slice-5-gate-evidence-docs-sync](slice-5-gate-evidence-docs-sync.md) | Gate Evidence + Docs Sync | Should | ✅ | 1,2,3,4 | #19 | ~3 min |
-| 6 | [slice-6-orchestrator-characterization](slice-6-orchestrator-characterization.md) | Orchestrator / Modal Characterization | Could | ✅ | none | #18 | ~3 min |
-| 7 | [slice-7-coverage-audit-matrix](slice-7-coverage-audit-matrix.md) | Coverage Audit Matrix + Docs Parity | Must | ✅ | none | #26/#27 | ~4 min |
-| **17** | [slice-17-user-guide-onboarding](slice-17-user-guide-onboarding.md) | User-Guide Onboarding (Prereqs + Env) | Must | 📋 | 7 | — | ~5 min |
-| 8 | [slice-8-scanner-skill-parse-fixtures](slice-8-scanner-skill-parse-fixtures.md) | Scanner Skill Parse Fixtures (Delta) | Must | 📋 | 7 | — | ~4 min |
-| 9 | [slice-9-scanner-snyk-tessl-parse-fixtures](slice-9-scanner-snyk-tessl-parse-fixtures.md) | Snyk / Tessl Parse Fixtures (Delta) | Should | 📋 | 7 | — | ~4 min |
-| 10 | [slice-10-scan-item-inner-characterization](slice-10-scan-item-inner-characterization.md) | scan_item_inner Characterization (Delta) | Should | 📋 | 7 | — | ~4 min |
-| 11 | [slice-11-python-ship-path-coverage-95](slice-11-python-ship-path-coverage-95.md) | Python Ship-Path Coverage ≥95% | Must | 📋 | 8 (9,10 Should) | — | ~5 min |
-| 12 | [slice-12-cli-coverage-gate-95](slice-12-cli-coverage-gate-95.md) | CLI Coverage Gate ≥95% (Delta) | Must | 📋 | 6 | — | ~4 min |
-| 13 | [slice-13-live-acl-coverage-gate-95](slice-13-live-acl-coverage-gate-95.md) | Live ACL Coverage Gate ≥95% (Delta) | Must | 📋 | 2,3 | — | ~4 min |
-| 14 | [slice-14-coverage-status-docs-sync](slice-14-coverage-status-docs-sync.md) | Coverage Status + Docs Sync (Delta) | Should | 📋 | 11,12,13 | — | ~3 min |
-| 15 | [slice-15-horizon-a-claim-audit](slice-15-horizon-a-claim-audit.md) | Horizon A Factual Claim Audit | Should | 📋 | 7 (prefer after 17) | — | ~4 min |
-| 16 | [slice-16-docs-claim-remediations](slice-16-docs-claim-remediations.md) | Docs Claim Remediations (Realtime/Demo/Prototype) | Won't (A) | 📦 | 15 | — | ~3 min |
+## Slice groups (execution sequence)
+
+Groups are ordered by when the wave ran (or will run), not by slice number.
+
+| Wave | Folder | Group | Slices | Status |
+|-----:|--------|-------|--------|--------|
+| 1 | [`01-A-live-path-gwt/`](01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 (4 attempted) | A done; 4 📦 |
+| 2 | [`02-B-characterization-evidence/`](02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
+| 3 | [`03-C-trust-coverage-audit/`](03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
+| 4 | [`04-D-operator-onboarding/`](04-D-operator-onboarding/) | **D — Operator onboarding** | **17** | 📋 **next** |
+| 5 | [`05-E-ship-path-coverage/`](05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → (9∥10) → 11 → 12 → 13 → 14 | 📋 |
+| 6 | [`06-F-claim-audit/`](06-F-claim-audit/) | **F — Claim audit** | 15 (16 deferred) | 📋 / 📦 |
 
 **Status legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 DEFERRED`
+
+### A — Live path + GWT (executed 2026-08-01 → 08-02)
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| 1 | [slice-1-walking-skeleton-live-path](01-A-live-path-gwt/slice-1-walking-skeleton-live-path.md) | Walking Skeleton — Live Demo Path | Must | ✅ | none | #14 | ~5 min |
+| 2 | [slice-2-gwt1-detection-acceptance](01-A-live-path-gwt/slice-2-gwt1-detection-acceptance.md) | GWT-1 Detection Acceptance | Must | ✅ | 1 | #15 | ~4 min |
+| 3 | [slice-3-gwt2-sandbox-evidence-acceptance](01-A-live-path-gwt/slice-3-gwt2-sandbox-evidence-acceptance.md) | GWT-2 Sandbox Evidence Acceptance | Must | ✅ | 1 | #16 | ~4 min |
+| 4 | [slice-4-vo-remotion-assemble](01-A-live-path-gwt/slice-4-vo-remotion-assemble.md) | VO + Remotion Assemble (GWT-3) | Won't (A) | 📦 | 2,3 | #17 | ~4 min |
+
+### B — Characterization + evidence sync (executed 2026-08-02)
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| 6 | [slice-6-orchestrator-characterization](02-B-characterization-evidence/slice-6-orchestrator-characterization.md) | Orchestrator / Modal Characterization | Could | ✅ | none | #18 | ~3 min |
+| 5 | [slice-5-gate-evidence-docs-sync](02-B-characterization-evidence/slice-5-gate-evidence-docs-sync.md) | Gate Evidence + Docs Sync | Should | ✅ | 1,2,3,4 | #19 | ~3 min |
+
+### C — Trust + coverage audit (executed 2026-08-02)
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| 7 | [slice-7-coverage-audit-matrix](03-C-trust-coverage-audit/slice-7-coverage-audit-matrix.md) | Coverage Audit Matrix + Docs Parity | Must | ✅ | none | #26/#27 | ~4 min |
+
+### D — Operator onboarding (next)
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| **17** | [slice-17-user-guide-onboarding](04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | User-Guide Onboarding (Prereqs + Env) | Must | 📋 | 7 | — | ~5 min |
+
+### E — Ship-path coverage (after D)
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| 8 | [slice-8-scanner-skill-parse-fixtures](05-E-ship-path-coverage/slice-8-scanner-skill-parse-fixtures.md) | Scanner Skill Parse Fixtures (Delta) | Must | 📋 | 7 | — | ~4 min |
+| 9 | [slice-9-scanner-snyk-tessl-parse-fixtures](05-E-ship-path-coverage/slice-9-scanner-snyk-tessl-parse-fixtures.md) | Snyk / Tessl Parse Fixtures (Delta) | Should | 📋 | 7 | — | ~4 min |
+| 10 | [slice-10-scan-item-inner-characterization](05-E-ship-path-coverage/slice-10-scan-item-inner-characterization.md) | scan_item_inner Characterization (Delta) | Should | 📋 | 7 | — | ~4 min |
+| 11 | [slice-11-python-ship-path-coverage-95](05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Python Ship-Path Coverage ≥95% | Must | 📋 | 8 (9,10 Should) | — | ~5 min |
+| 12 | [slice-12-cli-coverage-gate-95](05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | CLI Coverage Gate ≥95% (Delta) | Must | 📋 | 6 | — | ~4 min |
+| 13 | [slice-13-live-acl-coverage-gate-95](05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Live ACL Coverage Gate ≥95% (Delta) | Must | 📋 | 2,3 | — | ~4 min |
+| 14 | [slice-14-coverage-status-docs-sync](05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Coverage Status + Docs Sync (Delta) | Should | 📋 | 11,12,13 | — | ~3 min |
+
+### F — Claim audit (after D; preferably after E Musts)
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| 15 | [slice-15-horizon-a-claim-audit](06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Horizon A Factual Claim Audit | Should | 📋 | 7 (prefer after 17) | — | ~4 min |
+| 16 | [slice-16-docs-claim-remediations](06-F-claim-audit/slice-16-docs-claim-remediations.md) | Docs Claim Remediations (Realtime/Demo/Prototype) | Won't (A) | 📦 | 15 | — | ~3 min |
 
 ## Supporting Artifacts
 | File | Status |
 |------|--------|
+| [README.md](README.md) | ✅ wave folder map (`01-A-…` … `06-F-claim-audit/`) |
+| `01-A-…` … `06-F-…/` | ✅ slice stubs by execution wave |
 | interview_summary.md | ✅ written |
 | PROGRESS.md | ✅ written |
 | DECISIONS.md | ✅ in progress |
@@ -111,13 +152,14 @@ freshness:
 
 **Close rule:** ✅ PASSED only when every Before/After check is met (or DECISIONS-waived), evidence JSON `verdict: PASS`, review done, trackers updated. See GATE_CONTRACT.md.
 
-## Execute priority (MoSCoW — 2026-08-02)
+## Execute priority (by wave — 2026-08-02)
 
-1. **Must critical path:** **17** (user-guide onboarding) → 8 → 11 → 12 → 13 (slice 7 ✅)
-2. **Should:** 9 → 10 → 14 → 15 (run 15 after 17 when possible)
-3. **Deferred (demo/hackathon — reinstate if needed):** 4 (VO/Remotion), 16 (film-day / demo prose remediations). Slice 6 already ✅
+1. Waves **A–C** ✅ — Live/GWT, characterization/evidence, trust+audit
+2. Wave **D** Must: **17** (onboarding) — **next**
+3. Wave **E** Must: 8 → 11 → 12 → 13 · Should: 9 → 10 → 14
+4. Wave **F** Should: 15 · 16 📦 (demo remediations deferred with 4)
 
-See also PROGRESS.md **Execution order** and [GATE_CONTRACT.md](GATE_CONTRACT.md).
+See also PROGRESS.md **Slice groups** and [GATE_CONTRACT.md](GATE_CONTRACT.md).
 
 ## Forward (Won't for A — ask 1+C later)
 - Drift / trend / diff / `identifier` UI

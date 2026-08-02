@@ -28,16 +28,15 @@ pre-commit run --all-files          # lint, mypy, bandit, gitleaks, fast tests
 - **Push:** full pytest + coverage floor; conditional pip-audit / npm audit
 - **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog
 - **Nightly** (`.github/workflows/nightly.yml`): full TruffleHog, SBOM, Meterian;
-  mutmut and Chalk run but are **non-gating** (`|| true` — green Nightly does not
-  mean mutation/Chalk passed)
+  mutmut and Chalk run but are **non-gating** (`|| true` — green Nightly does not mean mutation/Chalk passed)
 
 **Coverage today (VERIFIED config):** Python `fail_under=45` with `branch=true`
-(`pyproject.toml` / CI). CLI and `prototypes/dc-dashboard` tests run without a
-coverage gate.
+(`pyproject.toml` / CI). CLI and `prototypes/dc-dashboard` tests run without a coverage gate.
 
 **Coverage target (DECIDED — slices 8, 11–13 after 17):** ship-path ~95% on
 `cli/src`, `sandbox/`, Live ACL modules; `guard/` / `support.js` out of bar.
-Track [docs/plan/PROGRESS.md](docs/plan/PROGRESS.md); close slices per
+Track [docs/plan/PROGRESS.md](docs/plan/PROGRESS.md) (stubs under
+[docs/plan/README.md](docs/plan/README.md) wave folders); close per
 [docs/plan/GATE_CONTRACT.md](docs/plan/GATE_CONTRACT.md).
 
 Intentional vuln fixtures under `fixtures/` and mock data under `prototypes/`

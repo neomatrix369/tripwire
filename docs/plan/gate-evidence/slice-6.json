@@ -19,5 +19,6 @@
     "runScan": "optional ensureSchemaFn / getSupabaseFn / spawnFn (defaults unchanged)",
     "spawnScanSandbox": "optional spawnImpl (defaults to child_process.spawn)"
   },
-  "verdict": "VERIFIED"
+  "verdict": "VERIFIED",
+  "spec_path": "docs/plan/02-B-characterization-evidence/slice-6-orchestrator-characterization.md"
 }

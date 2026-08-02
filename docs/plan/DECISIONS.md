@@ -40,3 +40,7 @@
 | 2026-08-02 | demo-hackathon | Closed for Horizon A | Demo + hackathon over. **Slice 4** (VO/Remotion) and **slice 16** (film-day / demo prose remediations) → 📦 Won't (A); Remotion blocker closed. Reinstate stubs only if a new demo need arises. Operator Mock-select honesty stays in **slice 17**. Slice 15 claim audit may still note FAIL rows without requiring slice 16. |
 | 2026-08-02 | gate-contract | Hard close + quality bar | SSOT: `docs/plan/GATE_CONTRACT.md`. ✅ PASSED only if all Before/After met (or DECISIONS-waived), evidence `verdict: PASS`, review, trackers, merged. Soft checks banned; open slices 8–15/17 After-Checks strengthened. `🔀` ≠ ✅. |
 | 2026-08-02 | slice-7 | ✅ PASSED | After-Checks re-verified on `main` post PRs #26/#27; `gate-evidence/slice-7.json` → PASS. Next Must: **17**. |
+| 2026-08-02 | slice-groups | Execution-wave grouping | TRAIL/PROGRESS group A→F by run order: A Live/GWT → B char+sync → C audit → D onboarding(17) → E coverage → F claims. Not numeric slice order. |
+| 2026-08-02 | slice-layout | Group folders under docs/plan/ | Slices live in `01-A-…` … `06-F-…` by execution wave; trackers link into folders. |
+| 2026-08-02 | naming | Wave F rename | **Claim honesty** → **Claim audit**; folder `06-F-claim-audit/`. |
+| 2026-08-02 | refs | Path sync after layout | Trackers, STATUS, docs index, coverage-audit, gate-evidence `spec_path`, plan README, Cursor onboarding plan → wave folders. No `docs/plan/slice-N-*.md` at plan root. |

@@ -23,9 +23,9 @@
 | Cisco skill/MCP adapters | IMPLEMENTED | unit status/cmd; **parse missing** | Slice 8 |
 | Snyk / Tessl adapters | IMPLEMENTED (may be unreachable) | unit status; **parse missing** | Slice 9 |
 | Idempotency / `--force` spawn | IMPLEMENTED / VERIFIED (unit) | unit (slice 6) | — |
-| Live dashboard Realtime + poll | IMPLEMENTED / VERIFIED (unit) | unit | Poll: 8s fallback **and** 30s while Realtime+running — STATUS under-claims → slice 16 |
-| Mock / Demo path | IMPLEMENTED | unit | Default source is **Live**; QUICKSTART must select Mock → slice 16 |
-| Dashboard as ship UI | DECIDED (dc-dashboard as-is) | — | prototypes README “not shipped” tension → slice 16 |
+| Live dashboard Realtime + poll | IMPLEMENTED / VERIFIED (unit) | unit | Poll: 8s fallback **and** 30s while Realtime+running — STATUS under-claims → slice 16 📦 (reinstate) or note in 15 |
+| Mock / Demo path | IMPLEMENTED | unit | Default source is **Live**; Mock-select → slice **17** (onboarding); prose remediations were 16 📦 |
+| Dashboard as ship UI | DECIDED (dc-dashboard as-is) | — | prototypes README “not shipped” tension → slice 16 📦 / claim audit 15 |
 | Guard PreToolUse | Future / Won't for A | missing | ARCHITECTURE Future (Gate A); exclude from coverage bar |
 | Overmind Phase 5 / Ossprey | Won't / unwired | n/a | Badges stripped Gate A |
 | Coverage floors documented | DECIDED | docs | CONTRIBUTING + STATUS; raise in 11–13 |
@@ -39,19 +39,22 @@
 | Branch for coverage wave | merged PR #25 | STATUS said `plan/coverage-slices-7-14` | **Gate A done** — per-slice branches |
 | Nightly mutmut/Chalk | `\|\| true` | Listed as Nightly checks | **Gate A done** — non-gating note |
 | Adapter JSON field names | RESEARCH | RESEARCH in STATUS | Slices 8–9 + research sync |
-| Realtime poll timing | 8s + 30s paths | “~1s + 8s” only | Slice 16 |
-| Demo default | `live` default | Demo path implies Mock | Slice 16 |
+| Realtime poll timing | 8s + 30s paths | “~1s + 8s” only | Slice 16 📦 / audit 15 |
+| Demo default | `live` default | Demo path implies Mock | Slice **17** + 16 📦 |
 
 ## Slice ownership (after this audit)
 
-| Work | Slice | MoSCoW |
-|------|-------|--------|
-| Trust strip + this matrix | **7** | Must |
-| Cisco skill parse fixtures | **8** | Must |
-| Snyk/Tessl parse fixtures | 9 | Should |
-| `scan_item_inner` characterization | 10 | Should |
-| Raise floors ≥95% (py / cli / Live ACL) | **11–13** | Must |
-| STATUS sync after uplift | 14 | Should |
-| Full claim-audit canvas + Live 3B | 15 | Should |
-| Realtime/demo/prototype prose | 16 | Won't (A) 📦 — reinstate if needed |
-| VO/Remotion demo video | 4 | Won't (A) 📦 — reinstate if needed |
+| Work | Slice | Spec path | MoSCoW |
+|------|-------|-----------|--------|
+| Trust strip + this matrix | **7** | [03-C-trust-coverage-audit/](03-C-trust-coverage-audit/) | Must ✅ |
+| Operator onboarding (prereqs/env) | **17** | [04-D-operator-onboarding/](04-D-operator-onboarding/) | Must — **next** |
+| Cisco skill parse fixtures | **8** | [05-E-ship-path-coverage/](05-E-ship-path-coverage/) | Must |
+| Snyk/Tessl parse fixtures | 9 | same | Should |
+| `scan_item_inner` characterization | 10 | same | Should |
+| Raise floors ≥95% (py / cli / Live ACL) | **11–13** | same | Must |
+| STATUS sync after uplift | 14 | same | Should |
+| Full claim-audit canvas + Live 3B | 15 | [06-F-claim-audit/](06-F-claim-audit/) | Should |
+| Realtime/demo/prototype prose | 16 | same | Won't (A) 📦 |
+| VO/Remotion demo video | 4 | [01-A-live-path-gwt/](01-A-live-path-gwt/) | Won't (A) 📦 |
+
+Folder map: [README.md](README.md). Critical path after 7 ✅: **17 → 8 → 11 → 12 → 13**.

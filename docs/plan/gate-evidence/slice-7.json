@@ -2,7 +2,10 @@
   "slice": 7,
   "date": "2026-08-02",
   "branch": "main",
-  "pr": [26, 27],
+  "pr": [
+    26,
+    27
+  ],
   "verdict": "PASS",
   "before_checks": "all green",
   "after_checks": [
@@ -25,10 +28,13 @@
   ],
   "review": "docs-only; landed via PRs #26/#27",
   "gates": {
-    "A_trust_strip": { "status": "PASS" },
+    "A_trust_strip": {
+      "status": "PASS"
+    },
     "B_coverage_audit": {
       "status": "PASS",
       "artifact": "docs/plan/coverage-audit.md"
     }
-  }
+  },
+  "spec_path": "docs/plan/03-C-trust-coverage-audit/slice-7-coverage-audit-matrix.md"
 }

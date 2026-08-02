@@ -17,7 +17,7 @@
 - Scanner path: zero cloud accounts.
 - Platform path: accounts/procure **before** `cp .env.example`.
 - Operate secrets → `env-vars.md` (not bare `.env.example`).
-- Priority: after slice-7 closeout → **17** → 8 → 11 → 12 → 13.
+- Priority: wave **D** next after 7 ✅ → **17** → wave E 8 → 11 → 12 → 13. Spec dir: `docs/plan/04-D-operator-onboarding/`.
 
 ## Files
 | Path | Action |
@@ -53,7 +53,7 @@
 - [ ] README Run-it → prereqs/env-vars; `docs/README.md` Choose Your Path; CONTRIBUTING step 0 + `wc -l` ≤80
 - [ ] README still exactly 4 H2s and ≤100 lines (`rg '^## ' README.md` + `wc -l`)
 - [ ] `rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md` empty
-- [ ] PROGRESS/TRAIL critical path shows 7 → **17** → 8 → 11–13
+- [ ] PROGRESS/TRAIL critical path shows **17** → 8 → 11–13 (wave D→E; 7 ✅)
 - [ ] `docs/plan/gate-evidence/slice-17.json` `"verdict": "PASS"` + commands; ✅ only after merge
 
 ## Doc Audit

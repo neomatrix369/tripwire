@@ -63,8 +63,8 @@ Reachable through production entry points / config:
 Ship-path coverage uplift (~95% instrumented on `cli/src`, `sandbox/`, Live ACL JS;
 omit `guard/` and `support.js`) — audit matrix ✅ (slice 7); floors still open
 (slices **8**, **11–13**). Operator onboarding docs (prereqs / env procurement) are
-**Must** next — slice **17** — before the coverage wave. Critical path:
-**17 → 8 → 11 → 12 → 13**. See [plan/PROGRESS.md](./plan/PROGRESS.md),
+**Must** next — wave **D** slice **17** — before coverage wave **E**. Path:
+**17 → 8 → 11 → 12 → 13**. Groups: [plan/PROGRESS.md](./plan/PROGRESS.md),
 [plan/DECISIONS.md](./plan/DECISIONS.md), [plan/GATE_CONTRACT.md](./plan/GATE_CONTRACT.md).
 
 Current CI Python floor remains **`fail_under=45`** (`pyproject.toml` / CI) with
@@ -93,7 +93,8 @@ Known fixture gaps (not urgent) are listed under
 as shipped capabilities.
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
-(slice 7 ✅). Claim audit (slice 15) remains Should; slice 16 remediations deferred.
+(slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` … `06-F-claim-audit/`).
+Claim audit (slice 15) remains Should; slice 16 remediations deferred.
 
 ---
 
