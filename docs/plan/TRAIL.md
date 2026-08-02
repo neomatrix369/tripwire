@@ -84,7 +84,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 2 | [`02-B-characterization-evidence/`](02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`03-C-trust-coverage-audit/`](03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
 | 4 | [`04-D-operator-onboarding/`](04-D-operator-onboarding/) | **D — Operator onboarding** | **17** | ✅ |
-| 5 | [`05-E-ship-path-coverage/`](05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → (9∥10) → 11 → 12 → 13 → 14 | 📋 **next** |
+| 5 | [`05-E-ship-path-coverage/`](05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ · (9∥10) → 14 | ✅ Musts · Should open |
 | 6 | [`06-F-claim-audit/`](06-F-claim-audit/) | **F — Claim audit** | 15 (16 deferred) | 📋 / 📦 |
 
 **Status legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 DEFERRED`
@@ -126,7 +126,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 10 | [slice-10-scan-item-inner-characterization](05-E-ship-path-coverage/slice-10-scan-item-inner-characterization.md) | scan_item_inner Characterization (Delta) | Should | 📋 | 7 | — | ~4 min |
 | 11 | [slice-11-python-ship-path-coverage-95](05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Python Ship-Path Coverage ≥95% | Must | ✅ | 8 (9,10 Should) | — | ~5 min |
 | 12 | [slice-12-cli-coverage-gate-95](05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | CLI Coverage Gate ≥95% (Delta) | Must | ✅ | 6 | — | ~4 min |
-| 13 | [slice-13-live-acl-coverage-gate-95](05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Live ACL Coverage Gate ≥95% (Delta) | Must | 📋 | 2,3 | — | ~4 min |
+| 13 | [slice-13-live-acl-coverage-gate-95](05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Live ACL Coverage Gate ≥95% (Delta) | Must | ✅ | 2,3 | — | ~4 min |
 | 14 | [slice-14-coverage-status-docs-sync](05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Coverage Status + Docs Sync (Delta) | Should | 📋 | 11,12,13 | — | ~3 min |
 
 ### F — Claim audit (after D; preferably after E Musts)
@@ -155,8 +155,8 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 ## Execute priority (by wave — 2026-08-02)
 
 1. Waves **A–D** ✅ — Live/GWT, characterization/evidence, trust+audit, onboarding
-2. Wave **E** Must: 13 — **next** (8 ✅, 11 ✅, 12 ✅) · Should: 9 → 10 → 14
-3. Wave **F** Should: 15 · 16 📦 (demo remediations deferred with 4)
+2. Wave **E** Musts ✅ (8, 11–13) · Should: 9 → 10 → 14
+3. Wave **F** Should: 15 — **next** · 16 📦 (demo remediations deferred with 4)
 
 See also PROGRESS.md **Slice groups** and [GATE_CONTRACT.md](GATE_CONTRACT.md).
 

@@ -34,12 +34,12 @@ async function getCreateClient() {
  * @returns {Promise<'SUBSCRIBED'|'CHANNEL_ERROR'|'TIMED_OUT'|null>}
  *   Channel status string, or null if setup failed entirely.
  */
-export async function subscribe(config, onUpdate) {
+export async function subscribe(config, onUpdate, { loadCreateClient = getCreateClient } = {}) {
   if (!config?.SUPABASE_URL || !config?.SUPABASE_ANON_KEY) return null;
 
   let createClient;
   try {
-    createClient = await getCreateClient();
+    createClient = await loadCreateClient();
   } catch (err) {
     console.warn("[tripwire-realtime] CDN load failed:", err.message);
     return null;

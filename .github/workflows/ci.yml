@@ -1,7 +1,8 @@
 name: CI
 
 # Serious-tier T1–T3 for Tripwire (Python sandbox/guard + Node cli/).
-# Coverage floor 45% with branch=true (measured ~47%). Fixtures/prototypes excluded from secrets/FS scans.
+# Ship-path coverage: Python sandbox fail_under=95; CLI + Live ACL c8 ≥95% lines.
+# Fixtures/prototypes excluded from secrets/FS scans (dashboard tests gated separately).
 #
 # Status badge: README + docs/README.md (CI).
 # Primary stack (docs): Cursor · Modal · Supabase · Tripwire
@@ -118,6 +119,21 @@ jobs:
         working-directory: cli
       - run: npm audit --audit-level=high
         working-directory: cli
+
+  live-acl-tests:
+    name: Live ACL coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+          cache-dependency-path: prototypes/dc-dashboard/package-lock.json
+      - run: npm ci
+        working-directory: prototypes/dc-dashboard
+      - run: npm run test:coverage
+        working-directory: prototypes/dc-dashboard
 
   secrets:
     name: Secrets scan

@@ -54,3 +54,7 @@
 | 2026-08-02 | slice-12 | branch gate | c8 `--branches 85` (not 95): residual defensive branches in orchestrator/loadEnv; line/stmt/func remain the ship-path ≥95% bar. |
 | 2026-08-02 | slice-12 | review | Test+ci only; `/nw-review` skipped with this note. |
 | 2026-08-02 | slice-12 | ClientImpl seam | `applySchema({ ClientImpl })` + `ensureSchema({ applySchemaFn })` injectable for unit tests (no live Postgres). |
+| 2026-08-02 | slice-13 | ✅ PASSED | c8 on Live ACL four files; lines ~98.48%; `support.js` excluded; CI job `live-acl-tests`. |
+| 2026-08-02 | slice-13 | func/branch gates | c8 funcs 85 / branches 80 — residual `getCreateClient` CDN import unmocked; line/stmt ≥95% is the ship-path bar. |
+| 2026-08-02 | slice-13 | review | Test+ci only; `/nw-review` skipped with this note. |
+| 2026-08-02 | slice-13 | loadCreateClient | `subscribe(..., { loadCreateClient })` injectable seam for unit tests. |

@@ -35,13 +35,11 @@ pre-commit run --all-files          # lint, mypy, bandit, gitleaks, fast tests
 - **Nightly** (`.github/workflows/nightly.yml`): full TruffleHog, SBOM, Meterian;
   mutmut and Chalk run but are **non-gating** (`|| true` — green Nightly does not mean mutation/Chalk passed)
 
-**Coverage today (VERIFIED config):** Python ship-path `sandbox/` `fail_under=95`
-(`pyproject.toml` / CI; `guard/` omitted). CLI `npm run test:coverage` (c8) lines
-≥95% (slice 12). Live ACL gate lands in slice 13; `support.js` out of bar.
-
-**Coverage target (DECIDED — slice 13):** Live ACL modules ≥95%.
-Track [docs/plan/PROGRESS.md](docs/plan/PROGRESS.md) (stubs under
-[docs/plan/README.md](docs/plan/README.md) wave folders); close per
+**Coverage today (VERIFIED config):** Python `sandbox/` `fail_under=95` (guard
+omitted); CLI `npm run test:coverage` ≥95% lines; Live ACL
+`prototypes/dc-dashboard` `npm run test:coverage` ≥95% lines on the four ACL
+modules (`support.js` out of bar). Track
+[docs/plan/PROGRESS.md](docs/plan/PROGRESS.md); close per
 [docs/plan/GATE_CONTRACT.md](docs/plan/GATE_CONTRACT.md).
 
 Intentional vuln fixtures under `fixtures/` and mock data under `prototypes/`
