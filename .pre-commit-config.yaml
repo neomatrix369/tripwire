@@ -1,12 +1,15 @@
-# Maturity: trimmed serious — security-first for Tripwire.
-# Intentionally excluded vs full project-hygiene:
-#   mypy hard-fail, pytest coverage gates, xenon/vulture, nightly T4
+# Maturity: Serious — full project-hygiene for Tripwire (mixed Python + Node cli/).
+# Principle: one tool per concern; commit stage stays fast; coverage at push.
 #
 # Stages:
-#   pre-commit: hygiene + secrets + bandit + ruff + cli fast tests
-#   pre-push:   cli tests + pip-audit (when Python deps change)
+#   pre-commit: hygiene, secrets, bandit, ruff, mypy, pytest-testmon, cli tests
+#   pre-push:   full pytest+coverage, conditional pip-audit / npm audit
 #
 # Parallel: pre-commit run -j 4 --all-files
+# Full gates: ./scripts/quality-gates.sh
+# Full + security-scan: ./scripts/quality-gates.sh --full
+
+default_stages: [pre-commit]
 
 repos:
   # ── Hygiene ──────────────────────────────────────────────
@@ -56,7 +59,7 @@ repos:
             \.cursor/
           )
 
-  # ── Secrets (primary security gate) ─────────────────────
+  # ── Secrets ──────────────────────────────────────────────
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.22.1
     hooks:
@@ -84,7 +87,29 @@ repos:
       - id: ruff-format
         exclude: ^fixtures/
 
-  # ── Commit: CLI unit tests (no live credentials) ─────────
+  # ── Python type check ─────────────────────────────────────
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy type check
+        entry: uv run mypy sandbox/ guard/
+        language: system
+        pass_filenames: false
+        types: [python]
+        exclude: ^fixtures/
+
+  # ── Commit: fast Python tests (testmon incremental) ───────
+  - repo: local
+    hooks:
+      - id: fast-tests
+        name: fast unit tests (pytest-testmon)
+        entry: uv run pytest sandbox/ -x -q --tb=short --no-header --testmon -o addopts=
+        language: system
+        pass_filenames: false
+        types: [python]
+        stages: [pre-commit]
+
+  # ── Commit: CLI unit tests ────────────────────────────────
   - repo: local
     hooks:
       - id: cli-fast-tests
@@ -99,7 +124,7 @@ repos:
   - repo: local
     hooks:
       - id: pre-push-gates
-        name: pre-push gates (cli tests, conditional pip-audit)
+        name: pre-push gates (coverage, conditional audits)
         entry: bash scripts/pre-push-gates.sh
         language: system
         pass_filenames: false

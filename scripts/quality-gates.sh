@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Quality gates (trimmed) — security-first static analysis for Tripwire.
+# Quality gates — serious-tier for Tripwire (Python sandbox/guard + Node cli/).
 #
 # Usage:
-#   ./scripts/quality-gates.sh            # T1 + CLI tests
-#   ./scripts/quality-gates.sh --quick    # T1 only (ruff, bandit, repo-lint, gitleaks)
-#   ./scripts/quality-gates.sh --full     # T1 + tests + pip-audit + gitleaks (explicit)
+#   ./scripts/quality-gates.sh            # T1 + T2 (tests, coverage, audits)
+#   ./scripts/quality-gates.sh --quick    # T1 only
+#   ./scripts/quality-gates.sh --full     # T1 + T2 + security-scan.sh
 #
-# No coverage fail_under / xenon / vulture — deferred until Python test suite exists.
+# Parallelism: T1 jobs run in parallel; T2 after T1; T3 (--full) after T2.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -26,7 +26,6 @@ LOGS=()
 FAILED=0
 
 cleanup() {
-  # Always return 0 so EXIT trap does not override a successful gate exit.
   set +e
   local log
   for log in "${LOGS[@]+"${LOGS[@]}"}"; do
@@ -68,18 +67,24 @@ wait_all() {
   done
   PIDS=()
   LABELS=()
-  # Keep LOGS for trap cleanup of remaining temp files; reset for next tier
   LOGS=()
 }
+
+mkdir -p .test-results .reports/coverage
 
 echo "=== quality-gates (${MODE}) ==="
 
 # ── T1: Static analysis (parallel) ────────────────────────────────────────────
+run_bg "repo-lint" bash scripts/repo-lint.sh
 run_bg "ruff check" uv run ruff check sandbox guard scripts
 run_bg "ruff format" uv run ruff format --check sandbox guard scripts
+run_bg "mypy" uv run mypy sandbox/ guard/
 run_bg "bandit" uv run bandit -c pyproject.toml -r sandbox guard scripts -q -ll
+run_bg "xenon" uv run xenon --max-absolute D --max-modules B --max-average A \
+  sandbox/scan_app.py sandbox/scanners.py sandbox/__init__.py guard
+run_bg "vulture" uv run vulture sandbox/scan_app.py sandbox/scanners.py sandbox/__init__.py guard \
+  --min-confidence 80
 run_bg "gitleaks" gitleaks detect --no-git --config .gitleaks.toml --source .
-run_bg "repo-lint" bash scripts/repo-lint.sh
 wait_all
 
 if [[ "$FAILED" -ne 0 ]]; then
@@ -93,15 +98,30 @@ if [[ "$MODE" == "quick" ]]; then
 fi
 
 # ── T2: Tests + audit ─────────────────────────────────────────────────────────
+run_bg "pytest+cov" uv run pytest sandbox/ -q --tb=short \
+  --cov=sandbox --cov=guard \
+  --cov-report=term-missing \
+  --cov-report="html:.reports/coverage/html" \
+  --cov-report="xml:.reports/coverage/coverage.xml" \
+  --cov-report="json:.reports/coverage/coverage.json" \
+  --cov-fail-under=45 \
+  --junitxml=.test-results/junit.xml \
+  -o addopts=
 run_bg "cli tests" bash -c 'cd cli && npm test'
-if [[ "$MODE" == "full" ]]; then
-  run_bg "pip-audit" uv run pip-audit
-fi
+run_bg "pip-audit" uv run pip-audit
 wait_all
 
 if [[ "$FAILED" -ne 0 ]]; then
   echo "❌ T2 failed"
   exit 1
+fi
+
+if [[ "$MODE" == "full" ]]; then
+  echo "=== T3: security-scan.sh ==="
+  if ! bash scripts/security-scan.sh; then
+    echo "❌ T3 security-scan failed"
+    exit 1
+  fi
 fi
 
 echo "✅ quality-gates passed"
