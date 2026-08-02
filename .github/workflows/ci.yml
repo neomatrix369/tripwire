@@ -2,6 +2,10 @@ name: CI
 
 # Serious-tier T1–T3 for Tripwire (Python sandbox/guard + Node cli/).
 # Coverage floor 45% with branch=true (measured ~47%). Fixtures/prototypes excluded from secrets/FS scans.
+#
+# Status badge: README + docs/README.md (CI).
+# Primary stack (docs): Cursor · Modal · Supabase · Tripwire
+# Scanners / partners (docs): Cisco Skill/MCP · Snyk · Tessl · Overmind (Phase 5) · Ossprey
 
 on:
   push:

@@ -57,3 +57,33 @@ Guides for **Tripwire**, by who you are and what you want to do.
 | What is verified today? | [STATUS.md](./STATUS.md) |
 | Quality gates / hooks | [CONTRIBUTING.md](../CONTRIBUTING.md) |
 | Continue a slice | [plan/PROGRESS.md](./plan/PROGRESS.md) |
+
+---
+
+## CI workflows
+
+Status badges (source of truth for partner strip is still the [root README](../README.md)):
+
+[![CI](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/ci.yml?branch=main&label=CI)](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml)
+[![Nightly](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/nightly.yml?branch=main&label=Nightly)](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml)
+
+| Workflow | Path | Role |
+|----------|------|------|
+| CI | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) | T1–T3 on PR/push/main |
+| Nightly | [`.github/workflows/nightly.yml`](../.github/workflows/nightly.yml) | T4 deep checks (mutation, full history secrets, …) |
+| Code Review Graph | [`.github/workflows/code-review-graph.yml`](../.github/workflows/code-review-graph.yml) | PR knowledge-graph assist |
+
+---
+
+<!-- Primary stack -->
+[![Cursor](https://img.shields.io/badge/Cursor-000000?style=flat)](https://cursor.com)
+[![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=flat)](https://modal.com)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com)
+[![Tripwire](https://img.shields.io/badge/Tripwire-1a1a2e?style=flat)](https://github.com/neomatrix369/tripwire)
+
+<!-- Scanner & partner -->
+[![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
+[![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
+[![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
+[![Overmind](https://img.shields.io/badge/Overmind-Phase%205-6B7280?style=flat)](https://overmind.tech)
+[![Ossprey](https://img.shields.io/badge/Ossprey-Sponsor-0F766E?style=flat)](https://www.ossprey.com/?utm_source=luma)

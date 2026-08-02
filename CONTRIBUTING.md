@@ -41,8 +41,9 @@ are excluded from secrets scanners.
 
 ## CI
 
-`.github/workflows/ci.yml` runs secrets scanning, SAST, Trivy, ruff/bandit, and
-CLI tests.
+- [CI](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml) (`.github/workflows/ci.yml`) — secrets scanning, SAST, Trivy, ruff/bandit, CLI tests
+- [Nightly](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml) (`.github/workflows/nightly.yml`) — T4 deep checks
+- Workflow map: [docs/README.md § CI workflows](docs/README.md#ci-workflows)
 
 ---
 
