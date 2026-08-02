@@ -158,9 +158,9 @@ jobs:
       - uses: actions/checkout@v7
       - name: Meterian SCA + license
         if: env.METERIAN_API_TOKEN != ''
-        uses: MeterianHQ/meterian-github-action@v1.1.67
+        uses: MeterianHQ/meterian-github-action@v1.0.17
         with:
-          args: --min-security=90 --min-licensing=80
+          cli_args: --min-security=90 --min-licensing=80
       - name: Meterian skipped (no token)
         if: env.METERIAN_API_TOKEN == ''
         run: echo "METERIAN_API_TOKEN not set — skipping Meterian"
