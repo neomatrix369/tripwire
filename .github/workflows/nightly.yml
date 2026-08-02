@@ -31,7 +31,7 @@ jobs:
           mutmut run --paths-to-mutate sandbox/,guard/ || true
           mutmut results || true
           mutmut junitxml > mutation-results-python.xml || true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: mutation-python-${{ github.run_number }}
@@ -61,7 +61,7 @@ jobs:
         with:
           format: cyclonedx-json
           output-file: sbom.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: sbom-${{ github.run_number }}
@@ -108,7 +108,7 @@ jobs:
         run: chalk insert sandbox/ guard/ scripts/ cli/ || true
       - name: Upload Chalk report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: chalk-report-${{ github.run_number }}
           path: ~/.local/chalk/chalk.log
