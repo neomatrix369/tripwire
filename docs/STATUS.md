@@ -58,11 +58,29 @@ Reachable through production entry points / config:
 
 ---
 
+## DECIDED (not yet IMPLEMENTED / VERIFIED)
+
+Ship-path coverage uplift (~95% instrumented on `cli/src`, `sandbox/`, Live ACL JS;
+omit `guard/` and `support.js`) — planning slices **7–14** on branch
+`plan/coverage-slices-7-14`. See [plan/PROGRESS.md](./plan/PROGRESS.md),
+[plan/DECISIONS.md](./plan/DECISIONS.md), and slice stubs
+`docs/plan/slice-7-*.md` … `slice-14-*.md`.
+
+Current CI Python floor remains **`fail_under=45`** (`pyproject.toml` / CI) with
+measured ~47% (2026-08-02). Node CLI and dashboard have **no** coverage gate yet.
+Do not treat 95% as current capability until slices 11–13 are VERIFIED.
+
+Live Modal/Supabase E2E as a CI Must remains **Won't** for this wave (slow/optional
+skip-without-config stays).
+
+---
+
 ## RESEARCH (not VERIFIED)
 
 Exact JSON field names in `sandbox/scanners.py` — cross-check against the pinned
 CLI version's `--help`/output before this blocks a merge. See
 [scanner-output-adapters.md](./research/adapters/scanner-output-adapters.md).
+Adapter fixture tests (slices 8–9) are planned to tighten this.
 
 ---
 
@@ -71,6 +89,9 @@ CLI version's `--help`/output before this blocks a merge. See
 Known fixture gaps (not urgent) are listed under
 [fixtures/README.md](../fixtures/README.md) (“Not yet built”). Do not treat those
 as shipped capabilities.
+
+Coverage audit matrix artifact (`docs/plan/coverage-audit.md`) is owned by
+slice 7 — not written yet.
 
 ---
 
