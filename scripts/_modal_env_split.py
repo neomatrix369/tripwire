@@ -8,8 +8,7 @@ to stdout:
     "supabase_path": "...",
     "scan_path": "...",
     "supabase_keys": ["SUPABASE_URL", ...],
-    "scan_keys": ["SNYK_TOKEN", ...],
-    "used_tier_a_sentinel": false
+    "scan_keys": ["SNYK_TOKEN", ...]
   }
 
 Exit 1 if SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are missing or blank.
@@ -45,10 +44,6 @@ SCAN_KEYS = (
     "MCP_SCANNER_API_KEY",
     "MCP_SCANNER_ENDPOINT",
 )
-
-TIER_A_SENTINEL_KEY = "TRIPWIRE_SCANNER_TIER"
-TIER_A_SENTINEL_VALUE = "A"
-
 
 def parse_dotenv(path: Path) -> dict[str, str]:
     """Parse KEY=VALUE lines; ignore comments/blank; last wins; no expansion."""
@@ -110,10 +105,6 @@ def main() -> int:
         return 1
 
     scan = pick_nonempty(env, SCAN_KEYS)
-    used_sentinel = False
-    if not scan:
-        scan = {TIER_A_SENTINEL_KEY: TIER_A_SENTINEL_VALUE}
-        used_sentinel = True
 
     write_dotenv(args.supabase_out, supabase)
     write_dotenv(args.scan_out, scan)
@@ -123,7 +114,6 @@ def main() -> int:
         "scan_path": str(args.scan_out),
         "supabase_keys": list(supabase.keys()),
         "scan_keys": list(scan.keys()),
-        "used_tier_a_sentinel": used_sentinel,
     }
     print(json.dumps(summary))
     return 0

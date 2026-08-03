@@ -84,8 +84,6 @@ Or full bootstrap:
 The script reads repo-root `.env`, keeps only non-empty allowlisted keys (listed above), and overwrites Modal secrets with `--force`.
 It never echoes values.
 
-When only Tier A is enabled (no scanner keys), set `TRIPWIRE_SCANNER_TIER=A` so Modal has a non-empty secret payload (Modal requires at least one key).
-
 ## Manual CLI fallback (same allowlist)
 
 ```bash
@@ -109,9 +107,10 @@ modal secret create tripwire-scan-secrets \
   MCP_SCANNER_API_KEY="$MCP_SCANNER_API_KEY" \
   MCP_SCANNER_ENDPOINT="${MCP_SCANNER_ENDPOINT:-https://us.api.inspect.aidefense.security.cisco.com/api/v1}" \
   --force
+
+If no scanner keys are set, `./scripts/setup-modal.sh --secrets-only` leaves `tripwire-scan-secrets` unchanged and only syncs Supabase secrets.
 ```
 
 ## Key reminder
 
 Upstream scanner keys above are canonical.
-`TRIPWIRE_SCANNER_TIER` is a setup-script sentinel only and is **not** a scanner key.

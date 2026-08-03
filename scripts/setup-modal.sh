@@ -179,19 +179,19 @@ sync_secrets() {
       --scan-out "$scan_out"
   )"
 
-  local supabase_keys scan_keys used_sentinel
+  local supabase_keys scan_keys
   supabase_keys="$(python3 -c 'import json,sys; print(", ".join(json.load(sys.stdin)["supabase_keys"]))' <<<"$summary")"
   scan_keys="$(python3 -c 'import json,sys; print(", ".join(json.load(sys.stdin)["scan_keys"]))' <<<"$summary")"
-  used_sentinel="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["used_tier_a_sentinel"])' <<<"$summary")"
 
   echo "Syncing secret tripwire-supabase (keys: $supabase_keys)"
   modal_ok secret create tripwire-supabase --from-dotenv "$supabase_out" --force
 
-  echo "Syncing secret tripwire-scan-secrets (keys: $scan_keys)"
-  if [[ "$used_sentinel" == "true" ]]; then
-    echo "  (no scanner keys in .env — using Tier A sentinel TRIPWIRE_SCANNER_TIER=A)"
+  if [[ -n "$scan_keys" ]]; then
+    echo "Syncing secret tripwire-scan-secrets (keys: $scan_keys)"
+    modal_ok secret create tripwire-scan-secrets --from-dotenv "$scan_out" --force
+  else
+    echo "No scanner keys in .env — skipping tripwire-scan-secrets."
   fi
-  modal_ok secret create tripwire-scan-secrets --from-dotenv "$scan_out" --force
 }
 
 deploy_app() {
