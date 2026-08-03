@@ -5,8 +5,9 @@
 ## Slice Workflow Bundle
 - Slice name: `slice-17-user-guide-onboarding`
 - Baseline merged: PR #38 (`0d62ddb`) — practical setup flow and Mock-without-credentials behaviour.
-- Phase 1b branch: `slice/17-onboarding-documentation-ux`
-- Phase 1b commit: `docs(slice-17): clarify first-run documentation journey`
+- Phase 1b baseline merged: PR #40 (`51a08cd`) — public documentation UX and reference-design findings.
+- Phase 1b Live-first follow-up branch: `slice/17-phase-1b-live-setup`
+- Phase 1b Live-first follow-up commit: `c28ed2b` (`docs(slice-17): lead users through Live setup`)
 - Exit criteria: People comfortable with installation and ongoing maintenance can complete one practical setup flow with no private references; local validation and live capabilities are described by task rather than user role; every `.env.example` key has a row in `env-vars.md`; prerequisites, setup commands, and task-specific commands are in separate, linked docs; and a first-time visitor can follow accounts → `.env` → bootstrap → scan → Live dashboard, understand the Discover → Scan → Review workflow, and use Mock only as an optional UI preview.
 
 ## Decisions captured
@@ -117,7 +118,7 @@
 - Templates: `.env.example`, `fixtures/OPTIONAL_SCANNER_KEYS.md`
 
 ## Gate Status
-🔨 IN PROGRESS — Phase 1b documentation UX follow-up. Phase 1 baseline merged in PR #38; Phase 1b requires fresh documentation evidence, review, and merge before ✅.
+🔨 IN PROGRESS — Phase 1b Live-first follow-up. Phase 1 baseline merged in PR #38 and the initial Phase 1b UX landed in PR #40; the correction that makes accounts → `.env` → bootstrap → scan → Live dashboard the primary journey requires fresh review and merge before ✅.
 
 ## Reviews
 

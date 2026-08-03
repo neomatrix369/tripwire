@@ -1,9 +1,9 @@
 {
   "slice": 17,
   "date": "2026-08-03",
-  "branch": "slice/17-onboarding-documentation-ux",
+  "branch": "slice/17-phase-1b-live-setup",
   "verdict": "IN_PROGRESS",
-  "before_checks": "Phase 1 baseline merged in PR #38; Phase 1b documentation UX inventory is complete and fresh documentation review remains pending",
+  "before_checks": "Phase 1 baseline merged in PR #38; initial Phase 1b documentation UX merged in PR #40; Live-first correction inventory is complete and fresh documentation review remains pending",
   "after_checks": [
     "user-guide files exist (prerequisites, supabase-setup, modal-setup, env-vars, path-commands, onboarding-cheatsheet, setup-commands)",
     "env-vars.md is the sole vendor-procurement and key-to-feature reference",
@@ -80,10 +80,19 @@
     {
       "cmd": "node scripts/serve-dashboard.mjs --port 8766",
       "result": "blocked-by-env: sandbox rejected localhost bind with EPERM; the server's documented Mock-without-credentials path is unchanged"
+    },
+    {
+      "cmd": "git diff --check main...HEAD && jq empty docs/plan/gate-evidence/slice-17.json && pre-commit run markdownlint --all-files",
+      "result": "PASS: Live-first follow-up has no whitespace errors, valid evidence JSON, and repository-wide markdownlint passes"
+    },
+    {
+      "cmd": "rg -n '\\[!\\[' README.md QUICKSTART.md CONTRIBUTING.md SECURITY.md docs/ARCHITECTURE.md docs/README.md docs/STATUS.md fixtures/README.md prototypes/README.md",
+      "result": "PASS: every existing badge roster is top-of-page; badge links and roster membership are unchanged"
     }
   ],
   "review": "PENDING: fresh documentation-scope review required for Phase 1b",
-  "follow_up_commit": "f036501 docs(slice-17): centralize vendor credential guidance",
-  "pr": 40,
+  "baseline_pr": 40,
+  "follow_up_commit": "c28ed2b docs(slice-17): lead users through Live setup",
+  "pr": null,
   "spec_path": "docs/plan/slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md"
 }
