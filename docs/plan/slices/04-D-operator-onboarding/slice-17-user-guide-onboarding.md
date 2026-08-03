@@ -1,21 +1,20 @@
-# Slice 17: User-Guide Onboarding (Prerequisites + Persona Command Split)
+# Slice 17: User-Guide Onboarding (Practical Setup Flow)
 
 > Scenario: Brownfield | MoSCoW: **Must** | Priority: **next Must after slice 7**, before coverage 8/11–13
 
 ## Slice Workflow Bundle
 - Slice name: `slice-17-user-guide-onboarding`
 - Branch: `slice/17-user-guide-onboarding-docs-optional-scanner-keys-format`
-- Commit: `docs(slice-17): user-guide onboarding prerequisites and env procurement`
-- Exit criteria: Normal users, Developers, and Security experts can complete their path-specific setup and run role commands with no private references; every `.env.example` key has a row in `env-vars.md`; prerequisites, setup commands, and persona-specific commands are in separate, linked docs; Gate A badge strip unchanged (no Overmind/Ossprey).
+- Commit: `docs(slice-17): unify onboarding around practical setup flow`
+- Exit criteria: People comfortable with installation and ongoing maintenance can complete one practical setup flow with no private references; local validation and live capabilities are described by task rather than user role; every `.env.example` key has a row in `env-vars.md`; prerequisites, setup commands, and task-specific commands are in separate, linked docs; Gate A badge strip unchanged (no Overmind/Ossprey).
 
 ## Decisions captured
-- Adopt **rag-params-finder principles** (role → setup guide → `.env` → run; Choose Your Path) — **not** RPF’s long marketing README.
+- Adopt **rag-params-finder principles** (task → setup guide → `.env` → run; Choose Your Path) — **not** RPF’s long marketing README.
 - Lean README stays (documentation-best-practices); depth lives in `docs/user-guide/`.
-- **Phase 1 (this slice):** shared local prerequisites, `setup-commands`, `persona-commands`, `supabase-setup`, `modal-setup`, `env-vars` + wire QUICKSTART/README/docs index/CONTRIBUTING.
+- **Phase 1 (this slice):** shared local prerequisites, `setup-commands`, task-based command guidance, `supabase-setup`, `modal-setup`, `env-vars` + wire QUICKSTART/README/docs index/CONTRIBUTING.
 - **Phase 2 (later slice, e.g. 18):** troubleshooting, CLI ref, dashboard-guide, contributor-guide, ADRs, screenshots — out of scope here.
-- Common baseline path: Node 22 + `tripwire scan --dry-discover` + mock dashboard.
-- Developers: zero cloud accounts.
-- Security experts path: accounts/procure **before** `cp .env.example`.
+- One practical path: install Node 22 and Python 3.12, use `tripwire scan --dry-discover` and the mock dashboard as optional local validation, then configure live capabilities when needed.
+- Supabase, Modal, and scanner credentials are capability-dependent setup steps; provision required accounts and keys **before** `cp .env.example` when using those capabilities.
 - Scanner-vendor procurement: each optional scanner key includes vendor account location and exact env-var source in docs.
 - Operate secrets → `env-vars.md` (not bare `.env.example`).
 - Priority: wave **D** next after 7 ✅ → **17** → wave E 8 → 11 → 12 → 13. Spec dir: `docs/plan/slices/04-D-operator-onboarding/`.
@@ -23,26 +22,24 @@
 ## Files
 | Path | Action |
 |------|--------|
-| `docs/user-guide/prerequisites.md` | new — persona × tool matrix; Node 22 / Python 3.12 verify |
+| `docs/user-guide/prerequisites.md` | new — practical tool requirements; Node 22 / Python 3.12 verify |
 | `docs/user-guide/setup-commands.md` | new — canonical one-off + maintenance commands |
-| `docs/user-guide/persona-commands.md` | new — role-specific command workflows |
+| `docs/user-guide/persona-commands.md` | new — task-based command workflows; retain filename for link stability |
 | `docs/user-guide/supabase-setup.md` | new — RPF-style numbered account + key procure |
 | `docs/user-guide/modal-setup.md` | new — account, `modal setup`, `setup-modal.sh` |
 | `docs/user-guide/env-vars.md` | new — procurement SSOT for all `.env.example` keys |
 | `fixtures/OPTIONAL_SCANNER_KEYS.md` | expanded — vendor account setup + procurement flow mapped to scanner flags |
 | `.env.example` | light cross-links to env-vars.md |
-| `QUICKSTART.md` | Common baseline + Security experts phases; Mock-select + Node pin |
+| `QUICKSTART.md` | One practical onboarding flow; task-based setup links, Mock validation + Node pin |
 | `README.md` | Run-it → prerequisites/env-vars; Operate secrets → env-vars |
-| `docs/README.md` | User guide + Choose Your Path tables |
+| `docs/README.md` | User-guide index + one practical setup flow |
 | `CONTRIBUTING.md` | step 0 prerequisites; keep ≤80 lines |
 | `docs/plan/PROGRESS.md` / `TRAIL.md` / `gate-evidence/slice-17.json` | status + evidence |
 
 ## Spec (GWT)
-**Normal users** — Given Git + Node 22; When QUICKSTART Normal users + select Mock; Then dashboard works without Supabase/Modal.
+**Practical setup flow** — Given a person comfortable with installation and maintenance, with security interest or background; When they follow prerequisites → setup commands → capability-specific account and key procurement → configuration → scan and dashboard use; Then every required key source and CLI flag (e.g. `--use-llm`, `--behavioral`, `--use-aidefense`) is discoverable by link, and `tripwire setup` + `setup-modal.sh` + a fixture scan toward Live can complete.
 
-**Developers** — Given Git + Node 22 + npm, no cloud; When `tripwire scan --dry-discover` fixture; Then targets print, exit 0, no Modal.
-
-**Security experts** — Given no `.env`; When prerequisites → setup-commands + env-vars + supabase-setup → modal-setup → QUICKSTART Security experts; Then required `SUPABASE_*` / `MODAL_*` / scanner-key sources are known by link and CLI flag (e.g. `--use-llm`, `--behavioral`, `--use-aidefense`), and `tripwire setup` + `setup-modal.sh` + fixture scan toward Live complete.
+**Optional local validation** — Given the local prerequisites; When they run `tripwire scan --dry-discover` against a fixture or select Mock in the dashboard; Then they can validate installation without treating either mode as a separate audience path.
 
 ## Before-Checks [GATE]
 - [x] Branch `slice/17-user-guide-onboarding`
@@ -54,13 +51,13 @@
 - [x] `docs/user-guide/{prerequisites,setup-commands,persona-commands,supabase-setup,modal-setup,env-vars}.md` all exist
 - [x] Every key in `.env.example` has a row in `env-vars.md` (diff inventory in evidence)
 - [x] `fixtures/OPTIONAL_SCANNER_KEYS.md` documents vendor account setup + env-var procurement for Snyk, Tessl, and Cisco AI Defense, with flag-to-key coupling
-- [x] QUICKSTART links to `setup-commands` and `persona-commands`; Security-expert section links setup guides before `cp .env.example`; Normal users states Node 22 + select Mock
-- [x] README links to prereqs/env-vars + setup-commands + persona commands; `docs/README.md` Choose Your Path and persona setup sequence are present; CONTRIBUTING step 0 + `wc -l` ≤80
+- [x] QUICKSTART links to `setup-commands` and task-based command guidance; capability-specific setup guides appear before `cp .env.example`; Node 22 + Mock validation are documented
+- [x] README links to prereqs/env-vars + setup commands; `docs/README.md` presents one practical setup sequence; CONTRIBUTING step 0 + `wc -l` ≤80
 - [x] README still exactly 4 H2s and ≤100 lines (`rg '^## ' README.md` + `wc -l`)
 - [x] `rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md` empty
 - [x] PROGRESS/TRAIL critical path shows **8** → 11–13 (wave E; 17 ✅)
 - [x] `docs/plan/gate-evidence/slice-17.json` `"verdict": "PASS"` + commands; ✅ only after merge
-- [x] End-to-end persona onboarding simulation executed against docs flow (fresh-operator perspective) and captured below
+- [x] End-to-end task-based onboarding simulation executed against docs flow and captured below
 
 ## Doc Audit
 | # | Check |
@@ -71,10 +68,10 @@
 | 4 | CONTRIBUTING ≤80 |
 | 5 | Gate A badge strip intact |
 | 6 | Demo Mock select |
-| 7 | Choose Your Path in docs/README |
+| 7 | One practical setup flow in docs/README |
 | 8 | Vendor setup + scanner feature mapping documented (Snyk/Cisco/Tessl) |
 | 9 | No Phase 2 files in this slice |
-| 10 | Fresh persona simulation checks are captured in docs for blocked/blocked-by-dependency and success paths |
+| 10 | Fresh workflow simulation checks are captured in docs for blocked/blocked-by-dependency and success paths |
 
 ## Context
 - RPF: https://github.com/neomatrix369/rag-params-finder (principles)
@@ -207,22 +204,22 @@ review:
     refutation. REJECTED until anchors, README shape, file tracking, and GWT ordering fixed.
 ```
 
-## End-to-end persona simulation check (fresh operator)
+## End-to-end workflow simulation check
 
-| Persona | Commands executed | Outcome |
+| Task | Commands executed | Outcome |
 |---|---|---|
-| Normal users | `node --version`, `npm --version`, `python3 --version`, `node scripts/serve-dashboard.mjs` | Command set starts correctly; dashboard bind to `127.0.0.1:8765` can fail in sandbox/network-restricted environments (`EPERM`). This is an environmental constraint, not a doc-flow bug. |
-| Developers | `node cli/bin/tripwire.js --help`, `tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner`, `tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json` | PASS: both dry-discover targets return expected JSON objects and exit successfully. |
-| Security experts | `tripwire scan --help`, `./scripts/setup-modal.sh --non-interactive --secrets-only`, `tripwire setup`, `tripwire scan ./fixtures/skills/safe-csv-cleaner` | Expected-blocking state for fresh project without credentials: requires live Supabase/Modal connectivity and Modal auth. Script exits with clear `non-interactive` guard, and scan/setup fail when `SUPABASE_*` and/or Modal auth are unavailable. |
+| Local dashboard validation | `node --version`, `npm --version`, `python3 --version`, `node scripts/serve-dashboard.mjs` | Command set starts correctly; dashboard bind to `127.0.0.1:8765` can fail in sandbox/network-restricted environments (`EPERM`). This is an environmental constraint, not a doc-flow bug. |
+| Local discovery validation | `node cli/bin/tripwire.js --help`, `tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner`, `tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json` | PASS: both dry-discover targets return expected JSON objects and exit successfully. |
+| Live capability setup and scan | `tripwire scan --help`, `./scripts/setup-modal.sh --non-interactive --secrets-only`, `tripwire setup`, `tripwire scan ./fixtures/skills/safe-csv-cleaner` | Expected-blocking state for a fresh project without credentials: requires live Supabase/Modal connectivity and Modal auth. Script exits with clear `non-interactive` guard, and scan/setup fail when `SUPABASE_*` and/or Modal auth are unavailable. |
 
 ## Follow-up status after implementation of D1–D10
 
 - ✅ D1: README now has the intended 4 H2 structure; gate-evidence JSON no longer claims an old false result.
-- ✅ D2: Added explicit `## Normal users`, `## Developers`, `## Security experts` headings in `QUICKSTART.md`.
+- ✅ D2: Added explicit task-based headings and stable anchors in `QUICKSTART.md`.
 - ✅ D3: `docs/user-guide/setup-commands.md` and `docs/user-guide/persona-commands.md` are now present in branch working files.
-- ✅ D4: `QUICKSTART.md` now includes Node 22 guidance and Mock selection for normal users.
-- ✅ D5: `docs/user-guide/setup-commands.md` links platform guides before `cp .env.example .env`.
-- ✅ D6: `docs/README.md` anchor links now target existing headings (including persona anchors and QUICKSTART anchors that exist).
+- ✅ D4: `QUICKSTART.md` now includes Node 22 guidance and Mock validation.
+- ✅ D5: `docs/user-guide/setup-commands.md` links capability-specific platform guides before `cp .env.example .env`.
+- ✅ D6: `docs/README.md` anchor links now target existing task-based headings.
 - ✅ D7: `env-vars.md` now includes vendor account + env-var procurement links, and `OPTIONAL_SCANNER_KEYS.md` includes explicit scanner-vendor setup plus feature/flag coupling.
 - 🔜 next: run `/nw-review @nw-software-crafter` and update Gate Status to ✅ after review evidence.
 
