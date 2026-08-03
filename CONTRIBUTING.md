@@ -34,16 +34,18 @@ pre-commit run --all-files          # lint, mypy, bandit, gitleaks, fast tests
 ./scripts/quality-gates.sh --full   # above + scripts/security-scan.sh
 ```
 
-- **Commit:** ruff, mypy, bandit, gitleaks, pytest-testmon, `cli` unit tests
-- **Push:** full pytest + coverage floor; conditional pip-audit / npm audit
+- **Commit:** ruff, mypy, bandit, gitleaks, pytest-testmon (`sandbox/tests/`), `cli` unit tests
+- **Push:** full pytest + coverage floor; conditional `pip-audit --skip-editable` / npm audit
 - **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog
 - **Nightly** (`.github/workflows/nightly.yml`): full TruffleHog, SBOM, Meterian;
   mutmut and Chalk run but are **non-gating** (`|| true` — green Nightly does not mean mutation/Chalk passed)
 
-**Coverage today (VERIFIED config):** Python `sandbox/` `fail_under=95` (guard
-omitted); CLI `npm run test:coverage` ≥95% lines; Live ACL
+**Coverage today (VERIFIED config):** Python `sandbox/` `fail_under=95` via
+`pytest` / `testpaths = ["sandbox/tests"]` (guard omitted); CLI
+`npm run test:coverage` ≥95% lines; Live ACL
 `prototypes/dc-dashboard` `npm run test:coverage` ≥95% lines on the four ACL
-modules (`support.js` out of bar). Track
+modules (`support.js` out of bar). Local editable `tripwire` is skipped by
+`pip-audit --skip-editable` (not a PyPI package). Track
 [docs/plan/PROGRESS.md](docs/plan/PROGRESS.md); close per
 [docs/plan/GATE_CONTRACT.md](docs/plan/GATE_CONTRACT.md).
 

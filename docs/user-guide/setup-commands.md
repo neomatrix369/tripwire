@@ -132,6 +132,7 @@ node scripts/serve-dashboard.mjs
 
 ```bash
 cd cli && npm test
+pytest                              # sandbox/tests via pyproject testpaths
 pytest sandbox/tests/test_acquire_target.py
 cd prototypes/dc-dashboard && npm test
 ```

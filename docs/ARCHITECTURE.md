@@ -60,7 +60,7 @@ C4Container
 ### Repo layout (where containers live)
 
 - `cli/` — `tripwire` Node CLI
-- `sandbox/` — Modal app + scanner adapters (`scanners.py`)
+- `sandbox/` — Modal app + scanner adapters (`scanners.py`); unit tests in `sandbox/tests/`
 - `db/schema.sql` — Postgres/Supabase DDL + rollup; anon SELECT + Realtime
 - `prototypes/dc-dashboard/` — Live/Mock dashboard (Horizon A ship UI; prototype path)
 - `scripts/` — setup (Supabase/Modal), `serve-dashboard.mjs`, hygiene gates

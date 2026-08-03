@@ -44,11 +44,12 @@ Guides for installing, using, maintaining, and contributing to **Tripwire**.
 | [research/adapters/scanner-output-adapters.md](./research/adapters/scanner-output-adapters.md) | Scanner CLI output shapes (keep in sync with `sandbox/scanners.py`) |
 | [plan/EMOJI_LEGEND.md](./plan/EMOJI_LEGEND.md) | Emoji meanings used across plan/status docs |
 | [plan/README.md](./plan/README.md) | Wave folders `01-A-…` … `06-F-…` + tracker map |
-| [plan/PROGRESS.md](./plan/PROGRESS.md) | Slice groups A–F (execution order); next **E/8** → 11–13 |
+| [plan/PROGRESS.md](./plan/PROGRESS.md) | Slice groups A–F; E Musts ✅ · next **14** (coverage sync) → 15 |
 | [plan/DECISIONS.md](./plan/DECISIONS.md) | Planning decisions (incl. ship-path ~95%; demo/hackathon closed) |
 | [plan/GATE_CONTRACT.md](./plan/GATE_CONTRACT.md) | Before/After close rule — ✅ only when all gates met |
 | [plan/TRAIL.md](./plan/TRAIL.md) | Execution trail + context pack (private references) |
-| [plan/slices/04-D-operator-onboarding/](./plan/slices/04-D-operator-onboarding/) | Wave D / slice 17 onboarding ✅ · next E coverage |
+| [plan/slices/04-D-operator-onboarding/](./plan/slices/04-D-operator-onboarding/) | Wave D / slice 17 onboarding ✅ |
+| [plan/slices/05-E-ship-path-coverage/](./plan/slices/05-E-ship-path-coverage/) | Wave E ship-path coverage · Musts ✅ · slice 14 open |
 
 ---
 
