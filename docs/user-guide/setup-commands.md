@@ -46,7 +46,8 @@ Before running these commands, complete in order:
 
 Create `.env`, then fill its values using [env-vars.md](./env-vars.md).
 That page is the single source for vendor accounts, key procurement, and
-key-to-feature mapping.
+key-to-feature mapping. Provision Supabase, Modal, Snyk, Tessl, and Cisco AI
+Defense before this step for the recommended complete Live setup.
 
 ```bash
 cp .env.example .env

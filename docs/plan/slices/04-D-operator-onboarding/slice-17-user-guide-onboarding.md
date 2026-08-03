@@ -15,6 +15,7 @@
 - **Phase 1 (this slice):** shared local prerequisites, `setup-commands`, task-based command guidance, `supabase-setup`, `modal-setup`, `env-vars` + wire QUICKSTART/README/docs index/CONTRIBUTING.
 - **Phase 2 (later slice, e.g. 18):** troubleshooting, CLI ref, dashboard-guide, contributor-guide, ADRs, screenshots — out of scope here.
 - One practical path: install Node 22 and Python 3.12, use `tripwire scan --dry-discover` and the mock dashboard as optional local validation, then configure live capabilities when needed.
+- The local dashboard must start with built-in Mock data when Supabase credentials are absent; Live remains an explicit selectable mode once configured.
 - Supabase, Modal, and scanner credentials are capability-dependent setup steps; provision required accounts and keys **before** `cp .env.example` when using those capabilities.
 - Vendor procurement: every Supabase, Modal, Snyk, Tessl, and Cisco credential has a vendor account location and exact environment-variable source in docs. `env-vars.md` owns procurement; `OPTIONAL_SCANNER_KEYS.md` owns only Modal secret synchronization.
 - Operate secrets → `env-vars.md` (not bare `.env.example`).
@@ -37,12 +38,13 @@
 | `docs/README.md` | User-guide index + one practical setup flow |
 | `CONTRIBUTING.md` | step 0 prerequisites; keep ≤80 lines |
 | `docs/plan/SMOKE_TESTS.md` | End-to-end docs smoke-test plan and script |
+| `scripts/serve-dashboard.mjs`, `prototypes/dc-dashboard/` | Mock-without-credentials dashboard serving and explicit Live selection |
 | `docs/plan/PROGRESS.md` / `TRAIL.md` / `gate-evidence/slice-17.json` | status + evidence |
 
 ## Spec (GWT)
 **Practical setup flow** — Given a person comfortable with installation and maintenance, with security interest or background; When they follow prerequisites → setup commands → capability-specific account and key procurement → configuration → scan and dashboard use; Then every required key source and CLI flag (e.g. `--use-llm`, `--behavioral`, `--use-aidefense`) is discoverable by link, and `tripwire setup` + `setup-modal.sh` + a fixture scan toward Live can complete.
 
-**Optional local validation** — Given the local prerequisites; When they run `tripwire scan --dry-discover` against a fixture or select Mock in the dashboard; Then they can validate installation without treating either mode as a separate audience path.
+**Optional local validation** — Given the local prerequisites; When they run `tripwire scan --dry-discover` against a fixture or start the dashboard without Supabase credentials; Then the dashboard opens in Mock mode and they can select Live after configuring Supabase, without treating either mode as a separate audience path.
 
 ## Before-Checks [GATE]
 - [x] Branch `slice/17-user-guide-onboarding`
@@ -53,7 +55,7 @@
 ## After-Checks [GATE]
 - [x] `docs/user-guide/{prerequisites,setup-commands,path-commands,onboarding-cheatsheet,supabase-setup,modal-setup,env-vars}.md` all exist
 - [x] Every key in `.env.example` has a row in `env-vars.md` (diff inventory in evidence)
-- [x] `fixtures/OPTIONAL_SCANNER_KEYS.md` documents only the Modal scanner-secret allowlist and manual fallback; `env-vars.md` documents vendor account setup and environment-variable procurement
+- [x] `fixtures/OPTIONAL_SCANNER_KEYS.md` documents only the Modal scanner-secret allowlist and safe helper-only sync behavior; `env-vars.md` documents vendor account setup and environment-variable procurement
 - [x] Docs synchronization scope for workflow changes is explicit and includes:
   - entry/agent docs: `README.md`, `docs/README.md`, `CONTRIBUTING.md`
   - quick-start + setup guides: `QUICKSTART.md`, `docs/user-guide/{prerequisites,setup-commands,supabase-setup,modal-setup,env-vars}.md`

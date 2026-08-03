@@ -1,14 +1,22 @@
 # Environment variables
 
 > Procurement SSOT for every key in [`.env.example`](../../.env.example).
-> Platform: procure accounts ([supabase-setup](./supabase-setup.md), [modal-setup](./modal-setup.md)) **before** `cp .env.example .env`.
-> For full scan coverage, provision every listed vendor credential. If a scanner
-> credential is absent, that engine reports `skipped_missing_credential`.
+> For the recommended complete Live setup, provision all five vendors before
+> `cp .env.example .env`: [Supabase](./supabase-setup.md),
+> [Modal](./modal-setup.md), Snyk, Tessl, and Cisco AI Defense.
+> If a scanner credential is absent, the runtime safely reports
+> `skipped_missing_credential` for that engine. Treat this as a degraded
+> diagnostic path, not complete scan coverage.
+>
+> **Cost and billing:** creating accounts, provisioning resources, deploying
+> Modal apps, and running Live scans can incur charges or consume provider
+> quotas. Review billing and usage controls for all five vendors before
+> proceeding; use the local Mock path when you do not intend to incur costs.
 >
 > Keep vendor account and key-procurement instructions on this page. The
 > [setup command catalog](./setup-commands.md) owns command order; the
 > [Modal scanner-secret reference](../../fixtures/OPTIONAL_SCANNER_KEYS.md)
-> owns only the Modal secret allowlist and manual fallback.
+> owns only the Modal secret allowlist and safe sync behavior.
 
 Companion allowlist: [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md).
 
@@ -65,7 +73,9 @@ not a second environment-variable schema.
 # or secrets only: ./scripts/setup-modal.sh --secrets-only
 ```
 
-See [modal-setup.md](./modal-setup.md). Manual CLI fallback is documented in [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md).
+See [modal-setup.md](./modal-setup.md). The [Modal scanner-secret reference](../../fixtures/OPTIONAL_SCANNER_KEYS.md)
+explains the allowlist and why the helper must be used instead of a manual
+secret-creation command.
 
 ## Vendor procurement quick-steps
 

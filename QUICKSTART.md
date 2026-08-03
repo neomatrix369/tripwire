@@ -2,8 +2,8 @@
 
 > Fast entrypoint for installation, scanning, and maintenance.
 
-Follow this shared flow. Use local validation when useful, then configure Live
-capabilities only when you need them.
+Follow this shared flow. Use local validation when useful; for complete Live
+scan coverage, configure all five vendor paths.
 
 ## Shared setup reference
 
@@ -16,21 +16,21 @@ capabilities only when you need them.
 ## Daily workflow
 
 - [Maintenance and bootstrap commands](docs/user-guide/setup-commands.md#re-run-and-maintenance-commands)
-- [Regular checks](docs/user-guide/setup-commands.md#7-test-commands-when-needed)
+- [Regular checks](docs/user-guide/setup-commands.md#5-test-commands-when-needed)
 
 ## Install and configure
 
 1. [Confirm prerequisites](docs/user-guide/prerequisites.md).
 2. Install and link the CLI using the [setup command catalog](docs/user-guide/setup-commands.md).
 3. Prefer this role-neutral flow for onboarding and local validation:
-   [path-commands.md](docs/user-guide/path-commands.md#local-validation-node-22--mock-dashboard)
+   [path-commands.md](docs/user-guide/path-commands.md#3-validate-locally)
 4. Configure all five vendor paths in this onboarding order for full scan coverage:
    - [Supabase](docs/user-guide/supabase-setup.md): create the project and copy the platform credentials.
    - [Modal](docs/user-guide/modal-setup.md): authenticate and deploy the Live scan environment.
    - [Snyk](https://app.snyk.io): collect API token and map to `SNYK_TOKEN` in `.env`.
    - [Tessl](https://tessl.io): collect workspace token and map to `TESSL_TOKEN` / `TESSL_WORKSPACE`.
    - [Cisco AI Defense](https://developer.cisco.com): collect the LLM or AI Defense credentials for `AI_DEFENSE_*` and Cisco MCP scanner settings.
-  - Use [env-vars.md](docs/user-guide/env-vars.md) to map each credential to `.env`.
+   - Use [env-vars.md](docs/user-guide/env-vars.md) to map each credential to `.env`.
     [OPTIONAL_SCANNER_KEYS.md](fixtures/OPTIONAL_SCANNER_KEYS.md) documents scanner-secret allowlist values and manual fallback behavior.
 5. Bootstrap the environment and services:
 

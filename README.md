@@ -27,7 +27,8 @@ System shape: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 Tripwire has one installation, setup, run, and maintenance flow. It suits people
 comfortable with command-line setup who have an interest in security findings.
 Mock and dry-discover are optional local validation modes; Supabase, Modal, and
-scanner keys are needed only for the corresponding Live capabilities.
+scanner keys enable Live capabilities. For the recommended complete Live setup,
+provision Supabase, Modal, Snyk, Tessl, and Cisco AI Defense.
 See [who can set up and run Tripwire](docs/user-guide/prerequisites.md#who-can-set-up-and-run-tripwire)
 for the expected technical comfort level.
 
@@ -52,7 +53,7 @@ All one-off setup and periodic maintenance commands are maintained in one place:
 ### Run and validate
 
 Follow [QUICKSTART.md](QUICKSTART.md), including
-[path-commands.md](docs/user-guide/path-commands.md#local-validation-node-22--mock-dashboard), for installation,
+[path-commands.md](docs/user-guide/path-commands.md#3-validate-locally), for installation,
 optional local validation,
 Live capability setup, scans, dashboard review, and maintenance. Re-run and
 maintenance commands are in [docs/user-guide/setup-commands.md](docs/user-guide/setup-commands.md).

@@ -414,7 +414,7 @@ class Component extends DCLogic {
     activeTab: 'dashboard',
     data: null,
     dataSource: 'loading',
-    dataSourceMode: sessionStorage.getItem('tripwire-data-source-mode') || 'live',
+    dataSourceMode: sessionStorage.getItem('tripwire-data-source-mode') || 'mock',
     typeFilter: 'all',
     statusFilter: 'all',
     selectedId: null,
@@ -704,7 +704,7 @@ class Component extends DCLogic {
       'live-realtime': { label: 'Live · Realtime', dotColor: '#34d399', textColor: '#34d399', bgColor: 'rgba(52,211,153,0.15)', borderColor: 'rgba(52,211,153,0.4)', tooltip: 'Supabase Realtime — updates arrive within ~1s of Modal writes' },
       'live-empty': { label: 'Live · empty', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Connected to Supabase — no items yet' },
       'mock-selected': { label: 'Demo data', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: '#192638', tooltip: 'Using built-in demo data (user selected)' },
-      mock: { label: 'Missing API key', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Run: node scripts/serve-dashboard.mjs  (or set SUPABASE_ANON_KEY + ./scripts/sync-dashboard-config.sh)' },
+      mock: { label: 'Demo data', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: '#192638', tooltip: 'Using built-in demo data; configure Supabase and select Live for database results' },
       'mock-failed': { label: 'Connection error', dotColor: '#f43f5e', textColor: '#f43f5e', bgColor: 'rgba(244,63,94,0.1)', borderColor: 'rgba(244,63,94,0.3)', tooltip: 'Could not reach Supabase (auth, RLS, or network) — showing demo data' },
       'mock-empty': { label: 'Live · empty', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Connected to Supabase — no items yet' }
     };

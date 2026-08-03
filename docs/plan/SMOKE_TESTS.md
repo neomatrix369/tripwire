@@ -4,7 +4,8 @@ This runbook verifies that first-time readers can successfully progress from ins
 
 ## How to run this smoke test
 
-Run both tracks for every meaningful onboarding or maintenance documentation change:
+Run both simulation tracks for every meaningful onboarding or maintenance
+documentation change:
 
 1. **Documentation simulation:** follow the documented pages and commands from a
    clean, isolated clone. Use clearly invalid placeholder values only to expose
@@ -12,16 +13,16 @@ Run both tracks for every meaningful onboarding or maintenance documentation cha
    assumptions. Do not call provider APIs, create resources, or count placeholder
    values, cached output, a pre-existing global CLI link, or existing provider
    authentication as a pass.
-2. **Real execution:** repeat the applicable documented steps unchanged with a
-   clean environment and disposable provider resources. Record the actual command
-   result for Supabase, Modal, Snyk, Tessl, and Cisco AI Defense when that provider
-   is in scope. A provider blocked by unavailable credentials or account access is
-   `blocked-by-env`; it is not evidence that the provider flow works.
+2. **Provider-fixture simulation:** model one clearly synthetic account and its
+   setup path for each vendor: Supabase, Modal, Snyk, Tessl, and Cisco AI
+   Defense. Follow each linked account, credential, and `.env` mapping path,
+   without signing in, calling provider APIs, creating resources, or using real
+   credentials.
 
-Keep the two results separate. A simulation finds documentation gaps; only real
-execution proves that a documented journey works. A command that reuses cached
-state or fails before its documented work begins must not satisfy a scan,
-provider-coverage, or dashboard-result assertion.
+Keep the two results separate. These simulations find documentation gaps and
+demonstrate the intended provider journey; they do not prove a Live integration.
+A command that reuses cached state or fails before its documented work begins
+must not satisfy a scan, provider-coverage, or dashboard-result assertion.
 
 ## Current status
 
@@ -39,23 +40,22 @@ onboarding, setup, running, maintenance, or contribution guidance. The executor
 records the evidence and fixes the gap or links the follow-up issue before handoff.
 
 Run this from a fresh clone when practical. Record whether `tripwire` was already
-globally linked, whether `.env` already existed, and which Live providers were
-available. Live checks must use disposable/test resources; never record tokens,
+globally linked and whether `.env` already existed. Never record tokens,
 service-role keys, or credential-bearing URLs.
 
 | Field | Record |
 |---|---|
 | Date and commit | UTC date and tested commit SHA |
-| Mode | `local-only` or `live` |
-| Providers enabled | Supabase, Modal, Snyk, Tessl, Cisco AI Defense as applicable |
-| Result | `pass`, `fail`, or `blocked-by-env` |
+| Mode | `documentation-simulation` or `provider-fixture-simulation` |
+| Provider fixtures | One synthetic account path each for Supabase, Modal, Snyk, Tessl, and Cisco AI Defense |
+| Result | `pass` or `fail` |
 | Evidence and follow-up | Command/output summary and linked issue, if needed |
 
 ## Rerun checklist (visitor-first)
 
 ### 1) Entry and map
 
-- Start from [README.md](../README.md).
+- Start from [README.md](../../README.md).
 - Open [docs/README.md](./README.md).
 
 Checks:
@@ -156,35 +156,37 @@ Expected result:
 - Local validation commands are clear and discoverable.
 - No doc-flow breakage; sandbox limits are explicitly identified.
 
-### 5) Live capabilities onboarding order
+### 5) Five-vendor onboarding fixture order
 
 Files:
 - [supabase-setup.md](./user-guide/supabase-setup.md)
 - [modal-setup.md](./user-guide/modal-setup.md)
 - [env-vars.md](./user-guide/env-vars.md)
 
-Run (read/sequence check; execution depends on environment):
+Run (read/sequence check; no provider access):
 
 ```bash
-# Read-only smoke check in this runbook
-# Confirm docs order and required steps before copying .env.example
+# Use one clearly synthetic account fixture per vendor.
+# Confirm the linked account, credential, and .env paths before copying .env.example.
 ```
 
 Checks:
-- Required platform steps are in order: Supabase setup -> Modal setup -> `.env`.
+- Provision all five vendors, then complete Supabase setup -> Modal setup -> `.env`.
 - All five vendor setup paths are explicit: Supabase, Modal, Snyk, Tessl, and
   Cisco AI Defense.
 - Each provider has a documented account/key source and `.env` mapping.
-- A missing scanner credential is documented as `skipped_missing_credential`
-  for that scanner engine.
+- Missing scanner credentials are documented as a separate degraded diagnostic:
+  `skipped_missing_credential` applies to that engine and does not prove
+  complete Live coverage.
 
 Expected result:
 - A new operator can provision live capabilities by following documented order.
 
 ### 5a) Live bootstrap proof (test resources only)
 
-Run only with a disposable Supabase project and a Modal account. Do not paste
-credentials into this document or command output.
+Run only with disposable accounts/resources for Supabase, Modal, Snyk, Tessl,
+and Cisco AI Defense. Do not paste credentials into this document or command
+output.
 
 ```bash
 tripwire setup
@@ -195,7 +197,8 @@ tripwire setup
 Checks:
 - Platform setup completes without exposing credentials.
 - Modal receives only non-empty scanner credentials from the documented allowlist.
-- With no scanner credentials configured, the existing scanner secret is preserved.
+- As a separate degraded diagnostic, verify that no scanner credentials preserves
+  the existing scanner secret.
 - Authentication or cloud-account restrictions are recorded as `blocked-by-env`,
   with the documented recovery path noted.
 
@@ -209,7 +212,8 @@ node scripts/serve-dashboard.mjs
 ```
 
 Checks:
-- A scan result is produced without requiring optional scanner credentials.
+- A complete Live scan produces results with all five vendor paths configured.
+- Local no-key validation is limited to dry discovery and Mock dashboard checks.
 - Mock and Live dashboard modes are visibly distinct and the selected source is clear.
 - In Live mode, the expected result is visible after the scan; otherwise record the
   exact dependency that blocked it.
@@ -220,8 +224,9 @@ Expected result:
 ### 5c) Degraded mode and recovery
 
 Checks:
-- A missing scanner credential reports `skipped_missing_credential` and
-  does not fail the complete scan.
+- A deliberately removed scanner credential reports `skipped_missing_credential`
+  for that engine. Record this as degraded diagnostic evidence, not a passing
+  complete-Live result.
 - Modal authentication failures point to the documented login/setup path.
 - Supabase connection or schema failures point to the documented setup or
   `tripwire setup --force` recovery path.

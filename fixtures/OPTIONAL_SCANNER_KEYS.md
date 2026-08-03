@@ -17,17 +17,18 @@ are not a second key catalogue.
 
 ## Scanner-secret allowlist
 
-`setup-modal.sh` copies only non-empty values for these keys. A missing value
+`setup-modal.sh` copies only non-empty values for these keys. Configure every
+listed capability for the recommended complete Live setup. A missing value safely
 skips that scanner engine (`skipped_missing_credential`); it never creates a
-placeholder token.
+placeholder token, but this is a degraded diagnostic path.
 
 | Scanner capability | Keys synced to `tripwire-scan-secrets` |
 |---|---|
 | Snyk scanning | `SNYK_TOKEN` |
 | Tessl quality score | `TESSL_TOKEN`, `TESSL_WORKSPACE` |
-| Cisco Skill Scanner LLM | `SKILL_SCANNER_LLM_API_KEY`, `SKILL_SCANNER_LLM_MODEL`, `SKILL_SCANNER_LLM_PROVIDER`, `SKILL_SCANNER_LLM_BASE_URL` |
-| Cisco MCP Scanner LLM | `MCP_SCANNER_LLM_API_KEY`, `MCP_SCANNER_LLM_MODEL`, `MCP_SCANNER_LLM_BASE_URL` |
-| Cisco AI Defense | `AI_DEFENSE_API_KEY`, `MCP_SCANNER_API_KEY`, `MCP_SCANNER_ENDPOINT` |
+| Cisco Skill Scanner LLM | `SKILL_SCANNER_LLM_API_KEY`, `SKILL_SCANNER_LLM_MODEL`, `SKILL_SCANNER_LLM_PROVIDER`, `SKILL_SCANNER_LLM_BASE_URL`, `SKILL_SCANNER_LLM_API_VERSION` |
+| Cisco MCP Scanner LLM | `MCP_SCANNER_LLM_API_KEY`, `MCP_SCANNER_LLM_MODEL`, `MCP_SCANNER_LLM_BASE_URL`, `MCP_SCANNER_LLM_API_VERSION` |
+| Cisco AI Defense | `AI_DEFENSE_API_KEY`, `AI_DEFENSE_API_URL`, `MCP_SCANNER_API_KEY`, `MCP_SCANNER_ENDPOINT` |
 
 Scanner environment variable names stay upstream. Do not add `TRIPWIRE_*` or
 `CISCO_AI_DEFENSE_API_KEY` aliases.
@@ -42,36 +43,12 @@ Use `./scripts/setup-modal.sh` to sync secrets and deploy the scan app. Both
 commands read the repository-root `.env`, use the allowlist above, and never
 echo values.
 
-## Manual fallback
+## No manual secret command
 
-Use this only when the helper script cannot run. `tripwire-supabase` is a
-separate required platform-secret payload; its values and requirements remain
-defined in [env-vars.md](../docs/user-guide/env-vars.md). It appears here only
-because this operational fallback creates both Modal secrets.
+Do not replace `./scripts/setup-modal.sh --secrets-only` with a hand-written
+`modal secret create ... --force` command. The helper filters empty scanner
+values before updating `tripwire-scan-secrets`; a manual command can overwrite
+an existing value with a blank one.
 
-```bash
-unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy ALL_PROXY all_proxy
-modal secret create tripwire-supabase \
-  SUPABASE_URL="$SUPABASE_URL" \
-  SUPABASE_SERVICE_ROLE_KEY="$SUPABASE_SERVICE_ROLE_KEY" \
-  --force
-
-modal secret create tripwire-scan-secrets \
-  SNYK_TOKEN="$SNYK_TOKEN" \
-  TESSL_TOKEN="$TESSL_TOKEN" \
-  TESSL_WORKSPACE="$TESSL_WORKSPACE" \
-  SKILL_SCANNER_LLM_API_KEY="$SKILL_SCANNER_LLM_API_KEY" \
-  SKILL_SCANNER_LLM_MODEL="$SKILL_SCANNER_LLM_MODEL" \
-  SKILL_SCANNER_LLM_PROVIDER="$SKILL_SCANNER_LLM_PROVIDER" \
-  SKILL_SCANNER_LLM_BASE_URL="$SKILL_SCANNER_LLM_BASE_URL" \
-  MCP_SCANNER_LLM_API_KEY="$MCP_SCANNER_LLM_API_KEY" \
-  MCP_SCANNER_LLM_MODEL="$MCP_SCANNER_LLM_MODEL" \
-  MCP_SCANNER_LLM_BASE_URL="$MCP_SCANNER_LLM_BASE_URL" \
-  AI_DEFENSE_API_KEY="$AI_DEFENSE_API_KEY" \
-  MCP_SCANNER_API_KEY="$MCP_SCANNER_API_KEY" \
-  MCP_SCANNER_ENDPOINT="${MCP_SCANNER_ENDPOINT:-https://us.api.inspect.aidefense.security.cisco.com/api/v1}" \
-  --force
-```
-
-If no scanner keys are set, `./scripts/setup-modal.sh --secrets-only` leaves
-`tripwire-scan-secrets` unchanged and syncs only Supabase secrets.
+If no scanner keys are set, the helper leaves `tripwire-scan-secrets` unchanged
+and syncs only the required Supabase secret.
