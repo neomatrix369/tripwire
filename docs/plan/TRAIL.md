@@ -84,7 +84,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 1 | [`slices/01-A-live-path-gwt/`](slices/01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 (4 attempted) | A done; 4 📦 |
 | 2 | [`slices/02-B-characterization-evidence/`](slices/02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`slices/03-C-trust-coverage-audit/`](slices/03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
-| 4 | [`slices/04-D-operator-onboarding/`](slices/04-D-operator-onboarding/) | **D — Task-based onboarding** | **17** | 🔀 re-review pending |
+| 4 | [`slices/04-D-operator-onboarding/`](slices/04-D-operator-onboarding/) | **D — Task-based onboarding + documentation UX** | **17** | 🔨 Phase 1b active |
 | 5 | [`slices/05-E-ship-path-coverage/`](slices/05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ · (9∥10) → 14 | ✅ Musts · close-path open |
 | 6 | [`slices/06-F-claim-audit/`](slices/06-F-claim-audit/) | **F — Claim audit** | 15 (16 deferred) | 📋 / 📦 |
 
@@ -112,11 +112,11 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 |---|------|------|--------|--------|------------|-------|-----------|
 | 7 | [slice-7-coverage-audit-matrix](slices/03-C-trust-coverage-audit/slice-7-coverage-audit-matrix.md) | Coverage Audit Matrix + Docs Parity | Must | ✅ | none | #26/#27 | ~4 min |
 
-### D — Task-based onboarding (corrected on branch; re-review pending)
+### D — Task-based onboarding + documentation UX (Phase 1b active)
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
-| **17** | [slice-17-user-guide-onboarding](slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | User-Guide Onboarding (Prereqs + Env) | Must | 🔀 | 7 | — | ~5 min |
+| **17** | [slice-17-user-guide-onboarding](slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | User-Guide Onboarding + Documentation UX | Must | 🔨 | 7 | — | ~6 min |
 
 ### E — Ship-path coverage (next)
 
@@ -128,7 +128,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 11 | [slice-11-python-ship-path-coverage-95](slices/05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Python Ship-Path Coverage ≥95% | Must | ✅ | 8 (9,10 Should) | — | ~5 min |
 | 12 | [slice-12-cli-coverage-gate-95](slices/05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | CLI Coverage Gate ≥95% (Delta) | Must | ✅ | 6 | — | ~4 min |
 | 13 | [slice-13-live-acl-coverage-gate-95](slices/05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Live ACL Coverage Gate ≥95% (Delta) | Must | ✅ | 2,3 | — | ~4 min |
-| 14 | [slice-14-coverage-status-docs-sync](slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Coverage Status + Docs Sync (Delta) | Must | 🔀 | 11,12,13 | — | ~3 min |
+| 14 | [slice-14-coverage-status-docs-sync](slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Coverage Status + Docs Sync (Delta) | Must | ✅ | 11,12,13 | #39 | ~3 min |
 
 ### F — Claim audit (after D; after E close-path open)
 
@@ -149,15 +149,15 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | coverage-audit.md | ✅ written — slice 7 |
 | GAP_ANALYSIS.md | pending |
 | HANDOFF.md | pending — `/memory-distiller` at session end |
-| gate-evidence/ | ✅ passed slices; slice 17 re-review evidence pending |
+| gate-evidence/ | ✅ passed slices; Slice 17 Phase 1b evidence pending |
 
 **Close rule:** ✅ PASSED only when every Before/After check is met (or DECISIONS-waived), evidence JSON `verdict: PASS`, review done, trackers updated. See GATE_CONTRACT.md.
 
 ## Execute priority (by wave — 2026-08-02)
 
-1. Waves **A–C** ✅; wave **D** slice 17 is corrected on branch and awaiting re-review
-2. Wave **E** Musts ✅ (8, 11–13) · close-path: 14 (9 → 10 **SUBSUMED** into 11)
-3. Wave **F** Must: 15 — **next after 14** · 16 📦 (demo remediations deferred with 4)
+1. Waves **A–C** and Slice 14 ✅; wave **D** Slice 17 Phase 1b is the active public-documentation UX follow-up
+2. Phase 1b preserves the practical onboarding flow while making the Mock first run and Discover → Scan → Review journey immediately scannable
+3. Wave **F** Must: 15 — next after Slice 17 Phase 1b; 16 📦 (demo remediations deferred with 4)
 
 See also PROGRESS.md **Slice groups** and [GATE_CONTRACT.md](GATE_CONTRACT.md).
 

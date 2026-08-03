@@ -1,9 +1,9 @@
 {
   "slice": 17,
   "date": "2026-08-03",
-  "branch": "slice/17-user-guide-onboarding-docs-optional-scanner-keys-format",
-  "verdict": "PENDING_REVIEW",
-  "before_checks": "implementation corrections are committed; fresh review evidence is pending",
+  "branch": "slice/17-onboarding-documentation-ux",
+  "verdict": "IN_PROGRESS",
+  "before_checks": "Phase 1 baseline merged in PR #38; Phase 1b documentation UX inventory and fresh review evidence are pending",
   "after_checks": [
     "user-guide files exist (prerequisites, supabase-setup, modal-setup, env-vars, path-commands, onboarding-cheatsheet, setup-commands)",
     "env-vars.md is the sole vendor-procurement and key-to-feature reference",
@@ -12,8 +12,12 @@
     "README Run-it → prereqs/env-vars; docs/README Choose Your Path; CONTRIBUTING step 0 ≤80",
     "README structure updated: 9 H2s observed in current snapshot (gate evidence not asserting 4)",
     "no Overmind/Ossprey in README/QUICKSTART/CONTRIBUTING",
-    "PROGRESS/TRAIL mark slice 17 as corrected on branch and pending re-review",
-    "gate-evidence reflects the current task-based documentation state"
+    "Phase 1 baseline is merged in PR #38; PROGRESS/TRAIL mark Phase 1b documentation UX as in progress",
+    "gate-evidence reflects the current task-based documentation state",
+    "README starts with a credential-free Mock-dashboard route before badges or deep setup detail",
+    "README gives an accessible Discover → Scan → Review workflow and routes to existing deeper documents",
+    "docs/README.md exposes Try locally, Set up Live scanning, Understand results/status, and Contribute/maintain task routes",
+    "Phase 1b Markdown, smoke-route, dry-discovery, and review evidence are captured before merge"
   ],
   "env_key_inventory": [
     "SUPABASE_ANON_KEY",
@@ -65,7 +69,7 @@
       "result": "empty"
     }
   ],
-  "review": "PENDING: fresh /nw-review required after the corrected implementation",
+  "review": "PENDING: fresh documentation-scope review required for Phase 1b",
   "follow_up_commit": "f036501 docs(slice-17): centralize vendor credential guidance",
   "pr": null,
   "spec_path": "docs/plan/slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md"

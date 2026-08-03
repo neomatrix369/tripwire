@@ -2,7 +2,7 @@
   "slice": 14,
   "date": "2026-08-03",
   "branch": "slice/14-coverage-status-docs-sync",
-  "verdict": "ON_BRANCH",
+  "verdict": "PASS",
   "before_checks": "PASS — existing branch; slices 11, 12, and 13 are recorded PASSED; coverage-audit.md lists numeric gates and branch/function thresholds for each layer.",
   "after_checks": [
     "docs/STATUS.md contains sandbox, CLI, and Live ACL coverage figures",
@@ -32,6 +32,6 @@
     }
   ],
   "review": "nw-review APPROVED — re-review confirmed the exact commands and captured outputs.",
-  "pr": null,
+  "pr": "#39 (merged)",
   "spec_path": "docs/plan/slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md"
 }

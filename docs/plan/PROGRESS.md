@@ -8,19 +8,18 @@
 | 1 | [`01-A-…`](slices/01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 · 4 | ✅ · 4 📦 |
 | 2 | [`02-B-…`](slices/02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`03-C-…`](slices/03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
-| 4 | [`04-D-…`](slices/04-D-operator-onboarding/) | **D — Task-based onboarding** | **17** | 🔀 re-review pending |
+| 4 | [`04-D-…`](slices/04-D-operator-onboarding/) | **D — Task-based onboarding + documentation UX** | **17** | 🔨 Phase 1b active |
 | 5 | [`05-E-…`](slices/05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ → 14 (**9+10 SUBSUMED INTO 11**) | ✅ Musts · close-path |
 | 6 | [`06-F-…`](slices/06-F-claim-audit/) | **F — Claim audit** | 15 (after 14) · 16 | 📋 · 16 📦 |
 
-**Open critical path:** 14 must pass first, then 15
+**Current priority:** Slice 17 Phase 1b documentation UX, then Slice 15 claim audit. Slice 15's technical dependency on Slice 14 is already satisfied.
 
 ## Execution order (open work)
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| — | D | 17 | user-guide onboarding review | Must | 🔀 |
-| 1 | E | 14 | coverage sync | Must | 🔀 |
-| — | F | 15 | claim audit (16 📦) | Must | 📋 |
+| 1 | D | 17 | onboarding + documentation UX (Phase 1b) | Must | 🔨 |
+| 2 | F | 15 | claim audit (16 📦) | Must | 📋 |
 
 ## Quick Status (by group)
 
@@ -46,7 +45,7 @@
 ### D — Task-based onboarding
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| **17** | [slice-17-user-guide-onboarding](slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | Must | 🔀 re-review pending | 2026-08-02 | — | ~50 min |
+| **17** | [slice-17-user-guide-onboarding](slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | Must | 🔨 Phase 1b docs UX | 2026-08-02 | — | ~50 min + ~25 min |
 
 ### E — Ship-path coverage
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
@@ -57,7 +56,7 @@
 | 11 | [slice-11-python-ship-path-coverage-95](slices/05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~50 min |
 | 12 | [slice-12-cli-coverage-gate-95](slices/05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
 | 13 | [slice-13-live-acl-coverage-gate-95](slices/05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
-| 14 | [slice-14-coverage-status-docs-sync](slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Must | 🔀 | 2026-08-03 | — | ~25 min |
+| 14 | [slice-14-coverage-status-docs-sync](slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Must | ✅ | 2026-08-03 | 2026-08-03 | ~25 min |
 
 ### F — Claim audit
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
@@ -76,12 +75,11 @@
 | 4 (historical) | Remotion sibling + VO assets missing | 📦 closed with demo/hackathon deferral — reinstate slice 4 if film day returns |
 
 ## Forward Roadmap
-- Waves **A–C** done. Slice 17 is corrected on branch and pending re-review; next coverage close-path work remains **E** Must 14 then **F (15)**.
-- E Must 14 follows the close-path after 13 (with 9+10 SUBSUMED into 11)
-- Claim-audit slice 15 is blocked until slice 14 is passed (coverage sync + final matrix)
-- Dependency: close-path `slice-14 -> slice-15` (slice 15 depends on slice 14)
+- Waves **A–C** and coverage Slice 14 are merged. Slice 17 Phase 1b is the active documentation priority; then continue to **F (15)**.
+- Claim-audit Slice 15's dependency on Slice 14 is satisfied; it is deferred by priority until Slice 17 Phase 1b closes.
+- Slice 17 Phase 1b changes public documentation UX only: README/docs index hierarchy, Mock first run, workflow orientation, and task routes.
 - **Deferred / Won't (A):** 4 (in A), 16 (in F) — reinstate only if a new demo need arises
-- Slice 17 🔀 = task-based prerequisites, vendor procurement, and command guidance corrected on branch; fresh review/evidence required before ✅. Phase 2 guides = later slice (18+)
+- Slice 17 🔨 = Phase 1 baseline merged; Phase 1b improves the public README/docs-index journey with fresh review/evidence required before ✅. Phase 2 guides remain later work.
 - Gate close: [GATE_CONTRACT.md](GATE_CONTRACT.md)
 - After E Musts: ask 1+C vs continue F claim audit
 - Won't for A: Drift, Phase 4/5, redesign, blast-radius, instruction→install→scan; Live E2E CI Must; support.js 95%; demo video / hackathon film day
