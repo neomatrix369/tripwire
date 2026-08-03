@@ -2,6 +2,27 @@
 
 This runbook verifies that first-time readers can successfully progress from install to run, contribution, and maintenance without hidden gaps.
 
+## How to run this smoke test
+
+Run both tracks for every meaningful onboarding or maintenance documentation change:
+
+1. **Documentation simulation:** follow the documented pages and commands from a
+   clean, isolated clone. Use clearly invalid placeholder values only to expose
+   hidden configuration gates, missing pages, incorrect routes, or unsafe
+   assumptions. Do not call provider APIs, create resources, or count placeholder
+   values, cached output, a pre-existing global CLI link, or existing provider
+   authentication as a pass.
+2. **Real execution:** repeat the applicable documented steps unchanged with a
+   clean environment and disposable provider resources. Record the actual command
+   result for Supabase, Modal, Snyk, Tessl, and Cisco AI Defense when that provider
+   is in scope. A provider blocked by unavailable credentials or account access is
+   `blocked-by-env`; it is not evidence that the provider flow works.
+
+Keep the two results separate. A simulation finds documentation gaps; only real
+execution proves that a documented journey works. A command that reuses cached
+state or fails before its documented work begins must not satisfy a scan,
+provider-coverage, or dashboard-result assertion.
+
 ## Current status
 
 | Field | Value |
