@@ -4,30 +4,28 @@ Guides for **Tripwire**, by who you are and what you want to do.
 
 **Repo entry:** [README.md](../README.md) · **Fastest run:** [QUICKSTART.md](../QUICKSTART.md)
 
-> Same personas as [README → Run it](../README.md#run-it). This page is the **doc map**.
+> Same personas as [README → Choose your path](../README.md#choose-your-path). This page is the **doc map**.
 
 ---
 
 ## Who is this for?
 
-| Persona | Start here | Then |
-|---------|------------|------|
-| **Demo viewer** | [user-guide/prerequisites](./user-guide/prerequisites.md) | [QUICKSTART → Demo](../QUICKSTART.md#demo-viewer) (select **Mock**) |
-| **Scanner user** | [user-guide/prerequisites](./user-guide/prerequisites.md) | [QUICKSTART → Scanner](../QUICKSTART.md#scanner-user) |
-| **Platform operator** | [prerequisites](./user-guide/prerequisites.md) → [supabase](./user-guide/supabase-setup.md) → [modal](./user-guide/modal-setup.md) → [env-vars](./user-guide/env-vars.md) | [QUICKSTART → Platform](../QUICKSTART.md#platform-operator) |
-| **Operate secrets / Modal** | [env-vars.md](./user-guide/env-vars.md) | [OPTIONAL_SCANNER_KEYS.md](../fixtures/OPTIONAL_SCANNER_KEYS.md) |
-| **Contributor** | [CONTRIBUTING.md](../CONTRIBUTING.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) · [plan/PROGRESS.md](./plan/PROGRESS.md) |
-| **Compliance / audit** | [prototypes/README.md](../prototypes/README.md) | [fixtures/README.md](../fixtures/README.md) · [STATUS.md](./STATUS.md) |
-| **Security reporter** | [SECURITY.md](../SECURITY.md) | — |
-| **Agent / slice worker** | [AGENTS.md](../AGENTS.md) · [CLAUDE.md](../CLAUDE.md) | [plan/PROGRESS.md](./plan/PROGRESS.md) · [plan/TRAIL.md](./plan/TRAIL.md) |
+| Role | Start here | Then |
+|------|------------|------|
+| **Normal users** | [user-guide/onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md) | [QUICKSTART → Normal users](../QUICKSTART.md#normal-users) (select **Mock**) |
+| **Developers** | [user-guide/prerequisites](./user-guide/prerequisites.md) | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md#developers) |
+| **Security experts** | [prerequisites](./user-guide/prerequisites.md) → [supabase](./user-guide/supabase-setup.md) → [modal](./user-guide/modal-setup.md) → [env-vars](./user-guide/env-vars.md) | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md#security-experts) |
+| **Maintainers** | [CONTRIBUTING.md](../CONTRIBUTING.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) · [plan/PROGRESS.md](./plan/PROGRESS.md) |
+| **Security and reporting stakeholders** | [SECURITY.md](../SECURITY.md) · [prototypes/README.md](../prototypes/README.md) | [fixtures/README.md](../fixtures/README.md) · [STATUS.md](./STATUS.md) |
+| **Planning / slice workflows** | [AGENTS.md](../AGENTS.md) · [CLAUDE.md](../CLAUDE.md) | [plan/PROGRESS.md](./plan/PROGRESS.md) · [plan/TRAIL.md](./plan/TRAIL.md) |
 
 ### Choose Your Path
 
 | Path | Cloud? | First docs |
 |------|--------|------------|
-| Demo | No | [prerequisites](./user-guide/prerequisites.md) → QUICKSTART Demo → select Mock |
-| Scanner | No | [prerequisites](./user-guide/prerequisites.md) → `--dry-discover` |
-| Platform | Yes | prerequisites → supabase-setup → modal-setup → env-vars → QUICKSTART Platform |
+| Normal users | No | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md) → QUICKSTART → Normal users |
+| Developers | No (optional cloud later) | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md#developers) → `tripwire scan --dry-discover` |
+| Security experts | Yes | prerequisites → supabase-setup → modal-setup → env-vars → QUICKSTART → Security experts |
 
 ---
 
@@ -35,8 +33,9 @@ Guides for **Tripwire**, by who you are and what you want to do.
 
 | Doc | What it covers |
 |-----|----------------|
-| [QUICKSTART.md](../QUICKSTART.md) | Demo / scanner / platform paths |
-| [user-guide/prerequisites.md](./user-guide/prerequisites.md) | Persona × tool matrix; Node 22 / Python 3.12 |
+| [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) | One-shot setup + one-off/regular/maintenance commands |
+| [QUICKSTART.md](../QUICKSTART.md) | Normal users / Developers / Security experts paths |
+| [user-guide/prerequisites.md](./user-guide/prerequisites.md) | Role × tool matrix; Node 22 / Python 3.12 |
 | [user-guide/env-vars.md](./user-guide/env-vars.md) | Procurement SSOT for `.env.example` keys |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | C4 L1–L2 diagrams, key flows, repo layout |
 | [STATUS.md](./STATUS.md) | RESEARCH / IMPLEMENTED / VERIFIED claims |
@@ -63,9 +62,10 @@ Guides for **Tripwire**, by who you are and what you want to do.
 
 | Task | Doc / command |
 |------|----------------|
-| Mock dashboard in 2 minutes | [QUICKSTART → Demo](../QUICKSTART.md#demo-viewer) |
-| Dry-discover a fixture | [QUICKSTART → Scanner](../QUICKSTART.md#scanner-user) |
-| Full stack scan | [QUICKSTART → Platform](../QUICKSTART.md#platform-operator) |
+| Mock dashboard in 2 minutes | [QUICKSTART → Normal users](../QUICKSTART.md#normal-users) |
+| Dry-discover a fixture | [QUICKSTART → Developers](../QUICKSTART.md#developers) |
+| Full stack scan | [QUICKSTART → Security experts](../QUICKSTART.md#security-experts) |
+| Setup + commands by tempo | [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) |
 | Understand system shape | [ARCHITECTURE.md](./ARCHITECTURE.md) |
 | What is verified today? | [STATUS.md](./STATUS.md) |
 | Quality gates / hooks | [CONTRIBUTING.md](../CONTRIBUTING.md) |

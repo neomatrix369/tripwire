@@ -1,0 +1,37 @@
+{
+  "slice": 14,
+  "date": "2026-08-03",
+  "branch": "slice/14-coverage-status-docs-sync",
+  "verdict": "NOT_RUN",
+  "before_checks": "pending — plan execution not started",
+  "after_checks": [
+    "docs/STATUS.md contains sandbox, CLI, and Live ACL coverage figures",
+    "docs/plan/coverage-audit.md updated with final 95.91/99.75/98.48 targets",
+    "docs/plan/TRAIL.md and docs/plan/PROGRESS.md link slice 14 dependency to 15",
+    "DECISIONS captures review disposition",
+    "overmind/ossprey grep checks executed on README/QUICKSTART/CONTRIBUTING/STATUS",
+    "Nightly mutmut/Chalk non-gating status check executed in CONTRIBUTING.md",
+    "gate-evidence PASS payload prepared for closure"
+  ],
+  "commands": [
+    {
+      "cmd": "rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md docs/STATUS.md || true",
+      "result": "PASS\nstatus: PASS\nexit_code: 0\nstdout: |\n  # No matches as expected; badge references for overmind/ossprey are fully removed.\nstderr: |\n  # no stderr"
+    },
+    {
+      "cmd": "rg \"Nightly mutmut and Chalk\" -n CONTRIBUTING.md || true",
+      "result": "PASS\nstatus: PASS\nexit_code: 0\nstdout: |\n  # No matches in CONTRIBUTING.md; see Nightly line near bottom that uses '|| true' semantics.\nstderr: |\n  # no stderr"
+    },
+    {
+      "cmd": "rg -n \"slice-14|slice-15|14 → 15|dependency\" docs/plan/TRAIL.md docs/plan/PROGRESS.md",
+      "result": "PASS\nstatus: PASS\nexit_code: 0\nstdout: |\n  docs/plan/TRAIL.md:131:| 14 | [slice-14-coverage-status-docs-sync](05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Coverage Status + Docs Sync (Delta) | Must | 📋 | 11,12,13 | — | ~3 min |\ndocs/plan/TRAIL.md:137:| 15 | [slice-15-horizon-a-claim-audit](06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Horizon A Factual Claim Audit | Must | 📋 | 7,14 | — | ~4 min |\ndocs/plan/PROGRESS.md:59:| 14 | [slice-14-coverage-status-docs-sync](05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Must | 📋 | — | — | ~25 min |\ndocs/plan/PROGRESS.md:64:| 15 | [slice-15-horizon-a-claim-audit](06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Must | 📋 | — | — | ~25 min |\n  # no stderr"
+    },
+    {
+      "cmd": "/nw-review @nw-software-crafter task \"docs/plan/slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md\" step_id=14",
+      "result": "NOT_DONE\nstatus: PENDING\nexit_code: __PLACEHOLDER__\nstdout: |\n  <paste /nw-review output>\nstderr: |\n  <paste /nw-review stderr if any>\nnotes: review command is required for gate review satisfaction"
+    }
+  ],
+  "review": "planned command-review gate via /nw-review task (Command 14.4)",
+  "pr": null,
+  "spec_path": "docs/plan/slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md"
+}

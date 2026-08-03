@@ -45,9 +45,7 @@ Companion allowlist: [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_
 
 ## Optional (any tier)
 
-| Key | Required for | Where to get it |
-|-----|--------------|-----------------|
-| `VIRUSTOTAL_API_KEY` | Binary hash checks | [VirusTotal](https://www.virustotal.com) API key; omit freely |
+No additional optional scanner keys are currently documented for this repository. Add them only after they are supported in code and scripts.
 
 ## Wire into Modal
 

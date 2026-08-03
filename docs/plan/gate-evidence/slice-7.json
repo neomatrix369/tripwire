@@ -36,5 +36,5 @@
       "artifact": "docs/plan/coverage-audit.md"
     }
   },
-  "spec_path": "docs/plan/03-C-trust-coverage-audit/slice-7-coverage-audit-matrix.md"
+  "spec_path": "docs/plan/slices/03-C-trust-coverage-audit/slice-7-coverage-audit-matrix.md"
 }

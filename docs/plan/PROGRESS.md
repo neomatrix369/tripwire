@@ -1,5 +1,5 @@
 # Progress
-> Last updated: 2026-08-02
+> Last updated: 2026-08-03
 
 ## Slice groups (execution sequence)
 
@@ -8,18 +8,18 @@
 | 1 | [`01-A-…`](01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 · 4 | ✅ · 4 📦 |
 | 2 | [`02-B-…`](02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`03-C-…`](03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
-| 4 | [`04-D-…`](04-D-operator-onboarding/) | **D — Operator onboarding** | **17** | ✅ |
-| 5 | [`05-E-…`](05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ · Should 9→10→14 | ✅ Musts |
-| 6 | [`06-F-…`](06-F-claim-audit/) | **F — Claim audit** | 15 · 16 | 📋 · 16 📦 |
+| 4 | [`04-D-…`](04-D-operator-onboarding/) | **D — Role-based onboarding** | **17** | ✅ |
+| 5 | [`05-E-…`](05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ → 14 (**9+10 SUBSUMED INTO 11**) | ✅ Musts · close-path |
+| 6 | [`06-F-…`](06-F-claim-audit/) | **F — Claim audit** | 15 (after 14) · 16 | 📋 · 16 📦 |
 
-**Open critical path (within E):** E Musts complete — Should 9→10→14 · F/15
+**Open critical path:** 14 must pass first, then 15
 
 ## Execution order (open work)
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| — | E | 9 → 10 → 14 | Should coverage deltas / STATUS sync | Should | 📋 |
-| — | F | 15 | claim audit (16 📦) | Should | 📋 |
+| — | E | 14 | coverage sync | Must | 📋 |
+| — | F | 15 | claim audit (16 📦) | Must | 📋 |
 
 ## Quick Status (by group)
 
@@ -42,7 +42,7 @@
 |---|-------|--------|--------|---------|-----------|-----------|
 | 7 | [slice-7-coverage-audit-matrix](03-C-trust-coverage-audit/slice-7-coverage-audit-matrix.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
 
-### D — Operator onboarding
+### D — Role-based onboarding
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
 | **17** | [slice-17-user-guide-onboarding](04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~50 min |
@@ -51,17 +51,17 @@
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
 | 8 | [slice-8-scanner-skill-parse-fixtures](05-E-ship-path-coverage/slice-8-scanner-skill-parse-fixtures.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
-| 9 | [slice-9-scanner-snyk-tessl-parse-fixtures](05-E-ship-path-coverage/slice-9-scanner-snyk-tessl-parse-fixtures.md) | Should | 📋 | — | — | ~25 min |
-| 10 | [slice-10-scan-item-inner-characterization](05-E-ship-path-coverage/slice-10-scan-item-inner-characterization.md) | Should | 📋 | — | — | ~25 min |
+| 9 | [slice-9-scanner-snyk-tessl-parse-fixtures](05-E-ship-path-coverage/slice-9-scanner-snyk-tessl-parse-fixtures.md) | Should | 📦 | 2026-08-02 | — | ~25 min |
+| 10 | [slice-10-scan-item-inner-characterization](05-E-ship-path-coverage/slice-10-scan-item-inner-characterization.md) | Should | 📦 | 2026-08-02 | — | ~25 min |
 | 11 | [slice-11-python-ship-path-coverage-95](05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~50 min |
 | 12 | [slice-12-cli-coverage-gate-95](05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
 | 13 | [slice-13-live-acl-coverage-gate-95](05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
-| 14 | [slice-14-coverage-status-docs-sync](05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Should | 📋 | — | — | ~25 min |
+| 14 | [slice-14-coverage-status-docs-sync](05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Must | 📋 | — | — | ~25 min |
 
 ### F — Claim audit
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| 15 | [slice-15-horizon-a-claim-audit](06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Should | 📋 | — | — | ~25 min |
+| 15 | [slice-15-horizon-a-claim-audit](06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Must | 📋 (dependency:14) | — | — | ~25 min |
 | 16 | [slice-16-docs-claim-remediations](06-F-claim-audit/slice-16-docs-claim-remediations.md) | Won't (A) | 📦 | — | 2026-08-02 | ~25 min |
 
 **Status Legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 DEFERRED`
@@ -75,8 +75,10 @@
 | 4 (historical) | Remotion sibling + VO assets missing | 📦 closed with demo/hackathon deferral — reinstate slice 4 if film day returns |
 
 ## Forward Roadmap
-- Waves **A–D** done. Next: **E** Musts 8 → 11–13 → **F (15)** as Should
-- E Should (9, 10, 14) beside or after Must coverage
+- Waves **A–D** done. Next: **E** Musts 8 → 11–13 → 14 then **F (15)**
+- E Must 14 follows the close-path after 13 (with 9+10 SUBSUMED into 11)
+- Claim-audit slice 15 is blocked until slice 14 is passed (coverage sync + final matrix)
+- Dependency: close-path `slice-14 -> slice-15` (slice 15 depends on slice 14)
 - **Deferred / Won't (A):** 4 (in A), 16 (in F) — reinstate only if a new demo need arises
 - Slice 17 ✅ = RPF-style prereqs/env procurement; Phase 2 guides = later slice (18+)
 - Gate close: [GATE_CONTRACT.md](GATE_CONTRACT.md)

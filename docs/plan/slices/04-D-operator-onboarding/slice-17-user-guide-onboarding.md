@@ -6,18 +6,18 @@
 - Slice name: `slice-17-user-guide-onboarding`
 - Branch: `slice/17-user-guide-onboarding`
 - Commit: `docs(slice-17): user-guide onboarding prerequisites and env procurement`
-- Exit criteria: Demo / Scanner / Platform can go tools → accounts (if needed) → procure → commands without `internal-docs`; every `.env.example` key has a row in `env-vars.md`; README ≤100 lines, exactly 4 H2s; Gate A badge strip unchanged (no Overmind/Ossprey).
+- Exit criteria: Normal users, Developers, and Security experts can do local baseline setup and then run their path-specific commands without `internal-docs`; every `.env.example` key has a row in `env-vars.md`; README ≤100 lines, exactly 4 H2s; Gate A badge strip unchanged (no Overmind/Ossprey).
 
 ## Decisions captured
-- Adopt **rag-params-finder principles** (persona → setup guide → `.env` → run; Choose Your Path) — **not** RPF’s long marketing README.
+- Adopt **rag-params-finder principles** (role → setup guide → `.env` → run; Choose Your Path) — **not** RPF’s long marketing README.
 - Lean README stays (documentation-best-practices); depth lives in `docs/user-guide/`.
-- **Phase 1 (this slice):** prerequisites, supabase-setup, modal-setup, env-vars + wire QUICKSTART/README/docs index/CONTRIBUTING.
+- **Phase 1 (this slice):** shared local prerequisites, `supabase-setup`, `modal-setup`, `env-vars` + wire QUICKSTART/README/docs index/CONTRIBUTING.
 - **Phase 2 (later slice, e.g. 18):** troubleshooting, CLI ref, dashboard-guide, contributor-guide, ADRs, screenshots — out of scope here.
-- Demo path: Node 22 + operator must **select Mock** (Live is default) — slice-16 compatible.
-- Scanner path: zero cloud accounts.
-- Platform path: accounts/procure **before** `cp .env.example`.
+- Common baseline path: Node 22 + `tripwire scan --dry-discover` + mock dashboard.
+- Developers: zero cloud accounts.
+- Security experts path: accounts/procure **before** `cp .env.example`.
 - Operate secrets → `env-vars.md` (not bare `.env.example`).
-- Priority: wave **D** next after 7 ✅ → **17** → wave E 8 → 11 → 12 → 13. Spec dir: `docs/plan/04-D-operator-onboarding/`.
+- Priority: wave **D** next after 7 ✅ → **17** → wave E 8 → 11 → 12 → 13. Spec dir: `docs/plan/slices/04-D-operator-onboarding/`.
 
 ## Files
 | Path | Action |
@@ -27,18 +27,18 @@
 | `docs/user-guide/modal-setup.md` | new — account, `modal setup`, `setup-modal.sh` |
 | `docs/user-guide/env-vars.md` | new — procurement SSOT for all `.env.example` keys |
 | `.env.example` | light cross-links to env-vars.md |
-| `QUICKSTART.md` | Platform phases; Demo Mock-select + Node pin |
+| `QUICKSTART.md` | Common baseline + Security experts phases; Mock-select + Node pin |
 | `README.md` | Run-it → prerequisites/env-vars; Operate secrets → env-vars |
 | `docs/README.md` | User guide + Choose Your Path tables |
 | `CONTRIBUTING.md` | step 0 prerequisites; keep ≤80 lines |
 | `docs/plan/PROGRESS.md` / `TRAIL.md` / `gate-evidence/slice-17.json` | status + evidence |
 
 ## Spec (GWT)
-**Demo** — Given Git + Node 22; When QUICKSTART Demo + select Mock; Then dashboard works without Supabase/Modal.
+**Normal users** — Given Git + Node 22; When QUICKSTART Normal users + select Mock; Then dashboard works without Supabase/Modal.
 
-**Scanner** — Given Git + Node 22 + npm, no cloud; When `tripwire scan --dry-discover` fixture; Then targets print, exit 0, no Modal.
+**Developers** — Given Git + Node 22 + npm, no cloud; When `tripwire scan --dry-discover` fixture; Then targets print, exit 0, no Modal.
 
-**Platform** — Given no `.env`; When prerequisites → supabase-setup → modal-setup → env-vars → QUICKSTART Platform; Then required SUPABASE_* sources known, `tripwire setup` + `setup-modal.sh` + fixture scan toward Live.
+**Security experts** — Given no `.env`; When prerequisites → supabase-setup → modal-setup → env-vars → QUICKSTART Security experts; Then required `SUPABASE_*` / `MODAL_*` sources are known, `tripwire setup` + `setup-modal.sh` + fixture scan toward Live.
 
 ## Before-Checks [GATE]
 - [x] Branch `slice/17-user-guide-onboarding`
@@ -49,7 +49,7 @@
 ## After-Checks [GATE]
 - [x] `docs/user-guide/{prerequisites,supabase-setup,modal-setup,env-vars}.md` all exist
 - [x] Every key in `.env.example` has a row in `env-vars.md` (diff inventory in evidence)
-- [x] QUICKSTART Platform section links setup guides before `cp .env.example`; Demo states Node 22 + select Mock
+- [x] QUICKSTART Security-expert section links setup guides before `cp .env.example`; Normal users states Node 22 + select Mock
 - [x] README Run-it → prereqs/env-vars; `docs/README.md` Choose Your Path; CONTRIBUTING step 0 + `wc -l` ≤80
 - [x] README still exactly 4 H2s and ≤100 lines (`rg '^## ' README.md` + `wc -l`)
 - [x] `rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md` empty

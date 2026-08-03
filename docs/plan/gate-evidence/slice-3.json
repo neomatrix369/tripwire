@@ -11,5 +11,5 @@
   ],
   "acceptance_test": "given must-show MCP completed scan_run when loadData live then GWT-2 sandbox evidence holds",
   "verdict": "VERIFIED",
-  "spec_path": "docs/plan/01-A-live-path-gwt/slice-3-gwt2-sandbox-evidence-acceptance.md"
+  "spec_path": "docs/plan/slices/01-A-live-path-gwt/slice-3-gwt2-sandbox-evidence-acceptance.md"
 }

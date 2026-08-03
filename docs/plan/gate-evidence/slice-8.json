@@ -34,5 +34,5 @@
   ],
   "review": "nw-review not required for test-only delta; characterization fixtures only",
   "pr": null,
-  "spec_path": "docs/plan/05-E-ship-path-coverage/slice-8-scanner-skill-parse-fixtures.md"
+  "spec_path": "docs/plan/slices/05-E-ship-path-coverage/slice-8-scanner-skill-parse-fixtures.md"
 }

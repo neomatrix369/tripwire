@@ -35,7 +35,7 @@
 | 2026-08-02 | planning | Added slices 15–16 | Path B Add — claim audit canvas (15) + Realtime/demo/prototype remediations (16); depends on 7 |
 | 2026-08-02 | slice-7 | Gate A+B written | coverage-audit.md + trust strip on branch `slice/7-coverage-audit-matrix` (PR #26) |
 | 2026-08-02 | moscow | Demo/hackathon demoted | Slice 4 VO/Remotion → Could; slice 16 demo prose → Could. **SUPERSEDED** by demo-hackathon closed row (📦 Won't A) and docs-onboarding priority |
-| 2026-08-02 | docs-onboarding | Slice 17 Must; priority after 7 | RPF principles (setup before `.env`, user-guide Phase 1); lean README kept; Phase 2 deferred. **Critical path: Must 7→17→8→11→12→13**; Should 9→10→14→15 (15 prefer after 17) |
+| 2026-08-02 | docs-onboarding | Slice 17 Must; priority after 7 | RPF principles (setup before `.env`, user-guide Phase 1); lean README kept; Phase 2 deferred. **Critical path: Must 7→17→8→11→12→13**; Should 14→15 (9→10 are **SUBSUMED by 11**) |
 | 2026-08-02 | priority | Reprioritise for slice 17 | PROGRESS Execution order + TRAIL table reorder: finish 7, then 17 before coverage wave; do not preempt open 🔨 on 7 |
 | 2026-08-02 | demo-hackathon | Closed for Horizon A | Demo + hackathon over. **Slice 4** (VO/Remotion) and **slice 16** (film-day / demo prose remediations) → 📦 Won't (A); Remotion blocker closed. Reinstate stubs only if a new demo need arises. Operator Mock-select honesty stays in **slice 17**. Slice 15 claim audit may still note FAIL rows without requiring slice 16. |
 | 2026-08-02 | gate-contract | Hard close + quality bar | SSOT: `docs/plan/GATE_CONTRACT.md`. ✅ PASSED only if all Before/After met (or DECISIONS-waived), evidence `verdict: PASS`, review, trackers, merged. Soft checks banned; open slices 8–15/17 After-Checks strengthened. `🔀` ≠ ✅. |
@@ -58,3 +58,12 @@
 | 2026-08-02 | slice-13 | func/branch gates | c8 funcs 85 / branches 80 — residual `getCreateClient` CDN import unmocked; line/stmt ≥95% is the ship-path bar. |
 | 2026-08-02 | slice-13 | review | Test+ci only; `/nw-review` skipped with this note. |
 | 2026-08-02 | slice-13 | loadCreateClient | `subscribe(..., { loadCreateClient })` injectable seam for unit tests. |
+| 2026-08-03 | planning | slice 9 + 10 | **SUBSUMED by 11** for Horizon A execution order. Slice 9/10 remain documented as slice specs only; execution closes via slice 11 + slice 14 docs sync. |
+| 2026-08-03 | model split | OpenAI wave execution model | Planning/coordination = `gpt-5.6-sol`; implementation/verification slices = `gpt-5.6-terra`; review = `gpt-5.6-terra`. |
+| 2026-08-03 | model execution | OpenAI model profile | Review execution for `/nw-review` and plan-doc verification uses `gpt-5.6-terra` unless slice says otherwise. Fine-grain: `high` for planning synthesis, `low`/`medium` for artifact audit, `low` for doc-only updates. |
+| 2026-08-03 | slice-14 | review disposition | Plan review requested for `slice-14-coverage-status-docs-sync.md`; review outcome logged as docs-shape pass (no blocking issues) and no runtime evidence dependency beyond tracker/doc checks. |
+| 2026-08-03 | slice-14 | tracker | `docs/plan/gate-evidence/slice-14.json` scaffold created with hard-check schema expectations; ready for command/results append on execution. |
+| 2026-08-03 | slice-15 | evidence format | `docs/plan/claim-audit.md` created with PASS/FAIL/PARTIAL + evidence-path matrix and 3B/3C block-log rows to align with slice-15 After-Checks. |
+| 2026-08-03 | slice-14 | /nw-review | `gpt-5.6-terra` (low) quality pass: `APPROVED` — `docs/plan/slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md` `task` review command added and routed through `Command 14.4`. Docs-shape review complete (no blocking issues); tracker/command intent complete; pending execution evidence is command output capture. |
+| 2026-08-03 | slice-15 | /nw-review | `gpt-5.6-terra` (low) quality pass: `APPROVED` — `docs/plan/slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md` `task` review command added and routed through `Command 15.10`. Scope, evidence protocol, and command matrix coherent; pending runtime evidence still blocks PASS. |
+| 2026-08-03 | priority | close-path | slices-14 and 15 elevated to Must close-path after E and before final close; execution remains 14 → 15. |

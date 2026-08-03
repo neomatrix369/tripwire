@@ -30,5 +30,5 @@
   ],
   "review": "test+ci gate uplift; nw-review deferred — characterization/coverage tests only (DECISIONS)",
   "pr": null,
-  "spec_path": "docs/plan/05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md"
+  "spec_path": "docs/plan/slices/05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md"
 }

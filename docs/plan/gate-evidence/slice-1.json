@@ -45,5 +45,5 @@
     "Operator should confirm Live dashboard UI on camera before treating film as done (slice 4)."
   ],
   "verdict": "VERIFIED",
-  "spec_path": "docs/plan/01-A-live-path-gwt/slice-1-walking-skeleton-live-path.md"
+  "spec_path": "docs/plan/slices/01-A-live-path-gwt/slice-1-walking-skeleton-live-path.md"
 }

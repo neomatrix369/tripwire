@@ -32,5 +32,5 @@
   ],
   "review": "test+ci; DECISIONS review skip",
   "pr": null,
-  "spec_path": "docs/plan/05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md"
+  "spec_path": "docs/plan/slices/05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md"
 }

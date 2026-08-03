@@ -31,7 +31,6 @@
     "AI_DEFENSE_API_KEY",
     "MCP_SCANNER_API_KEY",
     "MCP_SCANNER_ENDPOINT",
-    "VIRUSTOTAL_API_KEY",
     "MODAL_TOKEN_ID (commented)",
     "MODAL_TOKEN_SECRET (commented)",
     "SKILL_SCANNER_LLM_API_VERSION (commented)",
@@ -55,5 +54,5 @@
   ],
   "review": "docs-only DECISIONS 2026-08-02",
   "pr": null,
-  "spec_path": "docs/plan/04-D-operator-onboarding/slice-17-user-guide-onboarding.md"
+  "spec_path": "docs/plan/slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md"
 }
