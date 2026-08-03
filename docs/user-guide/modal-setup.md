@@ -1,6 +1,7 @@
 # Modal setup
 
-> Security experts only. Complete [supabase-setup](./supabase-setup.md) and fill platform keys in `.env` first.
+> Required for Live scans that use Modal. Complete [supabase-setup](./supabase-setup.md)
+> and fill platform keys in `.env` first.
 
 ## 1. Account + CLI
 
@@ -10,10 +11,29 @@
 ```bash
 pip install modal
 modal setup
-# Prefer interactive login. Tokens (MODAL_TOKEN_ID / MODAL_TOKEN_SECRET) are optional.
+# Prefer interactive login. Tokens (MODAL_TOKEN_ID / MODAL_TOKEN_SECRET) are required only for non-interactive setups.
 ```
 
-## 2. One-shot sync + deploy
+## 2. Optional non-interactive token pair (for CI/non-interactive runs)
+
+If you need `./scripts/setup-modal.sh --non-interactive`, procure these from your
+Modal account and set both values in `.env`:
+
+1. Sign in at [modal.com](https://modal.com).
+2. Go to **Settings → Tokens**.
+3. Create a new token pair and copy values.
+
+You can also run:
+
+```bash
+modal token new
+```
+
+and copy the token ID and token secret returned by the CLI.
+
+Keep this pair empty if you use interactive `modal setup`.
+
+## 3. One-shot sync + deploy
 
 From repo root, with a filled `.env`:
 
@@ -45,7 +65,7 @@ modal app list
 # Expect tripwire-scan (or your deployed app name) after a successful deploy
 ```
 
-Then run a fixture scan and Live dashboard per [QUICKSTART → Security experts](../../QUICKSTART.md#security-experts).
+Then run a fixture scan and Live dashboard per [QUICKSTART → Live capabilities](../../QUICKSTART.md#live-capabilities).
 
 ## Next
 

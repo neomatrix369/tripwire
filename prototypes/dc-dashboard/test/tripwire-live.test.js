@@ -429,8 +429,9 @@ test('given dashboard html when inspecting chips then no fallback user-visible c
   assert.match(block, /label: 'Live · Supabase'/);
   assert.match(block, /label: 'Live · empty'/);
   assert.match(block, /label: 'Demo data'/);
-  assert.match(block, /label: 'Missing API key'/);
   assert.match(block, /label: 'Connection error'/);
+  // Mock remains available without credentials (no "Missing API key" chip).
+  assert.doesNotMatch(block, /Missing API key/);
 });
 
 test(

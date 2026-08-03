@@ -1,6 +1,7 @@
 # Supabase setup
 
-> Security experts only. Do this **before** `cp .env.example .env`.
+> Required for Live scans. Do this **before** `cp .env.example .env` when you
+> want to store findings in Supabase.
 
 ## 1. Create a project
 
@@ -47,4 +48,4 @@ tripwire setup
 
 ## Next
 
-→ [modal-setup.md](./modal-setup.md) · full run: [QUICKSTART → Security experts](../../QUICKSTART.md#security-experts)
+→ [modal-setup.md](./modal-setup.md) · full run: [QUICKSTART → Live capabilities](../../QUICKSTART.md#live-capabilities)

@@ -22,125 +22,62 @@ and displays results in a Live/Mock dashboard.
 Run discovery with the CLI, then watch results in the dashboard.
 System shape: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## Choose your path
+## Use Tripwire
 
-| Role / path | Expected setup | Start here |
-|---------|----------------|------------|
-| **Normal users** | Node 22 only | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#normal-users) |
-| **Developers** | Node 22 + Python 3.12 + CLI + git | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#developers) |
-| **Security experts** | Node 22 + Python 3.12 + scanner tooling | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#security-experts) |
+Tripwire has one installation, setup, run, and maintenance flow. It suits people
+comfortable with command-line setup who have an interest in security findings.
+Mock and dry-discover are optional local validation modes; Supabase, Modal, and
+scanner keys enable Live capabilities. For the recommended complete Live setup,
+provision Supabase, Modal, Snyk, Tessl, and Cisco AI Defense.
+See [who can set up and run Tripwire](docs/user-guide/prerequisites.md#who-can-set-up-and-run-tripwire)
+for the expected technical comfort level.
 
-## One-time prerequisites (before first use)
+## Start here
 
-Use this checklist first:
+### Baseline prerequisites
 
-```bash
-git --version
-node -v      # must match .nvmrc (v22)
-python3 -V   # must match .python-version (3.12)
-```
+Check the shared requirements in:
 
-- **Baseline docs:** [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
-- **Environment keys:** [docs/user-guide/env-vars.md](docs/user-guide/env-vars.md)
-- **Role overlap note:** people can be both security experts and developers. Pick the path that matches your current goal.
+- [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
+- [docs/user-guide/env-vars.md](docs/user-guide/env-vars.md)
 
-## One-off setup and command categories
+Use the snippets from [prerequisites.md](docs/user-guide/prerequisites.md) to run your own local checks.
 
-### Setup (normal users)
+### Shared setup command catalog
 
-No credentials required.
+All one-off setup and periodic maintenance commands are maintained in one place:
 
-```bash
-git clone https://github.com/neomatrix369/tripwire.git
-cd tripwire
-node scripts/serve-dashboard.mjs
-```
+- [docs/user-guide/setup-commands.md](docs/user-guide/setup-commands.md)
+- [Role-neutral onboarding path](docs/user-guide/path-commands.md)
 
-Open: `http://127.0.0.1:8765/Tripwire.dc.html`, then set Guard → Data source → **Mock (demo data)**.
+### Run and validate
 
-### Setup (developers)
+Follow [QUICKSTART.md](QUICKSTART.md), including
+[path-commands.md](docs/user-guide/path-commands.md#3-validate-locally), for installation,
+optional local validation,
+Live capability setup, scans, dashboard review, and maintenance. Re-run and
+maintenance commands are in [docs/user-guide/setup-commands.md](docs/user-guide/setup-commands.md).
 
-Install CLI dependencies and run a fixture-only dry scan.
+## Troubleshooting and contribution
 
-```bash
-cd cli && npm install && npm link && cd ..
-tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
-```
-
-### Setup (security experts)
-
-Provision accounts + keys first, then bootstrap schema and Modal.
-
-```bash
-cp .env.example .env
-# fill keys from:
-# docs/user-guide/env-vars.md
-cd cli && npm install && npm link && cd ..
-tripwire setup
-# or: ./scripts/setup-supabase.sh
-pip install modal
-./scripts/setup-modal.sh
-tripwire scan ./fixtures/skills/safe-csv-cleaner
-```
-
-## Regular commands (day-to-day use)
-
-### Normal users
-
-```bash
-node scripts/serve-dashboard.mjs
-tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
-```
-
-### Developers
-
-```bash
-tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json
-```
-
-### Security experts
-
-```bash
-tripwire scan ./fixtures/skills/safe-csv-cleaner
-tripwire scan ./fixtures/mcp/mcp_manifest.json
-node scripts/serve-dashboard.mjs
-```
-
-## Maintenance commands (periodic)
-
-Use these when something changes (fixtures, schema, scanner keys, dependencies).
-
-```bash
-tripwire setup --force                     # re-apply latest DB schema
-./scripts/setup-modal.sh --secrets-only     # sync keys without redeploy
-./scripts/setup-modal.sh --deploy-only      # redeploy sandbox
-./scripts/quality-gates.sh --quick          # pre-commit check
-./scripts/quality-gates.sh                 # full project gates
-```
-
-Project-specific cleanup:
-
-```bash
-cd cli && npm test                        # CLI tests
-cd prototypes/dc-dashboard && npm test     # dashboard coverage checks
-pytest sandbox/test_acquire_target.py       # sandbox smoke
-```
-
-## Troubleshooting shortcuts
+### Troubleshooting shortcuts
 
 - Live dashboard blank or stale? Switch between **Mock** and **Live** on Guard tab.
 - Live selected but no data: ensure `SUPABASE_ANON_KEY` or local proxy is configured.
 - Missing scanner output: confirm keys in `.env` and re-run `./scripts/setup-modal.sh --secrets-only`.
 - Dry-discover is failing: verify `node_modules` was installed in `cli/` and `npm link` was run.
 
-## Contribute
+### Contribute
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports: [SECURITY.md](SECURITY.md).
+**Contributors** use Tripwire and also improve or share it. After completing the
+shared setup, follow [CONTRIBUTING.md](CONTRIBUTING.md) for development and PR
+work. Security reports: [SECURITY.md](SECURITY.md).
 
-## Learn more
+### Learn more
 
 - Docs index: [docs/README.md](docs/README.md)
-- New operator onboarding cheat sheet: [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md)
+- End-to-end docs smoke test plan: [docs/plan/SMOKE_TESTS.md](docs/plan/SMOKE_TESTS.md)
+- New contributor onboarding cheat sheet: [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md)
 - Architecture (diagrams): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Capability status: [docs/STATUS.md](docs/STATUS.md)
 - Fixtures: [fixtures/README.md](fixtures/README.md)

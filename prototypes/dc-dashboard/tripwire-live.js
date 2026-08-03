@@ -219,7 +219,7 @@ async function loadLiveData() {
   }
 }
 
-export default async function loadData(mode = 'live') {
+export default async function loadData(mode = 'mock') {
   if (mode === 'mock') return loadMockData();
   return loadLiveData();
 }

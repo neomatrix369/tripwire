@@ -1,5 +1,10 @@
 # Slice 14: Documentation Onboarding Rewrite + Link Repair
 
+> **SUPERSEDED historical draft.** Do not execute this specification. Its
+> onboarding scope was delivered and subsequently consolidated by
+> [slice 17](../../04-D-operator-onboarding/slice-17-user-guide-onboarding.md);
+> current vendor procurement belongs in `docs/user-guide/env-vars.md`.
+
 ## Objective
 
 Align the primary user entry docs (`README.md`, `QUICKSTART.md`, `docs/README.md`,
@@ -12,6 +17,7 @@ and `docs/user-guide/*`) into a single onboarding flow that clearly answers:
 
 Also remove stale optional scanner-reference material from docs/code and verify key
 inventory alignment in `.env.example` / env-var guidance.
+In addition, optional scanner onboarding must include where each vendor account is provisioned and where each scanner env var is obtained.
 
 ## Scope
 
@@ -43,6 +49,7 @@ Out of scope:
 - `/fixtures/OPTIONAL_SCANNER_KEYS.md` and `/docs/user-guide/env-vars.md` — remove deprecated scanner key documentation
 - `/docs/research/adapters/scanner-output-adapters.md` — remove deprecated analyzer mention from adapter docs
 - `/docs/plan/gate-evidence/slice-17.json` — sync env-key evidence inventory
+- `/docs/user-guide/env-vars.md` and `/fixtures/OPTIONAL_SCANNER_KEYS.md` — add explicit vendor account + env-var procurement steps for Snyk, Tessl, and Cisco AI Defense
 
 ## Execution notes
 
@@ -64,6 +71,7 @@ Out of scope:
 - `docs/user-guide/prerequisites.md` documents platform vs non-platform requirements.
 - No command snippet appears without a working target path or command context.
 - `SUPABASE_ANON_KEY` remains present in `.env.example` and is consistently documented.
+- Vendor account setup and env-var procurement links for Snyk/Cisco/Tessl are documented.
 - Deprecated scanner key references are removed from this slice's target
   doc/code paths.
 
@@ -72,14 +80,14 @@ Out of scope:
 - Slice artifact is ready for `/nw-review` (`@nw-software-crafter`, `implementation` or
   `step` depending on process mode) before merge.
 
-## Manual review findings captured (pending implementation approval)
+## Manual review findings captured (historical, now reflected)
 
-- [ ] Docs map anchor repair (SUGGESTION): `docs/README.md` references
+- [x] Docs map anchor repair (SUGGESTION): `docs/README.md` references
   `../README.md#run-it` (line 7) which does not exist. Update the anchor to an
   existing README heading (for example `#choose-your-path`) or equivalent real
   section.
-- [ ] Command placeholder repair (SUGGESTION): `docs/user-guide/onboarding-cheatsheet.md`
+- [x] Command placeholder repair (SUGGESTION): `docs/user-guide/onboarding-cheatsheet.md`
   contains `tripwire setup && ./scripts/setup-modal.sh && tripwire scan ...`
   (line ~12). Replace `...` with a concrete fixture path to preserve one-command
   executability for new operators.
-- [ ] Execution hold: apply the above two doc edits only after explicit user prompt/approval.
+- [x] Execution hold: addressed through slice-17 onboarding sync and subsequent user-facing doc edits.

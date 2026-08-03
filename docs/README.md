@@ -1,31 +1,24 @@
 # Documentation index
 
-Guides for **Tripwire**, by who you are and what you want to do.
+Guides for installing, using, maintaining, and contributing to **Tripwire**.
 
 **Repo entry:** [README.md](../README.md) · **Fastest run:** [QUICKSTART.md](../QUICKSTART.md)
 
-> Same personas as [README → Choose your path](../README.md#choose-your-path). This page is the **doc map**.
+> This page is the **doc map**. Start with the shared setup flow; use the
+> contributor guide only when you want to change or share the project.
 
 ---
 
-## Who is this for?
+## Start here
 
-| Role | Start here | Then |
-|------|------------|------|
-| **Normal users** | [user-guide/onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md) | [QUICKSTART → Normal users](../QUICKSTART.md#normal-users) (select **Mock**) |
-| **Developers** | [user-guide/prerequisites](./user-guide/prerequisites.md) | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md#developers) |
-| **Security experts** | [prerequisites](./user-guide/prerequisites.md) → [supabase](./user-guide/supabase-setup.md) → [modal](./user-guide/modal-setup.md) → [env-vars](./user-guide/env-vars.md) | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md#security-experts) |
-| **Maintainers** | [CONTRIBUTING.md](../CONTRIBUTING.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) · [plan/PROGRESS.md](./plan/PROGRESS.md) |
-| **Security and reporting stakeholders** | [SECURITY.md](../SECURITY.md) · [prototypes/README.md](../prototypes/README.md) | [fixtures/README.md](../fixtures/README.md) · [STATUS.md](./STATUS.md) |
-| **Planning / slice workflows** | [AGENTS.md](../AGENTS.md) · [CLAUDE.md](../CLAUDE.md) | [plan/PROGRESS.md](./plan/PROGRESS.md) · [plan/TRAIL.md](./plan/TRAIL.md) |
-
-### Choose Your Path
-
-| Path | Cloud? | First docs |
-|------|--------|------------|
-| Normal users | No | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md) → QUICKSTART → Normal users |
-| Developers | No (optional cloud later) | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md#developers) → `tripwire scan --dry-discover` |
-| Security experts | Yes | prerequisites → supabase-setup → modal-setup → env-vars → QUICKSTART → Security experts |
+| Step | Guide |
+|------|-------|
+| Install and configure | [onboarding command path](./user-guide/path-commands.md) → [prerequisites](./user-guide/prerequisites.md) → [setup commands](./user-guide/setup-commands.md) |
+| Validate locally | [QUICKSTART → Validate locally](../QUICKSTART.md#validate-locally) |
+| Enable Live capabilities | [Supabase setup](./user-guide/supabase-setup.md) → [Modal setup](./user-guide/modal-setup.md) → [environment keys](./user-guide/env-vars.md) |
+| Contributor path | Use Tripwire first, then [CONTRIBUTING.md](../CONTRIBUTING.md) → [ARCHITECTURE.md](./ARCHITECTURE.md) to develop and share improvements |
+| Report a vulnerability | [SECURITY.md](../SECURITY.md) |
+| Run recurring docs check | [SMOKE_TESTS.md](./plan/SMOKE_TESTS.md) |
 
 ---
 
@@ -33,9 +26,11 @@ Guides for **Tripwire**, by who you are and what you want to do.
 
 | Doc | What it covers |
 |-----|----------------|
-| [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) | One-shot setup + one-off/regular/maintenance commands |
-| [QUICKSTART.md](../QUICKSTART.md) | Normal users / Developers / Security experts paths |
-| [user-guide/prerequisites.md](./user-guide/prerequisites.md) | Role × tool matrix; Node 22 / Python 3.12 |
+| [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) | Shared installation and setup sequence |
+| [user-guide/path-commands.md](./user-guide/path-commands.md) | Shared role-neutral command flow (install → local validation → live setup → maintenance) |
+| [QUICKSTART.md](../QUICKSTART.md) | Shared setup, validation, Live scan, and maintenance flow |
+| [user-guide/prerequisites.md](./user-guide/prerequisites.md) | Tool and capability prerequisites; Node 22 / Python 3.12 |
+| [user-guide/setup-commands.md](./user-guide/setup-commands.md) | Shared one-off setup and maintenance command catalog |
 | [user-guide/env-vars.md](./user-guide/env-vars.md) | Procurement SSOT for `.env.example` keys |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | C4 L1–L2 diagrams, key flows, repo layout |
 | [STATUS.md](./STATUS.md) | RESEARCH / IMPLEMENTED / VERIFIED claims |
@@ -51,11 +46,13 @@ Guides for **Tripwire**, by who you are and what you want to do.
 | [research/adapters/scanner-output-adapters.md](./research/adapters/scanner-output-adapters.md) | Scanner CLI output shapes (keep in sync with `sandbox/scanners.py`) |
 | [plan/EMOJI_LEGEND.md](./plan/EMOJI_LEGEND.md) | Emoji meanings used across plan/status docs |
 | [plan/README.md](./plan/README.md) | Wave folders `01-A-…` … `06-F-…` + tracker map |
-| [plan/PROGRESS.md](./plan/PROGRESS.md) | Slice groups A–F (execution order); next **E/8** → 11–13 |
+| [plan/PROGRESS.md](./plan/PROGRESS.md) | Slice groups A–F; E Musts ✅ · next **14** (coverage sync) → 15 |
 | [plan/DECISIONS.md](./plan/DECISIONS.md) | Planning decisions (incl. ship-path ~95%; demo/hackathon closed) |
 | [plan/GATE_CONTRACT.md](./plan/GATE_CONTRACT.md) | Before/After close rule — ✅ only when all gates met |
 | [plan/TRAIL.md](./plan/TRAIL.md) | Execution trail + context pack (private references) |
-| [plan/slices/04-D-operator-onboarding/](./plan/slices/04-D-operator-onboarding/) | Wave D / slice 17 onboarding ✅ · next E coverage |
+| [plan/slices/04-D-operator-onboarding/](./plan/slices/04-D-operator-onboarding/) | Wave D / slice 17 onboarding ✅ |
+| [plan/slices/05-E-ship-path-coverage/](./plan/slices/05-E-ship-path-coverage/) | Wave E ship-path coverage · Musts ✅ · slice 14 open |
+| [plan/SMOKE_TESTS.md](./plan/SMOKE_TESTS.md) | Reusable end-to-end docs smoke-test plan for onboarding + setup + maintenance |
 
 ---
 
@@ -63,10 +60,10 @@ Guides for **Tripwire**, by who you are and what you want to do.
 
 | Task | Doc / command |
 |------|----------------|
-| Mock dashboard in 2 minutes | [QUICKSTART → Normal users](../QUICKSTART.md#normal-users) |
-| Dry-discover a fixture | [QUICKSTART → Developers](../QUICKSTART.md#developers) |
-| Full stack scan | [QUICKSTART → Security experts](../QUICKSTART.md#security-experts) |
-| Setup + commands by tempo | [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) |
+| Mock dashboard | [QUICKSTART → Validate locally](../QUICKSTART.md#validate-locally) |
+| Dry-discover a fixture | [QUICKSTART → Validate locally](../QUICKSTART.md#validate-locally) |
+| Full stack scan | [QUICKSTART → Live capabilities](../QUICKSTART.md#live-capabilities) |
+| Setup + commands by tempo | [user-guide/path-commands.md](./user-guide/path-commands.md) |
 | Understand system shape | [ARCHITECTURE.md](./ARCHITECTURE.md) |
 | What is verified today? | [STATUS.md](./STATUS.md) |
 | Quality gates / hooks | [CONTRIBUTING.md](../CONTRIBUTING.md) |

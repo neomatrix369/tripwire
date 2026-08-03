@@ -103,7 +103,7 @@ def _mock_supabase_column_error():
         "Could not find the 'completed_at' column of 'scan_run_scanners' "
         "in the schema cache (PGRST204)"
     )
-    inserted_rows = []
+    inserted_rows: list[dict] = []
 
     def _insert_side_effect(row):
         inserted_rows.append(row)
@@ -161,7 +161,7 @@ def test_given_pgrst204_when_safe_insert_then_fallback_has_merged_detail() -> No
     ### Given
     mock_sb = MagicMock()
     error = Exception("PGRST204 column missing")
-    inserted_rows = []
+    inserted_rows: list[dict] = []
 
     def _insert(row):
         chain = MagicMock()

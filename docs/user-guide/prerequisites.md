@@ -1,60 +1,74 @@
 # Prerequisites
 
-> Tools and accounts by role. Verify versions before copying `.env`.
+> Canonical prerequisite page for all onboarding and command execution.
 
 Pins: Node **22** (`.nvmrc`) · Python **3.12** (`.python-version`).
 
-This file answers “what I need before running commands” by path.
+Use this page to determine what must be ready before running any command sequence.
 
-## Choose your path
+## Who can set up and run Tripwire
 
-| Role | Tools | Cloud accounts | Next |
-|---------|-------|----------------|------|
-| **Normal users** | Git, Node 22, npm | None | [QUICKSTART → Normal users](../../QUICKSTART.md#normal-users) — select **Mock** |
-| **Developers** | Git, Node 22, npm, Python 3.12 (optional locally) | Optional: None | [QUICKSTART → Developers](../../QUICKSTART.md#developers) |
-| **Security experts** | Git, Node 22, npm, Python 3.12, `modal` CLI | Supabase + Modal | [supabase-setup](./supabase-setup.md) → [modal-setup](./modal-setup.md) → [env-vars](./env-vars.md) |
+Tripwire is for a developer, platform/operations engineer, security-minded
+technical practitioner, or other product user who is comfortable installing
+command-line tools, following setup instructions, managing environment variables
+and provider accounts, and reading command output to resolve a setup problem. You
+do not need to be a security expert to install or use Tripwire, but you should have
+enough security background or interest to interpret findings and decide when to
+escalate them. Contributors follow the same product setup before using the
+development guide.
 
-Normal users and developers can start without Supabase or Modal; all paths share the same local bootstrap. Security experts add cloud credentials and perform full scan flow after the local baseline.
-Procure cloud accounts and keys **before** `cp .env.example .env`.
+## Tools and capabilities
 
-## Verify versions
+| Need | Tools | Accounts |
+|---|---|---|
+| Install, dry-discover, or use Mock | Git, Node 22, npm, Python 3.12 | None |
+| Run Live scans and store findings | Git, Node 22, npm, Python 3.12, `modal` CLI | Supabase + Modal |
+| Enable all scanner vendors | Above tools | Snyk + Tessl + Cisco AI Defense, in addition to Supabase + Modal |
+
+## Before you start
 
 ```bash
-node -v    # v22.x (nvm use / fnm use if needed)
-python3 -V # Python 3.12.x
 git --version
+node -v      # v22.x (.nvmrc)
+npm -v       # supplied with the Node installation
+python3 -V   # 3.12.x (.python-version)
 ```
 
-Optional (security experts only):
+- Use the [setup command catalog](./setup-commands.md) for concrete command runs.
+- Use [QUICKSTART.md](../../QUICKSTART.md) for validation and scan workflows.
 
-```bash
-pip install modal
-modal --version
-```
+## Capability-specific notes
 
-## Dependency quick-check
+- Full scan coverage requires accounts and setup for all five vendors:
+  Supabase, Modal, Snyk, Tessl, and Cisco AI Defense. Supabase and Modal enable
+  Live mode; each scanner vendor enables its respective scanner engine.
+- Create a disposable Supabase project and collect its connection values. Create and
+  authenticate the Modal account. Create scanner-vendor accounts and obtain keys for
+  Snyk, Tessl, and Cisco AI Defense before enabling those scanners.
+- Copy `.env.example` to `.env` and add the values you collected **before** running
+  Modal secret synchronization or deployment commands. Follow
+  [supabase-setup.md](./supabase-setup.md), [modal-setup.md](./modal-setup.md), and
+  [env-vars.md](./env-vars.md) for the exact account setup and key mapping.
+- Supabase and Modal are the Live platform prerequisites. Snyk, Tessl, and Cisco AI
+  Defense enable their respective scanner engines; a missing scanner key is
+  reported as `skipped_missing_credential`, not silently treated as configured.
+- Use demo mode and dry-discover when you want local validation without Live services.
 
-```bash
-cd cli
-npm install
-cd ..
-node scripts/serve-dashboard.mjs
-```
+## Five-vendor setup map
 
-If `npm install` fails in `cli/`, rerun with a clean Node 22 environment:
+Open the applicable account/setup page for every Live capability you intend to
+enable, then use [env-vars.md](./env-vars.md) to map the obtained values into
+`.env`.
 
-```bash
-nvm use 22
-cd cli
-rm -rf node_modules
-npm install
-cd ..
-```
+| Vendor | Account and setup reference | Values to collect |
+|---|---|---|
+| Supabase | [Supabase setup](./supabase-setup.md) and [Supabase Dashboard](https://supabase.com/dashboard) | Project URL, API keys, and database connection string |
+| Modal | [Modal setup](./modal-setup.md) and [Modal](https://modal.com) | Authentication or a token pair for non-interactive setup |
+| Snyk | [Snyk account/API tokens](https://app.snyk.io) and [vendor procurement steps](./env-vars.md#vendor-procurement-quick-steps) | `SNYK_TOKEN` |
+| Tessl | [Tessl](https://tessl.io) and [vendor procurement steps](./env-vars.md#vendor-procurement-quick-steps) | `TESSL_TOKEN`, `TESSL_WORKSPACE` |
+| Cisco AI Defense | [Cisco Developer](https://developer.cisco.com) and [vendor procurement steps](./env-vars.md#vendor-procurement-quick-steps) | AI Defense and MCP scanner credentials as applicable |
 
-## What each role does
+## Secrets SSOT
 
-- **Normal users** — open the dashboard with Mock data. Live is the UI default; switch to **Mock (demo data)** on the Guard tab.
-- **Developers** — run and iterate `tripwire scan --dry-discover` on fixtures while improving the tool. No Modal spawn by default.
-- **Security experts** — apply schema, sync Modal secrets, run real scans, and review Live findings.
-
-Secrets SSOT: [env-vars.md](./env-vars.md). Allowlist notes: [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md).
+- `.env` keys: [env-vars.md](./env-vars.md)
+- Optional key allowances: [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md)

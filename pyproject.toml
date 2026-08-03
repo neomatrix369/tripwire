@@ -28,6 +28,11 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["sandbox", "guard"]
 
+[tool.hatch.build]
+exclude = [
+    "sandbox/tests",
+]
+
 [tool.ruff]
 line-length = 100
 target-version = "py312"
@@ -45,7 +50,7 @@ ignore = ["E501", "E702"]
 
 [tool.pytest.ini_options]
 pythonpath = ["sandbox"]
-testpaths = ["sandbox"]
+testpaths = ["sandbox/tests"]
 python_files = ["test_*.py"]
 addopts = "-v --tb=short --junitxml=.test-results/junit.xml"
 
@@ -54,8 +59,7 @@ branch = true
 # Ship-path Python bar (slice 11): sandbox only — guard/ is Phase 4 / out of bar.
 source = ["sandbox"]
 omit = [
-    "sandbox/test_*.py",
-    "sandbox/conftest.py",
+    "sandbox/tests/*",
     "*/__pycache__/*",
 ]
 
@@ -92,7 +96,7 @@ exclude = [
     "prototypes/",
     "internal-docs/",
     "cli/",
-    "sandbox/test_.*\\.py",
+    "sandbox/tests/",
 ]
 
 [tool.xenon]

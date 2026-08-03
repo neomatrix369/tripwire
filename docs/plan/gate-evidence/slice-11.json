@@ -5,7 +5,7 @@
   "verdict": "PASS",
   "before_checks": "all green; 9/10 Should waived DECISIONS 2026-08-02",
   "after_checks": [
-    "pytest sandbox/ --cov=sandbox --cov-fail-under=95 exit 0 → 95.91%",
+    "pytest sandbox/tests/ --cov=sandbox --cov-fail-under=95 exit 0 → 95.91%",
     "fail_under=95 in pyproject.toml + CI + quality-gates + pre-push",
     "guard/ omitted from coverage source",
     "residual miss <5% (scan_app sys.path/legacy insert/git helpers; scanners beh envelope)",
@@ -20,7 +20,7 @@
   },
   "commands": [
     {
-      "cmd": "uv run pytest sandbox/ -q --tb=short --cov=sandbox --cov-fail-under=95",
+      "cmd": "uv run pytest sandbox/tests/ -q --tb=short --cov=sandbox --cov-fail-under=95",
       "result": "123 passed; TOTAL 95.91%"
     },
     {

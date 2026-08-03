@@ -103,7 +103,7 @@ repos:
     hooks:
       - id: fast-tests
         name: fast unit tests (pytest-testmon)
-        entry: uv run pytest sandbox/ -x -q --tb=short --no-header --testmon -o addopts=
+        entry: uv run pytest sandbox/tests/ -x -q --tb=short --no-header --testmon -o addopts=
         language: system
         pass_filenames: false
         types: [python]

@@ -1,14 +1,24 @@
 # Contributing
 
+This is the contributor path for people who use Tripwire and also develop, test,
+or share improvements. Complete the shared [QUICKSTART.md](QUICKSTART.md) flow
+before following these development instructions.
+
 ## Dev setup
 
 0. Tools + versions: [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
-   (Node 22 / Python 3.12). Security accounts:
+   (Node 22 / npm / Python 3.12). Live capabilities require provisioning and
+   setting up all five vendors before copying `.env`:
    [supabase-setup](docs/user-guide/supabase-setup.md) →
    [modal-setup](docs/user-guide/modal-setup.md) →
-   [env-vars](docs/user-guide/env-vars.md) before copying `.env`.
+   [Snyk procurement](docs/user-guide/env-vars.md#vendor-procurement-quick-steps) →
+   [Tessl procurement](docs/user-guide/env-vars.md#vendor-procurement-quick-steps) →
+   [Cisco AI Defense procurement](docs/user-guide/env-vars.md#vendor-procurement-quick-steps).
+   Use [env-vars](docs/user-guide/env-vars.md) to collect the resulting values,
+   then copy and populate `.env`.
 
-Follow [QUICKSTART.md](QUICKSTART.md) (Security experts path). Short version:
+Then use this guide for development, quality checks, and sharing changes back.
+Short version:
 
 1. Copy `.env.example` → `.env` using [env-vars.md](docs/user-guide/env-vars.md)
    (`fixtures/OPTIONAL_SCANNER_KEYS.md` for Modal allowlist).
@@ -29,16 +39,18 @@ pre-commit run --all-files          # lint, mypy, bandit, gitleaks, fast tests
 ./scripts/quality-gates.sh --full   # above + scripts/security-scan.sh
 ```
 
-- **Commit:** ruff, mypy, bandit, gitleaks, pytest-testmon, `cli` unit tests
-- **Push:** full pytest + coverage floor; conditional pip-audit / npm audit
+- **Commit:** ruff, mypy, bandit, gitleaks, pytest-testmon (`sandbox/tests/`), `cli` unit tests
+- **Push:** full pytest + coverage floor; conditional `pip-audit --skip-editable` / npm audit
 - **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog
 - **Nightly** (`.github/workflows/nightly.yml`): full TruffleHog, SBOM, Meterian;
   mutmut and Chalk run but are **non-gating** (`|| true` — green Nightly does not mean mutation/Chalk passed)
 
-**Coverage today (VERIFIED config):** Python `sandbox/` `fail_under=95` (guard
-omitted); CLI `npm run test:coverage` ≥95% lines; Live ACL
+**Coverage today (VERIFIED config):** Python `sandbox/` `fail_under=95` via
+`pytest` / `testpaths = ["sandbox/tests"]` (guard omitted); CLI
+`npm run test:coverage` ≥95% lines; Live ACL
 `prototypes/dc-dashboard` `npm run test:coverage` ≥95% lines on the four ACL
-modules (`support.js` out of bar). Track
+modules (`support.js` out of bar). Local editable `tripwire` is skipped by
+`pip-audit --skip-editable` (not a PyPI package). Track
 [docs/plan/PROGRESS.md](docs/plan/PROGRESS.md); close per
 [docs/plan/GATE_CONTRACT.md](docs/plan/GATE_CONTRACT.md).
 

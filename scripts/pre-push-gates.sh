@@ -43,7 +43,7 @@ mkdir -p .test-results .reports/coverage
 
 if [[ "${PY_CHANGED:-0}" -gt 0 ]]; then
   echo "--- pytest + coverage (fail_under=95, sandbox ship-path) ---"
-  uv run pytest sandbox/ -q --tb=short \
+  uv run pytest sandbox/tests/ -q --tb=short \
     --cov=sandbox \
     --cov-report=term-missing \
     --cov-report="json:.reports/coverage/coverage.json" \
@@ -60,7 +60,7 @@ echo "--- CLI unit tests ---"
 
 if [[ "${PY_DEPS:-0}" -gt 0 ]]; then
   echo "--- pip-audit (Python deps changed) ---"
-  uv run pip-audit
+  uv run pip-audit --skip-editable
 else
   echo "--- pip-audit skipped (no Python dep file changes) ---"
 fi

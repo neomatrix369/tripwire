@@ -1,18 +1,19 @@
 {
   "slice": 17,
-  "date": "2026-08-02",
-  "branch": "slice/17-user-guide-onboarding",
-  "verdict": "PASS",
-  "before_checks": "all green",
+  "date": "2026-08-03",
+  "branch": "slice/17-user-guide-onboarding-docs-optional-scanner-keys-format",
+  "verdict": "PENDING_REVIEW",
+  "before_checks": "implementation corrections are committed; fresh review evidence is pending",
   "after_checks": [
-    "user-guide files exist",
-    "env-vars rows cover .env.example keys",
-    "QUICKSTART Platform links setup before cp .env; Demo Node 22 + Mock",
+    "user-guide files exist (prerequisites, supabase-setup, modal-setup, env-vars, path-commands, onboarding-cheatsheet, setup-commands)",
+    "env-vars.md is the sole vendor-procurement and key-to-feature reference",
+    "setup-commands.md owns command order and OPTIONAL_SCANNER_KEYS.md owns only Modal secret synchronization",
+    "QUICKSTART links role-neutral local-validation path",
     "README Run-it → prereqs/env-vars; docs/README Choose Your Path; CONTRIBUTING step 0 ≤80",
-    "README 4 H2s ≤100 lines",
+    "README structure updated: 9 H2s observed in current snapshot (gate evidence not asserting 4)",
     "no Overmind/Ossprey in README/QUICKSTART/CONTRIBUTING",
-    "PROGRESS/TRAIL critical path 8 → 11–13",
-    "gate-evidence PASS"
+    "PROGRESS/TRAIL mark slice 17 as corrected on branch and pending re-review",
+    "gate-evidence reflects the current task-based documentation state"
   ],
   "env_key_inventory": [
     "SUPABASE_ANON_KEY",
@@ -31,8 +32,8 @@
     "AI_DEFENSE_API_KEY",
     "MCP_SCANNER_API_KEY",
     "MCP_SCANNER_ENDPOINT",
-    "MODAL_TOKEN_ID (commented)",
-    "MODAL_TOKEN_SECRET (commented)",
+    "MODAL_TOKEN_ID",
+    "MODAL_TOKEN_SECRET",
     "SKILL_SCANNER_LLM_API_VERSION (commented)",
     "MCP_SCANNER_LLM_API_VERSION (commented)",
     "TESSL_WORKSPACE (commented)",
@@ -40,19 +41,32 @@
   ],
   "commands": [
     {
-      "cmd": "ls docs/user-guide/{prerequisites,supabase-setup,modal-setup,env-vars}.md",
-      "result": "all four exist"
+      "cmd": "ls docs/user-guide/{prerequisites,supabase-setup,modal-setup,env-vars,path-commands,onboarding-cheatsheet,setup-commands}.md",
+      "result": "all seven guide files exist including new onboarding path page"
     },
     {
       "cmd": "rg '^## ' README.md; wc -l README.md CONTRIBUTING.md",
-      "result": "4 H2s; README 77; CONTRIBUTING 71"
+      "result": "README 9 H2s; README 77 lines; CONTRIBUTING 71 lines"
+    },
+    {
+      "cmd": "rg -n '^## (Local validation \\(Node 22 \\+ Mock dashboard\\)|Local validation|Live capabilities)$' QUICKSTART.md",
+      "result": "Local validation section includes Node 22 + Mock flow pointer to path-commands.md"
+    },
+    {
+      "cmd": "rg -n 'cp \\.env\\.example \\.env|supabase-setup\\.md|modal-setup\\.md|env-vars\\.md' docs/user-guide/setup-commands.md",
+      "result": "security/live setup section orders required platform links before cp .env.example .env"
+    },
+    {
+      "cmd": "rg -n 'QUICKSTART\\.md#(normal-users|developers|security-experts)|onboarding-cheatsheet\\.md#(normal-users|developers|security-experts|development-path)' README.md docs/README.md QUICKSTART.md docs/user-guide/onboarding-cheatsheet.md",
+      "result": "no persona hash anchors referenced from indexed docs"
     },
     {
       "cmd": "rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md",
       "result": "empty"
     }
   ],
-  "review": "docs-only DECISIONS 2026-08-02",
+  "review": "PENDING: fresh /nw-review required after the corrected implementation",
+  "follow_up_commit": "f036501 docs(slice-17): centralize vendor credential guidance",
   "pr": null,
   "spec_path": "docs/plan/slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md"
 }
