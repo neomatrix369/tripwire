@@ -31,6 +31,11 @@ Before running these commands, complete in order:
 - [supabase-setup.md](./supabase-setup.md)
 - [modal-setup.md](./modal-setup.md)
 - [env-vars.md](./env-vars.md)
+- Configure only the scanner integrations you need:
+  - **Snyk**: set `SNYK_TOKEN`.
+  - **Tessl**: set `TESSL_TOKEN` and, if needed, `TESSL_WORKSPACE`.
+  - **Cisco**: set the LLM or AI Defense keys required by the scanner mode you enable.
+  - Use [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md) for vendor account steps and exact key-to-feature mapping.
 
 ```bash
 cp .env.example .env
@@ -112,7 +117,19 @@ tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json
 - [modal-setup.md](./modal-setup.md)
 - [env-vars.md](./env-vars.md)
 
-2. Add keys in `.env`, then:
+2. Create or obtain the credentials you need, then paste them into `.env`:
+
+   - [Supabase](./supabase-setup.md): create a project and copy `SUPABASE_URL`,
+     `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_DB_URL` (plus the optional anon key).
+   - [Modal](./modal-setup.md): create an account and authenticate with `modal setup`;
+     `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` are only needed for non-interactive use.
+   - [Snyk](https://app.snyk.io): create an API token and set `SNYK_TOKEN` when using Snyk scans.
+   - [Tessl](https://tessl.io): create a workspace API key and set `TESSL_TOKEN` (and optional `TESSL_WORKSPACE`) when using Tessl scans.
+   - [Cisco AI Defense](https://developer.cisco.com): obtain the LLM or AI Defense credentials required by the Cisco scanner mode you enable.
+
+   See [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md) for the exact scanner key-to-feature mapping.
+
+3. Run:
 
 ```bash
 tripwire setup
