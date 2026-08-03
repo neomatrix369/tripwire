@@ -1,8 +1,8 @@
 {
   "slice": 17,
   "date": "2026-08-04",
-  "branch": "docs/slice-17-close",
-  "verdict": "ON_BRANCH",
+  "branch": "main",
+  "verdict": "PASS",
   "before_checks": "Phase 1 baseline merged in PR #38; initial Phase 1b documentation UX merged in PR #40; Live-first correction merged in PR #41; the closure-record link inventory is complete",
   "after_checks": [
     "user-guide files exist (prerequisites, supabase-setup, modal-setup, env-vars, path-commands, onboarding-cheatsheet, setup-commands)",
@@ -12,8 +12,8 @@
     "README Run-it → prereqs/env-vars; docs/README Choose Your Path; CONTRIBUTING step 0 ≤80",
     "README structure is recorded honestly: six H2 sections and 102 lines at closure verification; its proof roster is top-of-page",
     "no Overmind/Ossprey in README/QUICKSTART/CONTRIBUTING",
-    "Phase 1 baseline is merged in PR #38 and the Phase 1b Live-first correction is merged in PR #41; trackers mark the closure record ON_BRANCH",
-    "gate-evidence reflects the current task-based documentation state and becomes PASS only after the closure record merges",
+    "Phase 1 baseline is merged in PR #38, the Phase 1b Live-first correction is merged in PR #41, and closure PR #44 is merged into main",
+    "gate-evidence reflects the current task-based documentation state with a PASS verdict after the closure record merged",
     "pgGraph, Graphify, and rag-params-finder layout and style findings are recorded with explicit adopt/avoid boundaries",
     "README starts with project proof badges, then an ordered Live setup route before an optional Mock-dashboard preview",
     "README gives an accessible Discover → Scan → Review workflow and routes to existing deeper documents; existing badge rosters on related public pages are top-of-page",
@@ -102,10 +102,10 @@
       "result": "PASS: the canonical README local-validation task route matches the Quickstart heading anchor"
     }
   ],
-  "review": "docs-only exception pending merge: DECISIONS.md 2026-08-04 row records the approved independent documentation review and PR #41's successful CI evidence",
+  "review": "PASS: DECISIONS.md records the approved independent documentation review; PR #41 CI succeeded and closure PR #44 merged into main",
   "baseline_pr": 40,
   "follow_up_commit": "c28ed2b docs(slice-17): lead users through Live setup",
   "pr": 41,
-  "closure_pr": null,
+  "closure_pr": 44,
   "spec_path": "docs/plan/slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md"
 }

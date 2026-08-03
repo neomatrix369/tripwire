@@ -1,6 +1,6 @@
 # Slice 17: User-Guide Onboarding + Documentation UX
 
-> Scenario: Brownfield | MoSCoW: **Must** | Status: closure record ON_BRANCH; Slice 15 is the current priority
+> Scenario: Brownfield | MoSCoW: **Must** | Status: ✅ closed on `main` via PR #44; Slice 15 is the current priority
 
 ## Slice Workflow Bundle
 - Slice name: `slice-17-user-guide-onboarding`
@@ -82,8 +82,8 @@
 - [x] Docs smoke-test plan exists in `/docs/plan` and is linked from README/docs/onboarding entry points
 - [x] README baseline structure and line count are recorded honestly in current evidence; no four-H2 constraint applies
 - [x] `rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md` empty
-- [x] Phase 1 baseline is recorded as merged in PR #38; PROGRESS/TRAIL show the Phase 1b closure record as 🔀
-- [x] `docs/plan/gate-evidence/slice-17.json` records Phase 1b as `ON_BRANCH` with the fresh review exception and becomes `PASS` after this closure record merges
+- [x] Phase 1 baseline is recorded as merged in PR #38; PROGRESS/TRAIL show Slice 17 as ✅
+- [x] `docs/plan/gate-evidence/slice-17.json` records `PASS` with the fresh review exception after closure PR #44 merged
 - [x] End-to-end task-based onboarding simulation executed against docs flow and captured below
 - [x] README opens with Tripwire’s purpose and proof badges, then an ordered Live setup action before the optional Mock preview
 - [x] pgGraph/Graphify layout and style findings are recorded above with explicit adopt/avoid boundaries
@@ -91,7 +91,7 @@
 - [x] README uses outcome-led capability sections and a compact top-of-page proof/badge row; no new image assets, CSS, fonts, or runtime dependencies
 - [x] `docs/README.md` exposes task routes for a first Live scan, optional local preview, Understand results/status, and Contribute/maintain; every moved link resolves
 - [x] `git diff --check` and `pre-commit run markdownlint --all-files` exit 0; docs smoke route and both dry-discovery fixture commands are recorded in `gate-evidence/slice-17.json` (dashboard port limits are `blocked-by-env`)
-- [x] Fresh documentation-scope review is recorded through the docs-only exception in `DECISIONS.md`; Phase 1b implementation merged in PR #41 and this closure record is ready for final merge
+- [x] Fresh documentation-scope review is recorded through the docs-only exception in `DECISIONS.md`; Phase 1b implementation merged in PR #41 and closure PR #44 merged into `main`
 
 ## Doc Audit
 | # | Check |
@@ -118,7 +118,7 @@
 - Templates: `.env.example`, `fixtures/OPTIONAL_SCANNER_KEYS.md`
 
 ## Gate Status
-🔀 ON BRANCH — Phase 1b Live-first implementation merged in PR #41. This closure record repairs the canonical local-validation route and synchronizes its review exception, evidence, and trackers; it becomes ✅ only after this record merges to `main`.
+✅ CLOSED — Phase 1b Live-first implementation merged in PR #41 and closure PR #44 merged into `main`. The closure record repairs the canonical local-validation route and synchronizes its review exception, evidence, and trackers.
 
 ## Reviews
 
