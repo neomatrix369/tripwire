@@ -13,7 +13,7 @@
 
 ## Context references (mandatory)
 - Audit: `docs/plan/coverage-audit.md`
-- Spec Done-when Phase 1 CLI: `internal-docs/00_build/security-scanning-platform-spec.md`
+- Spec Done-when Phase 1 CLI: `private source`
 - Existing tests: `cli/test/*` (incl. slice 6 characterization)
 
 ## Spec (GWT / User Story)

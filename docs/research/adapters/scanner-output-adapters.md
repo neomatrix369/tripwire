@@ -4,7 +4,7 @@
 **Started:** 2026-08-01
 **Purpose:** Document how each scanner emits results, how to capture them, proposed maps into Supabase (`findings` + Storage), and **cited references**.
 
-**Product SoT:** [`../security-scanning-platform-spec.md`](../security-scanning-platform-spec.md) §4 · §8
+**Product SoT:** [`../../../private source`](../../../private source) §4 · §8
 **Trusted domains:** [`.nwave/trusted-source-domains.yaml`](../../../.nwave/trusted-source-domains.yaml)
 **Also mirrored for nWave layout:** `docs/research/adapters/` (symlink or copy of this file when finalized)
 

@@ -12,8 +12,8 @@
 `slice/10-scan-item-inner-characterization`
 
 ## Context references (mandatory)
-- Product SoT: `internal-docs/00_build/security-scanning-platform-spec.md` (sandbox → Supabase writes)
-- Build gates: `internal-docs/00_build/build-day-decisions.md`
+- Product SoT: `private source` (sandbox → Supabase writes)
+- Build gates: `private source`
 - Audit: `docs/plan/coverage-audit.md`
 - Code: `sandbox/scan_app.py`
 

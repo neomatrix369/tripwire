@@ -21,7 +21,7 @@
   2. Guard not presented as current C4 L2 container (Future section)
   3. CONTRIBUTING Nightly notes mutmut/Chalk as non-gating (`|| true`)
   4. Stale `plan/coverage-slices-7-14` branch refs fixed (main / per-slice branches)
-  5. `coverage-audit.md` exists with ship-path behavior matrix + internal-docs↔docs
+  5. `coverage-audit.md` exists with ship-path behavior matrix + private source↔docs
      parity deltas + claim themes + altitude notes
   6. No CI floor raise in this slice
 - Commit pattern: `docs(slice-7): trust strip + coverage audit matrix`
@@ -31,13 +31,13 @@
 `slice/7-coverage-audit-matrix`
 
 ## Context references (mandatory)
-- Product SoT: `internal-docs/00_build/security-scanning-platform-spec.md`
-- Build gates: `internal-docs/00_build/build-day-decisions.md`
-- Adapter research: `internal-docs/00_build/research/scanner-output-adapters.md`
-- Demo lens: `internal-docs/01_demo_video/00-tripwire-demo-script.md`
+- Product SoT: `private source`
+- Build gates: `private source`
+- Adapter research: `private source`
+- Demo lens: `private source`
 - Public pair: `docs/STATUS.md`, `docs/ARCHITECTURE.md`,
   `docs/research/adapters/scanner-output-adapters.md`, `docs/plan/*`
-- Non-SoT: do not use `internal-docs/02_prototypes/import-stash/` as truth
+- Non-SoT: do not use `private source` as truth
 
 ## Spec (GWT / User Story)
 
@@ -49,7 +49,7 @@ Phase 5/Ossprey are Won't / unwired
 Nightly non-gating is honest in CONTRIBUTING; STATUS/PROGRESS branch refs match main
 
 **Gate B — coverage audit matrix**
-**Given** Horizon-A STATUS, slices 1–6 evidence, internal-docs SoT, and measured
+**Given** Horizon-A STATUS, slices 1–6 evidence, private source SoT, and measured
 coverage (~47% Python; no Node gates)
 **When** the coverage audit runs
 **Then** `docs/plan/coverage-audit.md` lists each ship-path / Done-when / demo
@@ -66,7 +66,7 @@ slices), and locks targets (ship-path ~95%; exclude guard/support.js)
 ## Before-Checks [GATE]
 - [x] Branch created (`slice/7-coverage-audit-matrix`)
 - [x] Task file opened
-- [x] Context pack opened (internal-docs 00_build + demo script + docs/STATUS)
+- [x] Context pack opened (private source 00_build + demo script + docs/STATUS)
 - [x] Confirmed no prior `docs/plan/coverage-audit.md` (now written)
 - [x] Inventory Overmind/Ossprey hits (markdown, HTML footer, workflow comments)
 
