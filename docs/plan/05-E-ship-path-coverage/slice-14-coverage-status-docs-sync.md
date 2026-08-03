@@ -1,10 +1,10 @@
 # Slice 14: Coverage Status + Docs Sync (Delta)
 
-> Scenario: Brownfield | MoSCoW: Should
+> Scenario: Brownfield | MoSCoW: Must
 
 ## Slice Workflow Bundle
 - Slice name: slice-14-coverage-status-docs-sync
-- Files: `docs/STATUS.md`, `docs/plan/PROGRESS.md`, `docs/plan/DECISIONS.md`, `CONTRIBUTING.md` (coverage floors), optional `internal-docs/00_build/build-day-decisions.md` (local)
+- Files: `docs/STATUS.md`, `docs/plan/PROGRESS.md`, `docs/plan/DECISIONS.md`, `docs/plan/coverage-audit.md`, `docs/plan/TRAIL.md`, `docs/plan/gate-evidence/slice-14.json` (final), `CONTRIBUTING.md` (coverage floors), optional `internal-docs/00_build/build-day-decisions.md` (local)
 - Exit criteria: STATUS VERIFIED cites new suites; coverage floors documented; no redo of slice-5 scope.
 - Commit pattern: `docs(slice-14): sync status after coverage uplift`
 
@@ -18,9 +18,12 @@
 - Evidence: `docs/STATUS.md`, `docs/plan/coverage-audit.md`
 
 ## Spec (GWT / User Story)
-**Given** slices 11–13 PASSED with measured ≥95% ship-path gates
+**Given** slices 11–13 PASSED with measured ≥95% ship-path gates, and this slice is executed immediately after them
 **When** docs are synced
 **Then** STATUS evidence labels cite the new suites/commands; CONTRIBUTING/CI comments state floors; build-day boxes stay honest
+
+## Priority
+- Close-path Must for project completion: slice-14 must be completed before slice-15 claim audit.
 
 ## Out of scope (already exists)
 - Slice 5 gate-evidence backfill for slices 1–6
@@ -32,18 +35,35 @@
 ## Before-Checks [GATE]
 - [ ] Branch created
 - [ ] Slices 11, 12, 13 ✅
-- [ ] coverage-audit.md updated with final numbers
+- [ ] `coverage-audit.md` includes final numeric gates and branch/func/statement notes for all three layers
 
 ## TDD Execution
 Docs-only.
 
 ## After-Checks [GATE]
-- [ ] `docs/STATUS.md` coverage numbers match measured floors from slices 11–13 (quote figures in evidence)
-- [ ] PROGRESS/TRAIL/DECISIONS reflect 11–13 ✅ and next open work
-- [ ] `rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md docs/STATUS.md` empty (or list allowed TRAIL Forward hits only)
-- [ ] CONTRIBUTING still states Nightly mutmut/Chalk non-gating
-- [ ] `docs/plan/gate-evidence/slice-14.json` has `"verdict": "PASS"` + commands/greps
+- [ ] `docs/STATUS.md` has explicit coverage figures for all ship-path floors:
+  - sandbox: `95.91%`
+  - CLI: `99.75% lines/stmts, 100% funcs, 85% branch gate`
+  - Live ACL: `98.48% lines`
+- [ ] `docs/plan/coverage-audit.md` shows post-lift gate outcomes and metrics for all 3 layers with `slice11:95.91%`, `slice12:99.75% lines`, `slice13:98.48% lines`
+- [ ] `docs/plan/TRAIL.md` and `docs/plan/PROGRESS.md` list slice 14 as active follow-on work, and both list slice 15 as dependent-on 14 (must close path)
+- [ ] `docs/plan/DECISIONS.md` includes explicit review exception/waiver rows used by this execution
+- [ ] `rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md docs/STATUS.md` returns no matches (except approved historical references if any are documented in `TRAIL.md`)
+- [ ] `rg "Nightly mutmut and Chalk" -n CONTRIBUTING.md` shows non-gating status (or equivalent explicit note)
+- [ ] `docs/plan/gate-evidence/slice-14.json` has `"verdict": "PASS"` + exact commands + outputs in `commands[]` and `after_checks[]`
+- [ ] `docs/plan/DECISIONS.md` records the slice-14 review disposition (docs-only exception or `/nw-review APPROVED`)
 - [ ] ✅ only after merge
+
+## /nw-review (OpenAI `gpt-5.6-terra`, low effort)
+
+### Verdict
+`APPROVED`
+
+### Findings
+
+- praise: The slice lockstep with `coverage-audit.md`, `TRAIL.md`, and `PROGRESS.md` is clear; it explicitly constrains claim-audit dependencies before completion.
+- praise: Hard checks are concrete and command-oriented, which matches `GATE_CONTRACT.md`.
+- suggestion (non-blocking): keep branch/gate metric values in one canonical table (`coverage-audit.md`) and link that table directly from this slice to avoid metric drift.
 
 ## Gate Status
 📋 PLANNED
