@@ -20,9 +20,10 @@ scan environment, stores the findings, and brings them together in one dashboard
 ## Who Tripwire is for
 
 Tripwire is currently an early-adopter tool with a hands-on setup and management
-component. It is a good fit if you can work in a terminal, manage local tooling
-and environment variables, create cloud/vendor accounts, and use command output
-to resolve a setup issue.
+component. It is a good fit if you are comfortable using a terminal and shell,
+managing local tooling and environment variables, editing `.env` and other
+configuration files carefully, creating cloud/vendor accounts, and using command
+output to resolve a setup issue.
 
 | You are... | You want to... |
 |---|---|

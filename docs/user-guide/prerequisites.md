@@ -9,13 +9,17 @@ Use this page to determine what must be ready before running any command sequenc
 ## Who can set up and run Tripwire
 
 Tripwire is for a developer, platform/operations engineer, security-minded
-technical practitioner, or other product user who is comfortable installing
-command-line tools, following setup instructions, managing environment variables
-and provider accounts, and reading command output to resolve a setup problem. You
-do not need to be a security expert to install or use Tripwire, but you should have
-enough security background or interest to interpret findings and decide when to
-escalate them. Contributors follow the same product setup before using the
-development guide.
+technical practitioner, or other product user. It is an early-adopter tool with
+a hands-on setup and management component.
+
+| Need | Required familiarity |
+|---|---|
+| Install and configure Tripwire | Terminal and shell commands; Git; Node/Python tooling; careful editing of `.env` and other configuration files |
+| Run Live scans | The above, plus cloud account setup, credential handling, and deployment/configuration troubleshooting |
+| Interpret results | Enough security background or interest to interpret findings and decide when to escalate them |
+
+You do not need to be a security expert to install or use Tripwire. Contributors
+follow the same product setup before using the development guide.
 
 ## Tools and capabilities
 
