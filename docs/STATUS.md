@@ -38,7 +38,7 @@ Reachable through production entry points / config:
 
 - `cd cli && npm test` — discovery, content-hash, schema-probe (incl. `completed_at`),
   `--force`
-- `pytest sandbox/test_acquire_target.py` — acquire-target dispatch
+- `pytest sandbox/tests/test_acquire_target.py` — acquire-target dispatch
 - `cd prototypes/dc-dashboard && npm test` — Live gating, Realtime wiring,
   SCANNING/console/unreachable mapping; optional Live smoke skipped without config
 

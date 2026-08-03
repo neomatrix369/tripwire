@@ -35,10 +35,10 @@
 ## TDD Execution
 [Walking Skeleton — 2 Pomos] Measure → fill residual holes with high-level tests → raise floor stepwise if needed (70→90→95) in this slice’s commits → final fail_under=95.
 
-VERIFY: `pytest sandbox/ --cov=sandbox --cov-fail-under=95` (guard omitted from source)
+VERIFY: `pytest sandbox/tests/ --cov=sandbox --cov-fail-under=95` (guard omitted from source)
 
 ## After-Checks [GATE]
-- [x] `pytest sandbox/ --cov=sandbox --cov-fail-under=95` exit 0 (exact % in evidence)
+- [x] `pytest sandbox/tests/ --cov=sandbox --cov-fail-under=95` exit 0 (exact % in evidence)
 - [x] `fail_under = 95` (or equivalent) in `pyproject.toml` and CI workflow for ship-path job
 - [x] `guard/` omitted from ship-path coverage source / denominator (grep or config snippet in evidence)
 - [x] Residual excludes &lt;5% only if listed + justified in evidence or DECISIONS

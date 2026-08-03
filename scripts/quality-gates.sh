@@ -98,7 +98,8 @@ if [[ "$MODE" == "quick" ]]; then
 fi
 
 # ── T2: Tests + audit ─────────────────────────────────────────────────────────
-run_bg "pytest+cov" uv run pytest sandbox/ -q --tb=short \
+FAILED=0
+run_bg "pytest+cov" uv run pytest sandbox/tests/ -q --tb=short \
   --cov=sandbox \
   --cov-report=term-missing \
   --cov-report="html:.reports/coverage/html" \
@@ -108,7 +109,7 @@ run_bg "pytest+cov" uv run pytest sandbox/ -q --tb=short \
   --junitxml=.test-results/junit.xml \
   -o addopts=
 run_bg "cli tests" bash -c 'cd cli && npm test'
-run_bg "pip-audit" uv run pip-audit
+run_bg "pip-audit" uv run pip-audit --skip-editable
 wait_all
 
 if [[ "$FAILED" -ne 0 ]]; then

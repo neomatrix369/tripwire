@@ -4,7 +4,7 @@
 
 ## Slice Workflow Bundle
 - Slice name: slice-9-scanner-snyk-tessl-parse-fixtures
-- Files: `sandbox/scanners.py`, `sandbox/test_*.py`, fixture JSON
+- Files: `sandbox/scanners.py`, `sandbox/tests/test_*.py`, fixture JSON
 - Exit criteria: Real `run_snyk` / `run_tessl` / `_collapse_severity` / `_tessl_quality_score` / `_snyk_cmd` paths via stubbed subprocess; characterization-safe.
 - Commit pattern: `test(slice-9): snyk tessl parse fixtures`
 
@@ -35,10 +35,10 @@
 
 ## TDD Execution
 Fixture-driven characterization → GREEN → refactor.
-VERIFY: `pytest sandbox/ -q --tb=short`
+VERIFY: `pytest sandbox/tests/ -q --tb=short`
 
 ## After-Checks [GATE]
-- [ ] `pytest sandbox/ -q --tb=short` exit 0
+- [ ] `pytest sandbox/tests/ -q --tb=short` exit 0
 - [ ] Fixture tests cover Snyk parse, Tessl parse, and at least one collapse/edge case (paths in evidence)
 - [ ] Coverage on touched Snyk/Tessl parse paths: baseline → after % in `gate-evidence/slice-9.json`
 - [ ] `docs/plan/gate-evidence/slice-9.json` has `"verdict": "PASS"` + `commands[]`

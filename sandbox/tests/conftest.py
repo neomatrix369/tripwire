@@ -1,4 +1,4 @@
-"""Test bootstrap for sandbox suite.
+"""Test bootstrap for the sandbox/tests suite.
 
 ``scan_app`` imports ``modal`` at module load. CI/dev envs may not install Modal;
 stub a minimal module so unit tests can import scan_app helpers without the SDK.

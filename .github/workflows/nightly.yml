@@ -128,7 +128,7 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
       - run: uv pip install --system -e ".[dev]"
-      - run: pip-audit
+      - run: pip-audit --skip-editable
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc

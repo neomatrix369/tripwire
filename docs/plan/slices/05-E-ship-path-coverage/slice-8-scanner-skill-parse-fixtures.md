@@ -4,7 +4,7 @@
 
 ## Slice Workflow Bundle
 - Slice name: slice-8-scanner-skill-parse-fixtures
-- Files: `sandbox/scanners.py`, `sandbox/test_*.py` (new or extend), fixture JSON under `fixtures/` or `sandbox/` test data
+- Files: `sandbox/scanners.py`, `sandbox/tests/test_*.py` (new or extend), fixture JSON under `fixtures/` or `sandbox/tests/testdata`
 - Exit criteria: Real `run_cisco_skill_scanner` / `_map_skill_findings` / `_safe_json` paths exercised via stubs for `_run`/`_which` only; no live CLI.
 - Commit pattern: `test(slice-8): cisco skill parse fixtures`
 
@@ -39,10 +39,10 @@ Must coverage wave. **Execute after slice 17** (and slice 7). Technical depends-
 
 ## TDD Execution
 Outside-in: failing fixture tests → GREEN with `_run`/`_which` stubs → refactor tests.
-VERIFY: `pytest sandbox/ -q --tb=short`
+VERIFY: `pytest sandbox/tests/ -q --tb=short`
 
 ## After-Checks [GATE]
-- [x] `pytest sandbox/ -q --tb=short` exit 0
+- [x] `pytest sandbox/tests/ -q --tb=short` exit 0
 - [x] Fixture tests exist for skill happy path, malformed payload, and severity map (paths listed in evidence)
 - [x] Coverage on touched skill-parse functions: baseline % → after % recorded in `gate-evidence/slice-8.json` (after ≥ baseline)
 - [x] `docs/plan/gate-evidence/slice-8.json` has `"verdict": "PASS"` + `commands[]`

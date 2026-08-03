@@ -4,7 +4,7 @@
 
 ## Slice Workflow Bundle
 - Slice name: slice-10-scan-item-inner-characterization
-- Files: `sandbox/scan_app.py`, `sandbox/test_scan_app.py` (extend) or new `test_scan_item_inner.py`
+- Files: `sandbox/scan_app.py`, `sandbox/tests/test_scan_app.py` (extend) or new `test_scan_item_inner.py`
 - Exit criteria: Characterization locks `_scan_item_inner` scanner start/done + fail marks with mocked Supabase + stubbed `run_all_scanners`.
 - Commit pattern: `test(slice-10): scan_item_inner characterization`
 
@@ -33,10 +33,10 @@
 
 ## TDD Execution
 Characterization: lock current behaviour; do not “fix” product while greening.
-VERIFY: `pytest sandbox/ -q --tb=short`
+VERIFY: `pytest sandbox/tests/ -q --tb=short`
 
 ## After-Checks [GATE]
-- [ ] `pytest sandbox/ -q --tb=short` exit 0
+- [ ] `pytest sandbox/tests/ -q --tb=short` exit 0
 - [ ] Direct tests exercise `_scan_item_inner` (or sealed equivalent) start, done, and fail paths (names in evidence)
 - [ ] Characterization locks current behaviour — no silent product “fixes” without DECISIONS row
 - [ ] `docs/plan/gate-evidence/slice-10.json` has `"verdict": "PASS"` + `commands[]`

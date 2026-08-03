@@ -78,7 +78,7 @@ jobs:
       - run: uv pip install --system -e ".[dev]"
       - run: mkdir -p .test-results .reports/coverage
       - run: |
-          pytest sandbox/ -q --tb=short \
+          pytest sandbox/tests/ -q --tb=short \
             --cov=sandbox \
             --cov-report=term-missing \
             --cov-report=html:.reports/coverage/html \
@@ -101,7 +101,7 @@ jobs:
           name: coverage-${{ github.run_number }}
           path: .reports/coverage/
           retention-days: 14
-      - run: pip-audit
+      - run: pip-audit --skip-editable
 
   cli-tests:
     name: CLI tests
