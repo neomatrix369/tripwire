@@ -37,7 +37,7 @@ Used with: `tripwire scan --use-llm`.
 - `MCP_SCANNER_LLM_API_KEY`
 - `MCP_SCANNER_LLM_MODEL`
 - `MCP_SCANNER_LLM_BASE_URL`
-- `MCP_SCANNER_API_VERSION` (optional)
+- `MCP_SCANNER_LLM_API_VERSION` (optional)
 
 Used with: `tripwire mcp --behavioral`.
 
@@ -66,6 +66,40 @@ Separate secret: `tripwire-supabase`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `SUPABASE_DB_URL` — for local / `tripwire setup` DDL only (not Modal)
   - Use session pooler URI when direct `db.<ref>.supabase.co` fails DNS (project paused / IPv6)
+
+## Vendor account setup + key procurement
+
+Use this section when you need explicit procurement flow for each vendor.
+
+## Snyk
+
+1. Open [Snyk](https://app.snyk.io) and create or sign in.
+2. Go to **Settings → API Tokens**.
+3. Create a token and set it as `SNYK_TOKEN`.
+
+Set when `tripwire scan` uses Snyk-enabled flows (scanner mode from your CLI path).
+
+## Tessl
+
+1. Open [Tessl](https://tessl.io), create/sign in.
+2. Run `tessl login` (browser SSO for local smoke).
+3. Create a workspace API key:
+   - `tessl api-key create --workspace <name>`
+4. Set `TESSL_TOKEN` and optional `TESSL_WORKSPACE`.
+
+## Cisco scanner integrations
+
+1. Open [Cisco Developer / Security site](https://developer.cisco.com).
+2. Create/access Security Cloud or AI Defense credentials.
+3. Set:
+   - `SKILL_SCANNER_LLM_API_KEY` + `SKILL_SCANNER_LLM_MODEL` + optional provider fields for `tripwire scan --use-llm`
+   - `MCP_SCANNER_LLM_API_KEY` + `MCP_SCANNER_LLM_MODEL` + optional provider fields for `tripwire mcp --behavioral`
+4. For Tier C paid AI Defense:
+   - `AI_DEFENSE_API_KEY` (Skill Scanner `--use-aidefense`)
+   - `MCP_SCANNER_API_KEY` + `MCP_SCANNER_ENDPOINT`
+   - Optional `AI_DEFENSE_API_URL`
+
+Missing values are allowed: missing credentials skip that scanner engine.
 
 ## Updating secrets
 

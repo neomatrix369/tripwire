@@ -12,6 +12,7 @@ and `docs/user-guide/*`) into a single onboarding flow that clearly answers:
 
 Also remove stale optional scanner-reference material from docs/code and verify key
 inventory alignment in `.env.example` / env-var guidance.
+In addition, optional scanner onboarding must include where each vendor account is provisioned and where each scanner env var is obtained.
 
 ## Scope
 
@@ -43,6 +44,7 @@ Out of scope:
 - `/fixtures/OPTIONAL_SCANNER_KEYS.md` and `/docs/user-guide/env-vars.md` — remove deprecated scanner key documentation
 - `/docs/research/adapters/scanner-output-adapters.md` — remove deprecated analyzer mention from adapter docs
 - `/docs/plan/gate-evidence/slice-17.json` — sync env-key evidence inventory
+- `/docs/user-guide/env-vars.md` and `/fixtures/OPTIONAL_SCANNER_KEYS.md` — add explicit vendor account + env-var procurement steps for Snyk, Tessl, and Cisco AI Defense
 
 ## Execution notes
 
@@ -64,6 +66,7 @@ Out of scope:
 - `docs/user-guide/prerequisites.md` documents platform vs non-platform requirements.
 - No command snippet appears without a working target path or command context.
 - `SUPABASE_ANON_KEY` remains present in `.env.example` and is consistently documented.
+- Vendor account setup and env-var procurement links for Snyk/Cisco/Tessl are documented.
 - Deprecated scanner key references are removed from this slice's target
   doc/code paths.
 

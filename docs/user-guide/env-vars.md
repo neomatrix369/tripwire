@@ -21,7 +21,7 @@ Companion allowlist: [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_
 
 | Key | Required for | Where to get it |
 |-----|--------------|-----------------|
-| `SNYK_TOKEN` | Snyk skill/MCP depth | [Snyk](https://snyk.io) account → API token |
+| `SNYK_TOKEN` | Snyk skill/MCP depth | Open [app.snyk.io](https://app.snyk.io), then **Settings → API Tokens** |
 | `SKILL_SCANNER_LLM_API_KEY` | Cisco Skill Scanner `--use-llm` | Your LLM provider API key (must match MODEL) |
 | `SKILL_SCANNER_LLM_MODEL` | Skill LLM routing | e.g. `anthropic/claude-sonnet-4-20250514` or `openai/gpt-4o` |
 | `SKILL_SCANNER_LLM_PROVIDER` | Custom / OpenAI-compatible | Optional; e.g. `openai` for custom BASE_URL |
@@ -31,16 +31,16 @@ Companion allowlist: [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_
 | `MCP_SCANNER_LLM_MODEL` | MCP LLM routing | e.g. `gpt-4o` / `openai/gpt-4o` |
 | `MCP_SCANNER_LLM_BASE_URL` | Custom MCP LLM endpoint | Optional |
 | `MCP_SCANNER_LLM_API_VERSION` | Azure-style APIs | Optional; commented in `.env.example` |
-| `TESSL_TOKEN` | Tessl on Modal/CI | After `tessl login`, `tessl api-key create --workspace <name>`. Local smoke can use browser SSO only |
+| `TESSL_TOKEN` | Tessl on Modal/CI | Go to [tessl.io](https://tessl.io), create/sign in to account, then `tessl api-key create --workspace <name>` (or use Tessl UI token page). Local smoke can use browser SSO only. |
 | `TESSL_WORKSPACE` | Tessl workspace name | Optional; scanners default to `default` |
 
 ## Tier C — Full depth (paid Cisco AI Defense)
 
 | Key | Required for | Where to get it |
 |-----|--------------|-----------------|
-| `AI_DEFENSE_API_KEY` | Skill Scanner `--use-aidefense` | Security Cloud Control → AI Defense UI (`X-Cisco-AI-Defense-API-Key`) |
+| `AI_DEFENSE_API_KEY` | Skill Scanner `--use-aidefense` | Sign in to Cisco Security Cloud / AI Defense credentials area (`X-Cisco-AI-Defense-API-Key`) |
 | `AI_DEFENSE_API_URL` | Custom AI Defense API host | Optional override; commented in `.env.example` |
-| `MCP_SCANNER_API_KEY` | MCP Scanner cloud inspect | Same AI Defense UI |
+| `MCP_SCANNER_API_KEY` | MCP Scanner cloud inspect | Same AI Defense credentials area |
 | `MCP_SCANNER_ENDPOINT` | MCP inspect API base | Default in `.env.example`: US Cisco inspect endpoint |
 
 ## Optional (any tier)
@@ -55,3 +55,9 @@ No additional optional scanner keys are currently documented for this repository
 ```
 
 See [modal-setup.md](./modal-setup.md). Manual CLI fallback is documented in [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md).
+
+## Vendor procurement quick-steps
+
+- **Snyk:** open [app.snyk.io](https://app.snyk.io) → Settings → API Tokens.
+- **Tessl:** open [tessl.io](https://tessl.io), create/login → CLI or UI token; prefer `tessl api-key create --workspace <name>` for Modal/CI.
+- **Cisco AI Defense:** open [Cisco Developer](https://developer.cisco.com) and locate AI Defense credentials for `AI_DEFENSE_API_KEY` and `MCP_SCANNER_API_KEY`; set `MCP_SCANNER_ENDPOINT` only if you have a non-default inspect endpoint.
