@@ -2,17 +2,17 @@
   "slice": 17,
   "date": "2026-08-03",
   "branch": "slice/17-user-guide-onboarding-docs-optional-scanner-keys-format",
-  "verdict": "PASS",
+  "verdict": "REJECTED",
   "before_checks": "all green",
   "after_checks": [
-    "user-guide files exist",
+    "user-guide files exist (prerequisites, supabase-setup, modal-setup, env-vars, path-commands, onboarding-cheatsheet, setup-commands)",
     "env-vars rows cover .env.example keys",
-    "QUICKSTART includes persona anchors + Node 22 + Mock guidance",
+    "QUICKSTART links role-neutral local-validation path",
     "README Run-it → prereqs/env-vars; docs/README Choose Your Path; CONTRIBUTING step 0 ≤80",
-    "README 4 H2s ≤100 lines",
+    "README structure updated: 9 H2s observed in current snapshot (gate evidence not asserting 4)",
     "no Overmind/Ossprey in README/QUICKSTART/CONTRIBUTING",
     "PROGRESS/TRAIL critical path 8 → 11–13",
-    "gate-evidence PASS"
+    "gate-evidence reflects current persona-neutral documentation state"
   ],
   "env_key_inventory": [
     "SUPABASE_ANON_KEY",
@@ -40,24 +40,24 @@
   ],
   "commands": [
     {
-      "cmd": "ls docs/user-guide/{prerequisites,supabase-setup,modal-setup,env-vars,setup-commands,persona-commands,onboarding-cheatsheet}.md",
-      "result": "all seven guide files exist (including onboarding-cheatsheet.md, persona-commands.md, setup-commands.md)"
+      "cmd": "ls docs/user-guide/{prerequisites,supabase-setup,modal-setup,env-vars,path-commands,onboarding-cheatsheet,setup-commands}.md",
+      "result": "all seven guide files exist including new onboarding path page"
     },
     {
       "cmd": "rg '^## ' README.md; wc -l README.md CONTRIBUTING.md",
-      "result": "4 H2s; README 77; CONTRIBUTING 71"
+      "result": "README 9 H2s; README 77 lines; CONTRIBUTING 71 lines"
     },
     {
-      "cmd": "rg -n '^## (Normal users|Developers|Security experts)$' QUICKSTART.md",
-      "result": "anchors present for all three persona paths"
+      "cmd": "rg -n '^## (Local validation \\(Node 22 \\+ Mock dashboard\\)|Local validation|Live capabilities)$' QUICKSTART.md",
+      "result": "Local validation section includes Node 22 + Mock flow pointer to path-commands.md"
     },
     {
       "cmd": "rg -n 'cp \\.env\\.example \\.env|supabase-setup\\.md|modal-setup\\.md|env-vars\\.md' docs/user-guide/setup-commands.md",
-      "result": "security section now orders supabase/modal/env links before environment bootstrap command"
+      "result": "security/live setup section orders required platform links before cp .env.example .env"
     },
     {
-      "cmd": "rg -n 'onboarding-cheatsheet\\.md#(developers|security-experts)|QUICKSTART\\.md#(normal-users|developers|security-experts)' README.md docs/README.md QUICKSTART.md docs/user-guide/onboarding-cheatsheet.md",
-      "result": "onboarding-cheatsheet hash anchors removed where no matching heading existed"
+      "cmd": "rg -n 'QUICKSTART\\.md#(normal-users|developers|security-experts)|onboarding-cheatsheet\\.md#(normal-users|developers|security-experts|development-path)' README.md docs/README.md QUICKSTART.md docs/user-guide/onboarding-cheatsheet.md",
+      "result": "no persona hash anchors referenced from indexed docs"
     },
     {
       "cmd": "rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md",

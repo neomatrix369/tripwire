@@ -45,10 +45,13 @@ Use the snippets from [prerequisites.md](docs/user-guide/prerequisites.md) to ru
 All one-off setup and periodic maintenance commands are maintained in one place:
 
 - [docs/user-guide/setup-commands.md](docs/user-guide/setup-commands.md)
+- [Role-neutral onboarding path](docs/user-guide/path-commands.md)
 
 ### Run and validate
 
-Follow [QUICKSTART.md](QUICKSTART.md) for installation, optional local validation,
+Follow [QUICKSTART.md](QUICKSTART.md), including
+[path-commands.md](docs/user-guide/path-commands.md#local-validation-node-22--mock-dashboard), for installation,
+optional local validation,
 Live capability setup, scans, dashboard review, and maintenance. Re-run and
 maintenance commands are in [docs/user-guide/setup-commands.md](docs/user-guide/setup-commands.md).
 

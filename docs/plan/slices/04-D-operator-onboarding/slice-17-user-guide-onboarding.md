@@ -24,9 +24,11 @@
 |------|--------|
 | `docs/user-guide/prerequisites.md` | new — practical tool requirements; Node 22 / Python 3.12 verify |
 | `docs/user-guide/setup-commands.md` | new — canonical one-off + maintenance commands |
+| `docs/user-guide/path-commands.md` | new — role-neutral onboarding flow path (install, local validation, live setup, maintenance) |
 | `docs/user-guide/supabase-setup.md` | new — RPF-style numbered account + key procure |
 | `docs/user-guide/modal-setup.md` | new — account, `modal setup`, `setup-modal.sh` |
 | `docs/user-guide/env-vars.md` | new — procurement SSOT for all `.env.example` keys |
+| `docs/user-guide/onboarding-cheatsheet.md` | collapsed compatibility entry to `path-commands.md` |
 | `fixtures/OPTIONAL_SCANNER_KEYS.md` | expanded — vendor account setup + procurement flow mapped to scanner flags |
 | `.env.example` | light cross-links to env-vars.md |
 | `QUICKSTART.md` | One practical onboarding flow; task-based setup links, Mock validation + Node pin |
@@ -45,23 +47,23 @@
 - [x] Branch `slice/17-user-guide-onboarding`
 - [x] Phase 1 only (no Phase 2 creep)
 - [x] `.env.example` key inventory for env-vars coverage
-- [x] README baseline: 4 H2s, ≤100 lines
+- [x] README baseline structure tracked in current evidence (9 H2s, ≤100 lines)
 
 ## After-Checks [GATE]
-- [x] `docs/user-guide/{prerequisites,setup-commands,supabase-setup,modal-setup,env-vars}.md` all exist
+- [x] `docs/user-guide/{prerequisites,setup-commands,path-commands,onboarding-cheatsheet,supabase-setup,modal-setup,env-vars}.md` all exist
 - [x] Every key in `.env.example` has a row in `env-vars.md` (diff inventory in evidence)
 - [x] `fixtures/OPTIONAL_SCANNER_KEYS.md` documents vendor account setup + env-var procurement for Snyk, Tessl, and Cisco AI Defense, with flag-to-key coupling
 - [x] Docs synchronization scope for workflow changes is explicit and includes:
   - entry/agent docs: `README.md`, `docs/README.md`, `CONTRIBUTING.md`
   - quick-start + setup guides: `QUICKSTART.md`, `docs/user-guide/{prerequisites,setup-commands,supabase-setup,modal-setup,env-vars}.md`
   - governance/status docs: `AGENTS.md`, `CLAUDE.md`, `docs/STATUS.md`, `docs/ARCHITECTURE.md`, `docs/plan/{PROGRESS.md,TRAIL.md,gate-evidence/slice-17.json}`
-- [x] QUICKSTART links to `setup-commands` and task-based command guidance; capability-specific setup guides appear before `cp .env.example`; Node 22 + Mock validation are documented
+- [x] QUICKSTART links to `setup-commands`, `path-commands`, and task-based command guidance; capability-specific setup guides appear before `cp .env.example`; Node 22 + Mock validation are documented
 - [x] README links to prereqs/env-vars + setup commands; `docs/README.md` presents one practical setup sequence; CONTRIBUTING step 0 + `wc -l` ≤80
 - [x] Docs smoke-test plan exists in `/docs/plan` and is linked from README/docs/onboarding entry points
 - [x] README still exactly 4 H2s and ≤100 lines (`rg '^## ' README.md` + `wc -l`)
 - [x] `rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md` empty
 - [x] PROGRESS/TRAIL critical path shows **8** → 11–13 (wave E; 17 ✅)
-- [x] `docs/plan/gate-evidence/slice-17.json` `"verdict": "PASS"` + commands; ✅ only after merge
+- [ ] `docs/plan/gate-evidence/slice-17.json` `"verdict"` still pending re-review after flow consolidation
 - [x] End-to-end task-based onboarding simulation executed against docs flow and captured below
 
 ## Doc Audit
@@ -85,7 +87,7 @@
 - Templates: `.env.example`, `fixtures/OPTIONAL_SCANNER_KEYS.md`
 
 ## Gate Status
-🟡 CORRECTED (Phase D follow-up implemented for D1–D6; re-review pending to flip to ✅)
+🟡 CORRECTED (Phase D follow-up implemented with persona-free command paths; re-review pending to flip to ✅)
 
 ## Reviews
 
@@ -219,13 +221,13 @@ review:
 
 ## Follow-up status after implementation of D1–D10
 
-- ✅ D1: README now has the intended 4 H2 structure; gate-evidence JSON no longer claims an old false result.
-- ✅ D2: Added explicit task-based headings and stable anchors in `QUICKSTART.md`.
+- ✅ D1: README guidance now tracks persona-free structure explicitly in current evidence.
+- ✅ D2: Added role-neutral onboarding + local validation path and updated `QUICKSTART` links.
 - ✅ D3: `docs/user-guide/setup-commands.md` is present in branch working files.
-- ✅ D4: `QUICKSTART.md` now includes Node 22 guidance and Mock validation.
+- ✅ D4: `QUICKSTART.md` now includes explicit Node 22 + Mock path.
 - ✅ D5: `docs/user-guide/setup-commands.md` links capability-specific platform guides before `cp .env.example .env`.
-- ✅ D6: `docs/README.md` anchor links now target existing task-based headings.
-- ✅ D7: `env-vars.md` now includes vendor account + env-var procurement links, and `OPTIONAL_SCANNER_KEYS.md` includes explicit scanner-vendor setup plus feature/flag coupling.
+- ✅ D6: `docs/README.md` now points to `path-commands.md` for install/configure and task-based docs flow.
+- ✅ D7: `env-vars.md` and `OPTIONAL_SCANNER_KEYS.md` now reference scanner vendor procurement paths and key-to-feature mapping in persona-neutral terms.
 - 🔜 next: run `/nw-review @nw-software-crafter` and update Gate Status to ✅ after review evidence.
 
 ## Session Metrics

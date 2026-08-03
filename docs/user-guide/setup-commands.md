@@ -18,13 +18,25 @@ npm link
 cd ..
 ```
 
-### Local dashboard bootstrap
+## 2) Local validation (Node 22 + Mock dashboard)
+
+Use Node 22 for local validation:
 
 ```bash
+node --version
+npm --version
+python3 -V
+```
+
+```bash
+tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
+tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json
 node scripts/serve-dashboard.mjs
 ```
 
-### Live environment bootstrap
+Use **Mock (demo data)** on Guard during local validation.
+
+## 3) Live environment bootstrap
 
 Before running these commands, complete in order:
 
@@ -53,7 +65,7 @@ pip install modal
 ./scripts/setup-modal.sh --deploy-only
 ```
 
-## 2) Re-run and maintenance commands
+## 4) Re-run and maintenance commands
 
 ### Schema refresh / redeploy
 
@@ -70,7 +82,7 @@ tripwire setup --force
 ./scripts/quality-gates.sh
 ```
 
-## 3) Vendor key procurement quick paths (for scanner depth)
+## 5) Vendor key procurement quick paths (for scanner depth)
 
 Use this section once you choose scanner depth:
 
@@ -83,7 +95,7 @@ Use this section once you choose scanner depth:
     - optional `AI_DEFENSE_API_URL`
     - optional `MCP_SCANNER_ENDPOINT` override.
 
-## 4) End-to-end setup and run
+## 6) End-to-end setup and run
 
 ### Local validation
 
@@ -147,7 +159,7 @@ tripwire scan ./fixtures/mcp/mcp_manifest.json
 node scripts/serve-dashboard.mjs
 ```
 
-## 5) Test commands (when needed)
+## 7) Test commands (when needed)
 
 ```bash
 cd cli && npm test

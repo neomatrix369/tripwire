@@ -13,7 +13,7 @@ Guides for installing, using, maintaining, and contributing to **Tripwire**.
 
 | Step | Guide |
 |------|-------|
-| Install and configure | [onboarding cheatsheet](./user-guide/onboarding-cheatsheet.md) → [prerequisites](./user-guide/prerequisites.md) → [setup commands](./user-guide/setup-commands.md) |
+| Install and configure | [onboarding command path](./user-guide/path-commands.md) → [prerequisites](./user-guide/prerequisites.md) → [setup commands](./user-guide/setup-commands.md) |
 | Validate locally | [QUICKSTART → Validate locally](../QUICKSTART.md#validate-locally) |
 | Enable Live capabilities | [Supabase setup](./user-guide/supabase-setup.md) → [Modal setup](./user-guide/modal-setup.md) → [environment keys](./user-guide/env-vars.md) |
 | Contributor path | Use Tripwire first, then [CONTRIBUTING.md](../CONTRIBUTING.md) → [ARCHITECTURE.md](./ARCHITECTURE.md) to develop and share improvements |
@@ -27,6 +27,7 @@ Guides for installing, using, maintaining, and contributing to **Tripwire**.
 | Doc | What it covers |
 |-----|----------------|
 | [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) | Shared installation and setup sequence |
+| [user-guide/path-commands.md](./user-guide/path-commands.md) | Shared role-neutral command flow (install → local validation → live setup → maintenance) |
 | [QUICKSTART.md](../QUICKSTART.md) | Shared setup, validation, Live scan, and maintenance flow |
 | [user-guide/prerequisites.md](./user-guide/prerequisites.md) | Tool and capability prerequisites; Node 22 / Python 3.12 |
 | [user-guide/setup-commands.md](./user-guide/setup-commands.md) | Shared one-off setup and maintenance command catalog |
@@ -62,7 +63,7 @@ Guides for installing, using, maintaining, and contributing to **Tripwire**.
 | Mock dashboard | [QUICKSTART → Validate locally](../QUICKSTART.md#validate-locally) |
 | Dry-discover a fixture | [QUICKSTART → Validate locally](../QUICKSTART.md#validate-locally) |
 | Full stack scan | [QUICKSTART → Live capabilities](../QUICKSTART.md#live-capabilities) |
-| Setup + commands by tempo | [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) |
+| Setup + commands by tempo | [user-guide/path-commands.md](./user-guide/path-commands.md) |
 | Understand system shape | [ARCHITECTURE.md](./ARCHITECTURE.md) |
 | What is verified today? | [STATUS.md](./STATUS.md) |
 | Quality gates / hooks | [CONTRIBUTING.md](../CONTRIBUTING.md) |

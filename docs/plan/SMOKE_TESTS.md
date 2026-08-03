@@ -8,8 +8,23 @@ This runbook verifies that first-time readers can successfully progress from ins
 |---|---|
 | Last run | Not run yet |
 | Last result | Not run |
-| Scope | README -> docs/index -> prerequisites -> setup commands -> quickstart -> contributing -> maintenance |
+| Scope | Fresh clone -> install -> local scan/dashboard -> optional Live setup -> maintenance -> contribution |
 | Failure policy | Doc-flow breaks are hard fails. Environment constraints are recorded as blockers (`blocked-by-env`) |
+
+## Test boundary and evidence
+
+Run this from a fresh clone when practical. Record whether `tripwire` was already
+globally linked, whether `.env` already existed, and which Live providers were
+available. Live checks must use disposable/test resources; never record tokens,
+service-role keys, or credential-bearing URLs.
+
+| Field | Record |
+|---|---|
+| Date and commit | UTC date and tested commit SHA |
+| Mode | `local-only` or `live` |
+| Providers enabled | Supabase, Modal, Snyk, Tessl, Cisco AI Defense as applicable |
+| Result | `pass`, `fail`, or `blocked-by-env` |
+| Evidence and follow-up | Command/output summary and linked issue, if needed |
 
 ## Rerun checklist (visitor-first)
 
@@ -73,6 +88,20 @@ Checks:
 Expected result:
 - CLI is linkable; user can follow to next section without missing commands.
 
+### 3a) Installed CLI proof
+
+Run:
+
+```bash
+tripwire --help
+tripwire scan --help
+```
+
+Checks:
+- The linked CLI is available in a new shell and exposes the documented scan command.
+- Any Python or other runtime dependency required by the CLI is either installed
+  by the documented flow or reported with an actionable error.
+
 ### 4) First-run local validation (no live keys)
 
 File: [QUICKSTART.md](../QUICKSTART.md)
@@ -115,11 +144,59 @@ Run (read/sequence check; execution depends on environment):
 ```
 
 Checks:
-- Steps are in required order: Supabase setup -> Modal setup -> env-vars.
-- Live prerequisites are explicitly marked optional/required where applicable.
+- Required platform steps are in order: Supabase setup -> Modal setup -> `.env`.
+- The optional scanner choices are explicit: Snyk, Tessl, and Cisco AI Defense.
+- Each provider has a documented account/key source and `.env` mapping.
+- Omitted optional keys are documented to skip only that scanner engine.
 
 Expected result:
 - A new operator can provision live capabilities by following documented order.
+
+### 5a) Live bootstrap proof (test resources only)
+
+Run only with a disposable Supabase project and a Modal account. Do not paste
+credentials into this document or command output.
+
+```bash
+tripwire setup
+./scripts/setup-modal.sh --secrets-only
+./scripts/setup-modal.sh --deploy-only
+```
+
+Checks:
+- Platform setup completes without exposing credentials.
+- Modal receives only non-empty scanner credentials from the documented allowlist.
+- With no scanner credentials configured, the existing scanner secret is preserved.
+- Authentication or cloud-account restrictions are recorded as `blocked-by-env`,
+  with the documented recovery path noted.
+
+### 5b) Scan-to-dashboard round trip
+
+Run a fixture scan using the available mode, then start the dashboard:
+
+```bash
+tripwire scan ./fixtures/skills/safe-csv-cleaner
+node scripts/serve-dashboard.mjs
+```
+
+Checks:
+- A scan result is produced without requiring optional scanner credentials.
+- Mock and Live dashboard modes are visibly distinct and the selected source is clear.
+- In Live mode, the expected result is visible after the scan; otherwise record the
+  exact dependency that blocked it.
+
+Expected result:
+- The documented path proves the product journey from scan to result review.
+
+### 5c) Degraded mode and recovery
+
+Checks:
+- A missing optional scanner credential reports `skipped_missing_credential` and
+  does not fail the complete scan.
+- Modal authentication failures point to the documented login/setup path.
+- Supabase connection or schema failures point to the documented setup or
+  `tripwire setup --force` recovery path.
+- A failure is recorded as `fail` or `blocked-by-env`; do not mask it with `|| true`.
 
 ### 6) Contributor path
 
@@ -136,6 +213,8 @@ cd /path/to/repo/tripwire
 Checks:
 - Shared path from `README.md` to CONTRIBUTING is explicit.
 - Contributor flow references onboarding before dev work.
+- Test locations, quality gates, and PR expectations are discoverable without a
+  second installation route.
 
 Expected result:
 - Contributor path and quality-gate command map are discoverable and executable in context.
@@ -167,7 +246,7 @@ Run:
 cd /path/to/repo/tripwire
 
 tripwire setup --force
-./scripts/setup-modal.sh --secrets-only || true
+./scripts/setup-modal.sh --secrets-only
 ./scripts/setup-modal.sh --deploy-only
 ./scripts/quality-gates.sh
 ```
@@ -175,6 +254,9 @@ tripwire setup --force
 Checks:
 - Maintenance commands are separated from one-off setup.
 - Optional flags are documented with expected behavior.
+- Re-running setup does not duplicate or unexpectedly remove platform resources.
+- Secret synchronization preserves scanner secrets when no scanner key is configured.
+- Any command that changes cloud state or may incur provider cost is identified before execution.
 
 Expected result:
 - Rerun/maintenance flow is complete and not coupled to first-time onboarding.
