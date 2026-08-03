@@ -14,4 +14,3 @@ This file is a compatibility alias.
 1. Complete onboarding flow in [path-commands.md](./path-commands.md).
 2. Follow [CONTRIBUTING.md](../../CONTRIBUTING.md) for development norms.
 3. Use [SMOKE_TESTS.md](../plan/SMOKE_TESTS.md) for the docs flow verification checklist.
-
