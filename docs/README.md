@@ -1,31 +1,23 @@
 # Documentation index
 
-Guides for **Tripwire**, by who you are and what you want to do.
+Guides for installing, using, maintaining, and contributing to **Tripwire**.
 
 **Repo entry:** [README.md](../README.md) · **Fastest run:** [QUICKSTART.md](../QUICKSTART.md)
 
-> Same personas as [README → Choose your path](../README.md#choose-your-path). This page is the **doc map**.
+> This page is the **doc map**. Start with the shared setup flow; use the
+> contributor guide only when you want to change or share the project.
 
 ---
 
-## Who is this for?
+## Start here
 
-| Role | Start here | Then |
-|------|------------|------|
-| **Normal users** | [user-guide/onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md) | [QUICKSTART → Normal users](../QUICKSTART.md#normal-users) (select **Mock**) |
-| **Developers** | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md) → [prerequisites](./user-guide/prerequisites.md) → [setup-commands](./user-guide/setup-commands.md) | [Persona commands](./user-guide/persona-commands.md#developers) |
-| **Security experts** | [prerequisites](./user-guide/prerequisites.md) → [env-vars](./user-guide/env-vars.md) → [setup-commands](./user-guide/setup-commands.md) → [supabase-setup](./user-guide/supabase-setup.md) → [modal-setup](./user-guide/modal-setup.md) | [persona-commands.md#security-experts](./user-guide/persona-commands.md#security-experts) |
-| **Maintainers** | [CONTRIBUTING.md](../CONTRIBUTING.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) · [plan/PROGRESS.md](./plan/PROGRESS.md) |
-| **Security and reporting stakeholders** | [SECURITY.md](../SECURITY.md) · [prototypes/README.md](../prototypes/README.md) | [fixtures/README.md](../fixtures/README.md) · [STATUS.md](./STATUS.md) |
-| **Planning / slice workflows** | [AGENTS.md](../AGENTS.md) · [CLAUDE.md](../CLAUDE.md) | [plan/PROGRESS.md](./plan/PROGRESS.md) · [plan/TRAIL.md](./plan/TRAIL.md) |
-
-### Choose Your Path
-
-| Path | Cloud? | First docs |
-|------|--------|------------|
-| Normal users | No | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md) → [setup-commands](./user-guide/setup-commands.md) → [QUICKSTART](../QUICKSTART.md#normal-users) |
-| Developers | No (optional cloud later) | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md) → [setup-commands](./user-guide/setup-commands.md) → [QUICKSTART](../QUICKSTART.md#developers) → [persona-commands](./user-guide/persona-commands.md#developers) |
-| Security experts | Yes | [setup-commands](./user-guide/setup-commands.md) → [supabase-setup](./user-guide/supabase-setup.md) → [modal-setup](./user-guide/modal-setup.md) → [env-vars](./user-guide/env-vars.md) |
+| Step | Guide |
+|------|-------|
+| Install and configure | [onboarding cheatsheet](./user-guide/onboarding-cheatsheet.md) → [prerequisites](./user-guide/prerequisites.md) → [setup commands](./user-guide/setup-commands.md) |
+| Validate locally | [QUICKSTART → Validate locally](../QUICKSTART.md#validate-locally) |
+| Enable Live capabilities | [Supabase setup](./user-guide/supabase-setup.md) → [Modal setup](./user-guide/modal-setup.md) → [environment keys](./user-guide/env-vars.md) |
+| Contributor path | Use Tripwire first, then [CONTRIBUTING.md](../CONTRIBUTING.md) → [ARCHITECTURE.md](./ARCHITECTURE.md) to develop and share improvements |
+| Report a vulnerability | [SECURITY.md](../SECURITY.md) |
 
 ---
 
@@ -33,12 +25,11 @@ Guides for **Tripwire**, by who you are and what you want to do.
 
 | Doc | What it covers |
 |-----|----------------|
-| [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) | Persona route map for role-first onboarding |
-| [QUICKSTART.md](../QUICKSTART.md) | Normal users / Developers / Security experts paths |
-| [user-guide/prerequisites.md](./user-guide/prerequisites.md) | Role × tool matrix; Node 22 / Python 3.12 |
+| [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) | Shared installation and setup sequence |
+| [QUICKSTART.md](../QUICKSTART.md) | Shared setup, validation, Live scan, and maintenance flow |
+| [user-guide/prerequisites.md](./user-guide/prerequisites.md) | Tool and capability prerequisites; Node 22 / Python 3.12 |
 | [user-guide/setup-commands.md](./user-guide/setup-commands.md) | Shared one-off setup and maintenance command catalog |
 | [user-guide/env-vars.md](./user-guide/env-vars.md) | Procurement SSOT for `.env.example` keys |
-| [user-guide/persona-commands.md](./user-guide/persona-commands.md) | Persona-specific command playbooks |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | C4 L1–L2 diagrams, key flows, repo layout |
 | [STATUS.md](./STATUS.md) | RESEARCH / IMPLEMENTED / VERIFIED claims |
 | [CONTRIBUTING.md](../CONTRIBUTING.md) | Dev setup, hygiene gates, PR conventions |
@@ -65,9 +56,9 @@ Guides for **Tripwire**, by who you are and what you want to do.
 
 | Task | Doc / command |
 |------|----------------|
-| Mock dashboard in 2 minutes | [QUICKSTART → Normal users](../QUICKSTART.md#normal-users) |
-| Dry-discover a fixture | [QUICKSTART → Developers](../QUICKSTART.md#developers) |
-| Full stack scan | [QUICKSTART → Security experts](../QUICKSTART.md#security-experts) |
+| Mock dashboard | [QUICKSTART → Validate locally](../QUICKSTART.md#validate-locally) |
+| Dry-discover a fixture | [QUICKSTART → Validate locally](../QUICKSTART.md#validate-locally) |
+| Full stack scan | [QUICKSTART → Live capabilities](../QUICKSTART.md#live-capabilities) |
 | Setup + commands by tempo | [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) |
 | Understand system shape | [ARCHITECTURE.md](./ARCHITECTURE.md) |
 | What is verified today? | [STATUS.md](./STATUS.md) |

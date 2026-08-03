@@ -22,19 +22,18 @@ and displays results in a Live/Mock dashboard.
 Run discovery with the CLI, then watch results in the dashboard.
 System shape: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## Choose your path
+## Use Tripwire
 
-| Role / path | Expected setup | Start here |
-|---------|----------------|------------|
-| **Normal users** | Node 22 only | [docs/user-guide/persona-commands.md#normal-users](docs/user-guide/persona-commands.md#normal-users) |
-| **Developers** | Node 22 + Python 3.12 + CLI + git | [docs/user-guide/persona-commands.md#developers](docs/user-guide/persona-commands.md#developers) |
-| **Security experts** | Node 22 + Python 3.12 + scanner tooling | [docs/user-guide/persona-commands.md#security-experts](docs/user-guide/persona-commands.md#security-experts) |
+Tripwire has one installation, setup, run, and maintenance flow. It suits people
+comfortable with command-line setup who have an interest in security findings.
+Mock and dry-discover are optional local validation modes; Supabase, Modal, and
+scanner keys are needed only for the corresponding Live capabilities.
 
 ## Start here
 
 ### Baseline prerequisites
 
-Check all role requirements in:
+Check the shared requirements in:
 
 - [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
 - [docs/user-guide/env-vars.md](docs/user-guide/env-vars.md)
@@ -47,15 +46,11 @@ All one-off setup and periodic maintenance commands are maintained in one place:
 
 - [docs/user-guide/setup-commands.md](docs/user-guide/setup-commands.md)
 
-### Persona commands
+### Run and validate
 
-- [Normal users](docs/user-guide/persona-commands.md#normal-users): demo-only onboarding
-- [Developers](docs/user-guide/persona-commands.md#developers): fixture discovery and local checks
-- [Security experts](docs/user-guide/persona-commands.md#security-experts): Live setup, scan, and dashboard validation
-
-### Path-specific entrypoints
-
-See [QUICKSTART.md](QUICKSTART.md) for role-specific start points and objective-based sequencing.
+Follow [QUICKSTART.md](QUICKSTART.md) for installation, optional local validation,
+Live capability setup, scans, dashboard review, and maintenance. Re-run and
+maintenance commands are in [docs/user-guide/setup-commands.md](docs/user-guide/setup-commands.md).
 
 ## Troubleshooting and contribution
 
@@ -68,7 +63,9 @@ See [QUICKSTART.md](QUICKSTART.md) for role-specific start points and objective-
 
 ### Contribute
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports: [SECURITY.md](SECURITY.md).
+**Contributors** use Tripwire and also improve or share it. After completing the
+shared setup, follow [CONTRIBUTING.md](CONTRIBUTING.md) for development and PR
+work. Security reports: [SECURITY.md](SECURITY.md).
 
 ### Learn more
 

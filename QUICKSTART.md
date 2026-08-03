@@ -1,21 +1,13 @@
 # Quickstart
 
-> Fast entrypoint by role and objective.
+> Fast entrypoint for installation, scanning, and maintenance.
 
-Pick one path, verify prerequisites, then follow the linked persona flow.
-
-## Paths
-
-| Path | Setup prerequisites | Start here |
-|---|---|---|
-| Normal users | [Node 22](docs/user-guide/prerequisites.md#tool-prerequisites) + [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md) | [docs/user-guide/persona-commands.md#normal-users](docs/user-guide/persona-commands.md#normal-users) |
-| Developers | [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md) | [docs/user-guide/persona-commands.md#developers](docs/user-guide/persona-commands.md#developers) |
-| Security experts | [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md) + [setup-commands.md](docs/user-guide/setup-commands.md) + [env-vars.md](docs/user-guide/env-vars.md) + [supabase-setup.md](docs/user-guide/supabase-setup.md) + [modal-setup.md](docs/user-guide/modal-setup.md) | [docs/user-guide/persona-commands.md#security-experts](docs/user-guide/persona-commands.md#security-experts) |
+Follow this shared flow. Use local validation when useful, then configure Live
+capabilities only when you need them.
 
 ## Shared setup reference
 
 - [Setup command catalog](docs/user-guide/setup-commands.md)
-- [Persona flows](docs/user-guide/persona-commands.md)
 - [Supabase setup](docs/user-guide/supabase-setup.md)
 - [Modal setup](docs/user-guide/modal-setup.md)
 - [Environment keys](docs/user-guide/env-vars.md)
@@ -25,43 +17,15 @@ Pick one path, verify prerequisites, then follow the linked persona flow.
 - [Maintenance and bootstrap commands](docs/user-guide/setup-commands.md#re-run-and-maintenance-commands)
 - [Regular checks](docs/user-guide/setup-commands.md#3-test-commands-when-needed)
 
-## Normal users
+## Install and configure
 
-Objective: see a running dashboard in Mock mode quickly.
-
-1. [Confirm Node 22](docs/user-guide/prerequisites.md#node-version).
-2. Follow the quick normal-user flow in [persona-commands.md#normal-users](docs/user-guide/persona-commands.md#normal-users) and start:
-
-```bash
-node scripts/serve-dashboard.mjs
-```
-
-3. In Guard, select **Mock (demo data)** and verify cards populate.
-
-## Developers
-
-Objective: run fixture discovery without cloud accounts.
-
-1. [Confirm Node 22 and Python 3.12](docs/user-guide/prerequisites.md).
-2. Use [persona-commands.md#developers](docs/user-guide/persona-commands.md#developers) for:
-   - `tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner`
-   - `tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json`
-3. If you need local dashboard context, run:
-
-```bash
-node scripts/serve-dashboard.mjs
-```
-
-## Security experts
-
-Objective: configure and run Live scans.
-
-1. [Confirm all operator prerequisites](docs/user-guide/prerequisites.md).
-2. Run setup docs in order:
+1. [Confirm prerequisites](docs/user-guide/prerequisites.md).
+2. Install and link the CLI using the [setup command catalog](docs/user-guide/setup-commands.md).
+3. Configure Live capabilities when needed, in this order:
    - [supabase-setup.md](docs/user-guide/supabase-setup.md)
    - [modal-setup.md](docs/user-guide/modal-setup.md)
    - [env-vars.md](docs/user-guide/env-vars.md)
-3. Bootstrap env and secrets:
+4. Bootstrap the environment and services:
 
 ```bash
 cp .env.example .env
@@ -69,7 +33,28 @@ tripwire setup
 ./scripts/setup-modal.sh
 ```
 
-4. Continue in [persona-commands.md#security-experts](docs/user-guide/persona-commands.md#security-experts).
+## Validate locally
+
+Use either option before configuring Live services:
+
+```bash
+tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
+node scripts/serve-dashboard.mjs
+```
+
+In Guard, select **Mock (demo data)** to verify the dashboard with demo findings.
+
+## Live capabilities
+
+Run a fixture scan and review results in the Live dashboard:
+
+```bash
+tripwire scan ./fixtures/skills/safe-csv-cleaner
+node scripts/serve-dashboard.mjs
+```
+
+Use [setup-commands.md](docs/user-guide/setup-commands.md) for the complete
+setup, re-run, and maintenance command catalog.
 
 ## Troubleshooting shortcuts
 

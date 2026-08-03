@@ -1,14 +1,19 @@
 # Contributing
 
+This is the contributor path for people who use Tripwire and also develop, test,
+or share improvements. Complete the shared [QUICKSTART.md](QUICKSTART.md) flow
+before following these development instructions.
+
 ## Dev setup
 
 0. Tools + versions: [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
-   (Node 22 / Python 3.12). Security accounts:
+   (Node 22 / Python 3.12). Live capabilities require:
    [supabase-setup](docs/user-guide/supabase-setup.md) →
    [modal-setup](docs/user-guide/modal-setup.md) →
    [env-vars](docs/user-guide/env-vars.md) before copying `.env`.
 
-Follow [QUICKSTART.md](QUICKSTART.md) (Security experts path). Short version:
+Then use this guide for development, quality checks, and sharing changes back.
+Short version:
 
 1. Copy `.env.example` → `.env` using [env-vars.md](docs/user-guide/env-vars.md)
    (`fixtures/OPTIONAL_SCANNER_KEYS.md` for Modal allowlist).

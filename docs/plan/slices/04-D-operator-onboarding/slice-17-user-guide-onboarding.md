@@ -24,7 +24,6 @@
 |------|--------|
 | `docs/user-guide/prerequisites.md` | new — practical tool requirements; Node 22 / Python 3.12 verify |
 | `docs/user-guide/setup-commands.md` | new — canonical one-off + maintenance commands |
-| `docs/user-guide/persona-commands.md` | new — task-based command workflows; retain filename for link stability |
 | `docs/user-guide/supabase-setup.md` | new — RPF-style numbered account + key procure |
 | `docs/user-guide/modal-setup.md` | new — account, `modal setup`, `setup-modal.sh` |
 | `docs/user-guide/env-vars.md` | new — procurement SSOT for all `.env.example` keys |
@@ -48,7 +47,7 @@
 - [x] README baseline: 4 H2s, ≤100 lines
 
 ## After-Checks [GATE]
-- [x] `docs/user-guide/{prerequisites,setup-commands,persona-commands,supabase-setup,modal-setup,env-vars}.md` all exist
+- [x] `docs/user-guide/{prerequisites,setup-commands,supabase-setup,modal-setup,env-vars}.md` all exist
 - [x] Every key in `.env.example` has a row in `env-vars.md` (diff inventory in evidence)
 - [x] `fixtures/OPTIONAL_SCANNER_KEYS.md` documents vendor account setup + env-var procurement for Snyk, Tessl, and Cisco AI Defense, with flag-to-key coupling
 - [x] QUICKSTART links to `setup-commands` and task-based command guidance; capability-specific setup guides appear before `cp .env.example`; Node 22 + Mock validation are documented
@@ -216,7 +215,7 @@ review:
 
 - ✅ D1: README now has the intended 4 H2 structure; gate-evidence JSON no longer claims an old false result.
 - ✅ D2: Added explicit task-based headings and stable anchors in `QUICKSTART.md`.
-- ✅ D3: `docs/user-guide/setup-commands.md` and `docs/user-guide/persona-commands.md` are now present in branch working files.
+- ✅ D3: `docs/user-guide/setup-commands.md` is present in branch working files.
 - ✅ D4: `QUICKSTART.md` now includes Node 22 guidance and Mock validation.
 - ✅ D5: `docs/user-guide/setup-commands.md` links capability-specific platform guides before `cp .env.example .env`.
 - ✅ D6: `docs/README.md` anchor links now target existing task-based headings.

@@ -1,21 +1,27 @@
 # Onboarding cheatsheet
 
-This is the role-oriented command map. Use this page first, then open the linked flow pages.
+This is the shared command map. Use it first, then open the linked task guides.
 
-## By role
+## Shared flow
 
-- **Normal users** → [persona-commands.md#normal-users](./persona-commands.md#normal-users)
-- **Developers** → [persona-commands.md#developers](./persona-commands.md#developers)
-- **Security experts** → [persona-commands.md#security-experts](./persona-commands.md#security-experts)
+1. Check [prerequisites.md](./prerequisites.md).
+2. Install the CLI and follow [setup-commands.md](./setup-commands.md).
+3. Use [QUICKSTART.md](../../QUICKSTART.md) to validate locally or run Live scans.
+4. Add Supabase, Modal, and scanner credentials only for the Live capabilities you use.
+
+## Contributor path
+
+Contributors use Tripwire and also develop or share improvements. Complete the
+shared flow first, then follow [CONTRIBUTING.md](../../CONTRIBUTING.md).
 
 ## Shared prerequisites
 
-Before any role flow:
+Before running commands:
 - [prerequisites.md](./prerequisites.md)
 - [setup-commands.md](./setup-commands.md)
 
 ## Related docs
 
-- [QUICKSTART.md](../../QUICKSTART.md) — role path overview
+- [QUICKSTART.md](../../QUICKSTART.md) — shared setup and run flow
 - [docs/README](../README.md) — docs index
 - [../README.md](../../README.md) — repo entry

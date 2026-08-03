@@ -2,7 +2,8 @@
 
 > Canonical command list for one-off setup and maintenance tasks.
 
-Use this page as the single source for shared setup commands. Persona-specific usage stays in [persona-commands.md](./persona-commands.md).
+Use this page as the single source for shared setup, validation, scan, and
+maintenance commands.
 
 ## 1) One-off setup commands
 
@@ -23,7 +24,7 @@ cd ..
 node scripts/serve-dashboard.mjs
 ```
 
-### Security env bootstrap (security experts)
+### Live environment bootstrap
 
 Before running these commands, complete in order:
 
@@ -37,7 +38,7 @@ tripwire setup
 # optional: ./scripts/setup-supabase.sh
 ```
 
-### Modal bootstrap (security experts)
+### Modal bootstrap
 
 ```bash
 pip install modal
@@ -77,11 +78,9 @@ Use this section once you choose scanner depth:
     - optional `AI_DEFENSE_API_URL`
     - optional `MCP_SCANNER_ENDPOINT` override.
 
-## 4) End-to-end persona setup simulations
+## 4) End-to-end setup and run
 
-This section mirrors the first-time path for each role.
-
-### Normal users (mock-first)
+### Local validation
 
 1. Confirm tool preconditions (`node --version`, `npm --version`).
 2. Run:
@@ -92,7 +91,7 @@ node scripts/serve-dashboard.mjs
 
 3. Open `http://127.0.0.1:8765/Tripwire.dc.html`, choose **Mock (demo data)**, verify cards and status chip render.
 
-### Developers (no cloud)
+### Discovery validation
 
 1. Confirm local CLIs and package install (`node`, `npm`, `python3`).
 2. Ensure CLI is linked (or run via `node cli/bin/tripwire.js` if preferred).
@@ -105,7 +104,7 @@ tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json
 
 4. Optionally validate dashboard shell with `node scripts/serve-dashboard.mjs`.
 
-### Security experts (live)
+### Live setup and scan
 
 1. Complete prerequisites, then setup order:
 
