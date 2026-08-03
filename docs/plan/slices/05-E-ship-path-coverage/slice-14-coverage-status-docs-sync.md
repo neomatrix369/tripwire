@@ -4,7 +4,7 @@
 
 ## Slice Workflow Bundle
 - Slice name: slice-14-coverage-status-docs-sync
-- Files: `docs/STATUS.md`, `docs/plan/PROGRESS.md`, `docs/plan/DECISIONS.md`, `docs/plan/coverage-audit.md`, `docs/plan/TRAIL.md`, `docs/plan/gate-evidence/slice-14.json` (final), `CONTRIBUTING.md` (coverage floors), optional `private source` (local)
+- Files: `docs/STATUS.md`, `docs/plan/PROGRESS.md`, `docs/plan/DECISIONS.md`, `docs/plan/coverage-audit.md`, `docs/plan/TRAIL.md`, `docs/plan/gate-evidence/slice-14.json` (final), `CONTRIBUTING.md` (coverage floors), optional private references (local)
 - Exit criteria: STATUS VERIFIED cites new suites; coverage floors documented; no redo of slice-5 scope.
 - Commit pattern: `docs(slice-14): sync status after coverage uplift`
 
@@ -12,9 +12,9 @@
 `slice/14-coverage-status-docs-sync`
 
 ## Context references (mandatory)
-- Product SoT: `private source`
-- Build gates: `private source`
-- Adapter research sync if field names verified: `private source` ↔ `docs/research/adapters/`
+- Product SoT: private references
+- Build gates: private references
+- Adapter research sync if field names verified: private references ↔ `docs/research/adapters/`
 - Evidence: `docs/STATUS.md`, `docs/plan/coverage-audit.md`
 
 ## Spec (GWT / User Story)

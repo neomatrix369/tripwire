@@ -1,7 +1,7 @@
 # Coverage audit matrix (slice 7)
 
 > Last updated: 2026-08-03 · Horizon A · Ship-path target ~95% (DECIDED)
-> Context: `private source` SoT + public STATUS/ARCHITECTURE
+> Context: private references SoT + public STATUS/ARCHITECTURE
 
 ## Altitude / targets
 

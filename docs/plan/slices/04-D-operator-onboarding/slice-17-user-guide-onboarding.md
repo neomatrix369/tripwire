@@ -6,7 +6,7 @@
 - Slice name: `slice-17-user-guide-onboarding`
 - Branch: `slice/17-user-guide-onboarding`
 - Commit: `docs(slice-17): user-guide onboarding prerequisites and env procurement`
-- Exit criteria: Normal users, Developers, and Security experts can do local baseline setup and then run their path-specific commands without `private source`; every `.env.example` key has a row in `env-vars.md`; README ≤100 lines, exactly 4 H2s; Gate A badge strip unchanged (no Overmind/Ossprey).
+- Exit criteria: Normal users, Developers, and Security experts can do local baseline setup and then run their path-specific commands without private references; every `.env.example` key has a row in `env-vars.md`; README ≤100 lines, exactly 4 H2s; Gate A badge strip unchanged (no Overmind/Ossprey).
 
 ## Decisions captured
 - Adopt **rag-params-finder principles** (role → setup guide → `.env` → run; Choose Your Path) — **not** RPF’s long marketing README.

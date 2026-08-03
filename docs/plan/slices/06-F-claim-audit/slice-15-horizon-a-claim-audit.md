@@ -17,8 +17,8 @@
 Close-path Must. Execute after **slice 14** for final evidence synchronization and after slice 7 for Gate A trust strip.
 
 ## Context references (mandatory)
-- Product SoT: `private source`
-- Build gates: `private source`
+- Product SoT: private references
+- Build gates: private references
 - Matrix seed: `docs/plan/coverage-audit.md` (slice 7)
 - Public: `docs/STATUS.md`, `docs/ARCHITECTURE.md`, `README.md`, `QUICKSTART.md`,
   `CONTRIBUTING.md`, `prototypes/README.md`

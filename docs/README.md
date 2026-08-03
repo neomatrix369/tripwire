@@ -54,7 +54,7 @@ Guides for **Tripwire**, by who you are and what you want to do.
 | [plan/PROGRESS.md](./plan/PROGRESS.md) | Slice groups A–F (execution order); next **E/8** → 11–13 |
 | [plan/DECISIONS.md](./plan/DECISIONS.md) | Planning decisions (incl. ship-path ~95%; demo/hackathon closed) |
 | [plan/GATE_CONTRACT.md](./plan/GATE_CONTRACT.md) | Before/After close rule — ✅ only when all gates met |
-| [plan/TRAIL.md](./plan/TRAIL.md) | Execution trail + context pack (`private source`) |
+| [plan/TRAIL.md](./plan/TRAIL.md) | Execution trail + context pack (private references) |
 | [plan/slices/04-D-operator-onboarding/](./plan/slices/04-D-operator-onboarding/) | Wave D / slice 17 onboarding ✅ · next E coverage |
 
 ---

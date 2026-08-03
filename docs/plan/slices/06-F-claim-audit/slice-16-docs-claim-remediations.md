@@ -20,7 +20,7 @@ Normal-user Mock-select + setup honesty lives in **slice 17**. Realtime/prototyp
 - Code: `prototypes/dc-dashboard/Tripwire.dc.html` (poll 8s / 30s; default `live`)
 - Matrix: `docs/plan/coverage-audit.md`
 - Findings: slice 15 artifact
-- SoT: `private source` + DECISIONS (ship UI = dc-dashboard)
+- SoT: private references + DECISIONS (ship UI = dc-dashboard)
 
 ## Spec (GWT / User Story)
 **Given** slice-15 FAIL/PARTIAL rows for Realtime timing, demo Mock path, prototype

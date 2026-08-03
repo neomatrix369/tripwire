@@ -15,8 +15,8 @@
 Must coverage wave. **Execute after slice 17** (and slice 7). Technical depends-on remains 7; roadmap order is 7 → 17 → **8** → 11–13.
 
 ## Context references (mandatory)
-- Product SoT: `private source` (Phase 2 adapters)
-- Adapter research: `private source`
+- Product SoT: private references (Phase 2 adapters)
+- Adapter research: private references
 - Public mirror: `docs/research/adapters/scanner-output-adapters.md`
 - Audit: `docs/plan/coverage-audit.md` (from slice 7)
 - Code: `sandbox/scanners.py`

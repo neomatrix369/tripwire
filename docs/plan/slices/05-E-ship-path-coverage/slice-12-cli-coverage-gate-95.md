@@ -13,7 +13,7 @@
 
 ## Context references (mandatory)
 - Audit: `docs/plan/coverage-audit.md`
-- Spec Done-when Phase 1 CLI: `private source`
+- Spec Done-when Phase 1 CLI: private references
 - Existing tests: `cli/test/*` (incl. slice 6 characterization)
 
 ## Spec (GWT / User Story)

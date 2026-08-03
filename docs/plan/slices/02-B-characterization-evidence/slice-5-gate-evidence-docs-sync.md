@@ -4,7 +4,7 @@
 
 ## Slice Workflow Bundle
 - Slice name: slice-5-gate-evidence-docs-sync
-- Files: `docs/plan/gate-evidence/`, `docs/plan/PROGRESS.md`, `private source` (gitignored local), public notes if any
+- Files: `docs/plan/gate-evidence/`, `docs/plan/PROGRESS.md`, private references (gitignored local), public notes if any
 - Exit criteria: slice-1..4 gate-evidence JSON present; build-day Phase/3-lite boxes match verified reality; PROGRESS/TRAIL statuses updated.
 - Commit pattern: `docs(slice-5): sync gate evidence and build-day checkboxes`
 
@@ -47,7 +47,7 @@ Docs-only; verify links resolve; no production TDD.
 | docs/plan/PROGRESS.md / TRAIL.md | plan | slice 6 ✅ · slice 5 🔀 |
 | docs/plan/gate-evidence/slice-5.json | evidence | sync record |
 | docs/plan/DECISIONS.md | plan | slice-4 waiver for slice-5 entry |
-| private source | local | 3-lite boxes (gitignored) |
+| private references | local | 3-lite boxes (gitignored) |
 
 ## Session Metrics
 | Metric | Value |

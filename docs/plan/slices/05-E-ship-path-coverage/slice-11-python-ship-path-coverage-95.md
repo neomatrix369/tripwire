@@ -13,7 +13,7 @@
 
 ## Context references (mandatory)
 - Audit: `docs/plan/coverage-audit.md`
-- Spec / build-day: `private source` (Phase 4 Guard = out of bar)
+- Spec / build-day: private references (Phase 4 Guard = out of bar)
 - Config: `pyproject.toml`, `.github/workflows/ci.yml`
 
 ## Spec (GWT / User Story)

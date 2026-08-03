@@ -12,8 +12,8 @@
 `slice/13-live-acl-coverage-gate-95`
 
 ## Context references (mandatory)
-- Demo lens: `private source` (Detection + Sandbox must-show)
-- Spec: `private source`
+- Demo lens: private references (Detection + Sandbox must-show)
+- Spec: private references
 - Audit: `docs/plan/coverage-audit.md`
 - Existing ATs: slices 2–3 (`tripwire-live.test.js`, status tests)
 
