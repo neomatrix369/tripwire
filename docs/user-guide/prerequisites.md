@@ -1,6 +1,6 @@
 # Prerequisites
 
-> Tools and accounts by persona. Verify versions before copying `.env`.
+> Tools and accounts by role. Verify versions before copying `.env`.
 
 Pins: Node **22** (`.nvmrc`) · Python **3.12** (`.python-version`).
 
@@ -14,7 +14,8 @@ This file answers “what I need before running commands” by path.
 | **Developers** | Git, Node 22, npm, Python 3.12 (optional locally) | Optional: None | [QUICKSTART → Developers](../../QUICKSTART.md#developers) |
 | **Security experts** | Git, Node 22, npm, Python 3.12, `modal` CLI | Supabase + Modal | [supabase-setup](./supabase-setup.md) → [modal-setup](./modal-setup.md) → [env-vars](./env-vars.md) |
 
-Normal users and developers can start without Supabase or Modal; security experts use cloud paths when required. Procure cloud accounts and keys **before** `cp .env.example .env`.
+Normal users and developers can start without Supabase or Modal; all paths share the same local bootstrap. Security experts add cloud credentials and perform full scan flow after the local baseline.
+Procure cloud accounts and keys **before** `cp .env.example .env`.
 
 ## Verify versions
 
@@ -24,7 +25,7 @@ python3 -V # Python 3.12.x
 git --version
 ```
 
-Optional (Platform only):
+Optional (security experts only):
 
 ```bash
 pip install modal

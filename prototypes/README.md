@@ -2,7 +2,7 @@
 
 Reference UX and demo assets. Not the shipped product UI.
 
-Came from [QUICKSTART](../QUICKSTART.md)? Use the **Demo viewer** path, then return here for Live vs Mock detail.
+Came from [QUICKSTART](../QUICKSTART.md)? Use the **Normal users** path, then return here for Live vs Mock detail.
 
 | Path            | What                                                                                                                                |
 | --------------- | ----------------------------------------------------------------------------------------------------------------------------------- |

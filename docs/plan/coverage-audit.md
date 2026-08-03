@@ -18,13 +18,13 @@
 | Capability | Evidence label | AT / unit / missing | Notes |
 |------------|----------------|---------------------|-------|
 | Discover skills/MCP + dry-discover | IMPLEMENTED / VERIFIED (unit) | unit (`cli/test`) | AT: GWT-1 path via dashboard tests |
-| Schema bootstrap `tripwire setup` | IMPLEMENTED / VERIFIED (unit) | unit | Operator VERIFIED caveats on Direct DB |
-| Modal scan + findings write | IMPLEMENTED / VERIFIED (operator) | AT partial + unit acquire | Slices 8–10 fill parse/`scan_item_inner` |
+| Schema bootstrap `tripwire setup` | IMPLEMENTED / VERIFIED (unit) | unit | Security expert verified caveats on Direct DB |
+| Modal scan + findings write | IMPLEMENTED / VERIFIED (security experts) | AT partial + unit acquire | Slices 8–10 fill parse/`scan_item_inner` |
 | Cisco skill/MCP adapters | IMPLEMENTED | unit status/cmd; **parse missing** | Slice 8 |
 | Snyk / Tessl adapters | IMPLEMENTED (may be unreachable) | unit status; parse/coverage folded into slice 11 stream | Slice 9/11 |
 | Idempotency / `--force` spawn | IMPLEMENTED / VERIFIED (unit) | unit (slice 6) | — |
 | Live dashboard Realtime + poll | IMPLEMENTED / VERIFIED (unit) | unit | Poll: 8s fallback **and** 30s while Realtime+running — STATUS under-claims → slice 16 📦 (reinstate) or note in 15 |
-| Mock / Demo path | IMPLEMENTED | unit | Default source is **Live**; Mock-select → slice **17** (onboarding); prose remediations were 16 📦 |
+| Normal-user dashboard path | IMPLEMENTED | unit | Default source is **Live**; select Mock for local demo → slice **17** (onboarding); prose remediations were 16 📦 |
 | Dashboard as ship UI | DECIDED (dc-dashboard as-is) | — | prototypes README “not shipped” tension → slice 16 📦 / claim audit 15 |
 | Guard PreToolUse | Future / Won't for A | missing | ARCHITECTURE Future (Gate A); exclude from coverage bar |
 | Overmind Phase 5 / Ossprey | Won't / unwired | n/a | Badges stripped Gate A |
@@ -40,14 +40,14 @@
 | Nightly mutmut/Chalk | `\|\| true` | Listed as Nightly checks | **Gate A done** — non-gating note |
 | Adapter JSON field names | RESEARCH | RESEARCH in STATUS | Slices 8–9 + research sync |
 | Realtime poll timing | 8s + 30s paths | “~1s + 8s” only | Slice 16 📦 / audit 15 |
-| Demo default | `live` default | Demo path implies Mock | Slice **17** + 16 📦 |
+| Default UI source | `live` default | Normal users should select Mock for local baseline path | Slice **17** + 16 📦 |
 
 ## Slice ownership (after this audit)
 
 | Work | Slice | Spec path | MoSCoW |
 |------|-------|-----------|--------|
 | Trust strip + this matrix | **7** | [03-C-trust-coverage-audit/](03-C-trust-coverage-audit/) | Must ✅ |
-| Operator onboarding (prereqs/env) | **17** | [04-D-operator-onboarding/](04-D-operator-onboarding/) | Must |
+| Onboarding (prereqs/env) | **17** | [04-D-operator-onboarding/](04-D-operator-onboarding/) | Must |
 | Cisco skill parse fixtures | **8** | [05-E-ship-path-coverage/](05-E-ship-path-coverage/) | Must |
 | Snyk/Tessl parse fixtures | 9/11 | same | Should |
 | `scan_item_inner` characterization | 10/11 | same | Should |

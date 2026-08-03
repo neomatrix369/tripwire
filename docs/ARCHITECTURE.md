@@ -14,15 +14,14 @@ Who uses Tripwire, and what it talks to (no container tech detail).
 C4Context
   title Tripwire — Context
 
-  Person(operator, "Operator", "Runs scans and reviews findings")
-  Person(demo, "Demo viewer", "Views Mock dashboard")
+  Person(analyst, "Security expert", "Runs scans and reviews findings")
+  Person(analyst, "Normal users", "Runs dry-discover and views dashboard")
   System(tripwire, "Tripwire", "Discovers skills/MCP targets, runs scanners, stores results")
   System_Ext(scanners, "Upstream scanners", "Skill/MCP/SCA analysis tools")
   System_Ext(cloudDb, "Hosted database", "Stores scan runs and findings")
   System_Ext(compute, "Serverless compute", "Isolated scanner execution")
 
-  Rel(demo, tripwire, "Views dashboard")
-  Rel(operator, tripwire, "1. Invokes scan / setup")
+  Rel(analyst, tripwire, "1. Invokes scan / setup")
   Rel(tripwire, compute, "2. Spawns scan jobs")
   Rel(compute, scanners, "3. Runs scanner CLIs")
   Rel(tripwire, cloudDb, "4. Reads/writes scan data")
@@ -39,7 +38,7 @@ Deployable / runnable units inside the system boundary.
 C4Container
   title Tripwire — Containers
 
-  Person(operator, "Operator")
+  Person(security_expert, "Security expert")
 
   System_Boundary(tw, "Tripwire") {
     Container(cli, "CLI", "Node.js", "Discovery, hashing, idempotency, Modal spawn")
@@ -50,8 +49,9 @@ C4Container
 
   System_Ext(scanners, "Upstream scanners")
 
-  Rel(operator, cli, "1. tripwire scan / setup")
-  Rel(operator, dash, "2. Views results")
+  Rel(security_expert, cli, "1. tripwire scan / setup")
+  Rel(security_expert, dash, "2. Views results")
+  Rel(analyst, dash, "2a. Views results from dry-discover or demo dashboard")
   Rel(cli, db, "3. Bootstrap + scan_run rows")
   Rel(cli, sandbox, "4. Spawn scan")
   Rel(sandbox, scanners, "5. Shell out")

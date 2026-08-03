@@ -3,12 +3,12 @@
 ## Dev setup
 
 0. Tools + versions: [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
-   (Node 22 / Python 3.12). Platform accounts:
+   (Node 22 / Python 3.12). Security accounts:
    [supabase-setup](docs/user-guide/supabase-setup.md) →
    [modal-setup](docs/user-guide/modal-setup.md) →
    [env-vars](docs/user-guide/env-vars.md) before copying `.env`.
 
-Follow [QUICKSTART.md](QUICKSTART.md) (Platform operator path). Short version:
+Follow [QUICKSTART.md](QUICKSTART.md) (Security experts path). Short version:
 
 1. Copy `.env.example` → `.env` using [env-vars.md](docs/user-guide/env-vars.md)
    (`fixtures/OPTIONAL_SCANNER_KEYS.md` for Modal allowlist).

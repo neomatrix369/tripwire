@@ -16,7 +16,7 @@ Guides for **Tripwire**, by who you are and what you want to do.
 | **Developers** | [user-guide/prerequisites](./user-guide/prerequisites.md) | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md#developers) |
 | **Security experts** | [prerequisites](./user-guide/prerequisites.md) → [supabase](./user-guide/supabase-setup.md) → [modal](./user-guide/modal-setup.md) → [env-vars](./user-guide/env-vars.md) | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md#security-experts) |
 | **Maintainers** | [CONTRIBUTING.md](../CONTRIBUTING.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) · [plan/PROGRESS.md](./plan/PROGRESS.md) |
-| **Compliance & security reporting** | [SECURITY.md](../SECURITY.md) · [prototypes/README.md](../prototypes/README.md) | [fixtures/README.md](../fixtures/README.md) · [STATUS.md](./STATUS.md) |
+| **Security and reporting stakeholders** | [SECURITY.md](../SECURITY.md) · [prototypes/README.md](../prototypes/README.md) | [fixtures/README.md](../fixtures/README.md) · [STATUS.md](./STATUS.md) |
 | **Planning / slice workflows** | [AGENTS.md](../AGENTS.md) · [CLAUDE.md](../CLAUDE.md) | [plan/PROGRESS.md](./plan/PROGRESS.md) · [plan/TRAIL.md](./plan/TRAIL.md) |
 
 ### Choose Your Path

@@ -24,7 +24,7 @@ System shape: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Choose your path
 
-| Persona | Expected setup | Start here |
+| Role / path | Expected setup | Start here |
 |---------|----------------|------------|
 | **Normal users** | Node 22 only | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#normal-users) |
 | **Developers** | Node 22 + Python 3.12 + CLI + git | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#developers) |

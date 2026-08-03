@@ -84,7 +84,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 1 | [`01-A-live-path-gwt/`](01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 (4 attempted) | A done; 4 📦 |
 | 2 | [`02-B-characterization-evidence/`](02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`03-C-trust-coverage-audit/`](03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
-| 4 | [`04-D-operator-onboarding/`](04-D-operator-onboarding/) | **D — Operator onboarding** | **17** | ✅ |
+| 4 | [`04-D-operator-onboarding/`](04-D-operator-onboarding/) | **D — Role-based onboarding** | **17** | ✅ |
 | 5 | [`05-E-ship-path-coverage/`](05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ · (9∥10) → 14 | ✅ Musts · close-path open |
 | 6 | [`06-F-claim-audit/`](06-F-claim-audit/) | **F — Claim audit** | 15 (16 deferred) | 📋 / 📦 |
 
@@ -112,7 +112,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 |---|------|------|--------|--------|------------|-------|-----------|
 | 7 | [slice-7-coverage-audit-matrix](03-C-trust-coverage-audit/slice-7-coverage-audit-matrix.md) | Coverage Audit Matrix + Docs Parity | Must | ✅ | none | #26/#27 | ~4 min |
 
-### D — Operator onboarding (executed 2026-08-02)
+### D — Role-based onboarding (executed 2026-08-02)
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|

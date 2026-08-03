@@ -2,7 +2,7 @@
 
 > Scenario: Brownfield | MoSCoW: **Won't (A)** | Status: 📦 DEFERRED (demo/hackathon over 2026-08-02 — reinstate if needed)
 
-Demo Mock-select + setup honesty for operators lives in **slice 17**. Realtime/prototype claim rows may still appear in slice 15 audit without requiring this remediation slice.
+Normal-user Mock-select + setup honesty lives in **slice 17**. Realtime/prototype claim rows may still appear in slice 15 audit without requiring this remediation slice.
 
 ## Slice Workflow Bundle
 - Slice name: slice-16-docs-claim-remediations
@@ -27,7 +27,7 @@ Demo Mock-select + setup honesty for operators lives in **slice 17**. Realtime/p
 disclaimer vs ship UI
 **When** STATUS / QUICKSTART / prototypes README are edited
 **Then** docs state: Realtime ~1s + 8s poll fallback + 30s poll while Realtime
-connected and items running; Demo persona must select Mock (default remains Live);
+connected and items running; Normal users must select Mock (default remains Live);
 `prototypes/dc-dashboard` is Horizon A ship UI living under `prototypes/`
 
 ## Out of scope (already exists)
