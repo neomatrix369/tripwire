@@ -69,3 +69,4 @@
 | 2026-08-03 | priority | close-path | slices-14 and 15 elevated to Must close-path after E and before final close; execution remains 14 → 15. |
 | 2026-08-03 | slice-17 | correction supersedes earlier pass claim | Current branch centralizes vendor procurement in `env-vars.md`, command order in `setup-commands.md`, and Modal secret synchronization in `OPTIONAL_SCANNER_KEYS.md`. The earlier docs-only pass/review-skip rows remain historical; slice 17 is 🔀 pending fresh evidence and `/nw-review` before ✅. |
 | 2026-08-03 | health-check | Gap 2: routing fingerprint | Normalized the existing TRAIL routing line to the canonical `Routing:` form. | AUTO-FIXED |
+| 2026-08-03 | slice-14 | review gate blocked | `/nw-review @nw-software-crafter` cannot dispatch because `nw-software-crafter-reviewer` is not registered in this runtime. Documentation checks continue, but no approval or waiver is claimed. |
