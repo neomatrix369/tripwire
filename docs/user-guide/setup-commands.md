@@ -35,7 +35,7 @@ Before running these commands, complete in order:
   - **Snyk**: set `SNYK_TOKEN`.
   - **Tessl**: set `TESSL_TOKEN` and, if needed, `TESSL_WORKSPACE`.
   - **Cisco**: set the LLM or AI Defense keys required by the scanner mode you enable.
-  - Use [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md) for vendor account steps and exact key-to-feature mapping.
+  - Use [env-vars.md](./env-vars.md) for vendor account steps and key-to-feature mapping.
 
 ```bash
 cp .env.example .env
@@ -127,7 +127,9 @@ tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json
    - [Tessl](https://tessl.io): create a workspace API key and set `TESSL_TOKEN` (and optional `TESSL_WORKSPACE`) when using Tessl scans.
    - [Cisco AI Defense](https://developer.cisco.com): obtain the LLM or AI Defense credentials required by the Cisco scanner mode you enable.
 
-   See [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md) for the exact scanner key-to-feature mapping.
+   See [env-vars.md](./env-vars.md) for the exact scanner key-to-feature mapping.
+   Use [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md) only
+   when syncing scanner credentials to Modal.
 
 3. Run:
 

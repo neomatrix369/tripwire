@@ -22,9 +22,14 @@ capabilities only when you need them.
 1. [Confirm prerequisites](docs/user-guide/prerequisites.md).
 2. Install and link the CLI using the [setup command catalog](docs/user-guide/setup-commands.md).
 3. Configure Live capabilities when needed, in this order:
-   - [supabase-setup.md](docs/user-guide/supabase-setup.md)
-   - [modal-setup.md](docs/user-guide/modal-setup.md)
-   - [env-vars.md](docs/user-guide/env-vars.md)
+   - [Supabase](docs/user-guide/supabase-setup.md): create the project and copy the platform credentials.
+   - [Modal](docs/user-guide/modal-setup.md): authenticate and deploy the Live scan environment.
+   - [Snyk](https://app.snyk.io): create an API token when you want Snyk scanner depth.
+   - [Tessl](https://tessl.io): create a workspace API key when you want Tessl quality-score scans.
+   - [Cisco AI Defense](https://developer.cisco.com): obtain the LLM or AI Defense credentials for the Cisco scanner mode you enable.
+   - Use [env-vars.md](docs/user-guide/env-vars.md) to map each credential to `.env`.
+     [OPTIONAL_SCANNER_KEYS.md](fixtures/OPTIONAL_SCANNER_KEYS.md) is only needed
+     when you need the Modal scanner-secret allowlist or manual fallback.
 4. Bootstrap the environment and services:
 
 ```bash
