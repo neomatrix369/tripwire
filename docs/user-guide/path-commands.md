@@ -26,7 +26,7 @@ Follow all five vendor paths for full scan coverage, populate `.env`, and run th
 [Live environment bootstrap](./setup-commands.md#3-live-environment-bootstrap).
 Use [env-vars.md](./env-vars.md) for accounts, keys, and capability mapping; use
 [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md) only for the
-Modal scanner-secret projection and manual fallback.
+Modal scanner-secret projection and helper-only synchronization behavior.
 
 ## 5) Maintain or contribute
 

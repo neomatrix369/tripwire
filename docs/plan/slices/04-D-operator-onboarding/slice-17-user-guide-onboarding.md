@@ -31,7 +31,7 @@
 | `docs/user-guide/modal-setup.md` | new — account, `modal setup`, `setup-modal.sh` |
 | `docs/user-guide/env-vars.md` | new — procurement SSOT for all `.env.example` keys |
 | `docs/user-guide/onboarding-cheatsheet.md` | collapsed compatibility entry to `path-commands.md` |
-| `fixtures/OPTIONAL_SCANNER_KEYS.md` | narrowed — Modal scanner-secret allowlist and manual fallback |
+| `fixtures/OPTIONAL_SCANNER_KEYS.md` | narrowed — Modal scanner-secret allowlist and helper-only synchronization behavior |
 | `.env.example` | light cross-links to env-vars.md |
 | `QUICKSTART.md` | One practical onboarding flow; task-based setup links, Mock validation + Node pin |
 | `README.md` | Run-it → prerequisites/env-vars; Operate secrets → env-vars |
@@ -230,7 +230,7 @@ review:
 - ✅ D4: `QUICKSTART.md` now includes explicit Node 22 + Mock path.
 - ✅ D5: `docs/user-guide/setup-commands.md` links capability-specific platform guides before `cp .env.example .env`.
 - ✅ D6: `docs/README.md` now points to `path-commands.md` for install/configure and task-based docs flow.
-- ✅ D7: `env-vars.md` owns scanner vendor procurement and key-to-feature mapping; `OPTIONAL_SCANNER_KEYS.md` owns only the Modal secret allowlist and manual fallback.
+- ✅ D7: `env-vars.md` owns scanner vendor procurement and key-to-feature mapping; `OPTIONAL_SCANNER_KEYS.md` owns only the Modal secret allowlist and helper-only synchronization behavior.
 - 🔜 next: run `/nw-review @nw-software-crafter` and update Gate Status to ✅ after review evidence.
 
 ## Session Metrics

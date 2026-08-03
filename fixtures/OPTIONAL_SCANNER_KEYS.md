@@ -5,7 +5,7 @@ credentials that `./scripts/setup-modal.sh` may sync from `.env`.
 
 For every provider account, credential value, and environment-variable meaning,
 use [env-vars.md](../docs/user-guide/env-vars.md). This file owns only the
-Modal secret allowlist and its manual CLI fallback.
+Modal secret allowlist and helper-only synchronization behavior.
 
 ## Scope boundary
 
