@@ -56,6 +56,7 @@ jobs:
       - run: ruff format --check sandbox guard scripts
       - run: mypy sandbox/ guard/
       - run: bandit -c pyproject.toml -r sandbox guard scripts -q -ll
+      - run: bash scripts/complexity-report.sh
       - run: >
           xenon --max-absolute D --max-modules B --max-average A
           sandbox/scan_app.py sandbox/scanners.py sandbox/__init__.py guard
