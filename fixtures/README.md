@@ -1,5 +1,12 @@
 # Fixtures
 
+[![Tripwire](https://img.shields.io/badge/Tripwire-1a1a2e?style=flat)](https://github.com/neomatrix369/tripwire)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com)
+[![Modal](https://img.shields.io/badge/Modal-000000?style=flat)](https://modal.com)
+[![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
+[![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
+[![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
+
 Came from [QUICKSTART](../QUICKSTART.md)? Use these paths with `tripwire scan` /
 `--dry-discover` on the shared onboarding path.
 
@@ -26,12 +33,3 @@ scanner catches the pattern, not to cause harm. Run them only inside an isolated
 Not yet built (real gaps, not urgent — see spec §8 "Known test gaps"): a purely
 live-introspected MCP server with no source at all, prompt/resource-level findings,
 cross-tool attack chains, and dependency/SCA findings.
-
----
-
-[![Tripwire](https://img.shields.io/badge/Tripwire-1a1a2e?style=flat)](https://github.com/neomatrix369/tripwire)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com)
-[![Modal](https://img.shields.io/badge/Modal-000000?style=flat)](https://modal.com)
-[![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
-[![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
-[![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)

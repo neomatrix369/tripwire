@@ -2,12 +2,15 @@
 
 Use this map to move from a safe first look to the level of setup or project detail you need.
 
+[![CI](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/ci.yml?branch=main&label=CI)](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml)
+[![Nightly](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/nightly.yml?branch=main&label=Nightly)](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml)
+
 ## Choose a task
 
 | Your task | Start here | Then |
 |---|---|---|
-| Try locally | [README: Mock dashboard](../README.md#start-safely) | [Validate locally](../QUICKSTART.md#validate-locally) |
-| Set up Live scanning | [Live capabilities](../QUICKSTART.md#live-capabilities) | [Supabase setup](./user-guide/supabase-setup.md) → [Modal setup](./user-guide/modal-setup.md) → [environment keys](./user-guide/env-vars.md) |
+| Run a first Live scan | [Quickstart: ordered Live setup](../QUICKSTART.md#first-live-scan) | [Supabase setup](./user-guide/supabase-setup.md) → [Modal setup](./user-guide/modal-setup.md) → [environment keys](./user-guide/env-vars.md) → [scan and dashboard](../QUICKSTART.md#live-capabilities) |
+| Preview or validate locally | [Optional local validation](../QUICKSTART.md#validate-locally-optional) | [README: dashboard preview](../README.md#preview-the-dashboard-optional) |
 | Understand results and system shape | [Capability status](./STATUS.md) | [Architecture](./ARCHITECTURE.md) |
 | Contribute or maintain | [Contributing](../CONTRIBUTING.md) | [Setup and maintenance commands](./user-guide/setup-commands.md) |
 
@@ -36,9 +39,6 @@ Use this map to move from a safe first look to the level of setup or project det
 | Check scanner adapter research | [scanner output adapters](./research/adapters/scanner-output-adapters.md) |
 
 ## CI workflows
-
-[![CI](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/ci.yml?branch=main&label=CI)](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml)
-[![Nightly](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/nightly.yml?branch=main&label=Nightly)](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml)
 
 | Workflow | Role |
 |---|---|

@@ -4,6 +4,15 @@ System shape for Tripwire. Diagrams are Mermaid (text, version-controlled).
 
 Repo entry: [README.md](../README.md) · Status: [STATUS.md](./STATUS.md)
 
+[![Cursor](https://img.shields.io/badge/Cursor-000000?style=flat)](https://cursor.com)
+[![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=flat)](https://modal.com)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com)
+[![Tripwire](https://img.shields.io/badge/Tripwire-1a1a2e?style=flat)](https://github.com/neomatrix369/tripwire)
+
+[![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
+[![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
+[![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
+
 ---
 
 ## 1. Context (C4 L1)
@@ -125,16 +134,3 @@ from the code.
 - Slice progress: [plan/PROGRESS.md](./plan/PROGRESS.md)
 - Formal ADRs (`docs/adr/`) — none yet; add when a major technology or boundary
   choice needs a durable record
-
----
-
-<!-- Primary stack -->
-[![Cursor](https://img.shields.io/badge/Cursor-000000?style=flat)](https://cursor.com)
-[![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=flat)](https://modal.com)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com)
-[![Tripwire](https://img.shields.io/badge/Tripwire-1a1a2e?style=flat)](https://github.com/neomatrix369/tripwire)
-
-<!-- Scanner & partner -->
-[![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
-[![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
-[![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
