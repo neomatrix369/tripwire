@@ -34,8 +34,8 @@ Guides for **Tripwire**, by who you are and what you want to do.
 | Doc | What it covers |
 |-----|----------------|
 | [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) | One-shot setup + one-off/regular/maintenance commands |
-| [QUICKSTART.md](../QUICKSTART.md) | Demo / scanner / platform paths |
-| [user-guide/prerequisites.md](./user-guide/prerequisites.md) | Persona × tool matrix; Node 22 / Python 3.12 |
+| [QUICKSTART.md](../QUICKSTART.md) | Normal users / Developers / Security experts paths |
+| [user-guide/prerequisites.md](./user-guide/prerequisites.md) | Role × tool matrix; Node 22 / Python 3.12 |
 | [user-guide/env-vars.md](./user-guide/env-vars.md) | Procurement SSOT for `.env.example` keys |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | C4 L1–L2 diagrams, key flows, repo layout |
 | [STATUS.md](./STATUS.md) | RESEARCH / IMPLEMENTED / VERIFIED claims |
