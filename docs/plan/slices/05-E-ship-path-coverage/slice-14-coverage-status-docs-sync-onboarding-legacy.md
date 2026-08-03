@@ -15,9 +15,9 @@ and `docs/user-guide/*`) into a single onboarding flow that clearly answers:
 - What commands are used regularly?
 - What commands are maintenance tasks?
 
-Also remove stale optional scanner-reference material from docs/code and verify key
+Also remove stale scanner-reference material from docs/code and verify key
 inventory alignment in `.env.example` / env-var guidance.
-In addition, optional scanner onboarding must include where each vendor account is provisioned and where each scanner env var is obtained.
+In addition, scanner onboarding must include where each vendor account is provisioned and where each scanner env var is obtained.
 
 ## Scope
 

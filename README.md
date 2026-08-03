@@ -19,8 +19,8 @@ explain each decision before you make it.
 
 1. Check the required tools and [install the CLI](docs/user-guide/setup-commands.md#repository-and-cli-bootstrap).
 2. Create the accounts you need: [Supabase](docs/user-guide/supabase-setup.md),
-   [Modal](docs/user-guide/modal-setup.md), then optional scanner providers through
-   [environment-variable procurement](docs/user-guide/env-vars.md#vendor-procurement-quick-steps).
+   [Modal](docs/user-guide/modal-setup.md), then add Snyk, Tessl, and Cisco credentials
+   with the [environment-variable procurement guide](docs/user-guide/env-vars.md#vendor-procurement-quick-steps).
 3. Create `.env` only after you have the values, then fill it with
    [env-vars.md](docs/user-guide/env-vars.md) as the single key reference.
 4. Bootstrap Supabase and deploy the Modal scan app with the
@@ -28,8 +28,8 @@ explain each decision before you make it.
 5. Run a fixture scan and open the Live dashboard from the
    [Quickstart](QUICKSTART.md#live-capabilities).
 
-Supabase and Modal are required for Live results. Missing optional scanner credentials
-are reported as skipped rather than silently treated as a complete scan.
+Supabase and Modal are required for Live results. If Snyk, Tessl, or Cisco credentials
+are absent, Tripwire reports that scanner as skipped rather than calling the scan complete.
 
 ## Preview the dashboard (optional)
 
@@ -48,7 +48,7 @@ Open [http://127.0.0.1:8765/Tripwire.dc.html](http://127.0.0.1:8765/Tripwire.dc.
 
 The workflow is deliberately small: discover the target, scan it with the enabled
 adapters, then review the result. Mock lets you explore the final step safely; Live
-adds Supabase, Modal, and optional scanner providers when you need real scans.
+uses Supabase, Modal, and the configured Snyk, Tessl, and Cisco scanners for real scans.
 
 ```mermaid
 flowchart LR
