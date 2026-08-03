@@ -33,6 +33,7 @@
 | `README.md` | Run-it → prerequisites/env-vars; Operate secrets → env-vars |
 | `docs/README.md` | User-guide index + one practical setup flow |
 | `CONTRIBUTING.md` | step 0 prerequisites; keep ≤80 lines |
+| `docs/plan/SMOKE_TESTS.md` | End-to-end docs smoke-test plan and script |
 | `docs/plan/PROGRESS.md` / `TRAIL.md` / `gate-evidence/slice-17.json` | status + evidence |
 
 ## Spec (GWT)
@@ -50,8 +51,13 @@
 - [x] `docs/user-guide/{prerequisites,setup-commands,supabase-setup,modal-setup,env-vars}.md` all exist
 - [x] Every key in `.env.example` has a row in `env-vars.md` (diff inventory in evidence)
 - [x] `fixtures/OPTIONAL_SCANNER_KEYS.md` documents vendor account setup + env-var procurement for Snyk, Tessl, and Cisco AI Defense, with flag-to-key coupling
+- [x] Docs synchronization scope for workflow changes is explicit and includes:
+  - entry/agent docs: `README.md`, `docs/README.md`, `CONTRIBUTING.md`
+  - quick-start + setup guides: `QUICKSTART.md`, `docs/user-guide/{prerequisites,setup-commands,supabase-setup,modal-setup,env-vars}.md`
+  - governance/status docs: `AGENTS.md`, `CLAUDE.md`, `docs/STATUS.md`, `docs/ARCHITECTURE.md`, `docs/plan/{PROGRESS.md,TRAIL.md,gate-evidence/slice-17.json}`
 - [x] QUICKSTART links to `setup-commands` and task-based command guidance; capability-specific setup guides appear before `cp .env.example`; Node 22 + Mock validation are documented
 - [x] README links to prereqs/env-vars + setup commands; `docs/README.md` presents one practical setup sequence; CONTRIBUTING step 0 + `wc -l` ≤80
+- [x] Docs smoke-test plan exists in `/docs/plan` and is linked from README/docs/onboarding entry points
 - [x] README still exactly 4 H2s and ≤100 lines (`rg '^## ' README.md` + `wc -l`)
 - [x] `rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md` empty
 - [x] PROGRESS/TRAIL critical path shows **8** → 11–13 (wave E; 17 ✅)

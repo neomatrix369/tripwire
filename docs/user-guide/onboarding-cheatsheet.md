@@ -25,3 +25,4 @@ Before running commands:
 - [QUICKSTART.md](../../QUICKSTART.md) — shared setup and run flow
 - [docs/README](../README.md) — docs index
 - [../README.md](../../README.md) — repo entry
+- [SMOKE_TESTS.md](../plan/SMOKE_TESTS.md) — end-to-end docs flow verification plan

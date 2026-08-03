@@ -18,6 +18,7 @@ Guides for installing, using, maintaining, and contributing to **Tripwire**.
 | Enable Live capabilities | [Supabase setup](./user-guide/supabase-setup.md) → [Modal setup](./user-guide/modal-setup.md) → [environment keys](./user-guide/env-vars.md) |
 | Contributor path | Use Tripwire first, then [CONTRIBUTING.md](../CONTRIBUTING.md) → [ARCHITECTURE.md](./ARCHITECTURE.md) to develop and share improvements |
 | Report a vulnerability | [SECURITY.md](../SECURITY.md) |
+| Run recurring docs check | [SMOKE_TESTS.md](./plan/SMOKE_TESTS.md) |
 
 ---
 
@@ -50,6 +51,7 @@ Guides for installing, using, maintaining, and contributing to **Tripwire**.
 | [plan/TRAIL.md](./plan/TRAIL.md) | Execution trail + context pack (private references) |
 | [plan/slices/04-D-operator-onboarding/](./plan/slices/04-D-operator-onboarding/) | Wave D / slice 17 onboarding ✅ |
 | [plan/slices/05-E-ship-path-coverage/](./plan/slices/05-E-ship-path-coverage/) | Wave E ship-path coverage · Musts ✅ · slice 14 open |
+| [plan/SMOKE_TESTS.md](./plan/SMOKE_TESTS.md) | Reusable end-to-end docs smoke-test plan for onboarding + setup + maintenance |
 
 ---
 

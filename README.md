@@ -70,6 +70,7 @@ work. Security reports: [SECURITY.md](SECURITY.md).
 ### Learn more
 
 - Docs index: [docs/README.md](docs/README.md)
+- End-to-end docs smoke test plan: [docs/plan/SMOKE_TESTS.md](docs/plan/SMOKE_TESTS.md)
 - New operator onboarding cheat sheet: [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md)
 - Architecture (diagrams): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Capability status: [docs/STATUS.md](docs/STATUS.md)
