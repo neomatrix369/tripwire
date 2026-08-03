@@ -83,12 +83,12 @@
 - [x] Phase 1 baseline is recorded as merged in PR #38; PROGRESS/TRAIL show the Phase 1b documentation UX follow-up as 🔨
 - [ ] `docs/plan/gate-evidence/slice-17.json` records Phase 1b as `IN_PROGRESS` and becomes `PASS` only after its fresh review and merge
 - [x] End-to-end task-based onboarding simulation executed against docs flow and captured below
-- [ ] README opens with Tripwire’s purpose and a credential-free Mock-dashboard action before badges or deep setup detail
+- [x] README opens with Tripwire’s purpose and a credential-free Mock-dashboard action before badges or deep setup detail
 - [x] pgGraph/Graphify layout and style findings are recorded above with explicit adopt/avoid boundaries
-- [ ] README presents a static, accessible Discover → Scan → Review Mermaid workflow and links its deeper paths to existing documents
-- [ ] README uses outcome-led capability sections and a compact proof/badge row after its primary content; no new image assets, CSS, fonts, or runtime dependencies
-- [ ] `docs/README.md` exposes task routes for Try locally, Set up Live scanning, Understand results/status, and Contribute/maintain; every moved link resolves
-- [ ] `git diff --check` and `pre-commit run markdownlint --all-files` exit 0; docs smoke route and both dry-discovery fixture commands are recorded in `gate-evidence/slice-17.json` (dashboard port limits are `blocked-by-env`)
+- [x] README presents a static, accessible Discover → Scan → Review Mermaid workflow and links its deeper paths to existing documents
+- [x] README uses outcome-led capability sections and a compact proof/badge row after its primary content; no new image assets, CSS, fonts, or runtime dependencies
+- [x] `docs/README.md` exposes task routes for Try locally, Set up Live scanning, Understand results/status, and Contribute/maintain; every moved link resolves
+- [x] `git diff --check` and `pre-commit run markdownlint --all-files` exit 0; docs smoke route and both dry-discovery fixture commands are recorded in `gate-evidence/slice-17.json` (dashboard port limits are `blocked-by-env`)
 - [ ] Fresh documentation-scope review is recorded; Phase 1b evidence is merged before Slice 17 returns to ✅
 
 ## Doc Audit

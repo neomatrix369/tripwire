@@ -3,14 +3,14 @@
   "date": "2026-08-03",
   "branch": "slice/17-onboarding-documentation-ux",
   "verdict": "IN_PROGRESS",
-  "before_checks": "Phase 1 baseline merged in PR #38; Phase 1b documentation UX inventory and fresh review evidence are pending",
+  "before_checks": "Phase 1 baseline merged in PR #38; Phase 1b documentation UX inventory is complete and fresh documentation review remains pending",
   "after_checks": [
     "user-guide files exist (prerequisites, supabase-setup, modal-setup, env-vars, path-commands, onboarding-cheatsheet, setup-commands)",
     "env-vars.md is the sole vendor-procurement and key-to-feature reference",
     "setup-commands.md owns command order and OPTIONAL_SCANNER_KEYS.md owns only Modal secret synchronization",
     "QUICKSTART links role-neutral local-validation path",
     "README Run-it → prereqs/env-vars; docs/README Choose Your Path; CONTRIBUTING step 0 ≤80",
-    "README structure updated: 9 H2s observed in current snapshot (gate evidence not asserting 4)",
+    "README structure updated: 4 H2 sections observed in the Phase 1b snapshot",
     "no Overmind/Ossprey in README/QUICKSTART/CONTRIBUTING",
     "Phase 1 baseline is merged in PR #38; PROGRESS/TRAIL mark Phase 1b documentation UX as in progress",
     "gate-evidence reflects the current task-based documentation state",
@@ -50,8 +50,8 @@
       "result": "all seven guide files exist including new onboarding path page"
     },
     {
-      "cmd": "rg '^## ' README.md; wc -l README.md CONTRIBUTING.md",
-      "result": "README 9 H2s; README 77 lines; CONTRIBUTING 71 lines"
+      "cmd": "rg '^## ' README.md; wc -l README.md docs/README.md CONTRIBUTING.md",
+      "result": "README has 4 H2 sections and 61 lines; docs index has 47 lines; CONTRIBUTING has 80 lines"
     },
     {
       "cmd": "rg -n '^## (Local validation \\(Node 22 \\+ Mock dashboard\\)|Local validation|Live capabilities)$' QUICKSTART.md",
@@ -68,10 +68,22 @@
     {
       "cmd": "rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md",
       "result": "empty"
+    },
+    {
+      "cmd": "git diff --check && pre-commit run markdownlint --all-files",
+      "result": "PASS: no whitespace errors; markdownlint passed across all files"
+    },
+    {
+      "cmd": "tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner && tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json",
+      "result": "PASS: returned the safe CSV skill and four MCP fixture targets"
+    },
+    {
+      "cmd": "node scripts/serve-dashboard.mjs --port 8766",
+      "result": "blocked-by-env: sandbox rejected localhost bind with EPERM; the server's documented Mock-without-credentials path is unchanged"
     }
   ],
   "review": "PENDING: fresh documentation-scope review required for Phase 1b",
   "follow_up_commit": "f036501 docs(slice-17): centralize vendor credential guidance",
-  "pr": null,
+  "pr": 40,
   "spec_path": "docs/plan/slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md"
 }

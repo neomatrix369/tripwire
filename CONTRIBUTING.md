@@ -17,8 +17,7 @@ before following these development instructions.
    Use [env-vars](docs/user-guide/env-vars.md) to collect the resulting values,
    then copy and populate `.env`.
 
-Then use this guide for development, quality checks, and sharing changes back.
-Short version:
+Then use this guide for development, quality checks, and sharing changes back. Short version:
 
 1. Copy `.env.example` → `.env` using [env-vars.md](docs/user-guide/env-vars.md)
    (`fixtures/OPTIONAL_SCANNER_KEYS.md` for Modal allowlist).
