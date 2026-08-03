@@ -58,15 +58,21 @@ Reachable through production entry points / config:
 
 ---
 
-## VERIFIED (coverage uplift closed)
+## VERIFIED (coverage gates) · ON BRANCH (documentation sync)
 
 Ship-path coverage uplift (~95% instrumented on `cli/src`, `sandbox/`, Live ACL JS;
 omit `guard/` and `support.js`) is verified: slice 11 ✅, 12 ✅, 13 ✅ (CLI and
 live bars from `plan/gate-evidence/slice-12.json` / `slice-13.json`; slice 11
 status via `slice-11` evidence). audit matrix ✅ (slice 7); onboarding ✅ (17);
-skill parse ✅ (8). Ship-path coverage Musts closed. Groups:
+skill parse ✅ (8). The coverage gates are verified; their final documentation
+sync (slice 14) is on branch and awaits merge. Groups:
 [plan/PROGRESS.md](./plan/PROGRESS.md),
 [plan/DECISIONS.md](./plan/DECISIONS.md), [plan/GATE_CONTRACT.md](./plan/GATE_CONTRACT.md).
+
+Measured ship-path floors are: Python `sandbox/` **95.91%**; CLI **99.75%**
+lines/statements, **100%** functions, with an **85%** branch gate; and Live ACL
+**98.48%** lines. The exact gate matrix and residual branch/function thresholds
+are maintained in [plan/coverage-audit.md](./plan/coverage-audit.md).
 
 Live Modal/Supabase E2E as a CI Must remains **Won't** for this wave (slow/optional
 skip-without-config stays). Demo/hackathon film day (VO/Remotion slice 4; film-day
@@ -91,7 +97,8 @@ as shipped capabilities.
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 (slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` … `06-F-claim-audit/`).
-Claim audit (slice 15) remains Should; slice 16 remediations deferred.
+Claim audit (slice 15) is the Must close-path step after slice 14; slice 16
+remediations remain deferred.
 
 ---
 

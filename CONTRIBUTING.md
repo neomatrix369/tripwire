@@ -43,7 +43,7 @@ pre-commit run --all-files          # lint, mypy, bandit, gitleaks, fast tests
 - **Push:** full pytest + coverage floor; conditional `pip-audit --skip-editable` / npm audit
 - **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog
 - **Nightly** (`.github/workflows/nightly.yml`): full TruffleHog, SBOM, Meterian;
-  mutmut and Chalk run but are **non-gating** (`|| true` — green Nightly does not mean mutation/Chalk passed)
+  Nightly mutmut and Chalk run but are **non-gating** (`|| true` — green Nightly does not mean mutation/Chalk passed)
 
 **Coverage today (VERIFIED config):** Python `sandbox/` `fail_under=95` via
 `pytest` / `testpaths = ["sandbox/tests"]` (guard omitted); CLI

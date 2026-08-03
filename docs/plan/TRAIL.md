@@ -4,7 +4,7 @@
 ## Original Material
 - **Brief**: Horizon A — ship path + onboarding + coverage. GWT-1/2 evidence ✅. **Demo/hackathon wave closed 2026-08-02** (VO/Remotion + film-day prose deferred; reinstate if needed). **Wave +coverage**: ship-path ~95% (cli + sandbox + Live ACL); onboarding slice 17; slices 7–15.
 - **Scenario**: Brownfield · Flow D · depth 5–8
-- Routing: Brownfield · Chosen: 2026-08-02 · Source: health-check-inferred
+Routing: Brownfield · Chosen: 2026-08-02 · Source: health-check-inferred
 - **Canonical plan path**: `docs/plan/` (public). Product SoT remains gitignored private references — do not fork parallel plan trees. Enhanced-flow-planner context pack: private references + `01_demo_video/00-tripwire-demo-script.md` (not `02_prototypes/import-stash/`).
 - **Model split** — Planning: gpt-5.6-sol (high) · Execution: gpt-5.6-terra (medium) · Design: N/A (UI frozen as-is)
 
@@ -128,7 +128,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 11 | [slice-11-python-ship-path-coverage-95](slices/05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Python Ship-Path Coverage ≥95% | Must | ✅ | 8 (9,10 Should) | — | ~5 min |
 | 12 | [slice-12-cli-coverage-gate-95](slices/05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | CLI Coverage Gate ≥95% (Delta) | Must | ✅ | 6 | — | ~4 min |
 | 13 | [slice-13-live-acl-coverage-gate-95](slices/05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Live ACL Coverage Gate ≥95% (Delta) | Must | ✅ | 2,3 | — | ~4 min |
-| 14 | [slice-14-coverage-status-docs-sync](slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Coverage Status + Docs Sync (Delta) | Must | 📋 | 11,12,13 | — | ~3 min |
+| 14 | [slice-14-coverage-status-docs-sync](slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Coverage Status + Docs Sync (Delta) | Must | 🔀 | 11,12,13 | — | ~3 min |
 
 ### F — Claim audit (after D; after E close-path open)
 

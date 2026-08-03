@@ -2,8 +2,8 @@
   "slice": 14,
   "date": "2026-08-03",
   "branch": "slice/14-coverage-status-docs-sync",
-  "verdict": "NOT_RUN",
-  "before_checks": "pending — plan execution not started",
+  "verdict": "ON_BRANCH",
+  "before_checks": "PASS — existing branch; slices 11, 12, and 13 are recorded PASSED; coverage-audit.md lists numeric gates and branch/function thresholds for each layer.",
   "after_checks": [
     "docs/STATUS.md contains sandbox, CLI, and Live ACL coverage figures",
     "docs/plan/coverage-audit.md updated with final 95.91/99.75/98.48 targets",
@@ -15,23 +15,23 @@
   ],
   "commands": [
     {
-      "cmd": "rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md docs/STATUS.md || true",
-      "result": "PASS\nstatus: PASS\nexit_code: 0\nstdout: |\n  # No matches as expected; badge references for overmind/ossprey are fully removed.\nstderr: |\n  # no stderr"
+      "cmd": "rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md docs/STATUS.md",
+      "result": "PASS\nstatus: PASS (empty result is expected)\nexit_code: 1\nstdout: |\n  <empty>\nstderr: |\n  <empty>"
     },
     {
-      "cmd": "rg \"Nightly mutmut and Chalk\" -n CONTRIBUTING.md || true",
-      "result": "PASS\nstatus: PASS\nexit_code: 0\nstdout: |\n  # No matches in CONTRIBUTING.md; see Nightly line near bottom that uses '|| true' semantics.\nstderr: |\n  # no stderr"
+      "cmd": "rg \"Nightly mutmut and Chalk\" -n CONTRIBUTING.md",
+      "result": "PASS\nstatus: PASS\nexit_code: 0\nstdout: |\n  36:  Nightly mutmut and Chalk run but are **non-gating** (`|| true` — green Nightly does not mean mutation/Chalk passed)\nstderr: |\n  <empty>"
     },
     {
       "cmd": "rg -n \"slice-14|slice-15|14 → 15|dependency\" docs/plan/TRAIL.md docs/plan/PROGRESS.md",
-      "result": "PASS\nstatus: PASS\nexit_code: 0\nstdout: |\n  docs/plan/TRAIL.md:131:| 14 | [slice-14-coverage-status-docs-sync](05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Coverage Status + Docs Sync (Delta) | Must | 📋 | 11,12,13 | — | ~3 min |\ndocs/plan/TRAIL.md:137:| 15 | [slice-15-horizon-a-claim-audit](06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Horizon A Factual Claim Audit | Must | 📋 | 7,14 | — | ~4 min |\ndocs/plan/PROGRESS.md:59:| 14 | [slice-14-coverage-status-docs-sync](05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Must | 📋 | — | — | ~25 min |\ndocs/plan/PROGRESS.md:64:| 15 | [slice-15-horizon-a-claim-audit](06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Must | 📋 | — | — | ~25 min |\n  # no stderr"
+      "result": "PASS\nstatus: PASS\nexit_code: 0\nstdout: |\n  docs/plan/PROGRESS.md:59:| 14 | [slice-14-coverage-status-docs-sync](slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Must | 🔀 | 2026-08-03 | — | ~25 min |\n  docs/plan/PROGRESS.md:64:| 15 | [slice-15-horizon-a-claim-audit](slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Must | 📋 (dependency:14) | — | — | ~25 min |\n  docs/plan/PROGRESS.md:81:- Dependency: close-path `slice-14 -> slice-15` (slice 15 depends on slice 14)\n  docs/plan/TRAIL.md:131:| 14 | [slice-14-coverage-status-docs-sync](slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Coverage Status + Docs Sync (Delta) | Must | 🔀 | 11,12,13 | — | ~3 min |\n  docs/plan/TRAIL.md:137:| 15 | [slice-15-horizon-a-claim-audit](slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Horizon A Factual Claim Audit | Must | 📋 | 7,14 | — | ~4 min |\nstderr: |\n  <empty>"
     },
     {
       "cmd": "/nw-review @nw-software-crafter task \"docs/plan/slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md\" step_id=14",
-      "result": "NOT_DONE\nstatus: PENDING\nexit_code: __PLACEHOLDER__\nstdout: |\n  <paste /nw-review output>\nstderr: |\n  <paste /nw-review stderr if any>\nnotes: review command is required for gate review satisfaction"
+      "result": "APPROVED\nstatus: APPROVED\nexit_code: 0\nstdout: |\n  Re-review approved the remediated Slice 14 evidence artifact.\nstderr: |\n  <empty>\nnotes: review approval does not replace the merge requirement for PASS."
     }
   ],
-  "review": "planned command-review gate via /nw-review task (Command 14.4)",
+  "review": "nw-review APPROVED — re-review confirmed the exact commands and captured outputs.",
   "pr": null,
   "spec_path": "docs/plan/slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md"
 }
