@@ -4,7 +4,7 @@
 ## Original Material
 - **Brief**: Horizon A — ship path + onboarding + coverage. GWT-1/2 evidence ✅. **Demo/hackathon wave closed 2026-08-02** (VO/Remotion + film-day prose deferred; reinstate if needed). **Wave +coverage**: ship-path ~95% (cli + sandbox + Live ACL); onboarding slice 17; slices 7–15.
 - **Scenario**: Brownfield · Flow D · depth 5–8
-- Routing: Brownfield · Chosen: 2026-08-02 · Source: health-check-inferred
+Routing: Brownfield · Chosen: 2026-08-02 · Source: health-check-inferred
 - **Canonical plan path**: `docs/plan/` (public). Product SoT remains gitignored private references — do not fork parallel plan trees. Enhanced-flow-planner context pack: private references + `01_demo_video/00-tripwire-demo-script.md` (not `02_prototypes/import-stash/`).
 - **Model split** — Planning: gpt-5.6-sol (high) · Execution: gpt-5.6-terra (medium) · Design: N/A (UI frozen as-is)
 
