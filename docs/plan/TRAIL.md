@@ -84,7 +84,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 1 | [`slices/01-A-live-path-gwt/`](slices/01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 (4 attempted) | A done; 4 📦 |
 | 2 | [`slices/02-B-characterization-evidence/`](slices/02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`slices/03-C-trust-coverage-audit/`](slices/03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
-| 4 | [`slices/04-D-operator-onboarding/`](slices/04-D-operator-onboarding/) | **D — Task-based onboarding + documentation UX** | **17** | 🔀 closure record |
+| 4 | [`slices/04-D-operator-onboarding/`](slices/04-D-operator-onboarding/) | **D — Task-based onboarding + documentation UX** | **17** | ✅ |
 | 5 | [`slices/05-E-ship-path-coverage/`](slices/05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ · (9∥10) → 14 | ✅ Musts · close-path open |
 | 6 | [`slices/06-F-claim-audit/`](slices/06-F-claim-audit/) | **F — Claim audit** | 15 (16 deferred) | 📋 / 📦 |
 
@@ -112,11 +112,11 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 |---|------|------|--------|--------|------------|-------|-----------|
 | 7 | [slice-7-coverage-audit-matrix](slices/03-C-trust-coverage-audit/slice-7-coverage-audit-matrix.md) | Coverage Audit Matrix + Docs Parity | Must | ✅ | none | #26/#27 | ~4 min |
 
-### D — Task-based onboarding + documentation UX (closure record)
+### D — Task-based onboarding + documentation UX
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
-| **17** | [slice-17-user-guide-onboarding](slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | User-Guide Onboarding + Documentation UX | Must | 🔀 | 7 | — | ~6 min |
+| **17** | [slice-17-user-guide-onboarding](slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | User-Guide Onboarding + Documentation UX | Must | ✅ | 7 | — | ~6 min |
 
 ### E — Ship-path coverage (next)
 
@@ -149,15 +149,15 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | coverage-audit.md | ✅ written — slice 7 |
 | GAP_ANALYSIS.md | pending |
 | HANDOFF.md | pending — `/memory-distiller` at session end |
-| gate-evidence/ | ✅ passed slices; Slice 17 Phase 1b closure record is ON_BRANCH |
+| gate-evidence/ | ✅ passed slices, including Slice 17 |
 
 **Close rule:** ✅ PASSED only when every Before/After check is met (or DECISIONS-waived), evidence JSON `verdict: PASS`, review done, trackers updated. See GATE_CONTRACT.md.
 
 ## Execute priority (by wave — 2026-08-02)
 
-1. Waves **A–C**, Slice 14, and Slice 17 Phase 1b implementation are merged; Slice 17's closure record is ON_BRANCH
+1. Waves **A–C**, Slice 14, and Slice 17 are merged and closed
 2. Phase 1b preserves the practical onboarding flow while making the Live-first setup, optional Mock preview, and Discover → Scan → Review journey immediately scannable
-3. Wave **F** Must: 15 — active while Slice 17's closure record awaits final merge; 16 📦 (demo remediations deferred with 4)
+3. Wave **F** Must: 15 — active; 16 📦 (demo remediations deferred with 4)
 
 See also PROGRESS.md **Slice groups** and [GATE_CONTRACT.md](GATE_CONTRACT.md).
 

@@ -8,11 +8,11 @@
 | 1 | [`01-A-…`](slices/01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 · 4 | ✅ · 4 📦 |
 | 2 | [`02-B-…`](slices/02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`03-C-…`](slices/03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
-| 4 | [`04-D-…`](slices/04-D-operator-onboarding/) | **D — Task-based onboarding + documentation UX** | **17** | 🔀 closure record |
+| 4 | [`04-D-…`](slices/04-D-operator-onboarding/) | **D — Task-based onboarding + documentation UX** | **17** | ✅ |
 | 5 | [`05-E-…`](slices/05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ → 14 (**9+10 SUBSUMED INTO 11**) | ✅ Musts · close-path |
 | 6 | [`06-F-…`](slices/06-F-claim-audit/) | **F — Claim audit** | 15 (after 14) · 16 | 📋 · 16 📦 |
 
-**Current priority:** Slice 15 claim audit. Slice 17 Phase 1b implementation is merged; its closure record is awaiting final merge.
+**Current priority:** Slice 15 claim audit. Slice 17 is merged and closed.
 
 ## Execution order (open work)
 
@@ -44,7 +44,7 @@
 ### D — Task-based onboarding
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| **17** | [slice-17-user-guide-onboarding](slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | Must | 🔀 closure record | 2026-08-02 | — | ~75 min |
+| **17** | [slice-17-user-guide-onboarding](slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | Must | ✅ | 2026-08-02 | 2026-08-04 | ~75 min |
 
 ### E — Ship-path coverage
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
@@ -74,11 +74,11 @@
 | 4 (historical) | Remotion sibling + VO assets missing | 📦 closed with demo/hackathon deferral — reinstate slice 4 if film day returns |
 
 ## Forward Roadmap
-- Waves **A–C**, coverage Slice 14, and Slice 17 Phase 1b implementation are merged. The Slice 17 closure record is ready for final merge; continue with **F (15)**.
+- Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Continue with **F (15)**.
 - Claim-audit Slice 15's dependency on Slice 14 is satisfied and it is the active Must.
 - Slice 17 Phase 1b changed public documentation UX only: README/docs index hierarchy, Mock first run, workflow orientation, and task routes.
 - **Deferred / Won't (A):** 4 (in A), 16 (in F) — reinstate only if a new demo need arises
-- Slice 17 🔀 = Phase 1 baseline and Phase 1b implementation are merged; the closure record supplies the corrected route and current review/evidence before ✅. Phase 2 guides remain later work.
+- Slice 17 ✅ = Phase 1 baseline, Phase 1b implementation, and closure record are merged; current review and evidence are recorded. Phase 2 guides remain later work.
 - Gate close: [GATE_CONTRACT.md](GATE_CONTRACT.md)
 - After E Musts: ask 1+C vs continue F claim audit
 - Won't for A: Drift, Phase 4/5, redesign, blast-radius, instruction→install→scan; Live E2E CI Must; support.js 95%; demo video / hackathon film day
