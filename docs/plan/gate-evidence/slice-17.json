@@ -1,24 +1,24 @@
 {
   "slice": 17,
-  "date": "2026-08-03",
-  "branch": "slice/17-phase-1b-live-setup",
-  "verdict": "IN_PROGRESS",
-  "before_checks": "Phase 1 baseline merged in PR #38; initial Phase 1b documentation UX merged in PR #40; Live-first correction inventory is complete and fresh documentation review remains pending",
+  "date": "2026-08-04",
+  "branch": "docs/slice-17-close",
+  "verdict": "ON_BRANCH",
+  "before_checks": "Phase 1 baseline merged in PR #38; initial Phase 1b documentation UX merged in PR #40; Live-first correction merged in PR #41; the closure-record link inventory is complete",
   "after_checks": [
     "user-guide files exist (prerequisites, supabase-setup, modal-setup, env-vars, path-commands, onboarding-cheatsheet, setup-commands)",
     "env-vars.md is the sole vendor-procurement and key-to-feature reference",
     "setup-commands.md owns command order and OPTIONAL_SCANNER_KEYS.md owns only Modal secret synchronization",
     "QUICKSTART links role-neutral local-validation path",
     "README Run-it → prereqs/env-vars; docs/README Choose Your Path; CONTRIBUTING step 0 ≤80",
-    "README structure updated: 4 H2 sections observed in the Phase 1b snapshot; its proof roster is now top-of-page",
+    "README structure is recorded honestly: six H2 sections and 102 lines at closure verification; its proof roster is top-of-page",
     "no Overmind/Ossprey in README/QUICKSTART/CONTRIBUTING",
-    "Phase 1 baseline is merged in PR #38; PROGRESS/TRAIL mark Phase 1b documentation UX as in progress",
-    "gate-evidence reflects the current task-based documentation state",
+    "Phase 1 baseline is merged in PR #38 and the Phase 1b Live-first correction is merged in PR #41; trackers mark the closure record ON_BRANCH",
+    "gate-evidence reflects the current task-based documentation state and becomes PASS only after the closure record merges",
     "pgGraph, Graphify, and rag-params-finder layout and style findings are recorded with explicit adopt/avoid boundaries",
     "README starts with project proof badges, then an ordered Live setup route before an optional Mock-dashboard preview",
     "README gives an accessible Discover → Scan → Review workflow and routes to existing deeper documents; existing badge rosters on related public pages are top-of-page",
     "docs/README.md exposes First Live scan, optional local preview, Understand results/status, and Contribute/maintain task routes",
-    "Phase 1b Markdown, smoke-route, dry-discovery, and review evidence are captured before merge"
+    "Phase 1b Markdown, smoke-route, dry-discovery, and docs-only review-exception evidence are captured; the dashboard bind is recorded as blocked-by-env"
   ],
   "env_key_inventory": [
     "SUPABASE_ANON_KEY",
@@ -51,7 +51,7 @@
     },
     {
       "cmd": "rg '^## ' README.md; wc -l README.md docs/README.md CONTRIBUTING.md",
-      "result": "README has 4 H2 sections and 61 lines; docs index has 47 lines; CONTRIBUTING has 80 lines"
+      "result": "README has 6 H2 sections and 102 lines; docs index has 47 lines; CONTRIBUTING has 78 lines"
     },
     {
       "cmd": "rg -n '^## (Local validation \\(Node 22 \\+ Mock dashboard\\)|Local validation|Live capabilities)$' QUICKSTART.md",
@@ -88,11 +88,24 @@
     {
       "cmd": "rg -n '\\[!\\[' README.md QUICKSTART.md CONTRIBUTING.md SECURITY.md docs/ARCHITECTURE.md docs/README.md docs/STATUS.md fixtures/README.md prototypes/README.md",
       "result": "PASS: every existing badge roster is top-of-page; badge links and roster membership are unchanged"
+    },
+    {
+      "cmd": "node cli/bin/tripwire.js --help && node cli/bin/tripwire.js scan --dry-discover ./fixtures/skills/safe-csv-cleaner && node cli/bin/tripwire.js scan --dry-discover ./fixtures/mcp/mcp_manifest.json && ./scripts/quality-gates.sh --quick",
+      "result": "PASS on main at d194d34: CLI help and both dry-discovery fixtures succeeded; quick quality gates passed"
+    },
+    {
+      "cmd": "node scripts/serve-dashboard.mjs --port 8766",
+      "result": "blocked-by-env: restricted sandbox rejected the localhost bind with EPERM; this is the documented environment constraint, not a documentation-flow failure"
+    },
+    {
+      "cmd": "rg -n 'QUICKSTART.md#validate-locally-optional' README.md",
+      "result": "PASS: the canonical README local-validation task route matches the Quickstart heading anchor"
     }
   ],
-  "review": "PENDING: fresh documentation-scope review required for Phase 1b",
+  "review": "docs-only exception pending merge: DECISIONS.md 2026-08-04 row records the approved independent documentation review and PR #41's successful CI evidence",
   "baseline_pr": 40,
   "follow_up_commit": "c28ed2b docs(slice-17): lead users through Live setup",
   "pr": 41,
+  "closure_pr": null,
   "spec_path": "docs/plan/slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md"
 }
