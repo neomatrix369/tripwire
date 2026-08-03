@@ -28,8 +28,8 @@ must not satisfy a scan, provider-coverage, or dashboard-result assertion.
 
 | Field | Value |
 |---|---|
-| Last run | Not run yet |
-| Last result | Not run |
+| Last run | 2026-08-03 (PR #41 evidence; current `main` includes the implementation) |
+| Last result | Documentation, CLI, and dry-discovery checks passed; dashboard bind was `blocked-by-env`; Live providers were not exercised without disposable credentials |
 | Scope | Fresh clone -> install -> local scan/dashboard -> Live setup -> maintenance -> contribution |
 | Failure policy | Doc-flow breaks are hard fails. Environment constraints are recorded as blockers (`blocked-by-env`) |
 

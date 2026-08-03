@@ -65,9 +65,9 @@
 - [x] Branch `slice/17-user-guide-onboarding`
 - [x] Phase 1 only (no Phase 2 creep)
 - [x] `.env.example` key inventory for env-vars coverage
-- [x] README baseline structure tracked in current evidence (9 H2s, ≤100 lines)
+- [x] README baseline structure tracked in current evidence (6 H2s, 102 lines; no line-count cap)
 - [x] Phase 1 baseline merged through PR #38 (`0d62ddb`)
-- [ ] Phase 1b work starts from current `main`; README/docs index links and documented Mock path inventoried
+- [x] Phase 1b work started from current `main`; README/docs index links and documented Mock path inventoried
 
 ## After-Checks [GATE]
 - [x] `docs/user-guide/{prerequisites,setup-commands,path-commands,onboarding-cheatsheet,supabase-setup,modal-setup,env-vars}.md` all exist
@@ -82,8 +82,8 @@
 - [x] Docs smoke-test plan exists in `/docs/plan` and is linked from README/docs/onboarding entry points
 - [x] README baseline structure and line count are recorded honestly in current evidence; no four-H2 constraint applies
 - [x] `rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md` empty
-- [x] Phase 1 baseline is recorded as merged in PR #38; PROGRESS/TRAIL show the Phase 1b documentation UX follow-up as 🔨
-- [ ] `docs/plan/gate-evidence/slice-17.json` records Phase 1b as `IN_PROGRESS` and becomes `PASS` only after its fresh review and merge
+- [x] Phase 1 baseline is recorded as merged in PR #38; PROGRESS/TRAIL show the Phase 1b closure record as 🔀
+- [x] `docs/plan/gate-evidence/slice-17.json` records Phase 1b as `ON_BRANCH` with the fresh review exception and becomes `PASS` after this closure record merges
 - [x] End-to-end task-based onboarding simulation executed against docs flow and captured below
 - [x] README opens with Tripwire’s purpose and proof badges, then an ordered Live setup action before the optional Mock preview
 - [x] pgGraph/Graphify layout and style findings are recorded above with explicit adopt/avoid boundaries
@@ -91,7 +91,7 @@
 - [x] README uses outcome-led capability sections and a compact top-of-page proof/badge row; no new image assets, CSS, fonts, or runtime dependencies
 - [x] `docs/README.md` exposes task routes for a first Live scan, optional local preview, Understand results/status, and Contribute/maintain; every moved link resolves
 - [x] `git diff --check` and `pre-commit run markdownlint --all-files` exit 0; docs smoke route and both dry-discovery fixture commands are recorded in `gate-evidence/slice-17.json` (dashboard port limits are `blocked-by-env`)
-- [ ] Fresh documentation-scope review is recorded; Phase 1b evidence is merged before Slice 17 returns to ✅
+- [x] Fresh documentation-scope review is recorded through the docs-only exception in `DECISIONS.md`; Phase 1b implementation merged in PR #41 and this closure record is ready for final merge
 
 ## Doc Audit
 | # | Check |
@@ -106,7 +106,7 @@
 | 8 | Vendor setup + scanner feature mapping documented (Supabase/Modal + Snyk/Cisco/Tessl) |
 | 9 | No Phase 2 files in this slice |
 | 10 | Fresh workflow simulation checks are captured in docs for blocked/blocked-by-dependency and success paths |
-| 11 | README’s first actionable route is credential-free Mock dashboard, before badges and deep setup detail |
+| 11 | README’s first actionable route is the Live setup; Mock remains an explicitly optional preview |
 | 12 | Discover → Scan → Review workflow is readable in GitHub Markdown and linked to real deeper paths |
 | 13 | Docs index routes the four Phase 1b tasks without requiring plan-doc navigation |
 | 14 | Phase 1b adds no images, CSS, fonts, dashboard behaviour, APIs, or dependencies |
@@ -118,7 +118,7 @@
 - Templates: `.env.example`, `fixtures/OPTIONAL_SCANNER_KEYS.md`
 
 ## Gate Status
-🔨 IN PROGRESS — Phase 1b Live-first follow-up. Phase 1 baseline merged in PR #38 and the initial Phase 1b UX landed in PR #40; the correction that makes accounts → `.env` → bootstrap → scan → Live dashboard the primary journey requires fresh review and merge before ✅.
+🔀 ON BRANCH — Phase 1b Live-first implementation merged in PR #41. This closure record repairs the canonical local-validation route and synchronizes its review exception, evidence, and trackers; it becomes ✅ only after this record merges to `main`.
 
 ## Reviews
 
@@ -259,7 +259,7 @@ review:
 - ✅ D5: `docs/user-guide/setup-commands.md` links capability-specific platform guides before `cp .env.example .env`.
 - ✅ D6: `docs/README.md` now points to `path-commands.md` for install/configure and task-based docs flow.
 - ✅ D7: `env-vars.md` owns scanner vendor procurement and key-to-feature mapping; `OPTIONAL_SCANNER_KEYS.md` owns only the Modal secret allowlist and helper-only synchronization behavior.
-- 🔜 next: run `/nw-review @nw-software-crafter` and update Gate Status to ✅ after review evidence.
+- ✅ Closure correction: the canonical optional-local-validation link now resolves; review exception, evidence, and trackers are synchronized for final merge.
 
 ## Session Metrics
 | Metric | Value |
