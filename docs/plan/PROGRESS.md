@@ -8,7 +8,7 @@
 | 1 | [`01-A-…`](slices/01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 · 4 | ✅ · 4 📦 |
 | 2 | [`02-B-…`](slices/02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`03-C-…`](slices/03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
-| 4 | [`04-D-…`](slices/04-D-operator-onboarding/) | **D — Role-based onboarding** | **17** | ✅ |
+| 4 | [`04-D-…`](slices/04-D-operator-onboarding/) | **D — Task-based onboarding** | **17** | 🔀 re-review pending |
 | 5 | [`05-E-…`](slices/05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ → 14 (**9+10 SUBSUMED INTO 11**) | ✅ Musts · close-path |
 | 6 | [`06-F-…`](slices/06-F-claim-audit/) | **F — Claim audit** | 15 (after 14) · 16 | 📋 · 16 📦 |
 
@@ -18,6 +18,7 @@
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
+| — | D | 17 | user-guide onboarding review | Must | 🔀 |
 | — | E | 14 | coverage sync | Must | 📋 |
 | — | F | 15 | claim audit (16 📦) | Must | 📋 |
 
@@ -42,10 +43,10 @@
 |---|-------|--------|--------|---------|-----------|-----------|
 | 7 | [slice-7-coverage-audit-matrix](slices/03-C-trust-coverage-audit/slice-7-coverage-audit-matrix.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
 
-### D — Role-based onboarding
+### D — Task-based onboarding
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| **17** | [slice-17-user-guide-onboarding](slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~50 min |
+| **17** | [slice-17-user-guide-onboarding](slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md) | Must | 🔀 re-review pending | 2026-08-02 | — | ~50 min |
 
 ### E — Ship-path coverage
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
@@ -75,12 +76,12 @@
 | 4 (historical) | Remotion sibling + VO assets missing | 📦 closed with demo/hackathon deferral — reinstate slice 4 if film day returns |
 
 ## Forward Roadmap
-- Waves **A–D** done. Next: **E** Musts 8 → 11–13 → 14 then **F (15)**
+- Waves **A–C** done. Slice 17 is corrected on branch and pending re-review; next coverage close-path work remains **E** Must 14 then **F (15)**.
 - E Must 14 follows the close-path after 13 (with 9+10 SUBSUMED into 11)
 - Claim-audit slice 15 is blocked until slice 14 is passed (coverage sync + final matrix)
 - Dependency: close-path `slice-14 -> slice-15` (slice 15 depends on slice 14)
 - **Deferred / Won't (A):** 4 (in A), 16 (in F) — reinstate only if a new demo need arises
-- Slice 17 ✅ = RPF-style prereqs/env procurement; Phase 2 guides = later slice (18+)
+- Slice 17 🔀 = task-based prerequisites, vendor procurement, and command guidance corrected on branch; fresh review/evidence required before ✅. Phase 2 guides = later slice (18+)
 - Gate close: [GATE_CONTRACT.md](GATE_CONTRACT.md)
 - After E Musts: ask 1+C vs continue F claim audit
 - Won't for A: Drift, Phase 4/5, redesign, blast-radius, instruction→install→scan; Live E2E CI Must; support.js 95%; demo video / hackathon film day

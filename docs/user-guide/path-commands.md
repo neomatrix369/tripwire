@@ -22,7 +22,7 @@ for the product validation journey.
 
 ## 4) Enable Live capabilities
 
-Provision all five vendors, populate `.env`, and run the platform commands from
+Follow all five vendor paths for full scan coverage, populate `.env`, and run the platform commands from
 [Live environment bootstrap](./setup-commands.md#3-live-environment-bootstrap).
 Use [env-vars.md](./env-vars.md) for accounts, keys, and capability mapping; use
 [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md) only for the

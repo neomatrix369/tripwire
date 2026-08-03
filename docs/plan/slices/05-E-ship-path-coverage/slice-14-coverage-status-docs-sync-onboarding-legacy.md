@@ -1,5 +1,10 @@
 # Slice 14: Documentation Onboarding Rewrite + Link Repair
 
+> **SUPERSEDED historical draft.** Do not execute this specification. Its
+> onboarding scope was delivered and subsequently consolidated by
+> [slice 17](../../04-D-operator-onboarding/slice-17-user-guide-onboarding.md);
+> current vendor procurement belongs in `docs/user-guide/env-vars.md`.
+
 ## Objective
 
 Align the primary user entry docs (`README.md`, `QUICKSTART.md`, `docs/README.md`,

@@ -2,7 +2,8 @@
 
 > Procurement SSOT for every key in [`.env.example`](../../.env.example).
 > Platform: procure accounts ([supabase-setup](./supabase-setup.md), [modal-setup](./modal-setup.md)) **before** `cp .env.example .env`.
-> Omit any key you do not have — missing → that engine only (`skipped_missing_credential`).
+> For full scan coverage, provision every listed vendor credential. If a scanner
+> credential is absent, that engine reports `skipped_missing_credential`.
 >
 > Keep vendor account and key-procurement instructions on this page. The
 > [setup command catalog](./setup-commands.md) owns command order; the

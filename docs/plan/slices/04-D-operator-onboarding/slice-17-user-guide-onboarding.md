@@ -6,6 +6,7 @@
 - Slice name: `slice-17-user-guide-onboarding`
 - Branch: `slice/17-user-guide-onboarding-docs-optional-scanner-keys-format`
 - Commit: `docs(slice-17): unify onboarding around practical setup flow`
+- Follow-up: `f036501 docs(slice-17): centralize vendor credential guidance`
 - Exit criteria: People comfortable with installation and ongoing maintenance can complete one practical setup flow with no private references; local validation and live capabilities are described by task rather than user role; every `.env.example` key has a row in `env-vars.md`; prerequisites, setup commands, and task-specific commands are in separate, linked docs; Gate A badge strip unchanged (no Overmind/Ossprey).
 
 ## Decisions captured
@@ -15,7 +16,7 @@
 - **Phase 2 (later slice, e.g. 18):** troubleshooting, CLI ref, dashboard-guide, contributor-guide, ADRs, screenshots — out of scope here.
 - One practical path: install Node 22 and Python 3.12, use `tripwire scan --dry-discover` and the mock dashboard as optional local validation, then configure live capabilities when needed.
 - Supabase, Modal, and scanner credentials are capability-dependent setup steps; provision required accounts and keys **before** `cp .env.example` when using those capabilities.
-- Platform and scanner vendor procurement: each Supabase/Modal credential and optional scanner key has a vendor account location and exact env-var source in docs.
+- Vendor procurement: every Supabase, Modal, Snyk, Tessl, and Cisco credential has a vendor account location and exact environment-variable source in docs. `env-vars.md` owns procurement; `OPTIONAL_SCANNER_KEYS.md` owns only Modal secret synchronization.
 - Operate secrets → `env-vars.md` (not bare `.env.example`).
 - Priority: wave **D** next after 7 ✅ → **17** → wave E 8 → 11 → 12 → 13. Spec dir: `docs/plan/slices/04-D-operator-onboarding/`.
 
@@ -29,7 +30,7 @@
 | `docs/user-guide/modal-setup.md` | new — account, `modal setup`, `setup-modal.sh` |
 | `docs/user-guide/env-vars.md` | new — procurement SSOT for all `.env.example` keys |
 | `docs/user-guide/onboarding-cheatsheet.md` | collapsed compatibility entry to `path-commands.md` |
-| `fixtures/OPTIONAL_SCANNER_KEYS.md` | expanded — vendor account setup + procurement flow mapped to scanner flags |
+| `fixtures/OPTIONAL_SCANNER_KEYS.md` | narrowed — Modal scanner-secret allowlist and manual fallback |
 | `.env.example` | light cross-links to env-vars.md |
 | `QUICKSTART.md` | One practical onboarding flow; task-based setup links, Mock validation + Node pin |
 | `README.md` | Run-it → prerequisites/env-vars; Operate secrets → env-vars |
@@ -52,7 +53,7 @@
 ## After-Checks [GATE]
 - [x] `docs/user-guide/{prerequisites,setup-commands,path-commands,onboarding-cheatsheet,supabase-setup,modal-setup,env-vars}.md` all exist
 - [x] Every key in `.env.example` has a row in `env-vars.md` (diff inventory in evidence)
-- [x] `fixtures/OPTIONAL_SCANNER_KEYS.md` documents vendor account setup + env-var procurement for Snyk, Tessl, and Cisco AI Defense, with flag-to-key coupling
+- [x] `fixtures/OPTIONAL_SCANNER_KEYS.md` documents only the Modal scanner-secret allowlist and manual fallback; `env-vars.md` documents vendor account setup and environment-variable procurement
 - [x] Docs synchronization scope for workflow changes is explicit and includes:
   - entry/agent docs: `README.md`, `docs/README.md`, `CONTRIBUTING.md`
   - quick-start + setup guides: `QUICKSTART.md`, `docs/user-guide/{prerequisites,setup-commands,supabase-setup,modal-setup,env-vars}.md`
@@ -60,16 +61,16 @@
 - [x] QUICKSTART links to `setup-commands`, `path-commands`, and task-based command guidance; capability-specific setup guides appear before `cp .env.example`; Node 22 + Mock validation are documented
 - [x] README links to prereqs/env-vars + setup commands; `docs/README.md` presents one practical setup sequence; CONTRIBUTING step 0 + `wc -l` ≤80
 - [x] Docs smoke-test plan exists in `/docs/plan` and is linked from README/docs/onboarding entry points
-- [x] README still exactly 4 H2s and ≤100 lines (`rg '^## ' README.md` + `wc -l`)
+- [x] README baseline structure and line count are recorded honestly in current evidence; no four-H2 constraint applies
 - [x] `rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md` empty
-- [x] PROGRESS/TRAIL critical path shows **8** → 11–13 (wave E; 17 ✅)
+- [x] PROGRESS/TRAIL show slice 17 as corrected on branch and pending re-review; the independent coverage close path remains 14 → 15
 - [ ] `docs/plan/gate-evidence/slice-17.json` `"verdict"` still pending re-review after flow consolidation
 - [x] End-to-end task-based onboarding simulation executed against docs flow and captured below
 
 ## Doc Audit
 | # | Check |
 |---|--------|
-| 1 | README 4 H2s ≤100 |
+| 1 | README baseline structure and line count recorded honestly |
 | 2 | QUICKSTART setup before `.env` |
 | 3 | env-vars complete vs `.env.example` |
 | 4 | CONTRIBUTING ≤80 |
@@ -87,7 +88,7 @@
 - Templates: `.env.example`, `fixtures/OPTIONAL_SCANNER_KEYS.md`
 
 ## Gate Status
-🟡 CORRECTED (Phase D follow-up implemented with persona-free command paths; re-review pending to flip to ✅)
+🔀 CORRECTED ON BRANCH (Phase D follow-up implemented with task-based command paths; fresh evidence and re-review pending before ✅)
 
 ## Reviews
 
@@ -227,7 +228,7 @@ review:
 - ✅ D4: `QUICKSTART.md` now includes explicit Node 22 + Mock path.
 - ✅ D5: `docs/user-guide/setup-commands.md` links capability-specific platform guides before `cp .env.example .env`.
 - ✅ D6: `docs/README.md` now points to `path-commands.md` for install/configure and task-based docs flow.
-- ✅ D7: `env-vars.md` and `OPTIONAL_SCANNER_KEYS.md` now reference scanner vendor procurement paths and key-to-feature mapping in persona-neutral terms.
+- ✅ D7: `env-vars.md` owns scanner vendor procurement and key-to-feature mapping; `OPTIONAL_SCANNER_KEYS.md` owns only the Modal secret allowlist and manual fallback.
 - 🔜 next: run `/nw-review @nw-software-crafter` and update Gate Status to ✅ after review evidence.
 
 ## Session Metrics

@@ -49,7 +49,10 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 
 - **3B attempt target:** Live path proof from `tripwire scan` → Live dashboard.
 - **3B command (standard):**
-  1. `cp .env.example .env` (or source pre-provisioned `.env`)
+  1. Complete the Supabase, Modal, Snyk, Tessl, and Cisco setup paths in
+     `docs/user-guide/`, then copy `.env.example` to `.env` and fill its
+     values using `docs/user-guide/env-vars.md` (or source a pre-provisioned
+     `.env`).
   2. `cd cli && npm install && npm link && cd ..`
   3. `tripwire setup`
   4. `tripwire scan ./fixtures/skills/safe-csv-cleaner`
@@ -148,7 +151,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
   <paste stderr output if any>
 
 ### Command 15.8 (Live bootstrap + scan)
-- command: `cp .env.example .env && tripwire setup && tripwire scan ./fixtures/skills/safe-csv-cleaner`
+- command: `tripwire setup && tripwire scan ./fixtures/skills/safe-csv-cleaner` (after completing the documented vendor setup and filling `.env`)
 - status: `PENDING`
 - exit_code: ``
 - stdout: |

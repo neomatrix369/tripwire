@@ -2,17 +2,18 @@
   "slice": 17,
   "date": "2026-08-03",
   "branch": "slice/17-user-guide-onboarding-docs-optional-scanner-keys-format",
-  "verdict": "REJECTED",
-  "before_checks": "all green",
+  "verdict": "PENDING_REVIEW",
+  "before_checks": "implementation corrections are committed; fresh review evidence is pending",
   "after_checks": [
     "user-guide files exist (prerequisites, supabase-setup, modal-setup, env-vars, path-commands, onboarding-cheatsheet, setup-commands)",
-    "env-vars rows cover .env.example keys",
+    "env-vars.md is the sole vendor-procurement and key-to-feature reference",
+    "setup-commands.md owns command order and OPTIONAL_SCANNER_KEYS.md owns only Modal secret synchronization",
     "QUICKSTART links role-neutral local-validation path",
     "README Run-it → prereqs/env-vars; docs/README Choose Your Path; CONTRIBUTING step 0 ≤80",
     "README structure updated: 9 H2s observed in current snapshot (gate evidence not asserting 4)",
     "no Overmind/Ossprey in README/QUICKSTART/CONTRIBUTING",
-    "PROGRESS/TRAIL critical path 8 → 11–13",
-    "gate-evidence reflects current persona-neutral documentation state"
+    "PROGRESS/TRAIL mark slice 17 as corrected on branch and pending re-review",
+    "gate-evidence reflects the current task-based documentation state"
   ],
   "env_key_inventory": [
     "SUPABASE_ANON_KEY",
@@ -31,8 +32,8 @@
     "AI_DEFENSE_API_KEY",
     "MCP_SCANNER_API_KEY",
     "MCP_SCANNER_ENDPOINT",
-    "MODAL_TOKEN_ID (commented)",
-    "MODAL_TOKEN_SECRET (commented)",
+    "MODAL_TOKEN_ID",
+    "MODAL_TOKEN_SECRET",
     "SKILL_SCANNER_LLM_API_VERSION (commented)",
     "MCP_SCANNER_LLM_API_VERSION (commented)",
     "TESSL_WORKSPACE (commented)",
@@ -64,7 +65,8 @@
       "result": "empty"
     }
   ],
-  "review": "docs-only DECISIONS 2026-08-03",
+  "review": "PENDING: fresh /nw-review required after the corrected implementation",
+  "follow_up_commit": "f036501 docs(slice-17): centralize vendor credential guidance",
   "pr": null,
   "spec_path": "docs/plan/slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md"
 }

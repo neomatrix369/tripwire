@@ -29,7 +29,7 @@ provider-coverage, or dashboard-result assertion.
 |---|---|
 | Last run | Not run yet |
 | Last result | Not run |
-| Scope | Fresh clone -> install -> local scan/dashboard -> optional Live setup -> maintenance -> contribution |
+| Scope | Fresh clone -> install -> local scan/dashboard -> Live setup -> maintenance -> contribution |
 | Failure policy | Doc-flow breaks are hard fails. Environment constraints are recorded as blockers (`blocked-by-env`) |
 
 ## Test boundary and evidence
@@ -172,9 +172,11 @@ Run (read/sequence check; execution depends on environment):
 
 Checks:
 - Required platform steps are in order: Supabase setup -> Modal setup -> `.env`.
-- The optional scanner choices are explicit: Snyk, Tessl, and Cisco AI Defense.
+- All five vendor setup paths are explicit: Supabase, Modal, Snyk, Tessl, and
+  Cisco AI Defense.
 - Each provider has a documented account/key source and `.env` mapping.
-- Omitted optional keys are documented to skip only that scanner engine.
+- A missing scanner credential is documented as `skipped_missing_credential`
+  for that scanner engine.
 
 Expected result:
 - A new operator can provision live capabilities by following documented order.
@@ -218,7 +220,7 @@ Expected result:
 ### 5c) Degraded mode and recovery
 
 Checks:
-- A missing optional scanner credential reports `skipped_missing_credential` and
+- A missing scanner credential reports `skipped_missing_credential` and
   does not fail the complete scan.
 - Modal authentication failures point to the documented login/setup path.
 - Supabase connection or schema failures point to the documented setup or

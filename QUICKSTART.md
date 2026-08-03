@@ -24,7 +24,7 @@ capabilities only when you need them.
 2. Install and link the CLI using the [setup command catalog](docs/user-guide/setup-commands.md).
 3. Prefer this role-neutral flow for onboarding and local validation:
    [path-commands.md](docs/user-guide/path-commands.md#local-validation-node-22--mock-dashboard)
-4. Configure all 5 vendor requirements in this onboarding order:
+4. Configure all five vendor paths in this onboarding order for full scan coverage:
    - [Supabase](docs/user-guide/supabase-setup.md): create the project and copy the platform credentials.
    - [Modal](docs/user-guide/modal-setup.md): authenticate and deploy the Live scan environment.
    - [Snyk](https://app.snyk.io): collect API token and map to `SNYK_TOKEN` in `.env`.
@@ -49,7 +49,7 @@ Required for Live mode:
 - `MODAL_TOKEN_ID`
 - `MODAL_TOKEN_SECRET`
 
-Required for all five vendors:
+Values for full five-vendor scan coverage:
 
 - `SNYK_TOKEN`
 - `TESSL_TOKEN`, `TESSL_WORKSPACE`
