@@ -45,6 +45,7 @@ SCAN_KEYS = (
     "MCP_SCANNER_ENDPOINT",
 )
 
+
 def parse_dotenv(path: Path) -> dict[str, str]:
     """Parse KEY=VALUE lines; ignore comments/blank; last wins; no expansion."""
     result: dict[str, str] = {}
