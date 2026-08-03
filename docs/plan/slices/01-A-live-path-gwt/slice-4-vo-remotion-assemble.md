@@ -29,7 +29,7 @@ Spike-like verify/assemble: checklist against demo script; no production Tripwir
 VERIFY: render or export path exists; script wording audit vs GWT-3.
 
 ### In-repo wording audit (2026-08-02) — PASS
-Authority: `internal-docs/01_demo_video/00-tripwire-demo-script.md` + `prompt-2-remotion-video-assembly.md`
+Authority: private references + `prompt-2-remotion-video-assembly.md`
 
 | Check | Result |
 |-------|--------|
@@ -41,7 +41,7 @@ Authority: `internal-docs/01_demo_video/00-tripwire-demo-script.md` + `prompt-2-
 
 ### Blocker — Remotion / VO workspace missing
 Searched common sibling paths under `ai-ml-dl-stuff/` and `gh` repos for `neomatrix369` matching remotion/kickstart — **not found**.
-`internal-docs/01_demo_video/` has prompts + demo script only (no `.mp3`/`.wav`/`.mp4`/transcript JSON).
+private references has prompts + demo script only (no `.mp3`/`.wav`/`.mp4`/transcript JSON).
 
 ## After-Checks [GATE]
 - [ ] Evidence committed in tripwire `docs/plan/gate-evidence/slice-4.json`

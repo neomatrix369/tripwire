@@ -12,8 +12,8 @@
 `slice/9-scanner-snyk-tessl-parse-fixtures`
 
 ## Context references (mandatory)
-- Product SoT: `internal-docs/00_build/security-scanning-platform-spec.md`
-- Adapter research: `internal-docs/00_build/research/scanner-output-adapters.md`
+- Product SoT: private references
+- Adapter research: private references
 - Public mirror: `docs/research/adapters/scanner-output-adapters.md`
 - Audit: `docs/plan/coverage-audit.md`
 - Code: `sandbox/scanners.py`

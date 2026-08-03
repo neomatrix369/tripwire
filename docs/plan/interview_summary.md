@@ -3,7 +3,7 @@
 
 ## What was provided (explicit inputs)
 - Horizon **A only**: gap-close Saturday **3-lite + demo video**; later ask about expanding to **1+C**.
-- Product SoT: `internal-docs/00_build/security-scanning-platform-spec.md`; demo lens: `01_demo_video/00-tripwire-demo-script.md`; gates: `build-day-decisions.md` §8.
+- Product SoT: private references; demo lens: `01_demo_video/00-tripwire-demo-script.md`; gates: `build-day-decisions.md` §8.
 - Must-show fixtures: skill `vuln-prompt-injection-notes`, MCP `vuln-command-injection-server`.
 - Demo-blocking: **none** — operator reports capture-ready.
 - Done = **2b**: filmable 3-lite + dress-rehearsal **and** VO/Remotion assembled (Detection + Sandbox; no Drift/Phase-5 claims).
@@ -27,7 +27,7 @@
 ## Constraints
 - Brownfield Flow D; planning only → execution via `/nw-execute`.
 - Coverage: defaults above; stack freeze yes.
-- `internal-docs/` gitignored — public plan artifacts go under `docs/plan/`.
+- private references are gitignored — public plan artifacts go under `docs/plan/`.
 
 ## Simplest shape
 - Prove GWT-1/2 on Live path + dress-rehearsal; assemble Detection+Sandbox video (GWT-3). Defer Drift, Guard, Reconciler, redesign, blast-radius.

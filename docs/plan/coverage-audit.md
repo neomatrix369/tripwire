@@ -1,7 +1,7 @@
 # Coverage audit matrix (slice 7)
 
 > Last updated: 2026-08-03 · Horizon A · Ship-path target ~95% (DECIDED)
-> Context: `internal-docs/00_build/*` SoT + public STATUS/ARCHITECTURE
+> Context: private references SoT + public STATUS/ARCHITECTURE
 
 ## Altitude / targets
 
@@ -46,15 +46,15 @@
 
 | Work | Slice | Spec path | MoSCoW |
 |------|-------|-----------|--------|
-| Trust strip + this matrix | **7** | [03-C-trust-coverage-audit/](03-C-trust-coverage-audit/) | Must ✅ |
-| Onboarding (prereqs/env) | **17** | [04-D-operator-onboarding/](04-D-operator-onboarding/) | Must |
-| Cisco skill parse fixtures | **8** | [05-E-ship-path-coverage/](05-E-ship-path-coverage/) | Must |
+| Trust strip + this matrix | **7** | [slices/03-C-trust-coverage-audit/](slices/03-C-trust-coverage-audit/) | Must ✅ |
+| Onboarding (prereqs/env) | **17** | [slices/04-D-operator-onboarding/](slices/04-D-operator-onboarding/) | Must |
+| Cisco skill parse fixtures | **8** | [slices/05-E-ship-path-coverage/](slices/05-E-ship-path-coverage/) | Must |
 | Snyk/Tessl parse fixtures | 9/11 | same | Should |
 | `scan_item_inner` characterization | 10/11 | same | Should |
 | Raise floors ≥95% (py / cli / Live ACL) | **11–13** | same | Must |
 | STATUS sync after uplift | 14 | same | Must |
-| Full claim-audit canvas + Live 3B | 15 | [06-F-claim-audit/](06-F-claim-audit/) | Must |
+| Full claim-audit canvas + Live 3B | 15 | [slices/06-F-claim-audit/](slices/06-F-claim-audit/) | Must |
 | Realtime/demo/prototype prose | 16 | same | Won't (A) 📦 |
-| VO/Remotion demo video | 4 | [01-A-live-path-gwt/](01-A-live-path-gwt/) | Won't (A) 📦 |
+| VO/Remotion demo video | 4 | [slices/01-A-live-path-gwt/](slices/01-A-live-path-gwt/) | Won't (A) 📦 |
 
 Folder map: [README.md](README.md). Critical path after 7 ✅: **8 → 11 → 12 → 13 → 14 → 15**.
