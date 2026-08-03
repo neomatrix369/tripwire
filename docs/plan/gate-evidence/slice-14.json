@@ -25,9 +25,13 @@
     {
       "cmd": "rg -n \"slice-14|slice-15|14 → 15|dependency\" docs/plan/TRAIL.md docs/plan/PROGRESS.md",
       "result": "PASS\nstatus: PASS\nexit_code: 0\nstdout: |\n  docs/plan/TRAIL.md:131:| 14 | [slice-14-coverage-status-docs-sync](05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Coverage Status + Docs Sync (Delta) | Must | 📋 | 11,12,13 | — | ~3 min |\ndocs/plan/TRAIL.md:137:| 15 | [slice-15-horizon-a-claim-audit](06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Horizon A Factual Claim Audit | Must | 📋 | 7,14 | — | ~4 min |\ndocs/plan/PROGRESS.md:59:| 14 | [slice-14-coverage-status-docs-sync](05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Must | 📋 | — | — | ~25 min |\ndocs/plan/PROGRESS.md:64:| 15 | [slice-15-horizon-a-claim-audit](06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Must | 📋 | — | — | ~25 min |\n  # no stderr"
+    },
+    {
+      "cmd": "/nw-review @nw-software-crafter task \"docs/plan/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md\"",
+      "result": "NOT_DONE\nstatus: PENDING\nexit_code: __PLACEHOLDER__\nstdout: |\n  <paste /nw-review output>\nstderr: |\n  <paste /nw-review stderr if any>\nnotes: review command is required for gate review satisfaction"
     }
   ],
-  "review": "slice-14 docs review pass (planned; actual command evidence to be populated on execution)",
+  "review": "planned command-review gate via /nw-review task (Command 14.4)",
   "pr": null,
   "spec_path": "docs/plan/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md"
 }

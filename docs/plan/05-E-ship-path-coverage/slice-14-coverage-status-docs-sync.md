@@ -52,6 +52,7 @@ Docs-only.
 - [ ] `rg "Nightly mutmut and Chalk" -n CONTRIBUTING.md` shows non-gating status (or equivalent explicit note)
 - [ ] `docs/plan/gate-evidence/slice-14.json` has `"verdict": "PASS"` + exact commands + outputs in `commands[]` and `after_checks[]`
 - [ ] `docs/plan/DECISIONS.md` records the slice-14 review disposition (docs-only exception or `/nw-review APPROVED`)
+- [ ] Command 14.4 (`/nw-review`) command result recorded as `APPROVED`
 - [ ] ✅ only after merge
 
 ## Execution Capture Template (command-ready)
@@ -79,6 +80,15 @@ Docs-only.
 
 ### Command 14.3 (Close-path dependency check)
 - command: `rg -n "slice-14|slice-15|14 \\u2192 15|dependency" docs/plan/TRAIL.md docs/plan/PROGRESS.md`
+- status: `PENDING`
+- exit_code: ``
+- stdout: |
+  <paste full command output>
+- stderr: |
+  <paste stderr output if any>
+
+### Command 14.4 (`/nw-review` plan artifact)
+- command: `/nw-review @nw-software-crafter task "docs/plan/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md"`
 - status: `PENDING`
 - exit_code: ``
 - stdout: |

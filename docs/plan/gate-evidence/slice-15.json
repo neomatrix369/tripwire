@@ -52,9 +52,13 @@
     {
       "cmd": "node scripts/serve-dashboard.mjs",
       "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: 3B live dashboard render"
+    },
+    {
+      "cmd": "/nw-review @nw-software-crafter task \"docs/plan/06-F-claim-audit/slice-15-horizon-a-claim-audit.md\"",
+      "result": "NOT_DONE\nstatus: PENDING\nexit_code: __PLACEHOLDER__\nstdout: |\n  <paste /nw-review output>\nstderr: |\n  <paste /nw-review stderr if any>\nnotes: review command is required for gate review satisfaction"
     }
   ],
-  "review": "planned — requires actual bugbot/security/3B evidence or 3C waiver in DECISIONS",
+  "review": "planned command-review gate via /nw-review task (Command 15.10); requires bugbot/security/3B evidence or 3C waiver in DECISIONS",
   "pr": null,
   "spec_path": "docs/plan/06-F-claim-audit/slice-15-horizon-a-claim-audit.md"
 }
