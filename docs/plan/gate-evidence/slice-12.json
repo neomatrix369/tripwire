@@ -26,5 +26,5 @@
   ],
   "review": "test+ci gate; DECISIONS review skip",
   "pr": null,
-  "spec_path": "docs/plan/05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md"
+  "spec_path": "docs/plan/slices/05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md"
 }

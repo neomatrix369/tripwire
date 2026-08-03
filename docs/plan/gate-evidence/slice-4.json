@@ -27,5 +27,5 @@
     "render_output_found": false,
     "need_from_operator": "absolute path or git clone URL for Remotion project + location of VO/transcript/footage if already recorded"
   },
-  "spec_path": "docs/plan/01-A-live-path-gwt/slice-4-vo-remotion-assemble.md"
+  "spec_path": "docs/plan/slices/01-A-live-path-gwt/slice-4-vo-remotion-assemble.md"
 }

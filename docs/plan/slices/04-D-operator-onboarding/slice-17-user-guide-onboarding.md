@@ -17,7 +17,7 @@
 - Developers: zero cloud accounts.
 - Security experts path: accounts/procure **before** `cp .env.example`.
 - Operate secrets → `env-vars.md` (not bare `.env.example`).
-- Priority: wave **D** next after 7 ✅ → **17** → wave E 8 → 11 → 12 → 13. Spec dir: `docs/plan/04-D-operator-onboarding/`.
+- Priority: wave **D** next after 7 ✅ → **17** → wave E 8 → 11 → 12 → 13. Spec dir: `docs/plan/slices/04-D-operator-onboarding/`.
 
 ## Files
 | Path | Action |

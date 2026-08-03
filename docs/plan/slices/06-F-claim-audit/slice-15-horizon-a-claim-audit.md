@@ -166,7 +166,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
   <paste stderr output if any>
 
 ### Command 15.10 (`/nw-review` plan artifact)
-- command: `/nw-review @nw-software-crafter task "docs/plan/06-F-claim-audit/slice-15-horizon-a-claim-audit.md"`
+- command: `/nw-review @nw-software-crafter task "docs/plan/slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md"`
 - status: `PENDING`
 - exit_code: ``
 - stdout: |

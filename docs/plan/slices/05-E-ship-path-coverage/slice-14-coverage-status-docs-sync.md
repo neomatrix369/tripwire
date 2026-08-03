@@ -88,7 +88,7 @@ Docs-only.
   <paste stderr output if any>
 
 ### Command 14.4 (`/nw-review` plan artifact)
-- command: `/nw-review @nw-software-crafter task "docs/plan/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md" step_id=14`
+- command: `/nw-review @nw-software-crafter task "docs/plan/slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md" step_id=14`
 - status: `PENDING`
 - exit_code: ``
 - stdout: |
@@ -114,3 +114,7 @@ Docs-only.
 | Metric | Value |
 |--------|-------|
 | Estimated Pomos | 1 (~25 min) |
+
+## Legacy draft carry-over notes
+
+- `docs/plan/slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync-onboarding-legacy.md` is the legacy draft retained for traceability and historical context.
