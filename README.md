@@ -28,6 +28,8 @@ Tripwire has one installation, setup, run, and maintenance flow. It suits people
 comfortable with command-line setup who have an interest in security findings.
 Mock and dry-discover are optional local validation modes; Supabase, Modal, and
 scanner keys are needed only for the corresponding Live capabilities.
+See [who can set up and run Tripwire](docs/user-guide/prerequisites.md#who-can-set-up-and-run-tripwire)
+for the expected technical comfort level.
 
 ## Start here
 
@@ -74,7 +76,7 @@ work. Security reports: [SECURITY.md](SECURITY.md).
 
 - Docs index: [docs/README.md](docs/README.md)
 - End-to-end docs smoke test plan: [docs/plan/SMOKE_TESTS.md](docs/plan/SMOKE_TESTS.md)
-- New operator onboarding cheat sheet: [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md)
+- New contributor onboarding cheat sheet: [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md)
 - Architecture (diagrams): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Capability status: [docs/STATUS.md](docs/STATUS.md)
 - Fixtures: [fixtures/README.md](fixtures/README.md)

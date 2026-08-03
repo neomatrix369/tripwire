@@ -24,19 +24,43 @@ capabilities only when you need them.
 2. Install and link the CLI using the [setup command catalog](docs/user-guide/setup-commands.md).
 3. Prefer this role-neutral flow for onboarding and local validation:
    [path-commands.md](docs/user-guide/path-commands.md#local-validation-node-22--mock-dashboard)
-4. Configure Live capabilities when needed, in this order:
+4. Configure all 5 vendor requirements in this onboarding order:
    - [Supabase](docs/user-guide/supabase-setup.md): create the project and copy the platform credentials.
    - [Modal](docs/user-guide/modal-setup.md): authenticate and deploy the Live scan environment.
-   - [Snyk](https://app.snyk.io): create an API token when you want Snyk scanner depth.
-   - [Tessl](https://tessl.io): create a workspace API key when you want Tessl quality-score scans.
-   - [Cisco AI Defense](https://developer.cisco.com): obtain the LLM or AI Defense credentials for the Cisco scanner mode you enable.
-   - Use [env-vars.md](docs/user-guide/env-vars.md) to map each credential to `.env`.
-     [OPTIONAL_SCANNER_KEYS.md](fixtures/OPTIONAL_SCANNER_KEYS.md) is only needed
-     when you need the Modal scanner-secret allowlist or manual fallback.
+   - [Snyk](https://app.snyk.io): collect API token and map to `SNYK_TOKEN` in `.env`.
+   - [Tessl](https://tessl.io): collect workspace token and map to `TESSL_TOKEN` / `TESSL_WORKSPACE`.
+   - [Cisco AI Defense](https://developer.cisco.com): collect the LLM or AI Defense credentials for `AI_DEFENSE_*` and Cisco MCP scanner settings.
+  - Use [env-vars.md](docs/user-guide/env-vars.md) to map each credential to `.env`.
+    [OPTIONAL_SCANNER_KEYS.md](fixtures/OPTIONAL_SCANNER_KEYS.md) documents scanner-secret allowlist values and manual fallback behavior.
 5. Bootstrap the environment and services:
 
 ```bash
 cp .env.example .env
+```
+
+Open `.env` and complete each value immediately using the inline comment on that key as your fill-in guide.
+
+Required for Live mode:
+
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `SUPABASE_DB_URL`
+- `MODAL_TOKEN_ID`
+- `MODAL_TOKEN_SECRET`
+
+Required for all five vendors:
+
+- `SNYK_TOKEN`
+- `TESSL_TOKEN`, `TESSL_WORKSPACE`
+- `SKILL_SCANNER_LLM_API_KEY`, `SKILL_SCANNER_LLM_MODEL`, `SKILL_SCANNER_LLM_PROVIDER`, `SKILL_SCANNER_LLM_BASE_URL`, `SKILL_SCANNER_LLM_API_VERSION`
+- `MCP_SCANNER_LLM_API_KEY`, `MCP_SCANNER_LLM_MODEL`, `MCP_SCANNER_LLM_BASE_URL`, `MCP_SCANNER_LLM_API_VERSION`
+- `AI_DEFENSE_API_KEY`, `AI_DEFENSE_API_URL`, `MCP_SCANNER_API_KEY`, `MCP_SCANNER_ENDPOINT`
+- `MCP_SCANNER_ENDPOINT` (default is prefilled if you keep Cisco endpoint default)
+
+Then run bootstrap:
+
+```bash
 tripwire setup
 ./scripts/setup-modal.sh
 ```

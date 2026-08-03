@@ -43,11 +43,10 @@ Before running these commands, complete in order:
 - [supabase-setup.md](./supabase-setup.md)
 - [modal-setup.md](./modal-setup.md)
 - [env-vars.md](./env-vars.md)
-- Configure only the scanner integrations you need:
-  - **Snyk**: set `SNYK_TOKEN`.
-  - **Tessl**: set `TESSL_TOKEN` and, if needed, `TESSL_WORKSPACE`.
-  - **Cisco**: set the LLM or AI Defense keys required by the scanner mode you enable.
-  - Use [env-vars.md](./env-vars.md) for vendor account steps and key-to-feature mapping.
+
+Create `.env`, then fill its values using [env-vars.md](./env-vars.md).
+That page is the single source for vendor accounts, key procurement, and
+key-to-feature mapping.
 
 ```bash
 cp .env.example .env
@@ -82,20 +81,7 @@ tripwire setup --force
 ./scripts/quality-gates.sh
 ```
 
-## 5) Vendor key procurement quick paths (for scanner depth)
-
-Use this section once you choose scanner depth:
-
-- **Snyk**: open [app.snyk.io](https://app.snyk.io) → Settings → API Tokens → create token (`SNYK_TOKEN`).
-- **Tessl**: open [tessl.io](https://tessl.io) → sign in → `tessl login` or UI token page → create workspace token (`TESSL_TOKEN`, optional `TESSL_WORKSPACE`).
-- **Cisco AI Defense (optional Tier C)**:
-  - Open [Cisco Developer](https://developer.cisco.com), locate AI Defense credentials for:
-    - `AI_DEFENSE_API_KEY`
-    - `MCP_SCANNER_API_KEY`
-    - optional `AI_DEFENSE_API_URL`
-    - optional `MCP_SCANNER_ENDPOINT` override.
-
-## 6) End-to-end setup and run
+## 5) End-to-end setup and run
 
 ### Local validation
 
@@ -129,18 +115,10 @@ tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json
 - [modal-setup.md](./modal-setup.md)
 - [env-vars.md](./env-vars.md)
 
-2. Create or obtain the credentials you need, then paste them into `.env`:
-
-   - [Supabase](./supabase-setup.md): create a project and copy `SUPABASE_URL`,
-     `SUPABASE_SERVICE_ROLE_KEY`, and `SUPABASE_DB_URL` (plus the optional anon key).
-   - [Modal](./modal-setup.md): create an account and authenticate with `modal setup`;
-     `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` are only needed for non-interactive use.
-   - [Snyk](https://app.snyk.io): create an API token and set `SNYK_TOKEN` when using Snyk scans.
-   - [Tessl](https://tessl.io): create a workspace API key and set `TESSL_TOKEN` (and optional `TESSL_WORKSPACE`) when using Tessl scans.
-   - [Cisco AI Defense](https://developer.cisco.com): obtain the LLM or AI Defense credentials required by the Cisco scanner mode you enable.
-
-   See [env-vars.md](./env-vars.md) for the exact scanner key-to-feature mapping.
-   Use [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md) only
+2. Copy `.env.example` to `.env`, then fill every applicable value using
+   [env-vars.md](./env-vars.md). It is the only vendor-account, credential,
+   and key-to-feature reference. Use
+   [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md) only
    when syncing scanner credentials to Modal.
 
 3. Run:
@@ -159,7 +137,7 @@ tripwire scan ./fixtures/mcp/mcp_manifest.json
 node scripts/serve-dashboard.mjs
 ```
 
-## 7) Test commands (when needed)
+## 6) Test commands (when needed)
 
 ```bash
 cd cli && npm test

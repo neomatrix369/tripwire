@@ -15,7 +15,7 @@
 - **Phase 2 (later slice, e.g. 18):** troubleshooting, CLI ref, dashboard-guide, contributor-guide, ADRs, screenshots — out of scope here.
 - One practical path: install Node 22 and Python 3.12, use `tripwire scan --dry-discover` and the mock dashboard as optional local validation, then configure live capabilities when needed.
 - Supabase, Modal, and scanner credentials are capability-dependent setup steps; provision required accounts and keys **before** `cp .env.example` when using those capabilities.
-- Scanner-vendor procurement: each optional scanner key includes vendor account location and exact env-var source in docs.
+- Platform and scanner vendor procurement: each Supabase/Modal credential and optional scanner key has a vendor account location and exact env-var source in docs.
 - Operate secrets → `env-vars.md` (not bare `.env.example`).
 - Priority: wave **D** next after 7 ✅ → **17** → wave E 8 → 11 → 12 → 13. Spec dir: `docs/plan/slices/04-D-operator-onboarding/`.
 
@@ -76,7 +76,7 @@
 | 5 | Gate A badge strip intact |
 | 6 | Demo Mock select |
 | 7 | One practical setup flow in docs/README |
-| 8 | Vendor setup + scanner feature mapping documented (Snyk/Cisco/Tessl) |
+| 8 | Vendor setup + scanner feature mapping documented (Supabase/Modal + Snyk/Cisco/Tessl) |
 | 9 | No Phase 2 files in this slice |
 | 10 | Fresh workflow simulation checks are captured in docs for blocked/blocked-by-dependency and success paths |
 

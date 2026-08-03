@@ -1,11 +1,11 @@
 # Modal scanner-secret reference
 
-This is the operational reference for `tripwire-scan-secrets`: the optional
-scanner credentials that `./scripts/setup-modal.sh` may sync from `.env`.
+This is the operational reference for `tripwire-scan-secrets`: the scanner
+credentials that `./scripts/setup-modal.sh` may sync from `.env`.
 
-For provider accounts, key procurement, and the full `.env` reference, use
-[env-vars.md](../docs/user-guide/env-vars.md). Supabase platform credentials
-are documented separately in [supabase-setup.md](../docs/user-guide/supabase-setup.md).
+For every provider account, credential value, and environment-variable meaning,
+use [env-vars.md](../docs/user-guide/env-vars.md). This file owns only the
+Modal secret allowlist and its manual CLI fallback.
 
 ## Scanner-secret allowlist
 

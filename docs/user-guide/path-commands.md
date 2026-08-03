@@ -1,6 +1,6 @@
 # Shared onboarding command paths
 
-This document is the role-neutral command map for onboarding and day-to-day operator flow.
+This document is the role-neutral command map for onboarding and day-to-day General User path.
 
 Start here, then follow the referenced task pages for deeper details.
 
@@ -56,24 +56,37 @@ Expected results:
 - Dashboard source defaults to local demo data.
 - No Supabase or Modal account required.
 
-## 3) Live capability setup and scan
+## 3) Live capability setup and scan (Supabase + Modal + Snyk + Tessl + Cisco)
 
-Provision only what you need:
+Setup order: **Supabase → Modal → Snyk → Tessl → Cisco**.
+
+Provision all five vendors in this sequence:
 
 - [Supabase setup](./supabase-setup.md)
 - [Modal setup](./modal-setup.md)
 - [Environment reference](./env-vars.md)
 
-Before copying environment variables, create any optional scanner accounts and collect keys for the vendor you enable:
+Before copying environment variables, provision the listed vendors and collect keys:
 
-- **Snyk**: API token from [app.snyk.io](https://app.snyk.io).
-- **Tessl**: workspace token from [tessl.io](https://tessl.io).
-- **Cisco AI Defense**: LLM or AI Defense credentials from [Cisco Developer](https://developer.cisco.com).
+- **Snyk**: collect API token from [app.snyk.io](https://app.snyk.io).
+- **Tessl**: collect workspace token from [tessl.io](https://tessl.io).
+- **Cisco AI Defense**: collect LLM or AI Defense credentials from [Cisco Developer](https://developer.cisco.com).
+
+Copy template, then fill `.env` values using the inline comments in that file:
+
+```bash
+cp .env.example .env
+```
+
+Fill the environment variables in this vendor order:
+
+`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL`, `MODAL_TOKEN_ID`, `MODAL_TOKEN_SECRET`,
+`SNYK_TOKEN`, `TESSL_TOKEN`, `TESSL_WORKSPACE`, `SKILL_SCANNER_LLM_*`, `MCP_SCANNER_LLM_*`,
+`AI_DEFENSE_API_KEY`, `AI_DEFENSE_API_URL`, `MCP_SCANNER_API_KEY`, `MCP_SCANNER_ENDPOINT`.
 
 Complete bootstrap:
 
 ```bash
-cp .env.example .env
 tripwire setup
 ./scripts/setup-modal.sh
 ```
