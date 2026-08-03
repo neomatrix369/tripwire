@@ -31,10 +31,9 @@ It is a planning artifact for `docs/plan/slices/06-F-claim-audit/slice-15-horizo
 
 ## Command protocol for slice-15 execution
 
-- Audit command preference:
-  - If repo module exists: `uv run python -m tripwire.audit`
-  - Fallback minimum: `./scripts/security-scan.sh --dry-run` and then
-    `./scripts/security-scan.sh` (record pass/fail explicitly).
+- Security command minimum: `./scripts/security-scan.sh --dry-run`; run
+  `./scripts/security-scan.sh` when the toolchain supports a real scan, and
+  record pass/fail explicitly.
 - Unit commands:
   - `cd cli && npm test`
   - `uv run pytest`

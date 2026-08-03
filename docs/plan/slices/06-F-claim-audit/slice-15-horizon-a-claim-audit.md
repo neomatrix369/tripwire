@@ -69,8 +69,6 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - [ ] Mutation-test language remains accurately marked non-gating (`Nightly mutmut and Chalk` in `CONTRIBUTING.md` and `coverage-audit.md`)
 - [ ] Claim inventory file exists (path list in `docs/plan/coverage-audit.md` + `docs/STATUS.md`) and each claim is marked PASS/FAIL/PARTIAL + evidence path in findings artifact
 - [ ] Findings artifact exists (`docs/plan/claim-audit.md` or canvas path) with complete claim matrix and evidence links
-- [ ] Bugbot check command + pass/fail recorded **or** blocker recorded as 3C request in `DECISIONS.md`
-  - Preferred command (if available): `uv run python -m tripwire.audit` (or equivalent repo command)
 - [ ] Security command + pass/fail recorded **or** blocker recorded as 3C request in `DECISIONS.md`
   - Command: `./scripts/security-scan.sh --dry-run` (minimum) and `./scripts/security-scan.sh` when toolchain supports full run
 - [ ] Exact unit suite commands recorded with pass/fail result lines:
@@ -89,16 +87,8 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - Gate evidence file target: `docs/plan/gate-evidence/slice-15.json`
 - Findings target: `docs/plan/claim-audit.md`
 
-### Command 15.1 (Bugbot/audit command)
-- command: `uv run python -m tripwire.audit`
-- status: `PENDING`
-- exit_code: ``
-- stdout: |
-  <paste command output>
-- stderr: |
-  <paste stderr output if any>
 
-### Command 15.2 (Security fallback 1)
+### Command 15.1 (Security fallback 1)
 - command: `./scripts/security-scan.sh --dry-run`
 - status: `PENDING`
 - exit_code: ``
@@ -107,7 +97,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.3 (Security fallback 2)
+### Command 15.2 (Security fallback 2)
 - command: `./scripts/security-scan.sh`
 - status: `PENDING`
 - exit_code: ``
@@ -116,7 +106,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.4 (CLI unit suite)
+### Command 15.3 (CLI unit suite)
 - command: `cd cli && npm test`
 - status: `PENDING`
 - exit_code: ``
@@ -125,7 +115,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.5 (Python suite)
+### Command 15.4 (Python suite)
 - command: `uv run pytest`
 - status: `PENDING`
 - exit_code: ``
@@ -134,7 +124,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.6 (Dashboard suite)
+### Command 15.5 (Dashboard suite)
 - command: `cd prototypes/dc-dashboard && npm test`
 - status: `PENDING`
 - exit_code: ``
@@ -143,7 +133,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.7 (Dashboard coverage)
+### Command 15.6 (Dashboard coverage)
 - command: `cd prototypes/dc-dashboard && npm run test:coverage`
 - status: `PENDING`
 - exit_code: ``
@@ -152,7 +142,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.8 (Live bootstrap + scan)
+### Command 15.7 (Live bootstrap + scan)
 - command: `tripwire setup && tripwire scan ./fixtures/skills/safe-csv-cleaner` (after completing the documented vendor setup and filling `.env`)
 - status: `PENDING`
 - exit_code: ``
@@ -161,7 +151,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.9 (Live dashboard render)
+### Command 15.8 (Live dashboard render)
 - command: `node scripts/serve-dashboard.mjs`
 - status: `PENDING`
 - exit_code: ``
@@ -170,7 +160,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.10 (`/nw-review` plan artifact)
+### Command 15.9 (`/nw-review` plan artifact)
 - command: `/nw-review @nw-software-crafter task "docs/plan/slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md"`
 - status: `PENDING`
 - exit_code: ``
