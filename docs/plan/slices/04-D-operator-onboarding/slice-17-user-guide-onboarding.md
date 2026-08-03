@@ -1,6 +1,6 @@
 # Slice 17: User-Guide Onboarding + Documentation UX
 
-> Scenario: Brownfield | MoSCoW: **Must** | Priority: **current documentation priority**, before Slice 15
+> Scenario: Brownfield | MoSCoW: **Must** | Status: closure record ON_BRANCH; Slice 15 is the current priority
 
 ## Slice Workflow Bundle
 - Slice name: `slice-17-user-guide-onboarding`
@@ -265,7 +265,7 @@ review:
 | Metric | Value |
 |--------|-------|
 | Estimated Pomos | 2 (~50 min) |
-| Next after PASS | Phase 2 docs slice (18+) or coverage Must 8 |
+| Next after final merge | Slice 15 claim audit |
 
 ## Independent Implementation Review
 
