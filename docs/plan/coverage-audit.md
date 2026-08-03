@@ -52,8 +52,8 @@
 | Snyk/Tessl parse fixtures | 9/11 | same | Should |
 | `scan_item_inner` characterization | 10/11 | same | Should |
 | Raise floors ≥95% (py / cli / Live ACL) | **11–13** | same | Must |
-| STATUS sync after uplift | 14 | same | Should |
-| Full claim-audit canvas + Live 3B | 15 | [06-F-claim-audit/](06-F-claim-audit/) | Should |
+| STATUS sync after uplift | 14 | same | Must |
+| Full claim-audit canvas + Live 3B | 15 | [06-F-claim-audit/](06-F-claim-audit/) | Must |
 | Realtime/demo/prototype prose | 16 | same | Won't (A) 📦 |
 | VO/Remotion demo video | 4 | [01-A-live-path-gwt/](01-A-live-path-gwt/) | Won't (A) 📦 |
 

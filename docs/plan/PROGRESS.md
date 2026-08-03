@@ -76,7 +76,7 @@
 
 ## Forward Roadmap
 - Waves **A–D** done. Next: **E** Musts 8 → 11–13 → 14 then **F (15)**
-- E Should (14) beside or after Must coverage; 9+10 SUBSUMED INTO 11
+- E Must 14 follows the close-path after 13 (with 9+10 SUBSUMED into 11)
 - Claim-audit slice 15 is blocked until slice 14 is passed (coverage sync + final matrix)
 - **Deferred / Won't (A):** 4 (in A), 16 (in F) — reinstate only if a new demo need arises
 - Slice 17 ✅ = RPF-style prereqs/env procurement; Phase 2 guides = later slice (18+)
