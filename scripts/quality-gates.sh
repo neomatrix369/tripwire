@@ -99,6 +99,7 @@ fi
 
 # ── T2: Tests + audit ─────────────────────────────────────────────────────────
 FAILED=0
+run_bg "complexity report" bash scripts/complexity-report.sh
 run_bg "pytest+cov" uv run pytest sandbox/tests/ -q --tb=short \
   --cov=sandbox \
   --cov-report=term-missing \
