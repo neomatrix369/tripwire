@@ -78,6 +78,93 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - [ ] `docs/plan/gate-evidence/slice-15.json` has `"verdict": "PASS"` + `commands[]` (Bugbot/Security + unit suites + 3B/3C)
 - [ ] PROGRESS/TRAIL updated; ✅ only after merge
 
+## Execution Capture Template (command-ready)
+
+- Set `status` to `PASS`, `FAIL`, or `BLOCKED` and paste full stdout/stderr in each block.
+- Gate evidence file target: `docs/plan/gate-evidence/slice-15.json`
+- Findings target: `docs/plan/claim-audit.md`
+
+### Command 15.1 (Bugbot/audit command)
+- command: `uv run python -m tripwire.audit`
+- status: `PENDING`
+- exit_code: ``
+- stdout: |
+  <paste command output>
+- stderr: |
+  <paste stderr output if any>
+
+### Command 15.2 (Security fallback 1)
+- command: `./scripts/security-scan.sh --dry-run`
+- status: `PENDING`
+- exit_code: ``
+- stdout: |
+  <paste command output>
+- stderr: |
+  <paste stderr output if any>
+
+### Command 15.3 (Security fallback 2)
+- command: `./scripts/security-scan.sh`
+- status: `PENDING`
+- exit_code: ``
+- stdout: |
+  <paste command output>
+- stderr: |
+  <paste stderr output if any>
+
+### Command 15.4 (CLI unit suite)
+- command: `cd cli && npm test`
+- status: `PENDING`
+- exit_code: ``
+- stdout: |
+  <paste command output>
+- stderr: |
+  <paste stderr output if any>
+
+### Command 15.5 (Python suite)
+- command: `uv run pytest`
+- status: `PENDING`
+- exit_code: ``
+- stdout: |
+  <paste command output>
+- stderr: |
+  <paste stderr output if any>
+
+### Command 15.6 (Dashboard suite)
+- command: `cd prototypes/dc-dashboard && npm test`
+- status: `PENDING`
+- exit_code: ``
+- stdout: |
+  <paste command output>
+- stderr: |
+  <paste stderr output if any>
+
+### Command 15.7 (Dashboard coverage)
+- command: `cd prototypes/dc-dashboard && npm run test:coverage`
+- status: `PENDING`
+- exit_code: ``
+- stdout: |
+  <paste command output>
+- stderr: |
+  <paste stderr output if any>
+
+### Command 15.8 (Live bootstrap + scan)
+- command: `cp .env.example .env && tripwire setup && tripwire scan ./fixtures/skills/safe-csv-cleaner`
+- status: `PENDING`
+- exit_code: ``
+- stdout: |
+  <paste command output>
+- stderr: |
+  <paste stderr output if any>
+
+### Command 15.9 (Live dashboard render)
+- command: `node scripts/serve-dashboard.mjs`
+- status: `PENDING`
+- exit_code: ``
+- stdout: |
+  <paste command output>
+- stderr: |
+  <paste stderr output if any>
+
 ## /nw-review (OpenAI `gpt-5.6-terra`, low effort)
 
 ### Verdict

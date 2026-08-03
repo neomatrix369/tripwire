@@ -17,7 +17,7 @@
 - Config: `pyproject.toml`, `.github/workflows/ci.yml`
 
 ## Spec (GWT / User Story)
-**Given** slices 8–10 green and guard treated as Phase 4 bonus
+**Given** slice 8 and slices 9/10 subsumed into this slice (DECISIONS)
 **When** coverage is measured on ship-path sandbox only
 **Then** ≥95% and CI enforces it; guard is not in the fail_under denominator
 
@@ -28,7 +28,8 @@
 
 ## Before-Checks [GATE]
 - [x] Branch created
-- [x] Slices 8, 9, 10 ✅ — 9/10 Should waived (DECISIONS 2026-08-02); coverage filled in this slice
+- [x] Slice 8 complete (coverage fixtures + parse coverage baseline)
+- [ ] Slices 9, 10 completed inside this slice (waived: DECISIONS 2026-08-03, now treated as 9/10 SUBSUMED by 11)
 - [x] Baseline coverage re-measured after 8–10
 
 ## TDD Execution

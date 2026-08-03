@@ -54,6 +54,38 @@ Docs-only.
 - [ ] `docs/plan/DECISIONS.md` records the slice-14 review disposition (docs-only exception or `/nw-review APPROVED`)
 - [ ] ✅ only after merge
 
+## Execution Capture Template (command-ready)
+
+- Set `status` to `PASS` and paste full stdout/stderr in the order below.
+- Gate evidence file target: `docs/plan/gate-evidence/slice-14.json`
+
+### Command 14.1 (term policy drift)
+- command: `rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md docs/STATUS.md`
+- status: `PENDING`
+- exit_code: ``
+- stdout: |
+  <paste full command output>
+- stderr: |
+  <paste stderr output if any>
+
+### Command 14.2 (Nightly mutmut / Chalk note)
+- command: `rg "Nightly mutmut and Chalk" -n CONTRIBUTING.md`
+- status: `PENDING`
+- exit_code: ``
+- stdout: |
+  <paste full command output>
+- stderr: |
+  <paste stderr output if any>
+
+### Command 14.3 (Close-path dependency check)
+- command: `rg -n "slice-14|slice-15|14 \\u2192 15|dependency" docs/plan/TRAIL.md docs/plan/PROGRESS.md`
+- status: `PENDING`
+- exit_code: ``
+- stdout: |
+  <paste full command output>
+- stderr: |
+  <paste stderr output if any>
+
 ## /nw-review (OpenAI `gpt-5.6-terra`, low effort)
 
 ### Verdict

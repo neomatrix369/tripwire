@@ -17,50 +17,122 @@
 
 ## What it does
 
-Tripwire discovers AI skills and MCP servers, runs them through upstream scanners
-in an isolated sandbox, stores results in Supabase, and surfaces them on a
-Live/Mock dashboard. Use the CLI for discovery and scans; open the dashboard to
-watch findings. System shape: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+Tripwire discovers and scans AI skills and MCP servers, writes findings to Supabase,
+and displays results in a Live/Mock dashboard.
+Run discovery with the CLI, then watch results in the dashboard.
+System shape: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## Run it
+## Choose your path
 
-Prerequisites first: [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md).
-Secrets SSOT: [docs/user-guide/env-vars.md](docs/user-guide/env-vars.md).
+| Persona | Expected setup | Start here |
+|---------|----------------|------------|
+| **Demo viewer** | Node 22 only | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#demo-viewer) |
+| **Scanner user** | Node 22 + CLI install | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#scanner-user) |
+| **Platform operator** | Node 22 + Python 3.12 + Supabase + Modal | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#platform-operator) |
+| **Contributor** | Full toolchain + account access | [CONTRIBUTING.md](CONTRIBUTING.md) |
 
-| Persona | Start here | What you will do |
-|---------|------------|------------------|
-| Demo in 2 min | [QUICKSTART → Demo](QUICKSTART.md#demo-viewer) | Node 22; select **Mock** (Live is default) |
-| Scan skills/MCP | [QUICKSTART → Scanner](QUICKSTART.md#scanner-user) | `npm link` + `--dry-discover` (no cloud) |
-| Full platform | [QUICKSTART → Platform](QUICKSTART.md#platform-operator) | Accounts → env-vars → Supabase + Modal + Live |
-| Operate secrets | [env-vars.md](docs/user-guide/env-vars.md) | Procure keys — [.env.example](.env.example) |
-| Compliance / audit | [prototypes/README.md](prototypes/README.md) | Mock UI + [fixtures](fixtures/README.md) |
-| Security reporter | [SECURITY.md](SECURITY.md) | Private disclosure path |
+## One-time prerequisites (before first use)
 
-**Demo viewer**
+Use this checklist first:
 
 ```bash
-node scripts/serve-dashboard.mjs
-# Guard tab → data source → Mock (demo data) — Live is the default
+git --version
+node -v      # must match .nvmrc (v22)
+python3 -V   # must match .python-version (3.12)
 ```
 
-**Scanner user**
+- **Baseline docs:** [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
+- **Environment keys:** [docs/user-guide/env-vars.md](docs/user-guide/env-vars.md)
+- **Demo vs Platform dependencies:** same file, by persona section
+
+## One-off setup and command categories
+
+### Setup (demo path)
+
+No credentials required.
+
+```bash
+git clone https://github.com/neomatrix369/tripwire.git
+cd tripwire
+node scripts/serve-dashboard.mjs
+```
+
+Open: `http://127.0.0.1:8765/Tripwire.dc.html`, then set Guard → Data source → **Mock (demo data)**.
+
+### Setup (scanner path)
+
+Install CLI dependencies and run a fixture-only dry scan.
 
 ```bash
 cd cli && npm install && npm link && cd ..
 tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
 ```
 
-**Platform operator**
+### Setup (platform path)
+
+Provision accounts + keys first, then bootstrap schema and Modal.
 
 ```bash
-# After prerequisites → supabase-setup → modal-setup → env-vars:
 cp .env.example .env
+# fill keys from:
+# docs/user-guide/env-vars.md
 cd cli && npm install && npm link && cd ..
-tripwire setup && ./scripts/setup-modal.sh
+tripwire setup
+# or: ./scripts/setup-supabase.sh
+pip install modal
+./scripts/setup-modal.sh
 tripwire scan ./fixtures/skills/safe-csv-cleaner
 ```
 
-Details: [QUICKSTART.md](QUICKSTART.md).
+## Regular commands (day-to-day use)
+
+### Demo viewer
+
+```bash
+node scripts/serve-dashboard.mjs
+tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
+```
+
+### Scanner user
+
+```bash
+tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json
+```
+
+### Platform operator
+
+```bash
+tripwire scan ./fixtures/skills/safe-csv-cleaner
+tripwire scan ./fixtures/mcp/mcp_manifest.json
+node scripts/serve-dashboard.mjs
+```
+
+## Maintenance commands (periodic)
+
+Use these when something changes (fixtures, schema, scanner keys, dependencies).
+
+```bash
+tripwire setup --force                     # re-apply latest DB schema
+./scripts/setup-modal.sh --secrets-only     # sync keys without redeploy
+./scripts/setup-modal.sh --deploy-only      # redeploy sandbox
+./scripts/quality-gates.sh --quick          # pre-commit check
+./scripts/quality-gates.sh                 # full project gates
+```
+
+Project-specific cleanup:
+
+```bash
+cd cli && npm test                        # CLI tests
+cd prototypes/dc-dashboard && npm test     # dashboard coverage checks
+pytest sandbox/test_acquire_target.py       # sandbox smoke
+```
+
+## Troubleshooting shortcuts
+
+- Live dashboard blank or stale? Switch between **Mock** and **Live** on Guard tab.
+- Live selected but no data: ensure `SUPABASE_ANON_KEY` or local proxy is configured.
+- Missing scanner output: confirm keys in `.env` and re-run `./scripts/setup-modal.sh --secrets-only`.
+- Dry-discover is failing: verify `node_modules` was installed in `cli/` and `npm link` was run.
 
 ## Contribute
 
@@ -69,6 +141,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports: [SECURITY.md](SECURITY
 ## Learn more
 
 - Docs index: [docs/README.md](docs/README.md)
+- New operator onboarding cheat sheet: [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md)
 - Architecture (diagrams): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Capability status: [docs/STATUS.md](docs/STATUS.md)
 - Fixtures: [fixtures/README.md](fixtures/README.md)

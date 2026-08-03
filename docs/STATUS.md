@@ -58,13 +58,14 @@ Reachable through production entry points / config:
 
 ---
 
-## DECIDED (not yet IMPLEMENTED / VERIFIED)
+## VERIFIED (coverage uplift closed)
 
 Ship-path coverage uplift (~95% instrumented on `cli/src`, `sandbox/`, Live ACL JS;
-omit `guard/` and `support.js`) — audit matrix ✅ (slice 7); onboarding ✅ (17);
-skill parse ✅ (8); **Python sandbox ✅** (11); **CLI ✅** (12); **Live ACL ✅**
-(13 — c8 lines ~98.5% on live/status/realtime/data; `support.js` out of bar).
-Ship-path coverage Musts closed. Groups: [plan/PROGRESS.md](./plan/PROGRESS.md),
+omit `guard/` and `support.js`) is verified: slice 11 ✅, 12 ✅, 13 ✅ (CLI and
+live bars from `plan/gate-evidence/slice-12.json` / `slice-13.json`; slice 11
+status via `slice-11` evidence). audit matrix ✅ (slice 7); onboarding ✅ (17);
+skill parse ✅ (8). Ship-path coverage Musts closed. Groups:
+[plan/PROGRESS.md](./plan/PROGRESS.md),
 [plan/DECISIONS.md](./plan/DECISIONS.md), [plan/GATE_CONTRACT.md](./plan/GATE_CONTRACT.md).
 
 Live Modal/Supabase E2E as a CI Must remains **Won't** for this wave (slow/optional

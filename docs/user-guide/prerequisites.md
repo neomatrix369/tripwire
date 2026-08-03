@@ -4,11 +4,13 @@
 
 Pins: Node **22** (`.nvmrc`) · Python **3.12** (`.python-version`).
 
+This file answers “what I need before running commands” by path.
+
 ## Choose your path
 
 | Persona | Tools | Cloud accounts | Next |
 |---------|-------|----------------|------|
-| **Demo viewer** | Git, Node 22 | None | [QUICKSTART → Demo](../../QUICKSTART.md#demo-viewer) — select **Mock** |
+| **Demo viewer** | Git, Node 22, npm | None | [QUICKSTART → Demo](../../QUICKSTART.md#demo-viewer) — select **Mock** |
 | **Scanner user** | Git, Node 22, npm | None | [QUICKSTART → Scanner](../../QUICKSTART.md#scanner-user) |
 | **Platform operator** | Git, Node 22, npm, Python 3.12, `modal` CLI | Supabase + Modal | [supabase-setup](./supabase-setup.md) → [modal-setup](./modal-setup.md) → [env-vars](./env-vars.md) |
 
@@ -27,6 +29,25 @@ Optional (Platform only):
 ```bash
 pip install modal
 modal --version
+```
+
+## Dependency quick-check
+
+```bash
+cd cli
+npm install
+cd ..
+node scripts/serve-dashboard.mjs
+```
+
+If `npm install` fails in `cli/`, rerun with a clean Node 22 environment:
+
+```bash
+nvm use 22
+cd cli
+rm -rf node_modules
+npm install
+cd ..
 ```
 
 ## What each persona does

@@ -12,9 +12,9 @@ Guides for **Tripwire**, by who you are and what you want to do.
 
 | Persona | Start here | Then |
 |---------|------------|------|
-| **Demo viewer** | [user-guide/prerequisites](./user-guide/prerequisites.md) | [QUICKSTART → Demo](../QUICKSTART.md#demo-viewer) (select **Mock**) |
+| **Demo viewer** | [user-guide/onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md) | [QUICKSTART → Demo](../QUICKSTART.md#demo-viewer) (select **Mock**) |
 | **Scanner user** | [user-guide/prerequisites](./user-guide/prerequisites.md) | [QUICKSTART → Scanner](../QUICKSTART.md#scanner-user) |
-| **Platform operator** | [prerequisites](./user-guide/prerequisites.md) → [supabase](./user-guide/supabase-setup.md) → [modal](./user-guide/modal-setup.md) → [env-vars](./user-guide/env-vars.md) | [QUICKSTART → Platform](../QUICKSTART.md#platform-operator) |
+| **Platform operator** | [prerequisites](./user-guide/prerequisites.md) → [supabase](./user-guide/supabase-setup.md) → [modal](./user-guide/modal-setup.md) → [env-vars](./user-guide/env-vars.md) | [onboarding cheatsheet](./user-guide/onboarding-cheatsheet.md#platform-operator) |
 | **Operate secrets / Modal** | [env-vars.md](./user-guide/env-vars.md) | [OPTIONAL_SCANNER_KEYS.md](../fixtures/OPTIONAL_SCANNER_KEYS.md) |
 | **Contributor** | [CONTRIBUTING.md](../CONTRIBUTING.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) · [plan/PROGRESS.md](./plan/PROGRESS.md) |
 | **Compliance / audit** | [prototypes/README.md](../prototypes/README.md) | [fixtures/README.md](../fixtures/README.md) · [STATUS.md](./STATUS.md) |
@@ -25,7 +25,7 @@ Guides for **Tripwire**, by who you are and what you want to do.
 
 | Path | Cloud? | First docs |
 |------|--------|------------|
-| Demo | No | [prerequisites](./user-guide/prerequisites.md) → QUICKSTART Demo → select Mock |
+| Demo | No | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md) → QUICKSTART Demo → select Mock |
 | Scanner | No | [prerequisites](./user-guide/prerequisites.md) → `--dry-discover` |
 | Platform | Yes | prerequisites → supabase-setup → modal-setup → env-vars → QUICKSTART Platform |
 
@@ -35,6 +35,7 @@ Guides for **Tripwire**, by who you are and what you want to do.
 
 | Doc | What it covers |
 |-----|----------------|
+| [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) | One-shot setup + one-off/regular/maintenance commands |
 | [QUICKSTART.md](../QUICKSTART.md) | Demo / scanner / platform paths |
 | [user-guide/prerequisites.md](./user-guide/prerequisites.md) | Persona × tool matrix; Node 22 / Python 3.12 |
 | [user-guide/env-vars.md](./user-guide/env-vars.md) | Procurement SSOT for `.env.example` keys |
@@ -66,6 +67,7 @@ Guides for **Tripwire**, by who you are and what you want to do.
 | Mock dashboard in 2 minutes | [QUICKSTART → Demo](../QUICKSTART.md#demo-viewer) |
 | Dry-discover a fixture | [QUICKSTART → Scanner](../QUICKSTART.md#scanner-user) |
 | Full stack scan | [QUICKSTART → Platform](../QUICKSTART.md#platform-operator) |
+| Setup + commands by tempo | [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) |
 | Understand system shape | [ARCHITECTURE.md](./ARCHITECTURE.md) |
 | What is verified today? | [STATUS.md](./STATUS.md) |
 | Quality gates / hooks | [CONTRIBUTING.md](../CONTRIBUTING.md) |

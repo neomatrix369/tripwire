@@ -1,10 +1,12 @@
 # Quickstart
 
-> Once setup is done, head to the [README](README.md) for docs paths and contributing.
+> Start here for the fastest setup. Then follow `README.md` for all related docs and contribution paths.
 
-Pick **one** path. Details for Live vs Mock dashboard:
-[prototypes/README.md](prototypes/README.md). Capability evidence:
-[docs/STATUS.md](docs/STATUS.md).
+Pick one path:
+
+- [Demo viewer](#demo-viewer) (no cloud)
+- [Scanner user](#scanner-user) (no cloud)
+- [Platform operator](#platform-operator) (cloud + scanner depth)
 
 ```mermaid
 flowchart LR
@@ -13,7 +15,7 @@ flowchart LR
   start --> platform[Platform operator]
   demo --> mockDash[Mock dashboard]
   scan --> dryDiscover[dry-discover fixture]
-  platform --> fullStack[Supabase plus Modal plus Live]
+  platform --> fullStack[Supabase + Modal + Live]
 ```
 
 ---
@@ -23,7 +25,7 @@ flowchart LR
 See the dashboard in about two minutes. No Supabase or Modal required if you use
 **Mock (demo data)**.
 
-**Prerequisites:** Git, **Node.js 22** (see `.nvmrc`). Tool matrix:
+**Prerequisites:** Git, **Node.js 22** (`.nvmrc`). Tool matrix:
 [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md).
 
 ```bash
@@ -31,21 +33,17 @@ git clone https://github.com/neomatrix369/tripwire.git
 cd tripwire
 node scripts/serve-dashboard.mjs
 # open http://127.0.0.1:8765/Tripwire.dc.html
-# Guard tab → data source → Mock (demo data)
-# Live is the UI default — you must select Mock for a no-cloud demo
+# Guard tab → Data source → Mock (demo data)
+# (Live is UI default)
 ```
 
-**Success:** Dashboard loads; status chip shows **Demo data** (or Live if you
-already have keys — see prototypes README).
-
-More: [prototypes/README.md](prototypes/README.md)
+**Success:** Dashboard loads and status chip shows **Demo data**.
 
 ---
 
 ## Scanner user
 
-Install the CLI and discover (or scan) a fixture without reading the whole repo.
-No Supabase or Modal accounts required for `--dry-discover`.
+Install CLI dependencies and run fixture discovery without external accounts.
 
 **Prerequisites:** Git, **Node.js 22**, npm —
 [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md).
@@ -58,41 +56,35 @@ tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
 
 `--dry-discover` prints discovered targets and exits **without** spawning Modal.
 
-A full `tripwire scan` (no `--dry-discover`) needs the [Platform operator](#platform-operator)
-path (Supabase + deployed sandbox).
-
 **Success:** CLI prints discovered skill/MCP targets and exits 0.
 
-Fixtures: [fixtures/README.md](fixtures/README.md)
+See fixtures and expected fixture behavior: [fixtures/README.md](fixtures/README.md).
 
 ---
 
 ## Platform operator
 
-Run the full stack: DB bootstrap, Modal sandbox, real scan, Live dashboard.
+Run schema bootstrap, secrets sync/deploy, full scan, and Live dashboard.
 
-**Prerequisites:** Node.js 22, Python 3.12 + `modal`, Supabase project, Modal
-account. Complete setup guides **before** copying `.env`:
+**Prerequisites:** Node.js 22, Python 3.12 + `modal`, Supabase + Modal accounts.
+Complete setup guides before copying `.env`:
 
 1. [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
 2. [docs/user-guide/supabase-setup.md](docs/user-guide/supabase-setup.md)
 3. [docs/user-guide/modal-setup.md](docs/user-guide/modal-setup.md)
-4. [docs/user-guide/env-vars.md](docs/user-guide/env-vars.md) — every key + source
+4. [docs/user-guide/env-vars.md](docs/user-guide/env-vars.md)
 
 ```bash
 cp .env.example .env
-# Fill SUPABASE_* (and optional scanner keys) using env-vars.md
-# Prefer Session pooler URI if db.<ref>.supabase.co does not resolve
-# Optional Live browser: SUPABASE_ANON_KEY — or use serve-dashboard.mjs proxy
+# Fill required values using env-vars.md first.
 
 cd cli && npm install && npm link && cd ..
-tripwire setup                 # apply DDL; or ./scripts/setup-supabase.sh
-# Re-run: tripwire setup --force after schema pulls
+tripwire setup
+# if schema changed later:
+tripwire setup --force
 
 pip install modal
-./scripts/setup-modal.sh       # auth + secrets sync + deploy
-# Flags: --secrets-only | --deploy-only | --non-interactive | --env-file PATH
-# Keys: docs/user-guide/env-vars.md · fixtures/OPTIONAL_SCANNER_KEYS.md
+./scripts/setup-modal.sh
 
 tripwire scan ./fixtures/skills/safe-csv-cleaner
 tripwire scan ./fixtures/mcp/mcp_manifest.json
@@ -101,33 +93,39 @@ node scripts/serve-dashboard.mjs
 # Guard tab → Live (Supabase)
 ```
 
-**Success:** Scan creates rows in Supabase; dashboard Live chip shows items (or
-empty if no rows yet). Operator evidence notes: [docs/STATUS.md](docs/STATUS.md).
+**Success:** Dashboard shows scan runs in Live mode (or empty if no matching findings
+and services are healthy).
 
-Also: [env-vars.md](docs/user-guide/env-vars.md) ·
-[.env.example](.env.example) ·
+Useful references:
+[env-vars.md](docs/user-guide/env-vars.md) · [.env.example](.env.example) ·
 [OPTIONAL_SCANNER_KEYS.md](fixtures/OPTIONAL_SCANNER_KEYS.md)
 
 ---
 
-## Verify (optional)
+## Regular checks (run after any significant change)
 
 ```bash
 cd cli && npm test
 pytest sandbox/test_acquire_target.py
 cd prototypes/dc-dashboard && npm test
+./scripts/quality-gates.sh --quick
 ```
 
-Contributor checks: [CONTRIBUTING.md](CONTRIBUTING.md)
+Use full checks only when preparing commit/PR:
+
+```bash
+./scripts/quality-gates.sh
+```
 
 ---
 
 ## Next steps
 
 - Docs map: [docs/README.md](docs/README.md)
-- Architecture (diagrams): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- New starter path: [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md)
+- Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Capability status: [docs/STATUS.md](docs/STATUS.md)
-- Contribute: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
 

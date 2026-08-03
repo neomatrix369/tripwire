@@ -1,0 +1,33 @@
+{
+  "slice": 14,
+  "date": "2026-08-03",
+  "branch": "slice/14-coverage-status-docs-sync",
+  "verdict": "NOT_RUN",
+  "before_checks": "pending — plan execution not started",
+  "after_checks": [
+    "docs/STATUS.md contains sandbox, CLI, and Live ACL coverage figures",
+    "docs/plan/coverage-audit.md updated with final 95.91/99.75/98.48 targets",
+    "docs/plan/TRAIL.md and docs/plan/PROGRESS.md link slice 14 dependency to 15",
+    "DECISIONS captures review disposition",
+    "overmind/ossprey grep checks executed on README/QUICKSTART/CONTRIBUTING/STATUS",
+    "Nightly mutmut/Chalk non-gating status check executed in CONTRIBUTING.md",
+    "gate-evidence PASS payload prepared for closure"
+  ],
+  "commands": [
+    {
+      "cmd": "rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md docs/STATUS.md",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste output>\nstderr: |\n  <paste stderr if any>"
+    },
+    {
+      "cmd": "rg \"Nightly mutmut and Chalk\" -n CONTRIBUTING.md",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste output>\nstderr: |\n  <paste stderr if any>"
+    },
+    {
+      "cmd": "rg -n \"slice-14|slice-15|14 → 15|dependency\" docs/plan/TRAIL.md docs/plan/PROGRESS.md",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste output>\nstderr: |\n  <paste stderr if any>"
+    }
+  ],
+  "review": "slice-14 docs review pass (planned; actual command evidence to be populated on execution)",
+  "pr": null,
+  "spec_path": "docs/plan/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md"
+}

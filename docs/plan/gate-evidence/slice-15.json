@@ -1,0 +1,60 @@
+{
+  "slice": 15,
+  "date": "2026-08-03",
+  "branch": "slice/15-horizon-a-claim-audit",
+  "verdict": "NOT_RUN",
+  "before_checks": "pending — plan execution not started",
+  "after_checks": [
+    "claim-audit matrix exists with PASS/FAIL/PARTIAL rows and evidence paths",
+    "Bugbot/audit command result recorded (or 3C blocker documented in DECISIONS)",
+    "Security scan command result recorded (or 3C blocker documented in DECISIONS)",
+    "unit command results recorded (`cd cli && npm test`, `uv run pytest`, dashboard commands)",
+    "3B live path command/result logged or 3C blocker requested",
+    "review disposition recorded (APPROVED / explicit exception)"
+  ],
+  "commands": [
+    {
+      "cmd": "uv run python -m tripwire.audit",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: preferred if module available"
+    },
+    {
+      "cmd": "./scripts/security-scan.sh --dry-run",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: minimal security gate"
+    },
+    {
+      "cmd": "./scripts/security-scan.sh",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: full security gate when infra permits"
+    },
+    {
+      "cmd": "cd cli && npm test",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: cli suite command result"
+    },
+    {
+      "cmd": "uv run pytest",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __PLACEHOLDER__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: python suite command result"
+    },
+    {
+      "cmd": "cd prototypes/dc-dashboard && npm test",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: dashboard unit suites"
+    },
+    {
+      "cmd": "cd prototypes/dc-dashboard && npm run test:coverage",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: dashboard coverage"
+    },
+    {
+      "cmd": "cp .env.example .env && tripwire setup",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: 3B bootstrap step"
+    },
+    {
+      "cmd": "tripwire scan ./fixtures/skills/safe-csv-cleaner",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: 3B scan command"
+    },
+    {
+      "cmd": "node scripts/serve-dashboard.mjs",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: 3B live dashboard render"
+    }
+  ],
+  "review": "planned — requires actual bugbot/security/3B evidence or 3C waiver in DECISIONS",
+  "pr": null,
+  "spec_path": "docs/plan/06-F-claim-audit/slice-15-horizon-a-claim-audit.md"
+}
