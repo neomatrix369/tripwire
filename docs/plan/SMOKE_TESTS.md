@@ -34,6 +34,10 @@ provider-coverage, or dashboard-result assertion.
 
 ## Test boundary and evidence
 
+**Owner:** The slice executor runs this smoke test for every slice that changes
+onboarding, setup, running, maintenance, or contribution guidance. The executor
+records the evidence and fixes the gap or links the follow-up issue before handoff.
+
 Run this from a fresh clone when practical. Record whether `tripwire` was already
 globally linked, whether `.env` already existed, and which Live providers were
 available. Live checks must use disposable/test resources; never record tokens,
@@ -73,11 +77,12 @@ cd /path/to/repo
 git --version
 git -C . rev-parse --show-toplevel
 node -v
+npm -v
 python3 -V
 ```
 
 Checks:
-- Node 22 and Python 3.12 are available or clearly documented as required.
+- Node 22, npm, and Python 3.12 are available or clearly documented as required.
 - Prereq page points next steps to existing setup docs.
 
 Expected result:
@@ -134,6 +139,7 @@ cd /path/to/repo/tripwire
 
 git --version
 node -v
+npm -v
 tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
 tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json
 node scripts/serve-dashboard.mjs

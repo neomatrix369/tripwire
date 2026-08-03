@@ -7,6 +7,14 @@ For every provider account, credential value, and environment-variable meaning,
 use [env-vars.md](../docs/user-guide/env-vars.md). This file owns only the
 Modal secret allowlist and its manual CLI fallback.
 
+## Scope boundary
+
+Do not use this file to choose providers, create accounts, obtain credentials,
+or determine `.env` values. Those decisions belong exclusively to
+[env-vars.md](../docs/user-guide/env-vars.md). The key names below are repeated
+only to define the subset that can be copied into the Modal scanner secret; they
+are not a second key catalogue.
+
 ## Scanner-secret allowlist
 
 `setup-modal.sh` copies only non-empty values for these keys. A missing value
@@ -37,8 +45,9 @@ echo values.
 ## Manual fallback
 
 Use this only when the helper script cannot run. `tripwire-supabase` is a
-separate, required platform secret; it is included here only because the
-manual fallback creates both Modal secrets.
+separate required platform-secret payload; its values and requirements remain
+defined in [env-vars.md](../docs/user-guide/env-vars.md). It appears here only
+because this operational fallback creates both Modal secrets.
 
 ```bash
 unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy ALL_PROXY all_proxy

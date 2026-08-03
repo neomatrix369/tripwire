@@ -96,7 +96,6 @@ exclude = [
     "prototypes/",
     "internal-docs/",
     "cli/",
-    "sandbox/tests/",
 ]
 
 [tool.xenon]

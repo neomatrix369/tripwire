@@ -30,6 +30,7 @@ development guide.
 ```bash
 git --version
 node -v      # v22.x (.nvmrc)
+npm -v       # supplied with the Node installation
 python3 -V   # 3.12.x (.python-version)
 ```
 

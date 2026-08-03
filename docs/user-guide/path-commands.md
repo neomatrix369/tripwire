@@ -1,124 +1,35 @@
-# Shared onboarding command paths
+# Shared onboarding map
 
-This document is the role-neutral command map for onboarding and day-to-day General User path.
+This is the role-neutral map for using Tripwire. It contains no copied commands:
+[setup-commands.md](./setup-commands.md) is the single executable command source.
 
-Start here, then follow the referenced task pages for deeper details.
+## 1) Check fit and prerequisites
 
-## 1) Install and bootstrap
+Start with [prerequisites.md](./prerequisites.md) to confirm the required tools,
+the technical comfort expected, and the five-vendor account/setup requirements for
+Live capabilities.
 
-1. Confirm prerequisites:
+## 2) Install and bootstrap
 
-- [prerequisites](./prerequisites.md)
+Follow [repository and CLI bootstrap](./setup-commands.md#1-one-off-setup-commands)
+to clone the repository, install dependencies, and link `tripwire`.
 
-2. Install and link the CLI:
+## 3) Validate locally
 
-```bash
-git clone https://github.com/neomatrix369/tripwire.git
-cd tripwire
-cd cli
-npm install
-npm link
-cd ..
-```
+Use [local validation](./setup-commands.md#2-local-validation-node-22--mock-dashboard)
+for Node, npm, Python, and fixture discovery checks. See [QUICKSTART.md](../../QUICKSTART.md)
+for the product validation journey.
 
-3. Continue with shared command catalog:
+## 4) Enable Live capabilities
 
-- [setup-commands.md](./setup-commands.md)
+Provision all five vendors, populate `.env`, and run the platform commands from
+[Live environment bootstrap](./setup-commands.md#3-live-environment-bootstrap).
+Use [env-vars.md](./env-vars.md) for accounts, keys, and capability mapping; use
+[OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md) only for the
+Modal scanner-secret projection and manual fallback.
 
-## Local validation (Node 22 + Mock dashboard)
+## 5) Maintain or contribute
 
-Use this when you want to validate installation before provisioning live services.
-
-1. Confirm minimum versions:
-
-```bash
-node --version
-npm --version
-python3 -V
-```
-
-2. Verify fixture discovery:
-
-```bash
-tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
-tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json
-```
-
-3. Start the dashboard and select **Mock (demo data)**:
-
-```bash
-node scripts/serve-dashboard.mjs
-```
-
-Expected results:
-
-- Mock cards render.
-- Dashboard source defaults to local demo data.
-- No Supabase or Modal account required.
-
-## 3) Live capability setup and scan (Supabase + Modal + Snyk + Tessl + Cisco)
-
-Setup order: **Supabase → Modal → Snyk → Tessl → Cisco**.
-
-Provision all five vendors in this sequence:
-
-- [Supabase setup](./supabase-setup.md)
-- [Modal setup](./modal-setup.md)
-- [Environment reference](./env-vars.md)
-
-Before copying environment variables, provision the listed vendors and collect keys:
-
-- **Snyk**: collect API token from [app.snyk.io](https://app.snyk.io).
-- **Tessl**: collect workspace token from [tessl.io](https://tessl.io).
-- **Cisco AI Defense**: collect LLM or AI Defense credentials from [Cisco Developer](https://developer.cisco.com).
-
-Copy template, then fill `.env` values using the inline comments in that file:
-
-```bash
-cp .env.example .env
-```
-
-Fill the environment variables in this vendor order:
-
-`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL`, `MODAL_TOKEN_ID`, `MODAL_TOKEN_SECRET`,
-`SNYK_TOKEN`, `TESSL_TOKEN`, `TESSL_WORKSPACE`, `SKILL_SCANNER_LLM_*`, `MCP_SCANNER_LLM_*`,
-`AI_DEFENSE_API_KEY`, `AI_DEFENSE_API_URL`, `MCP_SCANNER_API_KEY`, `MCP_SCANNER_ENDPOINT`.
-
-Complete bootstrap:
-
-```bash
-tripwire setup
-./scripts/setup-modal.sh
-```
-
-Run a live scan:
-
-```bash
-tripwire scan ./fixtures/skills/safe-csv-cleaner
-node scripts/serve-dashboard.mjs
-```
-
-## 4) Re-run and maintenance
-
-- Re-run setup after dependency changes:
-
-```bash
-tripwire setup --force
-./scripts/setup-modal.sh --secrets-only
-./scripts/setup-modal.sh --deploy-only
-```
-
-- Regular maintenance:
-
-```bash
-./scripts/quality-gates.sh --quick
-./scripts/quality-gates.sh
-```
-
-- Targeted test checks:
-
-```bash
-cd cli && npm test
-pytest sandbox/tests/test_acquire_target.py
-cd prototypes/dc-dashboard && npm test
-```
+Use [re-run and maintenance commands](./setup-commands.md#4-re-run-and-maintenance-commands)
+after dependency or deployment changes. A **Contributor** uses Tripwire and also
+improves it; after completing the shared setup, follow [CONTRIBUTING.md](../../CONTRIBUTING.md).
