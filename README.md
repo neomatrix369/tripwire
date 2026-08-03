@@ -1,86 +1,61 @@
 # Tripwire
 
-> AI skill / MCP server security scanning platform.
+> Discover and scan AI skills and MCP servers, then review the findings in one dashboard.
 
-<!-- Primary stack (what runs Tripwire) -->
-[![Cursor](https://img.shields.io/badge/Cursor-000000?style=for-the-badge&logo=cursor&logoColor=white)](https://cursor.com)
-[![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=for-the-badge)](https://modal.com)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
-[![Tripwire](https://img.shields.io/badge/Tripwire-1a1a2e?style=for-the-badge)](https://github.com/neomatrix369/tripwire)
+## Start safely
+
+With [Node 22](docs/user-guide/prerequisites.md) installed, open the credential-free
+Mock dashboard:
+
+```bash
+git clone https://github.com/neomatrix369/tripwire.git
+cd tripwire
+node scripts/serve-dashboard.mjs
+```
+
+Open [http://127.0.0.1:8765/Tripwire.dc.html](http://127.0.0.1:8765/Tripwire.dc.html).
+It starts with Mock demo data when Supabase is not configured; select Live only after
+you have configured it. No account or secret is needed for this first look.
+
+| Instead of… | You can… |
+|---|---|
+| Starting with provider credentials | Explore a local Mock dashboard first |
+| Guessing what to scan | Discover skills and MCP servers with the CLI |
+| Losing scan evidence across tools | Review findings in one dashboard |
+
+## What happens next
+
+The workflow is deliberately small: discover the target, scan it with the enabled
+adapters, then review the result. Mock lets you explore the final step safely; Live
+adds Supabase, Modal, and optional scanner providers when you need real scans.
+
+```mermaid
+flowchart LR
+    discover[Discover skills and MCP servers] --> scan[Scan enabled targets]
+    scan --> review[Review findings in the dashboard]
+```
+
+## Find the right guide
+
+| Your task | Start here |
+|---|---|
+| Try Tripwire locally | [Validate locally in QUICKSTART](QUICKSTART.md#validate-locally) |
+| Set up Live scanning | [Live capabilities in QUICKSTART](QUICKSTART.md#live-capabilities) |
+| Understand results and system shape | [Capability status](docs/STATUS.md) · [Architecture](docs/ARCHITECTURE.md) |
+| Contribute or maintain the project | [Contributing](CONTRIBUTING.md) · [command catalog](docs/user-guide/setup-commands.md) |
+
+For the full documentation map, see [docs/README.md](docs/README.md). The
+[prerequisites](docs/user-guide/prerequisites.md), [environment-variable guide](docs/user-guide/env-vars.md),
+and [setup command catalog](docs/user-guide/setup-commands.md) hold the detailed setup
+and maintenance instructions.
+
+## Proof and integrations
+
 [![CI](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/ci.yml?branch=main&label=CI)](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml)
 [![Nightly](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/nightly.yml?branch=main&label=Nightly)](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml)
-
-<!-- Scanner & partner -->
+[![Cursor](https://img.shields.io/badge/Cursor-000000?style=flat&logo=cursor&logoColor=white)](https://cursor.com)
+[![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=flat)](https://modal.com)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com)
 [![Cisco Skill/MCP Scanner](https://img.shields.io/badge/Cisco%20Skill%2FMCP%20Scanner-1BA0D7?style=flat&logo=cisco&logoColor=white)](https://developer.cisco.com)
 [![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
 [![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
-
-## What it does
-
-Tripwire discovers and scans AI skills and MCP servers, writes findings to Supabase,
-and displays results in a Live/Mock dashboard.
-Run discovery with the CLI, then watch results in the dashboard.
-System shape: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
-
-## Use Tripwire
-
-Tripwire has one installation, setup, run, and maintenance flow. It suits people
-comfortable with command-line setup who have an interest in security findings.
-Mock and dry-discover are optional local validation modes; Supabase, Modal, and
-scanner keys enable Live capabilities. For the recommended complete Live setup,
-provision Supabase, Modal, Snyk, Tessl, and Cisco AI Defense.
-See [who can set up and run Tripwire](docs/user-guide/prerequisites.md#who-can-set-up-and-run-tripwire)
-for the expected technical comfort level.
-
-## Start here
-
-### Baseline prerequisites
-
-Check the shared requirements in:
-
-- [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
-- [docs/user-guide/env-vars.md](docs/user-guide/env-vars.md)
-
-Use the snippets from [prerequisites.md](docs/user-guide/prerequisites.md) to run your own local checks.
-
-### Shared setup command catalog
-
-All one-off setup and periodic maintenance commands are maintained in one place:
-
-- [docs/user-guide/setup-commands.md](docs/user-guide/setup-commands.md)
-- [Role-neutral onboarding path](docs/user-guide/path-commands.md)
-
-### Run and validate
-
-Follow [QUICKSTART.md](QUICKSTART.md), including
-[path-commands.md](docs/user-guide/path-commands.md#3-validate-locally), for installation,
-optional local validation,
-Live capability setup, scans, dashboard review, and maintenance. Re-run and
-maintenance commands are in [docs/user-guide/setup-commands.md](docs/user-guide/setup-commands.md).
-
-## Troubleshooting and contribution
-
-### Troubleshooting shortcuts
-
-- Live dashboard blank or stale? Switch between **Mock** and **Live** on Guard tab.
-- Live selected but no data: ensure `SUPABASE_ANON_KEY` or local proxy is configured.
-- Missing scanner output: confirm keys in `.env` and re-run `./scripts/setup-modal.sh --secrets-only`.
-- Dry-discover is failing: verify `node_modules` was installed in `cli/` and `npm link` was run.
-
-### Contribute
-
-**Contributors** use Tripwire and also improve or share it. After completing the
-shared setup, follow [CONTRIBUTING.md](CONTRIBUTING.md) for development and PR
-work. Security reports: [SECURITY.md](SECURITY.md).
-
-### Learn more
-
-- Docs index: [docs/README.md](docs/README.md)
-- End-to-end docs smoke test plan: [docs/plan/SMOKE_TESTS.md](docs/plan/SMOKE_TESTS.md)
-- New contributor onboarding cheat sheet: [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md)
-- Architecture (diagrams): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
-- Capability status: [docs/STATUS.md](docs/STATUS.md)
-- Fixtures: [fixtures/README.md](fixtures/README.md)
-- Dashboard: [prototypes/README.md](prototypes/README.md)
-- Slice progress: [docs/plan/PROGRESS.md](docs/plan/PROGRESS.md)
-- Agents: [AGENTS.md](AGENTS.md) · [CLAUDE.md](CLAUDE.md)

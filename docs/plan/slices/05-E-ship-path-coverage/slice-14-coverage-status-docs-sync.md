@@ -108,7 +108,7 @@ Docs-only.
 - suggestion (non-blocking): keep branch/gate metric values in one canonical table (`coverage-audit.md`) and link that table directly from this slice to avoid metric drift.
 
 ## Gate Status
-📋 PLANNED
+✅ PASSED — merged through PR #39 (`8c52989`).
 
 ## Session Metrics
 | Metric | Value |
