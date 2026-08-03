@@ -88,7 +88,7 @@ Docs-only.
   <paste stderr output if any>
 
 ### Command 14.4 (`/nw-review` plan artifact)
-- command: `/nw-review @nw-software-crafter task "docs/plan/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md"`
+- command: `/nw-review @nw-software-crafter task "docs/plan/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md" step_id=14`
 - status: `PENDING`
 - exit_code: ``
 - stdout: |

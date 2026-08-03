@@ -61,7 +61,7 @@
 ### F — Claim audit
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| 15 | [slice-15-horizon-a-claim-audit](06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Must | 📋 | — | — | ~25 min |
+| 15 | [slice-15-horizon-a-claim-audit](06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Must | 📋 (dependency:14) | — | — | ~25 min |
 | 16 | [slice-16-docs-claim-remediations](06-F-claim-audit/slice-16-docs-claim-remediations.md) | Won't (A) | 📦 | — | 2026-08-02 | ~25 min |
 
 **Status Legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 DEFERRED`
@@ -78,6 +78,7 @@
 - Waves **A–D** done. Next: **E** Musts 8 → 11–13 → 14 then **F (15)**
 - E Must 14 follows the close-path after 13 (with 9+10 SUBSUMED into 11)
 - Claim-audit slice 15 is blocked until slice 14 is passed (coverage sync + final matrix)
+- Dependency: close-path `slice-14 -> slice-15` (slice 15 depends on slice 14)
 - **Deferred / Won't (A):** 4 (in A), 16 (in F) — reinstate only if a new demo need arises
 - Slice 17 ✅ = RPF-style prereqs/env procurement; Phase 2 guides = later slice (18+)
 - Gate close: [GATE_CONTRACT.md](GATE_CONTRACT.md)

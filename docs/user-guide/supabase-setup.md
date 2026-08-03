@@ -1,6 +1,6 @@
 # Supabase setup
 
-> Platform operators only. Do this **before** `cp .env.example .env`.
+> Security experts only. Do this **before** `cp .env.example .env`.
 
 ## 1. Create a project
 
@@ -47,4 +47,4 @@ tripwire setup
 
 ## Next
 
-→ [modal-setup.md](./modal-setup.md) · full run: [QUICKSTART → Platform](../../QUICKSTART.md#platform-operator)
+→ [modal-setup.md](./modal-setup.md) · full run: [QUICKSTART → Security experts](../../QUICKSTART.md#security-experts)

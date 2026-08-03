@@ -3,14 +3,13 @@
 This page answers the “what do I run first?” question with practical snippets.
 If you only remember one page, this is it.
 
-## 1) Quick orientation by persona
+## 1) Quick orientation by role
 
-| Persona | First objective | One-liner |
+| Role | First objective | One-liner |
 |---------|-----------------|-----------|
-| Demo viewer | See dashboard in 2–3 min | `node scripts/serve-dashboard.mjs` |
-| Scanner user | Validate fixtures without cloud | `tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner` |
-| Platform operator | Run a real scan in Live mode | `tripwire setup && ./scripts/setup-modal.sh && tripwire scan ...` |
-| Contributor | Make safe PR-ready edits | follow [CONTRIBUTING.md](../../CONTRIBUTING.md) |
+| Normal users | See dashboard in 2–3 min | `node scripts/serve-dashboard.mjs` |
+| Developers | Validate fixtures and iterate safely | `tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner` |
+| Security experts | Run a real scan in Live mode | `tripwire setup && ./scripts/setup-modal.sh && tripwire scan ...` |
 
 ---
 
@@ -24,11 +23,11 @@ node -v      # v22.x (from .nvmrc)
 python3 -V   # 3.12.x (from .python-version)
 ```
 
-### By persona
+### By role
 
-- **Demo viewer**: Git + Node 22
-- **Scanner user**: Git + Node 22 + npm
-- **Platform operator**: Git + Node 22 + Python 3.12 + Supabase account + Modal account
+- **Normal users**: Git + Node 22
+- **Developers**: Git + Node 22 + npm
+- **Security experts**: Git + Node 22 + Python 3.12 + Supabase account + Modal account
 
 For path-specific dependencies, follow:
 [prerequisites.md](./prerequisites.md) → [supabase-setup.md](./supabase-setup.md) → [modal-setup.md](./modal-setup.md) → [env-vars.md](./env-vars.md).
@@ -37,7 +36,7 @@ For path-specific dependencies, follow:
 
 ## 3) One-off setup (run only once unless your machine changes)
 
-### Demo setup
+### Normal users setup
 
 ```bash
 git clone https://github.com/neomatrix369/tripwire.git
@@ -46,7 +45,7 @@ node scripts/serve-dashboard.mjs
 # then Guard tab → Mock (demo data)
 ```
 
-### Scanner setup
+### Developers setup
 
 ```bash
 cd cli
@@ -56,7 +55,7 @@ cd ..
 tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
 ```
 
-### Platform setup (full stack)
+### Security experts setup (full stack)
 
 ```bash
 cp .env.example .env
@@ -78,14 +77,14 @@ tripwire scan ./fixtures/mcp/mcp_manifest.json
 
 ## 4) Regular commands (do these repeatedly)
 
-### Demo operations
+### Normal users operations
 
 ```bash
 node scripts/serve-dashboard.mjs
 tripwire scan --dry-discover ./fixtures/skills/safe-changelog-writer
 ```
 
-### Scan operations
+### Developers operations
 
 ```bash
 # fixture exploration
@@ -96,7 +95,7 @@ tripwire scan ./fixtures/skills/safe-csv-cleaner
 tripwire scan ./fixtures/mcp/safe-time-server
 ```
 
-### Dashboard checks
+### Security experts checks
 
 ```bash
 node scripts/serve-dashboard.mjs

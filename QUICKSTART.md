@@ -4,15 +4,15 @@
 
 Pick one path:
 
-- [Demo viewer](#demo-viewer) (no cloud)
-- [Scanner user](#scanner-user) (no cloud)
-- [Platform operator](#platform-operator) (cloud + scanner depth)
+- [Normal users](#normal-users) (no cloud)
+- [Developers](#developers) (no cloud by default)
+- [Security experts](#security-experts) (live/credentialed)
 
 ```mermaid
 flowchart LR
-  start[I want to...] --> demo[Demo viewer]
-  start --> scan[Scanner user]
-  start --> platform[Platform operator]
+  start[I want to...] --> demo[Normal users]
+  start --> scan[Developers]
+  start --> platform[Security experts]
   demo --> mockDash[Mock dashboard]
   scan --> dryDiscover[dry-discover fixture]
   platform --> fullStack[Supabase + Modal + Live]
@@ -20,7 +20,7 @@ flowchart LR
 
 ---
 
-## Demo viewer
+## Normal users
 
 See the dashboard in about two minutes. No Supabase or Modal required if you use
 **Mock (demo data)**.
@@ -41,7 +41,7 @@ node scripts/serve-dashboard.mjs
 
 ---
 
-## Scanner user
+## Developers
 
 Install CLI dependencies and run fixture discovery without external accounts.
 
@@ -62,7 +62,7 @@ See fixtures and expected fixture behavior: [fixtures/README.md](fixtures/README
 
 ---
 
-## Platform operator
+## Security experts
 
 Run schema bootstrap, secrets sync/deploy, full scan, and Live dashboard.
 

@@ -26,10 +26,9 @@ System shape: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 | Persona | Expected setup | Start here |
 |---------|----------------|------------|
-| **Demo viewer** | Node 22 only | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#demo-viewer) |
-| **Scanner user** | Node 22 + CLI install | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#scanner-user) |
-| **Platform operator** | Node 22 + Python 3.12 + Supabase + Modal | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#platform-operator) |
-| **Contributor** | Full toolchain + account access | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| **Normal users** | Node 22 only | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#normal-users) |
+| **Developers** | Node 22 + Python 3.12 + CLI + git | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#developers) |
+| **Security experts** | Node 22 + Python 3.12 + scanner tooling | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#security-experts) |
 
 ## One-time prerequisites (before first use)
 
@@ -43,11 +42,11 @@ python3 -V   # must match .python-version (3.12)
 
 - **Baseline docs:** [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
 - **Environment keys:** [docs/user-guide/env-vars.md](docs/user-guide/env-vars.md)
-- **Demo vs Platform dependencies:** same file, by persona section
+- **Role overlap note:** people can be both security experts and developers. Pick the path that matches your current goal.
 
 ## One-off setup and command categories
 
-### Setup (demo path)
+### Setup (normal users)
 
 No credentials required.
 
@@ -59,7 +58,7 @@ node scripts/serve-dashboard.mjs
 
 Open: `http://127.0.0.1:8765/Tripwire.dc.html`, then set Guard → Data source → **Mock (demo data)**.
 
-### Setup (scanner path)
+### Setup (developers)
 
 Install CLI dependencies and run a fixture-only dry scan.
 
@@ -68,7 +67,7 @@ cd cli && npm install && npm link && cd ..
 tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
 ```
 
-### Setup (platform path)
+### Setup (security experts)
 
 Provision accounts + keys first, then bootstrap schema and Modal.
 
@@ -86,20 +85,20 @@ tripwire scan ./fixtures/skills/safe-csv-cleaner
 
 ## Regular commands (day-to-day use)
 
-### Demo viewer
+### Normal users
 
 ```bash
 node scripts/serve-dashboard.mjs
 tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
 ```
 
-### Scanner user
+### Developers
 
 ```bash
 tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json
 ```
 
-### Platform operator
+### Security experts
 
 ```bash
 tripwire scan ./fixtures/skills/safe-csv-cleaner

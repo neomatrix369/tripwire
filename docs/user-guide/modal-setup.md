@@ -1,6 +1,6 @@
 # Modal setup
 
-> Platform operators only. Complete [supabase-setup](./supabase-setup.md) and fill platform keys in `.env` first.
+> Security experts only. Complete [supabase-setup](./supabase-setup.md) and fill platform keys in `.env` first.
 
 ## 1. Account + CLI
 
@@ -45,7 +45,7 @@ modal app list
 # Expect tripwire-scan (or your deployed app name) after a successful deploy
 ```
 
-Then run a fixture scan and Live dashboard per [QUICKSTART → Platform](../../QUICKSTART.md#platform-operator).
+Then run a fixture scan and Live dashboard per [QUICKSTART → Security experts](../../QUICKSTART.md#security-experts).
 
 ## Next
 
