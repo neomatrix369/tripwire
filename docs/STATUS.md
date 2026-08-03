@@ -58,13 +58,14 @@ Reachable through production entry points / config:
 
 ---
 
-## VERIFIED (coverage uplift closed)
+## VERIFIED (coverage gates) · ON BRANCH (documentation sync)
 
 Ship-path coverage uplift (~95% instrumented on `cli/src`, `sandbox/`, Live ACL JS;
 omit `guard/` and `support.js`) is verified: slice 11 ✅, 12 ✅, 13 ✅ (CLI and
 live bars from `plan/gate-evidence/slice-12.json` / `slice-13.json`; slice 11
 status via `slice-11` evidence). audit matrix ✅ (slice 7); onboarding ✅ (17);
-skill parse ✅ (8). Ship-path coverage Musts closed. Groups:
+skill parse ✅ (8). The coverage gates are verified; their final documentation
+sync (slice 14) is on branch and awaits merge. Groups:
 [plan/PROGRESS.md](./plan/PROGRESS.md),
 [plan/DECISIONS.md](./plan/DECISIONS.md), [plan/GATE_CONTRACT.md](./plan/GATE_CONTRACT.md).
 
