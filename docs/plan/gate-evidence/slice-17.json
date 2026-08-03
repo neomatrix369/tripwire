@@ -93,6 +93,6 @@
   "review": "PENDING: fresh documentation-scope review required for Phase 1b",
   "baseline_pr": 40,
   "follow_up_commit": "c28ed2b docs(slice-17): lead users through Live setup",
-  "pr": null,
+  "pr": 41,
   "spec_path": "docs/plan/slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md"
 }
