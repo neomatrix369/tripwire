@@ -101,7 +101,7 @@ Upstream tool Tripwire wraps; product CLI is `tripwire`.
 
 ```bash
 skill-scanner scan ./path/to/skill --format json --output results.json
-# optional: --compact ; deepeners --use-behavioral --use-llm --use-aidefense --use-virustotal
+# optional: --compact ; deepeners --use-behavioral --use-llm --use-aidefense
 ```
 
 Prefer **JSON** for adapters; optionally also keep **SARIF** blob in Storage for audit.
@@ -165,7 +165,7 @@ Product note that file `--output` was flaky on a tested build: re-test on pin; p
 
 ### Output shape (RESEARCH — official JSON schema)
 
-**Envelope:** `server_url`, `scan_results[]`, `requested_analyzers[]` (`api`, `yara`, `llm`, `behavioral`, `virustotal`, `readiness`, …).
+**Envelope:** `server_url`, `scan_results[]`, `requested_analyzers[]` (`api`, `yara`, `llm`, `behavioral`, `readiness`, …).
 
 **Each scan result:** `status`, `is_safe`, `item_type` (`tool`\|`prompt`\|`resource`), `findings` object, plus type fields (`tool_name`, `prompt_name`, `resource_uri`, …).
 

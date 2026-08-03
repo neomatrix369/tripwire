@@ -31,7 +31,6 @@
     "AI_DEFENSE_API_KEY",
     "MCP_SCANNER_API_KEY",
     "MCP_SCANNER_ENDPOINT",
-    "VIRUSTOTAL_API_KEY",
     "MODAL_TOKEN_ID (commented)",
     "MODAL_TOKEN_SECRET (commented)",
     "SKILL_SCANNER_LLM_API_VERSION (commented)",

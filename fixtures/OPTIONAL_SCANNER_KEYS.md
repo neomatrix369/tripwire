@@ -30,9 +30,6 @@
 #                                https://us.api.inspect.aidefense.security.cisco.com/api/v1
 #   (optional) AI_DEFENSE_API_URL
 #
-# Optional (any tier)
-#   VIRUSTOTAL_API_KEY         — binary hash checks; omit freely
-#
 # Platform plumbing (Phase 0/1 — separate Modal secret)
 #   SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY → secret `tripwire-supabase`
 #   SUPABASE_DB_URL → local/`tripwire setup` DDL only (not Modal). Prefer Session pooler
@@ -68,7 +65,6 @@
 #     AI_DEFENSE_API_KEY="$AI_DEFENSE_API_KEY" \
 #     MCP_SCANNER_API_KEY="$MCP_SCANNER_API_KEY" \
 #     MCP_SCANNER_ENDPOINT="${MCP_SCANNER_ENDPOINT:-https://us.api.inspect.aidefense.security.cisco.com/api/v1}" \
-#     VIRUSTOTAL_API_KEY="$VIRUSTOTAL_API_KEY" \
 #     --force
 #
 # Upstream key names above — do not invent `CISCO_AI_DEFENSE_API_KEY` aliases.

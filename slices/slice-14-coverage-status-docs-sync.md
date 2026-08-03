@@ -10,6 +10,9 @@ and `docs/user-guide/*`) into a single onboarding flow that clearly answers:
 - What commands are used regularly?
 - What commands are maintenance tasks?
 
+Also remove stale optional scanner-reference material from docs/code and verify key
+inventory alignment in `.env.example` / env-var guidance.
+
 ## Scope
 
 - `README.md`
@@ -17,6 +20,11 @@ and `docs/user-guide/*`) into a single onboarding flow that clearly answers:
 - `docs/README.md`
 - `docs/user-guide/prerequisites.md`
 - `docs/user-guide/onboarding-cheatsheet.md` *(new)*
+- `scripts/_modal_env_split.py`
+- `fixtures/OPTIONAL_SCANNER_KEYS.md`
+- `docs/user-guide/env-vars.md`
+- `docs/research/adapters/scanner-output-adapters.md`
+- `docs/plan/gate-evidence/slice-17.json`
 - `fixtures/README.md` *(link-target verification only, no content change)*
 
 Out of scope:
@@ -31,6 +39,10 @@ Out of scope:
 - `/docs/README.md` — updated doc map, first-stop links
 - `/docs/user-guide/prerequisites.md` — explicit version checks + platform dependency clarification
 - `/docs/user-guide/onboarding-cheatsheet.md` — new command-by-command onboarding artifact
+- `/scripts/_modal_env_split.py` — remove deprecated scanner key from Modal split allowlist
+- `/fixtures/OPTIONAL_SCANNER_KEYS.md` and `/docs/user-guide/env-vars.md` — remove deprecated scanner key documentation
+- `/docs/research/adapters/scanner-output-adapters.md` — remove deprecated analyzer mention from adapter docs
+- `/docs/plan/gate-evidence/slice-17.json` — sync env-key evidence inventory
 
 ## Execution notes
 
@@ -51,6 +63,9 @@ Out of scope:
 - `README.md` and `QUICKSTART.md` clearly separate one-off setup, regular, and maintenance commands.
 - `docs/user-guide/prerequisites.md` documents platform vs non-platform requirements.
 - No command snippet appears without a working target path or command context.
+- `SUPABASE_ANON_KEY` remains present in `.env.example` and is consistently documented.
+- Deprecated scanner key references are removed from this slice's target
+  doc/code paths.
 
 ## Review disposition
 
