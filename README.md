@@ -26,118 +26,51 @@ System shape: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 | Role / path | Expected setup | Start here |
 |---------|----------------|------------|
-| **Normal users** | Node 22 only | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#normal-users) |
-| **Developers** | Node 22 + Python 3.12 + CLI + git | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#developers) |
-| **Security experts** | Node 22 + Python 3.12 + scanner tooling | [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md#security-experts) |
+| **Normal users** | Node 22 only | [docs/user-guide/persona-commands.md#normal-users](docs/user-guide/persona-commands.md#normal-users) |
+| **Developers** | Node 22 + Python 3.12 + CLI + git | [docs/user-guide/persona-commands.md#developers](docs/user-guide/persona-commands.md#developers) |
+| **Security experts** | Node 22 + Python 3.12 + scanner tooling | [docs/user-guide/persona-commands.md#security-experts](docs/user-guide/persona-commands.md#security-experts) |
 
-## One-time prerequisites (before first use)
+## Start here
 
-Use this checklist first:
+### Baseline prerequisites
 
-```bash
-git --version
-node -v      # must match .nvmrc (v22)
-python3 -V   # must match .python-version (3.12)
-```
+Check all role requirements in:
 
-- **Baseline docs:** [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
-- **Environment keys:** [docs/user-guide/env-vars.md](docs/user-guide/env-vars.md)
-- **Role overlap note:** people can be both security experts and developers. Pick the path that matches your current goal.
+- [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
+- [docs/user-guide/env-vars.md](docs/user-guide/env-vars.md)
 
-## One-off setup and command categories
+Use the snippets from [prerequisites.md](docs/user-guide/prerequisites.md) to run your own local checks.
 
-### Setup (normal users)
+### Shared setup command catalog
 
-No credentials required.
+All one-off setup and periodic maintenance commands are maintained in one place:
 
-```bash
-git clone https://github.com/neomatrix369/tripwire.git
-cd tripwire
-node scripts/serve-dashboard.mjs
-```
+- [docs/user-guide/setup-commands.md](docs/user-guide/setup-commands.md)
 
-Open: `http://127.0.0.1:8765/Tripwire.dc.html`, then set Guard → Data source → **Mock (demo data)**.
+### Persona commands
 
-### Setup (developers)
+- [Normal users](docs/user-guide/persona-commands.md#normal-users): demo-only onboarding
+- [Developers](docs/user-guide/persona-commands.md#developers): fixture discovery and local checks
+- [Security experts](docs/user-guide/persona-commands.md#security-experts): Live setup, scan, and dashboard validation
 
-Install CLI dependencies and run a fixture-only dry scan.
+### Path-specific entrypoints
 
-```bash
-cd cli && npm install && npm link && cd ..
-tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
-```
+See [QUICKSTART.md](QUICKSTART.md) for role-specific start points and objective-based sequencing.
 
-### Setup (security experts)
+## Troubleshooting and contribution
 
-Provision accounts + keys first, then bootstrap schema and Modal.
-
-```bash
-cp .env.example .env
-# fill keys from:
-# docs/user-guide/env-vars.md
-cd cli && npm install && npm link && cd ..
-tripwire setup
-# or: ./scripts/setup-supabase.sh
-pip install modal
-./scripts/setup-modal.sh
-tripwire scan ./fixtures/skills/safe-csv-cleaner
-```
-
-## Regular commands (day-to-day use)
-
-### Normal users
-
-```bash
-node scripts/serve-dashboard.mjs
-tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
-```
-
-### Developers
-
-```bash
-tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json
-```
-
-### Security experts
-
-```bash
-tripwire scan ./fixtures/skills/safe-csv-cleaner
-tripwire scan ./fixtures/mcp/mcp_manifest.json
-node scripts/serve-dashboard.mjs
-```
-
-## Maintenance commands (periodic)
-
-Use these when something changes (fixtures, schema, scanner keys, dependencies).
-
-```bash
-tripwire setup --force                     # re-apply latest DB schema
-./scripts/setup-modal.sh --secrets-only     # sync keys without redeploy
-./scripts/setup-modal.sh --deploy-only      # redeploy sandbox
-./scripts/quality-gates.sh --quick          # pre-commit check
-./scripts/quality-gates.sh                 # full project gates
-```
-
-Project-specific cleanup:
-
-```bash
-cd cli && npm test                        # CLI tests
-cd prototypes/dc-dashboard && npm test     # dashboard coverage checks
-pytest sandbox/test_acquire_target.py       # sandbox smoke
-```
-
-## Troubleshooting shortcuts
+### Troubleshooting shortcuts
 
 - Live dashboard blank or stale? Switch between **Mock** and **Live** on Guard tab.
 - Live selected but no data: ensure `SUPABASE_ANON_KEY` or local proxy is configured.
 - Missing scanner output: confirm keys in `.env` and re-run `./scripts/setup-modal.sh --secrets-only`.
 - Dry-discover is failing: verify `node_modules` was installed in `cli/` and `npm link` was run.
 
-## Contribute
+### Contribute
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports: [SECURITY.md](SECURITY.md).
 
-## Learn more
+### Learn more
 
 - Docs index: [docs/README.md](docs/README.md)
 - New operator onboarding cheat sheet: [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md)

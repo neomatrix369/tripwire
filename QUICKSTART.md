@@ -1,128 +1,85 @@
 # Quickstart
 
-> Start here for the fastest setup. Then follow `README.md` for all related docs and contribution paths.
+> Fast entrypoint by role and objective.
 
-Pick one path:
+Pick one path, verify prerequisites, then follow the linked persona flow.
 
-- [Normal users](#normal-users) (no cloud)
-- [Developers](#developers) (no cloud by default)
-- [Security experts](#security-experts) (live/credentialed)
+## Paths
 
-```mermaid
-flowchart LR
-  start[I want to...] --> demo[Normal users]
-  start --> scan[Developers]
-  start --> platform[Security experts]
-  demo --> mockDash[Mock dashboard]
-  scan --> dryDiscover[dry-discover fixture]
-  platform --> fullStack[Supabase + Modal + Live]
-```
+| Path | Setup prerequisites | Start here |
+|---|---|---|
+| Normal users | [Node 22](docs/user-guide/prerequisites.md#tool-prerequisites) + [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md) | [docs/user-guide/persona-commands.md#normal-users](docs/user-guide/persona-commands.md#normal-users) |
+| Developers | [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md) | [docs/user-guide/persona-commands.md#developers](docs/user-guide/persona-commands.md#developers) |
+| Security experts | [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md) + [setup-commands.md](docs/user-guide/setup-commands.md) + [env-vars.md](docs/user-guide/env-vars.md) + [supabase-setup.md](docs/user-guide/supabase-setup.md) + [modal-setup.md](docs/user-guide/modal-setup.md) | [docs/user-guide/persona-commands.md#security-experts](docs/user-guide/persona-commands.md#security-experts) |
 
----
+## Shared setup reference
+
+- [Setup command catalog](docs/user-guide/setup-commands.md)
+- [Persona flows](docs/user-guide/persona-commands.md)
+- [Supabase setup](docs/user-guide/supabase-setup.md)
+- [Modal setup](docs/user-guide/modal-setup.md)
+- [Environment keys](docs/user-guide/env-vars.md)
+
+## Daily workflow
+
+- [Maintenance and bootstrap commands](docs/user-guide/setup-commands.md#re-run-and-maintenance-commands)
+- [Regular checks](docs/user-guide/setup-commands.md#3-test-commands-when-needed)
 
 ## Normal users
 
-See the dashboard in about two minutes. No Supabase or Modal required if you use
-**Mock (demo data)**.
+Objective: see a running dashboard in Mock mode quickly.
 
-**Prerequisites:** Git, **Node.js 22** (`.nvmrc`). Tool matrix:
-[docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md).
+1. [Confirm Node 22](docs/user-guide/prerequisites.md#node-version).
+2. Follow the quick normal-user flow in [persona-commands.md#normal-users](docs/user-guide/persona-commands.md#normal-users) and start:
 
 ```bash
-git clone https://github.com/neomatrix369/tripwire.git
-cd tripwire
 node scripts/serve-dashboard.mjs
-# open http://127.0.0.1:8765/Tripwire.dc.html
-# Guard tab → Data source → Mock (demo data)
-# (Live is UI default)
 ```
 
-**Success:** Dashboard loads and status chip shows **Demo data**.
-
----
+3. In Guard, select **Mock (demo data)** and verify cards populate.
 
 ## Developers
 
-Install CLI dependencies and run fixture discovery without external accounts.
+Objective: run fixture discovery without cloud accounts.
 
-**Prerequisites:** Git, **Node.js 22**, npm —
-[docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md).
+1. [Confirm Node 22 and Python 3.12](docs/user-guide/prerequisites.md).
+2. Use [persona-commands.md#developers](docs/user-guide/persona-commands.md#developers) for:
+   - `tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner`
+   - `tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json`
+3. If you need local dashboard context, run:
 
 ```bash
-cd cli && npm install && npm link
-cd ..
-tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
+node scripts/serve-dashboard.mjs
 ```
-
-`--dry-discover` prints discovered targets and exits **without** spawning Modal.
-
-**Success:** CLI prints discovered skill/MCP targets and exits 0.
-
-See fixtures and expected fixture behavior: [fixtures/README.md](fixtures/README.md).
-
----
 
 ## Security experts
 
-Run schema bootstrap, secrets sync/deploy, full scan, and Live dashboard.
+Objective: configure and run Live scans.
 
-**Prerequisites:** Node.js 22, Python 3.12 + `modal`, Supabase + Modal accounts.
-Complete setup guides before copying `.env`:
-
-1. [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
-2. [docs/user-guide/supabase-setup.md](docs/user-guide/supabase-setup.md)
-3. [docs/user-guide/modal-setup.md](docs/user-guide/modal-setup.md)
-4. [docs/user-guide/env-vars.md](docs/user-guide/env-vars.md)
+1. [Confirm all operator prerequisites](docs/user-guide/prerequisites.md).
+2. Run setup docs in order:
+   - [supabase-setup.md](docs/user-guide/supabase-setup.md)
+   - [modal-setup.md](docs/user-guide/modal-setup.md)
+   - [env-vars.md](docs/user-guide/env-vars.md)
+3. Bootstrap env and secrets:
 
 ```bash
 cp .env.example .env
-# Fill required values using env-vars.md first.
-
-cd cli && npm install && npm link && cd ..
 tripwire setup
-# if schema changed later:
-tripwire setup --force
-
-pip install modal
 ./scripts/setup-modal.sh
-
-tripwire scan ./fixtures/skills/safe-csv-cleaner
-tripwire scan ./fixtures/mcp/mcp_manifest.json
-
-node scripts/serve-dashboard.mjs
-# Guard tab → Live (Supabase)
 ```
 
-**Success:** Dashboard shows scan runs in Live mode (or empty if no matching findings
-and services are healthy).
+4. Continue in [persona-commands.md#security-experts](docs/user-guide/persona-commands.md#security-experts).
 
-Useful references:
-[env-vars.md](docs/user-guide/env-vars.md) · [.env.example](.env.example) ·
-[OPTIONAL_SCANNER_KEYS.md](fixtures/OPTIONAL_SCANNER_KEYS.md)
+## Troubleshooting shortcuts
 
----
-
-## Regular checks (run after any significant change)
-
-```bash
-cd cli && npm test
-pytest sandbox/test_acquire_target.py
-cd prototypes/dc-dashboard && npm test
-./scripts/quality-gates.sh --quick
-```
-
-Use full checks only when preparing commit/PR:
-
-```bash
-./scripts/quality-gates.sh
-```
-
----
+- Live dashboard blank or stale → switch data source between Mock and Live in Guard.
+- Missing scanner output → verify setup commands and key provisioning.
+- `dry-discover` failures → confirm `cli` dependencies and `npm link` are done.
 
 ## Next steps
 
 - Docs map: [docs/README.md](docs/README.md)
-- New starter path: [docs/user-guide/onboarding-cheatsheet.md](docs/user-guide/onboarding-cheatsheet.md)
 - Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Capability status: [docs/STATUS.md](docs/STATUS.md)
 - Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)

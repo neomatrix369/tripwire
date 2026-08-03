@@ -1,60 +1,42 @@
 # Prerequisites
 
-> Tools and accounts by role. Verify versions before copying `.env`.
+> Canonical prerequisite page for all onboarding and command execution.
 
 Pins: Node **22** (`.nvmrc`) · Python **3.12** (`.python-version`).
 
-This file answers “what I need before running commands” by path.
+Use this page to determine what must be ready before running any command sequence.
 
-## Choose your path
+## Roles and requirements
 
-| Role | Tools | Cloud accounts | Next |
-|---------|-------|----------------|------|
-| **Normal users** | Git, Node 22, npm | None | [QUICKSTART → Normal users](../../QUICKSTART.md#normal-users) — select **Mock** |
-| **Developers** | Git, Node 22, npm, Python 3.12 (optional locally) | Optional: None | [QUICKSTART → Developers](../../QUICKSTART.md#developers) |
-| **Security experts** | Git, Node 22, npm, Python 3.12, `modal` CLI | Supabase + Modal | [supabase-setup](./supabase-setup.md) → [modal-setup](./modal-setup.md) → [env-vars](./env-vars.md) |
+| Role | Tools | Accounts |
+|---|---|---|
+| **Normal users** | Git, Node 22, npm | None |
+| **Developers** | Git, Node 22, npm, Python 3.12 (optional locally) | None |
+| **Security experts** | Git, Node 22, npm, Python 3.12, `modal` CLI | Supabase + Modal |
 
-Normal users and developers can start without Supabase or Modal; all paths share the same local bootstrap. Security experts add cloud credentials and perform full scan flow after the local baseline.
-Procure cloud accounts and keys **before** `cp .env.example .env`.
-
-## Verify versions
+## Before you start
 
 ```bash
-node -v    # v22.x (nvm use / fnm use if needed)
-python3 -V # Python 3.12.x
 git --version
+node -v      # v22.x (.nvmrc)
+python3 -V   # 3.12.x (.python-version)
 ```
 
-Optional (security experts only):
+- Use the [setup command catalog](./setup-commands.md) for concrete command runs.
+- Use the [persona command guide](./persona-commands.md) for role-specific workflows.
 
-```bash
-pip install modal
-modal --version
-```
+## Account-specific notes
 
-## Dependency quick-check
+- Security experts must provision Supabase + Modal **before** copying `.env.example` to `.env`.
+- If you are not running Live scans, keep setup cloud-free and use demo mode for dashboard checks.
 
-```bash
-cd cli
-npm install
-cd ..
-node scripts/serve-dashboard.mjs
-```
+## Role outcomes
 
-If `npm install` fails in `cli/`, rerun with a clean Node 22 environment:
+- **Normal users**: dashboard access via demo mode without cloud dependencies.
+- **Developers**: run fixture-only discovery and iterate safely.
+- **Security experts**: run schema bootstrap, modal secret sync/deploy, and full scanner flows.
 
-```bash
-nvm use 22
-cd cli
-rm -rf node_modules
-npm install
-cd ..
-```
+## Secrets SSOT
 
-## What each role does
-
-- **Normal users** — open the dashboard with Mock data. Live is the UI default; switch to **Mock (demo data)** on the Guard tab.
-- **Developers** — run and iterate `tripwire scan --dry-discover` on fixtures while improving the tool. No Modal spawn by default.
-- **Security experts** — apply schema, sync Modal secrets, run real scans, and review Live findings.
-
-Secrets SSOT: [env-vars.md](./env-vars.md). Allowlist notes: [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md).
+- `.env` keys: [env-vars.md](./env-vars.md)
+- Optional key allowances: [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md)

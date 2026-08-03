@@ -72,14 +72,14 @@ Out of scope:
 - Slice artifact is ready for `/nw-review` (`@nw-software-crafter`, `implementation` or
   `step` depending on process mode) before merge.
 
-## Manual review findings captured (pending implementation approval)
+## Manual review findings captured (historical, now reflected)
 
-- [ ] Docs map anchor repair (SUGGESTION): `docs/README.md` references
+- [x] Docs map anchor repair (SUGGESTION): `docs/README.md` references
   `../README.md#run-it` (line 7) which does not exist. Update the anchor to an
   existing README heading (for example `#choose-your-path`) or equivalent real
   section.
-- [ ] Command placeholder repair (SUGGESTION): `docs/user-guide/onboarding-cheatsheet.md`
+- [x] Command placeholder repair (SUGGESTION): `docs/user-guide/onboarding-cheatsheet.md`
   contains `tripwire setup && ./scripts/setup-modal.sh && tripwire scan ...`
   (line ~12). Replace `...` with a concrete fixture path to preserve one-command
   executability for new operators.
-- [ ] Execution hold: apply the above two doc edits only after explicit user prompt/approval.
+- [x] Execution hold: addressed through slice-17 onboarding sync and subsequent user-facing doc edits.

@@ -13,8 +13,8 @@ Guides for **Tripwire**, by who you are and what you want to do.
 | Role | Start here | Then |
 |------|------------|------|
 | **Normal users** | [user-guide/onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md) | [QUICKSTART → Normal users](../QUICKSTART.md#normal-users) (select **Mock**) |
-| **Developers** | [user-guide/prerequisites](./user-guide/prerequisites.md) | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md#developers) |
-| **Security experts** | [prerequisites](./user-guide/prerequisites.md) → [supabase](./user-guide/supabase-setup.md) → [modal](./user-guide/modal-setup.md) → [env-vars](./user-guide/env-vars.md) | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md#security-experts) |
+| **Developers** | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md) → [prerequisites](./user-guide/prerequisites.md) → [setup-commands](./user-guide/setup-commands.md) | [Persona commands](./user-guide/persona-commands.md#developers) |
+| **Security experts** | [prerequisites](./user-guide/prerequisites.md) → [env-vars](./user-guide/env-vars.md) → [setup-commands](./user-guide/setup-commands.md) → [supabase-setup](./user-guide/supabase-setup.md) → [modal-setup](./user-guide/modal-setup.md) | [persona-commands.md#security-experts](./user-guide/persona-commands.md#security-experts) |
 | **Maintainers** | [CONTRIBUTING.md](../CONTRIBUTING.md) | [ARCHITECTURE.md](./ARCHITECTURE.md) · [plan/PROGRESS.md](./plan/PROGRESS.md) |
 | **Security and reporting stakeholders** | [SECURITY.md](../SECURITY.md) · [prototypes/README.md](../prototypes/README.md) | [fixtures/README.md](../fixtures/README.md) · [STATUS.md](./STATUS.md) |
 | **Planning / slice workflows** | [AGENTS.md](../AGENTS.md) · [CLAUDE.md](../CLAUDE.md) | [plan/PROGRESS.md](./plan/PROGRESS.md) · [plan/TRAIL.md](./plan/TRAIL.md) |
@@ -23,9 +23,9 @@ Guides for **Tripwire**, by who you are and what you want to do.
 
 | Path | Cloud? | First docs |
 |------|--------|------------|
-| Normal users | No | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md) → QUICKSTART → Normal users |
-| Developers | No (optional cloud later) | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md#developers) → `tripwire scan --dry-discover` |
-| Security experts | Yes | prerequisites → supabase-setup → modal-setup → env-vars → QUICKSTART → Security experts |
+| Normal users | No | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md) → [setup-commands](./user-guide/setup-commands.md) → [QUICKSTART](../QUICKSTART.md#normal-users) |
+| Developers | No (optional cloud later) | [onboarding-cheatsheet](./user-guide/onboarding-cheatsheet.md) → [setup-commands](./user-guide/setup-commands.md) → [QUICKSTART](../QUICKSTART.md#developers) → [persona-commands](./user-guide/persona-commands.md#developers) |
+| Security experts | Yes | [setup-commands](./user-guide/setup-commands.md) → [supabase-setup](./user-guide/supabase-setup.md) → [modal-setup](./user-guide/modal-setup.md) → [env-vars](./user-guide/env-vars.md) |
 
 ---
 
@@ -33,10 +33,12 @@ Guides for **Tripwire**, by who you are and what you want to do.
 
 | Doc | What it covers |
 |-----|----------------|
-| [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) | One-shot setup + one-off/regular/maintenance commands |
+| [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) | Persona route map for role-first onboarding |
 | [QUICKSTART.md](../QUICKSTART.md) | Normal users / Developers / Security experts paths |
 | [user-guide/prerequisites.md](./user-guide/prerequisites.md) | Role × tool matrix; Node 22 / Python 3.12 |
+| [user-guide/setup-commands.md](./user-guide/setup-commands.md) | Shared one-off setup and maintenance command catalog |
 | [user-guide/env-vars.md](./user-guide/env-vars.md) | Procurement SSOT for `.env.example` keys |
+| [user-guide/persona-commands.md](./user-guide/persona-commands.md) | Persona-specific command playbooks |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | C4 L1–L2 diagrams, key flows, repo layout |
 | [STATUS.md](./STATUS.md) | RESEARCH / IMPLEMENTED / VERIFIED claims |
 | [CONTRIBUTING.md](../CONTRIBUTING.md) | Dev setup, hygiene gates, PR conventions |

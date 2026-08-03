@@ -1,13 +1,13 @@
 {
   "slice": 17,
-  "date": "2026-08-02",
-  "branch": "slice/17-user-guide-onboarding",
+  "date": "2026-08-03",
+  "branch": "slice/17-user-guide-onboarding-docs-optional-scanner-keys-format",
   "verdict": "PASS",
   "before_checks": "all green",
   "after_checks": [
     "user-guide files exist",
     "env-vars rows cover .env.example keys",
-    "QUICKSTART Platform links setup before cp .env; Demo Node 22 + Mock",
+    "QUICKSTART includes persona anchors + Node 22 + Mock guidance",
     "README Run-it → prereqs/env-vars; docs/README Choose Your Path; CONTRIBUTING step 0 ≤80",
     "README 4 H2s ≤100 lines",
     "no Overmind/Ossprey in README/QUICKSTART/CONTRIBUTING",
@@ -40,19 +40,31 @@
   ],
   "commands": [
     {
-      "cmd": "ls docs/user-guide/{prerequisites,supabase-setup,modal-setup,env-vars}.md",
-      "result": "all four exist"
+      "cmd": "ls docs/user-guide/{prerequisites,supabase-setup,modal-setup,env-vars,setup-commands,persona-commands,onboarding-cheatsheet}.md",
+      "result": "all seven guide files exist (including onboarding-cheatsheet.md, persona-commands.md, setup-commands.md)"
     },
     {
       "cmd": "rg '^## ' README.md; wc -l README.md CONTRIBUTING.md",
       "result": "4 H2s; README 77; CONTRIBUTING 71"
     },
     {
+      "cmd": "rg -n '^## (Normal users|Developers|Security experts)$' QUICKSTART.md",
+      "result": "anchors present for all three persona paths"
+    },
+    {
+      "cmd": "rg -n 'cp \\.env\\.example \\.env|supabase-setup\\.md|modal-setup\\.md|env-vars\\.md' docs/user-guide/setup-commands.md",
+      "result": "security section now orders supabase/modal/env links before environment bootstrap command"
+    },
+    {
+      "cmd": "rg -n 'onboarding-cheatsheet\\.md#(developers|security-experts)|QUICKSTART\\.md#(normal-users|developers|security-experts)' README.md docs/README.md QUICKSTART.md docs/user-guide/onboarding-cheatsheet.md",
+      "result": "onboarding-cheatsheet hash anchors removed where no matching heading existed"
+    },
+    {
       "cmd": "rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md",
       "result": "empty"
     }
   ],
-  "review": "docs-only DECISIONS 2026-08-02",
+  "review": "docs-only DECISIONS 2026-08-03",
   "pr": null,
   "spec_path": "docs/plan/slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md"
 }
