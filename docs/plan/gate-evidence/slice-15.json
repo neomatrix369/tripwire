@@ -5,6 +5,8 @@
   "verdict": "NOT_RUN",
   "before_checks": "pending — plan execution not started",
   "after_checks": [
+    "ship-path coverage claim matches coverage-audit.md and slice-11–13 evidence (pending execution capture)",
+    "Nightly mutmut and Chalk are recorded as non-gating (pending execution capture)",
     "claim-audit matrix exists with PASS/FAIL/PARTIAL rows and evidence paths",
     "Bugbot/audit command result recorded (or 3C blocker documented in DECISIONS)",
     "Security scan command result recorded (or 3C blocker documented in DECISIONS)",
@@ -13,6 +15,14 @@
     "review disposition recorded (APPROVED / explicit exception)"
   ],
   "commands": [
+    {
+      "cmd": "rg -n \"95\\.91|99\\.75|98\\.48|fail_under=95|85% branches|80% branches\" docs/plan/coverage-audit.md docs/plan/claim-audit.md",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: ship-path coverage claim consistency"
+    },
+    {
+      "cmd": "rg -n \"Nightly mutmut and Chalk|non-gating\" CONTRIBUTING.md docs/plan/coverage-audit.md docs/plan/claim-audit.md",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: mutation-status claim consistency"
+    },
     {
       "cmd": "uv run python -m tripwire.audit",
       "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: preferred if module available"

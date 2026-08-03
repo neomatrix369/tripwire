@@ -65,6 +65,8 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
   - target date
 
 ## After-Checks [GATE]
+- [ ] Ship-path coverage claim matches `docs/plan/coverage-audit.md` and evidence for slices 11–13: Python `95.91%` / `fail_under=95`, CLI `99.75%` lines / `85%` branches, and Live ACL `98.48%` lines / `80%` branches
+- [ ] Mutation-test language remains accurately marked non-gating (`Nightly mutmut and Chalk` in `CONTRIBUTING.md` and `coverage-audit.md`)
 - [ ] Claim inventory file exists (path list in `docs/plan/coverage-audit.md` + `docs/STATUS.md`) and each claim is marked PASS/FAIL/PARTIAL + evidence path in findings artifact
 - [ ] Findings artifact exists (`docs/plan/claim-audit.md` or canvas path) with complete claim matrix and evidence links
 - [ ] Bugbot check command + pass/fail recorded **or** blocker recorded as 3C request in `DECISIONS.md`
