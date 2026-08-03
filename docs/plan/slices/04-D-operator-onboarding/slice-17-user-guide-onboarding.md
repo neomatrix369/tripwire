@@ -238,3 +238,31 @@ review:
 |--------|-------|
 | Estimated Pomos | 2 (~50 min) |
 | Next after PASS | Phase 2 docs slice (18+) or coverage Must 8 |
+
+## Independent Implementation Review
+
+### Fallback review metadata (2026-08-03)
+
+```yaml
+review:
+  verdict: APPROVED
+  reviewer: Codex independent software-crafter implementation reviewer
+  review_mode: fallback_independent_review
+  fallback_reason: nw-software-crafter-reviewer was not dispatchable in this environment
+  step_id: 17
+  artifact: docs/plan/slices/04-D-operator-onboarding/slice-17-user-guide-onboarding.md
+  branch: slice/17-user-guide-onboarding-docs-optional-scanner-keys-format
+  committed_head: 01fab749c5a1f85966901e4df30af37a053d0ca1
+  scope_reviewed:
+    - merged Mock-dashboard behavior and local server configuration
+    - onboarding command paths and credential-procurement guidance
+    - .env.example, Modal scanner-secret allowlist, and slice-17 gate evidence
+  verification: documentation and implementation claims inspected against committed branch; no commands or test suite run
+```
+
+### Conventional Comments
+
+- **praise:** The Mock-dashboard promise is implemented at both boundaries: the dashboard initializes in `mock` mode and `serve-dashboard.mjs` writes no browser Live configuration unless a Supabase URL and API key are available. The onboarding flow accurately directs local validation to Mock and makes Live an explicit capability-dependent step.
+- **praise:** The documentation consolidation has a clear ownership boundary: `setup-commands.md` is the executable command source, `env-vars.md` owns vendor/key procurement, and `OPTIONAL_SCANNER_KEYS.md` is restricted to the Modal secret projection. This resolves the prior duplicated and broken onboarding paths without hiding the operational constraints.
+
+No `issue`, `suggestion`, or `nitpick` comments were identified in the reviewed committed scope.
