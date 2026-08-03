@@ -7,14 +7,14 @@
 - Baseline merged: PR #38 (`0d62ddb`) — practical setup flow and Mock-without-credentials behaviour.
 - Phase 1b branch: `slice/17-onboarding-documentation-ux`
 - Phase 1b commit: `docs(slice-17): clarify first-run documentation journey`
-- Exit criteria: People comfortable with installation and ongoing maintenance can complete one practical setup flow with no private references; local validation and live capabilities are described by task rather than user role; every `.env.example` key has a row in `env-vars.md`; prerequisites, setup commands, and task-specific commands are in separate, linked docs; and a first-time visitor can start the Mock dashboard, understand the Discover → Scan → Review workflow, and find deeper documentation without badges or planning detail obscuring the path.
+- Exit criteria: People comfortable with installation and ongoing maintenance can complete one practical setup flow with no private references; local validation and live capabilities are described by task rather than user role; every `.env.example` key has a row in `env-vars.md`; prerequisites, setup commands, and task-specific commands are in separate, linked docs; and a first-time visitor can follow accounts → `.env` → bootstrap → scan → Live dashboard, understand the Discover → Scan → Review workflow, and use Mock only as an optional UI preview.
 
 ## Decisions captured
 - Adopt **rag-params-finder principles** (task → setup guide → `.env` → run; Choose Your Path) — **not** RPF’s long marketing README.
 - Lean README stays (documentation-best-practices); depth lives in `docs/user-guide/`.
 - **Phase 1 (this slice):** shared local prerequisites, `setup-commands`, task-based command guidance, `supabase-setup`, `modal-setup`, `env-vars` + wire QUICKSTART/README/docs index/CONTRIBUTING.
 - **Phase 2 (later slice, e.g. 18):** troubleshooting, CLI ref, dashboard-guide, contributor-guide, ADRs, screenshots — out of scope here.
-- **Phase 1b (this follow-up):** GitHub-native documentation UX for the public README and docs index: a calm, evidence-led first-run path, workflow-first hierarchy, and compact proof row. It is Markdown-only: no dashboard redesign, screenshots, CSS, fonts, graph engine, or dependency work.
+- **Phase 1b (this follow-up):** GitHub-native documentation UX for the public README and docs index: a calm, evidence-led Live-first path (accounts → `.env` → bootstrap → scan → dashboard), workflow-first hierarchy, and compact top-of-page proof row. Mock is an optional preview, not the setup substitute. It is Markdown-only: no dashboard redesign, screenshots, CSS, fonts, graph engine, or dependency work.
 - One practical path: install Node 22 and Python 3.12, use `tripwire scan --dry-discover` and the mock dashboard as optional local validation, then configure live capabilities when needed.
 - The local dashboard must start with built-in Mock data when Supabase credentials are absent; Live remains an explicit selectable mode once configured.
 - Supabase, Modal, and scanner credentials are capability-dependent setup steps; provision required accounts and keys **before** `cp .env.example` when using those capabilities.
@@ -45,8 +45,9 @@
 | `fixtures/OPTIONAL_SCANNER_KEYS.md` | narrowed — Modal scanner-secret allowlist and helper-only synchronization behavior |
 | `.env.example` | light cross-links to env-vars.md |
 | `QUICKSTART.md` | One practical onboarding flow; validation-only in Phase 1b unless a moved link needs correction |
-| `README.md` | Phase 1: links to setup guidance; Phase 1b: public landing-page hierarchy, credential-free Mock first run, workflow overview, compact proof row |
-| `docs/README.md` | Phase 1: practical setup sequence; Phase 1b: task-oriented documentation navigation hub |
+| `README.md` | Phase 1: links to setup guidance; Phase 1b: public landing-page hierarchy, top proof row, credential-free Mock first run, workflow overview |
+| `docs/README.md` | Phase 1: practical setup sequence; Phase 1b: top CI proof row and task-oriented documentation navigation hub |
+| `QUICKSTART.md`, `CONTRIBUTING.md`, `SECURITY.md`, `docs/{ARCHITECTURE,STATUS}.md`, `fixtures/README.md`, `prototypes/README.md` | existing badge rosters moved to the top of their pages; badges and links unchanged |
 | `CONTRIBUTING.md` | step 0 prerequisites; keep ≤80 lines |
 | `docs/plan/SMOKE_TESTS.md` | End-to-end docs smoke-test plan and script |
 | `scripts/serve-dashboard.mjs`, `prototypes/dc-dashboard/` | Mock-without-credentials dashboard serving and explicit Live selection |
@@ -57,7 +58,7 @@
 
 **Optional local validation** — Given the local prerequisites; When they run `tripwire scan --dry-discover` against a fixture or start the dashboard without Supabase credentials; Then the dashboard opens in Mock mode and they can select Live after configuring Supabase, without treating either mode as a separate audience path.
 
-**First-run documentation journey (Phase 1b)** — Given a visitor new to Tripwire; When they open the README and follow the primary Mock-dashboard action; Then they see the expected credential-free result, understand Discover → Scan → Review, and can reach the local validation, Live setup, status, architecture, and contribution paths without reading plan artifacts.
+**First-run documentation journey (Phase 1b)** — Given a visitor new to Tripwire; When they open the README and follow the primary Live setup action; Then they are led through prerequisites → provider accounts → `.env` → bootstrap → fixture scan → Live dashboard, understand Discover → Scan → Review, and can reach the optional Mock preview, status, architecture, and contribution paths without reading plan artifacts.
 
 ## Before-Checks [GATE]
 - [x] Branch `slice/17-user-guide-onboarding`
@@ -83,11 +84,11 @@
 - [x] Phase 1 baseline is recorded as merged in PR #38; PROGRESS/TRAIL show the Phase 1b documentation UX follow-up as 🔨
 - [ ] `docs/plan/gate-evidence/slice-17.json` records Phase 1b as `IN_PROGRESS` and becomes `PASS` only after its fresh review and merge
 - [x] End-to-end task-based onboarding simulation executed against docs flow and captured below
-- [x] README opens with Tripwire’s purpose and a credential-free Mock-dashboard action before badges or deep setup detail
+- [x] README opens with Tripwire’s purpose and proof badges, then an ordered Live setup action before the optional Mock preview
 - [x] pgGraph/Graphify layout and style findings are recorded above with explicit adopt/avoid boundaries
 - [x] README presents a static, accessible Discover → Scan → Review Mermaid workflow and links its deeper paths to existing documents
-- [x] README uses outcome-led capability sections and a compact proof/badge row after its primary content; no new image assets, CSS, fonts, or runtime dependencies
-- [x] `docs/README.md` exposes task routes for Try locally, Set up Live scanning, Understand results/status, and Contribute/maintain; every moved link resolves
+- [x] README uses outcome-led capability sections and a compact top-of-page proof/badge row; no new image assets, CSS, fonts, or runtime dependencies
+- [x] `docs/README.md` exposes task routes for a first Live scan, optional local preview, Understand results/status, and Contribute/maintain; every moved link resolves
 - [x] `git diff --check` and `pre-commit run markdownlint --all-files` exit 0; docs smoke route and both dry-discovery fixture commands are recorded in `gate-evidence/slice-17.json` (dashboard port limits are `blocked-by-env`)
 - [ ] Fresh documentation-scope review is recorded; Phase 1b evidence is merged before Slice 17 returns to ✅
 

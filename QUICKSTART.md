@@ -5,6 +5,35 @@
 Follow this shared flow. Use local validation when useful; for complete Live
 scan coverage, configure all five vendor paths.
 
+<!-- Primary stack -->
+[![Cursor](https://img.shields.io/badge/Cursor-000000?style=flat)](https://cursor.com)
+[![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=flat)](https://modal.com)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com)
+[![Tripwire](https://img.shields.io/badge/Tripwire-1a1a2e?style=flat)](https://github.com/neomatrix369/tripwire)
+
+<!-- Scanner & partner -->
+[![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
+[![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
+[![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
+
+## First Live scan
+
+Do these steps in order. Do not run a Live scan or expect the Live dashboard to load
+findings until the platform accounts, `.env`, schema, and Modal app are ready.
+
+1. [Confirm the prerequisites](docs/user-guide/prerequisites.md), then clone the
+   repository and [install/link the CLI](docs/user-guide/setup-commands.md#repository-and-cli-bootstrap).
+2. Create a [Supabase project](docs/user-guide/supabase-setup.md) and
+   [Modal account](docs/user-guide/modal-setup.md). For complete scanner coverage,
+   procure Snyk, Tessl, and Cisco credentials through
+   [env-vars.md](docs/user-guide/env-vars.md#vendor-procurement-quick-steps).
+3. Only after collecting the required values, create `.env` and populate it using
+   [env-vars.md](docs/user-guide/env-vars.md). Review provider billing and quotas
+   before enabling Live services.
+4. Apply the schema and deploy the scan app using the
+   [Live environment bootstrap](docs/user-guide/setup-commands.md#live-environment-bootstrap).
+5. Run the [fixture scan and Live dashboard](#live-capabilities).
+
 ## Shared setup reference
 
 - [Setup command catalog](docs/user-guide/setup-commands.md)
@@ -18,7 +47,7 @@ scan coverage, configure all five vendor paths.
 - [Maintenance and bootstrap commands](docs/user-guide/setup-commands.md#re-run-and-maintenance-commands)
 - [Regular checks](docs/user-guide/setup-commands.md#5-test-commands-when-needed)
 
-## Install and configure
+## Installation and configuration detail
 
 1. [Confirm prerequisites](docs/user-guide/prerequisites.md).
 2. Install and link the CLI using the [setup command catalog](docs/user-guide/setup-commands.md).
@@ -65,9 +94,10 @@ tripwire setup
 ./scripts/setup-modal.sh
 ```
 
-## Validate locally
+## Validate locally (optional)
 
-Use either option before configuring Live services.
+Use either option when you want to validate local tooling or preview the dashboard.
+It does not replace the account, `.env`, and deployment steps required for Live scans.
 
 Prefer the detailed local path in one place:
 
@@ -106,16 +136,3 @@ setup, re-run, and maintenance command catalog.
 - Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Capability status: [docs/STATUS.md](docs/STATUS.md)
 - Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
-
----
-
-<!-- Primary stack -->
-[![Cursor](https://img.shields.io/badge/Cursor-000000?style=flat)](https://cursor.com)
-[![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=flat)](https://modal.com)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com)
-[![Tripwire](https://img.shields.io/badge/Tripwire-1a1a2e?style=flat)](https://github.com/neomatrix369/tripwire)
-
-<!-- Scanner & partner -->
-[![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
-[![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
-[![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)

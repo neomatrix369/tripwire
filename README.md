@@ -2,10 +2,39 @@
 
 > Discover and scan AI skills and MCP servers, then review the findings in one dashboard.
 
-## Start safely
+[![CI](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/ci.yml?branch=main&label=CI)](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml)
+[![Nightly](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/nightly.yml?branch=main&label=Nightly)](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml)
+[![Cursor](https://img.shields.io/badge/Cursor-000000?style=flat&logo=cursor&logoColor=white)](https://cursor.com)
+[![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=flat)](https://modal.com)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com)
+[![Cisco Skill/MCP Scanner](https://img.shields.io/badge/Cisco%20Skill%2FMCP%20Scanner-1BA0D7?style=flat&logo=cisco&logoColor=white)](https://developer.cisco.com)
+[![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
+[![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
 
-With [Node 22](docs/user-guide/prerequisites.md) installed, open the credential-free
-Mock dashboard:
+## Run your first Live scan
+
+Follow this order before running a scan or opening the Live dashboard. The
+[Quickstart](QUICKSTART.md#first-live-scan) supplies the commands; the linked guides
+explain each decision before you make it.
+
+1. Check the required tools and [install the CLI](docs/user-guide/setup-commands.md#repository-and-cli-bootstrap).
+2. Create the accounts you need: [Supabase](docs/user-guide/supabase-setup.md),
+   [Modal](docs/user-guide/modal-setup.md), then optional scanner providers through
+   [environment-variable procurement](docs/user-guide/env-vars.md#vendor-procurement-quick-steps).
+3. Create `.env` only after you have the values, then fill it with
+   [env-vars.md](docs/user-guide/env-vars.md) as the single key reference.
+4. Bootstrap Supabase and deploy the Modal scan app with the
+   [Live setup commands](docs/user-guide/setup-commands.md#live-environment-bootstrap).
+5. Run a fixture scan and open the Live dashboard from the
+   [Quickstart](QUICKSTART.md#live-capabilities).
+
+Supabase and Modal are required for Live results. Missing optional scanner credentials
+are reported as skipped rather than silently treated as a complete scan.
+
+## Preview the dashboard (optional)
+
+Use Mock demo data only when you want a no-account look at the UI; it does not replace
+the Live setup above or produce a scan result.
 
 ```bash
 git clone https://github.com/neomatrix369/tripwire.git
@@ -14,14 +43,6 @@ node scripts/serve-dashboard.mjs
 ```
 
 Open [http://127.0.0.1:8765/Tripwire.dc.html](http://127.0.0.1:8765/Tripwire.dc.html).
-It starts with Mock demo data when Supabase is not configured; select Live only after
-you have configured it. No account or secret is needed for this first look.
-
-| Instead of… | You can… |
-|---|---|
-| Starting with provider credentials | Explore a local Mock dashboard first |
-| Guessing what to scan | Discover skills and MCP servers with the CLI |
-| Losing scan evidence across tools | Review findings in one dashboard |
 
 ## What happens next
 
@@ -39,8 +60,8 @@ flowchart LR
 
 | Your task | Start here |
 |---|---|
-| Try Tripwire locally | [Validate locally in QUICKSTART](QUICKSTART.md#validate-locally) |
-| Set up Live scanning | [Live capabilities in QUICKSTART](QUICKSTART.md#live-capabilities) |
+| Run your first Live scan | [Follow the Quickstart](QUICKSTART.md#first-live-scan) |
+| Preview the dashboard or validate locally | [Optional local validation](QUICKSTART.md#validate-locally) |
 | Understand results and system shape | [Capability status](docs/STATUS.md) · [Architecture](docs/ARCHITECTURE.md) |
 | Contribute or maintain the project | [Contributing](CONTRIBUTING.md) · [command catalog](docs/user-guide/setup-commands.md) |
 
@@ -48,14 +69,3 @@ For the full documentation map, see [docs/README.md](docs/README.md). The
 [prerequisites](docs/user-guide/prerequisites.md), [environment-variable guide](docs/user-guide/env-vars.md),
 and [setup command catalog](docs/user-guide/setup-commands.md) hold the detailed setup
 and maintenance instructions.
-
-## Proof and integrations
-
-[![CI](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/ci.yml?branch=main&label=CI)](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml)
-[![Nightly](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/nightly.yml?branch=main&label=Nightly)](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml)
-[![Cursor](https://img.shields.io/badge/Cursor-000000?style=flat&logo=cursor&logoColor=white)](https://cursor.com)
-[![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=flat)](https://modal.com)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com)
-[![Cisco Skill/MCP Scanner](https://img.shields.io/badge/Cisco%20Skill%2FMCP%20Scanner-1BA0D7?style=flat&logo=cisco&logoColor=white)](https://developer.cisco.com)
-[![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
-[![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
