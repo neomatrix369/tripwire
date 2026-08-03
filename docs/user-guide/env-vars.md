@@ -11,6 +11,15 @@
 
 Companion allowlist: [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md).
 
+## Scope boundary
+
+This is the sole reference for provider accounts, credential procurement, every
+`.env` key, and key-to-capability mapping. Do not duplicate those explanations
+in the Modal secret reference. [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md)
+only projects a selected subset of these already-defined keys into
+`tripwire-scan-secrets`; repeated names there are operational allowlist entries,
+not a second environment-variable schema.
+
 ## Platform plumbing
 
 | Key | Required for | Where to get it |

@@ -7,10 +7,15 @@ before following these development instructions.
 ## Dev setup
 
 0. Tools + versions: [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
-   (Node 22 / Python 3.12). Live capabilities require:
+   (Node 22 / npm / Python 3.12). Live capabilities require provisioning and
+   setting up all five vendors before copying `.env`:
    [supabase-setup](docs/user-guide/supabase-setup.md) →
    [modal-setup](docs/user-guide/modal-setup.md) →
-   [env-vars](docs/user-guide/env-vars.md) before copying `.env`.
+   [Snyk procurement](docs/user-guide/env-vars.md#vendor-procurement-quick-steps) →
+   [Tessl procurement](docs/user-guide/env-vars.md#vendor-procurement-quick-steps) →
+   [Cisco AI Defense procurement](docs/user-guide/env-vars.md#vendor-procurement-quick-steps).
+   Use [env-vars](docs/user-guide/env-vars.md) to collect the resulting values,
+   then copy and populate `.env`.
 
 Then use this guide for development, quality checks, and sharing changes back.
 Short version:
