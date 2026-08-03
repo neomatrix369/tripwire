@@ -11,6 +11,29 @@
 [![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
 [![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
 
+## What Tripwire does
+
+Tripwire helps technical teams assess AI skills and MCP servers before they rely
+on them. It discovers targets, runs the enabled scanner adapters in an isolated
+scan environment, stores the findings, and brings them together in one dashboard.
+
+## Who Tripwire is for
+
+Tripwire is currently an early-adopter tool with a hands-on setup and management
+component. It is a good fit if you can work in a terminal, manage local tooling
+and environment variables, create cloud/vendor accounts, and use command output
+to resolve a setup issue.
+
+| You are... | You want to... |
+|---|---|
+| An AI-tooling developer or team | Assess skills and MCP servers before using or sharing them |
+| A platform, operations, or security practitioner | Run and maintain scans for a team |
+| A contributor | Extend scanner support, the CLI, or the dashboard |
+
+You do not need to be a security specialist, but you should be ready to interpret
+findings and decide when to escalate them. The optional Mock preview is available
+for evaluating the dashboard without accounts; real scans require the setup below.
+
 ## Run your first Live scan
 
 Follow this order before running a scan or opening the Live dashboard. The
@@ -43,6 +66,13 @@ node scripts/serve-dashboard.mjs
 ```
 
 Open [http://127.0.0.1:8765/Tripwire.dc.html](http://127.0.0.1:8765/Tripwire.dc.html).
+
+After installing the CLI, you can also validate target discovery locally without
+accounts or a scan:
+
+```bash
+tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
+```
 
 ## What happens next
 
