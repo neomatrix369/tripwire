@@ -22,6 +22,16 @@
 - Operate secrets → `env-vars.md` (not bare `.env.example`).
 - Priority: wave **D** next after 7 ✅ → **17** → wave E 8 → 11 → 12 → 13. Spec dir: `docs/plan/slices/04-D-operator-onboarding/`.
 
+## Reference design findings (Phase 1b)
+
+| Reference | Layout / style lesson | Apply to Tripwire | Deliberate boundary |
+|---|---|---|---|
+| [pgGraph](https://github.com/Evokoa/pgGraph) | A restrained engineering landing page starts with a one-line promise, gives a concrete quickstart, and layers deeper installation detail below it. | State Tripwire's purpose plainly; lead with the credential-free Mock-dashboard outcome; leave setup detail in QUICKSTART and user guides. | Do not import the extension's long installation matrices or PostgreSQL-specific comparison prose. |
+| [Graphify](https://github.com/Graphify-Labs/graphify) | A strong hero, a quick first success, outcome-oriented sections, and progressive disclosure make a technical repository easy to scan. | Use a workflow-first README: Mock first run → Discover → Scan → Review → deeper task routes; move proof badges after the primary action. | Do not adopt graph visualisations, benchmark-heavy promotion, marketing density, images, or new tooling. |
+| [rag-params-finder](https://github.com/neomatrix369/rag-params-finder) | It frames the problem before features, contrasts effort avoided with outcome gained, and uses “Who is this for?” / “Choose your path” tables that send each reader to one next step. | Add a short outcome contrast after Tripwire's first-run action, then use four task routes in `docs/README.md` so each link has a clear next action. | Do not copy its long feature inventory, persona matrix, screenshots, release history, or technology badge wall; Tripwire stays workflow-first and compact. |
+
+**Design synthesis:** calm, precise, evidence-led GitHub Markdown. Visual quality comes from hierarchy, white space, short callouts/tables, and one static Mermaid workflow—not CSS, custom fonts, screenshots, or dashboard work.
+
 ## Files
 | Path | Action |
 |------|--------|
@@ -74,6 +84,7 @@
 - [ ] `docs/plan/gate-evidence/slice-17.json` records Phase 1b as `IN_PROGRESS` and becomes `PASS` only after its fresh review and merge
 - [x] End-to-end task-based onboarding simulation executed against docs flow and captured below
 - [ ] README opens with Tripwire’s purpose and a credential-free Mock-dashboard action before badges or deep setup detail
+- [x] pgGraph/Graphify layout and style findings are recorded above with explicit adopt/avoid boundaries
 - [ ] README presents a static, accessible Discover → Scan → Review Mermaid workflow and links its deeper paths to existing documents
 - [ ] README uses outcome-led capability sections and a compact proof/badge row after its primary content; no new image assets, CSS, fonts, or runtime dependencies
 - [ ] `docs/README.md` exposes task routes for Try locally, Set up Live scanning, Understand results/status, and Contribute/maintain; every moved link resolves

@@ -14,6 +14,7 @@
     "no Overmind/Ossprey in README/QUICKSTART/CONTRIBUTING",
     "Phase 1 baseline is merged in PR #38; PROGRESS/TRAIL mark Phase 1b documentation UX as in progress",
     "gate-evidence reflects the current task-based documentation state",
+    "pgGraph, Graphify, and rag-params-finder layout and style findings are recorded with explicit adopt/avoid boundaries",
     "README starts with a credential-free Mock-dashboard route before badges or deep setup detail",
     "README gives an accessible Discover → Scan → Review workflow and routes to existing deeper documents",
     "docs/README.md exposes Try locally, Set up Live scanning, Understand results/status, and Contribute/maintain task routes",
