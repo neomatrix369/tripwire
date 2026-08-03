@@ -19,7 +19,7 @@
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
 | — | D | 17 | user-guide onboarding review | Must | 🔀 |
-| 1 | E | 14 | coverage sync | Must | 🔨 |
+| 1 | E | 14 | coverage sync | Must | 🔀 |
 | — | F | 15 | claim audit (16 📦) | Must | 📋 |
 
 ## Quick Status (by group)
@@ -57,7 +57,7 @@
 | 11 | [slice-11-python-ship-path-coverage-95](slices/05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~50 min |
 | 12 | [slice-12-cli-coverage-gate-95](slices/05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
 | 13 | [slice-13-live-acl-coverage-gate-95](slices/05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
-| 14 | [slice-14-coverage-status-docs-sync](slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Must | 🔨 | 2026-08-03 | — | ~25 min |
+| 14 | [slice-14-coverage-status-docs-sync](slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Must | 🔀 | 2026-08-03 | — | ~25 min |
 
 ### F — Claim audit
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |

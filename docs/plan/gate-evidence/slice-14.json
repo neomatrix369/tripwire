@@ -2,7 +2,7 @@
   "slice": 14,
   "date": "2026-08-03",
   "branch": "slice/14-coverage-status-docs-sync",
-  "verdict": "IN_PROGRESS",
+  "verdict": "ON_BRANCH",
   "before_checks": "PASS — existing branch; slices 11, 12, and 13 are recorded PASSED; coverage-audit.md lists numeric gates and branch/function thresholds for each layer.",
   "after_checks": [
     "docs/STATUS.md contains sandbox, CLI, and Live ACL coverage figures",
@@ -15,23 +15,23 @@
   ],
   "commands": [
     {
-      "cmd": "rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md docs/STATUS.md || true",
+      "cmd": "rg -i 'overmind|ossprey' README.md QUICKSTART.md CONTRIBUTING.md docs/STATUS.md",
       "result": "PASS\nstatus: PASS (empty result is expected)\nexit_code: 1\nstdout: |\n  <empty>\nstderr: |\n  <empty>"
     },
     {
-      "cmd": "rg \"Nightly mutmut and Chalk\" -n CONTRIBUTING.md || true",
-      "result": "PASS\nstatus: PASS\nexit_code: 0\nstdout: |\n  36:  mutmut and Chalk run but are **non-gating** (`|| true` — green Nightly does not mean mutation/Chalk passed)\nstderr: |\n  <empty>"
+      "cmd": "rg \"Nightly mutmut and Chalk\" -n CONTRIBUTING.md",
+      "result": "PASS\nstatus: PASS\nexit_code: 0\nstdout: |\n  36:  Nightly mutmut and Chalk run but are **non-gating** (`|| true` — green Nightly does not mean mutation/Chalk passed)\nstderr: |\n  <empty>"
     },
     {
       "cmd": "rg -n \"slice-14|slice-15|14 → 15|dependency\" docs/plan/TRAIL.md docs/plan/PROGRESS.md",
-      "result": "PASS\nstatus: PASS\nexit_code: 0\nstdout: |\n  TRAIL: slice 14 is active and slice 15 depends on 14.\n  PROGRESS: slice 14 is active and slice 15 has dependency:14.\nstderr: |\n  <empty>"
+      "result": "PASS\nstatus: PASS\nexit_code: 0\nstdout: |\n  docs/plan/PROGRESS.md:59:| 14 | [slice-14-coverage-status-docs-sync](slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Must | 🔨 | 2026-08-03 | — | ~25 min |\n  docs/plan/PROGRESS.md:64:| 15 | [slice-15-horizon-a-claim-audit](slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Must | 📋 (dependency:14) | — | — | ~25 min |\n  docs/plan/PROGRESS.md:81:- Dependency: close-path `slice-14 -> slice-15` (slice 15 depends on slice 14)\n  docs/plan/TRAIL.md:131:| 14 | [slice-14-coverage-status-docs-sync](slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Coverage Status + Docs Sync (Delta) | Must | 🔨 | 11,12,13 | — | ~3 min |\n  docs/plan/TRAIL.md:137:| 15 | [slice-15-horizon-a-claim-audit](slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Horizon A Factual Claim Audit | Must | 📋 | 7,14 | — | ~4 min |\nstderr: |\n  <empty>"
     },
     {
       "cmd": "/nw-review @nw-software-crafter task \"docs/plan/slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md\" step_id=14",
-      "result": "BLOCKED\nstatus: BLOCKED\nexit_code: N/A\nstdout: |\n  The required nw-software-crafter-reviewer is not registered in this runtime.\nstderr: |\n  No reviewer could be dispatched.\nnotes: review approval is still required for PASS."
+      "result": "APPROVED\nstatus: APPROVED\nexit_code: 0\nstdout: |\n  Re-review approved the remediated Slice 14 evidence artifact.\nstderr: |\n  <empty>\nnotes: review approval does not replace the merge requirement for PASS."
     }
   ],
-  "review": "BLOCKED — nw-software-crafter-reviewer is unavailable; no approval or docs-only waiver claimed.",
+  "review": "nw-review APPROVED — re-review confirmed the exact commands and captured outputs.",
   "pr": null,
   "spec_path": "docs/plan/slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md"
 }
