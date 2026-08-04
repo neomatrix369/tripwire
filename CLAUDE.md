@@ -36,3 +36,27 @@ Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
 2. Use `detect_changes` for code review.
 3. Use `get_affected_flows` to understand impact.
 4. Use `query_graph` pattern="tests_for" to check coverage.
+
+---
+
+## PR Composition
+
+When creating or updating a PR with `/create-pr` or `/update-pr`, include a **Checklist**
+section in the generated body (after Test Results, before Closes):
+
+```markdown
+## Checklist
+
+- [x] `./scripts/quality-gates.sh` passes locally
+- [x] New tests added or updated (or change is docs-only)
+- [x] Docs updated where applicable
+- [ ] No secrets or credentials committed
+```
+
+**Auto-tick rules:**
+- Tick quality-gates and tests if the Test Results section shows all stacks passing
+- Tick docs if the commit subjects mention docs/chore/refactor (no new behaviour)
+- Leave "No secrets" **always unchecked** — the reviewer confirms this manually
+
+This mirrors `.github/PULL_REQUEST_TEMPLATE.md` so human-opened and skill-opened PRs
+share the same Checklist structure.
