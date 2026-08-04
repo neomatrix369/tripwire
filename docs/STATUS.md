@@ -107,5 +107,5 @@ as shipped capabilities.
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 (slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` … `06-F-claim-audit/`).
-Claim audit (slice 15) is the Must close-path step after slice 14; slice 16
-remediations remain deferred.
+Claim audit (slice 15) and slice 16 remediations are deferred; retain their
+artifacts for a future live/demo release.

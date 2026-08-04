@@ -1,6 +1,6 @@
 # Slice 17: User-Guide Onboarding + Documentation UX
 
-> Scenario: Brownfield | MoSCoW: **Must** | Status: ✅ closed on `main` via PR #44; Slice 15 is the current priority
+> Scenario: Brownfield | MoSCoW: **Must** | Status: ✅ closed on `main` via PR #44; no active slice (Slice 15 is deferred)
 
 ## Slice Workflow Bundle
 - Slice name: `slice-17-user-guide-onboarding`

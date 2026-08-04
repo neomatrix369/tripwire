@@ -2,8 +2,8 @@
   "slice": 15,
   "date": "2026-08-03",
   "branch": "slice/15-horizon-a-claim-audit",
-  "verdict": "NOT_RUN",
-  "before_checks": "pending — plan execution not started",
+  "verdict": "DEFERRED",
+  "before_checks": "frozen — deferred on 2026-08-04; reinstate before execution",
   "after_checks": [
     "ship-path coverage claim matches coverage-audit.md and slice-11–13 evidence (pending execution capture)",
     "Nightly mutmut and Chalk are recorded as non-gating (pending execution capture)",
@@ -63,7 +63,7 @@
       "result": "NOT_DONE\nstatus: PENDING\nexit_code: __PLACEHOLDER__\nstdout: |\n  <paste /nw-review output>\nstderr: |\n  <paste /nw-review stderr if any>\nnotes: review command is required for gate review satisfaction"
     }
   ],
-  "review": "planned command-review gate via /nw-review task (Command 15.10); requires bugbot/security/3B evidence or 3C waiver in DECISIONS",
+  "review": "frozen while deferred; on reinstatement, /nw-review plus security and 3B evidence (or documented 3C prerequisites) are required",
   "pr": null,
   "spec_path": "docs/plan/slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md"
 }

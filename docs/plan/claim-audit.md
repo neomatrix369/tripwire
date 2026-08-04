@@ -54,7 +54,7 @@ It is a planning artifact for `docs/plan/slices/06-F-claim-audit/slice-15-horizo
 
 | Timestamp | Outcome | Blocker | Owner | Evidence |
 |---|---|---|---|---|
-| 2026-08-03 | PENDING | Not executed yet | — | Add command transcript or 3C blocker row from `slice-15-horizon-a-claim-audit.md`. |
+| 2026-08-04 | DEFERRED | Security-scanner prerequisite and live 3B path remain unobserved | Project operator | Gate is frozen; explicitly reinstate Slice 15 before execution. |
 
 ## Review status
 
