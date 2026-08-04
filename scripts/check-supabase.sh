@@ -15,8 +15,10 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_FILE="${ROOT}/.env"
 
 if [[ -f "$ENV_FILE" ]]; then
+  set -a
   # shellcheck disable=SC1090
-  set -a; source "$ENV_FILE"; set +a
+  source "$ENV_FILE"
+  set +a
 fi
 
 SUPABASE_URL="${SUPABASE_URL:-}"
