@@ -1,0 +1,14 @@
+# .trivyignore — Trivy CVE suppressions
+# Review quarterly. Remove entries when upstream ships a fix or the compensating control changes.
+#
+# Entry format:
+#   <CVE-ID or GHSA-ID>
+#   # Why: <reason this is suppressed>
+#   # Compensating control: <what mitigates the risk in this project>
+#   # Unblock: <condition under which to remove this entry>
+#
+# Example:
+# GHSA-f4xh-w4cj-qxq8
+# # Why: No upstream fix available; vulnerability only affects Python 2 codepaths
+# # Compensating control: Project runs Python 3.12 only; codepath is unreachable
+# # Unblock: When upstream releases a patched version >= 1.2.0
