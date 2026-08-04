@@ -87,6 +87,8 @@ flowchart LR
     scan --> review[Review findings in the dashboard]
 ```
 
+### Screenshots
+
 <table>
 <tr>
   <td align="center" width="25%">
