@@ -1,6 +1,6 @@
 # Slice 4: VO + Remotion Assemble (GWT-3)
 
-> Scenario: Brownfield | MoSCoW: **Won't (A)** | Status: 📦 DEFERRED (demo/hackathon over 2026-08-02 — reinstate if film day returns)
+> Scenario: Brownfield | MoSCoW: **Won't (A)** | Status: 📦 CLOSED — deferred (demo/hackathon over 2026-08-02; reinstate if film day returns)
 
 ## Slice Workflow Bundle
 - Slice name: slice-4-vo-remotion-assemble
@@ -59,7 +59,7 @@ private references has prompts + demo script only (no `.mp3`/`.wav`/`.mp4`/trans
 | Others | N/A | video outside product runtime |
 
 ## Gate Status
-📦 DEFERRED — demo/hackathon closed; Remotion blocker not pursued. Reinstate this slice if a new demo need arises.
+📦 CLOSED — demo/hackathon closed; the Remotion blocker is not pursued. Reinstate this slice only if a new demo need arises.
 
 ## What Changed
 | File | Type | Reason |
