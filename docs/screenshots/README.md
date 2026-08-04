@@ -10,6 +10,10 @@ Discovery and help output from the Tripwire CLI.
 
 ![CLI help and dry-discover](01-cli/01-cli-help-dry-discover.png)
 
+### CLI real scan — Modal sandbox
+
+![CLI real scan with Modal sandbox output](01-cli/02-cli-real-scan-modal-sandbox.png)
+
 ---
 
 ## 2. Dashboard
