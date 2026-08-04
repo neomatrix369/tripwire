@@ -2,11 +2,12 @@
   "slice": 15,
   "date": "2026-08-03",
   "branch": "slice/15-horizon-a-claim-audit",
-  "verdict": "NOT_RUN",
-  "before_checks": "pending — plan execution not started",
+  "verdict": "DEFERRED",
+  "before_checks": "frozen — deferred on 2026-08-04; reinstate before execution",
   "after_checks": [
+    "ship-path coverage claim matches coverage-audit.md and slice-11–13 evidence (pending execution capture)",
+    "Nightly mutmut and Chalk are recorded as non-gating (pending execution capture)",
     "claim-audit matrix exists with PASS/FAIL/PARTIAL rows and evidence paths",
-    "Bugbot/audit command result recorded (or 3C blocker documented in DECISIONS)",
     "Security scan command result recorded (or 3C blocker documented in DECISIONS)",
     "unit command results recorded (`cd cli && npm test`, `uv run pytest`, dashboard commands)",
     "3B live path command/result logged or 3C blocker requested",
@@ -14,8 +15,12 @@
   ],
   "commands": [
     {
-      "cmd": "uv run python -m tripwire.audit",
-      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: preferred if module available"
+      "cmd": "rg -n \"95\\.91|99\\.75|98\\.48|fail_under=95|85% branches|80% branches\" docs/plan/coverage-audit.md docs/plan/claim-audit.md",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: ship-path coverage claim consistency"
+    },
+    {
+      "cmd": "rg -n \"Nightly mutmut and Chalk|non-gating\" CONTRIBUTING.md docs/plan/coverage-audit.md docs/plan/claim-audit.md",
+      "result": "PENDING\nstatus: PENDING\nexit_code: __REPLACE__\nstdout: |\n  <paste command output>\nstderr: |\n  <paste stderr if any>\nnotes: mutation-status claim consistency"
     },
     {
       "cmd": "./scripts/security-scan.sh --dry-run",
@@ -58,7 +63,7 @@
       "result": "NOT_DONE\nstatus: PENDING\nexit_code: __PLACEHOLDER__\nstdout: |\n  <paste /nw-review output>\nstderr: |\n  <paste /nw-review stderr if any>\nnotes: review command is required for gate review satisfaction"
     }
   ],
-  "review": "planned command-review gate via /nw-review task (Command 15.10); requires bugbot/security/3B evidence or 3C waiver in DECISIONS",
+  "review": "frozen while deferred; on reinstatement, /nw-review plus security and 3B evidence (or documented 3C prerequisites) are required",
   "pr": null,
   "spec_path": "docs/plan/slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md"
 }

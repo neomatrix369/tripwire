@@ -10,15 +10,15 @@
 | 3 | [`03-C-…`](slices/03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
 | 4 | [`04-D-…`](slices/04-D-operator-onboarding/) | **D — Task-based onboarding + documentation UX** | **17** | ✅ |
 | 5 | [`05-E-…`](slices/05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ → 14 (**9+10 SUBSUMED INTO 11**) | ✅ Musts · close-path |
-| 6 | [`06-F-…`](slices/06-F-claim-audit/) | **F — Claim audit** | 15 (after 14) · 16 | 📋 · 16 📦 |
+| 6 | [`06-F-…`](slices/06-F-claim-audit/) | **F — Claim audit** | 15 · 16 | 📦 |
 
-**Current priority:** Slice 15 claim audit. Slice 17 is merged and closed.
+**Current priority:** No active slice. Slice 15 is deferred; Slice 17 is merged and closed.
 
 ## Execution order (open work)
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| 1 | F | 15 | claim audit (16 📦) | Must | 📋 |
+| — | — | — | No active slice; reinstate a deferred slice or add a new one | — | — |
 
 ## Quick Status (by group)
 
@@ -60,7 +60,7 @@
 ### F — Claim audit
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| 15 | [slice-15-horizon-a-claim-audit](slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Must | 📋 (dependency:14) | — | — | ~25 min |
+| 15 | [slice-15-horizon-a-claim-audit](slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Must | 📦 | — | — | ~25 min |
 | 16 | [slice-16-docs-claim-remediations](slices/06-F-claim-audit/slice-16-docs-claim-remediations.md) | Won't (A) | 📦 | — | 2026-08-02 | ~25 min |
 
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
@@ -74,13 +74,13 @@
 | 4 (historical) | Remotion sibling + VO assets missing | 📦 closed with demo/hackathon deferral — reinstate slice 4 if film day returns |
 
 ## Forward Roadmap
-- Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Continue with **F (15)**.
-- Claim-audit Slice 15's dependency on Slice 14 is satisfied and it is the active Must.
+- Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Slice 15 is retained as a deferred claim-audit artifact, not active work.
+- Reopen Slice 15 only for a future live/demo release that needs its security and 3B evidence path.
 - Slice 17 Phase 1b changed public documentation UX only: README/docs index hierarchy, Mock first run, workflow orientation, and task routes.
-- **Deferred / Won't (A):** 4 (in A), 16 (in F) — reinstate only if a new demo need arises
+- **Deferred / Won't (A):** 4 (in A); 15 and 16 (in F) — reinstate only if a new live/demo need arises
 - Slice 17 ✅ = Phase 1 baseline, Phase 1b implementation, and closure record are merged; current review and evidence are recorded. Phase 2 guides remain later work.
 - Gate close: [GATE_CONTRACT.md](GATE_CONTRACT.md)
-- After E Musts: ask 1+C vs continue F claim audit
+- No active Must remains; add or reinstate a slice for the next delivery goal
 - Won't for A: Drift, Phase 4/5, redesign, blast-radius, instruction→install→scan; Live E2E CI Must; support.js 95%; demo video / hackathon film day
 
 ## Interrupt Recovery

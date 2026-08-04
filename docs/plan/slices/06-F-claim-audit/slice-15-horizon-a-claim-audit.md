@@ -1,12 +1,12 @@
 # Slice 15: Horizon A Factual Claim Audit
 
-> Scenario: Brownfield | MoSCoW: Must
+> Scenario: Brownfield | MoSCoW: Must | Status: 📦 DEFERRED (2026-08-04; retain the audit artifact for any future live/demo release)
 
 ## Slice Workflow Bundle
 - Slice name: slice-15-horizon-a-claim-audit
 - Files: canvases / findings artifact (or `docs/plan/claim-audit.md`), gate-evidence
 - Exit criteria: Claim PASS/FAIL/PARTIAL table closed for Horizon A public claims vs
-  code/config/SoT; Bugbot+Security on branch diff attempted; unit suites run; Live 3B
+  code/config/SoT; security checks attempted; unit suites run; Live 3B
   attempted or blocked→3C requested. **Findings only** — no claim remediations here.
 - Commit pattern: `docs(slice-15): horizon A claim audit findings`
 
@@ -14,7 +14,7 @@
 `slice/15-horizon-a-claim-audit`
 
 ## Priority
-Close-path Must. Execute after **slice 14** for final evidence synchronization and after slice 7 for Gate A trust strip.
+Deferred after **slice 14** and slice 7: the audit artifact remains available for a future live/demo release, but it is no longer on the active close path.
 
 ## Context references (mandatory)
 - Product SoT: private references
@@ -26,7 +26,7 @@ Close-path Must. Execute after **slice 14** for final evidence synchronization a
 ## Spec (GWT / User Story)
 **Given** slice-7 coverage-audit.md and Gate A trust strip landed, and
 slice 14 is complete with finalized coverage/docs evidence
-**When** auditors run Bugbot + Security on branch diff, unit suites, live 3B attempt (or escalate with 3C),
+**When** auditors run security checks, unit suites, live 3B attempt (or escalate with 3C),
 and whole-repo claim close-out
 **Then** a findings artifact marks each Horizon A claim PASS/FAIL/PARTIAL with path
 evidence; Live result logged or 3C requested
@@ -65,10 +65,10 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
   - target date
 
 ## After-Checks [GATE]
+- [ ] Ship-path coverage claim matches `docs/plan/coverage-audit.md` and evidence for slices 11–13: Python `95.91%` / `fail_under=95`, CLI `99.75%` lines / `85%` branches, and Live ACL `98.48%` lines / `80%` branches
+- [ ] Mutation-test language remains accurately marked non-gating (`Nightly mutmut and Chalk` in `CONTRIBUTING.md` and `coverage-audit.md`)
 - [ ] Claim inventory file exists (path list in `docs/plan/coverage-audit.md` + `docs/STATUS.md`) and each claim is marked PASS/FAIL/PARTIAL + evidence path in findings artifact
 - [ ] Findings artifact exists (`docs/plan/claim-audit.md` or canvas path) with complete claim matrix and evidence links
-- [ ] Bugbot check command + pass/fail recorded **or** blocker recorded as 3C request in `DECISIONS.md`
-  - Preferred command (if available): `uv run python -m tripwire.audit` (or equivalent repo command)
 - [ ] Security command + pass/fail recorded **or** blocker recorded as 3C request in `DECISIONS.md`
   - Command: `./scripts/security-scan.sh --dry-run` (minimum) and `./scripts/security-scan.sh` when toolchain supports full run
 - [ ] Exact unit suite commands recorded with pass/fail result lines:
@@ -78,7 +78,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - [ ] Live 3B attempt command/result recorded in `docs/plan/claim-audit.md` (or blocker recorded as 3C request in `DECISIONS.md`)
 - [ ] `/nw-review` recorded (APPROVED) for slice-15 review report or explicit exception noted in `DECISIONS.md`
 - [ ] No remediations required for ✅ (slice 16 📦); FAIL rows may remain documented
-- [ ] `docs/plan/gate-evidence/slice-15.json` has `"verdict": "PASS"` + `commands[]` (Bugbot/Security + unit suites + 3B/3C)
+- [ ] `docs/plan/gate-evidence/slice-15.json` has `"verdict": "PASS"` + `commands[]` (Security + unit suites + 3B/3C)
 - [ ] PROGRESS/TRAIL updated; ✅ only after merge
 
 ## Execution Capture Template (command-ready)
@@ -87,16 +87,8 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - Gate evidence file target: `docs/plan/gate-evidence/slice-15.json`
 - Findings target: `docs/plan/claim-audit.md`
 
-### Command 15.1 (Bugbot/audit command)
-- command: `uv run python -m tripwire.audit`
-- status: `PENDING`
-- exit_code: ``
-- stdout: |
-  <paste command output>
-- stderr: |
-  <paste stderr output if any>
 
-### Command 15.2 (Security fallback 1)
+### Command 15.1 (Security fallback 1)
 - command: `./scripts/security-scan.sh --dry-run`
 - status: `PENDING`
 - exit_code: ``
@@ -105,7 +97,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.3 (Security fallback 2)
+### Command 15.2 (Security fallback 2)
 - command: `./scripts/security-scan.sh`
 - status: `PENDING`
 - exit_code: ``
@@ -114,7 +106,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.4 (CLI unit suite)
+### Command 15.3 (CLI unit suite)
 - command: `cd cli && npm test`
 - status: `PENDING`
 - exit_code: ``
@@ -123,7 +115,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.5 (Python suite)
+### Command 15.4 (Python suite)
 - command: `uv run pytest`
 - status: `PENDING`
 - exit_code: ``
@@ -132,7 +124,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.6 (Dashboard suite)
+### Command 15.5 (Dashboard suite)
 - command: `cd prototypes/dc-dashboard && npm test`
 - status: `PENDING`
 - exit_code: ``
@@ -141,7 +133,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.7 (Dashboard coverage)
+### Command 15.6 (Dashboard coverage)
 - command: `cd prototypes/dc-dashboard && npm run test:coverage`
 - status: `PENDING`
 - exit_code: ``
@@ -150,7 +142,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.8 (Live bootstrap + scan)
+### Command 15.7 (Live bootstrap + scan)
 - command: `tripwire setup && tripwire scan ./fixtures/skills/safe-csv-cleaner` (after completing the documented vendor setup and filling `.env`)
 - status: `PENDING`
 - exit_code: ``
@@ -159,7 +151,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.9 (Live dashboard render)
+### Command 15.8 (Live dashboard render)
 - command: `node scripts/serve-dashboard.mjs`
 - status: `PENDING`
 - exit_code: ``
@@ -168,7 +160,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - stderr: |
   <paste stderr output if any>
 
-### Command 15.10 (`/nw-review` plan artifact)
+### Command 15.9 (`/nw-review` plan artifact)
 - command: `/nw-review @nw-software-crafter task "docs/plan/slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md"`
 - status: `PENDING`
 - exit_code: ``
@@ -189,7 +181,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - suggestion (non-blocking): move the `security-scan.sh` fallback command into a single "preferred/fallback" block in a consistent order to reduce ambiguity in later execution logs.
 
 ## Gate Status
-📋 PLANNED
+📦 DEFERRED — gate evidence is frozen pending an explicit reinstatement decision.
 
 ## Session Metrics
 | Metric | Value |

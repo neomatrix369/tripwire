@@ -38,6 +38,10 @@ Fixture-driven characterization → GREEN → refactor.
 VERIFY: `pytest sandbox/tests/ -q --tb=short`
 
 ## After-Checks [GATE]
+- [ ] Complexity evidence: policy is `reporting`; repository-native tool and source scope are named; local report and reviewer-summary locations are recorded; any CI PR update replaces a stable marker idempotently. Tool, threshold, and CI integration: TBD — verify from existing quality tooling.
+- [ ] Specification coverage: every GWT clause has ≥1 test (BDD/GWT-first, §2); essential error paths covered (90–100% of clauses)
+- [ ] Branch coverage: 100% target; tool configured with fail_under=100; exclusions documented (§12 — test-writing-craft-quality.mdc)
+- [ ] Mutation testing run if slice is feature-complete: survival budget met (§23)
 - [ ] `pytest sandbox/tests/ -q --tb=short` exit 0
 - [ ] Fixture tests cover Snyk parse, Tessl parse, and at least one collapse/edge case (paths in evidence)
 - [ ] Coverage on touched Snyk/Tessl parse paths: baseline → after % in `gate-evidence/slice-9.json`

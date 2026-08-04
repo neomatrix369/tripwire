@@ -44,6 +44,9 @@ connected and items running; Normal users must select Mock (default remains Live
 Docs-only. Prefer precise one-line updates over rewrites.
 
 ## After-Checks [GATE]
+- [ ] Specification coverage: every GWT clause has ≥1 test (BDD/GWT-first, §2); essential error paths covered (90–100% of clauses)
+- [ ] Branch coverage: 100% target; tool configured with fail_under=100; exclusions documented (§12 — test-writing-craft-quality.mdc)
+- [ ] Mutation testing run if slice is feature-complete: survival budget met (§23)
 - [ ] STATUS Realtime claim matches code
 - [ ] QUICKSTART Demo path tells operator to select Mock
 - [ ] prototypes README acknowledges Horizon A ship UI
