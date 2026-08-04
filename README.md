@@ -87,6 +87,37 @@ flowchart LR
     scan --> review[Review findings in the dashboard]
 ```
 
+<table>
+<tr>
+  <td align="center" width="25%">
+    <a href="docs/screenshots/01-cli/02-cli-real-scan-modal-sandbox.png">
+      <img src="docs/screenshots/01-cli/02-cli-real-scan-modal-sandbox.png" width="100%" alt="CLI — real scan with Modal sandbox output">
+    </a>
+    <sub><b>CLI scan</b> — Modal sandbox</sub>
+  </td>
+  <td align="center" width="25%">
+    <a href="docs/screenshots/02-dashboard/02-dashboard-overview-grid.png">
+      <img src="docs/screenshots/02-dashboard/02-dashboard-overview-grid.png" width="100%" alt="Dashboard overview grid">
+    </a>
+    <sub><b>Dashboard</b> — overview grid</sub>
+  </td>
+  <td align="center" width="25%">
+    <a href="docs/screenshots/03-skills/04-red-skill-detail-vuln-prompt-injection.png">
+      <img src="docs/screenshots/03-skills/04-red-skill-detail-vuln-prompt-injection.png" width="100%" alt="Skill detail — prompt injection finding">
+    </a>
+    <sub><b>Skill finding</b> — prompt injection (Red)</sub>
+  </td>
+  <td align="center" width="25%">
+    <a href="docs/screenshots/04-mcp-servers/10-red-mcp-detail-vuln-command-injection.png">
+      <img src="docs/screenshots/04-mcp-servers/10-red-mcp-detail-vuln-command-injection.png" width="100%" alt="MCP server detail — command injection finding">
+    </a>
+    <sub><b>MCP finding</b> — command injection (Red)</sub>
+  </td>
+</tr>
+</table>
+
+> Full gallery with all severity levels and surfaces → [docs/screenshots/](docs/screenshots/README.md)
+
 ## Find the right guide
 
 | Your task | Start here |
