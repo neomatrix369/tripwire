@@ -104,10 +104,13 @@ if $RUN_SEMGREP; then
     info "DRY RUN: would run: semgrep --config=auto --error ."
   else
     SCANS_RUN=$((SCANS_RUN + 1))
-    echo "  Running: semgrep (auto ruleset)..."
-    # --config=auto pulls Semgrep OSS rules: p/owasp-top-ten, p/python, p/javascript, etc.
-    # --error exits 1 if any finding at severity WARNING+
-    if ! semgrep --config=auto --error --quiet .; then
+    echo "  Running: semgrep (CI-aligned rulesets, ERROR severity)..."
+    # Match .github/workflows/ci.yml packs. Fail only on ERROR so mutable
+    # action-tag WARNINGs (accepted until SHA-pinned) do not fail local T3.
+    # --error exits 1 when any reported finding remains.
+    if ! semgrep \
+      --config=p/owasp-top-ten --config=p/python --config=p/secrets \
+      --severity=ERROR --error --quiet .; then
       fail "Semgrep found SAST issues"
       SCANS_FAILED=$((SCANS_FAILED + 1))
     else
@@ -221,9 +224,17 @@ if $RUN_TRIVY; then
   else
     SCANS_RUN=$((SCANS_RUN + 1))
     echo "  Running: trivy filesystem scan..."
-    # Skip intentional vuln fixtures / mock prototypes / local deps
+    # Skip intentional vuln fixtures / mock prototypes / local deps.
+    # Mirror .gitignore for local secrets: .env and .env.* (keep .env.example tracked/scanned).
+    TRIVY_SKIP_FILES=".env"
+    for _envf in .env.*; do
+      [[ -e "$_envf" ]] || continue
+      [[ "$_envf" == ".env.example" ]] && continue
+      TRIVY_SKIP_FILES="${TRIVY_SKIP_FILES},${_envf}"
+    done
     if ! trivy fs --exit-code 1 --severity HIGH,CRITICAL --quiet \
-      --skip-dirs fixtures,prototypes,internal-docs,cli/node_modules,.venv .; then
+      --skip-dirs fixtures,prototypes,internal-docs,cli/node_modules,.venv \
+      --skip-files "${TRIVY_SKIP_FILES}" .; then
       fail "Trivy found HIGH/CRITICAL filesystem vulnerabilities"
       SCANS_FAILED=$((SCANS_FAILED + 1))
     else

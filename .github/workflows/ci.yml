@@ -217,6 +217,7 @@ jobs:
           severity: HIGH,CRITICAL
           format: table
           skip-dirs: fixtures,prototypes,internal-docs,cli/node_modules
+          skip-files: .env,.env.local
 
   trufflehog:
     name: TruffleHog (incremental)

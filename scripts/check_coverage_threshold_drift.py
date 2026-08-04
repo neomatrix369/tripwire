@@ -3,10 +3,11 @@
 
 Exit 1 if any threshold pair differs by more than ALLOWED_DELTA percentage points.
 """
+
+import re
 import sys
 import tomllib
 from pathlib import Path
-import re
 
 ALLOWED_DELTA = 5  # pp — adjust if stacks intentionally differ
 
