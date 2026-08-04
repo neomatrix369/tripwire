@@ -1,6 +1,6 @@
 # Slice 16: Docs Claim Remediations (Realtime / Demo / Prototype)
 
-> Scenario: Brownfield | MoSCoW: **Won't (A)** | Status: 📦 DEFERRED (demo/hackathon over 2026-08-02 — reinstate if needed)
+> Scenario: Brownfield | MoSCoW: **Won't (A)** | Status: 📦 CLOSED — deferred (demo/hackathon over 2026-08-02; reinstate if needed)
 
 Normal-user Mock-select + setup honesty lives in **slice 17**. Realtime/prototype claim rows may still appear in slice 15 audit without requiring this remediation slice.
 
@@ -54,7 +54,7 @@ Docs-only. Prefer precise one-line updates over rewrites.
 - [ ] Gate evidence `docs/plan/gate-evidence/slice-16.json` at PASS
 
 ## Gate Status
-📦 DEFERRED — not on Horizon A execute path. Reinstate if a new demo or claim-remediation need arises.
+📦 CLOSED — not on Horizon A execute path. Reinstate only if a new demo or claim-remediation need arises.
 
 ## Session Metrics
 | Metric | Value |

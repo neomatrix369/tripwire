@@ -1,6 +1,6 @@
 # Slice 15: Horizon A Factual Claim Audit
 
-> Scenario: Brownfield | MoSCoW: Must | Status: 📦 DEFERRED (2026-08-04; retain the audit artifact for any future live/demo release)
+> Scenario: Brownfield | MoSCoW: Must | Status: 📦 CLOSED — deferred (2026-08-04; retain the audit artifact for any future live/demo release)
 
 ## Slice Workflow Bundle
 - Slice name: slice-15-horizon-a-claim-audit
@@ -181,7 +181,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 - suggestion (non-blocking): move the `security-scan.sh` fallback command into a single "preferred/fallback" block in a consistent order to reduce ambiguity in later execution logs.
 
 ## Gate Status
-📦 DEFERRED — gate evidence is frozen pending an explicit reinstatement decision.
+📦 CLOSED — gate evidence is frozen pending an explicit reinstatement decision.
 
 ## Session Metrics
 | Metric | Value |

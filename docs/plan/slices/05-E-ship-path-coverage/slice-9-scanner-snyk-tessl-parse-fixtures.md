@@ -1,6 +1,6 @@
 # Slice 9: Snyk / Tessl Parse Fixtures (Delta)
 
-> Scenario: Brownfield | MoSCoW: Should
+> Scenario: Brownfield | MoSCoW: Should | Status: 📦 CLOSED — subsumed by Slice 11
 
 ## Slice Workflow Bundle
 - Slice name: slice-9-scanner-snyk-tessl-parse-fixtures
@@ -49,7 +49,7 @@ VERIFY: `pytest sandbox/tests/ -q --tb=short`
 - [ ] PROGRESS/TRAIL updated; ✅ only after merge
 
 ## Gate Status
-📋 PLANNED
+📦 CLOSED — Slice 11 supplied this coverage; do not execute separately unless a new gap is identified.
 
 ## Session Metrics
 | Metric | Value |

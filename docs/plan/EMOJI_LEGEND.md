@@ -11,7 +11,7 @@ This doc defines emoji meanings used across plan trackers and slice notes.
 | `🔨` | IN PROGRESS | Work/verification is in progress, but not yet closeable |
 | `🔀` | ON BRANCH | All checks pass on the slice branch; PR is still open/unmerged |
 | `🔴` | BLOCKED | A required blocker is present (missing artifact, failing gate, unresolved risk) |
-| `📦` | DEFERRED / WON'T (A) | Not in Horizon A execution path; can be reinstated explicitly |
+| `📦` | CLOSED — DEFERRED / WON'T (A) | No remaining work in the current plan; retain the artifact and reinstate explicitly only for a new need |
 
 ## Decision / audit markers
 

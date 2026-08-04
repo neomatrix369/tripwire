@@ -1,6 +1,6 @@
 # Slice 10: scan_item_inner Characterization (Delta)
 
-> Scenario: Brownfield | MoSCoW: Should
+> Scenario: Brownfield | MoSCoW: Should | Status: 📦 CLOSED — subsumed by Slice 11
 
 ## Slice Workflow Bundle
 - Slice name: slice-10-scan-item-inner-characterization
@@ -47,7 +47,7 @@ VERIFY: `pytest sandbox/tests/ -q --tb=short`
 - [ ] PROGRESS/TRAIL updated; ✅ only after merge
 
 ## Gate Status
-📋 PLANNED
+📦 CLOSED — Slice 11 supplied this coverage; do not execute separately unless a new gap is identified.
 
 ## Session Metrics
 | Metric | Value |

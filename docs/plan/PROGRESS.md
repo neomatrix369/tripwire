@@ -28,7 +28,7 @@
 | 1 | [slice-1-walking-skeleton-live-path](slices/01-A-live-path-gwt/slice-1-walking-skeleton-live-path.md) | Must | ✅ | 2026-08-01 | 2026-08-01 | ~50 min |
 | 2 | [slice-2-gwt1-detection-acceptance](slices/01-A-live-path-gwt/slice-2-gwt1-detection-acceptance.md) | Must | ✅ | 2026-08-01 | 2026-08-01 | ~25 min |
 | 3 | [slice-3-gwt2-sandbox-evidence-acceptance](slices/01-A-live-path-gwt/slice-3-gwt2-sandbox-evidence-acceptance.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
-| 4 | [slice-4-vo-remotion-assemble](slices/01-A-live-path-gwt/slice-4-vo-remotion-assemble.md) | Won't (A) | 📦 | 2026-08-02 | 2026-08-02 | ~25 min |
+| 4 | [slice-4-vo-remotion-assemble](slices/01-A-live-path-gwt/slice-4-vo-remotion-assemble.md) | Won't (A) | 📦 closed | 2026-08-02 | 2026-08-02 | ~25 min |
 
 ### B — Characterization + evidence sync
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
@@ -50,8 +50,8 @@
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
 | 8 | [slice-8-scanner-skill-parse-fixtures](slices/05-E-ship-path-coverage/slice-8-scanner-skill-parse-fixtures.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
-| 9 | [slice-9-scanner-snyk-tessl-parse-fixtures](slices/05-E-ship-path-coverage/slice-9-scanner-snyk-tessl-parse-fixtures.md) | Should | 📦 | 2026-08-02 | — | ~25 min |
-| 10 | [slice-10-scan-item-inner-characterization](slices/05-E-ship-path-coverage/slice-10-scan-item-inner-characterization.md) | Should | 📦 | 2026-08-02 | — | ~25 min |
+| 9 | [slice-9-scanner-snyk-tessl-parse-fixtures](slices/05-E-ship-path-coverage/slice-9-scanner-snyk-tessl-parse-fixtures.md) | Should | 📦 closed (subsumed by 11) | 2026-08-02 | — | ~25 min |
+| 10 | [slice-10-scan-item-inner-characterization](slices/05-E-ship-path-coverage/slice-10-scan-item-inner-characterization.md) | Should | 📦 closed (subsumed by 11) | 2026-08-02 | — | ~25 min |
 | 11 | [slice-11-python-ship-path-coverage-95](slices/05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~50 min |
 | 12 | [slice-12-cli-coverage-gate-95](slices/05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
 | 13 | [slice-13-live-acl-coverage-gate-95](slices/05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Must | ✅ | 2026-08-02 | 2026-08-02 | ~25 min |
@@ -60,8 +60,8 @@
 ### F — Claim audit
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| 15 | [slice-15-horizon-a-claim-audit](slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Must | 📦 | — | — | ~25 min |
-| 16 | [slice-16-docs-claim-remediations](slices/06-F-claim-audit/slice-16-docs-claim-remediations.md) | Won't (A) | 📦 | — | 2026-08-02 | ~25 min |
+| 15 | [slice-15-horizon-a-claim-audit](slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Must | 📦 closed | — | — | ~25 min |
+| 16 | [slice-16-docs-claim-remediations](slices/06-F-claim-audit/slice-16-docs-claim-remediations.md) | Won't (A) | 📦 closed | — | 2026-08-02 | ~25 min |
 
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 
