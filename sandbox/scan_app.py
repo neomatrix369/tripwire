@@ -348,7 +348,10 @@ def _pack_local_dir(src: str) -> bytes:
 def _extract_archive(archive: bytes, workdir: str) -> None:
     buf = io.BytesIO(archive)
     with tarfile.open(fileobj=buf, mode="r:gz") as tar:
-        tar.extractall(workdir, filter="data")
+        # filter="data" blocks path traversal (PEP 706); rule misses the kwarg.
+        tar.extractall(
+            workdir, filter="data"
+        )  # nosemgrep: trailofbits.python.tarfile-extractall-traversal.tarfile-extractall-traversal
 
 
 def _acquire_target(

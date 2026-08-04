@@ -72,4 +72,27 @@ else
   echo "--- npm audit skipped (no cli package file changes) ---"
 fi
 
+# T3: deep security scans — full-tree gitleaks + security-scan.sh (warn-only at push)
+# Commit stage runs incremental diff via pre-commit hook; push stage runs full-tree scan.
+# Findings are warnings here — CI is the authoritative blocking gate for SAST/SCA.
+echo "--- T3: deep security scans (warn-only; blocking gate is in CI) ---"
+if command -v gitleaks &>/dev/null; then
+  if ! gitleaks detect --config .gitleaks.toml --source . --verbose; then
+    echo "⚠️  gitleaks: secrets detected — CI will block; fix before merge"
+  else
+    echo "✅ gitleaks: no secrets found"
+  fi
+else
+  echo "⚠️  gitleaks not installed — skipping full-tree scan (brew install gitleaks)"
+fi
+security_exit=0
+bash scripts/security-scan.sh || security_exit=$?
+if [[ "$security_exit" -eq 0 ]]; then
+  echo "✅ security-scan passed"
+elif [[ "$security_exit" -eq 2 ]]; then
+  echo "⚠️  security-scan: no scanners available (skipped)"
+else
+  echo "⚠️  security-scan: findings detected — CI will block; fix before merge"
+fi
+
 echo "✅ pre-push gates passed"

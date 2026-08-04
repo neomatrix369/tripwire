@@ -1,0 +1,15 @@
+{
+  "security": {
+    "minimum-security": 95,
+    "minimum-licensing": 95,
+    "cvss-threshold": 7.0,
+    "ignore": [
+      {
+        "library": "example-library",
+        "version": "1.0.0",
+        "cve": "CVE-YYYY-NNNNN",
+        "reason": "Mitigated: <why this is not exploitable here>. Unblock: <condition>."
+      }
+    ]
+  }
+}
