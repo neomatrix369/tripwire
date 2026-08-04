@@ -55,6 +55,30 @@ tripwire setup
 # optional: ./scripts/setup-supabase.sh
 ```
 
+### Verify Supabase access
+
+After `tripwire setup`, confirm the anon key (what the browser dashboard uses)
+can read all tables. Run this whenever you change RLS settings or hit a
+"Connection error" in the dashboard:
+
+```bash
+./scripts/check-supabase.sh
+```
+
+### Live dashboard
+
+The dashboard needs a local proxy to talk to Supabase. Start it before opening
+the dashboard in Live mode — it must stay running while you use the dashboard:
+
+```bash
+node scripts/serve-dashboard.mjs
+# Open: http://127.0.0.1:8765/Tripwire.dc.html → select Live (Supabase)
+```
+
+The proxy writes `prototypes/dc-dashboard/tripwire-dashboard.config.js` on
+startup. If you restart the proxy on a different port, reload the dashboard so
+it picks up the new config.
+
 ### Modal bootstrap
 
 ```bash

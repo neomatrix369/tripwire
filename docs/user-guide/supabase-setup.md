@@ -46,6 +46,35 @@ tripwire setup
 # After schema pulls: tripwire setup --force
 ```
 
+> **Never toggle RLS via the Supabase UI.** Enabling or disabling row-level
+> security through the dashboard creates the lock without the matching policies
+> and grants, which silently blocks the browser dashboard (anon key) while the
+> CLI still works (service role bypasses RLS). Always manage schema through
+> `tripwire setup --force` or `./scripts/setup-supabase.sh --force` — these
+> apply RLS, policies, and grants together in one idempotent step.
+
+## 5. Verify
+
+Confirm the anon key (what the browser uses) can reach all tables:
+
+```bash
+./scripts/check-supabase.sh
+```
+
+Expected output:
+
+```
+  ✓ anon SELECT items
+  ✓ anon SELECT scan_runs
+  ✓ anon SELECT scan_run_scanners
+  ✓ anon SELECT findings
+
+OK: all tables readable by the anon key.
+```
+
+If any table shows HTTP 401 or 403, the script prints the fix command
+(`tripwire setup --force`).
+
 ## Next
 
 → [modal-setup.md](./modal-setup.md) · full run: [QUICKSTART → Live capabilities](../../QUICKSTART.md#live-capabilities)
