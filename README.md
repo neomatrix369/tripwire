@@ -11,6 +11,8 @@
 [![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
 [![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
 
+![Tripwire banner](./Tripwire-Banner.png)
+
 ## What Tripwire does
 
 Tripwire helps technical teams assess AI skills and MCP servers before they rely
