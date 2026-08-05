@@ -50,6 +50,10 @@ export function maxFindingStatus(findings) {
   return hasAmber ? "amber" : null;
 }
 
+const SEVERITY_RED = new Set(["red", "critical", "high"]);
+const SEVERITY_AMBER = new Set(["amber", "medium", "low", "warn", "warning"]);
+const SEVERITY_GREEN = new Set(["green", "info", "informational"]);
+
 /**
  * Normalize upstream / DB severity strings to Tripwire buckets.
  * CRITICAL/HIGH → red; MEDIUM/LOW → amber; INFO/green soft → green.
@@ -59,11 +63,9 @@ export function maxFindingStatus(findings) {
 export function normalizeSeverity(raw) {
   if (raw == null || raw === "") return null;
   const s = String(raw).trim().toLowerCase();
-  if (s === "red" || s === "critical" || s === "high") return "red";
-  if (s === "amber" || s === "medium" || s === "low" || s === "warn" || s === "warning") {
-    return "amber";
-  }
-  if (s === "green" || s === "info" || s === "informational") return "green";
+  if (SEVERITY_RED.has(s)) return "red";
+  if (SEVERITY_AMBER.has(s)) return "amber";
+  if (SEVERITY_GREEN.has(s)) return "green";
   return null;
 }
 
@@ -79,32 +81,35 @@ export function normalizeSeverity(raw) {
  * }} input
  * @returns {'red'|'amber'|'green'|'grey'|'running'|'error'}
  */
+function resolveCompletedStatus(heatmapStatus, riskScore, findings) {
+  if (RESULT_STATUSES.has(heatmapStatus)) return heatmapStatus;
+  const fromRisk = statusFromRisk(riskScore);
+  if (fromRisk !== "grey") return fromRisk;
+  const fromFindings = maxFindingStatus(findings);
+  if (fromFindings) return fromFindings;
+  // Completed/partial with nothing scorable → execution error (matches rollup).
+  return "error";
+}
+
+function resolveNoRunStatus(heatmapStatus) {
+  if (RESULT_STATUSES.has(heatmapStatus)) return heatmapStatus;
+  if (heatmapStatus === "error") return "error";
+  if (heatmapStatus === "grey" || heatmapStatus == null) return "grey";
+  return heatmapStatus;
+}
+
 export function resolveItemStatus({
-  runStatus = null,
-  heatmapStatus = null,
-  riskScore = null,
-  findings = null,
+  runStatus,
+  heatmapStatus,
+  riskScore,
+  findings,
 } = {}) {
   if (runStatus === "running") return "running";
   if (runStatus === "failed") return "error";
-
   if (runStatus === "complete" || runStatus === "partial-failed") {
-    if (RESULT_STATUSES.has(heatmapStatus)) return heatmapStatus;
-    const fromRisk = statusFromRisk(riskScore);
-    if (fromRisk !== "grey") return fromRisk;
-    const fromFindings = maxFindingStatus(findings);
-    if (fromFindings) return fromFindings;
-    // Completed/partial with nothing scorable → execution error (matches rollup).
-    return "error";
+    return resolveCompletedStatus(heatmapStatus, riskScore, findings);
   }
-
-  if (!runStatus) {
-    if (RESULT_STATUSES.has(heatmapStatus)) return heatmapStatus;
-    if (heatmapStatus === "error") return "error";
-    if (heatmapStatus === "grey" || heatmapStatus == null) return "grey";
-    return heatmapStatus;
-  }
-
+  if (!runStatus) return resolveNoRunStatus(heatmapStatus);
   if (RESULT_STATUSES.has(heatmapStatus)) return heatmapStatus;
   if (heatmapStatus === "error") return "error";
   return statusFromRisk(riskScore);

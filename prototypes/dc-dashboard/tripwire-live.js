@@ -13,6 +13,138 @@
 
 import { resolveItemStatus } from "./tripwire-status.js";
 
+// ── Scanner shaping helpers ───────────────────────────────────────────────────
+
+function worstScannerSeverity(findings) {
+  if (findings.find((f) => f.severity === "red")) return "red";
+  if (findings.find((f) => f.severity === "amber")) return "amber";
+  return "info";
+}
+
+function buildCompletedScannerSummary(s, scannerFindings) {
+  const nFindings = scannerFindings.length;
+  const checks = s.checks_run || 1;
+  if (nFindings === 0) return `${checks} checks passed — no findings`;
+  const worst = worstScannerSeverity(scannerFindings);
+  const brief = scannerFindings[0].message || "flagged";
+  const label = brief.length > 80 ? brief.slice(0, 77) + "…" : brief;
+  return `${checks} checks — ${nFindings} finding${nFindings !== 1 ? "s" : ""} (${worst}): ${label}`;
+}
+
+function buildScannerOutput(s, scannerFindings) {
+  const output = {};
+  if (s.detail) {
+    if (s.status === "completed" || s.status === "running") {
+      output.raw_summary = s.detail;
+    } else {
+      output.reason = s.detail;
+    }
+  } else if (s.status === "completed") {
+    output.raw_summary = buildCompletedScannerSummary(s, scannerFindings);
+  }
+  if (s.console_output) output.console_output = s.console_output;
+  if (s.started_at && s.completed_at) {
+    output.duration_ms = new Date(s.completed_at) - new Date(s.started_at);
+  }
+  return output;
+}
+
+function shapeScannerRow(s, mappedFindings, itemQualityScore) {
+  const scannerFindings = mappedFindings.filter((f) => f.scanner === s.scanner_source);
+  const output = buildScannerOutput(s, scannerFindings);
+  if (s.scanner_source === "Tessl" && itemQualityScore != null) {
+    output.quality_score = itemQualityScore;
+  }
+  return {
+    source: s.scanner_source,
+    status: s.status,
+    checks_run: s.checks_run,
+    detail: s.detail || null,
+    started_at: s.started_at || null,
+    completed_at: s.completed_at || null,
+    output,
+  };
+}
+
+// ── Item shaping helpers ──────────────────────────────────────────────────────
+
+function resolveLastScanTime(latestRun, isRunning) {
+  if (isRunning) return null;
+  return latestRun?.completed_at || latestRun?.started_at || null;
+}
+
+function getRunContext(item, runsByItem, scannersByRun, findingsByRun) {
+  const runs = (runsByItem[item.id] || []).sort(
+    (a, b) => (b.started_at || "").localeCompare(a.started_at || "")
+  );
+  const latestRun = runs[0];
+  const latestRunId = latestRun?.id;
+  return {
+    latestRun,
+    latestRunId,
+    latestScanners: latestRunId ? scannersByRun[latestRunId] || [] : [],
+    latestFindings: latestRunId ? findingsByRun[latestRunId] || [] : [],
+    runStatus: latestRun?.status || null,
+  };
+}
+
+function shapeItem(item, runsByItem, scannersByRun, findingsByRun) {
+  const { latestRun, latestRunId, latestScanners, latestFindings, runStatus } =
+    getRunContext(item, runsByItem, scannersByRun, findingsByRun);
+  const isRunning = runStatus === "running";
+
+  const mappedFindings = latestFindings.map((f) => ({
+    severity: f.severity,
+    category: f.category,
+    file_path: f.file_path,
+    location: f.location,
+    entity_kind: f.entity_kind,
+    entity_name: f.entity_name,
+    scanner: f.scanner_source,
+    message: f.message,
+    snippet: f.snippet,
+    cwe_ids: f.cwe_ids,
+  }));
+
+  const status = resolveItemStatus({
+    runStatus,
+    heatmapStatus: item.heatmap_status,
+    riskScore: item.risk_score,
+    findings: mappedFindings,
+  });
+
+  const unreachableCount = latestScanners.filter((s) => s.status === "unreachable").length;
+  const totalScanners = latestScanners.length;
+  const partialNote = runStatus === "partial-failed"
+    ? `${unreachableCount} out of ${totalScanners} scanners unreachable — risk from completed engines`
+    : null;
+
+  return {
+    id: item.id,
+    type: item.type || "skill",
+    name: item.name,
+    identifier: item.identifier || item.name,
+    status,
+    risk: item.risk_score,
+    quality: item.quality_score,
+    locus: item.install_locus || "unknown",
+    avail: item.source_availability || "unknown",
+    lastScan: resolveLastScanTime(latestRun, isRunning),
+    drifted: false,
+    scanStartedAt: isRunning ? latestRun.started_at : null,
+    errorMessage: runStatus === "failed" ? "Scan run failed" : partialNote,
+    findings: mappedFindings,
+    scanners: latestScanners.map((s) => shapeScannerRow(s, mappedFindings, item.quality_score)),
+    trend: [],
+    sandbox: latestRun
+      ? { id: latestRunId, started: latestRun.started_at, completed: latestRun.completed_at,
+          egressPhase: "live data", denied: [], cleanup: true }
+      : null,
+  };
+}
+
+// ── Supabase fetch ────────────────────────────────────────────────────────────
+
 async function supabaseGet(baseUrl, anonKey, table, params = "") {
   const url = `${baseUrl}/rest/v1/${table}?${params}`;
   const res = await fetch(url, {
@@ -55,127 +187,9 @@ async function fetchLiveData() {
     (findingsByRun[f.scan_run_id] ??= []).push(f);
   }
 
-  const shaped = items.map((item) => {
-    const runs = (runsByItem[item.id] || []).sort(
-      (a, b) => (b.started_at || "").localeCompare(a.started_at || "")
-    );
-    const latestRun = runs[0];
-    const latestRunId = latestRun?.id;
-    const latestScanners = latestRunId ? scannersByRun[latestRunId] || [] : [];
-    const latestFindings = latestRunId ? findingsByRun[latestRunId] || [] : [];
-
-    const runStatus = latestRun?.status || null;
-    const isRunning = runStatus === "running";
-
-    const mappedFindings = latestFindings.map((f) => ({
-      severity: f.severity,
-      category: f.category,
-      file_path: f.file_path,
-      location: f.location,
-      entity_kind: f.entity_kind,
-      entity_name: f.entity_name,
-      scanner: f.scanner_source,
-      message: f.message,
-      snippet: f.snippet,
-      cwe_ids: f.cwe_ids,
-    }));
-
-    const status = resolveItemStatus({
-      runStatus,
-      heatmapStatus: item.heatmap_status,
-      riskScore: item.risk_score,
-      findings: mappedFindings,
-    });
-
-    const unreachableCount = latestScanners.filter(
-      (s) => s.status === "unreachable"
-    ).length;
-    const totalScanners = latestScanners.length;
-    const partialNote =
-      runStatus === "partial-failed"
-        ? `${unreachableCount} out of ${totalScanners} scanners unreachable — risk from completed engines`
-        : null;
-
-    return {
-      id: item.id,
-      type: item.type || "skill",
-      name: item.name,
-      identifier: item.identifier || item.name,
-      status,
-      risk: item.risk_score,
-      quality: item.quality_score,
-      locus: item.install_locus || "unknown",
-      avail: item.source_availability || "unknown",
-      lastScan: isRunning ? null : (latestRun?.completed_at || latestRun?.started_at || null),
-      drifted: false,
-      scanStartedAt: isRunning ? latestRun.started_at : null,
-      errorMessage:
-        runStatus === "failed"
-          ? "Scan run failed"
-          : partialNote,
-      findings: mappedFindings,
-      scanners: latestScanners.map((s) => {
-        const scannerFindings = mappedFindings.filter(
-          (f) => f.scanner === s.scanner_source
-        );
-        const output = {};
-        if (s.detail) {
-          if (s.status === "completed" || s.status === "running") {
-            output.raw_summary = s.detail;
-          } else {
-            output.reason = s.detail;
-          }
-        } else if (s.status === "completed") {
-          const nFindings = scannerFindings.length;
-          const checks = s.checks_run || 1;
-          if (nFindings === 0) {
-            output.raw_summary = `${checks} checks passed — no findings`;
-          } else {
-            const worst = scannerFindings.find((f) => f.severity === "red")
-              ? "red"
-              : scannerFindings.find((f) => f.severity === "amber")
-                ? "amber"
-                : "info";
-            const brief = scannerFindings[0].message || "flagged";
-            const label = brief.length > 80 ? brief.slice(0, 77) + "…" : brief;
-            output.raw_summary = `${checks} checks — ${nFindings} finding${nFindings !== 1 ? "s" : ""} (${worst}): ${label}`;
-          }
-        }
-        if (s.console_output) {
-          output.console_output = s.console_output;
-        }
-        if (s.started_at && s.completed_at) {
-          output.duration_ms = new Date(s.completed_at) - new Date(s.started_at);
-        }
-        if (
-          s.scanner_source === "Tessl" &&
-          item.quality_score != null
-        ) {
-          output.quality_score = item.quality_score;
-        }
-        return {
-          source: s.scanner_source,
-          status: s.status,
-          checks_run: s.checks_run,
-          detail: s.detail || null,
-          started_at: s.started_at || null,
-          completed_at: s.completed_at || null,
-          output,
-        };
-      }),
-      trend: [],
-      sandbox: latestRun
-        ? {
-            id: latestRunId,
-            started: latestRun.started_at,
-            completed: latestRun.completed_at,
-            egressPhase: "live data",
-            denied: [],
-            cleanup: true,
-          }
-        : null,
-    };
-  });
+  const shaped = items.map(
+    (item) => shapeItem(item, runsByItem, scannersByRun, findingsByRun)
+  );
 
   return {
     items: shaped,

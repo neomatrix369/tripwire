@@ -153,6 +153,13 @@ repos:
         pass_filenames: false
         files: ^cli/.*\.js$
         stages: [pre-commit]
+      - id: eslint-dashboard
+        name: Live dashboard ESLint (security + complexity)
+        entry: bash -c 'cd prototypes/dc-dashboard && npm run lint'
+        language: system
+        pass_filenames: false
+        files: ^prototypes/dc-dashboard/.*\.js$
+        stages: [pre-commit]
 
   # ── Pre-push: push-specific gates only ───────────────────
   - repo: local

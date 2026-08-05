@@ -141,6 +141,8 @@ jobs:
           cache-dependency-path: prototypes/dc-dashboard/package-lock.json
       - run: npm ci
         working-directory: prototypes/dc-dashboard
+      - run: npm run lint
+        working-directory: prototypes/dc-dashboard
       - run: npm run test:coverage
         working-directory: prototypes/dc-dashboard
 
