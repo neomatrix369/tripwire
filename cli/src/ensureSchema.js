@@ -40,6 +40,18 @@ export async function probeSchema(supabase = getSupabase()) {
   return 'ready';
 }
 
+function pgSslConfig(url) {
+  return url.includes('localhost') || url.includes('127.0.0.1')
+    ? false
+    : { rejectUnauthorized: false };
+}
+
+function pgConnectHint(code) {
+  return code === 'ENOTFOUND' || code === 'ECONNREFUSED'
+    ? ' Check SUPABASE_DB_URL host (Project Settings → Database). Prefer the Session pooler URI if db.<ref>.supabase.co does not resolve, and confirm the project is not paused.'
+    : '';
+}
+
 export async function applySchema({
   dbUrl = process.env.SUPABASE_DB_URL,
   ClientImpl = Client,
@@ -56,20 +68,13 @@ export async function applySchema({
   }
 
   const sql = readFileSync(schemaPath(), 'utf8');
-  const client = new ClientImpl({
-    connectionString: url,
-    ssl: url.includes('localhost') || url.includes('127.0.0.1') ? false : { rejectUnauthorized: false },
-  });
+  const client = new ClientImpl({ connectionString: url, ssl: pgSslConfig(url) });
   try {
     await client.connect();
     await client.query(sql);
   } catch (err) {
-    const code = err && err.code;
-    const hint =
-      code === 'ENOTFOUND' || code === 'ECONNREFUSED'
-        ? ' Check SUPABASE_DB_URL host (Project Settings → Database). Prefer the Session pooler URI if db.<ref>.supabase.co does not resolve, and confirm the project is not paused.'
-        : '';
-    throw new Error(`Failed to apply schema via SUPABASE_DB_URL: ${err.message}.${hint}`);
+    const hint = pgConnectHint(err && err.code);
+    throw new Error(`Failed to apply schema via SUPABASE_DB_URL: ${err.message}.${hint}`, { cause: err });
   } finally {
     await client.end().catch(() => {});
   }
