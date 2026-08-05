@@ -35,6 +35,9 @@ You do not need to be a security specialist, but you should be ready to interpre
 findings and decide when to escalate them. The optional Mock preview is available
 for evaluating the dashboard without accounts; real scans require the setup below.
 
+If you plan to change Tripwire, start the [contributor setup](CONTRIBUTING.md#dev-hygiene)
+after cloning: it installs the commit and push hooks before your first change.
+
 ## Run your first Live scan
 
 Follow this order before running a scan or opening the Live dashboard. The

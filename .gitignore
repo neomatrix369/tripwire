@@ -58,3 +58,6 @@ coverage/
 .cache/
 tmp/
 .gate-cache/
+
+cli/.stryker-tmp/
+cli/reports/

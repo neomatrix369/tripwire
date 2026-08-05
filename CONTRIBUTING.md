@@ -40,21 +40,22 @@ Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Scanner output notes
 
 ```bash
 ./scripts/install-git-hooks.sh      # pre-commit + pre-push
-pre-commit run --all-files          # lint, mypy, bandit, gitleaks, fast tests
+pre-commit run --all-files          # lint, mypy, bandit, xenon, vulture, gitleaks, fast tests
 ./scripts/quality-gates.sh --quick  # T1 static analysis only
 ./scripts/quality-gates.sh          # T1 + coverage + cli tests + pip-audit
 ./scripts/quality-gates.sh --full   # above + scripts/security-scan.sh
 ./scripts/pip-audit.sh              # Python dep audit with project-specific ignores
 ```
 
-- **Commit:** ruff, mypy, bandit, gitleaks, pytest-testmon (`sandbox/tests/`), `cli` unit tests
-- **Push:** full pytest + coverage floor; conditional `pip-audit --skip-editable` / npm audit;
-  T3 deep scans (gitleaks full-tree + `scripts/security-scan.sh`) run **warn-only** — findings
-  print but do not block the push; CI is the authoritative blocking gate
+- **Commit:** ruff, mypy, bandit, xenon (complexity), vulture (dead code), gitleaks, pytest-testmon (`sandbox/tests/`); `cli` unit tests when `cli/` files staged
+- **Push:** full pytest + coverage floor (when Python changed); `cli` unit tests (when `cli/` changed); conditional `pip-audit --skip-editable` / npm audit;
+  T3 gitleaks commit-range scan (only pushed commits, fast) runs warn-only —
+  findings print but do not block the push; full SAST/SCA is CI-only
 - **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog
 - **Nightly** (`.github/workflows/nightly.yml`): full TruffleHog, SBOM, Meterian;
   mutmut (Python `sandbox/`,`guard/`) and Stryker (CLI `src/`) run but are **non-gating**
-  (`|| true` / `break: 0` — green Nightly does not mean mutation/Chalk passed)
+  (`break: 0` threshold — green Nightly does not mean high mutation score; Chalk failures
+  surface as ⚠ warnings via `continue-on-error: true`)
 
 **Coverage today (VERIFIED config):** Python `sandbox/` `fail_under=95` via
 `pytest` / `testpaths = ["sandbox/tests"]` (guard omitted); CLI

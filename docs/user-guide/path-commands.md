@@ -14,6 +14,9 @@ Live capabilities.
 Follow [repository and CLI bootstrap](./setup-commands.md#1-one-off-setup-commands)
 to clone the repository, install dependencies, and link `tripwire`.
 
+Before making a code or documentation change, complete [Dev hygiene](../../CONTRIBUTING.md#dev-hygiene)
+to install the local commit and push hooks.
+
 ## 3) Validate locally
 
 Use [local validation](./setup-commands.md#2-local-validation-node-22--mock-dashboard)
