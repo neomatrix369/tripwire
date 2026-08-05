@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-05
+
 ### Added
 - `cli/eslint.config.js` — flat-format ESLint 10 enforcement gate (`@eslint/js` + `globals.node`); `complexity: ['error', 10]` and `max-depth: ['error', 4]` now block in error mode at commit (eslint-cli hook) and CI (`npm run lint`), replacing the legacy `.eslintrc.cjs` for enforcement purposes
 - `prototypes/dc-dashboard/eslint.config.js` — flat-format ESLint enforcement gate for the live dashboard; same rules as CLI gate plus `globals.browser`; `support.js` (generated build artifact) excluded from linting
