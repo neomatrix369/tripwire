@@ -23,6 +23,9 @@ findings until the platform accounts, `.env`, schema, and Modal app are ready.
 
 1. [Confirm the prerequisites](docs/user-guide/prerequisites.md), then clone the
    repository and [install/link the CLI](docs/user-guide/setup-commands.md#repository-and-cli-bootstrap).
+
+   Contributors should complete [Dev hygiene](CONTRIBUTING.md#dev-hygiene) before
+   making their first change; this installs the local commit and push hooks.
 2. Create a [Supabase project](docs/user-guide/supabase-setup.md) and
    [Modal account](docs/user-guide/modal-setup.md). For complete scanner coverage,
    procure Snyk, Tessl, and Cisco credentials through
