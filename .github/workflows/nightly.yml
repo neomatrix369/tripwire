@@ -1,6 +1,6 @@
 name: Nightly
 
-# T4 slow/deep checks — Tripwire (no Stryker: cli uses node --test; no Dockerfile yet).
+# T4 slow/deep checks — Tripwire (Python: mutmut; CLI: Stryker node-test-runner; no Dockerfile yet).
 #
 # Status badge: README + docs/README.md (Nightly).
 # Primary stack (docs): Cursor · Modal · Supabase · Tripwire
@@ -36,6 +36,33 @@ jobs:
         with:
           name: mutation-python-${{ github.run_number }}
           path: mutation-results-python.xml
+          retention-days: 30
+          if-no-files-found: warn
+
+  mutation-tests-cli:
+    name: Mutation testing — CLI (Stryker)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+          cache-dependency-path: cli/package-lock.json
+      - run: npm ci
+        working-directory: cli
+      - name: Install Stryker (CI-only, no lockfile change)
+        run: npm install --no-save @stryker-mutator/core@^8 @stryker-mutator/node-test-runner@^8
+        working-directory: cli
+      - name: Run mutation tests
+        run: npx stryker run
+        working-directory: cli
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: mutation-cli-${{ github.run_number }}
+          path: cli/reports/mutation/
           retention-days: 30
           if-no-files-found: warn
 
