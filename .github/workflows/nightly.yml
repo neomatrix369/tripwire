@@ -1,6 +1,6 @@
 name: Nightly
 
-# T4 slow/deep checks — Tripwire (Python: mutmut; CLI: Stryker node-test-runner; no Dockerfile yet).
+# T4 slow/deep checks — Tripwire (Python: mutmut; CLI: Stryker command runner; no Dockerfile yet).
 #
 # Status badge: README + docs/README.md (Nightly).
 # Primary stack (docs): Cursor · Modal · Supabase · Tripwire
