@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `scripts/pre-push-gates.sh` — T3 now runs **gitleaks commit-range only** (pushed commits via `--log-opts FROM..TO`); full-tree SAST/SCA (`security-scan.sh`, semgrep, trivy, trufflehog) moved entirely to CI where latency is acceptable
+- `scripts/pre-push-gates.sh` — CLI unit tests at push now gated on `CLI_CHANGED`; previously ran unconditionally on every push even when no `cli/` files were touched
+- `.pre-commit-config.yaml` — added `xenon` (complexity) and `vulture` (dead code) hooks at commit stage; both `types: [python]` so they only fire on Python-file commits; thresholds match CI (`--max-absolute D`)
 - `.github/workflows/nightly.yml` Chalk job — replaced silent `|| true` with `continue-on-error: true` so Chalk failures appear as visible ⚠ warnings in the Actions UI rather than being swallowed
 - `CLAUDE.md` — added `## PR Composition` section so agent skills include the project Checklist in generated PR bodies
 

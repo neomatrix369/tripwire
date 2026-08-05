@@ -40,15 +40,15 @@ Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Scanner output notes
 
 ```bash
 ./scripts/install-git-hooks.sh      # pre-commit + pre-push
-pre-commit run --all-files          # lint, mypy, bandit, gitleaks, fast tests
+pre-commit run --all-files          # lint, mypy, bandit, xenon, vulture, gitleaks, fast tests
 ./scripts/quality-gates.sh --quick  # T1 static analysis only
 ./scripts/quality-gates.sh          # T1 + coverage + cli tests + pip-audit
 ./scripts/quality-gates.sh --full   # above + scripts/security-scan.sh
 ./scripts/pip-audit.sh              # Python dep audit with project-specific ignores
 ```
 
-- **Commit:** ruff, mypy, bandit, gitleaks, pytest-testmon (`sandbox/tests/`), `cli` unit tests
-- **Push:** full pytest + coverage floor; conditional `pip-audit --skip-editable` / npm audit;
+- **Commit:** ruff, mypy, bandit, xenon (complexity), vulture (dead code), gitleaks, pytest-testmon (`sandbox/tests/`); `cli` unit tests when `cli/` files staged
+- **Push:** full pytest + coverage floor (when Python changed); `cli` unit tests (when `cli/` changed); conditional `pip-audit --skip-editable` / npm audit;
   T3 gitleaks commit-range scan (only pushed commits, fast) runs warn-only —
   findings print but do not block the push; full SAST/SCA is CI-only
 - **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog
