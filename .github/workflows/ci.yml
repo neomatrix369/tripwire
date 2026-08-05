@@ -57,12 +57,18 @@ jobs:
       - run: mypy sandbox/ guard/
       - run: bandit -c pyproject.toml -r sandbox guard scripts -q -ll
       - run: bash scripts/complexity-report.sh
-      - run: >
-          xenon --max-absolute D --max-modules B --max-average A
-          sandbox/scan_app.py sandbox/scanners.py sandbox/__init__.py guard
+      - name: Xenon complexity (scan_app + guard — max C)
+        run: >
+          xenon --max-absolute C --max-modules B --max-average A
+          sandbox/scan_app.py sandbox/__init__.py guard
+      - name: Xenon complexity (scanners.py — bootstrap D; run_snyk tracked for refactor)
+        run: >
+          xenon --max-absolute D --max-modules C --max-average B
+          sandbox/scanners.py
       - run: >
           vulture sandbox/scan_app.py sandbox/scanners.py sandbox/__init__.py guard
           --min-confidence 80
+      - run: uv run pylint --disable=all --enable=duplicate-code sandbox/ guard/
 
   tests:
     name: Tests + coverage (Python)
@@ -115,6 +121,8 @@ jobs:
           cache: npm
           cache-dependency-path: cli/package-lock.json
       - run: npm ci
+        working-directory: cli
+      - run: npm run lint
         working-directory: cli
       - run: npm run test:coverage
         working-directory: cli

@@ -9,5 +9,9 @@ module.exports = {
     'no-implied-eval': 'error',
     'no-new-func': 'error',
     'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+    // Complexity enforcement — error mode so gate blocks.
+    // eslint.complexity.config.js uses warn+modified variant for PR annotation; no conflict.
+    'complexity': ['error', 10],
+    'max-depth': ['error', 4],
   },
 };
