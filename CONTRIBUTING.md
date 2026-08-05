@@ -40,7 +40,7 @@ Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Scanner output notes
 
 ```bash
 ./scripts/install-git-hooks.sh      # pre-commit + pre-push
-pre-commit run --all-files          # lint, mypy, bandit, xenon, vulture, pylint-duplication, eslint-cli, gitleaks, fast tests
+pre-commit run --all-files          # lint, mypy, bandit, xenon, vulture, pylint-duplication, eslint-cli, eslint-dashboard, gitleaks, fast tests
 ./scripts/quality-gates.sh --quick  # T1 static analysis only
 ./scripts/quality-gates.sh          # T1 + coverage + cli tests + pip-audit
 ./scripts/quality-gates.sh --full   # above + scripts/security-scan.sh
