@@ -140,7 +140,10 @@ jobs:
       - name: Set up Chalk
         uses: crashappsec/setup-chalk-action@v0.0.3
       - name: Chalk mark source artifacts
-        run: chalk insert sandbox/ guard/ scripts/ cli/ || true
+        # continue-on-error keeps the job green while making failures visible
+        # as a yellow ⚠ in the Actions UI — unlike || true which hides them
+        continue-on-error: true
+        run: chalk insert sandbox/ guard/ scripts/ cli/
       - name: Upload Chalk report
         if: always()
         uses: actions/upload-artifact@v7
