@@ -72,27 +72,23 @@ else
   echo "--- npm audit skipped (no cli package file changes) ---"
 fi
 
-# T3: deep security scans — full-tree gitleaks + security-scan.sh (warn-only at push)
-# Commit stage runs incremental diff via pre-commit hook; push stage runs full-tree scan.
-# Findings are warnings here — CI is the authoritative blocking gate for SAST/SCA.
-echo "--- T3: deep security scans (warn-only; blocking gate is in CI) ---"
+# T3: gitleaks commit-range scan (only commits being pushed)
+# Full-tree SAST/SCA (semgrep, osv-scanner, trivy, trufflehog) runs in CI where latency is fine.
+# Scanning only the pushed commit range keeps this step fast (<5s).
+echo "--- T3: gitleaks commit-range secrets scan ---"
 if command -v gitleaks &>/dev/null; then
-  if ! gitleaks detect --config .gitleaks.toml --source . --verbose; then
-    echo "⚠️  gitleaks: secrets detected — CI will block; fix before merge"
+  if [[ -n "$FROM_REF" && "$FROM_REF" != "0000000000000000000000000000000000000000" ]]; then
+    LEAK_RANGE="${FROM_REF}..${TO_REF}"
   else
-    echo "✅ gitleaks: no secrets found"
+    LEAK_RANGE="origin/main..HEAD"
+  fi
+  if ! gitleaks detect --config .gitleaks.toml --log-opts "$LEAK_RANGE"; then
+    echo "⚠️  gitleaks: secrets in pushed commits — CI will block; fix before merge"
+  else
+    echo "✅ gitleaks: no secrets in pushed commits"
   fi
 else
-  echo "⚠️  gitleaks not installed — skipping full-tree scan (brew install gitleaks)"
-fi
-security_exit=0
-bash scripts/security-scan.sh || security_exit=$?
-if [[ "$security_exit" -eq 0 ]]; then
-  echo "✅ security-scan passed"
-elif [[ "$security_exit" -eq 2 ]]; then
-  echo "⚠️  security-scan: no scanners available (skipped)"
-else
-  echo "⚠️  security-scan: findings detected — CI will block; fix before merge"
+  echo "⚠️  gitleaks not installed — skipping scan (brew install gitleaks)"
 fi
 
 echo "✅ pre-push gates passed"

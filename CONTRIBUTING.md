@@ -49,8 +49,8 @@ pre-commit run --all-files          # lint, mypy, bandit, gitleaks, fast tests
 
 - **Commit:** ruff, mypy, bandit, gitleaks, pytest-testmon (`sandbox/tests/`), `cli` unit tests
 - **Push:** full pytest + coverage floor; conditional `pip-audit --skip-editable` / npm audit;
-  T3 deep scans (gitleaks full-tree + `scripts/security-scan.sh`) run **warn-only** — findings
-  print but do not block the push; CI is the authoritative blocking gate
+  T3 gitleaks commit-range scan (only pushed commits, fast) runs warn-only —
+  findings print but do not block the push; full SAST/SCA is CI-only
 - **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog
 - **Nightly** (`.github/workflows/nightly.yml`): full TruffleHog, SBOM, Meterian;
   mutmut (Python `sandbox/`,`guard/`) and Stryker (CLI `src/`) run but are **non-gating**
