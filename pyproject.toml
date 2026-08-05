@@ -19,6 +19,7 @@ dev = [
     "radon>=6.0.0",
     "xenon>=0.9.0",
     "vulture>=2.11",
+    "pylint>=3.0",
 ]
 
 [build-system]
@@ -100,11 +101,16 @@ exclude = [
 ]
 
 [tool.xenon]
-# Bootstrap ceilings — run_snyk is D (CC≈24). Tighten toward C/B/A as adapters simplify.
-# Grade scale: A=best(<=5), B(<=10), C(<=15), D/E/F=too complex.
-max-absolute = "D"
-max-modules = "B"
-max-average = "A"
+# Split enforcement — scan_app.py + guard enforced at C (no D-grade functions there).
+# scanners.py kept at D (run_snyk CC≈24 is a known bootstrap exception; tracked for refactor).
+# Grade scale: A≤5, B≤10, C≤15, D/E/F too complex.
+max-absolute = "D"   # reference only; actual per-group enforcement is in pre-commit + CI
+
+[tool.pylint.similarities]
+min-similarity-lines = 6
+ignore-comments = true
+ignore-docstrings = true
+ignore-imports = true
 
 [tool.vulture]
 min_confidence = 80

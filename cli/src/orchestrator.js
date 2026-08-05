@@ -21,14 +21,10 @@ function normalizeIdentifier(targetPath) {
 }
 
 async function upsertItem(supabase, target) {
-  let contentHash = null;
   const identifier = normalizeIdentifier(target.target);
-  if (target.avail === 'source_on_disk') {
-    contentHash = await hashLocalPath(target.target);
-  } else {
-    // cloneable / introspection_only: hashed inside the sandbox after clone/introspection.
-    contentHash = 'pending:' + identifier;
-  }
+  const contentHash = target.avail === 'source_on_disk'
+    ? await hashLocalPath(target.target)
+    : 'pending:' + identifier;
   const { data: byHash } = await supabase.from('items').select('*').eq('content_hash', contentHash).maybeSingle();
   if (byHash) return { item: byHash, cached: true };
 

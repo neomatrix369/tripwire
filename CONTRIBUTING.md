@@ -40,15 +40,15 @@ Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Scanner output notes
 
 ```bash
 ./scripts/install-git-hooks.sh      # pre-commit + pre-push
-pre-commit run --all-files          # lint, mypy, bandit, xenon, vulture, gitleaks, fast tests
+pre-commit run --all-files          # lint, mypy, bandit, xenon, vulture, pylint-duplication, eslint-cli, eslint-dashboard, gitleaks, fast tests
 ./scripts/quality-gates.sh --quick  # T1 static analysis only
 ./scripts/quality-gates.sh          # T1 + coverage + cli tests + pip-audit
 ./scripts/quality-gates.sh --full   # above + scripts/security-scan.sh
 ./scripts/pip-audit.sh              # Python dep audit with project-specific ignores
 ```
 
-- **Commit:** ruff, mypy, bandit, xenon (complexity), vulture (dead code), gitleaks, pytest-testmon (`sandbox/tests/`); `cli` unit tests when `cli/` files staged
-- **Push:** full pytest + coverage floor (when Python changed); `cli` unit tests (when `cli/` changed); conditional `pip-audit --skip-editable` / npm audit;
+- **Commit:** ruff, mypy, bandit, xenon (complexity; split C/D ceiling), vulture (dead code), pylint duplicate-code, gitleaks, pytest-testmon (`sandbox/tests/`); `cli` ESLint + unit tests when `cli/` JS files staged; `prototypes/dc-dashboard` ESLint when dashboard JS files staged
+- **Push:** full pytest + coverage floor (when Python changed); `cli` unit tests + coverage (c8 ≥95%) when `cli/` changed; conditional `pip-audit --skip-editable` / npm audit;
   T3 gitleaks commit-range scan (only pushed commits, fast) runs warn-only —
   findings print but do not block the push; full SAST/SCA is CI-only
 - **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog

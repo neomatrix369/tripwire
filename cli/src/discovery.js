@@ -76,38 +76,40 @@ async function tryExpandManifest(filePath) {
   return null;
 }
 
+async function resolveTarget(t) {
+  if (/^https?:\/\//.test(t)) return [t];
+  if (t.endsWith('.json') && existsSync(t)) {
+    const expanded = await tryExpandManifest(t);
+    return expanded ? expanded : [t];
+  }
+  if (await isDir(t) && !existsSync(path.join(t, 'SKILL.md'))) {
+    return looksLikeMcpServer(t) ? [t] : await expandFolder(t);
+  }
+  return [t];
+}
+
+async function annotateWithTypes(resolved) {
+  const withTypes = [];
+  for (const t of resolved) {
+    const meta = typeof t === 'string'
+      ? await detectType(t)
+      : { type: 'mcp_server', locus: 'unknown', avail: 'unknown' };
+    withTypes.push({ target: typeof t === 'string' ? t : t.manifestEntry, ...meta });
+  }
+  return withTypes;
+}
+
 export async function discoverTargets({ targets, targetsFile, useDefaults }) {
   let raw = targets && targets.length ? targets : [];
   if (targetsFile) {
     const json = JSON.parse(await readFile(targetsFile, 'utf8'));
     raw = raw.concat(json.targets || []);
   }
-  if (raw.length === 0) {
-    if (!useDefaults) return [];
-    return discoverDefaults();
-  }
+  if (raw.length === 0) return useDefaults ? discoverDefaults() : [];
+
   const resolved = [];
   for (const t of raw) {
-    if (/^https?:\/\//.test(t)) {
-      resolved.push(t);
-    } else if (t.endsWith('.json') && existsSync(t)) {
-      const expanded = await tryExpandManifest(t);
-      if (expanded) resolved.push(...expanded);
-      else resolved.push(t);
-    } else if (await isDir(t) && !existsSync(path.join(t, 'SKILL.md'))) {
-      if (looksLikeMcpServer(t)) {
-        resolved.push(t);
-      } else {
-        resolved.push(...(await expandFolder(t)));
-      }
-    } else {
-      resolved.push(t);
-    }
+    resolved.push(...(await resolveTarget(t)));
   }
-  const withTypes = [];
-  for (const t of resolved) {
-    const meta = typeof t === 'string' ? await detectType(t) : { type: 'mcp_server', locus: 'unknown', avail: 'unknown' };
-    withTypes.push({ target: typeof t === 'string' ? t : t.manifestEntry, ...meta });
-  }
-  return withTypes;
+  return annotateWithTypes(resolved);
 }

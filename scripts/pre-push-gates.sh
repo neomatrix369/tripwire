@@ -56,10 +56,11 @@ else
   echo "--- pytest+coverage skipped (no Python source/dep changes) ---"
 fi
 
-# CLI unit tests — only when CLI files changed (commit hook already ran these for CLI-only commits)
+# CLI tests + coverage — only when CLI files changed (commit hook already ran bare tests)
+# Uses test:coverage (c8) to enforce the 95% floor before code reaches remote.
 if [[ "${CLI_CHANGED:-0}" -gt 0 ]]; then
-  echo "--- CLI unit tests ---"
-  (cd cli && npm test)
+  echo "--- CLI unit tests + coverage (c8 ≥95%) ---"
+  (cd cli && npm run test:coverage)
 else
   echo "--- CLI unit tests skipped (no cli/ changes) ---"
 fi
