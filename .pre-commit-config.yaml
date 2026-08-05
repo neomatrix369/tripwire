@@ -98,6 +98,24 @@ repos:
         types: [python]
         exclude: ^fixtures/
 
+  # ── Python complexity + dead code (fast; CI-only previously) ─
+  - repo: local
+    hooks:
+      - id: xenon
+        name: xenon complexity (max D absolute — matches CI)
+        entry: uv run xenon --max-absolute D --max-modules B --max-average A sandbox/scan_app.py sandbox/scanners.py sandbox/__init__.py guard
+        language: system
+        pass_filenames: false
+        types: [python]
+        exclude: ^fixtures/
+      - id: vulture
+        name: vulture dead code (≥80% confidence)
+        entry: uv run vulture sandbox/scan_app.py sandbox/scanners.py sandbox/__init__.py guard --min-confidence 80
+        language: system
+        pass_filenames: false
+        types: [python]
+        exclude: ^fixtures/
+
   # ── Commit: fast Python tests (testmon incremental) ───────
   - repo: local
     hooks:

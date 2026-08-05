@@ -32,10 +32,12 @@ if [[ -z "${CHANGED// }" ]]; then
   echo "⚠️  could not detect changed files — running all push checks"
   PY_CHANGED=1
   PY_DEPS=1
+  CLI_CHANGED=1
   CLI_DEPS=1
 else
   PY_CHANGED=$(echo "$CHANGED" | grep -cE '^(sandbox/|guard/|scripts/.*\.py|pyproject\.toml|uv\.lock)' || true)
   PY_DEPS=$(echo "$CHANGED" | grep -cE '^(pyproject\.toml|uv\.lock)$' || true)
+  CLI_CHANGED=$(echo "$CHANGED" | grep -cE '^cli/' || true)
   CLI_DEPS=$(echo "$CHANGED" | grep -cE '^cli/(package\.json|package-lock\.json)$' || true)
 fi
 
@@ -54,9 +56,13 @@ else
   echo "--- pytest+coverage skipped (no Python source/dep changes) ---"
 fi
 
-# Always run CLI unit tests on push (fast; mirrors CI cli-tests job)
-echo "--- CLI unit tests ---"
-(cd cli && npm test)
+# CLI unit tests — only when CLI files changed (commit hook already ran these for CLI-only commits)
+if [[ "${CLI_CHANGED:-0}" -gt 0 ]]; then
+  echo "--- CLI unit tests ---"
+  (cd cli && npm test)
+else
+  echo "--- CLI unit tests skipped (no cli/ changes) ---"
+fi
 
 if [[ "${PY_DEPS:-0}" -gt 0 ]]; then
   echo "--- pip-audit (Python deps changed) ---"
