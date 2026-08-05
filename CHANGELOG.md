@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `scripts/pip-audit.sh` — centralised Python dep audit with documented per-CVE ignore slots
+- `scripts/check_coverage_threshold_drift.py` — FE↔backend coverage threshold drift guard (self-skips when CLI has no vite config)
+- `.trivyignore` — Trivy CVE suppression starter with Why/Compensating-control/Unblock format enforced per entry
+- `.meterian` — Meterian SCA thresholds (security + licensing ≥95, CVSS ≥7.0); `METERIAN_API_TOKEN` already wired in CI
+- `.github/PULL_REQUEST_TEMPLATE.md` — PR description template aligned with `/create-pr` skill section names (`Summary`, `Test Results`, `Checklist`, `Closes`)
+- `.github/CODEOWNERS` — auto-reviewer assignment (`@neomatrix369` global fallback)
+- `cli/stryker.config.mjs` — Stryker config targeting `src/**/*.js` with `node-test-runner`, 80% kill threshold, HTML + JSON reporters
+- CLI mutation testing job in `nightly.yml` (`mutation-tests-cli`) — installs Stryker via `--no-save` (CI-only), uploads HTML/JSON report artifact (30-day retention)
+
+### Changed
+- `scripts/pre-push-gates.sh` — T3 security scans (gitleaks full-tree + `security-scan.sh`) added at push time; findings are **warn-only** — CI is the authoritative blocking gate
+- `CLAUDE.md` — added `## PR Composition` section so agent skills include the project Checklist in generated PR bodies
+
 ## [0.2.0] - 2026-08-04
 
 ### Added
