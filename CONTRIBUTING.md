@@ -54,7 +54,8 @@ pre-commit run --all-files          # lint, mypy, bandit, gitleaks, fast tests
 - **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog
 - **Nightly** (`.github/workflows/nightly.yml`): full TruffleHog, SBOM, Meterian;
   mutmut (Python `sandbox/`,`guard/`) and Stryker (CLI `src/`) run but are **non-gating**
-  (`|| true` / `break: 0` — green Nightly does not mean mutation/Chalk passed)
+  (`break: 0` threshold — green Nightly does not mean high mutation score; Chalk failures
+  surface as ⚠ warnings via `continue-on-error: true`)
 
 **Coverage today (VERIFIED config):** Python `sandbox/` `fail_under=95` via
 `pytest` / `testpaths = ["sandbox/tests"]` (guard omitted); CLI
