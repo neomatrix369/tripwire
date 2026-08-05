@@ -1,11 +1,15 @@
 // @ts-check
 /** @type {import('@stryker-mutator/api/core').PartialStrykerOptions} */
 const config = {
-  testRunner: "node-test-runner",
+  // Built-in command runner — works with `node --test` without extra packages
+  testRunner: "command",
+  commandRunner: {
+    command: "node --test test/*.test.js",
+  },
   // Mutate only production source, never test helpers or fixtures
   mutate: ["src/**/*.js", "!src/**/*.test.js"],
-  // Discovered via node --test; Stryker will re-run per mutant
-  coverageAnalysis: "perTest",
+  // command runner doesn't support per-test coverage analysis
+  coverageAnalysis: "off",
   // Kill threshold: 80% consistent with Python mutmut nightly budget
   thresholds: {
     high: 80,
