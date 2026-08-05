@@ -55,10 +55,16 @@ jobs:
       - name: Install Stryker (CI-only, no lockfile change)
         run: npm install --no-save @stryker-mutator/core@^8
         working-directory: cli
+      - name: Seed Stryker sandbox base with project-root fixtures
+        # Tests in cli/test/ navigate ../../db/ and ../fixtures/ which resolves
+        # to cli/.stryker-tmp/{db,fixtures} inside Stryker's sandbox. Pre-copy
+        # them so the dry-run passes without || true suppression.
+        run: |
+          mkdir -p cli/.stryker-tmp
+          cp -r db cli/.stryker-tmp/db
+          cp -r fixtures cli/.stryker-tmp/fixtures
       - name: Run mutation tests
-        # || true: non-gating — dry run may fail when fixture paths aren't resolved
-        # inside the Stryker sandbox; reports are still uploaded when available
-        run: npx stryker run || true
+        run: npx stryker run
         working-directory: cli
       - uses: actions/upload-artifact@v7
         if: always()
