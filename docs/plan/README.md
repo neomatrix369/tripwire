@@ -8,8 +8,9 @@ Horizon A trackers and slice stubs. **Slice files live in wave folders** (execut
 | 2 | [slices/02-B-characterization-evidence/](slices/02-B-characterization-evidence/) | Characterization + evidence (6, 5) |
 | 3 | [slices/03-C-trust-coverage-audit/](slices/03-C-trust-coverage-audit/) | Trust + coverage audit (7) |
 | 4 | [slices/04-D-operator-onboarding/](slices/04-D-operator-onboarding/) | Role-based onboarding (17) — ✅ |
-| 5 | [slices/05-E-ship-path-coverage/](slices/05-E-ship-path-coverage/) | Ship-path coverage (8–14) — **next** |
+| 5 | [slices/05-E-ship-path-coverage/](slices/05-E-ship-path-coverage/) | Ship-path coverage (8–14) — ✅ |
 | 6 | [slices/06-F-claim-audit/](slices/06-F-claim-audit/) | Claim audit (15–16) |
+| 7 | [slices/07-G-atdd-closure/](slices/07-G-atdd-closure/) | ATDD closure (18–22) — 📋 planned |
 
 | Tracker | Role |
 |---------|------|

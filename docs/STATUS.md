@@ -106,6 +106,7 @@ Known fixture gaps (not urgent) are listed under
 as shipped capabilities.
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
-(slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` … `06-F-claim-audit/`).
-Claim audit (slice 15) and slice 16 remediations are deferred; retain their
-artifacts for a future live/demo release.
+(slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` …
+`07-G-atdd-closure/`). Wave G (slices 18–22) is planned ATDD closure work, not
+current capability. Claim audit (slice 15) and slice 16 remediations are
+deferred; retain their artifacts for a future live/demo release.
