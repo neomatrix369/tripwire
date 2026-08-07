@@ -151,8 +151,8 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 ## Supporting Artifacts
 | File | Status |
 |------|--------|
-| [README.md](README.md) | ✅ wave folder map (`01-A-…` … `slices/06-F-claim-audit/`) |
-| `01-A-…` … `06-F-…/` | ✅ slice stubs by execution wave |
+| [README.md](README.md) | ✅ wave folder map (`01-A-…` … `slices/07-G-atdd-closure/`) |
+| `01-A-…` … `07-G-…/` | ✅ slice stubs by execution wave |
 | interview_summary.md | ✅ written |
 | PROGRESS.md | ✅ written |
 | DECISIONS.md | ✅ in progress |
