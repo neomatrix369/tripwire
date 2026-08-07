@@ -26,8 +26,9 @@ function createSupabaseStub({
   itemId = 'item-1',
   runId = 'run-1',
   batchId = 'batch-1',
+  batchError = null,
 } = {}) {
-  const calls = { failedUpdates: 0, rpc: 0, batches: 0, updates: 0 };
+  const calls = { failedUpdates: 0, rpc: 0, batches: [], updates: 0 };
 
   const supabase = {
     calls,
@@ -68,10 +69,14 @@ function createSupabaseStub({
         },
         insert(row) {
           if (table === 'scan_batches') {
+            calls.batches.push(row);
             return {
               select() {
                 return {
-                  single: () => makeThenable({ data: { id: batchId, ...row }, error: null }),
+                  single: () => makeThenable({
+                    data: batchError ? null : { id: batchId, ...row },
+                    error: batchError,
+                  }),
                 };
               },
             };
@@ -145,13 +150,14 @@ test('given spawn failure when runScan then marks failed and rolls up', async ()
   const targets = [{ target: dir, type: 'skill', locus: 'local', avail: 'source_on_disk' }];
 
   // -- When --
-  await runScan(targets, {
-    ensureSchemaFn: async () => ({ status: 'ready' }),
-    getSupabaseFn: () => sb,
-    spawnFn: async () => {
-      throw new Error('modal down');
-    },
-  });
+  await assert.rejects(
+    () => runScan(targets, {
+      ensureSchemaFn: async () => ({ status: 'ready' }),
+      getSupabaseFn: () => sb,
+      spawnFn: async () => { throw new Error('modal down'); },
+    }),
+    /target scan dispatch failure/,
+  );
 
   // -- Then --
   assert.ok(sb.calls.failedUpdates >= 1);
@@ -198,15 +204,56 @@ test('given multiple targets when runScan then creates batch', async () => {
   ];
 
   // -- When --
-  await runScan(targets, {
+  const result = await runScan(targets, {
     ensureSchemaFn: async () => ({ status: 'ready' }),
     getSupabaseFn: () => sb,
     spawnFn: async () => {},
   });
 
   // -- Then --
-  assert.ok(true); // batch insert path exercised without throw
+  assert.deepEqual(sb.calls.batches, [{
+    source_path: `${a},${b}`,
+    item_count: 2,
+    concurrency_limit: 5,
+  }]);
+  assert.equal(result.batch_id, 'batch-1');
+  assert.deepEqual(result.scan_run_ids, ['run-1', 'run-1']);
+  assert.deepEqual(result.failed_targets, []);
   await rm(root, { recursive: true, force: true });
+});
+
+test('given batch persistence failure when multiple targets scan then it aborts before dispatch', async () => {
+  // -- Given --
+  const sb = createSupabaseStub({ batchError: { message: 'database unavailable' } });
+  const targets = [
+    { target: 'https://one.example/mcp', type: 'mcp_server', avail: 'introspection_only' },
+    { target: 'https://two.example/mcp', type: 'mcp_server', avail: 'introspection_only' },
+  ];
+
+  // -- When / Then --
+  await assert.rejects(
+    () => runScan(targets, {
+      ensureSchemaFn: async () => ({ status: 'ready' }),
+      getSupabaseFn: () => sb,
+      spawnFn: async () => assert.fail('dispatch must not start'),
+    }),
+    /Failed to create scan batch: database unavailable/,
+  );
+});
+
+test('given zero concurrency through the orchestration API when scan starts then it rejects before schema work', async () => {
+  // -- Given --
+  let schemaCalls = 0;
+
+  // -- When / Then --
+  await assert.rejects(
+    () => runScan([], {
+      concurrency: 0,
+      ensureSchemaFn: async () => { schemaCalls += 1; },
+    }),
+    /positive integer/,
+  );
+  assert.equal(schemaCalls, 0);
 });
 
 async function mkdirSafe(p) {

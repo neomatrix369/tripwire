@@ -1,6 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
+import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { promisify } from 'node:util';
 
 const exec = promisify(execFile);
@@ -54,4 +57,44 @@ test('setup reports its environment requirement instead of applying schema witho
       return true;
     },
   );
+});
+
+test('given invalid concurrency when scan starts then it exits before discovery or persistence', async () => {
+  // -- Given --
+  const args = [tripwireBin, 'scan', '--concurrency', '0', '--no-defaults'];
+
+  // -- When / Then --
+  await assert.rejects(
+    () => exec('node', args),
+    (error) => error.code === 1 && /positive integer/.test(error.stderr),
+  );
+});
+
+test('given malformed targets JSON when dry discovery runs then it exits with an actionable error', async () => {
+  // -- Given --
+  const dir = await mkdtemp(path.join(tmpdir(), 'tw-targets-'));
+  const targets = path.join(dir, 'targets.json');
+  await writeFile(targets, '{not-json');
+
+  // -- When / Then --
+  try {
+    await assert.rejects(
+      () => exec('node', [tripwireBin, 'scan', '--targets', targets, '--dry-discover']),
+      (error) => error.code === 1 && /JSON|property name/.test(error.stderr),
+    );
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('given an explicit MCP endpoint when dry discovery runs then it reports the discovered target without scanning', async () => {
+  // -- Given --
+  const endpoint = 'https://mcp.example.test/sse';
+
+  // -- When --
+  const { stdout } = await exec('node', [tripwireBin, 'scan', endpoint, '--dry-discover']);
+
+  // -- Then --
+  assert.match(stdout, /mcp\.example\.test/);
+  assert.match(stdout, /introspection_only/);
 });

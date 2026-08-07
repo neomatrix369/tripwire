@@ -34,17 +34,24 @@ program
   .option('--no-defaults', 'error instead of scanning machine defaults on empty args')
   .option('--dry-discover', 'print discovered targets and exit, spawn nothing')
   .action(async (targets, opts) => {
-    const list = await discoverTargets({ targets, targetsFile: opts.targets, useDefaults: opts.defaults !== false });
-    if (opts.dryDiscover) {
-      console.log(JSON.stringify(list, null, 2));
-      return;
-    }
-    if (list.length === 0) {
-      console.error('No targets found. Pass a path/URL, or run inside a folder with agent-installed skills/MCP configs.');
+    try {
+      const concurrency = Number(opts.concurrency);
+      if (!Number.isInteger(concurrency) || concurrency < 1) {
+        throw new Error('--concurrency must be a positive integer');
+      }
+      const list = await discoverTargets({ targets, targetsFile: opts.targets, useDefaults: opts.defaults !== false });
+      if (opts.dryDiscover) {
+        console.log(JSON.stringify(list, null, 2));
+        return;
+      }
+      if (list.length === 0) {
+        throw new Error('No targets found. Pass a path/URL, or run inside a folder with agent-installed skills/MCP configs.');
+      }
+      await runScan(list, { concurrency, force: Boolean(opts.force) });
+    } catch (err) {
+      console.error(err.message || err);
       process.exitCode = 1;
-      return;
     }
-    await runScan(list, { concurrency: Number(opts.concurrency), force: Boolean(opts.force) });
   });
 
 program.parseAsync(process.argv);
