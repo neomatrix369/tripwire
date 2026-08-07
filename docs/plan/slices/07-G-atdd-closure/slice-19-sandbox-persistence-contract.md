@@ -39,10 +39,9 @@ Each sandbox scan leaves an exact, auditable Supabase state: scanner progress an
 
 ## Before-Checks [GATE]
 
-- [ ] Existing sandbox coverage baseline recorded
-- [ ] In-memory port fake supports the chained operations used by `_scan_item_inner`
-- [ ] Existing duplicate scanner-row migration safety reviewed
-- [ ] Existing installation upgrade path proves migration version `20260807` is applied even when schema probes pass
+- [ ] `uv run pytest sandbox/tests -q --cov=sandbox` output is recorded in `docs/plan/gate-evidence/slice-19.json`
+- [ ] The in-memory port fake's accepted operations are listed in `docs/plan/gate-evidence/slice-19.json`
+- [ ] `bash scripts/test-schema-contract.sh scan_run_scanner_identity` records duplicate-survivor and version-`20260807` results in evidence
 
 ## TDD execution
 
@@ -61,9 +60,9 @@ REFACTOR: keep the fake focused on externally observable Supabase behavior, not 
 - [ ] Wrong table, missing finding, duplicate scanner row, incorrect final status, and second rollup each make a scenario fail
 - [ ] Coverage target: governed `sandbox/` remains ≥95%; `guard/` remains excluded
 - [ ] Complexity evidence: **enforcing** via `./scripts/quality-gates.sh`, with `.reports/complexity/pr-body.md` reviewer summary
-- [ ] nWave acceptance and software-crafter reviewers approve the slice before implementation closes
+- [ ] `docs/plan/gate-evidence/slice-19.json.review` records `acceptance: APPROVED` and `implementation: APPROVED`
 - [ ] `docs/plan/gate-evidence/slice-19.json` records commands, coverage, complexity, reviewer verdicts, and `PASS`
-- [ ] Documentation audit: persistence contract/docs reviewed; N/A outcome recorded if unchanged
+- [ ] `docs/plan/gate-evidence/slice-19.json.documentation_audit` records the changed persistence-operation path and `rg` result, or `N/A` with reason
 
 ## Gate Status
 

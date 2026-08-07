@@ -29,8 +29,8 @@ The scanner adapters are verified through the real process boundary, so executab
 
 ## Before-Checks [GATE]
 
-- [ ] Recorded valid/error payloads selected from existing test data
-- [ ] Tests run on supported local shell/platform without vendor installation
+- [ ] Fixture paths and valid/error payload names are recorded in `docs/plan/gate-evidence/slice-20.json`
+- [ ] `uv run pytest sandbox/tests -q` exits 0 with temporary `PATH` executables and no vendor binary installed
 
 ## TDD execution
 
@@ -47,9 +47,9 @@ REFACTOR: share a minimal temporary-executable fixture; avoid test-only producti
 - [ ] `uv run pytest sandbox/tests -q` and `./scripts/quality-gates.sh` pass
 - [ ] Coverage target: governed `sandbox/` remains ≥95%; `guard/` remains excluded
 - [ ] Complexity evidence: **enforcing** via `./scripts/quality-gates.sh`, with `.reports/complexity/pr-body.md` reviewer summary
-- [ ] nWave acceptance and software-crafter reviewers approve the slice before implementation closes
+- [ ] `docs/plan/gate-evidence/slice-20.json.review` records `acceptance: APPROVED` and `implementation: APPROVED`
 - [ ] `docs/plan/gate-evidence/slice-20.json` records commands, coverage, complexity, reviewer verdicts, and `PASS`
-- [ ] Documentation audit: adapter operation docs reviewed; N/A outcome recorded if unchanged
+- [ ] `docs/plan/gate-evidence/slice-20.json.documentation_audit` records the updated adapter-operation path and `rg` result, or `N/A` with reason
 
 ## Gate Status
 

@@ -9,19 +9,19 @@ The Live indicator reflects actual subscription state, and the dashboard safely 
 ## GWT acceptance specification
 
 1. **The Live indicator turns off when the service reports an error** `@contract-shape:bounded-change`
-   - Given a subscribed realtime channel, when fixture status `CHANNEL_ERROR` arrives, then `connected()` is false, the UI reports Live unavailable, and the 8-second fallback poll is active while work remains running.
+   - Given a connected Live dashboard loses event delivery through an error, when the error is reported, then the Live indicator shows unavailable and running work continues to refresh through fallback polling.
 2. **The Live indicator turns off when the subscription times out** `@contract-shape:bounded-change`
-   - Given a subscribed realtime channel, when fixture status `TIMED_OUT` arrives, then `connected()` is false, the UI reports Live unavailable, and the 8-second fallback poll is active while work remains running.
+   - Given a connected Live dashboard receives no timely subscription response, when it times out, then the Live indicator shows unavailable and running work continues to refresh through fallback polling.
 3. **The Live indicator turns off when the channel closes** `@contract-shape:bounded-change`
-   - Given a subscribed realtime channel, when fixture status `CLOSED` arrives, then `connected()` is false, the UI reports Live unavailable, and the 8-second fallback poll is active while work remains running.
+   - Given a connected Live dashboard has its event channel closed, when it closes, then the Live indicator shows unavailable and running work continues to refresh through fallback polling.
 4. **The Live indicator returns when realtime recovers** `@contract-shape:bounded-change`
-   - Given a failed channel later emits `SUBSCRIBED`, when the subscription recovers, then the UI is notified, realtime becomes connected again, fallback polling stops unless the existing 30-second running-item safeguard applies, and no obsolete channel remains registered.
+   - Given Live updates recover after an interruption, when delivery resumes, then the Live indicator shows available and the dashboard returns to its normal refresh policy.
 5. **Dashboard loading recovers if no subscription confirmation arrives** `@contract-shape:bounded-change`
-   - Given a subscription callback never arrives, when the dashboard initializes, then it resolves into disconnected recovery within 10 seconds and schedules exactly one fallback poll when work is running.
+   - Given the dashboard cannot confirm Live updates during initialization, when the confirmation deadline passes, then it presents an unavailable indicator and continues to refresh running work through one fallback policy.
 6. **Replacing a pending subscription does not leave stale work behind** `@contract-shape:bounded-change`
-   - Given an unsubscribe occurs while a subscription is pending, when the dashboard resubscribes, then only the active channel remains registered and exactly one fallback poll is scheduled when work is running.
+   - Given an operator changes Live data context while connection is pending, when the dashboard reconnects, then the newest connection alone controls the displayed availability and fallback refresh.
 7. **A removed channel cannot mislead the dashboard** `@contract-shape:bounded-change`
-   - Given a replacement subscription is active, when the removed channel later emits any status, then it cannot change the current connection indicator or polling policy.
+   - Given the dashboard has replaced an older Live connection, when a late event arrives from the old connection, then the operator sees no change to the current availability or refresh behavior.
 
 ## Design / test treatment
 
@@ -40,8 +40,8 @@ The Live indicator reflects actual subscription state, and the dashboard safely 
 
 ## Before-Checks [GATE]
 
-- [ ] Existing dashboard realtime test baseline recorded
-- [ ] Existing polling fallback/running-item safeguard identified before change
+- [ ] `(cd prototypes/dc-dashboard && npm run test:coverage)` output is recorded in `docs/plan/gate-evidence/slice-22.json`
+- [ ] `rg -n "_startPollFallback|30000|8000" prototypes/dc-dashboard/Tripwire.dc.html` output is recorded in evidence
 
 ## TDD execution
 
@@ -56,9 +56,9 @@ REFACTOR: ensure repeated subscribe removes the obsolete channel before register
 - [ ] `(cd prototypes/dc-dashboard && npm test && npm run lint)` and `./scripts/quality-gates.sh` pass
 - [ ] Coverage/complexity policy: dashboard remains **excluded** from governed thresholds; normal tests remain mandatory
 - [ ] Complexity evidence: **reporting only** for prototype dashboard; `cd prototypes/dc-dashboard && npx eslint -c eslint.complexity.config.js *.js` passes or its warnings are recorded verbatim in gate evidence, without changing excluded thresholds
-- [ ] nWave acceptance and software-crafter reviewers approve the slice before implementation closes
+- [ ] `docs/plan/gate-evidence/slice-22.json.review` records `acceptance: APPROVED` and `implementation: APPROVED`
 - [ ] `docs/plan/gate-evidence/slice-22.json` records commands, test results, complexity report, reviewer verdicts, scope exclusion, and `PASS`
-- [ ] Documentation audit: realtime status/recovery behavior reviewed and updated if public behavior changes
+- [ ] `docs/plan/gate-evidence/slice-22.json.documentation_audit` records the updated Live-status path and `rg` result, or `N/A` with reason
 
 ## Gate Status
 

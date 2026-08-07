@@ -9,7 +9,7 @@ Every dashboard card reflects its actual latest scan, regardless of unrelated gl
 ## GWT acceptance specification
 
 1. **Every dashboard card has a trustworthy newest result** `@contract-shape:bounded-change`
-   - Given an ephemeral repository-supported Postgres/Supabase schema with more than 200 newer runs for other items and two timestamp-tied runs for a target item, when `dashboard_latest_runs` is queried as dashboard roles, then it returns exactly one row per item and the target's deterministic latest row.
+   - Given more than 200 newer runs for other items and two equally timed runs for one target, when Live data is prepared, then the target card has exactly one deterministic newest result.
 2. **An operator sees the item’s actual newest scan** `@contract-shape:bounded-change`
    - Given more than 200 newer runs belonging to other items, when the dashboard loads an item whose latest run lies outside that former global page, then its card shows that item’s real latest state.
 
@@ -24,8 +24,8 @@ Every dashboard card reflects its actual latest scan, regardless of unrelated gl
 
 ## Before-Checks [GATE]
 
-- [ ] Existing dashboard test baseline recorded
-- [ ] View migration/policy compatibility checked against current schema and dashboard read access
+- [ ] `(cd prototypes/dc-dashboard && npm run test:coverage)` output is recorded in `docs/plan/gate-evidence/slice-21.json`
+- [ ] `bash scripts/test-schema-contract.sh dashboard_latest_runs` records the view/RLS compatibility result in `docs/plan/gate-evidence/slice-21.json`
 
 ## TDD execution
 
@@ -37,14 +37,14 @@ REFACTOR: keep dashboard source boundaries unchanged except the latest-run data 
 
 - [ ] >200 unrelated-run scenario proves per-item latest state
 - [ ] Migration test proves security-invoker access, deterministic tie-breaking, and one latest row per item
-- [ ] Live adapter requests `dashboard_latest_runs` and never `scan_runs`
+- [ ] `tripwire-live.js` has no REST `supabaseGet(..., "scan_runs", ...)` latest-state request; base-table Realtime subscriptions remain permitted
 - [ ] `bash scripts/test-schema-contract.sh dashboard_latest_runs` passes
 - [ ] `(cd prototypes/dc-dashboard && npm test && npm run lint)` and `./scripts/quality-gates.sh` pass
 - [ ] Coverage/complexity policy: dashboard remains **excluded** from governed thresholds by the recorded scope decision; tests remain mandatory
 - [ ] Complexity evidence: **reporting only** for prototype dashboard; `cd prototypes/dc-dashboard && npx eslint -c eslint.complexity.config.js *.js` passes or its warnings are recorded verbatim in gate evidence, without changing excluded thresholds
-- [ ] nWave acceptance and software-crafter reviewers approve the slice before implementation closes
+- [ ] `docs/plan/gate-evidence/slice-21.json.review` records `acceptance: APPROVED` and `implementation: APPROVED`
 - [ ] `docs/plan/gate-evidence/slice-21.json` records commands, test results, complexity report, reviewer verdicts, scope exclusion, and `PASS`
-- [ ] Documentation audit: dashboard data behavior reviewed and updated if public behavior changes
+- [ ] `docs/plan/gate-evidence/slice-21.json.documentation_audit` records the updated public dashboard path and `rg` result, or `N/A` with reason
 
 ## Gate Status
 
