@@ -12,7 +12,9 @@ using tmp dirs and subprocess mocking — no network, no Modal, no Supabase.
 import os
 import subprocess
 import sys
+import tarfile
 import types
+from io import BytesIO
 from unittest.mock import patch
 
 import pytest
@@ -78,6 +80,7 @@ from scan_app import (  # noqa: E402
     _looks_like_filesystem_path,
     _maybe_pack_local_target,
     _pack_local_dir,
+    main,
 )
 
 # ── _is_git_url classification ──────────────────────────────────────────────
@@ -217,6 +220,34 @@ def test_pack_and_extract_roundtrip_preserves_skill_md(tmp_path):
     assert os.path.isfile(os.path.join(workdir, "notes", "extra.txt")), "nested file missing"
 
 
+def test_given_path_traversal_archive_when_extracting_then_it_is_rejected_without_writing_outside(
+    tmp_path,
+):
+    """
+    Scenario: Uploaded archives cannot escape the sandbox work directory.
+    Slice: archive acquisition safety
+
+    Given a tar archive containing a ../ path traversal member,
+    When the sandbox extracts it,
+    Then extraction raises and no file is created outside the requested workdir.
+    """
+    ### Given
+    workdir = tmp_path / "workdir"
+    workdir.mkdir()
+    escaped = tmp_path / "escaped.txt"
+    payload = BytesIO()
+    with tarfile.open(fileobj=payload, mode="w:gz") as tar:
+        member = tarfile.TarInfo("../escaped.txt")
+        data = b"unsafe"
+        member.size = len(data)
+        tar.addfile(member, BytesIO(data))
+
+    ### When / Then
+    with pytest.raises(tarfile.FilterError):
+        _extract_archive(payload.getvalue(), str(workdir))
+    assert not escaped.exists()
+
+
 def test_maybe_pack_local_target_returns_bytes_for_directory(tmp_path):
     ### Given
     src = tmp_path / "skill"
@@ -270,6 +301,35 @@ def test_acquire_target_extracts_uploaded_archive(tmp_path):
     skill_path = os.path.join(workdir, "SKILL.md")
     assert os.path.isfile(skill_path), "expected SKILL.md from uploaded archive"
     assert open(skill_path).read() == "# From host\n"
+
+
+def test_given_local_target_when_host_entrypoint_runs_then_it_hands_the_archive_to_modal() -> None:
+    """
+    Scenario: Local source crosses the host-to-sandbox boundary as an archive.
+    Slice: production Modal handoff
+
+    Given the host can pack a local target,
+    When the Modal entrypoint starts a scan,
+    Then scan_item.remote receives the target identity and exact archive bytes.
+    """
+    ### Given
+    archive = b"packed-local-target"
+
+    ### When
+    with (
+        patch("scan_app._maybe_pack_local_target", return_value=archive),
+        patch("scan_app.scan_item") as scan_item,
+    ):
+        main("fixtures/skill", "skill", "item-1", "run-1")
+
+    ### Then
+    scan_item.remote.assert_called_once_with(
+        target="fixtures/skill",
+        item_type="skill",
+        item_id="item-1",
+        scan_run_id="run-1",
+        target_archive=archive,
+    )
 
 
 def test_acquire_target_raises_when_local_path_missing_without_archive(tmp_path):

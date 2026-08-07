@@ -63,6 +63,14 @@ test('given non-schema probe error when probeSchema then throws', async () => {
   await assert.rejects(() => probeSchema(sb), /Supabase probe failed/);
 });
 
+test('given completed_at probe auth failure when probeSchema then aborts rather than reporting ready', async () => {
+  // -- Given --
+  const sb = mockSupabase({ colError: { message: 'JWT expired' } });
+
+  // -- When / Then --
+  await assert.rejects(() => probeSchema(sb), /Supabase probe failed: JWT expired/);
+});
+
 test('given empty db url when applySchema then throws', async () => {
   // -- Given / When / Then --
   await assert.rejects(() => applySchema({ dbUrl: '' }), /Set SUPABASE_DB_URL/);

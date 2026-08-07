@@ -927,6 +927,37 @@ def test_given_non_dict_path_result_when_snyk_then_skipped() -> None:
     assert rows[0]["status"] == "completed"
 
 
+def test_given_mixed_snyk_path_results_when_one_path_errors_then_scan_is_partial_not_clean() -> (
+    None
+):
+    """
+    Scenario: Partial Snyk evidence cannot be certified as a clean scan.
+    Slice: scanner evidence integrity
+
+    Given one Snyk path has findings and another returns an error,
+    When the Snyk adapter maps the response,
+    Then findings are retained but the scanner status is unreachable for roll-up.
+    """
+    ### Given
+    payload = {
+        "/tmp/ok": {"issues": [{"code": "E004", "message": "prompt injection"}]},
+        "/tmp/error": {"error": "permission denied"},
+    }
+
+    ### When
+    with (
+        patch.dict("os.environ", {"SNYK_TOKEN": "t"}, clear=False),
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", return_value=(0, json.dumps(payload), "")),
+    ):
+        findings, rows = scanners.run_snyk("/tmp", "mcp_server")
+
+    ### Then
+    assert len(findings) == 1
+    assert rows[0]["status"] == "unreachable"
+    assert "permission denied" in rows[0]["detail"]
+
+
 def test_given_tessl_no_console_when_completed_then_no_console_key() -> None:
     """
     Scenario: Empty Tessl console omits console_output key.
@@ -944,6 +975,29 @@ def test_given_tessl_no_console_when_completed_then_no_console_key() -> None:
     ### Then
     assert score == 1
     assert "console_output" not in rows[0]
+
+
+def test_given_tessl_empty_success_output_when_run_then_not_reported_completed() -> None:
+    """
+    Scenario: Tessl needs a parseable quality score to certify completion.
+    Slice: scanner evidence integrity
+
+    Given Tessl exits zero but writes an empty JSON object,
+    When the quality adapter maps the response,
+    Then it is unreachable instead of a one-check clean result.
+    """
+    ### Given / When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t"}, clear=False),
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", return_value=(0, "{}", "")),
+    ):
+        score, rows = scanners.run_tessl("/tmp")
+
+    ### Then
+    assert score is None
+    assert rows[0]["status"] == "unreachable"
+    assert "no parseable quality score" in rows[0]["detail"]
 
 
 def test_given_on_scanner_start_when_run_all_skill_then_signalled() -> None:

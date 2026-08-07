@@ -92,14 +92,14 @@ def test_given_prefixed_json_when_safe_json_then_object_extracted() -> None:
     assert actual["findings"][0]["severity"] == "CRITICAL"
 
 
-def test_given_malformed_payload_when_scanner_runs_then_completed_with_no_findings() -> None:
+def test_given_malformed_payload_when_scanner_runs_then_marks_the_engine_unreachable() -> None:
     """
-    Scenario: Malformed skill-scanner stdout does not crash; yields empty map.
-    Slice: slice-8 — malformed payload
+    Scenario: A successful exit without parseable scanner evidence is not clean.
+    Slice: scanner evidence integrity
 
     Given non-JSON stdout and exit 0,
     When run_cisco_skill_scanner runs,
-    Then findings are empty and the static row completes with zero mapped findings.
+    Then findings are empty and the static row is unreachable, never a false clean result.
     """
     ### Given
     stdout = _load("malformed.txt")
@@ -118,8 +118,8 @@ def test_given_malformed_payload_when_scanner_runs_then_completed_with_no_findin
 
     ### Then
     assert findings == []
-    assert rows[0]["status"] == "completed"
-    assert "no findings" in rows[0]["detail"]
+    assert rows[0]["status"] == "unreachable"
+    assert "no parseable JSON" in rows[0]["detail"]
 
 
 @pytest.mark.parametrize(("raw", "expected"), SEVERITY_COLLAPSE_CASES)

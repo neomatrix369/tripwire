@@ -208,3 +208,31 @@ def test_given_usage_stderr_when_live_fails_then_behavioral_not_marked_unreachab
         by_src["Cisco MCP Scanner: Behavioral Code Scanning"]["status"]
         == "skipped_missing_credential"
     )
+
+
+def test_given_empty_success_envelope_when_live_scan_runs_then_yara_is_not_reported_clean(
+    tmp_path,
+) -> None:
+    """
+    Scenario: An empty MCP success response has no scanner evidence.
+    Slice: scanner evidence integrity
+
+    Given mcp-scanner exits zero with an empty JSON envelope,
+    When the live MCP scan is mapped,
+    Then YARA is unreachable and its detail explains that scan results were absent.
+    """
+    ### Given
+    (tmp_path / "run.sh").write_text("#!/bin/bash\n")
+
+    ### When
+    with (
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", return_value=(0, "{}", "")),
+        patch.dict(os.environ, {"MCP_SCANNER_LLM_API_KEY": ""}, clear=False),
+    ):
+        _findings, rows = scanners.run_cisco_mcp_scanner(str(tmp_path), str(tmp_path))
+
+    ### Then
+    yara = next(row for row in rows if row["scanner_source"] == "Cisco MCP Scanner: YARA")
+    assert yara["status"] == "unreachable"
+    assert "no parseable scan_results" in yara["detail"]

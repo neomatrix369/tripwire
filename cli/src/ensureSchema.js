@@ -35,7 +35,10 @@ export async function probeSchema(supabase = getSupabase()) {
     .from('scan_run_scanners')
     .select('completed_at')
     .limit(1);
-  if (colErr && isMissingSchemaError(colErr)) return 'missing';
+  if (colErr) {
+    if (isMissingSchemaError(colErr)) return 'missing';
+    throw new Error(`Supabase probe failed: ${colErr.message || colErr.code || 'unknown error'}`);
+  }
 
   return 'ready';
 }

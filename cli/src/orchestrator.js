@@ -57,29 +57,12 @@ async function upsertItem(supabase, target) {
   return { item: inserted, cached: false };
 }
 
-export async function runScan(targets, {
-  concurrency = 5,
-  force = false,
-  // Injectable seams for characterization tests (defaults preserve production path).
-  ensureSchemaFn = ensureSchema,
-  getSupabaseFn = getSupabase,
-  spawnFn = spawnScanSandbox,
-} = {}) {
-  await ensureSchemaFn();
-  const supabase = getSupabaseFn();
-  let batchId = null;
-  if (targets.length > 1) {
-    const { data: batch } = await supabase.from('scan_batches').insert({
-      source_path: targets.map(t => t.target).join(','), item_count: targets.length, concurrency_limit: concurrency
-    }).select().single();
-    batchId = batch.id;
-  }
-
-  const scanRunIds = await mapWithConcurrency(targets, concurrency, async (target) => {
+async function dispatchTarget(supabase, target, { batchId, force, spawnFn }) {
+  try {
     const { item, cached } = await upsertItem(supabase, target);
     if (cached && !force) {
       console.log(`[skip] ${target.target} — content unchanged since last scan`);
-      return null;
+      return { target: target.target, scanRunId: null };
     }
     const { data: run, error: runError } = await supabase.from('scan_runs').insert({
       item_id: item.id, batch_id: batchId, status: 'running'
@@ -88,13 +71,65 @@ export async function runScan(targets, {
 
     try {
       await spawnFn({ target: target.target, itemType: target.type, itemId: item.id, scanRunId: run.id });
+      return { target: target.target, scanRunId: run.id };
     } catch (err) {
       console.error(`[error] sandbox failed for ${target.target}: ${err.message}`);
       await supabase.from('scan_runs').update({ status: 'failed', completed_at: new Date().toISOString() }).eq('id', run.id);
       await supabase.rpc('tripwire_rollup_item', { p_item_id: item.id });
+      return { target: target.target, scanRunId: run.id, error: err.message };
     }
-    return run.id;
-  });
+  } catch (err) {
+    const message = err.message || String(err);
+    console.error(`[error] scan dispatch failed for ${target.target}: ${message}`);
+    return { target: target.target, scanRunId: null, error: message };
+  }
+}
 
-  console.log(JSON.stringify({ batch_id: batchId, scan_run_ids: scanRunIds.filter(Boolean) }, null, 2));
+function assertPositiveConcurrency(concurrency) {
+  if (!Number.isInteger(concurrency) || concurrency < 1) {
+    throw new Error('--concurrency must be a positive integer');
+  }
+}
+
+async function createScanBatch(supabase, targets, concurrency) {
+  const { data: batch, error } = await supabase.from('scan_batches').insert({
+    source_path: targets.map(t => t.target).join(','), item_count: targets.length, concurrency_limit: concurrency
+  }).select().single();
+  if (error) throw new Error(`Failed to create scan batch: ${error.message || error.code || 'unknown error'}`);
+  return batch.id;
+}
+
+export async function runScan(targets, {
+  concurrency = 5,
+  force = false,
+  // Injectable seams for characterization tests (defaults preserve production path).
+  ensureSchemaFn = ensureSchema,
+  getSupabaseFn = getSupabase,
+  spawnFn = spawnScanSandbox,
+} = {}) {
+  assertPositiveConcurrency(concurrency);
+  await ensureSchemaFn();
+  const supabase = getSupabaseFn();
+  let batchId = null;
+  if (targets.length > 1) {
+    batchId = await createScanBatch(supabase, targets, concurrency);
+  }
+
+  const outcomes = await mapWithConcurrency(
+    targets,
+    concurrency,
+    target => dispatchTarget(supabase, target, { batchId, force, spawnFn }),
+  );
+
+  const failures = outcomes.filter(outcome => outcome.error);
+  const result = {
+    batch_id: batchId,
+    scan_run_ids: outcomes.map(outcome => outcome.scanRunId).filter(Boolean),
+    failed_targets: failures.map(({ target, error }) => ({ target, error })),
+  };
+  console.log(JSON.stringify(result, null, 2));
+  if (failures.length) {
+    throw new Error(`${failures.length} target scan dispatch failure(s); inspect failed_targets output`);
+  }
+  return result;
 }

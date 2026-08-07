@@ -138,7 +138,13 @@ def run_cisco_skill_scanner(workdir):
         console = _build_console(out, err)
         if code != 0:
             return [_unreachable(source, err, console_output=console)], []
-        parsed = _safe_json(out) or {}
+        parsed = _safe_json(out)
+        if not isinstance(parsed, dict) or not parsed:
+            return [
+                _unreachable(
+                    source, "scanner returned no parseable JSON results", console_output=console
+                )
+            ], []
         mapped = _map_skill_findings(parsed, source)
         checks = parsed.get("findings_count", len(parsed.get("findings", [])) or 1)
         return [_completed(source, checks, mapped, console_output=console)], mapped
@@ -354,11 +360,22 @@ def run_cisco_mcp_scanner(workdir, target):
                     )
                 )
         else:
-            f, r, _requested = _map_mcp_envelope(_safe_json(out) or {}, live)
-            for row in r:
-                row["console_output"] = console
-            findings += f
-            rows += r
+            envelope = _safe_json(out)
+            if not isinstance(envelope, dict) or not isinstance(envelope.get("scan_results"), list):
+                for name in live:
+                    rows.append(
+                        _unreachable(
+                            _MCP_ANALYZER_LABEL[_normalize_analyzer_key(name)],
+                            "scanner returned no parseable scan_results",
+                            console_output=console,
+                        )
+                    )
+            else:
+                f, r, _requested = _map_mcp_envelope(envelope, live)
+                for row in r:
+                    row["console_output"] = console
+                findings += f
+                rows += r
 
     reported = {row["scanner_source"] for row in rows}
     for key in _MCP_LIVE_KEYS:
@@ -377,15 +394,24 @@ def run_cisco_mcp_scanner(workdir, target):
         if code != 0:
             rows.append(_unreachable(beh_label, err, console_output=beh_console))
         else:
-            envelope = _safe_json(out) or {}
-            if not envelope.get("requested_analyzers"):
-                envelope = {**envelope, "requested_analyzers": ["behavioral"]}
-            f, r, _ = _map_mcp_envelope(envelope, ["behavioral"])
-            findings += f
-            beh_rows = [row for row in r if row["scanner_source"] == beh_label]
-            for row in beh_rows:
-                row["console_output"] = beh_console
-            rows += beh_rows or [_completed(beh_label, 1, [], console_output=beh_console)]
+            envelope = _safe_json(out)
+            if not isinstance(envelope, dict) or not isinstance(envelope.get("scan_results"), list):
+                rows.append(
+                    _unreachable(
+                        beh_label,
+                        "scanner returned no parseable scan_results",
+                        console_output=beh_console,
+                    )
+                )
+            else:
+                if not envelope.get("requested_analyzers"):
+                    envelope = {**envelope, "requested_analyzers": ["behavioral"]}
+                f, r, _ = _map_mcp_envelope(envelope, ["behavioral"])
+                findings += f
+                beh_rows = [row for row in r if row["scanner_source"] == beh_label]
+                for row in beh_rows:
+                    row["console_output"] = beh_console
+                rows += beh_rows or [_completed(beh_label, 1, [], console_output=beh_console)]
 
     return findings, rows
 
@@ -449,9 +475,17 @@ def run_snyk(workdir, item_type="mcp_server"):
                 }
             )
 
-    if findings or checks or not path_errors:
+    if path_errors:
+        return findings, [
+            _unreachable(
+                source,
+                "; ".join(path_errors),
+                console_output=console,
+            )
+        ]
+    if findings or checks:
         return findings, [_completed(source, checks or 1, findings, console_output=console)]
-    return [], [
+    return findings, [
         _unreachable(
             source,
             "; ".join(path_errors) or err or out or f"exit {code}",
@@ -491,9 +525,17 @@ def run_tessl(workdir):
     console = _build_console(out, err)
     if code != 0:
         return None, [_unreachable("Tessl", err or out, console_output=console)]
-    parsed = _safe_json(out) or {}
+    parsed = _safe_json(out)
     score = _tessl_quality_score(parsed)
-    detail = f"quality_score = {score}" if score is not None else "1 check completed"
+    if score is None:
+        return None, [
+            _unreachable(
+                "Tessl",
+                "scanner returned no parseable quality score",
+                console_output=console,
+            )
+        ]
+    detail = f"quality_score = {score}"
     row = {"scanner_source": "Tessl", "status": "completed", "checks_run": 1, "detail": detail}
     if console:
         row["console_output"] = console
