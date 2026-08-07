@@ -11,14 +11,19 @@
 | 4 | [`04-D-…`](slices/04-D-operator-onboarding/) | **D — Task-based onboarding + documentation UX** | **17** | ✅ |
 | 5 | [`05-E-…`](slices/05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ → 14 (**9+10 SUBSUMED INTO 11**) | ✅ Musts · close-path |
 | 6 | [`06-F-…`](slices/06-F-claim-audit/) | **F — Claim audit** | 15 · 16 | 📦 |
+| 7 | [`07-G-…`](slices/07-G-atdd-closure/) | **G — ATDD closure** | 18, 19, 20, 21, 22 (independent gates) | 📋 |
 
-**Current priority:** No active slice. Slice 15 is deferred; Slice 17 is merged and closed.
+**Current priority:** Slice 18 — CLI Operator Evidence Contracts. Wave G uses independent gates; execute one active slice per shared code area.
 
 ## Execution order (open work)
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| — | — | — | No active slice; reinstate a deferred slice or add a new one | — | — |
+| 1 | G | 18 | CLI Operator Evidence Contracts | Must | 📋 PLANNED |
+| 2 | G | 19 | Sandbox Persistence State Contract | Must | 📋 PLANNED |
+| 3 | G | 20 | Scanner Subprocess Adapter Contract | Must | 📋 PLANNED |
+| 4 | G | 21 | Dashboard Latest-State Accuracy | Must | 📋 PLANNED |
+| 5 | G | 22 | Dashboard Realtime Recovery | Must | 📋 PLANNED |
 
 ## Quick Status (by group)
 
@@ -63,6 +68,15 @@
 | 15 | [slice-15-horizon-a-claim-audit](slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Must | 📦 closed | — | — | ~25 min |
 | 16 | [slice-16-docs-claim-remediations](slices/06-F-claim-audit/slice-16-docs-claim-remediations.md) | Won't (A) | 📦 closed | — | 2026-08-02 | ~25 min |
 
+### G — ATDD closure
+| # | Slice | MoSCoW | Status | Started | Completed | Est. time |
+|---|-------|--------|--------|---------|-----------|-----------|
+| 18 | [slice-18-cli-operator-evidence](slices/07-G-atdd-closure/slice-18-cli-operator-evidence.md) | Must | 📋 PLANNED | — | — | ~50 min |
+| 19 | [slice-19-sandbox-persistence-contract](slices/07-G-atdd-closure/slice-19-sandbox-persistence-contract.md) | Must | 📋 PLANNED | — | — | ~50 min |
+| 20 | [slice-20-scanner-subprocess-contract](slices/07-G-atdd-closure/slice-20-scanner-subprocess-contract.md) | Must | 📋 PLANNED | — | — | ~50 min |
+| 21 | [slice-21-dashboard-reliability](slices/07-G-atdd-closure/slice-21-dashboard-reliability.md) | Must | 📋 PLANNED | — | — | ~40 min |
+| 22 | [slice-22-dashboard-realtime-recovery](slices/07-G-atdd-closure/slice-22-dashboard-realtime-recovery.md) | Must | 📋 PLANNED | — | — | ~40 min |
+
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 
 **Gate close:** ✅ only per [GATE_CONTRACT.md](GATE_CONTRACT.md) — all After-Checks + evidence `PASS` + review + trackers. `🔀` = checks green on branch, not yet ✅.
@@ -80,7 +94,7 @@
 - **Deferred / Won't (A):** 4 (in A); 15 and 16 (in F) — reinstate only if a new live/demo need arises
 - Slice 17 ✅ = Phase 1 baseline, Phase 1b implementation, and closure record are merged; current review and evidence are recorded. Phase 2 guides remain later work.
 - Gate close: [GATE_CONTRACT.md](GATE_CONTRACT.md)
-- No active Must remains; add or reinstate a slice for the next delivery goal
+- Wave G is planned. Run its independent gates in the reviewable order 18, 19, 20, 21, 22; do not run overlapping source-file slices concurrently.
 - Won't for A: Drift, Phase 4/5, redesign, blast-radius, instruction→install→scan; Live E2E CI Must; support.js 95%; demo video / hackathon film day
 
 ## Interrupt Recovery

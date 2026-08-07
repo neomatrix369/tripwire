@@ -87,6 +87,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 4 | [`slices/04-D-operator-onboarding/`](slices/04-D-operator-onboarding/) | **D — Task-based onboarding + documentation UX** | **17** | ✅ |
 | 5 | [`slices/05-E-ship-path-coverage/`](slices/05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ · (9∥10) → 14 | ✅ closed; 9/10 📦 subsumed |
 | 6 | [`slices/06-F-claim-audit/`](slices/06-F-claim-audit/) | **F — Claim audit** | 15, 16 deferred | 📦 |
+| 7 | [`slices/07-G-atdd-closure/`](slices/07-G-atdd-closure/) | **G — ATDD closure** | 18, 19, 20, 21, 22 (independent gates) | 📋 |
 
 **Status legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 CLOSED — DEFERRED/WON'T`
 
@@ -137,6 +138,16 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 15 | [slice-15-horizon-a-claim-audit](slices/06-F-claim-audit/slice-15-horizon-a-claim-audit.md) | Horizon A Factual Claim Audit | Must | 📦 closed | 7,14 | — | ~4 min |
 | 16 | [slice-16-docs-claim-remediations](slices/06-F-claim-audit/slice-16-docs-claim-remediations.md) | Docs Claim Remediations (Realtime/Demo/Prototype) | Won't (A) | 📦 closed | 15 | — | ~3 min |
 
+### G — ATDD closure (planned)
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| 18 | [slice-18-cli-operator-evidence](slices/07-G-atdd-closure/slice-18-cli-operator-evidence.md) | CLI Operator Evidence Contracts | Must | 📋 | none | — | ~5 min |
+| 19 | [slice-19-sandbox-persistence-contract](slices/07-G-atdd-closure/slice-19-sandbox-persistence-contract.md) | Sandbox Persistence State Contract | Must | 📋 | none | — | ~5 min |
+| 20 | [slice-20-scanner-subprocess-contract](slices/07-G-atdd-closure/slice-20-scanner-subprocess-contract.md) | Scanner Subprocess Adapter Contract | Must | 📋 | none | — | ~5 min |
+| 21 | [slice-21-dashboard-reliability](slices/07-G-atdd-closure/slice-21-dashboard-reliability.md) | Dashboard Latest-State Accuracy | Must | 📋 | none | — | ~4 min |
+| 22 | [slice-22-dashboard-realtime-recovery](slices/07-G-atdd-closure/slice-22-dashboard-realtime-recovery.md) | Dashboard Realtime Recovery | Must | 📋 | none | — | ~4 min |
+
 ## Supporting Artifacts
 | File | Status |
 |------|--------|
@@ -156,6 +167,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 ## Execute priority (by wave — 2026-08-02)
 
 1. Waves **A–C**, Slice 14, and Slice 17 are merged and closed
+2. Wave **G** closes the acceptance-review findings through independent gates: 18, 19, 20, 21, 22. Prefer one active slice per shared code area to avoid edit conflicts.
 2. Phase 1b preserves the practical onboarding flow while making the Live-first setup, optional Mock preview, and Discover → Scan → Review journey immediately scannable
 3. No pending slice remains. Wave F slices 15 and 16 are 📦 closed; reinstate either explicitly only for a future live/demo release.
 
