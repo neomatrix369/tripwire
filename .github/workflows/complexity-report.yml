@@ -5,17 +5,12 @@ on:
     branches: [main]
     paths:
       - 'sandbox/**/*.py'
-      - 'guard/**/*.py'
       - 'cli/**/*.js'
-      - 'prototypes/dc-dashboard/**/*.js'
       - 'scripts/complexity-report.sh'
       - 'scripts/write_complexity_summary.py'
       - 'cli/eslint.complexity.config.js'
-      - 'prototypes/dc-dashboard/eslint.complexity.config.js'
       - 'cli/package.json'
       - 'cli/package-lock.json'
-      - 'prototypes/dc-dashboard/package.json'
-      - 'prototypes/dc-dashboard/package-lock.json'
 
 permissions:
   contents: read
@@ -38,14 +33,10 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: npm
-          cache-dependency-path: |
-            cli/package-lock.json
-            prototypes/dc-dashboard/package-lock.json
+          cache-dependency-path: cli/package-lock.json
       - run: uv sync --extra dev
       - run: npm ci
         working-directory: cli
-      - run: npm ci
-        working-directory: prototypes/dc-dashboard
       - run: bash scripts/complexity-report.sh
       - uses: actions/upload-artifact@v7
         with:

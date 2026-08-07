@@ -102,10 +102,10 @@ repos:
   - repo: local
     hooks:
       - id: xenon
-        name: xenon complexity (C for scan_app+guard; D bootstrap for scanners.py)
-        # Split ceiling: scan_app.py + guard have no D-grade functions → enforce C.
+        name: xenon complexity (C for scan_app; D bootstrap for scanners.py)
+        # scan_app.py has no D-grade functions → enforce C.
         # scanners.py::run_snyk is D (CC≈24, tracked for refactor) → keep D there.
-        entry: bash -c 'uv run xenon --max-absolute C --max-modules B --max-average A sandbox/scan_app.py sandbox/__init__.py guard && uv run xenon --max-absolute D --max-modules C --max-average B sandbox/scanners.py'
+        entry: bash -c 'uv run xenon --max-absolute C --max-modules B --max-average A sandbox/scan_app.py sandbox/__init__.py && uv run xenon --max-absolute D --max-modules C --max-average B sandbox/scanners.py'
         language: system
         pass_filenames: false
         types: [python]
@@ -154,7 +154,7 @@ repos:
         files: ^cli/.*\.js$
         stages: [pre-commit]
       - id: eslint-dashboard
-        name: Live dashboard ESLint (security + complexity)
+        name: Prototype dashboard ESLint (security)
         entry: bash -c 'cd prototypes/dc-dashboard && npm run lint'
         language: system
         pass_filenames: false

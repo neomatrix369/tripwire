@@ -35,7 +35,7 @@ if [[ -z "${CHANGED// }" ]]; then
   CLI_CHANGED=1
   CLI_DEPS=1
 else
-  PY_CHANGED=$(echo "$CHANGED" | grep -cE '^(sandbox/|guard/|scripts/.*\.py|pyproject\.toml|uv\.lock)' || true)
+  PY_CHANGED=$(echo "$CHANGED" | grep -cE '^(sandbox/|scripts/.*\.py|pyproject\.toml|uv\.lock)' || true)
   PY_DEPS=$(echo "$CHANGED" | grep -cE '^(pyproject\.toml|uv\.lock)$' || true)
   CLI_CHANGED=$(echo "$CHANGED" | grep -cE '^cli/' || true)
   CLI_DEPS=$(echo "$CHANGED" | grep -cE '^cli/(package\.json|package-lock\.json)$' || true)

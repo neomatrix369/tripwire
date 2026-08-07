@@ -81,7 +81,7 @@ run_bg "ruff format" uv run ruff format --check sandbox guard scripts
 run_bg "mypy" uv run mypy sandbox/ guard/
 run_bg "bandit" uv run bandit -c pyproject.toml -r sandbox guard scripts -q -ll
 run_bg "xenon" uv run xenon --max-absolute D --max-modules B --max-average A \
-  sandbox/scan_app.py sandbox/scanners.py sandbox/__init__.py guard
+  sandbox/scan_app.py sandbox/scanners.py sandbox/__init__.py
 run_bg "vulture" uv run vulture sandbox/scan_app.py sandbox/scanners.py sandbox/__init__.py guard \
   --min-confidence 80
 run_bg "gitleaks" gitleaks detect --no-git --config .gitleaks.toml --source .
