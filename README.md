@@ -2,8 +2,13 @@
 
 > Discover and scan AI skills and MCP servers, then review the findings in one dashboard.
 
-[![CI](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/ci.yml?branch=main&label=CI)](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml)
-[![Nightly](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/nightly.yml?branch=main&label=Nightly)](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml)
+<!-- badges:start -->
+[![CI](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml/badge.svg)](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml)
+[![Nightly](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml/badge.svg)](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml)
+[![Complexity](https://github.com/neomatrix369/tripwire/actions/workflows/complexity-report.yml/badge.svg)](https://github.com/neomatrix369/tripwire/actions/workflows/complexity-report.yml)
+<!-- coverage: add CODECOV_TOKEN to GitHub Secrets, then uncomment: -->
+<!-- [![Coverage](https://codecov.io/gh/neomatrix369/tripwire/branch/main/graph/badge.svg)](https://codecov.io/gh/neomatrix369/tripwire) -->
+<!-- badges:end -->
 [![Cursor](https://img.shields.io/badge/Cursor-000000?style=flat&logo=cursor&logoColor=white)](https://cursor.com)
 [![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=flat)](https://modal.com)
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com)
