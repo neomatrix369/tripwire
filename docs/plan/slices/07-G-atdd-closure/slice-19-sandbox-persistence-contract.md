@@ -46,8 +46,8 @@ Each sandbox scan leaves an exact, auditable Supabase state: scanner progress an
 
 ## TDD execution
 
-RED: write the five GWT state-contract scenarios against the fake port, public preflight, and a schema assertion for the unique identity.  
-GREEN: introduce the injected composition seam, versioned migration runner, transactional persistence/finalization RPCs, and conflict-safe upserts required by the contract.  
+RED: write the five GWT state-contract scenarios against the fake port, public preflight, and a schema assertion for the unique identity.
+GREEN: introduce the injected composition seam, versioned migration runner, transactional persistence/finalization RPCs, and conflict-safe upserts required by the contract.
 REFACTOR: keep the fake focused on externally observable Supabase behavior, not query-builder implementation detail.
 
 ## After-Checks [GATE]

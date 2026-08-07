@@ -45,8 +45,8 @@ The Live indicator reflects actual subscription state, and the dashboard safely 
 
 ## TDD execution
 
-RED: add each failure status, recovery, pending-unsubscribe, no-callback, replacement, and late-obsolete-event scenario.  
-GREEN: add the minimum explicit state/notification seam.  
+RED: add each failure status, recovery, pending-unsubscribe, no-callback, replacement, and late-obsolete-event scenario.
+GREEN: add the minimum explicit state/notification seam.
 REFACTOR: ensure repeated subscribe removes the obsolete channel before registering the replacement.
 
 ## After-Checks [GATE]

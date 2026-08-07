@@ -34,8 +34,8 @@ The scanner adapters are verified through the real process boundary, so executab
 
 ## TDD execution
 
-RED: add the public-adapter subprocess scenarios, including zero-exit malformed and empty Skill/MCP output.  
-GREEN: correct adapter invocation/discovery only where a public contract fails.  
+RED: add the public-adapter subprocess scenarios, including zero-exit malformed and empty Skill/MCP output.
+GREEN: correct adapter invocation/discovery only where a public contract fails.
 REFACTOR: share a minimal temporary-executable fixture; avoid test-only production switches.
 
 ## After-Checks [GATE]

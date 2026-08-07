@@ -29,8 +29,8 @@ Every dashboard card reflects its actual latest scan, regardless of unrelated gl
 
 ## TDD execution
 
-RED: add the database view/access and browser rendering GWTs; replace the `limit=200` expectation with the latest-per-item assertion.  
-GREEN: add the view and query it from the Live dashboard adapter.  
+RED: add the database view/access and browser rendering GWTs; replace the `limit=200` expectation with the latest-per-item assertion.
+GREEN: add the view and query it from the Live dashboard adapter.
 REFACTOR: keep dashboard source boundaries unchanged except the latest-run data source.
 
 ## After-Checks [GATE]

@@ -43,8 +43,8 @@ successes/failures instead of a false success.
 
 ## TDD execution
 
-RED: add the six GWT scenarios at the program boundary.  
-GREEN: introduce only the composition/output seam required to make the public contract observable.  
+RED: add the six GWT scenarios at the program boundary.
+GREEN: introduce only the composition/output seam required to make the public contract observable.
 REFACTOR: preserve the published CLI arguments and the ≥95% lines/statements/functions and ≥85% branch floors.
 
 ## After-Checks [GATE]
