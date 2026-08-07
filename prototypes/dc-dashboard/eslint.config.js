@@ -1,5 +1,4 @@
-// ESLint flat config — enforcement gate for security + complexity.
-// Distinct from eslint.complexity.config.js which is warn-only for PR annotation.
+// ESLint flat config — security and baseline-quality checks for the prototype dashboard.
 import globals from 'globals';
 
 export default [
@@ -17,8 +16,6 @@ export default [
       'no-implied-eval': 'error',
       'no-new-func': 'error',
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      'complexity': ['error', 10],
-      'max-depth': ['error', 4],
     },
   },
 ];

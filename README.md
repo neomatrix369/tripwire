@@ -2,15 +2,32 @@
 
 > Discover and scan AI skills and MCP servers, then review the findings in one dashboard.
 
-[![CI](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/ci.yml?branch=main&label=CI)](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml)
-[![Nightly](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/nightly.yml?branch=main&label=Nightly)](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml)
-[![Cursor](https://img.shields.io/badge/Cursor-000000?style=flat&logo=cursor&logoColor=white)](https://cursor.com)
-[![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=flat)](https://modal.com)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com)
-[![Cisco Skill/MCP Scanner](https://img.shields.io/badge/Cisco%20Skill%2FMCP%20Scanner-1BA0D7?style=flat&logo=cisco&logoColor=white)](https://developer.cisco.com)
-[![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
-[![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
+<!-- badges:start -->
+<!-- Group 1: Tech stack -->
+![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-22-339933?logo=nodedotjs&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+![Modal](https://img.shields.io/badge/Modal-7C5CFF?logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white)
+![Cisco Skill/MCP Scanner](https://img.shields.io/badge/Cisco%20Skill%2FMCP%20Scanner-1BA0D7?logo=cisco&logoColor=white)
+![Snyk](https://img.shields.io/badge/Snyk-4C4A73?logo=snyk&logoColor=white)
+![Tessl](https://img.shields.io/badge/Tessl-111111)
 
+<!-- Group 2: CI / Quality -->
+[![CI](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/ci.yml?branch=main&label=CI&logo=githubactions&logoColor=white)](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml)
+[![Nightly](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/nightly.yml?branch=main&label=Nightly&logo=githubactions&logoColor=white)](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml)
+[![Code Review Graph](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/code-review-graph.yml?branch=main&label=Code+Review+Graph&logo=githubactions&logoColor=white)](https://github.com/neomatrix369/tripwire/actions/workflows/code-review-graph.yml)
+<!-- Meterian SCA: uncomment after adding METERIAN_API_TOKEN to GitHub Secrets -->
+<!-- [![Security](https://www.meterian.com/badge/gh/neomatrix369/tripwire/security)](https://www.meterian.com/report/gh/neomatrix369/tripwire) -->
+<!-- [![Stability](https://www.meterian.com/badge/gh/neomatrix369/tripwire/stability)](https://www.meterian.com/report/gh/neomatrix369/tripwire) -->
+<!-- [![Licensing](https://www.meterian.com/badge/gh/neomatrix369/tripwire/licensing)](https://www.meterian.com/report/gh/neomatrix369/tripwire) -->
+<!-- Coverage: uncomment after adding CODECOV_TOKEN to GitHub Secrets -->
+<!-- [![Coverage](https://codecov.io/gh/neomatrix369/tripwire/branch/main/graph/badge.svg)](https://codecov.io/gh/neomatrix369/tripwire) -->
+[![Release](https://img.shields.io/github/v/release/neomatrix369/tripwire?label=Release&logo=github)](https://github.com/neomatrix369/tripwire/releases)
+[![License](https://img.shields.io/github/license/neomatrix369/tripwire)](https://github.com/neomatrix369/tripwire/blob/main/LICENSE)
+[![Last Commit](https://img.shields.io/github/last-commit/neomatrix369/tripwire)](https://github.com/neomatrix369/tripwire/commits/main)
+[![Stars](https://img.shields.io/github/stars/neomatrix369/tripwire?style=social)](https://github.com/neomatrix369/tripwire)
+<!-- badges:end -->
 ![Tripwire banner](./Tripwire-Banner.png)
 
 ## What Tripwire does

@@ -12,6 +12,121 @@ on:
   workflow_dispatch:
 
 jobs:
+  nightly-tests-python:
+    name: Backend — sandbox tests + coverage (nightly snapshot)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Prepare test artifact directories
+        run: |
+          mkdir -p .test-results .reports/coverage
+          echo "This directory is initialized before dependency installation so upload diagnostics survive early job failures." > .test-results/run-context.txt
+          echo "This directory is initialized before dependency installation so upload diagnostics survive early job failures." > .reports/coverage/run-context.txt
+      - uses: actions/setup-python@v7
+        with:
+          python-version-file: ".python-version"
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - run: uv pip install --system -e ".[dev]"
+      - run: |
+          pytest sandbox/tests/ -q --tb=short \
+            --cov=sandbox \
+            --cov-report=term-missing \
+            --cov-report=html:.reports/coverage/html \
+            --cov-report=xml:.reports/coverage/coverage.xml \
+            --cov-report=json:.reports/coverage/coverage.json \
+            --cov-fail-under=95 \
+            --junitxml=.test-results/junit.xml \
+            -o addopts=
+      - name: Upload test results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: nightly-test-results-backend-sandbox-${{ github.run_number }}
+          path: .test-results/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: nightly-coverage-backend-sandbox-${{ github.run_number }}
+          path: .reports/coverage/
+          retention-days: 30
+          if-no-files-found: warn
+
+  nightly-tests-node:
+    name: Frontend — CLI tests + coverage (nightly snapshot)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Prepare test artifact directories
+        working-directory: cli
+        run: |
+          mkdir -p .test-results .reports/coverage
+          echo "This directory is initialized before dependency installation so upload diagnostics survive early job failures." > .test-results/run-context.txt
+          echo "This directory is initialized before dependency installation so upload diagnostics survive early job failures." > .reports/coverage/run-context.txt
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+          cache-dependency-path: cli/package-lock.json
+      - run: npm ci
+        working-directory: cli
+      - name: Run CLI tests with coverage
+        working-directory: cli
+        run: |
+          set -o pipefail
+          npm run test:coverage 2>&1 | tee .test-results/tap.txt
+      - name: Upload test results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: nightly-test-results-frontend-cli-${{ github.run_number }}
+          path: cli/.test-results/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: nightly-coverage-frontend-cli-${{ github.run_number }}
+          path: cli/.reports/coverage/
+          retention-days: 30
+          if-no-files-found: warn
+
+  nightly-complexity:
+    name: Complexity report (nightly snapshot)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version-file: ".python-version"
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+          cache-dependency-path: cli/package-lock.json
+      - run: uv sync --extra dev
+      - run: npm ci
+        working-directory: cli
+      - run: bash scripts/complexity-report.sh
+      - name: Upload complexity report
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: nightly-complexity-${{ github.run_number }}
+          path: .reports/complexity/
+          retention-days: 30
+          if-no-files-found: warn
+
   mutation-tests-python:
     name: Mutation testing — Python (mutmut)
     runs-on: ubuntu-latest

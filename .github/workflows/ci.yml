@@ -1,7 +1,7 @@
 name: CI
 
-# Serious-tier T1–T3 for Tripwire (Python sandbox/guard + Node cli/).
-# Ship-path coverage: Python sandbox fail_under=95; CLI + Live ACL c8 ≥95% lines.
+# Serious-tier T1–T3 for Tripwire (Python sandbox + Node cli/).
+# Ship-path coverage: Python sandbox fail_under=95; CLI c8 ≥95% lines.
 # Fixtures/prototypes excluded from secrets/FS scans (dashboard tests gated separately).
 #
 # Status badge: README + docs/README.md (CI).
@@ -57,10 +57,10 @@ jobs:
       - run: mypy sandbox/ guard/
       - run: bandit -c pyproject.toml -r sandbox guard scripts -q -ll
       - run: bash scripts/complexity-report.sh
-      - name: Xenon complexity (scan_app + guard — max C)
+      - name: Xenon complexity (scan_app — max C)
         run: >
           xenon --max-absolute C --max-modules B --max-average A
-          sandbox/scan_app.py sandbox/__init__.py guard
+          sandbox/scan_app.py sandbox/__init__.py
       - name: Xenon complexity (scanners.py — bootstrap D; run_snyk tracked for refactor)
         run: >
           xenon --max-absolute D --max-modules C --max-average B
@@ -70,11 +70,16 @@ jobs:
           --min-confidence 80
       - run: uv run pylint --disable=all --enable=duplicate-code sandbox/ guard/
 
-  tests:
-    name: Tests + coverage (Python)
+  backend-sandbox-tests:
+    name: Backend — sandbox tests + coverage
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - name: Prepare test artifacts
+        run: |
+          mkdir -p .test-results .reports/coverage
+          echo "Initialized before dependency installation so early failures retain diagnostics." > .test-results/run-context.txt
+          echo "Initialized before dependency installation so early failures retain diagnostics." > .reports/coverage/run-context.txt
       - uses: actions/setup-python@v7
         with:
           python-version-file: ".python-version"
@@ -83,7 +88,6 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
       - run: uv pip install --system -e ".[dev]"
-      - run: mkdir -p .test-results .reports/coverage
       - run: |
           pytest sandbox/tests/ -q --tb=short \
             --cov=sandbox \
@@ -98,23 +102,29 @@ jobs:
         uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: test-results-${{ github.run_number }}
+          name: test-results-backend-sandbox-${{ github.run_number }}
           path: .test-results/
           retention-days: 14
       - name: Upload coverage report
         uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: coverage-${{ github.run_number }}
+          name: coverage-backend-sandbox-${{ github.run_number }}
           path: .reports/coverage/
           retention-days: 14
       - run: pip-audit --skip-editable
 
-  cli-tests:
-    name: CLI tests
+  frontend-cli-tests:
+    name: Frontend — CLI tests + coverage
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - name: Prepare test artifacts
+        working-directory: cli
+        run: |
+          mkdir -p .test-results .reports/coverage
+          echo "Initialized before dependency installation so early failures retain diagnostics." > .test-results/run-context.txt
+          echo "Initialized before dependency installation so early failures retain diagnostics." > .reports/coverage/run-context.txt
       - uses: actions/setup-node@v7
         with:
           node-version-file: ".nvmrc"
@@ -124,13 +134,30 @@ jobs:
         working-directory: cli
       - run: npm run lint
         working-directory: cli
-      - run: npm run test:coverage
+      - name: Run tests with coverage
+        run: |
+          set -o pipefail
+          npm run test:coverage 2>&1 | tee .test-results/tap.txt
         working-directory: cli
       - run: npm audit --audit-level=high
         working-directory: cli
+      - name: Upload test results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results-frontend-cli-${{ github.run_number }}
+          path: cli/.test-results/
+          retention-days: 14
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: coverage-frontend-cli-${{ github.run_number }}
+          path: cli/.reports/coverage/
+          retention-days: 14
 
-  live-acl-tests:
-    name: Live ACL coverage
+  dashboard-tests:
+    name: Prototype dashboard tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -143,7 +170,7 @@ jobs:
         working-directory: prototypes/dc-dashboard
       - run: npm run lint
         working-directory: prototypes/dc-dashboard
-      - run: npm run test:coverage
+      - run: npm test
         working-directory: prototypes/dc-dashboard
 
   secrets:

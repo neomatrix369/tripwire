@@ -56,12 +56,10 @@ def format_violations(label: str, violations: Sequence[tuple[str, int, int]]) ->
 def render_markdown(
     python_report: Mapping[str, Sequence[Mapping[str, Any]]],
     cli_report: Iterable[Mapping[str, Any]],
-    dashboard_report: Iterable[Mapping[str, Any]],
 ) -> str:
     """Create the CI-owned PR-body block from all product-code reports."""
     score, rank, count = python_summary(python_report)
     cli_violations = eslint_violations(cli_report)
-    dashboard_violations = eslint_violations(dashboard_report)
     lines = [
         "<!-- tripwire-complexity:start -->",
         "## Complexity",
@@ -70,14 +68,12 @@ def render_markdown(
         "",
         "| Scope | Tool | Result |",
         "| --- | --- | --- |",
-        f"| Python (`sandbox/`, `guard/`) | Radon | highest CC **{score}** (rank **{rank}**), {count} blocks |",
+        f"| Python (`sandbox/`) | Radon | highest CC **{score}** (rank **{rank}**), {count} blocks |",
         f"| CLI (`cli/`) | ESLint | {len(cli_violations)} function(s) above CC 10 |",
-        f"| Live dashboard | ESLint | {len(dashboard_violations)} function(s) above CC 10 |",
         "",
         "<details><summary>Functions above the JavaScript threshold</summary>",
         "",
         *format_violations("CLI", cli_violations),
-        *format_violations("Live dashboard", dashboard_violations),
         "",
         "</details>",
         "<!-- tripwire-complexity:end -->",
@@ -91,7 +87,6 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--python-report", type=Path, required=True)
     parser.add_argument("--cli-report", type=Path, required=True)
-    parser.add_argument("--dashboard-report", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     return parser.parse_args()
 
@@ -102,7 +97,6 @@ def main() -> None:
     markdown = render_markdown(
         read_json(args.python_report),
         read_json(args.cli_report),
-        read_json(args.dashboard_report),
     )
     args.output.write_text(markdown, encoding="utf-8")
 
