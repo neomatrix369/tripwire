@@ -12,6 +12,12 @@ before following these development instructions.
 [![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
 [![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
 
+[![Test coverage](https://img.shields.io/badge/Test_coverage-enforced-2ea44f)](#dev-hygiene)
+[![Static analysis](https://img.shields.io/badge/Static_analysis-enforced-0969da)](#dev-hygiene)
+[![Security scanning](https://img.shields.io/badge/Security_scanning-active-8250df)](#dev-hygiene)
+[![Complexity checks](https://img.shields.io/badge/Complexity-checks-9a6700)](#dev-hygiene)
+[![Git hooks](https://img.shields.io/badge/Git_hooks-available-57606a)](#dev-hygiene)
+
 ## Dev setup
 
 0. Tools + versions: [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)

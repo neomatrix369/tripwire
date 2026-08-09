@@ -16,11 +16,11 @@
 <!-- Group 2: CI / Quality -->
 [![CI](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/ci.yml?branch=main&label=CI&logo=githubactions&logoColor=white)](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml)
 [![Nightly](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/nightly.yml?branch=main&label=Nightly&logo=githubactions&logoColor=white)](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml)
+[![Complexity](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/complexity-report.yml?branch=main&label=Complexity&logo=githubactions&logoColor=white)](https://github.com/neomatrix369/tripwire/actions/workflows/complexity-report.yml)
 [![Code Review Graph](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/code-review-graph.yml?branch=main&label=Code+Review+Graph&logo=githubactions&logoColor=white)](https://github.com/neomatrix369/tripwire/actions/workflows/code-review-graph.yml)
-<!-- Meterian SCA: uncomment after adding METERIAN_API_TOKEN to GitHub Secrets -->
-<!-- [![Security](https://www.meterian.com/badge/gh/neomatrix369/tripwire/security)](https://www.meterian.com/report/gh/neomatrix369/tripwire) -->
-<!-- [![Stability](https://www.meterian.com/badge/gh/neomatrix369/tripwire/stability)](https://www.meterian.com/report/gh/neomatrix369/tripwire) -->
-<!-- [![Licensing](https://www.meterian.com/badge/gh/neomatrix369/tripwire/licensing)](https://www.meterian.com/report/gh/neomatrix369/tripwire) -->
+[![Security](https://www.meterian.com/badge/gh/neomatrix369/tripwire/security)](https://www.meterian.com/report/gh/neomatrix369/tripwire)
+[![Stability](https://www.meterian.com/badge/gh/neomatrix369/tripwire/stability)](https://www.meterian.com/report/gh/neomatrix369/tripwire)
+[![Licensing](https://www.meterian.com/badge/gh/neomatrix369/tripwire/licensing)](https://www.meterian.com/report/gh/neomatrix369/tripwire)
 <!-- Coverage: uncomment after adding CODECOV_TOKEN to GitHub Secrets -->
 <!-- [![Coverage](https://codecov.io/gh/neomatrix369/tripwire/branch/main/graph/badge.svg)](https://codecov.io/gh/neomatrix369/tripwire) -->
 [![Release](https://img.shields.io/github/v/release/neomatrix369/tripwire?label=Release&logo=github)](https://github.com/neomatrix369/tripwire/releases)
