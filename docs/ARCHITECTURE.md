@@ -132,5 +132,6 @@ from the code.
 
 - Planning decisions: [plan/DECISIONS.md](./plan/DECISIONS.md)
 - Slice progress: [plan/PROGRESS.md](./plan/PROGRESS.md)
-- Formal ADRs (`docs/adr/`) — none yet; add when a major technology or boundary
-  choice needs a durable record
+- Formal ADRs: [adr/](./adr/) — start with
+  [ADR-0001: Monk kit for Live deployment and packaging](./adr/0001-monk-deployment-and-packaging.md)
+  (Proposed)
