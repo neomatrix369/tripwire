@@ -90,6 +90,26 @@ prose slice 16) is **Won't (A)** — reinstate only if a new demo need arises.
 
 ---
 
+## DECIDED
+
+Architecture boundaries and quality/security trade-offs are recorded as formal
+ADRs ([adr/README.md](./adr/README.md)): runtimes (0002), Modal (0003),
+Supabase (0004), scanner adapters (0005), Live/Mock ACL (0006), ship UI (0007),
+anon-read / service-role-write (0008), fail-closed evidence (0009), content-hash
+idempotency (0010), schema bootstrap (0011), target acquisition (0012),
+ship-path quality gates (0013), curated discovery (0014), and Horizon A
+excluding Guard/Drift (0015). Slice waivers stay in
+[plan/DECISIONS.md](./plan/DECISIONS.md).
+
+## PROPOSED
+
+- Monk kit for Live deployment and packaging —
+  [adr/0001-monk-deployment-and-packaging.md](./adr/0001-monk-deployment-and-packaging.md).
+  Operator `.env` + CLI Live remains the canonical path until Accepted and
+  STATUS marks it Implemented.
+
+---
+
 ## RESEARCH (not VERIFIED)
 
 Exact JSON field names in `sandbox/scanners.py` — cross-check against the pinned
@@ -103,7 +123,8 @@ Adapter fixture tests (slices 8–9) are planned to tighten this.
 
 Known fixture gaps (not urgent) are listed under
 [fixtures/README.md](../fixtures/README.md) (“Not yet built”). Do not treat those
-as shipped capabilities.
+as shipped capabilities. Guard PreToolUse and Drift/trend remain Future /
+Won't (A) — see [ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md).
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 (slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` …

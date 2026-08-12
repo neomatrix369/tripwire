@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Docs
+- Formal ADR catalog under `docs/adr/`: 0001 Monk kit (Proposed); 0002–0015
+  Accepted retrospective records of shipped topology, scanning, security, CLI,
+  quality, and Horizon A scope decisions. Indexes wired from Architecture,
+  STATUS, README, QUICKSTART, CONTRIBUTING, and plan README.
+
 ## [0.3.0] - 2026-08-05
 
 ### Added

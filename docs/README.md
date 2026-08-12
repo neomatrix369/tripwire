@@ -12,7 +12,7 @@ Use this map to move from a safe first look to the level of setup or project det
 |---|---|---|
 | Run a first Live scan | [Quickstart: ordered Live setup](../QUICKSTART.md#first-live-scan) | [Supabase setup](./user-guide/supabase-setup.md) → [Modal setup](./user-guide/modal-setup.md) → [environment keys](./user-guide/env-vars.md) → [scan and dashboard](../QUICKSTART.md#live-capabilities) |
 | Preview or validate locally | [Optional local validation](../QUICKSTART.md#validate-locally-optional) | [README: dashboard preview](../README.md#preview-the-dashboard-optional) |
-| Understand results and system shape | [Capability status](./STATUS.md) | [Architecture](./ARCHITECTURE.md) |
+| Understand results and system shape | [Capability status](./STATUS.md) | [Architecture](./ARCHITECTURE.md) · [ADRs](./adr/README.md) |
 | Contribute or maintain | [Contributing](../CONTRIBUTING.md) | [Setup and maintenance commands](./user-guide/setup-commands.md) |
 
 ## Setup and operation
@@ -27,6 +27,7 @@ Use this map to move from a safe first look to the level of setup or project det
 | [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) | Compact shared onboarding reference |
 | [STATUS.md](./STATUS.md) | Evidence-labelled capability claims |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | System diagrams, key flows, and repository layout |
+| [adr/README.md](./adr/README.md) | Formal architecture decision records |
 | [SECURITY.md](../SECURITY.md) | Vulnerability reporting |
 
 ## Project records
@@ -37,6 +38,7 @@ Use this map to move from a safe first look to the level of setup or project det
 | Run the documentation smoke path | [SMOKE_TESTS.md](./plan/SMOKE_TESTS.md) |
 | Review CI and Nightly workflows | [CI workflows](#ci-workflows) |
 | Inspect project planning | [plan README](./plan/README.md) · [progress](./plan/PROGRESS.md) |
+| Read architecture decisions | [ADR index](./adr/README.md) |
 | Check scanner adapter research | [scanner output adapters](./research/adapters/scanner-output-adapters.md) |
 
 ## CI workflows

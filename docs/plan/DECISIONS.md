@@ -85,3 +85,4 @@
 | 2026-08-07 | planning | Added slices 18–22 | ATDD closure: CLI operator evidence, persistence contract, subprocess adapter contract, dashboard latest-state accuracy, and dashboard realtime recovery. All are Must with independent gates; source-file overlap controls execution order. PLANNED. |
 | 2026-08-07 | scope | Dashboard reliability | Implement latest-state and realtime recovery now; keep dashboard excluded from governed coverage/complexity thresholds while normal tests remain mandatory. USER-CONFIRMED. |
 | 2026-08-07 | quality-lens | 15/15 checks passed | Split dashboard latest-state and realtime recovery into slices 21 and 22 to maintain single-level abstraction; no new dependency or metric policy introduced. REVISED 1 SLICE. |
+| 2026-08-12 | adr-backfill | Formal ADRs 0002–0015 | Retrospective Accepted records from docs + git + production entry points. 0001 (Monk kit) stays Proposed. Index: `docs/adr/README.md`. Slice waivers remain in this file. |
