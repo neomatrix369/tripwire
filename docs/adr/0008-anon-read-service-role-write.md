@@ -29,7 +29,7 @@ Split keys by trust boundary.
 - **Never** toggle RLS in the Supabase UI. Apply `db/schema.sql` via
   `tripwire setup --force` so policies and GRANTs land together.
 - No end-user login (Auth0/Clerk/Keycloak) for Horizon A. Shared-instance auth
-  is deferred to packaging work ([ADR-0001](./0001-monk-deployment-and-packaging.md)).
+  is deferred to future packaging work (ADR 0001 reserved; draft under review).
 
 Anon SELECT is `using (true)` — any holder of the project anon key can read
 all scan rows. Treat the Supabase project as a single-operator trust domain.

@@ -9,9 +9,11 @@ quality gates.
 
 Status values: **Proposed**, **Accepted**, **Deprecated**, **Superseded**.
 
+Number **0001** is reserved and omitted from this catalog while that draft
+remains under review. Published records start at **0002**.
+
 | ADR | Title | Status |
 |-----|-------|--------|
-| [0001](./0001-monk-deployment-and-packaging.md) | Monk kit for Live deployment and packaging | Proposed |
 | [0002](./0002-node-cli-python-sandbox-split.md) | Node CLI and Python sandbox as separate runtimes | Accepted |
 | [0003](./0003-modal-isolated-scanner-execution.md) | Modal for isolated scanner execution | Accepted |
 | [0004](./0004-supabase-system-of-record.md) | Supabase/Postgres as system of record | Accepted |
@@ -27,6 +29,5 @@ Status values: **Proposed**, **Accepted**, **Deprecated**, **Superseded**.
 | [0014](./0014-curated-discovery-loci.md) | Curated discovery loci, not a filesystem crawl | Accepted |
 | [0015](./0015-horizon-a-excludes-guard-and-drift.md) | Horizon A excludes Guard and Drift | Accepted |
 
-0001 remains **Proposed** (packaging path not yet the Live default). 0002–0015
-are retrospective Accepted records of decisions already visible in docs, git
-history, and production entry points.
+0002–0015 are retrospective Accepted records of decisions already visible in
+docs, git history, and production entry points.

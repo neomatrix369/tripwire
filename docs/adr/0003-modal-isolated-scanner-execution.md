@@ -40,8 +40,8 @@ Use **Modal** as the Live compute plane.
   that is reported, not hidden ([ADR-0009](./0009-fail-closed-incomplete-evidence.md)).
 - Host paths are invisible on Modal’s remote FS — local targets must be tarred
   ([ADR-0012](./0012-sandbox-target-acquisition.md)).
-- Packaging toward a Monk kit ([ADR-0001](./0001-monk-deployment-and-packaging.md))
-  still treats Modal as external SaaS, not a cluster workload.
+- Future packaging/deploy stories may still treat Modal as external SaaS, not
+  a cluster workload (draft ADR 0001 is under review and not in this catalog).
 
 ## Alternatives considered
 

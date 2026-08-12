@@ -40,7 +40,7 @@ the shipped contract.
 - Application code speaks PostgREST column names; missing columns are handled
   with PGRST204-safe fallbacks in the sandbox.
 - Other databases are future package flavors only after the app boundary
-  allows it ([ADR-0001](./0001-monk-deployment-and-packaging.md)).
+  allows it (packaging ADR draft reserved as 0001; not published yet).
 
 ## Alternatives considered
 

@@ -99,14 +99,8 @@ anon-read / service-role-write (0008), fail-closed evidence (0009), content-hash
 idempotency (0010), schema bootstrap (0011), target acquisition (0012),
 ship-path quality gates (0013), curated discovery (0014), and Horizon A
 excluding Guard/Drift (0015). Slice waivers stay in
-[plan/DECISIONS.md](./plan/DECISIONS.md).
-
-## PROPOSED
-
-- Monk kit for Live deployment and packaging —
-  [adr/0001-monk-deployment-and-packaging.md](./adr/0001-monk-deployment-and-packaging.md).
-  Operator `.env` + CLI Live remains the canonical path until Accepted and
-  STATUS marks it Implemented.
+[plan/DECISIONS.md](./plan/DECISIONS.md). ADR number 0001 is reserved and not
+published while that draft remains under review.
 
 ---
 
