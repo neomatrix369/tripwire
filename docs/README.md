@@ -37,6 +37,7 @@ Use this map to move from a safe first look to the level of setup or project det
 | Run the documentation smoke path | [SMOKE_TESTS.md](./plan/SMOKE_TESTS.md) |
 | Review CI and Nightly workflows | [CI workflows](#ci-workflows) |
 | Inspect project planning | [plan README](./plan/README.md) · [progress](./plan/PROGRESS.md) |
+| Read architecture decisions | [adr/](./adr/) · [ADR-0001 Monk deployment](./adr/0001-monk-deployment-and-packaging.md) |
 | Check scanner adapter research | [scanner output adapters](./research/adapters/scanner-output-adapters.md) |
 
 ## CI workflows
