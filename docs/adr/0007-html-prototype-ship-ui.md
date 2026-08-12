@@ -8,9 +8,9 @@
 ## Context
 
 A Data Commons HTML dashboard already existed under `prototypes/dc-dashboard/`
-with heatmap, filters, and item drawers. Horizon A needed a filmable Detection
-+ Sandbox review surface in hours, not a productized SPA. A frontend redesign
-would have consumed the same clock as Live path evidence.
+with heatmap, filters, and item drawers. Horizon A needed a filmable
+Detection and Sandbox review surface in hours, not a productized SPA. A
+frontend redesign would have consumed the same clock as Live path evidence.
 
 `prototypes/README.md` still says the folder is “not the shipped product UI”;
 planning overrode that for Horizon A: the prototype **is** the ship UI.
