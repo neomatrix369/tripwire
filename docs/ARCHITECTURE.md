@@ -130,7 +130,6 @@ from the code.
 
 ## 5. Decisions
 
-- Planning decisions: [plan/DECISIONS.md](./plan/DECISIONS.md)
+- Formal ADRs: [adr/README.md](./adr/README.md)
+- Planning decisions (slice waivers, priority): [plan/DECISIONS.md](./plan/DECISIONS.md)
 - Slice progress: [plan/PROGRESS.md](./plan/PROGRESS.md)
-- Formal ADRs (`docs/adr/`) — none yet; add when a major technology or boundary
-  choice needs a durable record

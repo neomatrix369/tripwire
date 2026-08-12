@@ -137,5 +137,6 @@ setup, re-run, and maintenance command catalog.
 
 - Docs map: [docs/README.md](docs/README.md)
 - Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- Decisions: [docs/adr/README.md](docs/adr/README.md)
 - Capability status: [docs/STATUS.md](docs/STATUS.md)
 - Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)

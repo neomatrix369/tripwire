@@ -39,7 +39,8 @@ Then use this guide for development, quality checks, and sharing changes back. S
 3. `tripwire setup` (needs `SUPABASE_DB_URL`) and `./scripts/setup-modal.sh`
 4. Run checks below.
 
-Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Scanner output notes:
+Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Decisions:
+[docs/adr/README.md](docs/adr/README.md). Scanner output notes:
 [docs/research/adapters/scanner-output-adapters.md](docs/research/adapters/scanner-output-adapters.md).
 
 ## Dev hygiene

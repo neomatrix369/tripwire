@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Docs
+- Formal ADR catalog under `docs/adr/`: Accepted retrospective records
+  0002–0015 for shipped topology, scanning, security, CLI, quality, and
+  Horizon A scope. Number 0001 reserved (draft under review, not published).
+  Indexes wired from Architecture, STATUS, README, QUICKSTART, CONTRIBUTING,
+  and plan README.
+
 ## [0.3.0] - 2026-08-05
 
 ### Added

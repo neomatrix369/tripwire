@@ -17,7 +17,8 @@ Horizon A trackers and slice stubs. **Slice files live in wave folders** (execut
 | [EMOJI_LEGEND.md](EMOJI_LEGEND.md) | Canonical meaning of status emojis used by tracker docs |
 | [TRAIL.md](TRAIL.md) | Full slice index + execute priority |
 | [PROGRESS.md](PROGRESS.md) | Status + open execution order |
-| [DECISIONS.md](DECISIONS.md) | Planning decisions |
+| [DECISIONS.md](DECISIONS.md) | Planning decisions (slice waivers, priority) |
+| [../adr/README.md](../adr/README.md) | Formal ADRs (runtime/topology/security) |
 | [GATE_CONTRACT.md](GATE_CONTRACT.md) | Before/After close rule |
 | [coverage-audit.md](coverage-audit.md) | Ship-path coverage matrix (slice 7) |
 | [gate-evidence/](gate-evidence/) | Per-slice evidence JSON |

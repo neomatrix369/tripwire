@@ -148,7 +148,7 @@ flowchart LR
 |---|---|
 | Run your first Live scan | [Follow the Quickstart](QUICKSTART.md#first-live-scan) |
 | Preview the dashboard or validate locally | [Optional local validation](QUICKSTART.md#validate-locally-optional) |
-| Understand results and system shape | [Capability status](docs/STATUS.md) · [Architecture](docs/ARCHITECTURE.md) |
+| Understand results and system shape | [Capability status](docs/STATUS.md) · [Architecture](docs/ARCHITECTURE.md) · [Decisions](docs/adr/README.md) |
 | Contribute or maintain the project | [Contributing](CONTRIBUTING.md) · [command catalog](docs/user-guide/setup-commands.md) |
 
 For the full documentation map, see [docs/README.md](docs/README.md). The
