@@ -45,4 +45,5 @@ Use this map to move from a safe first look to the level of setup or project det
 |---|---|
 | [CI](../.github/workflows/ci.yml) | PR and main checks |
 | [Nightly](../.github/workflows/nightly.yml) | Deep, non-blocking checks |
-| [Code Review Graph](../.github/workflows/code-review-graph.yml) | PR knowledge-graph assistance |
+| [Code Review Graph](../.github/workflows/code-review-graph.yml) | PR knowledge-graph analysis (unprivileged; fork-safe) |
+| [Code Review Graph Comment](../.github/workflows/code-review-graph-comment.yml) | Trusted sticky PR comment from the analysis artifact |

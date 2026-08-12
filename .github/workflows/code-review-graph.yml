@@ -1,19 +1,44 @@
 name: Code Review Graph
 
 # PR assist only — not a product scanner. Partner/stack badges live in README / docs/README.md.
+#
+# Fork PRs receive a read-only GITHUB_TOKEN, so this workflow never comments.
+# It uploads the rendered report; code-review-graph-comment.yml posts it from
+# a trusted workflow_run on the default branch.
+# See https://github.com/tirth8205/code-review-graph/blob/v2.3.7/docs/GITHUB_ACTION.md
 
 on:
   pull_request:
 
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   review:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: tirth8205/code-review-graph@v2.3.7
+      - name: Run code-review-graph review
+        id: review
+        uses: tirth8205/code-review-graph@v2.3.7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment: "false"
+      - name: Stage report artifact
+        env:
+          ARTIFACT_DIR: ${{ runner.temp }}/crg-report
+          COMMENT_FILE: ${{ steps.review.outputs.comment-file }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          rm -rf -- "${ARTIFACT_DIR}"
+          mkdir -p -- "${ARTIFACT_DIR}"
+          cp -- "${COMMENT_FILE}" "${ARTIFACT_DIR}/crg-comment.md"
+          printf '%s\n' "${PR_NUMBER}" > "${ARTIFACT_DIR}/pr-number.txt"
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: crg-report
+          path: ${{ runner.temp }}/crg-report/
+          if-no-files-found: error
+          retention-days: 1
