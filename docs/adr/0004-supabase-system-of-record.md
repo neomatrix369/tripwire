@@ -21,8 +21,10 @@ Use **hosted Supabase (Postgres + PostgREST + Realtime)** as the Live store.
 
 - Canonical DDL: `db/schema.sql` (items, scan_batches, scan_runs,
   scan_run_scanners, findings, coverage, config).
-- Heatmap: `tripwire_rollup_item` in Postgres. `partial-failed` still scores
-  completed engines; `failed` / `running` / empty partial paint `error`.
+- Heatmap: `tripwire_rollup_item` in Postgres. `heatmap_status` is worst-of
+  actionable findings (any red → red; else any amber → amber; else green);
+  `risk_score` remains weighted density for sort/trend. `partial-failed` still
+  scores completed engines; `failed` / `running` / empty partial paint `error`.
 - Realtime publication on `scan_runs`, `scan_run_scanners`, `findings` so the
   dashboard can update in ~1s, with an 8s poll fallback.
 - HTTP clients use `SUPABASE_URL` + keys; DDL uses `SUPABASE_DB_URL`

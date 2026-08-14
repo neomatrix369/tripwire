@@ -3,7 +3,8 @@
 
  * Author: swami
  * Created: 2026-08-01
- * Scope: statusFromRisk thresholds, resolveItemStatus priority, severity normalize
+ * Scope: statusFromRisk density fallback, resolveItemStatus priority (worst-of),
+ *   severity normalize, finding-count chip labels
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -12,12 +13,14 @@ import {
   resolveItemStatus,
   normalizeSeverity,
   maxFindingStatus,
+  countActionableFindings,
+  formatFindingCountLabel,
   severityColor,
   scannerExecMeta,
   STATUS_META,
 } from '../tripwire-status.js';
 
-test('given risk scores when statusFromRisk then matches schema rollup buckets', () => {
+test('given risk scores when statusFromRisk then matches density buckets', () => {
   // -- Given / When / Then --
   assert.equal(statusFromRisk(null), 'grey');
   assert.equal(statusFromRisk(0), 'green');
@@ -75,6 +78,31 @@ test('given stale error heatmap with red findings when resolveItemStatus then re
   assert.equal(actual, 'red');
 });
 
+test('given stale amber heatmap and one red finding when resolveItemStatus then red', () => {
+  // -- Given -- density-era heatmap would stay amber; worst-of must paint red
+  const actual = resolveItemStatus({
+    runStatus: 'complete',
+    heatmapStatus: 'amber',
+    riskScore: 0.04,
+    findings: [{ severity: 'red', scanner: 'Snyk' }, { severity: 'green', scanner: 'Cisco' }],
+  });
+
+  // -- Then --
+  assert.equal(actual, 'red', 'one red finding must paint the card red regardless of density');
+});
+
+test('given amber findings only when resolveItemStatus then amber not red', () => {
+  assert.equal(
+    resolveItemStatus({
+      runStatus: 'complete',
+      heatmapStatus: 'green',
+      riskScore: 0.1,
+      findings: [{ severity: 'amber' }],
+    }),
+    'amber'
+  );
+});
+
 test('given complete green risk when resolveItemStatus then green', () => {
   assert.equal(
     resolveItemStatus({
@@ -106,6 +134,38 @@ test('given findings when maxFindingStatus then ignores green soft findings', ()
   assert.equal(maxFindingStatus([{ severity: 'green' }]), null);
   assert.equal(maxFindingStatus([{ severity: 'green' }, { severity: 'amber' }]), 'amber');
   assert.equal(maxFindingStatus([{ severity: 'amber' }, { severity: 'red' }]), 'red');
+});
+
+test('given tiered_router amber when maxFindingStatus then ignores router rows', () => {
+  assert.equal(
+    maxFindingStatus([
+      { severity: 'amber', scanner: 'tiered_router' },
+      { severity: 'green', scanner: 'Snyk' },
+    ]),
+    null
+  );
+});
+
+test('given mixed findings when formatFindingCountLabel then severity breakdown', () => {
+  assert.equal(formatFindingCountLabel([]), '');
+  assert.equal(formatFindingCountLabel([{ severity: 'red' }]), '1 finding');
+  assert.equal(
+    formatFindingCountLabel([{ severity: 'red' }, { severity: 'red' }]),
+    '2 findings'
+  );
+  assert.equal(
+    formatFindingCountLabel([
+      { severity: 'red' },
+      { severity: 'amber' },
+      { severity: 'amber', scanner: 'tiered_router' },
+    ]),
+    '1● 1▲'
+  );
+  assert.deepEqual(countActionableFindings([{ severity: 'red' }, { severity: 'green' }]), {
+    red: 1,
+    amber: 0,
+    total: 1,
+  });
 });
 
 test('given scanner unreachable when scannerExecMeta then uses error violet not vuln red', () => {

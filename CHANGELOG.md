@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ADR-0016: tiered router via SIE and Model Studio
 
 ### Changed
+- Card `heatmap_status` is worst-of actionable findings (any red → red; amber-only
+  → amber); `risk_score` stays weighted density for sort/trend. Dashboard cards
+  show an actionable finding-count chip so one vs many vulns stay distinguishable
 - Severity rollup excludes `tiered_router` findings so triage does not inflate
   scanner red/amber counts
 - CLI coverage floors temporarily lowered (60/60/80/60) until `router.js` unit
