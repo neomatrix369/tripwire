@@ -11,9 +11,9 @@ Use this map to move from a safe first look to the level of setup or project det
 | Your task | Start here | Then |
 |---|---|---|
 | Run a first Live scan | [Quickstart: ordered Live setup](../QUICKSTART.md#first-live-scan) | [Supabase setup](./user-guide/supabase-setup.md) → [Modal setup](./user-guide/modal-setup.md) → [environment keys](./user-guide/env-vars.md) → [scan and dashboard](../QUICKSTART.md#live-capabilities) |
-| Enable optional tiered routing | [SIE setup](./user-guide/sie-setup.md) | [Model Studio setup](./user-guide/model-studio-setup.md) → [route command](./user-guide/setup-commands.md#tiered-router-optional) |
+| Enable optional tiered routing | [SIE setup](./user-guide/sie-setup.md) | [Model Studio setup](./user-guide/model-studio-setup.md) → [`tripwire route`](./user-guide/setup-commands.md#tiered-router-optional) → [read router results](./user-guide/reading-router-results.md) |
 | Preview or validate locally | [Optional local validation](../QUICKSTART.md#validate-locally-optional) | [README: dashboard preview](../README.md#preview-the-dashboard-optional) |
-| Understand results and system shape | [Capability status](./STATUS.md) | [Architecture](./ARCHITECTURE.md) · [ADRs](./adr/README.md) |
+| Understand results and system shape | [Capability status](./STATUS.md) | [Architecture](./ARCHITECTURE.md) · [ADRs](./adr/README.md) · [router UI](./user-guide/reading-router-results.md) |
 | Contribute or maintain | [Contributing](../CONTRIBUTING.md) | [Setup and maintenance commands](./user-guide/setup-commands.md) |
 
 ## Setup and operation
@@ -29,6 +29,7 @@ Use this map to move from a safe first look to the level of setup or project det
 | [user-guide/modal-setup.md](./user-guide/modal-setup.md) | Modal auth, secrets sync, scan app deploy |
 | [user-guide/sie-setup.md](./user-guide/sie-setup.md) | Optional Superlinked SIE keys for tiered routing |
 | [user-guide/model-studio-setup.md](./user-guide/model-studio-setup.md) | Optional Alibaba Cloud Model Studio escalation |
+| [user-guide/reading-router-results.md](./user-guide/reading-router-results.md) | Pathway strips, Escalated / SIE-only filters, categories |
 | [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) | Compact shared onboarding reference |
 | [STATUS.md](./STATUS.md) | Evidence-labelled capability claims |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | System diagrams, key flows, and repository layout |

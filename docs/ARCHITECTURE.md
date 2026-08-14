@@ -56,7 +56,7 @@ C4Container
     Container(cli, "CLI", "Node.js", "Discovery, hashing, idempotency, Modal spawn, tiered route")
     Container(sandbox, "Sandbox app", "Python / Modal", "Acquire target, run adapters")
     ContainerDb(db, "Database", "Postgres / Supabase", "schema.sql, Realtime")
-    Container(dash, "Dashboard", "HTML / JS", "Live or Mock findings UI")
+    Container(dash, "Dashboard", "HTML / JS", "Live/Mock UI; pathway strips; Escalated / SIE-only filters")
   }
 
   System_Ext(scanners, "Upstream scanners")
@@ -78,7 +78,7 @@ C4Container
 - `cli/` — `tripwire` Node CLI (`scan`, `setup`, `route`)
 - `sandbox/` — Modal app + scanner adapters (`scanners.py`); unit tests in `sandbox/tests/`
 - `db/schema.sql` — Postgres/Supabase DDL + rollup; anon SELECT + Realtime
-- `prototypes/dc-dashboard/` — Live/Mock dashboard (Horizon A ship UI; prototype path)
+- `prototypes/dc-dashboard/` — Live/Mock dashboard (Horizon A ship UI; prototype path). Shows router pathway strips (`Scan → ■` / `Scan → SIE → ■` / `Scan → SIE → Model Studio`) and Escalated / SIE-only filters — [reading-router-results.md](./user-guide/reading-router-results.md)
 - `prototypes/sie-studio/` / `prototypes/model-studio/` — sample CLIs for router backends
 - `scripts/` — setup (Supabase/Modal), `serve-dashboard.mjs`, hygiene gates, router fixtures
 - `fixtures/` — smoke targets — [fixtures/README.md](../fixtures/README.md)
@@ -131,6 +131,34 @@ sequenceDiagram
 ```
 
 Manual re-route: `tripwire route --batch-id …` ([setup-commands.md](./user-guide/setup-commands.md#tiered-router-optional)).
+
+### Tiered routing
+
+Multi-scanner batches can disagree on severity, leave unusual scanner statuses
+(timeout / unreachable), or produce low-confidence finding text. Operators need a
+post-scan signal separate from raw scanner rows.
+
+1. **SIE** (cheap / every item) decides whether to escalate using pre-computed
+   `conflicting` + `unusual_status` plus its own `low_confidence` judgment.
+2. **Model Studio** (stronger / escalate only) runs either **arbitration**
+   (findings present) or **triage** (empty findings + coverage gap).
+3. Persist one `tiered_router` finding per item (`routing_review` /
+   `routing_decision` / `routing_triage`). Replace that item's prior router row
+   only after a successful SIE decision — never batch-delete first.
+4. Dashboard surfaces pathway strips and Escalated / SIE-only filters
+   ([reading-router-results.md](./user-guide/reading-router-results.md)).
+
+Missing SIE credentials → warn and skip (scan unaffected). See
+[ADR-0016](./adr/0016-tiered-router-sie-model-studio.md).
+
+### Quality attributes — severity rollup
+
+`tripwire_rollup_item` aggregates **scanner** findings only. Rows with
+`scanner_source = 'tiered_router'` are excluded so triage does not inflate
+red/amber counts or `risk_score`. Card `heatmap_status` is worst-of actionable
+scanner severities; finding-count chips are density, not colour
+([ADR-0004](./adr/0004-supabase-system-of-record.md),
+[ADR-0016](./adr/0016-tiered-router-sie-model-studio.md)).
 
 ---
 

@@ -30,6 +30,13 @@
 [![Last Commit](https://img.shields.io/github/last-commit/neomatrix369/tripwire)](https://github.com/neomatrix369/tripwire/commits/main)
 [![Stars](https://img.shields.io/github/stars/neomatrix369/tripwire?style=social)](https://github.com/neomatrix369/tripwire)
 <!-- badges:end -->
+
+Meterian **Security** / **Stability** / **Licensing** badges mirror the public
+[Meterian project report](https://www.meterian.com/report/gh/neomatrix369/tripwire)
+(dependency and policy scan for this GitHub repo). CI / Nightly / Complexity badges
+reflect GitHub Actions on `main`. Re-check those links after dependency or workflow
+changes.
+
 ![Tripwire banner](./Tripwire-Banner.png)
 
 ## What Tripwire does
@@ -72,19 +79,24 @@ explain each decision before you make it.
 2. Create the accounts you need: [Supabase](docs/user-guide/supabase-setup.md),
    [Modal](docs/user-guide/modal-setup.md), then add Snyk, Tessl, and Cisco credentials
    with the [environment-variable procurement guide](docs/user-guide/env-vars.md#vendor-procurement-quick-steps).
-   For optional post-scan routing, also set up [Superlinked SIE](docs/user-guide/sie-setup.md)
-   and [Alibaba Cloud Model Studio](docs/user-guide/model-studio-setup.md).
+   For optional post-scan routing ([ADR-0016](docs/adr/0016-tiered-router-sie-model-studio.md)),
+   also set up [Superlinked SIE](docs/user-guide/sie-setup.md) (required for routing)
+   and optionally [Alibaba Cloud Model Studio](docs/user-guide/model-studio-setup.md)
+   (escalation only).
 3. Create `.env` only after you have the values, then fill it with
    [env-vars.md](docs/user-guide/env-vars.md) as the single key reference.
 4. Bootstrap Supabase and deploy the Modal scan app with the
    [Live setup commands](docs/user-guide/setup-commands.md#live-environment-bootstrap).
 5. Run a fixture scan and open the Live dashboard from the
-   [Quickstart](QUICKSTART.md#live-capabilities).
+   [Quickstart](QUICKSTART.md#live-capabilities). After routing, use
+   [`tripwire route`](docs/user-guide/setup-commands.md#tiered-router-optional) to
+   re-run a batch and [read router results](docs/user-guide/reading-router-results.md)
+   for pathway strips and Escalated / SIE-only filters.
 
 Supabase and Modal are required for Live results. If Snyk, Tessl, or Cisco credentials
 are absent, Tripwire reports that scanner as skipped rather than calling the scan complete.
-SIE and Model Studio are optional: without them, scans still complete and auto-route
-logs a warning and skips.
+SIE and Model Studio are optional: without SIE keys, scans still complete and auto-route
+logs a warning and skips. With SIE but without Model Studio, SIE-only reviews still log.
 
 ## Preview the dashboard (optional)
 
@@ -110,9 +122,16 @@ tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
 
 The workflow is deliberately small: discover the target, scan it with the enabled
 adapters, optionally route findings through Superlinked SIE (and Model Studio on
-escalation), then review the result. Mock lets you explore the final step safely;
-Live uses Supabase, Modal, and the configured Snyk, Tessl, and Cisco scanners for
-real scans.
+escalation) via auto-route or `tripwire route --batch-id …`, then review the result.
+Mock lets you explore the final step safely; Live uses Supabase, Modal, and the
+configured Snyk, Tessl, and Cisco scanners for real scans.
+
+### Optional: iterate on router backends locally
+
+For research or smoke-testing SIE / Model Studio without a full scan batch, sample
+CLIs live under [`prototypes/sie-studio/`](prototypes/sie-studio/README.md) and
+[`prototypes/model-studio/`](prototypes/model-studio/README.md) (same env keys as
+the product router).
 
 ```mermaid
 flowchart LR
@@ -159,7 +178,8 @@ flowchart LR
 |---|---|
 | Run your first Live scan | [Follow the Quickstart](QUICKSTART.md#first-live-scan) |
 | Preview the dashboard or validate locally | [Optional local validation](QUICKSTART.md#validate-locally-optional) |
-| Enable optional SIE / Model Studio routing | [SIE setup](docs/user-guide/sie-setup.md) · [Model Studio setup](docs/user-guide/model-studio-setup.md) |
+| Enable optional SIE / Model Studio routing | [SIE setup](docs/user-guide/sie-setup.md) · [Model Studio setup](docs/user-guide/model-studio-setup.md) · [`tripwire route`](docs/user-guide/setup-commands.md#tiered-router-optional) |
+| Interpret pathway strips / Escalated / SIE-only | [Reading router results](docs/user-guide/reading-router-results.md) |
 | Understand results and system shape | [Capability status](docs/STATUS.md) · [Architecture](docs/ARCHITECTURE.md) · [Decisions](docs/adr/README.md) |
 | Contribute or maintain the project | [Contributing](CONTRIBUTING.md) · [command catalog](docs/user-guide/setup-commands.md) |
 

@@ -9,8 +9,9 @@ quality gates.
 
 Status values: **Proposed**, **Accepted**, **Deprecated**, **Superseded**.
 
-Number **0001** is reserved and omitted from this catalog while that draft
-remains under review. Published records start at **0002**.
+Number **0001** is reserved and omitted from this catalog while a Proposed
+**Monk Live packaging / deployment** draft remains under review on a side
+branch (not merged to `main`). Published records start at **0002**.
 
 | ADR | Title | Status |
 |-----|-------|--------|

@@ -81,6 +81,7 @@ scan itself still succeeds.
 ## Next
 
 → [model-studio-setup.md](./model-studio-setup.md) (optional escalation) ·
+[reading-router-results.md](./reading-router-results.md) ·
 [env-vars.md](./env-vars.md) ·
 [setup-commands.md](./setup-commands.md#tiered-router-optional) ·
 [QUICKSTART](../../QUICKSTART.md#live-capabilities)
