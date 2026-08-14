@@ -177,7 +177,7 @@ begin
 
   select count(*) filter (where severity = 'red'), count(*) filter (where severity = 'amber')
   into v_red_count, v_amber_count
-  from findings where scan_run_id = v_latest_run_id;
+  from findings where scan_run_id = v_latest_run_id and scanner_source != 'tiered_router';
 
   if v_total_checks = 0 then
     v_risk := 0;
