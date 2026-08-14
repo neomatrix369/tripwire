@@ -562,6 +562,10 @@ def main(argv: list[str] | None = None) -> None:
     load_env_files()
     parser = build_parser()
     args = parser.parse_args(argv)
+    if not getattr(args, "model", None):
+        env_model = env("MODEL_STUDIO_MODEL")
+        if env_model:
+            args.model = env_model
     catalog = load_catalog()
     catalog["settings"] = settings_from_env(catalog, require_key=args.command != "list")
     args.func(catalog, args)
