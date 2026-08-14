@@ -129,6 +129,10 @@ async function main() {
 
   try {
     const page = await browser.newPage();
+    // Gallery labels assume Mock fixture severities (Red/Amber/Green examples).
+    await page.evaluateOnNewDocument(() => {
+      sessionStorage.setItem("tripwire-data-source-mode", "mock");
+    });
     await page.goto(baseUrl, { waitUntil: "networkidle0", timeout: 60000 });
     await sleep(1500);
 

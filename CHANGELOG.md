@@ -40,6 +40,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Provider setup guides for optional tiered routing:
   `docs/user-guide/sie-setup.md` and `docs/user-guide/model-studio-setup.md`
   (wired from README, QUICKSTART, docs index, env-vars, prerequisites)
+- Screenshot gallery refreshed: CLI help includes `route`, live Modal scan
+  capture updated, dashboard/skill/MCP shots retaken from Mock demo data;
+  regenerate UI shots with `scripts/capture-screenshots.mjs`
 
 ## [0.3.0] - 2026-08-05
 
