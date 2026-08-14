@@ -13,9 +13,11 @@ Reference UX and demo assets. Not the shipped product UI.
 
 Came from [QUICKSTART](../QUICKSTART.md)? Use the **Normal users** path, then return here for Live vs Mock detail.
 
-| Path            | What                                                                                                                                |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `dc-dashboard/` | Data Commons HTML dashboard (`Tripwire.dc.html` + `support.js`). Supports **live Supabase** data or mock data (`tripwire-data.js`). |
+| Path              | What                                                                                                                                |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `dc-dashboard/`   | Data Commons HTML dashboard (`Tripwire.dc.html` + `support.js`). Supports **live Supabase** data or mock data (`tripwire-data.js`). |
+| `model-studio/`   | Sample CLI for Alibaba Cloud Model Studio (chat / image / video). Copy [`.env.example`](.env.example) → `prototypes/.env`, then run `python3 model-studio/model_studio.py`. See [model-studio/README.md](model-studio/README.md). |
+| `sie-studio/`     | Sample CLI for Superlinked SIE (encode / score / generate on managed Qwen). Set `SIE_ENDPOINT` + `SIE_API_KEY` in [`.env.example`](.env.example) → `prototypes/.env`, then run `python3 sie-studio/sie_studio.py`. See [sie-studio/README.md](sie-studio/README.md). |
 
 ## Viewing the dashboard
 

@@ -6,7 +6,9 @@ const items = [
   ], trend:[{d:'07-24',r:0.10},{d:'07-27',r:0.10},{d:'07-30',r:0.10}],
   sandbox:{id:'sb_71cd0a', started:'2026-07-30T14:01:40Z', completed:'2026-07-30T14:02:00Z', egressPhase:'static allowlist (no dynamic domains needed)', denied:[], cleanup:true} },
 
-  { id:'i2', type:'skill', name:'safe-csv-cleaner', identifier:'safe-csv-cleaner', status:'green', risk:0.05, quality:88, locus:'local', avail:'source_on_disk', lastScan:'2026-07-29T09:12:00Z', findings:[], scanners:[
+  { id:'i2', type:'skill', name:'safe-csv-cleaner', identifier:'safe-csv-cleaner', status:'green', risk:0.05, quality:88, locus:'local', avail:'source_on_disk', lastScan:'2026-07-29T09:12:00Z', findings:[
+    {severity:'green', category:'routing_review', scanner:'tiered_router', message:'{"escalated":false,"signals":{"conflicting":false,"unusual_status":false,"low_confidence":false},"models":{"sie":"gen-4b","model_studio":null},"reasoning":{"sie":"Scanners agree; all checks passed cleanly — no conflict or unusual status to escalate.","model_studio":null}}'}
+  ], scanners:[
     {source:'Cisco Skill Scanner: static/bytecode/pipeline', status:'completed', checks_run:29, output:{raw_summary:'29 checks passed — no findings'}},
     {source:'Snyk', status:'completed', checks_run:15, output:{raw_summary:'15 checks passed — 0 issues'}},
     {source:'Tessl', status:'completed', checks_run:1, output:{quality_score:88}}
@@ -71,7 +73,8 @@ const items = [
 
   { id:'i9', type:'skill', name:'disagreement-naive-domain-check', identifier:'disagreement-naive-domain-check', status:'amber', risk:0.60, quality:75, locus:'local', avail:'source_on_disk', lastScan:'2026-07-30T13:15:00Z', disagreement:true, findings:[
     {severity:'amber', category:'untrusted_network_fetch', file_path:'check.py', location:'21', scanner:'Snyk', message:'Naive prefix-match allowlist can be bypassed: storage.acmecorp.com.evil.example passes the check.'},
-    {severity:'green', category:'untrusted_network_fetch', file_path:'check.py', location:'21', scanner:'Cisco Skill Scanner: LLM-judge', message:'Allowlist pattern judged acceptable for this use case.'}
+    {severity:'green', category:'untrusted_network_fetch', file_path:'check.py', location:'21', scanner:'Cisco Skill Scanner: LLM-judge', message:'Allowlist pattern judged acceptable for this use case.'},
+    {severity:'amber', category:'routing_decision', scanner:'tiered_router', message:'{"escalated":true,"signals":{"conflicting":true,"unusual_status":false,"low_confidence":false},"models":{"sie":"gen-4b","model_studio":"qwen3.8-max"},"reasoning":{"sie":"Two scanners disagree on severity for the same network-fetch pattern — the conflict warrants deeper review.","model_studio":"Cisco\'s LLM-judge assessed the allowlist pattern as acceptable for its declared use case; Snyk\'s structural check is correct that the prefix match is bypassable. The actual risk depends on whether the API endpoint is genuinely trusted. Treating as amber: review the allowlist before any production use."}}'}
   ], scanners:[
     {source:'Cisco Skill Scanner: static/bytecode/pipeline', status:'completed', checks_run:30, output:{raw_summary:'30 checks passed — no findings'}},
     {source:'Cisco Skill Scanner: LLM-judge', status:'completed', checks_run:12, output:{raw_summary:'12 checks — 1 finding (green): allowlist pattern judged acceptable'}},
@@ -101,59 +104,14 @@ const items = [
   ], trend:[],
   sandbox:{id:'sb_running1', started:new Date(Date.now() - 45000).toISOString(), completed:null, egressPhase:'static allowlist', denied:[], cleanup:false} },
 
-  { id:'i12', type:'mcp_server', name:'mcp-scan-timeout-server', identifier:'mcp-scan-timeout-server', status:'error', risk:null, locus:'local', avail:'source_on_disk', lastScan:'2026-07-31T22:30:00Z', errorMessage:'Sandbox hard timeout after 300s — scan killed before completion.', findings:[], scanners:[
+  { id:'i12', type:'mcp_server', name:'mcp-scan-timeout-server', identifier:'mcp-scan-timeout-server', status:'error', risk:null, locus:'local', avail:'source_on_disk', lastScan:'2026-07-31T22:30:00Z', errorMessage:'Sandbox hard timeout after 300s — scan killed before completion.', findings:[
+    {severity:'amber', category:'routing_triage', scanner:'tiered_router', message:'{"escalated":true,"signals":{"conflicting":false,"unusual_status":true,"low_confidence":false},"models":{"sie":"gen-4b","model_studio":"qwen3.8-max"},"reasoning":{"sie":"Snyk did not complete before the sandbox timeout — coverage gap warrants triage.","model_studio":"Recommendation: re-run scan with an extended timeout once the sandbox issue is resolved. Snyk\'s unreachable status reflects a scan infrastructure limitation rather than a known vulnerability in the target. Treating as amber pending re-scan — low priority gap only."}}'}
+  ], scanners:[
     {source:'Cisco MCP Scanner: YARA', status:'completed', checks_run:20, output:{raw_summary:'20 checks passed — no findings'}},
     {source:'Snyk', status:'unreachable', checks_run:0, output:{reason:'sandbox hard timeout before Snyk could complete'}}
   ], trend:[],
   sandbox:{id:'sb_f00d21', started:'2026-07-31T22:25:00Z', completed:'2026-07-31T22:30:00Z', egressPhase:'static allowlist', denied:[], cleanup:true} }
 ];
-
-const cliScenarios = {
-  singleSkill: {
-    label: 'tripwire scan ./fixtures/skills/vuln-prompt-injection-notes',
-    lines: [
-      '$ tripwire scan ./fixtures/skills/vuln-prompt-injection-notes',
-      'Discovery: single item (skill, source_on_disk)',
-      'Checking idempotency… content_hash 9f3a2e1c not seen before',
-      'Spawning Modal sandbox sb_8f2a1c…',
-      'Copying skill content into sandbox (scratch disk)',
-      'Running scanners: Cisco Skill Scanner (static, bytecode, pipeline, llm-judge), Snyk, Tessl',
-      '[Cisco Skill Scanner: static/bytecode/pipeline] 34 checks — 0 findings',
-      '[Cisco Skill Scanner: LLM-judge] 12 checks — 1 finding (red): hidden SYSTEM OVERRIDE instruction block',
-      '[Snyk] 20 checks — 0 findings',
-      '[Tessl] quality_score = 61 (informational, not part of heatmap)',
-      'Sandbox teardown confirmed — scratch disk wiped',
-      'Rollup: risk_score = 2.10 → red',
-      'scan_run_id: run_4f2b9a  item_id: i3  status: complete'
-    ]
-  },
-  batchFolder: {
-    label: 'tripwire scan ./fixtures/mcp/mcp_manifest.json --concurrency 5',
-    lines: [
-      '$ tripwire scan ./fixtures/mcp/mcp_manifest.json --concurrency 5',
-      'Discovery: found 4 items (mcp manifest)',
-      'Created scan_batches row batch_9a2 (item_count=4, concurrency_limit=5)',
-      'Fan-out: 4 sandboxes requested, 4 in flight (≤5 cap)',
-      '[1/4] safe-time-server           → complete   risk_score=0.00  green',
-      '[2/4] vuln-command-injection-server → complete risk_score=2.40  red',
-      '[3/4] vuln-hardcoded-secret-server → complete  risk_score=1.60  red',
-      '[4/4] vuln-unauthenticated-http-server → complete risk_score=0.80 amber',
-      'Batch batch_9a2 complete: 2 red, 1 amber, 1 green',
-      'CLI exited after dispatch — Modal owns the queue for the rest'
-    ]
-  },
-  guardDeny: {
-    label: 'tripwire guard check (simulated PreToolUse)',
-    lines: [
-      '$ (agent) invoking tool "run_shell" on vuln-command-injection-server',
-      'Guard: hashing target content…',
-      'Guard: lookup content_hash in Supabase → heatmap_status=red (risk_score=2.40)',
-      'Guard: config.threshold=red → red is at/above threshold',
-      'Guard: DENY — call blocked before execution',
-      'Guard: decision logged, no scan triggered'
-    ]
-  }
-};
 
 const guardScenarios = [
   { id:'g1', tool:'run_shell', server:'vuln-command-injection-server', itemId:'i6', outcome:'deny' },
@@ -161,4 +119,4 @@ const guardScenarios = [
   { id:'g3', tool:'onboard_step', server:'new-onboarding-helper', itemId:'i11', outcome:'deny-unscanned' }
 ];
 
-export default { items, cliScenarios, guardScenarios };
+export default { items, guardScenarios };

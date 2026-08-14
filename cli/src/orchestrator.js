@@ -2,6 +2,7 @@ import { ensureSchema } from './ensureSchema.js';
 import { getSupabase } from './supabaseClient.js';
 import { hashLocalPath } from './hash.js';
 import { spawnScanSandbox } from './modalClient.js';
+import { runRoute } from './router.js';
 
 async function mapWithConcurrency(items, limit, fn) {
   const results = new Array(items.length);
@@ -106,14 +107,12 @@ export async function runScan(targets, {
   ensureSchemaFn = ensureSchema,
   getSupabaseFn = getSupabase,
   spawnFn = spawnScanSandbox,
+  routeFn = runRoute,
 } = {}) {
   assertPositiveConcurrency(concurrency);
   await ensureSchemaFn();
   const supabase = getSupabaseFn();
-  let batchId = null;
-  if (targets.length > 1) {
-    batchId = await createScanBatch(supabase, targets, concurrency);
-  }
+  const batchId = await createScanBatch(supabase, targets, concurrency);
 
   const outcomes = await mapWithConcurrency(
     targets,
@@ -128,6 +127,13 @@ export async function runScan(targets, {
     failed_targets: failures.map(({ target, error }) => ({ target, error })),
   };
   console.log(JSON.stringify(result, null, 2));
+
+  try {
+    await routeFn(batchId);
+  } catch (err) {
+    console.warn(`[warn] auto-route failed for batch ${batchId}: ${err.message}`);
+  }
+
   if (failures.length) {
     throw new Error(`${failures.length} target scan dispatch failure(s); inspect failed_targets output`);
   }

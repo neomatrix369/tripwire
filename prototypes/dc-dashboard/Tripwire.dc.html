@@ -127,6 +127,12 @@
                   <sc-if value="{{ item.drifted }}">
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--amber);background:rgba(245,158,11,0.1);display:inline-flex;padding:2px 7px;border-radius:4px;width:fit-content;border:1px solid rgba(245,158,11,0.2)">⟳ changed since last scan</div>
                   </sc-if>
+                  <sc-if value="{{ item.routerStrip }}">
+                    <div style="font-family:var(--font-mono);font-size:10px;display:flex;align-items:center;gap:6px">
+                      <span style="color:{{ item.routerStrip.stripColor }}">{{ item.routerStrip.stripText }}</span>
+                      <span style="font-weight:600;color:{{ item.routerStrip.badgeColor }};background:{{ item.routerStrip.badgeBg }};padding:1px 6px;border-radius:3px;border:1px solid {{ item.routerStrip.badgeBorder }}">{{ item.routerStrip.badgeLabel }}</span>
+                    </div>
+                  </sc-if>
                   <div style="display:flex;gap:6px;flex-wrap:wrap">
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);background:var(--bg-elevated);padding:2px 7px;border-radius:4px">{{ item.locusLabel }}</div>
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);background:var(--bg-elevated);padding:2px 7px;border-radius:4px">{{ item.availLabel }}</div>
@@ -215,6 +221,34 @@
 
           <sc-if value="{{ selectedView.disagreement }}">
             <div style="font-size:11px;color:#d4bcff;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.2);padding:8px 12px;border-radius:6px;margin-bottom:16px">Scanners disagree on this finding — flagged for Phase 5 reconciler review.</div>
+          </sc-if>
+
+          <sc-if value="{{ selectedView.routerStrip }}">
+            <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-left:3px solid {{ selectedView.routerStrip.stripColor }};border-radius:6px;padding:10px 12px;margin-bottom:16px">
+              <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">AI Routing</div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <span style="font-family:var(--font-mono);font-size:11px;color:{{ selectedView.routerStrip.stripColor }};font-weight:600">{{ selectedView.routerStrip.stripText }}</span>
+                <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ selectedView.routerStrip.badgeColor }};background:{{ selectedView.routerStrip.badgeBg }};padding:2px 7px;border-radius:4px;border:1px solid {{ selectedView.routerStrip.badgeBorder }}">{{ selectedView.routerStrip.badgeLabel }}</span>
+              </div>
+              <sc-if value="{{ selectedView.routerStrip.envModels }}">
+                <div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px">Models: <span style="font-family:var(--font-mono);color:var(--text-primary)">{{ selectedView.routerStrip.envModels }}</span></div>
+              </sc-if>
+              <sc-if value="{{ selectedView.routerStrip.signalsText }}">
+                <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:6px">{{ selectedView.routerStrip.signalsText }}</div>
+              </sc-if>
+              <sc-if value="{{ selectedView.routerStrip.envSie }}">
+                <div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px"><span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em">SIE: </span>{{ selectedView.routerStrip.envSie }}</div>
+              </sc-if>
+              <sc-if value="{{ selectedView.routerStrip.isReview }}">
+                <div style="font-family:var(--font-mono);font-size:10px;color:#7ec0ff;background:rgba(77,162,255,0.1);padding:3px 8px;border-radius:4px;display:inline-block">SIE only — not escalated · No Model Studio call</div>
+              </sc-if>
+              <sc-if value="{{ selectedView.routerStrip.msReasoning }}">
+                <div style="font-size:11px;color:var(--text-secondary);margin-top:4px"><span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em">{{ selectedView.routerStrip.msLabel }}: </span>{{ selectedView.routerStrip.msReasoning }}</div>
+              </sc-if>
+              <sc-if value="{{ selectedView.routerStrip.rawFallback }}">
+                <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">{{ selectedView.routerStrip.rawFallback }}</div>
+              </sc-if>
+            </div>
           </sc-if>
 
           <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Findings ({{ selectedView.findingsView.length }})</div>
@@ -322,27 +356,6 @@
     </div>
   </sc-if>
 
-  <sc-if value="{{ activeTabIsCli }}" hint-placeholder-val="{{ false }}">
-    <div style="flex:1;display:flex;flex-direction:column;padding:20px;gap:14px;overflow:hidden">
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <sc-for list="{{ cliButtons }}" as="cb" hint-placeholder-count="3">
-          <button onClick="{{ cb.onClick }}" style="{{ cb.style }}">▶ {{ cb.label }}</button>
-        </sc-for>
-      </div>
-      <div style="flex:1;background:var(--bg-deep);border:1px solid var(--border-subtle);border-radius:8px;padding:16px;overflow-y:auto;font-family:var(--font-mono);font-size:13px;color:#8fe388;box-shadow:inset 0 2px 8px rgba(0,0,0,0.3)">
-        <sc-if value="{{ cliEmpty }}" hint-placeholder-val="{{ true }}">
-          <div style="color:var(--text-muted)">Pick a scenario above to run a simulated tripwire command.</div>
-        </sc-if>
-        <sc-for list="{{ cliVisibleLines }}" as="line" hint-placeholder-count="0">
-          <div style="margin-bottom:6px;white-space:pre-wrap">{{ line }}</div>
-        </sc-for>
-        <sc-if value="{{ cliRunning }}" hint-placeholder-val="{{ false }}">
-          <div style="color:var(--accent)">▌</div>
-        </sc-if>
-      </div>
-    </div>
-  </sc-if>
-
   <sc-if value="{{ activeTabIsGuard }}" hint-placeholder-val="{{ false }}">
     <div style="flex:1;padding:24px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;max-width:760px">
       <div style="display:flex;align-items:center;gap:16px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:8px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
@@ -414,13 +427,10 @@ class Component extends DCLogic {
     activeTab: 'dashboard',
     data: null,
     dataSource: 'loading',
-    dataSourceMode: sessionStorage.getItem('tripwire-data-source-mode') || 'mock',
+    dataSourceMode: sessionStorage.getItem('tripwire-data-source-mode') || 'live',
     typeFilter: 'all',
     statusFilter: 'all',
     selectedId: null,
-    cliScenarioKey: null,
-    cliRevealCount: 0,
-    cliRunning: false,
     guardResults: {},
     monitoringEnabled: true,
     threshold: 'red',
@@ -529,7 +539,6 @@ class Component extends DCLogic {
   };
 
   componentWillUnmount() {
-    clearInterval(this._cliTimer);
     clearInterval(this._pollTimer);
     if (this._rt) {
       this._rt.unsubscribe();
@@ -551,21 +560,6 @@ class Component extends DCLogic {
     const key = itemId + ':' + idx;
     return { expandedScanners: { ...s.expandedScanners, [key]: !s.expandedScanners[key] } };
   });
-
-  runCli = (key) => {
-    const data = this.state.data;
-    if (!data || this.state.cliRunning) return;
-    const total = data.cliScenarios[key].lines.length;
-    clearInterval(this._cliTimer);
-    this.setState({ cliScenarioKey: key, cliRevealCount: 0, cliRunning: true });
-    this._cliTimer = setInterval(() => {
-      this.setState(s => {
-        const next = s.cliRevealCount + 1;
-        if (next >= total) { clearInterval(this._cliTimer); return { cliRevealCount: total, cliRunning: false }; }
-        return { cliRevealCount: next };
-      });
-    }, 420);
-  };
 
   simulateGuardCall = (id) => {
     this.setState(s => {
@@ -622,6 +616,35 @@ class Component extends DCLogic {
     if (!started || !completed) return '—';
     const secs = (new Date(completed) - new Date(started)) / 1000;
     return secs.toFixed(1) + 's';
+  }
+
+  parseEnvelope(message) {
+    try { return typeof message === 'string' ? JSON.parse(message) : null; } catch { return null; }
+  }
+
+  routerStripData(rf) {
+    if (!rf) return null;
+    const env = this.parseEnvelope(rf.message);
+    const escalated = ['routing_decision', 'routing_triage'].includes(rf.category);
+    const isTriage = rf.category === 'routing_triage';
+    const isReview = rf.category === 'routing_review';
+    const stripColor = escalated ? '#a78bfa' : '#4da2ff';
+    const badgeColor = escalated ? '#d4bcff' : '#7ec0ff';
+    const badgeBg = escalated ? 'rgba(167,139,250,0.15)' : 'rgba(77,162,255,0.1)';
+    const badgeBorder = escalated ? 'rgba(167,139,250,0.3)' : 'rgba(77,162,255,0.25)';
+    return {
+      escalated,
+      isReview,
+      stripText: escalated ? 'Scan → SIE → Model Studio' : 'Scan → SIE → ■',
+      stripColor, badgeColor, badgeBg, badgeBorder,
+      badgeLabel: isTriage ? 'Triage urgency' : escalated ? 'Arbitration' : 'SIE only — not escalated',
+      envModels: env ? `SIE=${env.models?.sie || '?'} · MS=${env.models?.model_studio || '—'}` : '',
+      signalsText: env?.signals ? `conflicting ${env.signals.conflicting ? '✓' : '✗'} · unusual_status ${env.signals.unusual_status ? '✓' : '✗'} · low_confidence ${env.signals.low_confidence ? '✓' : '✗'}` : '',
+      envSie: env?.reasoning?.sie || '',
+      msLabel: isTriage ? 'Triage urgency' : 'Arbitration',
+      msReasoning: env?.reasoning?.model_studio || null,
+      rawFallback: env ? null : (rf.message || '(no message)'),
+    };
   }
 
   decorateItemStatus(it) {
@@ -685,9 +708,9 @@ class Component extends DCLogic {
       error: { color: '#a78bfa', label: 'ERROR', glyph: '!' }
     };
 
-    const primaryTabs = ['dashboard', 'cli'].map(key => ({
+    const primaryTabs = ['dashboard'].map(key => ({
       key,
-      label: key === 'cli' ? 'CLI' : key.charAt(0).toUpperCase() + key.slice(1),
+      label: key.charAt(0).toUpperCase() + key.slice(1),
       onClick: () => this.setTab(key),
       style: this.btnStyle(s.activeTab === key, { size: '13px' })
     }));
@@ -713,7 +736,6 @@ class Component extends DCLogic {
 
     const base = {
       activeTabIsDashboard: s.activeTab === 'dashboard',
-      activeTabIsCli: s.activeTab === 'cli',
       activeTabIsGuard: s.activeTab === 'guard',
       primaryTabs,
       guardTab,
@@ -752,7 +774,6 @@ class Component extends DCLogic {
         ...base,
         gridItems: [], typeTabs: [], statusChips: [], overviewStats: [],
         selectedView: null,
-        cliButtons: [], cliVisibleLines: [], cliEmpty: true, cliRunning: false,
         guardRows: [], footerLastScan: '—',
         listRows: [], historyRows: []
       };
@@ -764,6 +785,10 @@ class Component extends DCLogic {
       { key: 'mcp_server', label: 'MCP Servers' }
     ].map(t => ({ ...t, onClick: () => this.setTypeFilter(t.key), style: this.btnStyle(s.typeFilter === t.key, { activeBg: '#182436', activeBorder: '#4da2ff', activeColor: '#e8edf4' }) }));
 
+    const routerChipMeta = {
+      escalated: { color: '#a78bfa', activeColor: '#d4bcff' },
+      'sie-only': { color: '#4da2ff', activeColor: '#7ec0ff' }
+    };
     const statusChips = [
       { key: 'all', label: 'All' },
       { key: 'red', label: '● Red' },
@@ -771,18 +796,31 @@ class Component extends DCLogic {
       { key: 'green', label: '✓ Green' },
       { key: 'grey', label: '– Unscanned' },
       { key: 'running', label: '◌ Scanning' },
-      { key: 'error', label: '! Error' }
-    ].map(c => ({ ...c, onClick: () => this.setStatusFilter(c.key), style: this.btnStyle(s.statusFilter === c.key, { activeBg: (statusMeta[c.key]?.color || '#4da2ff') + '22', activeBorder: statusMeta[c.key]?.color || '#4da2ff', activeColor: statusMeta[c.key]?.color || '#e8edf4' }) }));
+      { key: 'error', label: '! Error' },
+      { key: 'escalated', label: '⬆ Escalated' },
+      { key: 'sie-only', label: '◈ SIE-only' }
+    ].map(c => {
+      const rm = routerChipMeta[c.key];
+      return { ...c, onClick: () => this.setStatusFilter(c.key), style: this.btnStyle(s.statusFilter === c.key, {
+        activeBg: (rm ? rm.color : statusMeta[c.key]?.color || '#4da2ff') + '22',
+        activeBorder: rm ? rm.color : statusMeta[c.key]?.color || '#4da2ff',
+        activeColor: rm ? rm.activeColor : statusMeta[c.key]?.color || '#e8edf4'
+      }) };
+    });
 
     const q = s.searchQuery.trim().toLowerCase();
-    const filtered = data.items.filter(it =>
-      (s.typeFilter === 'all' || it.type === s.typeFilter) &&
-      (s.statusFilter === 'all' || it.status === s.statusFilter) &&
-      (!q || it.name.toLowerCase().includes(q))
-    );
+    const filtered = data.items.filter(it => {
+      if (s.typeFilter !== 'all' && it.type !== s.typeFilter) return false;
+      if (q && !it.name.toLowerCase().includes(q)) return false;
+      if (s.statusFilter === 'all') return true;
+      if (s.statusFilter === 'escalated') return it.findings.some(f => f.scanner === 'tiered_router' && ['routing_decision', 'routing_triage'].includes(f.category));
+      if (s.statusFilter === 'sie-only') return it.findings.some(f => f.scanner === 'tiered_router' && f.category === 'routing_review');
+      return it.status === s.statusFilter;
+    });
 
     const gridItems = filtered.map(it => {
       const decorated = this.decorateItemStatus(it);
+      const routerFinding = it.findings.find(f => f.scanner === 'tiered_router') || null;
       return {
         ...decorated,
         typeLabel: it.type === 'skill' ? 'Skill' : 'MCP Server',
@@ -790,6 +828,7 @@ class Component extends DCLogic {
         timeLabel: it.scanStartedAt ? 'scanning since ' + this.fmtTime(it.scanStartedAt) : it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
         locusLabel: this.locusLabel(it.locus),
         availLabel: this.availLabel(it.avail),
+        routerStrip: this.routerStripData(routerFinding),
         onSelect: () => this.selectItem(it.id)
       };
     });
@@ -821,7 +860,8 @@ class Component extends DCLogic {
       locusLabel: this.locusLabel(selected.locus),
       availLabel: this.availLabel(selected.avail),
       trendPoints: this.trendPath(selected.trend),
-      findingsView: selected.findings.map(f => ({ ...f, sevColor: this.severityColor(f.severity) })),
+      routerStrip: this.routerStripData(selected.findings.find(f => f.scanner === 'tiered_router') || null),
+      findingsView: selected.findings.filter(f => f.scanner !== 'tiered_router').map(f => ({ ...f, sevColor: this.severityColor(f.severity) })),
       scanningPlaceholder: selected.status === 'running' && selected.scanners.length === 0,
       scanStartedAtLabel: selected.scanStartedAt ? this.fmtTime(selected.scanStartedAt) : null,
       scannersViewLabel: selected.status === 'running' && selected.scanners.length === 0
@@ -851,14 +891,6 @@ class Component extends DCLogic {
       })
     };
     })() : null;
-
-    const cliButtons = Object.keys(data.cliScenarios).map(key => ({
-      key, label: data.cliScenarios[key].label,
-      onClick: () => this.runCli(key),
-      style: this.btnStyle(s.cliScenarioKey === key, { activeBg: 'rgba(77,162,255,0.12)', activeBorder: '#4da2ff' })
-    }));
-    const cli = s.cliScenarioKey ? data.cliScenarios[s.cliScenarioKey] : null;
-    const cliVisibleLines = cli ? cli.lines.slice(0, s.cliRevealCount) : [];
 
     const resultCopy = {
       'deny': { bg: 'rgba(244,63,94,0.12)', color: '#fda4af', text: '⛔ DENIED — rated at/above threshold; call blocked before it ran.' },
@@ -912,7 +944,6 @@ class Component extends DCLogic {
     return {
       ...base, typeTabs, statusChips, gridItems, overviewStats, selectedView,
       closeDrawer: this.closeDrawer,
-      cliButtons, cliVisibleLines, cliEmpty: !s.cliScenarioKey, cliRunning: s.cliRunning,
       guardRows, toggleMonitoring: this.toggleMonitoring,
       footerLastScan, listRows, historyRows
     };

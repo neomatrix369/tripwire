@@ -193,7 +193,6 @@ async function fetchLiveData() {
 
   return {
     items: shaped,
-    cliScenarios: {},
     guardScenarios: [],
   };
 }
