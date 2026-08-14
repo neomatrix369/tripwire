@@ -46,13 +46,16 @@ findings until the platform accounts, `.env`, schema, and Modal app are ready.
 
 ## Shared setup reference
 
+- [Prerequisites](docs/user-guide/prerequisites.md)
+- [Path commands (Install → Live)](docs/user-guide/path-commands.md)
 - [Setup command catalog](docs/user-guide/setup-commands.md)
-- [Operational path (Install → Local validation → Live)](docs/user-guide/path-commands.md)
 - [Supabase setup](docs/user-guide/supabase-setup.md)
 - [Modal setup](docs/user-guide/modal-setup.md)
 - [SIE setup](docs/user-guide/sie-setup.md) (optional router)
 - [Model Studio setup](docs/user-guide/model-studio-setup.md) (optional escalation)
+- [Reading router results](docs/user-guide/reading-router-results.md)
 - [Environment keys](docs/user-guide/env-vars.md)
+- [Screenshot gallery](docs/screenshots/README.md)
 
 ## Daily workflow
 

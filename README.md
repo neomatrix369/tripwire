@@ -120,70 +120,89 @@ tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
 
 ## What happens next
 
-The workflow is deliberately small: discover the target, scan it with the enabled
-adapters, optionally route findings through Superlinked SIE (and Model Studio on
-escalation) via auto-route or `tripwire route --batch-id …`, then review the result.
-Mock lets you explore the final step safely; Live uses Supabase, Modal, and the
-configured Snyk, Tessl, and Cisco scanners for real scans.
+Tripwire’s Live path is a short pipeline. Each hop uses a concrete piece of the
+stack (same names as the badges above):
 
-### Optional: iterate on router backends locally
+| Step | What runs | Stack |
+|---|---|---|
+| Discover | CLI finds skills / MCP servers (`tripwire scan --dry-discover` or a real scan) | Node.js CLI |
+| Scan | Adapters run in an isolated sandbox | Modal (+ Docker image), Python sandbox, Cisco / Snyk / Tessl |
+| Store | Findings and scan_run rows land for the dashboard | Supabase / Postgres |
+| Route (optional) | Every item through SIE; escalate only when signaled | Superlinked SIE → Alibaba Cloud Model Studio via `tripwire route` / auto-route |
+| Review | Heatmap, drawers, pathway strips, Escalated / SIE-only filters | Dashboard (Live or Mock) |
 
-For research or smoke-testing SIE / Model Studio without a full scan batch, sample
-CLIs live under [`prototypes/sie-studio/`](prototypes/sie-studio/README.md) and
-[`prototypes/model-studio/`](prototypes/model-studio/README.md) (same env keys as
-the product router).
+Mock skips Discover→Scan→Store and still shows Review (plus router fixtures).
+Without SIE keys, Route warns and skips; scanner results still store. Sample CLIs
+for router backends (no full batch): [`prototypes/sie-studio/`](prototypes/sie-studio/README.md),
+[`prototypes/model-studio/`](prototypes/model-studio/README.md).
 
 ```mermaid
 flowchart LR
-    discover[Discover skills and MCP servers] --> scan[Scan enabled targets]
-    scan --> route[Optional SIE / Model Studio route]
-    route --> review[Review findings in the dashboard]
+  discover["Discover<br/>Node CLI"] --> scan["Scan<br/>Modal + Cisco/Snyk/Tessl"]
+  scan --> store["Store<br/>Supabase"]
+  store --> route["Route optional<br/>SIE → Model Studio"]
+  route --> review["Review<br/>Dashboard"]
 ```
+
+How to read strips and filters after Route:
+[reading-router-results.md](docs/user-guide/reading-router-results.md).
+
 ### Screenshots
 
 <table>
 <tr>
-  <td align="center" width="25%">
+  <td align="center" width="20%">
     <a href="docs/screenshots/01-cli/02-cli-real-scan-modal-sandbox.png">
       <img src="docs/screenshots/01-cli/02-cli-real-scan-modal-sandbox.png" width="100%" alt="CLI — real scan with Modal sandbox output">
     </a>
-    <sub><b>CLI scan</b> — Modal sandbox (live)</sub>
+    <sub><b>CLI scan</b> — Modal (live)</sub>
   </td>
-  <td align="center" width="25%">
+  <td align="center" width="20%">
     <a href="docs/screenshots/02-dashboard/02-dashboard-overview-grid.png">
       <img src="docs/screenshots/02-dashboard/02-dashboard-overview-grid.png" width="100%" alt="Dashboard overview grid (Mock demo data)">
     </a>
     <sub><b>Dashboard</b> — Mock overview</sub>
   </td>
-  <td align="center" width="25%">
+  <td align="center" width="20%">
+    <a href="docs/screenshots/02-dashboard/14-filter-escalated.png">
+      <img src="docs/screenshots/02-dashboard/14-filter-escalated.png" width="100%" alt="Dashboard Escalated filter (Mock)">
+    </a>
+    <sub><b>Router</b> — Escalated (Mock)</sub>
+  </td>
+  <td align="center" width="20%">
     <a href="docs/screenshots/03-skills/04-red-skill-detail-vuln-prompt-injection.png">
       <img src="docs/screenshots/03-skills/04-red-skill-detail-vuln-prompt-injection.png" width="100%" alt="Skill detail — prompt injection finding (Mock)">
     </a>
-    <sub><b>Skill finding</b> — Red (Mock)</sub>
+    <sub><b>Skill</b> — Red (Mock)</sub>
   </td>
-  <td align="center" width="25%">
+  <td align="center" width="20%">
     <a href="docs/screenshots/04-mcp-servers/10-red-mcp-detail-vuln-command-injection.png">
       <img src="docs/screenshots/04-mcp-servers/10-red-mcp-detail-vuln-command-injection.png" width="100%" alt="MCP server detail — command injection finding (Mock)">
     </a>
-    <sub><b>MCP finding</b> — Red (Mock)</sub>
+    <sub><b>MCP</b> — Red (Mock)</sub>
   </td>
 </tr>
 </table>
 
-> Full gallery with all severity levels and surfaces → [docs/screenshots/](docs/screenshots/README.md)
+> Full gallery (SIE-only, severity filters, list view) → [docs/screenshots/](docs/screenshots/README.md)
 
 ## Find the right guide
 
 | Your task | Start here |
 |---|---|
-| Run your first Live scan | [Follow the Quickstart](QUICKSTART.md#first-live-scan) |
-| Preview the dashboard or validate locally | [Optional local validation](QUICKSTART.md#validate-locally-optional) |
-| Enable optional SIE / Model Studio routing | [SIE setup](docs/user-guide/sie-setup.md) · [Model Studio setup](docs/user-guide/model-studio-setup.md) · [`tripwire route`](docs/user-guide/setup-commands.md#tiered-router-optional) |
+| Check tools and technical fit | [Prerequisites](docs/user-guide/prerequisites.md) |
+| Follow the Install → Live path map | [Path commands](docs/user-guide/path-commands.md) · [onboarding cheatsheet](docs/user-guide/onboarding-cheatsheet.md) |
+| Create the Supabase project | [Supabase setup](docs/user-guide/supabase-setup.md) |
+| Deploy the Modal scan app | [Modal setup](docs/user-guide/modal-setup.md) |
+| Procure scanner and router `.env` keys | [Environment variables](docs/user-guide/env-vars.md) |
+| Run your first Live scan | [Quickstart](QUICKSTART.md#first-live-scan) · [setup commands](docs/user-guide/setup-commands.md) |
+| Preview Mock UI or dry-discover locally | [Optional local validation](QUICKSTART.md#validate-locally-optional) |
+| Enable SIE / Model Studio routing | [SIE setup](docs/user-guide/sie-setup.md) · [Model Studio setup](docs/user-guide/model-studio-setup.md) · [`tripwire route`](docs/user-guide/setup-commands.md#tiered-router-optional) |
 | Interpret pathway strips / Escalated / SIE-only | [Reading router results](docs/user-guide/reading-router-results.md) |
-| Understand results and system shape | [Capability status](docs/STATUS.md) · [Architecture](docs/ARCHITECTURE.md) · [Decisions](docs/adr/README.md) |
-| Contribute or maintain the project | [Contributing](CONTRIBUTING.md) · [command catalog](docs/user-guide/setup-commands.md) |
+| Browse CLI / dashboard screenshots | [Screenshot gallery](docs/screenshots/README.md) |
+| Smoke-test SIE or Model Studio alone | [SIE sample CLI](prototypes/sie-studio/README.md) · [Model Studio sample CLI](prototypes/model-studio/README.md) |
+| Understand results and system shape | [Capability status](docs/STATUS.md) · [Architecture](docs/ARCHITECTURE.md) · [ADRs](docs/adr/README.md) |
+| Contribute or maintain | [Contributing](CONTRIBUTING.md) · [command catalog](docs/user-guide/setup-commands.md) |
+| Report a vulnerability | [SECURITY](SECURITY.md) |
 
-For the full documentation map, see [docs/README.md](docs/README.md). The
-[prerequisites](docs/user-guide/prerequisites.md), [environment-variable guide](docs/user-guide/env-vars.md),
-and [setup command catalog](docs/user-guide/setup-commands.md) hold the detailed setup
-and maintenance instructions.
+Full map (including planning / CI): [docs/README.md](docs/README.md).

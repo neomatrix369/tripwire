@@ -10,11 +10,15 @@ Use this map to move from a safe first look to the level of setup or project det
 
 | Your task | Start here | Then |
 |---|---|---|
-| Run a first Live scan | [Quickstart: ordered Live setup](../QUICKSTART.md#first-live-scan) | [Supabase setup](./user-guide/supabase-setup.md) → [Modal setup](./user-guide/modal-setup.md) → [environment keys](./user-guide/env-vars.md) → [scan and dashboard](../QUICKSTART.md#live-capabilities) |
+| Check tools and fit | [Prerequisites](./user-guide/prerequisites.md) | [Path commands](./user-guide/path-commands.md) · [onboarding cheatsheet](./user-guide/onboarding-cheatsheet.md) |
+| Create Supabase / deploy Modal | [Supabase setup](./user-guide/supabase-setup.md) | [Modal setup](./user-guide/modal-setup.md) → [environment keys](./user-guide/env-vars.md) |
+| Run a first Live scan | [Quickstart: ordered Live setup](../QUICKSTART.md#first-live-scan) | [Setup commands](./user-guide/setup-commands.md) → [scan and dashboard](../QUICKSTART.md#live-capabilities) |
 | Enable optional tiered routing | [SIE setup](./user-guide/sie-setup.md) | [Model Studio setup](./user-guide/model-studio-setup.md) → [`tripwire route`](./user-guide/setup-commands.md#tiered-router-optional) → [read router results](./user-guide/reading-router-results.md) |
-| Preview or validate locally | [Optional local validation](../QUICKSTART.md#validate-locally-optional) | [README: dashboard preview](../README.md#preview-the-dashboard-optional) |
+| Preview or validate locally | [Optional local validation](../QUICKSTART.md#validate-locally-optional) | [README: dashboard preview](../README.md#preview-the-dashboard-optional) · [screenshots](./screenshots/README.md) |
+| Smoke-test SIE / Model Studio alone | [SIE sample CLI](../prototypes/sie-studio/README.md) | [Model Studio sample CLI](../prototypes/model-studio/README.md) |
 | Understand results and system shape | [Capability status](./STATUS.md) | [Architecture](./ARCHITECTURE.md) · [ADRs](./adr/README.md) · [router UI](./user-guide/reading-router-results.md) |
 | Contribute or maintain | [Contributing](../CONTRIBUTING.md) | [Setup and maintenance commands](./user-guide/setup-commands.md) |
+| Report a vulnerability | [SECURITY](../SECURITY.md) | — |
 
 ## Setup and operation
 

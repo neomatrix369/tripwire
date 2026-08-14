@@ -25,13 +25,15 @@ for the product validation journey.
 
 ## 4) Enable Live capabilities
 
-Follow all five vendor paths for full scan coverage, populate `.env`, and run the platform commands from
+Follow all five scanner-platform vendor paths for full scan coverage (Supabase,
+Modal, Snyk, Tessl, Cisco), populate `.env`, and run the platform commands from
 [Live environment bootstrap](./setup-commands.md#3-live-environment-bootstrap).
 Use [env-vars.md](./env-vars.md) for accounts, keys, and capability mapping; use
 [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md) only for the
 Modal scanner-secret projection and helper-only synchronization behavior.
 Optional tiered routing: [sie-setup.md](./sie-setup.md) then
-[model-studio-setup.md](./model-studio-setup.md).
+[model-studio-setup.md](./model-studio-setup.md); interpret UI with
+[reading-router-results.md](./reading-router-results.md).
 
 ## 5) Maintain or contribute
 
