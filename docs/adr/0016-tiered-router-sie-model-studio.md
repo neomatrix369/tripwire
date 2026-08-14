@@ -21,7 +21,10 @@ After a completed scan batch, Tripwire runs a **tiered router**:
 2. Optionally escalate to Model Studio when SIE signals conflict, unusual status,
    or low confidence.
 3. Persist one `findings` row per item with `scanner_source = tiered_router`
-   (`routing_review` / `routing_decision` / `routing_triage`).
+   (`routing_review` / `routing_decision` / `routing_triage`). Replace that
+   item's prior router row only after a successful SIE decision — never
+   batch-delete first, so a SIE outage cannot wipe existing dashboard strips
+   (`Scan → SIE → ■` / Model Studio).
 4. Exclude `tiered_router` rows from severity rollup so router output does not
    inflate red/amber counts from scanners.
 
@@ -35,9 +38,11 @@ Sample CLIs remain prototypes; the router is the integrated product path.
 
 - Operators need optional SIE + Model Studio keys in `.env` for routing (see
   [env-vars.md](../user-guide/env-vars.md)).
-- Dashboard surfaces router strips and SIE-only / escalated filters.
-- Untested `router.js` temporarily lowers CLI coverage floors until router unit
-  tests land ([ADR-0013](./0013-ship-path-quality-gates.md) target unchanged).
+- Dashboard surfaces router strips (`Scan → ■` when SIE was not called,
+  `Scan → SIE → ■` when SIE-only, Model Studio when escalated) and SIE-only /
+  escalated filters.
+- Router unit tests cover SIE-skip strip preservation and non-escalation
+  `routing_review` writes (`cli/test/router.test.js`).
 
 ## Alternatives considered
 

@@ -140,8 +140,9 @@ grant usage on schema public to anon, authenticated;
 grant select on table items, scan_runs, scan_run_scanners, findings to anon, authenticated;
 
 -- Rollup function: recompute an item's heatmap_status/risk_score from its latest scan_run.
--- partial-failed still computes risk from completed engines (Cisco findings must paint
--- red/amber/green, not hard ERROR). failed / running / empty partial → error.
+-- heatmap_status = worst-of actionable findings (any red → red; else any amber → amber;
+-- else green). risk_score stays weighted density for sort/trend only.
+-- partial-failed still scores completed engines. failed / running / empty partial → error.
 create or replace function tripwire_rollup_item(p_item_id uuid) returns void as $$
 declare
   v_latest_run_id uuid;
@@ -185,13 +186,13 @@ begin
     v_risk := (3 * v_red_count + 1 * v_amber_count) / v_total_checks;
   end if;
 
-  if v_risk >= 1.5 then v_bucket := 'red';
-  elsif v_risk >= 0.5 then v_bucket := 'amber';
-  else v_bucket := 'green';
-  end if;
-
-  if v_red_count > 0 and v_bucket = 'green' then
+  -- Card colour is an alarm (worst-of), not density. risk_score still dilutes.
+  if v_red_count > 0 then
+    v_bucket := 'red';
+  elsif v_amber_count > 0 then
     v_bucket := 'amber';
+  else
+    v_bucket := 'green';
   end if;
 
   update items set heatmap_status = v_bucket, risk_score = v_risk, updated_at = now() where id = p_item_id;

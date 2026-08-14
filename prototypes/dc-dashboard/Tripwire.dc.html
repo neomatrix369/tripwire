@@ -95,73 +95,99 @@
             </div>
           </sc-for>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap">
-          <sc-for list="{{ typeTabs }}" as="tt" hint-placeholder-count="3">
-            <button onClick="{{ tt.onClick }}" style="{{ tt.style }}">{{ tt.label }}</button>
-          </sc-for>
-          <div style="width:1px;height:20px;background:var(--border-subtle)"></div>
-          <sc-for list="{{ statusChips }}" as="sch" hint-placeholder-count="6">
-            <button onClick="{{ sch.onClick }}" style="{{ sch.style }}">{{ sch.label }}</button>
-          </sc-for>
-          <div style="flex:1"></div>
-          <input type="text" placeholder="Search by name…" value="{{ searchQuery }}" onChange="{{ onSearchChange }}" style="background:var(--bg-input);border:1px solid var(--border-subtle);color:var(--text-primary);font-family:var(--font-sans);font-size:12px;padding:7px 12px;border-radius:6px;width:180px;outline:none;transition:border-color 200ms" />
-          <div style="width:1px;height:20px;background:var(--border-subtle)"></div>
-          <sc-for list="{{ viewToggle }}" as="vt" hint-placeholder-count="2">
-            <button onClick="{{ vt.onClick }}" style="{{ vt.style }}">{{ vt.label }}</button>
-          </sc-for>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1 1 420px;min-width:0">
+            <sc-for list="{{ typeTabs }}" as="tt" hint-placeholder-count="3">
+              <button onClick="{{ tt.onClick }}" style="{{ tt.style }}">{{ tt.label }}</button>
+            </sc-for>
+            <div style="width:1px;height:20px;background:var(--border-subtle);flex-shrink:0"></div>
+            <sc-for list="{{ statusChips }}" as="sch" hint-placeholder-count="6">
+              <button onClick="{{ sch.onClick }}" style="{{ sch.style }}">{{ sch.label }}</button>
+            </sc-for>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;flex:0 0 auto;margin-left:auto">
+            <input type="text" placeholder="Search by name…" value="{{ searchQuery }}" onChange="{{ onSearchChange }}" style="background:var(--bg-input);border:1px solid var(--border-subtle);color:var(--text-primary);font-family:var(--font-sans);font-size:12px;padding:7px 12px;border-radius:6px;width:180px;outline:none;transition:border-color 200ms" />
+            <div style="width:1px;height:20px;background:var(--border-subtle)"></div>
+            <sc-for list="{{ viewToggle }}" as="vt" hint-placeholder-count="2">
+              <button onClick="{{ vt.onClick }}" style="{{ vt.style }}">{{ vt.label }}</button>
+            </sc-for>
+          </div>
         </div>
         <sc-if value="{{ isGridView }}" hint-placeholder-val="{{ true }}">
           <div style="flex:1;overflow-y:auto;padding:20px">
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
-              <sc-for list="{{ gridItems }}" as="item" hint-placeholder-count="8">
-                <div onClick="{{ item.onSelect }}" style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-left:3px solid {{ item.statusColor }};border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:all 200ms ease;box-shadow:0 1px 2px rgba(0,0,0,0.15);animation:fadeUp 300ms ease both">
-                  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-                    <div style="font-size:13px;font-weight:600;color:var(--text-primary);word-break:break-word">{{ item.name }}</div>
-                    <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.statusColor }};background:{{ item.statusColor }}18;padding:2px 7px;border-radius:4px;white-space:nowrap;border:1px solid {{ item.statusColor }}30">{{ item.statusGlyph }} {{ item.statusLabel }}</div>
-                  </div>
-                  <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ item.typeLabel }}</div>
-                  <div style="display:flex;gap:12px;font-size:11px;color:var(--text-secondary)">
-                    <span>risk {{ item.riskLabel }}</span>
-                    <span>{{ item.timeLabel }}</span>
-                  </div>
-                  <sc-if value="{{ item.drifted }}">
-                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--amber);background:rgba(245,158,11,0.1);display:inline-flex;padding:2px 7px;border-radius:4px;width:fit-content;border:1px solid rgba(245,158,11,0.2)">⟳ changed since last scan</div>
-                  </sc-if>
-                  <sc-if value="{{ item.routerStrip }}">
-                    <div style="font-family:var(--font-mono);font-size:10px;display:flex;align-items:center;gap:6px">
-                      <span style="color:{{ item.routerStrip.stripColor }}">{{ item.routerStrip.stripText }}</span>
-                      <span style="font-weight:600;color:{{ item.routerStrip.badgeColor }};background:{{ item.routerStrip.badgeBg }};padding:1px 6px;border-radius:3px;border:1px solid {{ item.routerStrip.badgeBorder }}">{{ item.routerStrip.badgeLabel }}</span>
+            <sc-if value="{{ showFilterEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:220px;text-align:center;padding:32px 20px;animation:fadeUp 300ms ease both">
+                <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em">No matches</div>
+                <div style="font-size:14px;font-weight:600;color:var(--text-primary);max-width:420px">{{ filterEmptyTitle }}</div>
+                <div style="font-size:12px;color:var(--text-secondary);max-width:420px;line-height:1.5">{{ filterEmptyDetail }}</div>
+                <button onClick="{{ clearFilters }}" style="margin-top:4px;font-family:var(--font-sans);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--accent);background:rgba(77,162,255,0.12);color:var(--accent);transition:all 150ms ease">Clear filters</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ showItemResults }}" hint-placeholder-val="{{ true }}">
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
+                <sc-for list="{{ gridItems }}" as="item" hint-placeholder-count="8">
+                  <div onClick="{{ item.onSelect }}" style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-left:3px solid {{ item.statusColor }};border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:all 200ms ease;box-shadow:0 1px 2px rgba(0,0,0,0.15);animation:fadeUp 300ms ease both">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+                      <div style="font-size:13px;font-weight:600;color:var(--text-primary);word-break:break-word">{{ item.name }}</div>
+                      <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.statusColor }};background:{{ item.statusColor }}18;padding:2px 7px;border-radius:4px;white-space:nowrap;border:1px solid {{ item.statusColor }}30">{{ item.statusGlyph }} {{ item.statusLabel }}</div>
                     </div>
-                  </sc-if>
-                  <div style="display:flex;gap:6px;flex-wrap:wrap">
-                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);background:var(--bg-elevated);padding:2px 7px;border-radius:4px">{{ item.locusLabel }}</div>
-                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);background:var(--bg-elevated);padding:2px 7px;border-radius:4px">{{ item.availLabel }}</div>
+                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ item.typeLabel }}</div>
+                    <div style="display:flex;gap:12px;font-size:11px;color:var(--text-secondary);align-items:center;flex-wrap:wrap">
+                      <span>risk {{ item.riskLabel }}</span>
+                      <span>{{ item.timeLabel }}</span>
+                      <sc-if value="{{ item.hasFindingCount }}">
+                        <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.statusColor }};background:{{ item.statusColor }}18;padding:2px 7px;border-radius:4px;border:1px solid {{ item.statusColor }}30">{{ item.findingCountLabel }}</span>
+                      </sc-if>
+                    </div>
+                    <sc-if value="{{ item.drifted }}">
+                      <div style="font-family:var(--font-mono);font-size:10px;color:var(--amber);background:rgba(245,158,11,0.1);display:inline-flex;padding:2px 7px;border-radius:4px;width:fit-content;border:1px solid rgba(245,158,11,0.2)">⟳ changed since last scan</div>
+                    </sc-if>
+                    <sc-if value="{{ item.routerStrip }}">
+                      <div style="font-family:var(--font-mono);font-size:10px;display:flex;align-items:center;gap:6px">
+                        <span style="color:{{ item.routerStrip.stripColor }}">{{ item.routerStrip.stripText }}</span>
+                        <span style="font-weight:600;color:{{ item.routerStrip.badgeColor }};background:{{ item.routerStrip.badgeBg }};padding:1px 6px;border-radius:3px;border:1px solid {{ item.routerStrip.badgeBorder }}">{{ item.routerStrip.badgeLabel }}</span>
+                      </div>
+                    </sc-if>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap">
+                      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);background:var(--bg-elevated);padding:2px 7px;border-radius:4px">{{ item.locusLabel }}</div>
+                      <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);background:var(--bg-elevated);padding:2px 7px;border-radius:4px">{{ item.availLabel }}</div>
+                    </div>
                   </div>
-                </div>
-              </sc-for>
-            </div>
+                </sc-for>
+              </div>
+            </sc-if>
           </div>
         </sc-if>
 
         <sc-if value="{{ isListView }}" hint-placeholder-val="{{ false }}">
           <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:20px">
-            <div style="border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
-              <div style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle)">
-                <sc-for list="{{ listColumns }}" as="col" hint-placeholder-count="6">
-                  <button onClick="{{ col.onClick }}" style="background:none;border:none;text-align:left;padding:10px 14px;font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);cursor:pointer;font-weight:600">{{ col.label }}{{ col.arrow }}</button>
+            <sc-if value="{{ showFilterEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:180px;text-align:center;padding:32px 20px;animation:fadeUp 300ms ease both">
+                <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em">No matches</div>
+                <div style="font-size:14px;font-weight:600;color:var(--text-primary);max-width:420px">{{ filterEmptyTitle }}</div>
+                <div style="font-size:12px;color:var(--text-secondary);max-width:420px;line-height:1.5">{{ filterEmptyDetail }}</div>
+                <button onClick="{{ clearFilters }}" style="margin-top:4px;font-family:var(--font-sans);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--accent);background:rgba(77,162,255,0.12);color:var(--accent);transition:all 150ms ease">Clear filters</button>
+              </div>
+            </sc-if>
+            <sc-if value="{{ showItemResults }}" hint-placeholder-val="{{ true }}">
+              <div style="border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
+                <div style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle)">
+                  <sc-for list="{{ listColumns }}" as="col" hint-placeholder-count="6">
+                    <button onClick="{{ col.onClick }}" style="background:none;border:none;text-align:left;padding:10px 14px;font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);cursor:pointer;font-weight:600">{{ col.label }}{{ col.arrow }}</button>
+                  </sc-for>
+                </div>
+                <sc-for list="{{ listRows }}" as="row" hint-placeholder-count="8">
+                  <div onClick="{{ row.onSelect }}" style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;border-bottom:1px solid var(--border-subtle);cursor:pointer;align-items:center;transition:background 150ms">
+                    <div style="padding:10px 14px;font-size:12px;color:var(--text-primary);word-break:break-word">{{ row.name }}</div>
+                    <div style="padding:10px 14px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary)">{{ row.typeLabel }}</div>
+                    <div style="padding:10px 14px;font-size:11px;color:var(--text-secondary)">{{ row.timeLabel }}</div>
+                    <div style="padding:10px 14px"><span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ row.statusColor }};background:{{ row.statusColor }}18;padding:2px 7px;border-radius:4px;border:1px solid {{ row.statusColor }}30">{{ row.statusGlyph }} {{ row.statusLabel }}</span></div>
+                    <div style="padding:10px 14px;font-family:var(--font-mono);font-size:12px;color:var(--text-primary)">{{ row.riskLabel }}</div>
+                    <div style="padding:10px 14px;font-size:11px;color:var(--text-secondary)">{{ row.sourceLabel }}</div>
+                  </div>
                 </sc-for>
               </div>
-              <sc-for list="{{ listRows }}" as="row" hint-placeholder-count="8">
-                <div onClick="{{ row.onSelect }}" style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;border-bottom:1px solid var(--border-subtle);cursor:pointer;align-items:center;transition:background 150ms">
-                  <div style="padding:10px 14px;font-size:12px;color:var(--text-primary);word-break:break-word">{{ row.name }}</div>
-                  <div style="padding:10px 14px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary)">{{ row.typeLabel }}</div>
-                  <div style="padding:10px 14px;font-size:11px;color:var(--text-secondary)">{{ row.timeLabel }}</div>
-                  <div style="padding:10px 14px"><span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ row.statusColor }};background:{{ row.statusColor }}18;padding:2px 7px;border-radius:4px;border:1px solid {{ row.statusColor }}30">{{ row.statusGlyph }} {{ row.statusLabel }}</span></div>
-                  <div style="padding:10px 14px;font-family:var(--font-mono);font-size:12px;color:var(--text-primary)">{{ row.riskLabel }}</div>
-                  <div style="padding:10px 14px;font-size:11px;color:var(--text-secondary)">{{ row.sourceLabel }}</div>
-                </div>
-              </sc-for>
-            </div>
+            </sc-if>
 
             <div>
               <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Scan history</div>
@@ -190,6 +216,9 @@
 
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
             <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.statusColor }};background:{{ selectedView.statusColor }}18;padding:3px 8px;border-radius:4px;border:1px solid {{ selectedView.statusColor }}30">{{ selectedView.statusGlyph }} {{ selectedView.statusLabel }}</div>
+            <sc-if value="{{ selectedView.hasFindingCount }}">
+              <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.statusColor }};background:{{ selectedView.statusColor }}18;padding:3px 8px;border-radius:4px;border:1px solid {{ selectedView.statusColor }}30">{{ selectedView.findingCountLabel }}</div>
+            </sc-if>
             <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);background:var(--bg-elevated);padding:3px 8px;border-radius:4px">{{ selectedView.locusLabel }}</div>
             <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);background:var(--bg-elevated);padding:3px 8px;border-radius:4px">{{ selectedView.availLabel }}</div>
           </div>
@@ -241,6 +270,9 @@
               </sc-if>
               <sc-if value="{{ selectedView.routerStrip.isReview }}">
                 <div style="font-family:var(--font-mono);font-size:10px;color:#7ec0ff;background:rgba(77,162,255,0.1);padding:3px 8px;border-radius:4px;display:inline-block">SIE only — not escalated · No Model Studio call</div>
+              </sc-if>
+              <sc-if value="{{ selectedView.routerStrip.isSkipped }}">
+                <div style="font-family:var(--font-mono);font-size:10px;color:#9aa8b8;background:rgba(107,122,142,0.12);padding:3px 8px;border-radius:4px;display:inline-block">SIE not called · No Model Studio call</div>
               </sc-if>
               <sc-if value="{{ selectedView.routerStrip.msReasoning }}">
                 <div style="font-size:11px;color:var(--text-secondary);margin-top:4px"><span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em">{{ selectedView.routerStrip.msLabel }}: </span>{{ selectedView.routerStrip.msReasoning }}</div>
@@ -549,6 +581,7 @@ class Component extends DCLogic {
   setTab = (t) => this.setState({ activeTab: t });
   setTypeFilter = (v) => this.setState({ typeFilter: v });
   setStatusFilter = (v) => this.setState({ statusFilter: v });
+  clearFilters = () => this.setState({ statusFilter: 'all', typeFilter: 'all', searchQuery: '' });
   selectItem = (id) => this.setState({ selectedId: id, expandedScanners: {} });
   closeDrawer = () => this.setState({ selectedId: null });
   toggleMonitoring = () => this.setState(s => ({ monitoringEnabled: !s.monitoringEnabled, guardResults: {} }));
@@ -622,6 +655,71 @@ class Component extends DCLogic {
     try { return typeof message === 'string' ? JSON.parse(message) : null; } catch { return null; }
   }
 
+  filterEmptyCopy(statusFilter, typeFilter, searchQuery, totalItems) {
+    if (totalItems === 0) {
+      return {
+        title: 'No items yet',
+        detail: 'Run a scan or switch to Mock demo data in Guard to populate the dashboard.'
+      };
+    }
+    if (statusFilter === 'sie-only') {
+      return {
+        title: 'No SIE-only items',
+        detail: 'None of the current items stayed at SIE without Model Studio escalation. Clear filters to see all items.'
+      };
+    }
+    if (statusFilter === 'escalated') {
+      return {
+        title: 'No escalated items',
+        detail: 'None of the current items were escalated from SIE to Model Studio. Clear filters to see all items.'
+      };
+    }
+    const bits = [];
+    if (typeFilter !== 'all') bits.push(typeFilter === 'skill' ? 'Skills' : 'MCP Servers');
+    if (statusFilter !== 'all') bits.push(statusFilter);
+    if (searchQuery.trim()) bits.push('“' + searchQuery.trim() + '”');
+    return {
+      title: 'No items match these filters',
+      detail: bits.length
+        ? 'Nothing matched ' + bits.join(' · ') + '. Clear filters to see all ' + totalItems + ' items.'
+        : 'Clear filters to see all ' + totalItems + ' items.'
+    };
+  }
+
+  /** Pathway strip when SIE never ran (scan completed, no tiered_router finding). */
+  routerStripSkipped() {
+    return {
+      escalated: false,
+      isReview: false,
+      isSkipped: true,
+      stripText: 'Scan → ■',
+      stripColor: '#9aa8b8',
+      badgeColor: '#9aa8b8',
+      badgeBg: 'rgba(107,122,142,0.12)',
+      badgeBorder: 'rgba(107,122,142,0.28)',
+      badgeLabel: 'SIE not called',
+      envModels: '',
+      signalsText: '',
+      envSie: '',
+      msLabel: '',
+      msReasoning: null,
+      rawFallback: null,
+    };
+  }
+
+  itemWasScanned(it) {
+    if (!it) return false;
+    if (it.status === 'grey' || it.status === 'running') return false;
+    return Boolean(it.lastScan) || (Array.isArray(it.scanners) && it.scanners.length > 0);
+  }
+
+  routerStripForItem(it) {
+    const rf = (it.findings || []).find(f => f.scanner === 'tiered_router') || null;
+    if (rf) return this.routerStripData(rf);
+    if (this.itemWasScanned(it)) return this.routerStripSkipped();
+    return null;
+  }
+
   routerStripData(rf) {
     if (!rf) return null;
     const env = this.parseEnvelope(rf.message);
@@ -635,6 +733,7 @@ class Component extends DCLogic {
     return {
       escalated,
       isReview,
+      isSkipped: false,
       stripText: escalated ? 'Scan → SIE → Model Studio' : 'Scan → SIE → ■',
       stripColor, badgeColor, badgeBg, badgeBorder,
       badgeLabel: isTriage ? 'Triage urgency' : escalated ? 'Arbitration' : 'SIE only — not escalated',
@@ -669,7 +768,31 @@ class Component extends DCLogic {
             statusGlyph: meta.glyph
           };
         })();
-    return { ...it, ...decorated };
+    const findingCountLabel = kit?.formatFindingCountLabel
+      ? kit.formatFindingCountLabel(it.findings)
+      : this.fallbackFindingCountLabel(it.findings);
+    return {
+      ...it,
+      ...decorated,
+      findingCountLabel,
+      hasFindingCount: !!findingCountLabel
+    };
+  }
+
+  fallbackFindingCountLabel(findings) {
+    if (!findings || !findings.length) return '';
+    let red = 0, amber = 0;
+    for (const f of findings) {
+      if (f.scanner === 'tiered_router') continue;
+      const sev = (f.severity || '').toLowerCase();
+      if (sev === 'red') red += 1;
+      else if (sev === 'amber') amber += 1;
+    }
+    const total = red + amber;
+    if (total === 0) return '';
+    if (red > 0 && amber > 0) return `${red}● ${amber}▲`;
+    if (total === 1) return '1 finding';
+    return `${total} findings`;
   }
 
   severityColor(severity) {
@@ -775,7 +898,12 @@ class Component extends DCLogic {
         gridItems: [], typeTabs: [], statusChips: [], overviewStats: [],
         selectedView: null,
         guardRows: [], footerLastScan: '—',
-        listRows: [], historyRows: []
+        listRows: [], historyRows: [],
+        showFilterEmpty: false,
+        showItemResults: false,
+        filterEmptyTitle: '',
+        filterEmptyDetail: '',
+        clearFilters: this.clearFilters
       };
     }
 
@@ -820,7 +948,6 @@ class Component extends DCLogic {
 
     const gridItems = filtered.map(it => {
       const decorated = this.decorateItemStatus(it);
-      const routerFinding = it.findings.find(f => f.scanner === 'tiered_router') || null;
       return {
         ...decorated,
         typeLabel: it.type === 'skill' ? 'Skill' : 'MCP Server',
@@ -828,10 +955,14 @@ class Component extends DCLogic {
         timeLabel: it.scanStartedAt ? 'scanning since ' + this.fmtTime(it.scanStartedAt) : it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
         locusLabel: this.locusLabel(it.locus),
         availLabel: this.availLabel(it.avail),
-        routerStrip: this.routerStripData(routerFinding),
+        routerStrip: this.routerStripForItem(it),
         onSelect: () => this.selectItem(it.id)
       };
     });
+
+    const showFilterEmpty = filtered.length === 0;
+    const showItemResults = filtered.length > 0;
+    const emptyCopy = this.filterEmptyCopy(s.statusFilter, s.typeFilter, s.searchQuery, data.items.length);
 
     const counts = { red: 0, amber: 0, green: 0, grey: 0, running: 0, error: 0 };
     data.items.forEach(it => { counts[it.status] = (counts[it.status] || 0) + 1; });
@@ -860,7 +991,7 @@ class Component extends DCLogic {
       locusLabel: this.locusLabel(selected.locus),
       availLabel: this.availLabel(selected.avail),
       trendPoints: this.trendPath(selected.trend),
-      routerStrip: this.routerStripData(selected.findings.find(f => f.scanner === 'tiered_router') || null),
+      routerStrip: this.routerStripForItem(selected),
       findingsView: selected.findings.filter(f => f.scanner !== 'tiered_router').map(f => ({ ...f, sevColor: this.severityColor(f.severity) })),
       scanningPlaceholder: selected.status === 'running' && selected.scanners.length === 0,
       scanStartedAtLabel: selected.scanStartedAt ? this.fmtTime(selected.scanStartedAt) : null,
@@ -945,7 +1076,11 @@ class Component extends DCLogic {
       ...base, typeTabs, statusChips, gridItems, overviewStats, selectedView,
       closeDrawer: this.closeDrawer,
       guardRows, toggleMonitoring: this.toggleMonitoring,
-      footerLastScan, listRows, historyRows
+      footerLastScan, listRows, historyRows,
+      showFilterEmpty, showItemResults,
+      filterEmptyTitle: emptyCopy.title,
+      filterEmptyDetail: emptyCopy.detail,
+      clearFilters: this.clearFilters
     };
   }
 }

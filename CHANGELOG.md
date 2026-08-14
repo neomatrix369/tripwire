@@ -17,10 +17,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ADR-0016: tiered router via SIE and Model Studio
 
 ### Changed
+- Card `heatmap_status` is worst-of actionable findings (any red → red; amber-only
+  → amber); `risk_score` stays weighted density for sort/trend. Dashboard cards
+  show an actionable finding-count chip so one vs many vulns stay distinguishable
 - Severity rollup excludes `tiered_router` findings so triage does not inflate
   scanner red/amber counts
 - CLI coverage floors temporarily lowered (60/60/80/60) until `router.js` unit
   tests land; ADR-0013 target unchanged
+
+### Fixed
+- Tiered router no longer batch-deletes `tiered_router` findings before routing;
+  per-item replace-on-success preserves `Scan → SIE → ■` strips when SIE skips
+- Dashboard shows `Scan → ■` / “SIE not called” on scanned cards with no
+  `tiered_router` finding (SIE never invoked)
 
 ### Docs
 - Formal ADR catalog under `docs/adr/`: Accepted retrospective records

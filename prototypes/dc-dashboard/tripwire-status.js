@@ -5,8 +5,9 @@
  * 1. Scan *execution* status (did the scan run finish?)
  * 2. Scan *result* severity (when it finished, how bad are the vulns?)
  *
- * Risk thresholds mirror db/schema.sql tripwire_rollup_item:
- *   risk >= 1.5 → red; risk >= 0.5 → amber; else green.
+ * heatmap_status / card colour = worst-of actionable findings (aligned with
+ * tripwire_rollup_item). risk_score remains weighted density for sort/trend;
+ * statusFromRisk is only a fallback when heatmap and findings are unscorable.
  */
 
 export const STATUS_META = {
@@ -22,7 +23,7 @@ export const STATUS_META = {
 export const RESULT_STATUSES = new Set(["red", "amber", "green"]);
 
 /**
- * Map risk_score → heatmap bucket (aligned with tripwire_rollup_item).
+ * Map risk_score → density bucket (sort/trend fallback only — not card SSOT).
  * @param {number|null|undefined} risk
  * @returns {'red'|'amber'|'green'|'grey'}
  */
@@ -35,19 +36,60 @@ export function statusFromRisk(risk) {
 }
 
 /**
+ * @param {{scanner?: string, scanner_source?: string}|null|undefined} f
+ */
+function isRouterFinding(f) {
+  const src = f?.scanner || f?.scanner_source || "";
+  return src === "tiered_router";
+}
+
+/**
  * Highest actionable finding severity (green/info findings do not raise the card).
- * @param {Array<{severity?: string}>|null|undefined} findings
+ * @param {Array<{severity?: string, scanner?: string, scanner_source?: string}>|null|undefined} findings
  * @returns {'red'|'amber'|null}
  */
 export function maxFindingStatus(findings) {
   if (!findings || !findings.length) return null;
   let hasAmber = false;
   for (const f of findings) {
+    if (isRouterFinding(f)) continue;
     const sev = normalizeSeverity(f.severity);
     if (sev === "red") return "red";
     if (sev === "amber") hasAmber = true;
   }
   return hasAmber ? "amber" : null;
+}
+
+/**
+ * Count actionable (red/amber) findings; exclude tiered_router.
+ * @param {Array<{severity?: string, scanner?: string, scanner_source?: string}>|null|undefined} findings
+ * @returns {{ red: number, amber: number, total: number }}
+ */
+export function countActionableFindings(findings) {
+  let red = 0;
+  let amber = 0;
+  if (!findings) return { red: 0, amber: 0, total: 0 };
+  for (const f of findings) {
+    if (isRouterFinding(f)) continue;
+    const sev = normalizeSeverity(f.severity);
+    if (sev === "red") red += 1;
+    else if (sev === "amber") amber += 1;
+  }
+  return { red, amber, total: red + amber };
+}
+
+/**
+ * Card chip label: "1 finding" / "3 findings" / "2● 1▲" when mixed.
+ * Empty string when no actionable findings.
+ * @param {Array<{severity?: string, scanner?: string, scanner_source?: string}>|null|undefined} findings
+ * @returns {string}
+ */
+export function formatFindingCountLabel(findings) {
+  const { red, amber, total } = countActionableFindings(findings);
+  if (total === 0) return "";
+  if (red > 0 && amber > 0) return `${red}● ${amber}▲`;
+  if (total === 1) return "1 finding";
+  return `${total} findings`;
 }
 
 const SEVERITY_RED = new Set(["red", "critical", "high"]);
@@ -82,11 +124,12 @@ export function normalizeSeverity(raw) {
  * @returns {'red'|'amber'|'green'|'grey'|'running'|'error'}
  */
 function resolveCompletedStatus(heatmapStatus, riskScore, findings) {
+  // Worst-of findings wins over stale density-era heatmap / risk buckets.
+  const fromFindings = maxFindingStatus(findings);
+  if (fromFindings) return fromFindings;
   if (RESULT_STATUSES.has(heatmapStatus)) return heatmapStatus;
   const fromRisk = statusFromRisk(riskScore);
   if (fromRisk !== "grey") return fromRisk;
-  const fromFindings = maxFindingStatus(findings);
-  if (fromFindings) return fromFindings;
   // Completed/partial with nothing scorable → execution error (matches rollup).
   return "error";
 }
@@ -173,6 +216,8 @@ export default {
   STATUS_FROM_RISK: statusFromRisk,
   statusFromRisk,
   maxFindingStatus,
+  countActionableFindings,
+  formatFindingCountLabel,
   normalizeSeverity,
   resolveItemStatus,
   severityColor,
