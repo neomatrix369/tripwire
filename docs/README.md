@@ -33,6 +33,7 @@ Use this map to move from a safe first look to the level of setup or project det
 | [STATUS.md](./STATUS.md) | Evidence-labelled capability claims |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | System diagrams, key flows, and repository layout |
 | [adr/README.md](./adr/README.md) | Formal architecture decision records |
+| [screenshots/](./screenshots/README.md) | CLI + dashboard gallery (Mock UI; live CLI captures) |
 | [SECURITY.md](../SECURITY.md) | Vulnerability reporting |
 
 ## Project records

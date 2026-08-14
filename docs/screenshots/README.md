@@ -2,9 +2,19 @@
 
 Product UI and CLI captures, grouped by surface. Paths are relative to this folder.
 
+Dashboard / skill / MCP shots use **Mock (demo data)** so Red / Amber / Green
+examples stay stable. CLI shots are live terminal captures from the current CLI.
+
+Regenerate frontend shots with:
+
+```bash
+node scripts/serve-dashboard.mjs   # if not already running on :8765
+node scripts/capture-screenshots.mjs
+```
+
 ## 1. CLI
 
-Discovery and help output from the Tripwire CLI.
+Help output (including `route`) and discovery / live scan feedback.
 
 ### CLI help / dry-discover
 
@@ -18,7 +28,7 @@ Discovery and help output from the Tripwire CLI.
 
 ## 2. Dashboard
 
-Heatmap grid, severity filters, type views, and list layout.
+Heatmap grid, severity filters, type views, and list layout (Mock demo: 13 items).
 
 ### Overview grid
 
