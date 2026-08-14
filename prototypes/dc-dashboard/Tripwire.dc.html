@@ -637,7 +637,7 @@ class Component extends DCLogic {
       isReview,
       stripText: escalated ? 'Scan → SIE → Model Studio' : 'Scan → SIE → ■',
       stripColor, badgeColor, badgeBg, badgeBorder,
-      badgeLabel: isTriage ? 'Triage urgency' : escalated ? 'Arbitration' : 'SIE only',
+      badgeLabel: isTriage ? 'Triage urgency' : escalated ? 'Arbitration' : 'SIE only — not escalated',
       envModels: env ? `SIE=${env.models?.sie || '?'} · MS=${env.models?.model_studio || '—'}` : '',
       signalsText: env?.signals ? `conflicting ${env.signals.conflicting ? '✓' : '✗'} · unusual_status ${env.signals.unusual_status ? '✓' : '✗'} · low_confidence ${env.signals.low_confidence ? '✓' : '✗'}` : '',
       envSie: env?.reasoning?.sie || '',
