@@ -1,6 +1,6 @@
 import { getSupabase } from './supabaseClient.js';
 
-const SIE_TIMEOUT_MS = 5000;
+const SIE_TIMEOUT_MS = 15000;
 const MS_TIMEOUT_MS = 30000;
 
 function resolveModel(cliArg, envKey, defaultValue) {
@@ -60,7 +60,7 @@ async function fetchWithTimeout(url, init, timeoutMs) {
 }
 
 async function callChatApi(baseUrl, apiKey, model, systemPrompt, userContent, timeoutMs) {
-  const url = `${baseUrl.replace(/\/$/, '')}/v1/chat/completions`;
+  const url = `${baseUrl.replace(/\/$/, '')}/chat/completions`;
   const init = {
     method: 'POST',
     headers: {
@@ -111,14 +111,14 @@ function sieUserContent(itemLabel, findings, scanners, conflicting, unusual_stat
   return JSON.stringify({
     item: itemLabel,
     findings: findings.map(f => ({ scanner_source: f.scanner_source, severity: f.severity, category: f.category, message: f.message })),
-    scanner_statuses: scanners.map(s => ({ scanner: s.scanner_id || s.id, status: s.status })),
+    scanner_statuses: scanners.map(s => ({ scanner: s.scanner_source, status: s.status })),
     conflicting,
     unusual_status,
   });
 }
 
 async function callSie(itemLabel, findings, scanners, conflicting, unusual_status, model, endpoint, apiKey) {
-  return callChatApi(endpoint, apiKey, model, SIE_SYSTEM, sieUserContent(itemLabel, findings, scanners, conflicting, unusual_status), SIE_TIMEOUT_MS);
+  return callChatApi(`${endpoint.replace(/\/$/, '')}/v1`, apiKey, model, SIE_SYSTEM, sieUserContent(itemLabel, findings, scanners, conflicting, unusual_status), SIE_TIMEOUT_MS);
 }
 
 async function callMsArbitration(itemLabel, findings, signals, sieReasoning, model, baseUrl, apiKey) {
@@ -135,7 +135,7 @@ async function callMsTriage(itemLabel, itemType, scanners, sieReasoning, model, 
   const user = JSON.stringify({
     item: itemLabel,
     item_type: itemType || 'unknown',
-    scanner_statuses: scanners.map(s => ({ scanner: s.scanner_id || s.id, status: s.status })),
+    scanner_statuses: scanners.map(s => ({ scanner: s.scanner_source, status: s.status })),
     sie_reasoning: sieReasoning,
   });
   return callChatApi(baseUrl, apiKey, model, MS_TRIAGE_SYSTEM, user, MS_TIMEOUT_MS);
@@ -201,7 +201,7 @@ async function insertRouterFinding(supabase, scanRun, severity, category, envelo
 export async function runRoute(batchId, opts = {}) {
   const sieModel = resolveModel(opts.sieModel, 'SIE_MODEL', 'gen-4b');
   const msModel = resolveModel(opts.modelStudioModel, 'MODEL_STUDIO_MODEL', 'qwen3.8-max');
-  const sieEndpoint = (process.env.SIE_ENDPOINT || '').trim();
+  const sieEndpoint = (process.env.SIE_ENDPOINT || 'https://api.superlinked.com').trim();
   const sieApiKey = (process.env.SIE_API_KEY || '').trim();
   const msBaseUrl = (process.env.ALIBABA_OPENAI_BASE_URL || '').trim();
   const msApiKey = (process.env.DASHSCOPE_API_KEY || '').trim();
