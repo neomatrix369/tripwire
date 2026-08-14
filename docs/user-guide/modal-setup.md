@@ -69,4 +69,6 @@ Then run a fixture scan and Live dashboard per [QUICKSTART → Live capabilities
 
 ## Next
 
-→ [env-vars.md](./env-vars.md) (procurement SSOT) · back to [prerequisites](./prerequisites.md)
+→ [env-vars.md](./env-vars.md) (procurement SSOT) · optional router:
+[sie-setup.md](./sie-setup.md) · [model-studio-setup.md](./model-studio-setup.md) ·
+back to [prerequisites](./prerequisites.md)

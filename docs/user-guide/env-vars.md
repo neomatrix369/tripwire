@@ -66,6 +66,26 @@ not a second environment-variable schema.
 | `MCP_SCANNER_API_KEY` | MCP Scanner cloud inspect | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 | `MCP_SCANNER_ENDPOINT` | MCP inspect API base | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 
+## Optional — tiered router (SIE + Model Studio)
+
+Not required for scanner Live coverage. Required for `tripwire route` and for
+post-scan auto-route after `tripwire scan` ([ADR-0016](../adr/0016-tiered-router-sie-model-studio.md)).
+If these keys are absent, scan still completes and auto-route logs a warning
+and skips. Prototype CLIs under `prototypes/sie-studio/` and
+`prototypes/model-studio/` use the same keys (also listed in
+`prototypes/.env.example`).
+
+| Key | Required for | Where to get it |
+|-----|--------------|-----------------|
+| `SIE_ENDPOINT` | Tiered router + SIE sample CLI | [sie-setup](./sie-setup.md) — us-east-2 `https://api.superlinked.com`; EU `https://eu.api.superlinked.com` |
+| `SIE_API_KEY` | Tiered router + SIE sample CLI | [sie-setup](./sie-setup.md) — Superlinked console → Keys (`sk-sie-…`) |
+| `SIE_MODEL` | Optional SIE model override (default `gen-4b`) | [sie-setup](./sie-setup.md) / `prototypes/sie-studio/models.json` |
+| `DASHSCOPE_API_KEY` | Model Studio escalation + sample CLI | [model-studio-setup](./model-studio-setup.md) |
+| `DASHSCOPE_HOST` | Optional host used to derive Model Studio URLs when blank | [model-studio-setup](./model-studio-setup.md) |
+| `ALIBABA_OPENAI_BASE_URL` | Router Model Studio chat + `model_studio.py chat` | [model-studio-setup](./model-studio-setup.md) |
+| `ALIBABA_DASH_SCOPE_API_URL` | Sample CLI image/video only | [model-studio-setup](./model-studio-setup.md); not required by the CLI router |
+| `MODEL_STUDIO_MODEL` | Optional Model Studio model override (default `qwen3.8-max`) | [model-studio-setup](./model-studio-setup.md) |
+
 ## Wire into Modal
 
 ```bash
@@ -94,3 +114,5 @@ secret-creation command.
   - `AI_DEFENSE_API_KEY`
   - `MCP_SCANNER_API_KEY`
   and optionally set `MCP_SCANNER_ENDPOINT` only for non-default hosts.
+- **Superlinked SIE (optional router):** [sie-setup](./sie-setup.md)
+- **Alibaba Cloud Model Studio (optional router escalation):** [model-studio-setup](./model-studio-setup.md)

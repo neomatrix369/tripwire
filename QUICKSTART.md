@@ -15,6 +15,8 @@ scan coverage, configure all five vendor paths.
 [![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
 [![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
 [![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
+[![Superlinked SIE](https://img.shields.io/badge/Superlinked%20SIE-0B1F3A?style=flat)](https://superlinked.com)
+[![Alibaba Cloud Model Studio](https://img.shields.io/badge/Alibaba%20Cloud%20Model%20Studio-FF6A00?style=flat)](https://www.alibabacloud.com/product/modelstudio)
 
 ## First Live scan
 
@@ -30,6 +32,8 @@ findings until the platform accounts, `.env`, schema, and Modal app are ready.
    [Modal account](docs/user-guide/modal-setup.md). For complete scanner coverage,
    procure Snyk, Tessl, and Cisco credentials through
    [env-vars.md](docs/user-guide/env-vars.md#vendor-procurement-quick-steps).
+   For optional post-scan routing, follow [SIE setup](docs/user-guide/sie-setup.md)
+   and [Model Studio setup](docs/user-guide/model-studio-setup.md).
 3. Only after collecting the required values, create `.env` and populate it using
    [env-vars.md](docs/user-guide/env-vars.md). Review provider billing and quotas
    before enabling Live services.
@@ -43,6 +47,8 @@ findings until the platform accounts, `.env`, schema, and Modal app are ready.
 - [Operational path (Install → Local validation → Live)](docs/user-guide/path-commands.md)
 - [Supabase setup](docs/user-guide/supabase-setup.md)
 - [Modal setup](docs/user-guide/modal-setup.md)
+- [SIE setup](docs/user-guide/sie-setup.md) (optional router)
+- [Model Studio setup](docs/user-guide/model-studio-setup.md) (optional escalation)
 - [Environment keys](docs/user-guide/env-vars.md)
 
 ## Daily workflow
@@ -64,7 +70,10 @@ findings until the platform accounts, `.env`, schema, and Modal app are ready.
    - [Cisco AI Defense](https://developer.cisco.com): collect the LLM or AI Defense credentials for `AI_DEFENSE_*` and Cisco MCP scanner settings.
    - Use [env-vars.md](docs/user-guide/env-vars.md) to map each credential to `.env`.
     [OPTIONAL_SCANNER_KEYS.md](fixtures/OPTIONAL_SCANNER_KEYS.md) documents scanner-secret allowlist values and manual fallback behavior.
-5. Bootstrap the environment and services:
+5. Optional tiered router (after Live scan works):
+   - [Superlinked SIE](docs/user-guide/sie-setup.md): `SIE_ENDPOINT` + `SIE_API_KEY`.
+   - [Alibaba Cloud Model Studio](docs/user-guide/model-studio-setup.md): `DASHSCOPE_API_KEY` + `ALIBABA_OPENAI_BASE_URL`.
+6. Bootstrap the environment and services:
 
 ```bash
 cp .env.example .env
@@ -89,6 +98,12 @@ Values for full five-vendor scan coverage:
 - `MCP_SCANNER_LLM_API_KEY`, `MCP_SCANNER_LLM_MODEL`, `MCP_SCANNER_LLM_BASE_URL`, `MCP_SCANNER_LLM_API_VERSION`
 - `AI_DEFENSE_API_KEY`, `AI_DEFENSE_API_URL`, `MCP_SCANNER_API_KEY`, `MCP_SCANNER_ENDPOINT`
 - `MCP_SCANNER_ENDPOINT` (default is prefilled if you keep Cisco endpoint default)
+
+Optional for tiered routing ([sie-setup](docs/user-guide/sie-setup.md),
+[model-studio-setup](docs/user-guide/model-studio-setup.md)):
+
+- `SIE_ENDPOINT`, `SIE_API_KEY` (and optionally `SIE_MODEL`)
+- `DASHSCOPE_API_KEY`, `ALIBABA_OPENAI_BASE_URL` (and optionally `MODEL_STUDIO_MODEL`, `DASHSCOPE_HOST`)
 
 Then run bootstrap:
 
@@ -123,6 +138,10 @@ Run a fixture scan and review results in the Live dashboard:
 tripwire scan ./fixtures/skills/safe-csv-cleaner
 node scripts/serve-dashboard.mjs
 ```
+
+With SIE (+ Model Studio) configured, the scan auto-routes the batch. Re-run
+manually with `tripwire route --batch-id …` — see
+[setup-commands.md](docs/user-guide/setup-commands.md#tiered-router-optional).
 
 Use [setup-commands.md](docs/user-guide/setup-commands.md) for the complete
 setup, re-run, and maintenance command catalog.

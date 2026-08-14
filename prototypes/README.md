@@ -10,18 +10,21 @@ Reference UX and demo assets. Not the shipped product UI.
 [![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
 [![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
 [![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
+[![Superlinked SIE](https://img.shields.io/badge/Superlinked%20SIE-0B1F3A?style=flat)](https://superlinked.com)
+[![Alibaba Cloud Model Studio](https://img.shields.io/badge/Alibaba%20Cloud%20Model%20Studio-FF6A00?style=flat)](https://www.alibabacloud.com/product/modelstudio)
 
 Came from [QUICKSTART](../QUICKSTART.md)? Use the **Normal users** path, then return here for Live vs Mock detail.
 
 | Path              | What                                                                                                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `dc-dashboard/`   | Data Commons HTML dashboard (`Tripwire.dc.html` + `support.js`). Supports **live Supabase** data or mock data (`tripwire-data.js`). |
-| `model-studio/`   | Sample CLI for Alibaba Cloud Model Studio (chat / image / video). Copy [`.env.example`](.env.example) → `prototypes/.env`, then run `python3 model-studio/model_studio.py`. See [model-studio/README.md](model-studio/README.md). |
-| `sie-studio/`     | Sample CLI for Superlinked SIE (encode / score / generate on managed Qwen). Set `SIE_ENDPOINT` + `SIE_API_KEY` in [`.env.example`](.env.example) → `prototypes/.env`, then run `python3 sie-studio/sie_studio.py`. See [sie-studio/README.md](sie-studio/README.md). |
+| `model-studio/`   | Sample CLI for Alibaba Cloud Model Studio (chat / image / video). Setup: [model-studio-setup.md](../docs/user-guide/model-studio-setup.md). Copy [`.env.example`](.env.example) → `prototypes/.env`, then run `python3 model-studio/model_studio.py`. See [model-studio/README.md](model-studio/README.md). |
+| `sie-studio/`     | Sample CLI for Superlinked SIE (encode / score / generate on managed Qwen). Setup: [sie-setup.md](../docs/user-guide/sie-setup.md). Set `SIE_ENDPOINT` + `SIE_API_KEY` in [`.env.example`](.env.example) → `prototypes/.env`, then run `python3 sie-studio/sie_studio.py`. See [sie-studio/README.md](sie-studio/README.md). The product CLI also uses these keys for post-scan `tripwire route` (copy into repo-root `.env`). |
 
 ## Viewing the dashboard
 
-The **data-source dropdown** lives on the **Guard** tab (the control page for monitoring settings). Switching between Live (Supabase) and Mock (demo data) there applies globally — Dashboard, CLI, and Guard tabs all use the selected source. The choice persists via `sessionStorage`, defaulting to **Live**.
+Item detail shows a **router strip** when a `tiered_router` finding exists (SIE-only vs escalated to Model Studio). Dashboard filters include escalated and SIE-only. Mock demo data includes those fixtures.
+The **data-source dropdown** lives on the **Guard** tab (the control page for monitoring settings). Switching between Live (Supabase) and Mock (demo data) there applies globally — **Dashboard** and **Guard** tabs both use the selected source. The choice persists via `sessionStorage`, defaulting to **Live**.
 
 A **status chip** appears next to the data-source dropdown on the **Guard** tab, showing the resolved connection state. It is not displayed on the main Dashboard header.
 

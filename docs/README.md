@@ -11,6 +11,7 @@ Use this map to move from a safe first look to the level of setup or project det
 | Your task | Start here | Then |
 |---|---|---|
 | Run a first Live scan | [Quickstart: ordered Live setup](../QUICKSTART.md#first-live-scan) | [Supabase setup](./user-guide/supabase-setup.md) → [Modal setup](./user-guide/modal-setup.md) → [environment keys](./user-guide/env-vars.md) → [scan and dashboard](../QUICKSTART.md#live-capabilities) |
+| Enable optional tiered routing | [SIE setup](./user-guide/sie-setup.md) | [Model Studio setup](./user-guide/model-studio-setup.md) → [route command](./user-guide/setup-commands.md#tiered-router-optional) |
 | Preview or validate locally | [Optional local validation](../QUICKSTART.md#validate-locally-optional) | [README: dashboard preview](../README.md#preview-the-dashboard-optional) |
 | Understand results and system shape | [Capability status](./STATUS.md) | [Architecture](./ARCHITECTURE.md) · [ADRs](./adr/README.md) |
 | Contribute or maintain | [Contributing](../CONTRIBUTING.md) | [Setup and maintenance commands](./user-guide/setup-commands.md) |
@@ -24,6 +25,10 @@ Use this map to move from a safe first look to the level of setup or project det
 | [user-guide/path-commands.md](./user-guide/path-commands.md) | Install → local validation → Live setup → maintenance route |
 | [user-guide/setup-commands.md](./user-guide/setup-commands.md) | One-off setup and recurring maintenance commands |
 | [user-guide/env-vars.md](./user-guide/env-vars.md) | Account and credential procurement for `.env` keys |
+| [user-guide/supabase-setup.md](./user-guide/supabase-setup.md) | Supabase project, API keys, schema bootstrap |
+| [user-guide/modal-setup.md](./user-guide/modal-setup.md) | Modal auth, secrets sync, scan app deploy |
+| [user-guide/sie-setup.md](./user-guide/sie-setup.md) | Optional Superlinked SIE keys for tiered routing |
+| [user-guide/model-studio-setup.md](./user-guide/model-studio-setup.md) | Optional Alibaba Cloud Model Studio escalation |
 | [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) | Compact shared onboarding reference |
 | [STATUS.md](./STATUS.md) | Evidence-labelled capability claims |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | System diagrams, key flows, and repository layout |

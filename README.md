@@ -12,6 +12,8 @@
 ![Cisco Skill/MCP Scanner](https://img.shields.io/badge/Cisco%20Skill%2FMCP%20Scanner-1BA0D7?logo=cisco&logoColor=white)
 ![Snyk](https://img.shields.io/badge/Snyk-4C4A73?logo=snyk&logoColor=white)
 ![Tessl](https://img.shields.io/badge/Tessl-111111)
+![Superlinked SIE](https://img.shields.io/badge/Superlinked%20SIE-0B1F3A)
+![Alibaba Cloud Model Studio](https://img.shields.io/badge/Alibaba%20Cloud%20Model%20Studio-FF6A00)
 
 <!-- Group 2: CI / Quality -->
 [![CI](https://img.shields.io/github/actions/workflow/status/neomatrix369/tripwire/ci.yml?branch=main&label=CI&logo=githubactions&logoColor=white)](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml)
@@ -35,6 +37,9 @@
 Tripwire helps technical teams assess AI skills and MCP servers before they rely
 on them. It discovers targets, runs the enabled scanner adapters in an isolated
 scan environment, stores the findings, and brings them together in one dashboard.
+Optionally, after each scan batch it runs a tiered router: **Superlinked SIE**
+triages findings, and **Alibaba Cloud Model Studio** escalates when scanners
+disagree or coverage looks incomplete.
 
 ## Who Tripwire is for
 
@@ -67,6 +72,8 @@ explain each decision before you make it.
 2. Create the accounts you need: [Supabase](docs/user-guide/supabase-setup.md),
    [Modal](docs/user-guide/modal-setup.md), then add Snyk, Tessl, and Cisco credentials
    with the [environment-variable procurement guide](docs/user-guide/env-vars.md#vendor-procurement-quick-steps).
+   For optional post-scan routing, also set up [Superlinked SIE](docs/user-guide/sie-setup.md)
+   and [Alibaba Cloud Model Studio](docs/user-guide/model-studio-setup.md).
 3. Create `.env` only after you have the values, then fill it with
    [env-vars.md](docs/user-guide/env-vars.md) as the single key reference.
 4. Bootstrap Supabase and deploy the Modal scan app with the
@@ -76,6 +83,8 @@ explain each decision before you make it.
 
 Supabase and Modal are required for Live results. If Snyk, Tessl, or Cisco credentials
 are absent, Tripwire reports that scanner as skipped rather than calling the scan complete.
+SIE and Model Studio are optional: without them, scans still complete and auto-route
+logs a warning and skips.
 
 ## Preview the dashboard (optional)
 
@@ -100,15 +109,17 @@ tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
 ## What happens next
 
 The workflow is deliberately small: discover the target, scan it with the enabled
-adapters, then review the result. Mock lets you explore the final step safely; Live
-uses Supabase, Modal, and the configured Snyk, Tessl, and Cisco scanners for real scans.
+adapters, optionally route findings through Superlinked SIE (and Model Studio on
+escalation), then review the result. Mock lets you explore the final step safely;
+Live uses Supabase, Modal, and the configured Snyk, Tessl, and Cisco scanners for
+real scans.
 
 ```mermaid
 flowchart LR
     discover[Discover skills and MCP servers] --> scan[Scan enabled targets]
-    scan --> review[Review findings in the dashboard]
+    scan --> route[Optional SIE / Model Studio route]
+    route --> review[Review findings in the dashboard]
 ```
-
 ### Screenshots
 
 <table>
@@ -148,6 +159,7 @@ flowchart LR
 |---|---|
 | Run your first Live scan | [Follow the Quickstart](QUICKSTART.md#first-live-scan) |
 | Preview the dashboard or validate locally | [Optional local validation](QUICKSTART.md#validate-locally-optional) |
+| Enable optional SIE / Model Studio routing | [SIE setup](docs/user-guide/sie-setup.md) · [Model Studio setup](docs/user-guide/model-studio-setup.md) |
 | Understand results and system shape | [Capability status](docs/STATUS.md) · [Architecture](docs/ARCHITECTURE.md) · [Decisions](docs/adr/README.md) |
 | Contribute or maintain the project | [Contributing](CONTRIBUTING.md) · [command catalog](docs/user-guide/setup-commands.md) |
 

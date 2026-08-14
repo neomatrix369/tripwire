@@ -30,6 +30,8 @@ Follow all five vendor paths for full scan coverage, populate `.env`, and run th
 Use [env-vars.md](./env-vars.md) for accounts, keys, and capability mapping; use
 [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md) only for the
 Modal scanner-secret projection and helper-only synchronization behavior.
+Optional tiered routing: [sie-setup.md](./sie-setup.md) then
+[model-studio-setup.md](./model-studio-setup.md).
 
 ## 5) Maintain or contribute
 
