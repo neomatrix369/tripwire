@@ -485,9 +485,11 @@ def run_snyk(workdir, item_type="mcp_server"):
 
     findings, checks = [], 0
     collected_errors = []
+    paths_seen = 0
     for _abs_path, path_result in root.items():
         if not isinstance(path_result, dict):
             continue
+        paths_seen += 1
         path_errs = _snyk_collect_errors(path_result)
         if path_errs:
             collected_errors.extend(path_errs)
@@ -514,8 +516,9 @@ def run_snyk(workdir, item_type="mcp_server"):
         if auth_only:
             return [], [_skipped(source, detail=detail, console_output=console)]
         return findings, [_unreachable(source, detail, console_output=console)]
-    if findings or checks:
-        return findings, [_completed(source, checks or 1, findings, console_output=console)]
+    # Valid path envelope with zero issues is a completed clean scan (auth + parse OK).
+    if findings or checks or paths_seen:
+        return findings, [_completed(source, checks or max(paths_seen, 1), findings, console_output=console)]
     return findings, [
         _unreachable(
             source,

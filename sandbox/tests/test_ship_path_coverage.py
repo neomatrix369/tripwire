@@ -589,6 +589,38 @@ def test_given_snyk_empty_json_when_run_then_unreachable() -> None:
     assert rows[0]["status"] == "unreachable"
 
 
+def test_given_snyk_valid_envelope_with_no_issues_when_run_then_completed() -> None:
+    """
+    Scenario: Authenticated Snyk response with empty issues is a clean completed scan.
+    Slice: run_snyk — zero-issue success
+
+    Given a valid path envelope with servers, issues=[], and no errors,
+    When run_snyk maps it,
+    Then status is completed (not unreachable) with zero findings.
+    """
+    ### Given
+    payload = {
+        "/tmp": {
+            "error": None,
+            "issues": [],
+            "servers": [{"name": "scan-target", "error": None}],
+        }
+    }
+
+    ### When
+    with (
+        patch.dict("os.environ", {"SNYK_TOKEN": "t"}, clear=False),
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", return_value=(0, json.dumps(payload), "")),
+    ):
+        findings, rows = scanners.run_snyk("/tmp", "skill")
+
+    ### Then
+    assert findings == []
+    assert rows[0]["status"] == "completed"
+    assert rows[0]["checks_run"] >= 1
+
+
 def test_given_no_snyk_binaries_when_cmd_then_none() -> None:
     """
     Scenario: Neither snyk-agent-scan nor uvx → no command.
