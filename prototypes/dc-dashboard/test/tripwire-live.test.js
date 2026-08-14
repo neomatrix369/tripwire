@@ -259,7 +259,6 @@ test('given successful supabase rows when loadData live then maps UI item shape'
   assert.equal(item.scanners[0].source, 'cisco');
   assert.equal(item.scanners[0].checks_run, 3);
   assert.equal(item.sandbox.id, runId);
-  assert.deepEqual(result.data.cliScenarios, {});
   assert.deepEqual(result.data.guardScenarios, []);
   restoreFetch();
 });

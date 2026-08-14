@@ -322,27 +322,6 @@
     </div>
   </sc-if>
 
-  <sc-if value="{{ activeTabIsCli }}" hint-placeholder-val="{{ false }}">
-    <div style="flex:1;display:flex;flex-direction:column;padding:20px;gap:14px;overflow:hidden">
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <sc-for list="{{ cliButtons }}" as="cb" hint-placeholder-count="3">
-          <button onClick="{{ cb.onClick }}" style="{{ cb.style }}">▶ {{ cb.label }}</button>
-        </sc-for>
-      </div>
-      <div style="flex:1;background:var(--bg-deep);border:1px solid var(--border-subtle);border-radius:8px;padding:16px;overflow-y:auto;font-family:var(--font-mono);font-size:13px;color:#8fe388;box-shadow:inset 0 2px 8px rgba(0,0,0,0.3)">
-        <sc-if value="{{ cliEmpty }}" hint-placeholder-val="{{ true }}">
-          <div style="color:var(--text-muted)">Pick a scenario above to run a simulated tripwire command.</div>
-        </sc-if>
-        <sc-for list="{{ cliVisibleLines }}" as="line" hint-placeholder-count="0">
-          <div style="margin-bottom:6px;white-space:pre-wrap">{{ line }}</div>
-        </sc-for>
-        <sc-if value="{{ cliRunning }}" hint-placeholder-val="{{ false }}">
-          <div style="color:var(--accent)">▌</div>
-        </sc-if>
-      </div>
-    </div>
-  </sc-if>
-
   <sc-if value="{{ activeTabIsGuard }}" hint-placeholder-val="{{ false }}">
     <div style="flex:1;padding:24px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;max-width:760px">
       <div style="display:flex;align-items:center;gap:16px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:8px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
@@ -418,9 +397,6 @@ class Component extends DCLogic {
     typeFilter: 'all',
     statusFilter: 'all',
     selectedId: null,
-    cliScenarioKey: null,
-    cliRevealCount: 0,
-    cliRunning: false,
     guardResults: {},
     monitoringEnabled: true,
     threshold: 'red',
@@ -529,7 +505,6 @@ class Component extends DCLogic {
   };
 
   componentWillUnmount() {
-    clearInterval(this._cliTimer);
     clearInterval(this._pollTimer);
     if (this._rt) {
       this._rt.unsubscribe();
@@ -551,21 +526,6 @@ class Component extends DCLogic {
     const key = itemId + ':' + idx;
     return { expandedScanners: { ...s.expandedScanners, [key]: !s.expandedScanners[key] } };
   });
-
-  runCli = (key) => {
-    const data = this.state.data;
-    if (!data || this.state.cliRunning) return;
-    const total = data.cliScenarios[key].lines.length;
-    clearInterval(this._cliTimer);
-    this.setState({ cliScenarioKey: key, cliRevealCount: 0, cliRunning: true });
-    this._cliTimer = setInterval(() => {
-      this.setState(s => {
-        const next = s.cliRevealCount + 1;
-        if (next >= total) { clearInterval(this._cliTimer); return { cliRevealCount: total, cliRunning: false }; }
-        return { cliRevealCount: next };
-      });
-    }, 420);
-  };
 
   simulateGuardCall = (id) => {
     this.setState(s => {
@@ -685,9 +645,9 @@ class Component extends DCLogic {
       error: { color: '#a78bfa', label: 'ERROR', glyph: '!' }
     };
 
-    const primaryTabs = ['dashboard', 'cli'].map(key => ({
+    const primaryTabs = ['dashboard'].map(key => ({
       key,
-      label: key === 'cli' ? 'CLI' : key.charAt(0).toUpperCase() + key.slice(1),
+      label: key.charAt(0).toUpperCase() + key.slice(1),
       onClick: () => this.setTab(key),
       style: this.btnStyle(s.activeTab === key, { size: '13px' })
     }));
@@ -713,7 +673,6 @@ class Component extends DCLogic {
 
     const base = {
       activeTabIsDashboard: s.activeTab === 'dashboard',
-      activeTabIsCli: s.activeTab === 'cli',
       activeTabIsGuard: s.activeTab === 'guard',
       primaryTabs,
       guardTab,
@@ -752,7 +711,6 @@ class Component extends DCLogic {
         ...base,
         gridItems: [], typeTabs: [], statusChips: [], overviewStats: [],
         selectedView: null,
-        cliButtons: [], cliVisibleLines: [], cliEmpty: true, cliRunning: false,
         guardRows: [], footerLastScan: '—',
         listRows: [], historyRows: []
       };
@@ -852,14 +810,6 @@ class Component extends DCLogic {
     };
     })() : null;
 
-    const cliButtons = Object.keys(data.cliScenarios).map(key => ({
-      key, label: data.cliScenarios[key].label,
-      onClick: () => this.runCli(key),
-      style: this.btnStyle(s.cliScenarioKey === key, { activeBg: 'rgba(77,162,255,0.12)', activeBorder: '#4da2ff' })
-    }));
-    const cli = s.cliScenarioKey ? data.cliScenarios[s.cliScenarioKey] : null;
-    const cliVisibleLines = cli ? cli.lines.slice(0, s.cliRevealCount) : [];
-
     const resultCopy = {
       'deny': { bg: 'rgba(244,63,94,0.12)', color: '#fda4af', text: '⛔ DENIED — rated at/above threshold; call blocked before it ran.' },
       'allow': { bg: 'rgba(52,211,153,0.12)', color: '#6ee7b7', text: '✓ ALLOWED — below threshold, call proceeded.' },
@@ -912,7 +862,6 @@ class Component extends DCLogic {
     return {
       ...base, typeTabs, statusChips, gridItems, overviewStats, selectedView,
       closeDrawer: this.closeDrawer,
-      cliButtons, cliVisibleLines, cliEmpty: !s.cliScenarioKey, cliRunning: s.cliRunning,
       guardRows, toggleMonitoring: this.toggleMonitoring,
       footerLastScan, listRows, historyRows
     };
