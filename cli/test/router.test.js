@@ -17,156 +17,189 @@ function makeThenable(value) {
   };
 }
 
+function findingMatchesEqFilters(finding, filters) {
+  if (filters.scanner_source && finding.scanner_source !== filters.scanner_source) return false;
+  if (filters.scan_run_id && finding.scan_run_id !== filters.scan_run_id) return false;
+  return true;
+}
+
+function findingMatchesSelectFilters(finding, filters) {
+  if (!findingMatchesEqFilters(finding, filters)) return false;
+  if (filters['neq:scanner_source'] && finding.scanner_source === filters['neq:scanner_source']) {
+    return false;
+  }
+  return true;
+}
+
+function applyFindingsDelete(findings, filters, calls, deleteError) {
+  if (deleteError) return { data: null, error: deleteError };
+  calls.deletes.push({ ...filters });
+  const before = findings.length;
+  for (let i = findings.length - 1; i >= 0; i -= 1) {
+    if (!findingMatchesEqFilters(findings[i], filters)) continue;
+    findings.splice(i, 1);
+  }
+  return { data: null, error: null, deleted: before - findings.length };
+}
+
+function selectFindingsRows(findings, nonRouterFindings, filters) {
+  if (filters['neq:scanner_source'] === 'tiered_router') {
+    return nonRouterFindings.filter(
+      (f) => !filters.scan_run_id || f.scan_run_id === filters.scan_run_id,
+    );
+  }
+  return findings.filter((f) => findingMatchesSelectFilters(f, filters));
+}
+
+function createFindingsQuery({ findings, nonRouterFindings, calls, deleteError }) {
+  let filters = {};
+  const api = {
+    select() { return api; },
+    eq(col, val) { filters[col] = val; return api; },
+    neq(col, val) { filters[`neq:${col}`] = val; return api; },
+    in() { return api; },
+    delete() {
+      return {
+        eq(col, val) {
+          filters[col] = val;
+          return {
+            eq(col2, val2) {
+              filters[col2] = val2;
+              return makeThenable(applyFindingsDelete(findings, filters, calls, deleteError));
+            },
+            then: makeThenable({ data: null, error: null }).then.bind(
+              makeThenable({ data: null, error: null }),
+            ),
+          };
+        },
+      };
+    },
+    then(resolve, reject) {
+      const rows = selectFindingsRows(findings, nonRouterFindings, filters);
+      return makeThenable({ data: rows, error: null }).then(resolve, reject);
+    },
+  };
+  return api;
+}
+
+function scanRunsOk(batchId, scanRunId, itemId) {
+  return {
+    data: [{ id: scanRunId, item_id: itemId, batch_id: batchId, status: 'complete' }],
+    error: null,
+  };
+}
+
+function createStubFrom(ctx) {
+  const {
+    batchId, scanRunId, itemId, item, scanners, nonRouterFindings,
+    findings, calls, scannersError, deleteError, insertError,
+  } = ctx;
+
+  return function from(table) {
+    if (table === 'scan_runs') {
+      return {
+        select() {
+          return {
+            eq(col, val) {
+              if (col === 'batch_id' && val === batchId) {
+                const ok = scanRunsOk(batchId, scanRunId, itemId);
+                return {
+                  neq() { return makeThenable(ok); },
+                  then: makeThenable(ok).then.bind(makeThenable(ok)),
+                };
+              }
+              return makeThenable({ data: [], error: null });
+            },
+          };
+        },
+      };
+    }
+    if (table === 'items') {
+      return {
+        select() {
+          return {
+            in() { return makeThenable({ data: [item], error: null }); },
+          };
+        },
+      };
+    }
+    if (table === 'scan_run_scanners') {
+      return {
+        select() {
+          return {
+            eq() {
+              return makeThenable({
+                data: scannersError ? null : scanners,
+                error: scannersError,
+              });
+            },
+          };
+        },
+      };
+    }
+    if (table === 'findings') {
+      const query = () => createFindingsQuery({
+        findings, nonRouterFindings, calls, deleteError,
+      });
+      return {
+        select: () => query(),
+        delete: () => query().delete(),
+        insert(row) {
+          if (insertError) return makeThenable({ data: null, error: insertError });
+          calls.inserts.push(row);
+          findings.push({ ...row });
+          return makeThenable({ data: [row], error: null });
+        },
+      };
+    }
+    return {
+      select() { return makeThenable({ data: [], error: null }); },
+    };
+  };
+}
+
 /**
  * In-memory Supabase stub for one batch / one scan run.
  * Tracks tiered_router findings so wipe-on-SIE-skip can be asserted.
  */
-function createRouterSupabaseStub({
-  batchId = 'batch-1',
-  scanRunId = 'run-1',
-  itemId = 'item-1',
-  item = { id: 'item-1', identifier: 'safe-csv-cleaner', type: 'skill' },
-  scanners = [{ scanner_source: 'Snyk', status: 'completed' }],
-  nonRouterFindings = [],
-  initialRouterFindings = [],
-  scannersError = null,
-  deleteError = null,
-  insertError = null,
-} = {}) {
+const ROUTER_STUB_DEFAULTS = {
+  batchId: 'batch-1',
+  scanRunId: 'run-1',
+  itemId: 'item-1',
+  item: { id: 'item-1', identifier: 'safe-csv-cleaner', type: 'skill' },
+  scanners: [{ scanner_source: 'Snyk', status: 'completed' }],
+  nonRouterFindings: [],
+  initialRouterFindings: [],
+  scannersError: null,
+  deleteError: null,
+  insertError: null,
+};
+
+function createRouterSupabaseStub(options) {
+  const {
+    batchId,
+    scanRunId,
+    itemId,
+    item,
+    scanners,
+    nonRouterFindings,
+    initialRouterFindings,
+    scannersError,
+    deleteError,
+    insertError,
+  } = { ...ROUTER_STUB_DEFAULTS, ...options };
+
   const findings = [...initialRouterFindings];
   const calls = { deletes: [], inserts: [] };
 
-  function findingsQuery() {
-    let filters = {};
-    const api = {
-      select() { return api; },
-      eq(col, val) { filters[col] = val; return api; },
-      neq(col, val) { filters[`neq:${col}`] = val; return api; },
-      in() { return api; },
-      delete() {
-        return {
-          eq(col, val) {
-            filters[col] = val;
-            return {
-              eq(col2, val2) {
-                filters[col2] = val2;
-                return makeThenable((() => {
-                  if (deleteError) return { data: null, error: deleteError };
-                  calls.deletes.push({ ...filters });
-                  const before = findings.length;
-                  for (let i = findings.length - 1; i >= 0; i -= 1) {
-                    const f = findings[i];
-                    if (filters.scanner_source && f.scanner_source !== filters.scanner_source) continue;
-                    if (filters.scan_run_id && f.scan_run_id !== filters.scan_run_id) continue;
-                    findings.splice(i, 1);
-                  }
-                  return { data: null, error: null, deleted: before - findings.length };
-                })());
-              },
-              then: makeThenable({ data: null, error: null }).then.bind(
-                makeThenable({ data: null, error: null }),
-              ),
-            };
-          },
-        };
-      },
-      then(resolve, reject) {
-        let rows = findings.filter((f) => {
-          if (filters.scan_run_id && f.scan_run_id !== filters.scan_run_id) return false;
-          if (filters.scanner_source && f.scanner_source !== filters.scanner_source) return false;
-          if (filters['neq:scanner_source'] && f.scanner_source === filters['neq:scanner_source']) {
-            return false;
-          }
-          return true;
-        });
-        // Non-router select uses neq tiered_router — supply fixture rows
-        if (filters['neq:scanner_source'] === 'tiered_router') {
-          rows = nonRouterFindings.filter(
-            (f) => !filters.scan_run_id || f.scan_run_id === filters.scan_run_id,
-          );
-        }
-        return makeThenable({ data: rows, error: null }).then(resolve, reject);
-      },
-    };
-    return api;
-  }
-
-  const supabase = {
+  return {
     findings,
     calls,
-    from(table) {
-      if (table === 'scan_runs') {
-        return {
-          select() {
-            return {
-              eq(col, val) {
-                if (col === 'batch_id' && val === batchId) {
-                  return {
-                    neq() {
-                      return makeThenable({
-                        data: [{ id: scanRunId, item_id: itemId, batch_id: batchId, status: 'complete' }],
-                        error: null,
-                      });
-                    },
-                    then: makeThenable({
-                      data: [{ id: scanRunId, item_id: itemId, batch_id: batchId, status: 'complete' }],
-                      error: null,
-                    }).then.bind(makeThenable({
-                      data: [{ id: scanRunId, item_id: itemId, batch_id: batchId, status: 'complete' }],
-                      error: null,
-                    })),
-                  };
-                }
-                return makeThenable({ data: [], error: null });
-              },
-            };
-          },
-        };
-      }
-      if (table === 'items') {
-        return {
-          select() {
-            return {
-              in() {
-                return makeThenable({ data: [item], error: null });
-              },
-            };
-          },
-        };
-      }
-      if (table === 'scan_run_scanners') {
-        return {
-          select() {
-            return {
-              eq() {
-                return makeThenable({
-                  data: scannersError ? null : scanners,
-                  error: scannersError,
-                });
-              },
-            };
-          },
-        };
-      }
-      if (table === 'findings') {
-        return {
-          select: () => findingsQuery(),
-          delete: () => findingsQuery().delete(),
-          insert(row) {
-            if (insertError) return makeThenable({ data: null, error: insertError });
-            calls.inserts.push(row);
-            findings.push({ ...row });
-            return makeThenable({ data: [row], error: null });
-          },
-        };
-      }
-      return {
-        select() { return makeThenable({ data: [], error: null }); },
-      };
-    },
+    from: createStubFrom({
+      batchId, scanRunId, itemId, item, scanners, nonRouterFindings,
+      findings, calls, scannersError, deleteError, insertError,
+    }),
   };
-
-  return supabase;
 }
 
 async function withRouterEnv(fn) {

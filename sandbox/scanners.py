@@ -518,7 +518,9 @@ def run_snyk(workdir, item_type="mcp_server"):
         return findings, [_unreachable(source, detail, console_output=console)]
     # Valid path envelope with zero issues is a completed clean scan (auth + parse OK).
     if findings or checks or paths_seen:
-        return findings, [_completed(source, checks or max(paths_seen, 1), findings, console_output=console)]
+        return findings, [
+            _completed(source, checks or max(paths_seen, 1), findings, console_output=console)
+        ]
     return findings, [
         _unreachable(
             source,
