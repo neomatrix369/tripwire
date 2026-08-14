@@ -2,8 +2,9 @@
 
 Product UI and CLI captures, grouped by surface. Paths are relative to this folder.
 
-Dashboard / skill / MCP shots use **Mock (demo data)** so Red / Amber / Green
-examples stay stable. CLI shots are live terminal captures from the current CLI.
+**Dashboard, skill, and MCP shots use Mock (demo data)** so Red / Amber / Green
+and Escalated / SIE-only examples stay stable. **CLI shots are live terminal
+captures** from the current CLI.
 
 Regenerate frontend shots with:
 
@@ -11,6 +12,9 @@ Regenerate frontend shots with:
 node scripts/serve-dashboard.mjs   # if not already running on :8765
 node scripts/capture-screenshots.mjs
 ```
+
+Router strip / filter semantics:
+[reading-router-results.md](../user-guide/reading-router-results.md).
 
 ## 1. CLI
 
@@ -28,7 +32,9 @@ Help output (including `route`) and discovery / live scan feedback.
 
 ## 2. Dashboard
 
-Heatmap grid, severity filters, type views, and list layout (Mock demo: 13 items).
+Heatmap grid, severity filters, tiered-router filters, type views, and list
+layout (Mock demo). Card colour is worst-of actionable finding severity; chips
+show finding counts.
 
 ### Overview grid
 
@@ -45,6 +51,28 @@ Heatmap grid, severity filters, type views, and list layout (Mock demo: 13 items
 ### Filter — green
 
 ![Filter green](02-dashboard/07-filter-green.png)
+
+### Filter — Escalated
+
+Model Studio offload items (`routing_decision` / `routing_triage`). Pathway
+ends at Model Studio.
+
+![Filter Escalated](02-dashboard/14-filter-escalated.png)
+
+### Filter — SIE-only
+
+SIE reviewed; Model Studio did not run (`routing_review`). Pathway stops after
+SIE.
+
+![Filter SIE-only](02-dashboard/15-filter-sie-only.png)
+
+### Pathway — Escalated grid
+
+![Pathway Escalated grid](02-dashboard/16-pathway-escalated-grid.png)
+
+### Pathway — SIE-only grid
+
+![Pathway SIE-only grid](02-dashboard/17-pathway-sie-only-grid.png)
 
 ### MCP servers (all)
 

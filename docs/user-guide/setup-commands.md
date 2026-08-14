@@ -108,21 +108,48 @@ tripwire setup --force
 
 ### Tiered router (optional)
 
-After a Live scan, Tripwire auto-routes the batch when SIE + Model Studio keys
-are set. Provision accounts with [sie-setup.md](./sie-setup.md) and
+> **Missing credentials → warn and skip.** Scans still complete. Without
+> `SIE_ENDPOINT` / `SIE_API_KEY`, auto-route and `tripwire route` log a warning
+> and leave scanner findings unchanged. Model Studio keys are needed only when
+> SIE escalates.
+
+After a Live scan, Tripwire auto-routes the batch when **SIE** keys are set.
+Provision accounts with [sie-setup.md](./sie-setup.md) and (for escalation)
 [model-studio-setup.md](./model-studio-setup.md); key map:
 [env-vars.md](./env-vars.md#optional--tiered-router-sie--model-studio).
-Missing keys log a warning and leave scan results unchanged. Re-run routing
-manually:
+Design: [ADR-0016](../adr/0016-tiered-router-sie-model-studio.md). UI:
+[reading-router-results.md](./reading-router-results.md).
+
+| Keys present | Behaviour |
+|---|---|
+| Neither SIE nor Model Studio | Warn + skip routing |
+| SIE only | Every item assessed; `routing_review` when not escalated; escalate paths that need Model Studio soft-fail with a failure note in `routing_review` |
+| SIE + Model Studio | Full path: review, arbitration (`routing_decision`), or triage (`routing_triage`) |
+
+**Idempotency:** replace-on-success per item — the prior `tiered_router` row for
+that scan_run is replaced only after a successful SIE decision. There is no
+batch-wide DELETE first, so a SIE outage cannot wipe existing dashboard strips.
+
+Re-run routing manually:
 
 ```bash
 tripwire route --batch-id <batch_id>
-# optional overrides:
+# optional overrides (CLI → env → code default):
 # tripwire route --batch-id <batch_id> --sie-model gen-4b --model-studio-model qwen3.8-max
 ```
 
+Defaults: `SIE_MODEL=gen-4b`, `MODEL_STUDIO_MODEL=qwen3.8-max`. The finding
+`message` is a JSON envelope (`signals`, `models`, `reasoning`) — see ADR-0016.
+
 Dashboard Mock fixtures include `tiered_router` findings. To seed Live conflict /
-timeout fixtures for UI checks: `node scripts/seed-router-fixtures.js`.
+timeout fixtures for UI checks (requires Supabase service-role in `.env`):
+
+```bash
+node scripts/seed-router-fixtures.js
+```
+
+Then open the Live dashboard and use Escalated / SIE-only filters — details in
+[reading-router-results.md](./reading-router-results.md).
 
 ## 5) Test commands (when needed)
 

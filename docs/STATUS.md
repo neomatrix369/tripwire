@@ -53,7 +53,7 @@ Reachable through production entry points / config:
 ## VERIFIED (unit)
 
 - `cd cli && npm test` — discovery, content-hash, schema-probe (incl. `completed_at`),
-  `--force`
+  `--force`, tiered router (`cli/test/router.test.js`)
 - `pytest sandbox/tests/test_acquire_target.py` — acquire-target dispatch
 - `cd prototypes/dc-dashboard && npm test` — Live gating, Realtime wiring,
   SCANNING/console/unreachable mapping; optional Live smoke skipped without config
@@ -88,11 +88,17 @@ sync (slice 14) is on branch and awaits merge. Groups:
 
 Measured ship-path floors are: Python `sandbox/` **95.91%**; Live ACL
 **98.48%** lines. CLI coverage floors are temporarily **60%** lines/functions/
-statements and **80%** branches in `cli/package.json` while `cli/src/router.js`
-lacks unit tests (commit rationale: keep CI green until router tests land).
-[ADR-0013](./adr/0013-ship-path-quality-gates.md) still records the intended
-≥95% CLI ship-path target. Exact gate matrix:
+statements and **80%** branches in `cli/package.json` while overall CLI
+instrumented coverage is still climbing back toward the ADR-0013 ≥95% target
+after the router land. Unit coverage for the router **does** exist:
+[`cli/test/router.test.js`](../cli/test/router.test.js). Temporary floors are a
+gate-policy choice, not “missing tests.” [ADR-0013](./adr/0013-ship-path-quality-gates.md)
+still records the intended ≥95% CLI ship-path target. Exact gate matrix:
 [plan/coverage-audit.md](./plan/coverage-audit.md).
+
+Heatmap note: card `heatmap_status` is **worst-of** actionable scanner findings
+(any red → red; amber-only → amber); finding-count chips are density, not colour.
+Router rows (`tiered_router`) are excluded from severity rollup.
 
 Live Modal/Supabase E2E as a CI Must remains **Won't** for this wave (slow/optional
 skip-without-config stays). Demo/hackathon film day (VO/Remotion slice 4; film-day
@@ -110,7 +116,8 @@ idempotency (0010), schema bootstrap (0011), target acquisition (0012),
 ship-path quality gates (0013), curated discovery (0014), Horizon A
 excluding Guard/Drift (0015), and tiered SIE/Model Studio router (0016). Slice
 waivers stay in [plan/DECISIONS.md](./plan/DECISIONS.md). ADR number 0001 is
-reserved and not published while that draft remains under review.
+reserved for a Proposed Monk Live packaging / deployment draft that is **not**
+on `main` yet (side-branch only); it is omitted from the catalog until accepted.
 
 ---
 

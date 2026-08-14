@@ -155,6 +155,24 @@ async function main() {
     await shot(page, "02-dashboard/07-filter-green.png");
     await clickButtonByText(page, "All");
 
+    await clickButtonByText(page, "Escalated");
+    await shot(page, "02-dashboard/14-filter-escalated.png");
+    await clickButtonByText(page, "All");
+
+    await clickButtonByText(page, "SIE-only");
+    await shot(page, "02-dashboard/15-filter-sie-only.png");
+    await clickButtonByText(page, "All");
+
+    // Pathway strip on an escalated Mock card (open detail if strip is on card)
+    await clickButtonByText(page, "Escalated");
+    await sleep(500);
+    await shot(page, "02-dashboard/16-pathway-escalated-grid.png");
+    await clickButtonByText(page, "All");
+    await clickButtonByText(page, "SIE-only");
+    await sleep(500);
+    await shot(page, "02-dashboard/17-pathway-sie-only-grid.png");
+    await clickButtonByText(page, "All");
+
     await clickButtonByText(page, "MCP Servers");
     await shot(page, "02-dashboard/09-mcp-servers-all.png");
     await clickButtonByText(page, "All items");

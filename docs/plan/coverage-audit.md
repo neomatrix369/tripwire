@@ -1,7 +1,8 @@
 # Coverage audit matrix (slice 7)
 
 > Last updated: 2026-08-14 · Horizon A · Ship-path target ~95% (DECIDED);
-> CLI enforced floors temporarily 60/60/80/60 while `router.js` lacks unit tests
+> CLI enforced floors temporarily 60/60/80/60 while overall CLI coverage climbs
+> back toward ADR-0013 after the router land (`cli/test/router.test.js` exists)
 > Context: private references SoT + public STATUS/ARCHITECTURE
 
 ## Altitude / targets
@@ -9,7 +10,7 @@
 | Layer | Target | Status |
 |-------|--------|--------|
 | Python `sandbox/` (ship path; omit `guard/`) | ≥95% branch when gated | ✅ gate achieved — slice 11 (`95.91%`, fail_under=95; branch/lines/statements aligned to gate policy) |
-| Full Node CLI (`cli/src` + `cli/bin/tripwire.js`) | ≥95% lines/stmts, with 100% funcs and 85% branches where justified (**DECIDED** / ADR-0013) | ✅ historically achieved (`98.60%` lines); **current enforced** floors are **60/60/80/60** until `cli/src/router.js` has unit tests |
+| Full Node CLI (`cli/src` + `cli/bin/tripwire.js`) | ≥95% lines/stmts, with 100% funcs and 85% branches where justified (**DECIDED** / ADR-0013) | ✅ historically achieved (`98.60%` lines); **current enforced** floors are **60/60/80/60** while measured CLI coverage recovers after router land; unit tests: `cli/test/router.test.js` |
 | Prototype dashboard (`prototypes/dc-dashboard`) | Normal tests run; excluded from coverage and complexity gates | Excluded by scope decision |
 | `guard/`, `support.js`, Remotion, scripts | Out of bar | Won't for this wave |
 | Live Modal/Supabase E2E as CI Must | Won't | optional skip-without-config |
@@ -24,7 +25,7 @@
 | Cisco skill/MCP adapters | IMPLEMENTED | unit status/cmd; **parse missing** | Slice 8 |
 | Snyk / Tessl adapters | IMPLEMENTED (may be unreachable) | unit status; parse/coverage folded into slice 11 stream | Slice 9/11 |
 | Idempotency / `--force` spawn | IMPLEMENTED / VERIFIED (unit) | unit (slice 6) | — |
-| Tiered SIE / Model Studio router | IMPLEMENTED | missing unit (`router.js`) | `tripwire route` + auto-route; ADR-0016; soft-fail if keys absent |
+| Tiered SIE / Model Studio router | IMPLEMENTED / VERIFIED (unit) | unit (`cli/test/router.test.js`) | `tripwire route` + auto-route; ADR-0016; soft-fail if keys absent; replace-on-success |
 | Live dashboard Realtime + poll | IMPLEMENTED / VERIFIED (unit) | unit | Poll: 8s fallback **and** 30s while Realtime+running — STATUS under-claims → slice 16 📦 (reinstate) or note in 15 |
 | Normal-user dashboard path | IMPLEMENTED | unit | Default source is **Live**; select Mock for local demo → slice **17** (onboarding); prose remediations were 16 📦 |
 | Dashboard as ship UI | DECIDED (dc-dashboard as-is) | — | prototypes README “not shipped” tension → slice 16 📦 / claim audit 15 |

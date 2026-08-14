@@ -22,8 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   show an actionable finding-count chip so one vs many vulns stay distinguishable
 - Severity rollup excludes `tiered_router` findings so triage does not inflate
   scanner red/amber counts
-- CLI coverage floors temporarily lowered (60/60/80/60) until `router.js` unit
-  tests land; ADR-0013 target unchanged
+- CLI coverage floors temporarily lowered (60/60/80/60) while measured CLI
+  coverage recovers after the router land; `cli/test/router.test.js` exists;
+  ADR-0013 ≥95% target unchanged
 
 ### Fixed
 - Tiered router no longer batch-deletes `tiered_router` findings before routing;
@@ -34,15 +35,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Docs
 - Formal ADR catalog under `docs/adr/`: Accepted retrospective records
   0002–0016 for shipped topology, scanning, security, CLI, quality,
-  Horizon A scope, and tiered router. Number 0001 reserved (draft under review,
-  not published). Indexes wired from Architecture, STATUS, README, QUICKSTART,
-  CONTRIBUTING, and plan README.
+  Horizon A scope, and tiered router. Number 0001 reserved (Monk Live packaging
+  draft on a side branch, not published). Indexes wired from Architecture,
+  STATUS, README, QUICKSTART, CONTRIBUTING, and plan README.
 - Provider setup guides for optional tiered routing:
   `docs/user-guide/sie-setup.md` and `docs/user-guide/model-studio-setup.md`
   (wired from README, QUICKSTART, docs index, env-vars, prerequisites)
+- Operator howto for pathway strips / Escalated / SIE-only / categories:
+  `docs/user-guide/reading-router-results.md`
 - Screenshot gallery refreshed: CLI help includes `route`, live Modal scan
-  capture updated, dashboard/skill/MCP shots retaken from Mock demo data;
-  regenerate UI shots with `scripts/capture-screenshots.mjs`
+  capture updated, dashboard/skill/MCP shots retaken from Mock demo data,
+  Escalated / SIE-only / pathway filter shots; regenerate UI shots with
+  `scripts/capture-screenshots.mjs`
 
 ## [0.3.0] - 2026-08-05
 

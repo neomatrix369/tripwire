@@ -32,14 +32,17 @@ findings until the platform accounts, `.env`, schema, and Modal app are ready.
    [Modal account](docs/user-guide/modal-setup.md). For complete scanner coverage,
    procure Snyk, Tessl, and Cisco credentials through
    [env-vars.md](docs/user-guide/env-vars.md#vendor-procurement-quick-steps).
-   For optional post-scan routing, follow [SIE setup](docs/user-guide/sie-setup.md)
-   and [Model Studio setup](docs/user-guide/model-studio-setup.md).
+   For optional post-scan routing ([ADR-0016](docs/adr/0016-tiered-router-sie-model-studio.md)),
+   follow [SIE setup](docs/user-guide/sie-setup.md) (required for routing) and
+   [Model Studio setup](docs/user-guide/model-studio-setup.md) (escalation only).
 3. Only after collecting the required values, create `.env` and populate it using
    [env-vars.md](docs/user-guide/env-vars.md). Review provider billing and quotas
    before enabling Live services.
 4. Apply the schema and deploy the scan app using the
    [Live environment bootstrap](docs/user-guide/setup-commands.md#live-environment-bootstrap).
-5. Run the [fixture scan and Live dashboard](#live-capabilities).
+5. Run the [fixture scan and Live dashboard](#live-capabilities). Re-route with
+   [`tripwire route`](docs/user-guide/setup-commands.md#tiered-router-optional) and
+   [read router results](docs/user-guide/reading-router-results.md) for strips and filters.
 
 ## Shared setup reference
 
@@ -70,9 +73,15 @@ findings until the platform accounts, `.env`, schema, and Modal app are ready.
    - [Cisco AI Defense](https://developer.cisco.com): collect the LLM or AI Defense credentials for `AI_DEFENSE_*` and Cisco MCP scanner settings.
    - Use [env-vars.md](docs/user-guide/env-vars.md) to map each credential to `.env`.
     [OPTIONAL_SCANNER_KEYS.md](fixtures/OPTIONAL_SCANNER_KEYS.md) documents scanner-secret allowlist values and manual fallback behavior.
-5. Optional tiered router (after Live scan works):
-   - [Superlinked SIE](docs/user-guide/sie-setup.md): `SIE_ENDPOINT` + `SIE_API_KEY`.
-   - [Alibaba Cloud Model Studio](docs/user-guide/model-studio-setup.md): `DASHSCOPE_API_KEY` + `ALIBABA_OPENAI_BASE_URL`.
+5. Optional tiered router (after Live scan works) — design:
+   [ADR-0016](docs/adr/0016-tiered-router-sie-model-studio.md):
+   - [Superlinked SIE](docs/user-guide/sie-setup.md): `SIE_ENDPOINT` + `SIE_API_KEY`
+     (required for any routing).
+   - [Alibaba Cloud Model Studio](docs/user-guide/model-studio-setup.md):
+     `DASHSCOPE_API_KEY` + `ALIBABA_OPENAI_BASE_URL` (escalation only).
+   - Interpret UI: [reading-router-results.md](docs/user-guide/reading-router-results.md).
+   - Local sample CLIs (no full scan): [`prototypes/sie-studio/`](prototypes/sie-studio/README.md),
+     [`prototypes/model-studio/`](prototypes/model-studio/README.md).
 6. Bootstrap the environment and services:
 
 ```bash
@@ -139,9 +148,15 @@ tripwire scan ./fixtures/skills/safe-csv-cleaner
 node scripts/serve-dashboard.mjs
 ```
 
-With SIE (+ Model Studio) configured, the scan auto-routes the batch. Re-run
-manually with `tripwire route --batch-id …` — see
-[setup-commands.md](docs/user-guide/setup-commands.md#tiered-router-optional).
+With SIE configured, the scan auto-routes the batch (Model Studio keys needed only
+for escalation). Re-run manually:
+
+```bash
+tripwire route --batch-id <batch_id>
+```
+
+See [setup-commands.md](docs/user-guide/setup-commands.md#tiered-router-optional)
+and [reading-router-results.md](docs/user-guide/reading-router-results.md).
 
 Use [setup-commands.md](docs/user-guide/setup-commands.md) for the complete
 setup, re-run, and maintenance command catalog.
