@@ -29,6 +29,9 @@ function createRouterSupabaseStub({
   scanners = [{ scanner_source: 'Snyk', status: 'completed' }],
   nonRouterFindings = [],
   initialRouterFindings = [],
+  scannersError = null,
+  deleteError = null,
+  insertError = null,
 } = {}) {
   const findings = [...initialRouterFindings];
   const calls = { deletes: [], inserts: [] };
@@ -48,6 +51,7 @@ function createRouterSupabaseStub({
               eq(col2, val2) {
                 filters[col2] = val2;
                 return makeThenable((() => {
+                  if (deleteError) return { data: null, error: deleteError };
                   calls.deletes.push({ ...filters });
                   const before = findings.length;
                   for (let i = findings.length - 1; i >= 0; i -= 1) {
@@ -135,7 +139,10 @@ function createRouterSupabaseStub({
           select() {
             return {
               eq() {
-                return makeThenable({ data: scanners, error: null });
+                return makeThenable({
+                  data: scannersError ? null : scanners,
+                  error: scannersError,
+                });
               },
             };
           },
@@ -146,6 +153,7 @@ function createRouterSupabaseStub({
           select: () => findingsQuery(),
           delete: () => findingsQuery().delete(),
           insert(row) {
+            if (insertError) return makeThenable({ data: null, error: insertError });
             calls.inserts.push(row);
             findings.push({ ...row });
             return makeThenable({ data: [row], error: null });
@@ -159,6 +167,27 @@ function createRouterSupabaseStub({
   };
 
   return supabase;
+}
+
+async function withRouterEnv(fn) {
+  const prev = {
+    SIE_ENDPOINT: process.env.SIE_ENDPOINT,
+    SIE_API_KEY: process.env.SIE_API_KEY,
+    ALIBABA_OPENAI_BASE_URL: process.env.ALIBABA_OPENAI_BASE_URL,
+    DASHSCOPE_API_KEY: process.env.DASHSCOPE_API_KEY,
+  };
+  process.env.SIE_ENDPOINT = 'https://sie.example';
+  process.env.SIE_API_KEY = 'sk-sie-test';
+  process.env.ALIBABA_OPENAI_BASE_URL = 'https://ms.example/v1';
+  process.env.DASHSCOPE_API_KEY = 'sk-ms-test';
+  try {
+    return await fn();
+  } finally {
+    process.env.SIE_ENDPOINT = prev.SIE_ENDPOINT;
+    process.env.SIE_API_KEY = prev.SIE_API_KEY;
+    process.env.ALIBABA_OPENAI_BASE_URL = prev.ALIBABA_OPENAI_BASE_URL;
+    process.env.DASHSCOPE_API_KEY = prev.DASHSCOPE_API_KEY;
+  }
 }
 
 test('given prior routing_review when SIE fails then strip finding is preserved', async () => {
@@ -185,29 +214,14 @@ test('given prior routing_review when SIE fails then strip finding is preserved'
     }),
   };
   const supabase = createRouterSupabaseStub({ initialRouterFindings: [prior] });
-  const prevSie = process.env.SIE_ENDPOINT;
-  const prevSieKey = process.env.SIE_API_KEY;
-  const prevMs = process.env.ALIBABA_OPENAI_BASE_URL;
-  const prevMsKey = process.env.DASHSCOPE_API_KEY;
-  process.env.SIE_ENDPOINT = 'https://sie.example';
-  process.env.SIE_API_KEY = 'sk-sie-test';
-  process.env.ALIBABA_OPENAI_BASE_URL = 'https://ms.example/v1';
-  process.env.DASHSCOPE_API_KEY = 'sk-ms-test';
 
   // -- When --
-  try {
-    await runRoute('batch-1', {
-      getSupabaseFn: () => supabase,
-      callSieFn: async () => {
-        throw new Error('HTTP 503: provisioning');
-      },
-    });
-  } finally {
-    process.env.SIE_ENDPOINT = prevSie;
-    process.env.SIE_API_KEY = prevSieKey;
-    process.env.ALIBABA_OPENAI_BASE_URL = prevMs;
-    process.env.DASHSCOPE_API_KEY = prevMsKey;
-  }
+  await withRouterEnv(() => runRoute('batch-1', {
+    getSupabaseFn: () => supabase,
+    callSieFn: async () => {
+      throw new Error('HTTP 503: provisioning');
+    },
+  }));
 
   // -- Then --
   const routerRows = supabase.findings.filter((f) => f.scanner_source === 'tiered_router');
@@ -228,31 +242,16 @@ test('given SIE declines escalate when route succeeds then writes routing_review
    */
   // -- Given --
   const supabase = createRouterSupabaseStub();
-  const prevSie = process.env.SIE_ENDPOINT;
-  const prevSieKey = process.env.SIE_API_KEY;
-  const prevMs = process.env.ALIBABA_OPENAI_BASE_URL;
-  const prevMsKey = process.env.DASHSCOPE_API_KEY;
-  process.env.SIE_ENDPOINT = 'https://sie.example';
-  process.env.SIE_API_KEY = 'sk-sie-test';
-  process.env.ALIBABA_OPENAI_BASE_URL = 'https://ms.example/v1';
-  process.env.DASHSCOPE_API_KEY = 'sk-ms-test';
 
   // -- When --
-  try {
-    await runRoute('batch-1', {
-      getSupabaseFn: () => supabase,
-      callSieFn: async () => ({
-        escalate: false,
-        low_confidence: false,
-        reasoning: 'Scanners agree; no escalation.',
-      }),
-    });
-  } finally {
-    process.env.SIE_ENDPOINT = prevSie;
-    process.env.SIE_API_KEY = prevSieKey;
-    process.env.ALIBABA_OPENAI_BASE_URL = prevMs;
-    process.env.DASHSCOPE_API_KEY = prevMsKey;
-  }
+  await withRouterEnv(() => runRoute('batch-1', {
+    getSupabaseFn: () => supabase,
+    callSieFn: async () => ({
+      escalate: false,
+      low_confidence: false,
+      reasoning: 'Scanners agree; no escalation.',
+    }),
+  }));
 
   // -- Then --
   assert.equal(supabase.calls.inserts.length, 1);
@@ -260,4 +259,280 @@ test('given SIE declines escalate when route succeeds then writes routing_review
   const env = JSON.parse(supabase.calls.inserts[0].message);
   assert.equal(env.escalated, false);
   assert.equal(env.models.model_studio, null);
+});
+
+test('given SIE escalates with findings when MS succeeds then writes routing_decision', async () => {
+  /**
+   * Scenario: Conflict escalation reaches Model Studio arbitration.
+   * Slice: tiered router — arbitration path
+   */
+  // -- Given --
+  const supabase = createRouterSupabaseStub({
+    nonRouterFindings: [
+      { scan_run_id: 'run-1', scanner_source: 'Snyk', severity: 'red', category: 'x', message: 'a' },
+      { scan_run_id: 'run-1', scanner_source: 'Cisco', severity: 'green', category: 'x', message: 'b' },
+    ],
+  });
+
+  // -- When --
+  await withRouterEnv(() => runRoute('batch-1', {
+    getSupabaseFn: () => supabase,
+    callSieFn: async () => ({ escalate: true, low_confidence: false, reasoning: 'conflict' }),
+    callMsArbitrationFn: async () => ({ final_severity: 'amber', reasoning: 'treat as amber' }),
+  }));
+
+  // -- Then --
+  assert.equal(supabase.calls.inserts.length, 1);
+  assert.equal(supabase.calls.inserts[0].category, 'routing_decision');
+  assert.equal(supabase.calls.inserts[0].severity, 'amber');
+  const env = JSON.parse(supabase.calls.inserts[0].message);
+  assert.equal(env.escalated, true);
+  assert.equal(env.models.model_studio, 'qwen3.8-max');
+});
+
+test('given SIE escalates with findings when MS fails then writes routing_review fallback', async () => {
+  /**
+   * Scenario: MS arbitration failure still records a router strip via routing_review.
+   * Slice: tiered router — MS failure fallback
+   */
+  // -- Given --
+  const supabase = createRouterSupabaseStub({
+    nonRouterFindings: [
+      { scan_run_id: 'run-1', scanner_source: 'Snyk', severity: 'red', category: 'x', message: 'a' },
+    ],
+  });
+
+  // -- When --
+  await withRouterEnv(() => runRoute('batch-1', {
+    getSupabaseFn: () => supabase,
+    callSieFn: async () => ({ escalate: true, low_confidence: true, reasoning: 'uncertain' }),
+    callMsArbitrationFn: async () => {
+      throw new Error('MS down');
+    },
+  }));
+
+  // -- Then --
+  assert.equal(supabase.calls.inserts[0].category, 'routing_review');
+  const env = JSON.parse(supabase.calls.inserts[0].message);
+  assert.equal(env.escalated, true);
+  assert.match(env.reasoning.model_studio, /Model Studio call failed/);
+});
+
+test('given SIE escalates with no findings when MS triage succeeds then writes routing_triage', async () => {
+  /**
+   * Scenario: Coverage-gap triage when scanners did not all complete.
+   * Slice: tiered router — triage path
+   */
+  // -- Given --
+  const supabase = createRouterSupabaseStub({
+    scanners: [{ scanner_source: 'Snyk', status: 'unreachable' }],
+    nonRouterFindings: [],
+  });
+
+  // -- When --
+  await withRouterEnv(() => runRoute('batch-1', {
+    getSupabaseFn: () => supabase,
+    callSieFn: async () => ({ escalate: true, low_confidence: false, reasoning: 'unusual status' }),
+    callMsTriageFn: async () => ({
+      severity: 'amber',
+      recommendation: 're-scan',
+      reasoning: 'coverage gap',
+    }),
+  }));
+
+  // -- Then --
+  assert.equal(supabase.calls.inserts[0].category, 'routing_triage');
+  assert.equal(supabase.calls.inserts[0].severity, 'amber');
+  const env = JSON.parse(supabase.calls.inserts[0].message);
+  assert.equal(env.escalated, true);
+  assert.match(env.reasoning.model_studio, /re-scan/);
+});
+
+test('given SIE escalates with no findings when MS triage fails then writes amber routing_review', async () => {
+  /**
+   * Scenario: Triage MS failure falls back to amber routing_review.
+   * Slice: tiered router — triage MS failure fallback
+   */
+  // -- Given --
+  const supabase = createRouterSupabaseStub({
+    scanners: [{ scanner_source: 'Snyk', status: 'unreachable' }],
+  });
+
+  // -- When --
+  await withRouterEnv(() => runRoute('batch-1', {
+    getSupabaseFn: () => supabase,
+    callSieFn: async () => ({ escalate: true, low_confidence: false, reasoning: 'gap' }),
+    callMsTriageFn: async () => {
+      throw new Error('triage timeout');
+    },
+  }));
+
+  // -- Then --
+  assert.equal(supabase.calls.inserts[0].category, 'routing_review');
+  assert.equal(supabase.calls.inserts[0].severity, 'amber');
+  const env = JSON.parse(supabase.calls.inserts[0].message);
+  assert.equal(env.escalated, true);
+  assert.match(env.reasoning.model_studio, /triage timeout/);
+});
+
+test('given empty findings and all scanners completed when SIE escalates then clamps to routing_review', async () => {
+  /**
+   * Scenario: §1a — escalate with no findings and unusual_status=false is sanitized off.
+   */
+  // -- Given --
+  const supabase = createRouterSupabaseStub({
+    scanners: [{ scanner_source: 'Snyk', status: 'completed' }],
+    nonRouterFindings: [],
+  });
+
+  // -- When --
+  await withRouterEnv(() => runRoute('batch-1', {
+    getSupabaseFn: () => supabase,
+    callSieFn: async () => ({ escalate: true, low_confidence: true, reasoning: 'should clamp' }),
+  }));
+
+  // -- Then --
+  assert.equal(supabase.calls.inserts[0].category, 'routing_review');
+  const env = JSON.parse(supabase.calls.inserts[0].message);
+  assert.equal(env.escalated, false);
+  assert.equal(env.signals.low_confidence, false);
+});
+
+test('given insert failure after successful SIE when replacing then throws', async () => {
+  /**
+   * Scenario: Persist failures must surface — silent success would hide missing strips.
+   */
+  // -- Given --
+  const supabase = createRouterSupabaseStub({
+    insertError: { message: 'insert denied' },
+  });
+
+  // -- When / Then --
+  await assert.rejects(
+    () => withRouterEnv(() => runRoute('batch-1', {
+      getSupabaseFn: () => supabase,
+      callSieFn: async () => ({ escalate: false, low_confidence: false, reasoning: 'ok' }),
+    })),
+    (err) => err && err.message === 'insert denied',
+  );
+});
+
+test('given live SIE HTTP when chat completes then uses real callSie path', async () => {
+  /**
+   * Scenario: Default callSie/callChatApi path parses model JSON (no inject).
+   */
+  // -- Given --
+  const supabase = createRouterSupabaseStub();
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => ({
+    ok: true,
+    async json() {
+      return {
+        choices: [{
+          message: {
+            content: '```json\n{"escalate": false, "low_confidence": false, "reasoning": "via fetch"}\n```',
+          },
+        }],
+      };
+    },
+  });
+
+  // -- When --
+  try {
+    await withRouterEnv(() => runRoute('batch-1', {
+      getSupabaseFn: () => supabase,
+    }));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
+  // -- Then --
+  assert.equal(supabase.calls.inserts[0].category, 'routing_review');
+  const env = JSON.parse(supabase.calls.inserts[0].message);
+  assert.equal(env.reasoning.sie, 'via fetch');
+});
+
+test('given scanners fetch fails when route runs then item is skipped without wipe', async () => {
+  /**
+   * Scenario: fetchItemData errors must not delete prior strips.
+   * Slice: tiered router — fetch failure soft-skip
+   */
+  // -- Given --
+  const prior = {
+    scan_run_id: 'run-1',
+    item_id: 'item-1',
+    severity: 'green',
+    category: 'routing_review',
+    scanner_source: 'tiered_router',
+    message: '{}',
+  };
+  const supabase = createRouterSupabaseStub({
+    initialRouterFindings: [prior],
+    scannersError: { message: 'relation missing' },
+  });
+
+  // -- When --
+  await withRouterEnv(() => runRoute('batch-1', {
+    getSupabaseFn: () => supabase,
+    callSieFn: async () => {
+      assert.fail('SIE must not be called when fetchItemData fails');
+    },
+  }));
+
+  // -- Then --
+  assert.equal(supabase.findings.filter((f) => f.scanner_source === 'tiered_router').length, 1);
+  assert.equal(supabase.calls.deletes.length, 0);
+  assert.equal(supabase.calls.inserts.length, 0);
+});
+
+test('given MS returns unknown severity when arbitrating then falls back to scanner severity', async () => {
+  /**
+   * Scenario: pickKnownSeverity rejects non-RAG values.
+   * Slice: tiered router — severity sanitization
+   */
+  // -- Given --
+  const supabase = createRouterSupabaseStub({
+    nonRouterFindings: [
+      { scan_run_id: 'run-1', scanner_source: 'Snyk', severity: 'red', category: 'x', message: 'a' },
+    ],
+  });
+
+  // -- When --
+  await withRouterEnv(() => runRoute('batch-1', {
+    getSupabaseFn: () => supabase,
+    callSieFn: async () => ({ escalate: true, low_confidence: false, reasoning: 'conflict' }),
+    callMsArbitrationFn: async () => ({ final_severity: 'purple', reasoning: 'bad enum' }),
+  }));
+
+  // -- Then --
+  assert.equal(supabase.calls.inserts[0].category, 'routing_decision');
+  assert.equal(supabase.calls.inserts[0].severity, 'red');
+});
+
+test('given replace delete fails when writing routing_review then error propagates', async () => {
+  /**
+   * Scenario: DB delete failure during replace must surface.
+   * Slice: tiered router — replaceRouterFinding error path
+   */
+  // -- Given --
+  const supabase = createRouterSupabaseStub({
+    deleteError: { message: 'delete denied' },
+  });
+
+  // -- When / Then --
+  await assert.rejects(
+    () => withRouterEnv(() => runRoute('batch-1', {
+      getSupabaseFn: () => supabase,
+      callSieFn: async () => ({
+        escalate: false,
+        low_confidence: false,
+        reasoning: 'clean',
+      }),
+    })),
+    (err) => {
+      assert.equal(err && err.message, 'delete denied');
+      return true;
+    },
+  );
+  assert.equal(supabase.calls.inserts.length, 0);
 });
