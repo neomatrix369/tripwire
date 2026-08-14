@@ -433,6 +433,44 @@ test('given dashboard html when inspecting chips then no fallback user-visible c
   assert.doesNotMatch(block, /Missing API key/);
 });
 
+test('given dashboard html when filters match nothing then empty-state copy is defined', () => {
+  // -- Given --
+  const html = readFileSync(HTML_PATH, 'utf8');
+
+  // -- When / Then --
+  assert.match(html, /showFilterEmpty/, 'filtered empty flag must drive the empty state');
+  assert.match(html, /No SIE-only items/, 'SIE-only empty title must be present');
+  assert.match(html, /No escalated items/, 'escalated empty title must be present');
+  assert.match(html, /Clear filters/, 'empty state must offer a clear-filters action');
+  assert.match(html, /clearFilters\s*=/, 'clearFilters handler must exist');
+  assert.match(
+    html,
+    /filterEmptyCopy\s*\(/,
+    'empty-state copy must be computed (not hardcoded only in markup)'
+  );
+});
+
+test('given dashboard html when filter bar wraps then chips stay grouped without orphan spacer', () => {
+  // -- Given --
+  const html = readFileSync(HTML_PATH, 'utf8');
+  const filterBar = html.match(
+    /<div style="display:flex;align-items:flex-start;gap:12px;padding:14px 20px;border-bottom:1px solid var\(--border-subtle\);flex-wrap:wrap">[\s\S]*?<\/div>\s*<sc-if value="\{\{ isGridView \}\}"/
+  );
+  assert.ok(filterBar, 'filter bar block must exist');
+
+  // -- When --
+  const block = filterBar[0];
+
+  // -- Then --
+  assert.match(block, /flex:1 1 420px/, 'type/status chips must share a wrapping group');
+  assert.match(block, /margin-left:auto/, 'search/view controls must sit in a trailing group');
+  assert.doesNotMatch(
+    block,
+    /statusChips[\s\S]*?<div style="flex:1"><\/div>/,
+    'orphan flex:1 spacer must not sit between status chips and search'
+  );
+});
+
 test(
   'optional smoke: given local live config when fetching items then supabase responds',
   { skip: !hasLiveConfigForSmoke() },

@@ -141,24 +141,6 @@ async function callMsTriage(itemLabel, itemType, scanners, sieReasoning, model, 
   return callChatApi(baseUrl, apiKey, model, MS_TRIAGE_SYSTEM, user, MS_TIMEOUT_MS);
 }
 
-async function deleteOldFindings(supabase, batchId) {
-  const { data: scanRuns, error: fetchError } = await supabase
-    .from('scan_runs')
-    .select('id')
-    .eq('batch_id', batchId);
-  if (fetchError) throw fetchError;
-
-  const scanRunIds = (scanRuns || []).map(sr => sr.id);
-  if (scanRunIds.length === 0) return;
-
-  const { error } = await supabase
-    .from('findings')
-    .delete()
-    .eq('scanner_source', 'tiered_router')
-    .in('scan_run_id', scanRunIds);
-  if (error) throw error;
-}
-
 async function fetchItemData(supabase, scanRun) {
   const { data: scanners, error: scannersError } = await supabase
     .from('scan_run_scanners')
@@ -184,7 +166,23 @@ async function fetchItemData(supabase, scanRun) {
   };
 }
 
-async function insertRouterFinding(supabase, scanRun, severity, category, envelope) {
+/**
+ * Replace tiered_router rows for one scan run only after a successful route
+ * decision. Do not batch-delete first: if SIE skips an item, prior
+ * routing_review / decision rows must remain so the dashboard keeps
+ * "Scan → SIE → ■" (or Model Studio) strips.
+ */
+async function replaceRouterFinding(supabase, scanRun, severity, category, envelope) {
+  const { error: deleteError } = await supabase
+    .from('findings')
+    .delete()
+    .eq('scanner_source', 'tiered_router')
+    .eq('scan_run_id', scanRun.id);
+  if (deleteError) {
+    console.error(`[critical] Delete failed for scan_run ${scanRun.id}: ${deleteError.message}`);
+    throw deleteError;
+  }
+
   const { error } = await supabase.from('findings').insert({
     scan_run_id: scanRun.id,
     item_id: scanRun.item_id,
@@ -195,6 +193,7 @@ async function insertRouterFinding(supabase, scanRun, severity, category, envelo
   });
   if (error) {
     console.error(`[critical] Insert failed for scan_run ${scanRun.id}: ${error.message}`);
+    throw error;
   }
 }
 
@@ -256,7 +255,7 @@ function pickKnownSeverity(value, fallback) {
 async function writeNonEscalatedFinding(supabase, scanRun, itemLabel, findings, signals, sieModel, sieReasoning) {
   const severity = computeSeverityNonEscalated(findings);
   const envelope = buildEnvelope(false, signals, { sie: sieModel, model_studio: null }, { sie: sieReasoning, model_studio: null });
-  await insertRouterFinding(supabase, scanRun, severity, 'routing_review', envelope);
+  await replaceRouterFinding(supabase, scanRun, severity, 'routing_review', envelope);
   console.log(`[route] ${itemLabel}: routing_review severity=${severity}`);
 }
 
@@ -264,7 +263,7 @@ async function writeArbitrationFinding(supabase, scanRun, itemLabel, findings, s
   if (msResult) {
     const severity = pickKnownSeverity(msResult.final_severity, computeSeverityNonEscalated(findings));
     const envelope = buildEnvelope(true, signals, models, { sie: sieReasoning, model_studio: msResult.reasoning || '' });
-    await insertRouterFinding(supabase, scanRun, severity, 'routing_decision', envelope);
+    await replaceRouterFinding(supabase, scanRun, severity, 'routing_decision', envelope);
     console.log(`[route] ${itemLabel}: routing_decision severity=${severity}`);
     return;
   }
@@ -272,16 +271,18 @@ async function writeArbitrationFinding(supabase, scanRun, itemLabel, findings, s
   // §1a MS failure fallback → routing_review
   const severity = computeSeverityNonEscalated(findings);
   const envelope = buildEnvelope(true, signals, { sie: models.sie, model_studio: null }, { sie: sieReasoning, model_studio: msFailure });
-  await insertRouterFinding(supabase, scanRun, severity, 'routing_review', envelope);
+  await replaceRouterFinding(supabase, scanRun, severity, 'routing_review', envelope);
   console.log(`[route] ${itemLabel}: routing_review (ms-fallback) severity=${severity}`);
 }
 
-async function runArbitrationPath(supabase, scanRun, itemLabel, findings, signals, sieReasoning, config) {
+async function runArbitrationPath(supabase, scanRun, itemLabel, findings, signals, sieReasoning, config, deps) {
   const { sieModel, msModel, msBaseUrl, msApiKey } = config;
   let msResult;
   let msFailure;
   try {
-    msResult = await callMsArbitration(itemLabel, findings, signals, sieReasoning, msModel, msBaseUrl, msApiKey);
+    msResult = await deps.callMsArbitration(
+      itemLabel, findings, signals, sieReasoning, msModel, msBaseUrl, msApiKey,
+    );
     console.log(`[ms] ${itemLabel}: arbitration severity=${msResult.final_severity}`);
   } catch (err) {
     msFailure = `Model Studio call failed: ${err.message.slice(0, 120)}; manual review recommended.`;
@@ -299,23 +300,25 @@ async function writeTriageFinding(supabase, scanRun, itemLabel, signals, models,
     const severity = pickKnownSeverity(msResult.severity, 'amber');
     const triageNote = [msResult.recommendation, msResult.reasoning].filter(Boolean).join('. ');
     const envelope = buildEnvelope(true, signals, models, { sie: sieReasoning, model_studio: triageNote });
-    await insertRouterFinding(supabase, scanRun, severity, 'routing_triage', envelope);
+    await replaceRouterFinding(supabase, scanRun, severity, 'routing_triage', envelope);
     console.log(`[route] ${itemLabel}: routing_triage severity=${severity}`);
     return;
   }
 
   // §1a MS failure fallback → routing_review, amber for zero-findings coverage gap
   const envelope = buildEnvelope(true, signals, { sie: models.sie, model_studio: null }, { sie: sieReasoning, model_studio: msFailure });
-  await insertRouterFinding(supabase, scanRun, 'amber', 'routing_review', envelope);
+  await replaceRouterFinding(supabase, scanRun, 'amber', 'routing_review', envelope);
   console.log(`[route] ${itemLabel}: routing_review (triage-ms-fallback) severity=amber`);
 }
 
-async function runTriagePath(supabase, scanRun, itemLabel, itemType, scanners, signals, sieReasoning, config) {
+async function runTriagePath(supabase, scanRun, itemLabel, itemType, scanners, signals, sieReasoning, config, deps) {
   const { sieModel, msModel, msBaseUrl, msApiKey } = config;
   let msResult;
   let msFailure;
   try {
-    msResult = await callMsTriage(itemLabel, itemType, scanners, sieReasoning, msModel, msBaseUrl, msApiKey);
+    msResult = await deps.callMsTriage(
+      itemLabel, itemType, scanners, sieReasoning, msModel, msBaseUrl, msApiKey,
+    );
     console.log(`[ms] ${itemLabel}: triage severity=${msResult.severity}`);
   } catch (err) {
     msFailure = `Model Studio call failed: ${err.message.slice(0, 120)}; manual review recommended.`;
@@ -328,7 +331,7 @@ async function runTriagePath(supabase, scanRun, itemLabel, itemType, scanners, s
   );
 }
 
-async function routeOneItem(supabase, scanRun, item, config) {
+async function routeOneItem(supabase, scanRun, item, config, deps) {
   const itemLabel = item?.identifier || scanRun.item_id;
   const itemType = item?.type || null;
   const { sieModel, sieEndpoint, sieApiKey } = config;
@@ -347,7 +350,9 @@ async function routeOneItem(supabase, scanRun, item, config) {
 
   let sieResult;
   try {
-    sieResult = await callSie(itemLabel, findings, scanners, conflicting, unusual_status, sieModel, sieEndpoint, sieApiKey);
+    sieResult = await deps.callSie(
+      itemLabel, findings, scanners, conflicting, unusual_status, sieModel, sieEndpoint, sieApiKey,
+    );
     console.log(`[sie] ${itemLabel}: escalate=${sieResult.escalate}, low_confidence=${sieResult.low_confidence}`);
   } catch (err) {
     console.warn(`[warn] SIE failed for ${itemLabel}: ${err.message} — skipping`);
@@ -363,23 +368,28 @@ async function routeOneItem(supabase, scanRun, item, config) {
     return;
   }
   if (hasFindings) {
-    await runArbitrationPath(supabase, scanRun, itemLabel, findings, signals, sieReasoning, config);
+    await runArbitrationPath(supabase, scanRun, itemLabel, findings, signals, sieReasoning, config, deps);
     return;
   }
-  await runTriagePath(supabase, scanRun, itemLabel, itemType, scanners, signals, sieReasoning, config);
+  await runTriagePath(supabase, scanRun, itemLabel, itemType, scanners, signals, sieReasoning, config, deps);
 }
 
 export async function runRoute(batchId, opts = {}) {
   const config = resolveRouteConfig(opts);
   console.log(`SIE model: ${config.sieModel}, Model Studio model: ${config.msModel}`);
 
-  const supabase = getSupabase();
-  await deleteOldFindings(supabase, batchId);
+  const deps = {
+    callSie: opts.callSieFn || callSie,
+    callMsArbitration: opts.callMsArbitrationFn || callMsArbitration,
+    callMsTriage: opts.callMsTriageFn || callMsTriage,
+  };
+  const supabase = (opts.getSupabaseFn || getSupabase)();
 
+  // Intentionally no batch-wide delete: prior strips survive SIE/MS skips.
   const { runs, itemsById } = await loadBatchRuns(supabase, batchId);
   console.log(`[route] Batch ${batchId}: ${runs.length} items`);
 
   for (const scanRun of runs) {
-    await routeOneItem(supabase, scanRun, itemsById[scanRun.item_id], config);
+    await routeOneItem(supabase, scanRun, itemsById[scanRun.item_id], config, deps);
   }
 }

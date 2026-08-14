@@ -22,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI coverage floors temporarily lowered (60/60/80/60) until `router.js` unit
   tests land; ADR-0013 target unchanged
 
+### Fixed
+- Tiered router no longer batch-deletes `tiered_router` findings before routing;
+  per-item replace-on-success preserves `Scan → SIE → ■` strips when SIE skips
+- Dashboard shows `Scan → ■` / “SIE not called” on scanned cards with no
+  `tiered_router` finding (SIE never invoked)
+
 ### Docs
 - Formal ADR catalog under `docs/adr/`: Accepted retrospective records
   0002–0016 for shipped topology, scanning, security, CLI, quality,

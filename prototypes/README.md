@@ -23,7 +23,12 @@ Came from [QUICKSTART](../QUICKSTART.md)? Use the **Normal users** path, then re
 
 ## Viewing the dashboard
 
-Item detail shows a **router strip** when a `tiered_router` finding exists (SIE-only vs escalated to Model Studio). Dashboard filters include escalated and SIE-only. Mock demo data includes those fixtures.
+Item detail shows a **router strip** for scanned items:
+- `Scan → SIE → Model Studio` when escalated
+- `Scan → SIE → ■` when SIE ran and did not escalate (`routing_review`)
+- `Scan → ■` when the item was scanned but SIE was never called (no `tiered_router` finding)
+
+Dashboard filters include escalated and SIE-only. Mock demo data includes those fixtures.
 The **data-source dropdown** lives on the **Guard** tab (the control page for monitoring settings). Switching between Live (Supabase) and Mock (demo data) there applies globally — **Dashboard** and **Guard** tabs both use the selected source. The choice persists via `sessionStorage`, defaulting to **Live**.
 
 A **status chip** appears next to the data-source dropdown on the **Guard** tab, showing the resolved connection state. It is not displayed on the main Dashboard header.
