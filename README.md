@@ -77,12 +77,14 @@ explain each decision before you make it.
 
 1. Check the required tools and [install the CLI](docs/user-guide/setup-commands.md#repository-and-cli-bootstrap).
 2. Create the accounts you need: [Supabase](docs/user-guide/supabase-setup.md),
-   [Modal](docs/user-guide/modal-setup.md), then add Snyk, Tessl, and Cisco credentials
-   with the [environment-variable procurement guide](docs/user-guide/env-vars.md#vendor-procurement-quick-steps).
+   [Modal](docs/user-guide/modal-setup.md), then add Snyk, Tessl, and Cisco
+   (Skill/MCP LLM + optional AI Defense) credentials with the
+   [environment-variable procurement guide](docs/user-guide/env-vars.md#vendor-procurement-quick-steps).
    For optional post-scan routing ([ADR-0016](docs/adr/0016-tiered-router-sie-model-studio.md)),
    also set up [Superlinked SIE](docs/user-guide/sie-setup.md) (required for routing)
    and optionally [Alibaba Cloud Model Studio](docs/user-guide/model-studio-setup.md)
-   (escalation only).
+   (escalation only). Key map for every `.env` name: [env-vars.md](docs/user-guide/env-vars.md)
+   (mirrors [`.env.example`](.env.example)).
 3. Create `.env` only after you have the values, then fill it with
    [env-vars.md](docs/user-guide/env-vars.md) as the single key reference.
 4. Bootstrap Supabase and deploy the Modal scan app with the
@@ -123,13 +125,13 @@ tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
 Tripwire’s Live path is a short pipeline. Each hop uses a concrete piece of the
 stack (same names as the badges above):
 
-| Step | What runs | Stack |
-|---|---|---|
-| Discover | CLI finds skills / MCP servers (`tripwire scan --dry-discover` or a real scan) | Node.js CLI |
-| Scan | Adapters run in an isolated sandbox | Modal (+ Docker image), Python sandbox, Cisco / Snyk / Tessl |
-| Store | Findings and scan_run rows land for the dashboard | Supabase / Postgres |
-| Route (optional) | Every item through SIE; escalate only when signaled | Superlinked SIE → Alibaba Cloud Model Studio via `tripwire route` / auto-route |
-| Review | Heatmap, drawers, pathway strips, Escalated / SIE-only filters | Dashboard (Live or Mock) |
+| Step | What runs | Stack | Setup |
+|---|---|---|---|
+| Discover | CLI finds skills / MCP servers (`tripwire scan --dry-discover` or a real scan) | Node.js CLI | [setup-commands](docs/user-guide/setup-commands.md#repository-and-cli-bootstrap) |
+| Scan | Adapters run in an isolated sandbox | Modal (+ Docker image), Python sandbox, Cisco / Snyk / Tessl | [modal-setup](docs/user-guide/modal-setup.md) · [env-vars](docs/user-guide/env-vars.md) (Snyk / Tessl / Cisco) |
+| Store | Findings and scan_run rows land for the dashboard | Supabase / Postgres | [supabase-setup](docs/user-guide/supabase-setup.md) |
+| Route (optional) | Every item through SIE; escalate only when signaled | Superlinked SIE → Alibaba Cloud Model Studio via `tripwire route` / auto-route | [sie-setup](docs/user-guide/sie-setup.md) · [model-studio-setup](docs/user-guide/model-studio-setup.md) · [env-vars § router](docs/user-guide/env-vars.md#optional--tiered-router-sie--model-studio) |
+| Review | Heatmap, drawers, pathway strips, Escalated / SIE-only filters | Dashboard (Live or Mock) | [reading-router-results](docs/user-guide/reading-router-results.md) · [screenshots](docs/screenshots/README.md) |
 
 Mock skips Discover→Scan→Store and still shows Review (plus router fixtures).
 Without SIE keys, Route warns and skips; scanner results still store. Sample CLIs

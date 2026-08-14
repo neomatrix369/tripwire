@@ -112,10 +112,12 @@ Values for full five-vendor scan coverage:
 - `MCP_SCANNER_ENDPOINT` (default is prefilled if you keep Cisco endpoint default)
 
 Optional for tiered routing ([sie-setup](docs/user-guide/sie-setup.md),
-[model-studio-setup](docs/user-guide/model-studio-setup.md)):
+[model-studio-setup](docs/user-guide/model-studio-setup.md),
+[env-vars § router](docs/user-guide/env-vars.md#optional--tiered-router-sie--model-studio)):
 
 - `SIE_ENDPOINT`, `SIE_API_KEY` (and optionally `SIE_MODEL`)
 - `DASHSCOPE_API_KEY`, `ALIBABA_OPENAI_BASE_URL` (and optionally `MODEL_STUDIO_MODEL`, `DASHSCOPE_HOST`)
+- `ALIBABA_DASH_SCOPE_API_URL` — sample CLI image/video only; not required by `tripwire route`
 
 Then run bootstrap:
 

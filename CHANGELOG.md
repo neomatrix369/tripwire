@@ -48,6 +48,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README “What happens next” / “Find the right guide” now map the full stack
   (Discover→Scan→Store→Route→Review) and older setup guides (prerequisites,
   path-commands, Supabase, Modal, env-vars, screenshots, SECURITY)
+- `.env.example` annotates each key group with its stack setup doc; E2E flow
+  table links setup per hop; Cisco Skill/MCP LLM procurement clarified in
+  `env-vars.md`
 - Screenshot gallery refreshed: CLI help includes `route`, live Modal scan
   capture updated, dashboard/skill/MCP shots retaken from Mock demo data,
   Escalated / SIE-only / pathway filter shots; regenerate UI shots with
