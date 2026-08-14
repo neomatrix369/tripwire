@@ -1,0 +1,68 @@
+{
+  "source": {
+    "product": "https://superlinked.com/cloud",
+    "docs": "https://superlinked.com/docs/quickstart",
+    "cloud_quickstart": "https://superlinked.com/cloud/quickstart",
+    "api": "https://superlinked.com/docs/reference/api",
+    "catalog": "https://superlinked.com/models",
+    "fetched": "2026-08-14"
+  },
+  "endpoint_default": "https://api.superlinked.com",
+  "region": "us-east-2",
+  "encode_default": "embed-4b",
+  "generate_default": "gen-4b",
+  "score_default": "rerank-4b",
+  "featured": [
+    "embed-4b",
+    "rerank-0.6b",
+    "rerank-4b",
+    "vl-rerank-2b",
+    "colqwen",
+    "gen-4b",
+    "gen-27b"
+  ],
+  "models": {
+    "embed-4b": {
+      "title": "Qwen3-Embedding-4B",
+      "kind": "encode",
+      "model": "Qwen/Qwen3-Embedding-4B",
+      "best": "Dense embeddings (2560-dim, 32K context); search workhorse."
+    },
+    "rerank-0.6b": {
+      "title": "Qwen3-Reranker-0.6B",
+      "kind": "score",
+      "model": "Qwen/Qwen3-Reranker-0.6B",
+      "best": "Fast reranking of retrieved candidates."
+    },
+    "rerank-4b": {
+      "title": "Qwen3-Reranker-4B",
+      "kind": "score",
+      "model": "Qwen/Qwen3-Reranker-4B",
+      "best": "Higher-quality reranking of retrieved candidates."
+    },
+    "vl-rerank-2b": {
+      "title": "Qwen3-VL-Reranker-2B",
+      "kind": "score",
+      "model": "Qwen/Qwen3-VL-Reranker-2B",
+      "best": "Vision-language reranking (score images vs text)."
+    },
+    "colqwen": {
+      "title": "ColQwen2.5",
+      "kind": "encode",
+      "model": "vidore/colqwen2.5-v0.2",
+      "best": "Multivector page-image retrieval (visual document RAG)."
+    },
+    "gen-4b": {
+      "title": "Qwen3.5-4B",
+      "kind": "generate",
+      "model": "Qwen/Qwen3.5-4B",
+      "best": "Fast generation lane; iterate and agent loops here."
+    },
+    "gen-27b": {
+      "title": "Qwen3.6-27B",
+      "kind": "generate",
+      "model": "Qwen/Qwen3.6-27B",
+      "best": "Smart generation (H100); demo-quality answers. Costlier than 4B."
+    }
+  }
+}
