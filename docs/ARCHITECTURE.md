@@ -12,6 +12,8 @@ Repo entry: [README.md](../README.md) · Status: [STATUS.md](./STATUS.md)
 [![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
 [![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
 [![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
+[![Superlinked SIE](https://img.shields.io/badge/Superlinked%20SIE-0B1F3A?style=flat)](https://superlinked.com)
+[![Alibaba Cloud Model Studio](https://img.shields.io/badge/Alibaba%20Cloud%20Model%20Studio-FF6A00?style=flat)](https://www.alibabacloud.com/product/modelstudio)
 
 ---
 
@@ -28,12 +30,14 @@ C4Context
   System_Ext(scanners, "Upstream scanners", "Skill/MCP/SCA analysis tools")
   System_Ext(cloudDb, "Hosted database", "Stores scan runs and findings")
   System_Ext(compute, "Serverless compute", "Isolated scanner execution")
+  System_Ext(sie, "SIE / Model Studio", "Optional post-scan triage and escalation")
 
-  Rel(user, tripwire, "1. Invokes scan / setup")
+  Rel(user, tripwire, "1. Invokes scan / setup / route")
   Rel(tripwire, compute, "2. Spawns scan jobs")
   Rel(compute, scanners, "3. Runs scanner CLIs")
   Rel(tripwire, cloudDb, "4. Reads/writes scan data")
   Rel(compute, cloudDb, "5. Writes findings")
+  Rel(tripwire, sie, "6. Optional tiered route")
 ```
 
 ---
@@ -49,30 +53,34 @@ C4Container
   Person(user, "Tripwire user")
 
   System_Boundary(tw, "Tripwire") {
-    Container(cli, "CLI", "Node.js", "Discovery, hashing, idempotency, Modal spawn")
+    Container(cli, "CLI", "Node.js", "Discovery, hashing, idempotency, Modal spawn, tiered route")
     Container(sandbox, "Sandbox app", "Python / Modal", "Acquire target, run adapters")
     ContainerDb(db, "Database", "Postgres / Supabase", "schema.sql, Realtime")
     Container(dash, "Dashboard", "HTML / JS", "Live or Mock findings UI")
   }
 
   System_Ext(scanners, "Upstream scanners")
+  System_Ext(sie, "SIE / Model Studio")
 
-  Rel(user, cli, "1. tripwire scan / setup")
+  Rel(user, cli, "1. tripwire scan / setup / route")
   Rel(user, dash, "2. Views Live, dry-discover, or demo results")
   Rel(cli, db, "3. Bootstrap + scan_run rows")
   Rel(cli, sandbox, "4. Spawn scan")
   Rel(sandbox, scanners, "5. Shell out")
   Rel(sandbox, db, "6. Findings / console")
-  Rel(dash, db, "7. Realtime or poll")
+  Rel(cli, sie, "7. Optional post-scan route")
+  Rel(cli, db, "8. tiered_router findings")
+  Rel(dash, db, "9. Realtime or poll")
 ```
 
 ### Repo layout (where containers live)
 
-- `cli/` — `tripwire` Node CLI
+- `cli/` — `tripwire` Node CLI (`scan`, `setup`, `route`)
 - `sandbox/` — Modal app + scanner adapters (`scanners.py`); unit tests in `sandbox/tests/`
 - `db/schema.sql` — Postgres/Supabase DDL + rollup; anon SELECT + Realtime
 - `prototypes/dc-dashboard/` — Live/Mock dashboard (Horizon A ship UI; prototype path)
-- `scripts/` — setup (Supabase/Modal), `serve-dashboard.mjs`, hygiene gates
+- `prototypes/sie-studio/` / `prototypes/model-studio/` — sample CLIs for router backends
+- `scripts/` — setup (Supabase/Modal), `serve-dashboard.mjs`, hygiene gates, router fixtures
 - `fixtures/` — smoke targets — [fixtures/README.md](../fixtures/README.md)
 - `docs/research/adapters/scanner-output-adapters.md` — keep in sync with `sandbox/scanners.py`
 
@@ -108,15 +116,21 @@ sequenceDiagram
   participant CLI as tripwire CLI
   participant SB as Modal sandbox
   participant DB as Supabase
+  participant Route as SIE / Model Studio
   participant Dash as Dashboard
 
   Op->>CLI: tripwire scan path
   CLI->>DB: Ensure schema / create scan_run
   CLI->>SB: Spawn scanners
   SB->>DB: Findings / console_output
+  CLI->>Route: Auto-route batch (optional; warn+skip if keys missing)
+  Route-->>CLI: Triage / escalation
+  CLI->>DB: tiered_router findings
   Dash->>DB: Realtime or poll
   Dash-->>Op: Live results UI
 ```
+
+Manual re-route: `tripwire route --batch-id …` ([setup-commands.md](./user-guide/setup-commands.md#tiered-router-optional)).
 
 ---
 

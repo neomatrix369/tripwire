@@ -86,3 +86,5 @@
 | 2026-08-07 | scope | Dashboard reliability | Implement latest-state and realtime recovery now; keep dashboard excluded from governed coverage/complexity thresholds while normal tests remain mandatory. USER-CONFIRMED. |
 | 2026-08-07 | quality-lens | 15/15 checks passed | Split dashboard latest-state and realtime recovery into slices 21 and 22 to maintain single-level abstraction; no new dependency or metric policy introduced. REVISED 1 SLICE. |
 | 2026-08-12 | adr-backfill | Formal ADRs 0002–0015 | Retrospective Accepted records from docs + git + production entry points. Index: `docs/adr/README.md`. Number 0001 reserved and omitted while that draft stays under review. Slice waivers remain in this file. |
+| 2026-08-14 | tiered-router | SIE + Model Studio post-scan route | Production path: `tripwire route` + auto-route after `tripwire scan`; persist `tiered_router` findings; exclude from severity rollup. Sample CLIs remain prototypes. ADR-0016. |
+| 2026-08-14 | coverage | Temporary CLI floor drop | Untested `cli/src/router.js` → c8 gates 60/60/80/60 in `cli/package.json`. ADR-0013 ≥95% CLI target remains; raise floors when router tests land. |

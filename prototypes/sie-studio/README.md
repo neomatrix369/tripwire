@@ -3,7 +3,11 @@
 Hackathon sample for Superlinked's managed Inference Engine (SIE).
 Talks to the Qwen lineup on the cloud cluster: embeddings, rerankers, and generation.
 
-Not part of the shipped Tripwire product.
+Not part of the shipped Tripwire product UI. The product CLI uses `SIE_ENDPOINT`
+and `SIE_API_KEY` (optional `SIE_MODEL`) for post-scan triage
+(`tripwire route`). Account setup:
+[sie-setup.md](../../docs/user-guide/sie-setup.md). Key map:
+[env-vars.md](../../docs/user-guide/env-vars.md#optional--tiered-router-sie--model-studio).
 
 ## Setup
 
@@ -15,6 +19,7 @@ cp prototypes/.env.example prototypes/.env   # then set SIE_API_KEY; do not comm
 |---|---|
 | `SIE_ENDPOINT` | Managed API base (`https://api.superlinked.com` for us-east-2; EU: `https://eu.api.superlinked.com`) |
 | `SIE_API_KEY` | Bearer token from [console.superlinked.com](https://console.superlinked.com) Keys page (`sk-sie-…`) |
+| `SIE_MODEL` | Optional default for product `tripwire route` (sample CLI takes `--model` per command) |
 
 Auth header: `Authorization: Bearer $SIE_API_KEY`.
 

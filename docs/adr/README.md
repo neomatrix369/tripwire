@@ -28,6 +28,7 @@ remains under review. Published records start at **0002**.
 | [0013](./0013-ship-path-quality-gates.md) | Ship-path quality gates; dashboard and Guard out of bar | Accepted |
 | [0014](./0014-curated-discovery-loci.md) | Curated discovery loci, not a filesystem crawl | Accepted |
 | [0015](./0015-horizon-a-excludes-guard-and-drift.md) | Horizon A excludes Guard and Drift | Accepted |
+| [0016](./0016-tiered-router-sie-model-studio.md) | Tiered post-scan router via SIE and Model Studio | Accepted |
 
-0002–0015 are retrospective Accepted records of decisions already visible in
+0002–0016 are retrospective Accepted records of decisions already visible in
 docs, git history, and production entry points.

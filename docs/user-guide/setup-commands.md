@@ -106,6 +106,24 @@ tripwire setup --force
 ./scripts/quality-gates.sh
 ```
 
+### Tiered router (optional)
+
+After a Live scan, Tripwire auto-routes the batch when SIE + Model Studio keys
+are set. Provision accounts with [sie-setup.md](./sie-setup.md) and
+[model-studio-setup.md](./model-studio-setup.md); key map:
+[env-vars.md](./env-vars.md#optional--tiered-router-sie--model-studio).
+Missing keys log a warning and leave scan results unchanged. Re-run routing
+manually:
+
+```bash
+tripwire route --batch-id <batch_id>
+# optional overrides:
+# tripwire route --batch-id <batch_id> --sie-model gen-4b --model-studio-model qwen3.8-max
+```
+
+Dashboard Mock fixtures include `tiered_router` findings. To seed Live conflict /
+timeout fixtures for UI checks: `node scripts/seed-router-fixtures.js`.
+
 ## 5) Test commands (when needed)
 
 ```bash

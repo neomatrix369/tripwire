@@ -4,7 +4,11 @@ Hackathon sample for the Alibaba Cloud Model Studio Singapore workspace.
 Calls the dedicated host over both the OpenAI-compatible chat API and the
 native DashScope image/video APIs from the Visual Model Catalog.
 
-Not part of the shipped Tripwire product.
+Not part of the shipped Tripwire product UI. The product CLI uses the same
+DashScope / OpenAI-compatible credentials for optional post-scan escalation
+(`tripwire route`). Account setup:
+[model-studio-setup.md](../../docs/user-guide/model-studio-setup.md). Key map:
+[env-vars.md](../../docs/user-guide/env-vars.md#optional--tiered-router-sie--model-studio).
 
 ## Setup
 
@@ -18,6 +22,7 @@ cp prototypes/.env.example prototypes/.env   # then set DASHSCOPE_API_KEY; do no
 | `DASHSCOPE_HOST` | Workspace API host; used to generate the two URLs below if they are blank |
 | `ALIBABA_OPENAI_BASE_URL` | OpenAI-compatible base (`…/compatible-mode/v1`) for `chat` |
 | `ALIBABA_DASH_SCOPE_API_URL` | DashScope base (`…/api/v1`) for `image`, `video`, `video-edit`, `poll` |
+| `MODEL_STUDIO_MODEL` | Optional default for product `tripwire route` (sample CLI takes `--model` per command) |
 
 Python 3.12+, stdlib only. No extra packages.
 
