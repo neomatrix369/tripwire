@@ -523,6 +523,54 @@ def test_given_snyk_path_error_when_run_then_unreachable() -> None:
     assert rows[0]["status"] == "unreachable"
 
 
+def test_given_snyk_server_unauthorized_when_run_then_skipped_credential() -> None:
+    """
+    Scenario: Per-server 401 Unauthorized is a credential skip, not unreachable.
+    Slice: run_snyk — servers[].error auth mapping
+
+    Given Snyk JSON with path.error null and servers[].error Unauthorized 401,
+    When run_snyk maps the envelope,
+    Then status is skipped_missing_credential with the Unauthorized detail.
+    """
+    ### Given
+    payload = {
+        "/tmp": {
+            "error": None,
+            "issues": [],
+            "servers": [
+                {
+                    "name": "scan-target",
+                    "error": {
+                        "message": (
+                            "Unauthorized. Please check your SNYK_TOKEN "
+                            "environment variable or your push key."
+                        ),
+                        "exception": (
+                            "401, message='Unauthorized', "
+                            "url='https://api.snyk.io/hidden/mcp-scan/cli/analysis-machine'"
+                        ),
+                        "is_failure": True,
+                        "category": "analysis_error",
+                    },
+                }
+            ],
+        }
+    }
+
+    ### When
+    with (
+        patch.dict("os.environ", {"SNYK_TOKEN": "t"}, clear=False),
+        patch.object(scanners, "_which", side_effect=lambda b: b == "uvx"),
+        patch.object(scanners, "_run", return_value=(1, json.dumps(payload), "")),
+    ):
+        findings, rows = scanners.run_snyk("/tmp", "skill")
+
+    ### Then
+    assert findings == []
+    assert rows[0]["status"] == "skipped_missing_credential"
+    assert "Unauthorized" in rows[0].get("detail", "")
+
+
 def test_given_snyk_empty_json_when_run_then_unreachable() -> None:
     """
     Scenario: Empty/non-dict Snyk output is unreachable.

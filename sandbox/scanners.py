@@ -43,8 +43,41 @@ def _run(cmd, timeout=SCAN_TIMEOUT):
         return None, "", f"binary not found: {cmd[0]}"
 
 
-def _skipped(source, reason="skipped_missing_credential"):
-    return {"scanner_source": source, "status": reason, "checks_run": 0}
+def _skipped(source, reason="skipped_missing_credential", detail=None, console_output=None):
+    row = {"scanner_source": source, "status": reason, "checks_run": 0}
+    if detail:
+        row["detail"] = str(detail).strip()[:4000]
+    if console_output:
+        row["console_output"] = console_output
+    return row
+
+
+def _snyk_collect_errors(path_result):
+    """Gather path-level and per-server errors from a Snyk path envelope."""
+    errors = []
+    path_err = path_result.get("error")
+    if path_err:
+        errors.append(path_err)
+    for server in path_result.get("servers") or []:
+        if isinstance(server, dict) and server.get("error"):
+            errors.append(server["error"])
+    return errors
+
+
+def _snyk_error_is_auth(err):
+    """True when Snyk rejected credentials (401 / Unauthorized / SNYK_TOKEN hint)."""
+    if isinstance(err, dict):
+        msg = str(err.get("message") or "")
+        exc = str(err.get("exception") or "")
+        return "Unauthorized" in msg or "Unauthorized" in exc or "401" in exc
+    text = str(err)
+    return "Unauthorized" in text and ("401" in text or "SNYK_TOKEN" in text)
+
+
+def _snyk_error_message(err):
+    if isinstance(err, dict) and err.get("message"):
+        return str(err["message"])
+    return str(err)
 
 
 def _unreachable(source, stderr, console_output=None):
@@ -451,13 +484,13 @@ def run_snyk(workdir, item_type="mcp_server"):
         return [], [_unreachable(source, err or out or f"exit {code}", console_output=console)]
 
     findings, checks = [], 0
-    path_errors = []
+    collected_errors = []
     for _abs_path, path_result in root.items():
         if not isinstance(path_result, dict):
             continue
-        if path_result.get("error"):
-            path_errors.append(str(path_result.get("error")))
-            continue
+        path_errs = _snyk_collect_errors(path_result)
+        if path_errs:
+            collected_errors.extend(path_errs)
         for issue in path_result.get("issues", []) or []:
             checks += 1
             code_ = issue.get("code", "")
@@ -475,20 +508,18 @@ def run_snyk(workdir, item_type="mcp_server"):
                 }
             )
 
-    if path_errors:
-        return findings, [
-            _unreachable(
-                source,
-                "; ".join(path_errors),
-                console_output=console,
-            )
-        ]
+    if collected_errors:
+        detail = "; ".join(_snyk_error_message(e) for e in collected_errors)
+        auth_only = all(_snyk_error_is_auth(e) for e in collected_errors) and not findings
+        if auth_only:
+            return [], [_skipped(source, detail=detail, console_output=console)]
+        return findings, [_unreachable(source, detail, console_output=console)]
     if findings or checks:
         return findings, [_completed(source, checks or 1, findings, console_output=console)]
     return findings, [
         _unreachable(
             source,
-            "; ".join(path_errors) or err or out or f"exit {code}",
+            err or out or f"exit {code}",
             console_output=console,
         )
     ]
