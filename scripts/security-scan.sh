@@ -131,11 +131,16 @@ if $RUN_OSV; then
     warn "  go install github.com/google/osv-scanner/cmd/osv-scanner@latest"
     SCANS_SKIPPED=$((SCANS_SKIPPED + 1))
   elif $DRY_RUN; then
-    info "DRY RUN: would run: osv-scanner --recursive ."
+    info "DRY RUN: would run: osv-scanner --recursive --experimental-exclude=fixtures --experimental-exclude=prototypes --experimental-exclude=internal-docs ."
   else
     SCANS_RUN=$((SCANS_RUN + 1))
-    echo "  Running: osv-scanner (recursive lockfile scan)..."
-    if ! osv-scanner --recursive .; then
+    echo "  Running: osv-scanner (recursive lockfile scan, fixtures/prototypes excluded)..."
+    # Parity with Trivy skip-dirs; fixture-local osv-scanner.toml also ignores intentional vulns.
+    if ! osv-scanner --recursive \
+      --experimental-exclude=fixtures \
+      --experimental-exclude=prototypes \
+      --experimental-exclude=internal-docs \
+      .; then
       fail "OSV-Scanner found dependency vulnerabilities"
       SCANS_FAILED=$((SCANS_FAILED + 1))
     else

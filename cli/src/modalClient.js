@@ -10,12 +10,15 @@ const SCAN_APP = fileURLToPath(new URL('../../sandbox/scan_app.py', import.meta.
 // a tar and passes bytes to remote scan_item — host paths are not on Modal's FS.
 // Do not invoke ::scan_item directly; that skips packing and leaves an empty workdir.
 // `spawnImpl` is injectable for characterization tests (no live Modal).
-export function spawnScanSandbox({ target, itemType, itemId, scanRunId, spawnImpl = defaultSpawn }) {
+export function spawnScanSandbox({ target, itemType, itemId, scanRunId, packPath = null, spawnImpl = defaultSpawn }) {
   return new Promise((resolve, reject) => {
-    const proc = spawnImpl('modal', [
+    const args = [
       'run', SCAN_APP,
-      '--target', target, '--item-type', itemType, '--item-id', itemId, '--scan-run-id', scanRunId
-    ], { stdio: 'inherit' });
+      '--target', target, '--item-type', itemType, '--item-id', itemId, '--scan-run-id', scanRunId,
+    ];
+    // Manifest MCP keys stay the --target identity; packPath is the host dir to tar.
+    if (packPath) args.push('--pack-path', packPath);
+    const proc = spawnImpl('modal', args, { stdio: 'inherit' });
     proc.on('exit', code => code === 0 ? resolve() : reject(new Error('sandbox exited ' + code)));
     proc.on('error', reject); // e.g. modal CLI not installed/logged in
   });

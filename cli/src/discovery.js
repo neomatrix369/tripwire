@@ -66,11 +66,42 @@ async function discoverDefaults() {
   return found;
 }
 
+/**
+ * Derive a host directory to tar for Modal from an MCP server config entry.
+ * Identity stays the config key; this path is pack-only (never the identifier).
+ * Looks at command + args for existing filesystem paths that sit in (or are)
+ * an MCP server dir (run.sh / server.py / package.json / …).
+ */
+function resolvePackPathFromEntry(entry) {
+  if (!entry || typeof entry !== 'object') return null;
+  const candidates = [];
+  if (typeof entry.command === 'string') candidates.push(entry.command);
+  if (Array.isArray(entry.args)) {
+    for (const arg of entry.args) {
+      if (typeof arg === 'string') candidates.push(arg);
+    }
+  }
+  for (const raw of candidates) {
+    // Bare tokens (bash, npx, node) are not packable source roots.
+    if (!raw.includes('/') && !raw.includes('\\')) continue;
+    const candidate = path.resolve(raw);
+    if (!existsSync(candidate)) continue;
+    if (looksLikeMcpServer(candidate)) return candidate;
+    const parent = path.dirname(candidate);
+    if (looksLikeMcpServer(parent)) return parent;
+  }
+  return null;
+}
+
 async function tryExpandManifest(filePath) {
   try {
     const json = JSON.parse(await readFile(filePath, 'utf8'));
     if (json.mcpServers && typeof json.mcpServers === 'object') {
-      return Object.keys(json.mcpServers).map(name => ({ manifestEntry: name, manifest: filePath }));
+      return Object.keys(json.mcpServers).map(name => ({
+        manifestEntry: name,
+        manifest: filePath,
+        packPath: resolvePackPathFromEntry(json.mcpServers[name]),
+      }));
     }
   } catch { /* not a valid manifest, treat as regular target */ }
   return null;
@@ -93,8 +124,12 @@ async function annotateWithTypes(resolved) {
   for (const t of resolved) {
     const meta = typeof t === 'string'
       ? await detectType(t)
+      // Key-only identity + pending:<key> hash: never source_on_disk on the key.
       : { type: 'mcp_server', locus: 'unknown', avail: 'unknown' };
-    withTypes.push({ target: typeof t === 'string' ? t : t.manifestEntry, ...meta });
+    const target = typeof t === 'string' ? t : t.manifestEntry;
+    const row = { target, ...meta };
+    if (typeof t !== 'string' && t.packPath) row.packPath = t.packPath;
+    withTypes.push(row);
   }
   return withTypes;
 }

@@ -21,7 +21,7 @@ exhaustive), enough to demo each heatmap state and the main finding anchor types
 | `skills/vuln-prompt-injection-notes` | skill | red | hidden "SYSTEM OVERRIDE" instructions in an HTML comment |
 | `skills/vuln-runtime-download` | skill | red | `curl \| bash` in `install.sh` (CWE-494) |
 | `skills/disagreement-naive-domain-check` | skill | amber (borderline) | naive prefix-match allowlist bypass — designed to plausibly split scanners |
-| `skills/vuln-dependency-lodash` | skill | red (dependency) | pinned `lodash@4.17.15` (CVE-2020-8203, CVE-2021-23337) in `package.json` + lockfile — SCA/dependency-scanner demo target |
+| `skills/vuln-dependency-lodash` | skill | red (dependency) | pinned `lodash@4.17.15` (CVE-2020-8203, CVE-2021-23337) in `package.json` + lockfile — SCA/dependency-scanner demo target; ignored by repo OSV via `osv-scanner.toml` + CI `--experimental-exclude=fixtures` |
 | `mcp/safe-time-server` | mcp | green | clean baseline |
 | `mcp/vuln-command-injection-server` | mcp | red | `shell=True` + unsanitized interpolation (CWE-78), file- and entity-anchored simultaneously |
 | `mcp/vuln-hardcoded-secret-server` | mcp | red | hardcoded API key in `config.py` (CWE-798) |

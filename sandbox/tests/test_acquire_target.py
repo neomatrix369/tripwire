@@ -317,15 +317,52 @@ def test_given_local_target_when_host_entrypoint_runs_then_it_hands_the_archive_
 
     ### When
     with (
-        patch("scan_app._maybe_pack_local_target", return_value=archive),
+        patch("scan_app._maybe_pack_local_target", return_value=archive) as pack,
         patch("scan_app.scan_item") as scan_item,
     ):
         main("fixtures/skill", "skill", "item-1", "run-1")
 
     ### Then
+    pack.assert_called_once_with("fixtures/skill")
     scan_item.remote.assert_called_once_with(
         target="fixtures/skill",
         item_type="skill",
+        item_id="item-1",
+        scan_run_id="run-1",
+        target_archive=archive,
+    )
+
+
+def test_given_manifest_key_and_pack_path_when_entrypoint_runs_then_packs_pack_path() -> None:
+    """
+    Scenario: Manifest MCP keys keep key identity while packing the fixture dir.
+    Slice: demo-mcp.json / key-only identity
+
+    Given target is a bare MCP config key and pack_path is a local server dir,
+    When the Modal entrypoint starts,
+    Then packing uses pack_path and remote still sees the key as target.
+    """
+    ### Given
+    archive = b"packed-mcp-fixture"
+
+    ### When
+    with (
+        patch("scan_app._maybe_pack_local_target", return_value=archive) as pack,
+        patch("scan_app.scan_item") as scan_item,
+    ):
+        main(
+            "safe-tool",
+            "mcp_server",
+            "item-1",
+            "run-1",
+            pack_path="/abs/fixtures/mcp/safe-time-server",
+        )
+
+    ### Then
+    pack.assert_called_once_with("/abs/fixtures/mcp/safe-time-server")
+    scan_item.remote.assert_called_once_with(
+        target="safe-tool",
+        item_type="mcp_server",
         item_id="item-1",
         scan_run_id="run-1",
         target_archive=archive,

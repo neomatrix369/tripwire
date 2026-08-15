@@ -45,6 +45,29 @@ test('spawnScanSandbox passes an absolute scan_app.py path (cwd-independent)', a
   assert.equal(spawned[0].opts.stdio, 'inherit');
 });
 
+test('spawnScanSandbox appends --pack-path when provided (manifest MCP)', async () => {
+  const spawned = [];
+  await spawnScanSandbox({
+    target: 'safe-tool',
+    itemType: 'mcp_server',
+    itemId: 'item-mcp',
+    scanRunId: 'run-mcp',
+    packPath: '/abs/fixtures/mcp/safe-time-server',
+    spawnImpl: (cmd, args) => {
+      spawned.push({ cmd, args });
+      return fakeExitingProc(0);
+    },
+  });
+
+  assert.deepEqual(spawned[0].args.slice(2), [
+    '--target', 'safe-tool',
+    '--item-type', 'mcp_server',
+    '--item-id', 'item-mcp',
+    '--scan-run-id', 'run-mcp',
+    '--pack-path', '/abs/fixtures/mcp/safe-time-server',
+  ]);
+});
+
 test('spawnScanSandbox rejects on non-zero sandbox exit', async () => {
   await assert.rejects(
     spawnScanSandbox({

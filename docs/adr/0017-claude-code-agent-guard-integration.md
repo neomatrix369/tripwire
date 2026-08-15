@@ -28,9 +28,12 @@ hackathon working plan ("Tripwire × Claude Code Integration — Implementation
 Plan", 2026-08-15 session working document):
 
 - **Handler at `~/.tripwire/hooks/`** (`pre-tool-use.sh` + `_guard_entry.py`),
-  registered under matcher `^(Skill|mcp__.*)$` in `~/.claude/settings.json`
+  registered under matcher `^(Skill|Bash|mcp__.*)$` in `~/.claude/settings.json`
   (JSON-merge preserving existing keys, timestamped backup first). Repo source
-  is a tracked `agent-hooks/` directory.
+  is a tracked `agent-hooks/` directory. Bash is gated only when the command
+  *executes* under a skills locus (cwd inside the skill, a file under it, or
+  `cd <skill> && bash …`); ordinary Bash and skill dirs passed only as data
+  args are not attributed.
 - **Identifier-first lookup + CLI-compatible hash comparison.** Items are
   looked up by `items.identifier` (canonical absolute path, `updated_at desc
   limit 1`), and the CLI's sorted-directory-walk SHA-256 (`cli/src/hash.js`,
@@ -69,17 +72,26 @@ Plan", 2026-08-15 session working document):
 
 ### Honest limits (recorded, not hidden)
 
-- **Same-user Bash tampering.** `Bash` is an unmatched tool, so an injected
-  agent can write `enable: false` (or delete/corrupt the config) in a single
-  call. Missing/corrupt config denies, but a correctly-written disable
-  bypasses enforcement — unfixable at this layer. Detection is advisory only,
-  via the optional SessionStart sweep that loudly reports enforcement state
-  at session start.
-- **User-typed invocation paths.** Whether user-typed (vs model-initiated)
-  skill invocations produce a hook-visible event is pending the empirical
-  step-2 spike; if user-typed paths bypass the hook, that is a scoping
-  limitation of this layer. Custom slash commands (`.claude/commands`) are
-  out of Phase-1 scope — a recorded known gap.
+- **Same-user Bash tampering (enable flip).** An injected agent can still
+  `Bash`-write `"enable": false` (or delete/corrupt the config) in a single
+  call — that path is unmatched by skill-path attribution. Missing/corrupt
+  config denies, but a correctly-written disable bypasses enforcement —
+  unfixable at this layer. Detection is advisory only, via the optional
+  SessionStart sweep that loudly reports enforcement state at session start.
+- **Bash skill-path attribution (closed gap).** Matcher is
+  `^(Skill|Bash|mcp__.*)$`. Bash is allowed immediately unless the command
+  *executes* under a skills locus (cwd inside the skill, a file under it such
+  as `install.sh`, or `cd <skill> && bash …`); then the owning skill's
+  verdict gates the call. Skill directories passed only as data args (status/
+  scan drivers) are not attributed — otherwise unscanned skills would
+  deadlock `/tw-verify` and `/tw-scan`. This closes the slash-command path
+  where `/vuln-skill` injects instructions and the agent runs `install.sh`
+  via Bash without a Skill tool PreToolUse event.
+- **User-typed Skill tool events.** Whether user-typed (vs model-initiated)
+  skill invocations produce a hook-visible Skill event is still harness-
+  dependent; Bash attribution above covers the dangerous follow-on
+  execution. Custom slash commands (`.claude/commands`) remain out of
+  Phase-1 scope for non-skill paths.
 - **Service-role key in the hook environment.** Accepted for the hackathon:
   the key stays in `.env` (never in `settings.json`; gitleaks runs
   repo-wide), but every intercepted call sources it. An anon-key read path

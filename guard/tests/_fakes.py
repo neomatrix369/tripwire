@@ -66,7 +66,7 @@ class NoneReturningClient:
         return self
 
     def __getattr__(self, _name: str) -> Any:
-        return lambda *args, **kwargs: self
+        return lambda *_args, **_kwargs: self
 
     def execute(self) -> None:
         return None

@@ -49,6 +49,38 @@ test('given mcp manifest json when discover then expands server names', async ()
   await rm(dir, { recursive: true, force: true });
 });
 
+test('given stdio mcp manifest when discover then sets packPath from args', async () => {
+  // -- Given --
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'tw-mcp-pack-'));
+  const serverDir = path.join(dir, 'safe-time-server');
+  await mkdir(serverDir);
+  const runSh = path.join(serverDir, 'run.sh');
+  await writeFile(runSh, '#!/bin/bash\n');
+  const manifest = path.join(dir, 'demo-mcp.json');
+  await writeFile(
+    manifest,
+    JSON.stringify({
+      mcpServers: {
+        'safe-tool': { type: 'stdio', command: 'bash', args: [runSh] },
+        'url-only': { url: 'https://example.com/mcp' },
+      },
+    })
+  );
+
+  // -- When --
+  const result = await discoverTargets({ targets: [manifest], useDefaults: false });
+
+  // -- Then — key identity + packPath for local stdio; no packPath for URL-only
+  const safe = result.find((r) => r.target === 'safe-tool');
+  const urlOnly = result.find((r) => r.target === 'url-only');
+  assert.ok(safe);
+  assert.equal(safe.packPath, serverDir);
+  assert.equal(safe.avail, 'unknown'); // pending:<key> hash contract
+  assert.ok(urlOnly);
+  assert.equal(urlOnly.packPath, undefined);
+  await rm(dir, { recursive: true, force: true });
+});
+
 test('given malformed manifest when discover then treats as regular target', async () => {
   // -- Given --
   const dir = await mkdtemp(path.join(os.tmpdir(), 'tw-bad-'));

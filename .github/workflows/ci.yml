@@ -203,8 +203,13 @@ jobs:
       - name: OSV-Scanner (SCA)
         uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
         with:
+          # Exclude intentional vuln fixtures / prototypes (parity with Trivy skip-dirs).
+          # Fixture-local osv-scanner.toml also ignores vuln-dependency-lodash.
           scan-args: |-
             --recursive
+            --experimental-exclude=fixtures
+            --experimental-exclude=prototypes
+            --experimental-exclude=internal-docs
             .
 
   meterian:

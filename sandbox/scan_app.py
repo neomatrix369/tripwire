@@ -280,13 +280,23 @@ def _scan_item_inner(
 
 
 @app.local_entrypoint()
-def main(target: str, item_type: str, item_id: str, scan_run_id: str):
+def main(
+    target: str,
+    item_type: str,
+    item_id: str,
+    scan_run_id: str,
+    pack_path: str = "",
+):
     """Host-side wrapper: pack local dirs, then invoke the remote sandbox.
 
     Invoked by the CLI via ``modal run sandbox/scan_app.py`` (not ``::scan_item``)
     so this code runs where the fixture filesystem is visible.
+
+    ``pack_path`` is optional: for manifest MCP keys, ``target`` is the config
+    key (item identity) while ``pack_path`` is the host directory to tar.
     """
-    archive = _maybe_pack_local_target(target)
+    pack_root = pack_path or target
+    archive = _maybe_pack_local_target(pack_root)
     if archive is not None:
         print(f"[acquire] packed local target ({len(archive)} bytes) → remote sandbox")
     scan_item.remote(
