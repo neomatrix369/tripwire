@@ -1,6 +1,6 @@
 {
   "slice": 25,
-  "gate_status": "ON_BRANCH",
+  "gate_status": "PASSED",
   "inferred": false,
   "branch": "slice/25-live-enforce-smoke",
   "date": "2026-08-15",
@@ -14,8 +14,8 @@
     "PASS — coverage guard.config+hooks_entry 100% lines (≥95%); complexity enforcing via quality-gates",
     "PASS — ./scripts/quality-gates.sh",
     "PASS — nimble in-session review acceptance+implementation APPROVED (DECISIONS Wave H nimble reviews)",
-    "PENDING human H2 checkpoint — operator sign-off before slices 26–30",
-    "PENDING merge — PROGRESS/TRAIL 🔀 until merged to Frontline integration"
+    "PASS — human H2 checkpoint signed off (operator requested start of slice 26; DECISIONS 2026-08-15)",
+    "PASS — merged to Frontline integration via PR #76"
   ],
   "commands": [
     {
@@ -55,9 +55,11 @@
   "complexity_policy": "enforcing — quality-gates.sh xenon PASS",
   "human_checkpoint_h2": {
     "required": true,
-    "status": "PENDING_OPERATOR_SIGNOFF",
-    "blocks": "Phase H2 slices 26–30",
-    "note": "Scripted smoke VERIFIED; human Claude Code session observation optional but Phase H2 needs DECISIONS/gate-evidence sign-off"
+    "status": "SIGNED_OFF",
+    "signed_off_at": "2026-08-15",
+    "signed_off_by": "operator (requested start of slice 26)",
+    "blocks": "Phase H2 slices 26–30 — unblocked",
+    "note": "Scripted smoke VERIFIED on PR #76; operator authorized H2 by starting slice 26"
   },
   "reviewers": ["in-session nimble (acceptance+implementation)"],
   "review": {
@@ -69,9 +71,9 @@
     "1_install_event_gap": "PASS — docs/user-guide/setup-commands.md",
     "2_enable_disable_smoke": "PASS — Enable / disable smoke (operator) paragraph",
     "3_cross_link": "PASS — gate-evidence ↔ TRAIL/PROGRESS",
-    "4_human_checkpoint": "PASS — recorded PENDING_OPERATOR_SIGNOFF in evidence + slice After-Checks"
+    "4_human_checkpoint": "PASS — SIGNED_OFF in evidence + DECISIONS"
   },
-  "verdict": "ON_BRANCH",
+  "verdict": "PASS",
   "phase": "H1",
   "moscow": "Must",
   "pr": "https://github.com/neomatrix369/tripwire/pull/76"

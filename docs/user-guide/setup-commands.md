@@ -79,6 +79,10 @@ RED artifacts. Set `"enable": false` — the same PreToolUse call is approved
 (full bypass). Scripted smoke:
 `pytest guard/tests/test_live_enforce_smoke.py -q`.
 
+**`/tw-*` dual output contract:** human Markdown table + machine JSON shape,
+`heatmap_status` → six UI states, and observed `tripwire scan` stdout fields —
+see [frontline-output-contract.md](frontline-output-contract.md).
+
 ### Verify Supabase access
 
 After `tripwire setup`, confirm the anon key (what the browser dashboard uses)
