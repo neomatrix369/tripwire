@@ -125,13 +125,16 @@ slices 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. See
 [plan/TRAIL.md](./plan/TRAIL.md) Wave H and [plan/DECISIONS.md](./plan/DECISIONS.md).
 
 - **Slice 23 (Config + Handler Scripts):** schema + handler templates are
-  **IMPLEMENTED** in-repo — `guard/config.py` (`enable` default `true`,
-  `scan_validity_days` default `14`), `guard/hooks_entry.py` (stdin → stdout
-  approve/block, fail-closed), install templates under `guard/hooks/`. Not yet
-  installed by a CLI command (slice 24). ADR-0015 Horizon A exclusion remains
-  until Wave H lands and a superseding ADR records the production install path.
-- Remaining H Musts/Shoulds: not IMPLEMENTED — no `setup-agent-hooks` or `/tw-*`
-  skills yet.
+  **IMPLEMENTED** and **VERIFIED** (PR #74 into Frontline integration branch) —
+  `guard/config.py` (`enable` default `true`, `scan_validity_days` default `14`),
+  `guard/hooks_entry.py` (stdin → stdout approve/block, fail-closed), install
+  templates under `guard/hooks/`. Install CLI is slice 24.
+- **Slice 24 (`tripwire setup-agent-hooks`):** 🔀 ON BRANCH —
+  **IMPLEMENTED** install path (`cli/src/setupAgentHooks.js` +
+  `tripwire setup-agent-hooks`); installs hooks to `~/.tripwire/hooks` (mode
+  `700`), first-write config via `ensure_default_config`, Claude PreToolUse
+  registration. Merge to Frontline then mark ✅.
+- Remaining H Musts/Shoulds: not IMPLEMENTED — no `/tw-*` skills yet.
 
 ---
 
@@ -151,8 +154,9 @@ Known fixture gaps (not urgent) are listed under
 as shipped capabilities. Guard PreToolUse and Drift/trend remain Future /
 Won't (A) for the Horizon A ship path — see
 [ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md). Frontline Guard
-integration is **DECIDED** as Wave H — see DECIDED above. Slice 23 has in-repo
-handler/config **IMPLEMENTED**; install/`/tw-*` still pending later H slices.
+integration is **DECIDED** as Wave H — see DECIDED above. Slice 23 ✅ handlers/
+config; slice 24 installs via `tripwire setup-agent-hooks` (on branch). `/tw-*`
+skills still pending later H slices.
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 (slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` …

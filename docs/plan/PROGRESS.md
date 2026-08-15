@@ -12,31 +12,30 @@
 | 5 | [`05-E-…`](slices/05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ → 14 (**9+10 SUBSUMED INTO 11**) | ✅ Musts · close-path |
 | 6 | [`06-F-…`](slices/06-F-claim-audit/) | **F — Claim audit** | 15 · 16 | 📦 |
 | 7 | [`07-G-…`](slices/07-G-atdd-closure/) | **G — ATDD closure** | 18, 19, 20, 21, 22 (independent gates) | 📋 parked |
-| 8 | [`08-H-…`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | 23→32 Must · 33–38 Should · 39 Could | 🔀 23 on branch |
+| 8 | [`08-H-…`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | 23→32 Must · 33–38 Should · 39 Could | 23 ✅ · 24 🔀 |
 
-**Current priority:** Wave H Must slice **23** — Config + Handler Scripts — 🔀 ON BRANCH (merge then start 24). Wave G (18–22) parked while H1–H3 is active unless explicitly resumed.
+**Current priority:** Wave H Must slice **24** — `tripwire setup-agent-hooks` — 🔀 ON BRANCH (merge then start 25). Wave G (18–22) parked while H1–H3 is active unless explicitly resumed.
 
 ## Execution order (open work)
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| 1 | H1 | 23 | Config + Handler Scripts | Must | 🔀 ON BRANCH |
-| 2 | H1 | 24 | `tripwire setup-agent-hooks` | Must | 📋 PLANNED |
-| 3 | H1 | 25 | Live Enforce Smoke | Must | 📋 PLANNED |
-| 4 | H2 | 26 | API Introspect + Dual Output Contract | Must | 📋 PLANNED |
-| 5 | H2 | 27 | `/tw-enable` + `/tw-disable` | Must | 📋 PLANNED |
-| 6 | H2 | 28 | `/tw-verify` | Must | 📋 PLANNED |
-| 7 | H2 | 29 | `/tw-scan` | Must | 📋 PLANNED |
-| 8 | H2 | 30 | `/tw-self-check` | Must | 📋 PLANNED |
-| 9 | H3 | 31 | Demo Artifacts | Must | 📋 PLANNED |
-| 10 | H3 | 32 | Phase 1 Regression Verification (HARD GATE) | Must | 📋 PLANNED |
-| 11 | H4 | 33 | DepShield Install | Should | 📋 PLANNED |
-| 12 | H4 | 34 | DepShield Dispatch | Should | 📋 PLANNED |
-| 13 | H5 | 35 | Ossprey Access Provisioning | Should | 🔴 BLOCKED |
-| 14 | H5 | 36 | Ossprey Dispatch | Should | 📋 PLANNED |
-| 15 | H6 | 37 | CLI Monitoring | Should | 📋 PLANNED |
-| 16 | H6 | 38 | Full-Chain Validation | Should | 📋 PLANNED |
-| 17 | H6 | 39 | FE/BE Rearchitecture | Could | 📦 DEFERRED |
+| 1 | H1 | 24 | `tripwire setup-agent-hooks` | Must | 🔀 ON BRANCH |
+| 2 | H1 | 25 | Live Enforce Smoke | Must | 📋 PLANNED |
+| 3 | H2 | 26 | API Introspect + Dual Output Contract | Must | 📋 PLANNED |
+| 4 | H2 | 27 | `/tw-enable` + `/tw-disable` | Must | 📋 PLANNED |
+| 5 | H2 | 28 | `/tw-verify` | Must | 📋 PLANNED |
+| 6 | H2 | 29 | `/tw-scan` | Must | 📋 PLANNED |
+| 7 | H2 | 30 | `/tw-self-check` | Must | 📋 PLANNED |
+| 8 | H3 | 31 | Demo Artifacts | Must | 📋 PLANNED |
+| 9 | H3 | 32 | Phase 1 Regression Verification (HARD GATE) | Must | 📋 PLANNED |
+| 10 | H4 | 33 | DepShield Install | Should | 📋 PLANNED |
+| 11 | H4 | 34 | DepShield Dispatch | Should | 📋 PLANNED |
+| 12 | H5 | 35 | Ossprey Access Provisioning | Should | 🔴 BLOCKED |
+| 13 | H5 | 36 | Ossprey Dispatch | Should | 📋 PLANNED |
+| 14 | H6 | 37 | CLI Monitoring | Should | 📋 PLANNED |
+| 15 | H6 | 38 | Full-Chain Validation | Should | 📋 PLANNED |
+| 16 | H6 | 39 | FE/BE Rearchitecture | Could | 📦 DEFERRED |
 | — | G | 18–22 | ATDD closure (parked) | Must | 📋 PLANNED |
 
 ## Quick Status (by group)
@@ -94,8 +93,8 @@
 ### H — Frontline agent hooks
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| 23 | [slice-23-config-handler-scripts](slices/08-H-frontline-agent-hooks/slice-23-config-handler-scripts.md) | Must | 🔀 ON BRANCH | 2026-08-15 | — | ~40 min |
-| 24 | [slice-24-setup-agent-hooks](slices/08-H-frontline-agent-hooks/slice-24-setup-agent-hooks.md) | Must | 📋 PLANNED | — | — | ~40 min |
+| 23 | [slice-23-config-handler-scripts](slices/08-H-frontline-agent-hooks/slice-23-config-handler-scripts.md) | Must | ✅ | 2026-08-15 | 2026-08-15 | ~40 min |
+| 24 | [slice-24-setup-agent-hooks](slices/08-H-frontline-agent-hooks/slice-24-setup-agent-hooks.md) | Must | 🔀 ON BRANCH | 2026-08-15 | — | ~40 min |
 | 25 | [slice-25-live-enforce-smoke](slices/08-H-frontline-agent-hooks/slice-25-live-enforce-smoke.md) | Must | 📋 PLANNED | — | — | ~30 min |
 | 26 | [slice-26-api-output-contract](slices/08-H-frontline-agent-hooks/slice-26-api-output-contract.md) | Must | 📋 PLANNED | — | — | ~40 min |
 | 27 | [slice-27-tw-enable-disable](slices/08-H-frontline-agent-hooks/slice-27-tw-enable-disable.md) | Must | 📋 PLANNED | — | — | ~25 min |
@@ -124,7 +123,7 @@
 
 ## Forward Roadmap
 - Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Slice 15 is retained as a deferred claim-audit artifact, not active work.
-- **Wave H (Frontline):** plan-only stubs 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. Execute Musts 23→32 with human tests after H1/H2 and HARD GATE at 32 before Should work.
+- **Wave H (Frontline):** integration branch `frontline-hackathon-london-2026-agent-hooks`. Slice 23 ✅ (PR #74). Slice 24 🔀 ON BRANCH (`setup-agent-hooks`). Next after merge: 25.
 - Wave G (18–22) remains planned but **parked** while Frontline H1–H3 is active unless explicitly resumed.
 - Reopen Slice 15 only for a future live/demo release that needs its security and 3B evidence path.
 - **Deferred / Won't (A):** 4 (in A); 15 and 16 (in F) — reinstate only if a new live/demo need arises
@@ -161,4 +160,5 @@
 | 2026-08-02 | main / plan | GATE_CONTRACT | all | 📋 policy | Hard close rule |
 | 2026-08-02 | docs/gate-contract-onboarding-priority | sync-docs + clean-commit | 7, plan | pushed | Groups + close slice 7 on trackers |
 | 2026-08-15 | frontline-hackathon-london-2026-agent-hooks | enhanced-flow-planner Add | 23–39 | 📋 stubs | Wave H Frontline plan-only; Wave G parked |
-| 2026-08-15 | slice/23-config-handler-scripts | slice-workflow | 23 | 🔀 ON BRANCH | Config+handlers; 6 GWTs; cov 98.8%; reviews APPROVED |
+| 2026-08-15 | slice/23-config-handler-scripts | slice-workflow | 23 | ✅ PASSED (PR #74) | Config+handlers; 6 GWTs; cov 98.8%; merged to Frontline |
+| 2026-08-15 | slice/24-setup-agent-hooks | slice-workflow | 24 | 🔀 ON BRANCH | setup-agent-hooks; 7 tests; cov 93.11%; quality-gates PASS |

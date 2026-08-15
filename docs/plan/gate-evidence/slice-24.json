@@ -1,24 +1,68 @@
 {
   "slice": 24,
-  "gate_status": "PLANNED",
+  "gate_status": "ON_BRANCH",
   "inferred": false,
-  "branch": null,
-  "date": null,
-  "before_checks": [],
-  "after_checks": [],
-  "planned_commands": [
-    "test -f docs/plan/slices/08-H-frontline-agent-hooks/slice-24-setup-agent-hooks.md",
-    "tripwire --help | rg -n \"setup-agent-hooks|setup\"",
-    "rg -n \"setup-agent-hooks|PreToolUse\" cli/ docs/ || true",
-    "./scripts/quality-gates.sh"
+  "branch": "slice/24-setup-agent-hooks",
+  "date": "2026-08-15",
+  "spec_path": "docs/plan/slices/08-H-frontline-agent-hooks/slice-24-setup-agent-hooks.md",
+  "before_checks": "PASS — slice 23 verdict PASS (PR #74); branch from Frontline integration (DECISIONS Wave H base); tripwire --help attach point cli/bin/tripwire.js; cov target ≥80% lines setupAgentHooks.js",
+  "after_checks": [
+    "PASS — 5/5 setup GWTs + help + CLI entry (7 tests)",
+    "PASS — Then clauses assert filesystem / settings / config observables",
+    "PASS — cd cli && npm test -- test/setupAgentHooks.test.js (7 passed)",
+    "PASS — coverage 93.11% lines on cli/src/setupAgentHooks.js (≥80%)",
+    "PASS — ./scripts/quality-gates.sh",
+    "PASS — nimble in-session review acceptance+implementation APPROVED (DECISIONS Wave H nimble reviews)",
+    "PENDING merge — PROGRESS/TRAIL 🔀 until merged to Frontline integration"
   ],
-  "commands": [],
-  "test_budget": {"acceptance_tests_max": 7, "parametrized_case_counts_as_one": true},
-  "reviewers": [],
-  "review": {"acceptance": "PENDING", "implementation": "PENDING"},
-  "verdict": "NOT_RUN",
-  "coverage_target": "TBD at AT design before IN PROGRESS",
-  "complexity_policy": "enforcing for product-code; N/A for docs-only with reason in evidence",
+  "commands": [
+    {
+      "cmd": "node cli/bin/tripwire.js --help | rg setup-agent-hooks",
+      "result": "PASS — subcommand listed beside setup/scan/route"
+    },
+    {
+      "cmd": "cd cli && node --test test/setupAgentHooks.test.js",
+      "result": "PASS exit 0 — 7 passed"
+    },
+    {
+      "cmd": "cd cli && npx c8 --include 'src/setupAgentHooks.js' --check-coverage --lines 80 node --test test/setupAgentHooks.test.js",
+      "result": "PASS — 93.11% lines"
+    },
+    {
+      "cmd": "./scripts/quality-gates.sh",
+      "result": "PASS — quality-gates passed"
+    },
+    {
+      "cmd": "rg -n \"setup-agent-hooks|~/.tripwire/hooks|chmod 700\" docs/user-guide/setup-commands.md",
+      "result": "PASS — operator install path documented"
+    }
+  ],
+  "test_budget": {
+    "acceptance_tests_max": 7,
+    "acceptance_tests_designed": 5,
+    "parametrized_case_counts_as_one": true,
+    "extra_surface_tests": ["help listing", "CLI --home integration"]
+  },
+  "coverage": {
+    "target": "≥80% lines cli/src/setupAgentHooks.js",
+    "measured": "93.11%",
+    "date": "2026-08-15"
+  },
+  "complexity_policy": "enforcing — quality-gates.sh xenon PASS",
+  "reviewers": ["in-session nimble (acceptance+implementation)"],
+  "review": {
+    "acceptance": "APPROVED",
+    "implementation": "APPROVED",
+    "notes": "GWTs bind to real install path + settings JSON; fixture HOME/--claude-settings; config delegates to ensure_default_config; idempotent PreToolUse. No enforcement logic beyond install wiring."
+  },
+  "documentation_audit": {
+    "1_install_path": "PASS — docs/user-guide/setup-commands.md Frontline section",
+    "2_hooks_chmod": "PASS — ~/.tripwire/hooks mode 700 stated",
+    "3_config_defaults": "PASS — cross-link guard/config.py / slice 23",
+    "4_cross_link": "PASS — gate-evidence ↔ TRAIL/PROGRESS"
+  },
+  "verdict": "ON_BRANCH",
   "phase": "H1",
-  "moscow": "Must"
+  "moscow": "Must",
+  "pr": "https://github.com/neomatrix369/tripwire/pull/75"
 }
