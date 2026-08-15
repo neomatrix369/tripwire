@@ -96,3 +96,4 @@
 | 2026-08-15 | backlog | Frontline carry-forward | Tracked, not resolved: (1) multi-match priority shortcut vs always interactive select; (2) fuzzy-match suggestions on not-found; (3) exact field-by-field `tripwire scan` JSON → dual OUTPUT FORMAT map (slice 26 introspects); (4) `/tw-self-check` scope beyond five `/tw-*` skills. |
 | 2026-08-15 | priority | Frontline over Wave G | While on Frontline branch, execute priority = Wave H Musts 23→32 first. Do not start Wave G 18–22 unless explicitly resumed. |
 | 2026-08-15 | sync-docs | Wave H DECIDED pointers | STATUS DECIDED+Future, ARCHITECTURE Future, ADR-0015 related note, coverage-audit Guard row — plan-only; no user-guide claim of hooks/`/tw-*` yet. |
+| 2026-08-15 | quality-gates | Xenon split align | `scripts/quality-gates.sh` xenon matched pre-commit/CI split (scan_app absolute C / average A; scanners absolute D / average B). Combined `--max-average A` was a false T1 fail. |
