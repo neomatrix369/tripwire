@@ -112,24 +112,22 @@ function isTripwirePreToolUseCommand(command, preToolUseSh) {
   return command.includes('.tripwire/hooks/pre-tool-use.sh');
 }
 
+function commandStringsFromEntry(entry) {
+  const inner = entry?.hooks;
+  if (!Array.isArray(inner)) {
+    return [];
+  }
+  return inner
+    .filter((h) => h?.type === 'command' && typeof h.command === 'string')
+    .map((h) => h.command);
+}
+
 function collectPreToolUseCommands(settings) {
   const hooks = settings?.hooks?.PreToolUse;
   if (!Array.isArray(hooks)) {
     return [];
   }
-  const commands = [];
-  for (const entry of hooks) {
-    const inner = entry?.hooks;
-    if (!Array.isArray(inner)) {
-      continue;
-    }
-    for (const h of inner) {
-      if (h?.type === 'command' && typeof h.command === 'string') {
-        commands.push(h.command);
-      }
-    }
-  }
-  return commands;
+  return hooks.flatMap(commandStringsFromEntry);
 }
 
 async function registerPreToolUse({ claudeSettingsPath, preToolUseSh }) {
@@ -164,11 +162,9 @@ async function registerPreToolUse({ claudeSettingsPath, preToolUseSh }) {
   // Drop duplicate Tripwire PreToolUse entries if a prior broken install left multiples.
   const seen = new Set();
   settings.hooks.PreToolUse = settings.hooks.PreToolUse.filter((entry) => {
-    const inner = Array.isArray(entry?.hooks) ? entry.hooks : [];
-    const tripwireCmds = inner
-      .filter((h) => h?.type === 'command')
-      .map((h) => h.command)
-      .filter((cmd) => isTripwirePreToolUseCommand(cmd, preToolUseSh));
+    const tripwireCmds = commandStringsFromEntry(entry).filter((cmd) =>
+      isTripwirePreToolUseCommand(cmd, preToolUseSh),
+    );
     if (tripwireCmds.length === 0) {
       return true;
     }
