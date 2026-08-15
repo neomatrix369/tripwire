@@ -1,0 +1,24 @@
+{
+  "slice": 25,
+  "gate_status": "PLANNED",
+  "inferred": false,
+  "branch": null,
+  "date": null,
+  "before_checks": [],
+  "after_checks": [],
+  "planned_commands": [
+    "test -f docs/plan/slices/08-H-frontline-agent-hooks/slice-25-live-enforce-smoke.md",
+    "rg -n \"install-event|setup-agent-hooks\" docs/ internal-docs/04_frontline/",
+    "test -x \"$HOME/.tripwire/hooks/pre-tool-use.sh\" || echo \"hooks not installed yet — expected until GREEN\"",
+    "./scripts/quality-gates.sh"
+  ],
+  "commands": [],
+  "test_budget": {"acceptance_tests_max": 7, "parametrized_case_counts_as_one": true},
+  "reviewers": [],
+  "review": {"acceptance": "PENDING", "implementation": "PENDING"},
+  "verdict": "NOT_RUN",
+  "coverage_target": "TBD at AT design before IN PROGRESS",
+  "complexity_policy": "enforcing for product-code; N/A for docs-only with reason in evidence",
+  "phase": "H1",
+  "moscow": "Must"
+}

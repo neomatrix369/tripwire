@@ -30,8 +30,16 @@ dashboard.** Everything else is Future or Won't (A).
 - Public badges and architecture diagrams show only partners and containers
   that have a reachable path (Gate A trust strip).
 
-Re-opening Guard or Drift requires a new ADR (or an explicit supersede of this
-one) plus STATUS evidence, not a stub file.
+Re-opening Guard or Drift as a **Horizon A** ship claim requires a new ADR (or
+an explicit supersede of this one) plus STATUS evidence, not a stub file.
+
+**Related (does not supersede this ADR yet):** Wave H Frontline agent hooks
+(2026-08-15) are **DECIDED** as plan-only slices 23–39
+([plan/TRAIL.md](../plan/TRAIL.md), [plan/DECISIONS.md](../plan/DECISIONS.md)).
+That wave is the intended Frontline path for Claude Code PreToolUse enforcement
+and `/tw-*` skills. Until those slices are IMPLEMENTED/VERIFIED and a superseding
+ADR is accepted, this Horizon A exclusion and the coverage-bar omission of
+`guard/` remain in force.
 
 ## Consequences
 
@@ -41,6 +49,9 @@ one) plus STATUS evidence, not a stub file.
   stay evidence-labelled.
 - Wave G ATDD (slices 18–22) closes CLI/sandbox/dashboard contracts inside
   this Horizon A boundary; it does not revive Guard.
+- Wave H (parked Wave G while active) plans Frontline Guard separately; do not
+  document `setup-agent-hooks` or `/tw-*` as current user capabilities until
+  STATUS moves them past DECIDED.
 
 ## Alternatives considered
 
@@ -55,6 +66,7 @@ Not required: keeping a stub is fine if docs and coverage treat it as Future.
 ## References
 
 - [docs/ARCHITECTURE.md](../ARCHITECTURE.md) §2 Future
-- [docs/STATUS.md](../STATUS.md) Future
+- [docs/STATUS.md](../STATUS.md) Future / DECIDED (Wave H)
 - [docs/plan/DECISIONS.md](../plan/DECISIONS.md) demo-hackathon closed; Gate A
-  trust strip
+  trust strip; Wave H Frontline Add 2026-08-15
+- [docs/plan/TRAIL.md](../plan/TRAIL.md) Wave H
