@@ -33,6 +33,12 @@ placeholder token, but this is a degraded diagnostic path.
 Scanner environment variable names stay upstream. Do not add `TRIPWIRE_*` or
 `CISCO_AI_DEFENSE_API_KEY` aliases.
 
+**DepShield has no row above by design.** The DepShield adapter
+(`depshield-mcp`, baked into the Modal image) requires **no credentials**: it
+audits npm and PyPI manifests via OSV.dev using plain network egress from the
+sandbox. There is nothing to add to `tripwire-scan-secrets` for DepShield, and
+no `skipped_missing_credential` path exists for it.
+
 ## Sync the secrets
 
 ```bash

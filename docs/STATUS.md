@@ -35,6 +35,13 @@ Reachable through production entry points / config:
 - Scanner adapters shell out to upstream CLIs (`skill-scanner`, `mcp-scanner`,
   `snyk-agent-scan`, `tessl`) with real flags and parse documented output shapes —
   `sandbox/scanners.py`
+- DepShield dependency-audit adapter (`depshield-mcp` over MCP stdio;
+  npm + PyPI via OSV.dev; zero credentials — nothing synced to
+  `tripwire-scan-secrets`; runs for both item types, appended last in the
+  `SCANNER_GROUPS` registry) — `sandbox/scanners.py`, unit-tested in
+  `sandbox/tests/`. IMPLEMENTED only: no live-Modal run recorded yet, so no
+  VERIFIED (operator) claim — see
+  [scanner-output-adapters.md](./research/adapters/scanner-output-adapters.md) §7
 - Fixture set under `fixtures/` — see [fixtures/README.md](../fixtures/README.md)
 - `_acquire_target` dispatch (git clone, local copy, host→sandbox tar upload via
   `local_entrypoint`, MCP introspection-only empty workdir) — `sandbox/`
@@ -126,6 +133,33 @@ slices 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. See
 Not IMPLEMENTED — no production hook install path or `/tw-*` skills yet. ADR-0015
 Horizon A exclusion remains in force until Wave H lands and a superseding ADR
 records the new production entry.
+
+---
+
+## PROPOSED
+
+Claude Code agent-hooks integration layer
+([ADR-0017](./adr/0017-claude-code-agent-guard-integration.md), which amends
+[ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md); this section is
+the STATUS evidence its reopening rule requires — the Future note below
+predates it, and Drift/trend remains Won't (A)):
+
+- PreToolUse enforcement handler at `~/.tripwire/hooks/` (`pre-tool-use.sh` +
+  `_guard_entry.py`; repo source `agent-hooks/hooks/`) — fail-closed decision
+  JSON with internal timeout budget, identifier lookup + CLI-compatible hash
+  comparison, 14-day staleness window — PROPOSED
+- Five `/tw-*` skills (`tw-verify`, `tw-scan`, `tw-enable`, `tw-disable`,
+  `tw-self-check`; repo source `agent-hooks/skills/`, installed to
+  `~/.claude/skills/`) — PROPOSED
+- `tripwire setup-agent-hooks` installer (preflight, `~/.tripwire/config.json`
+  init, handler install, env pre-warm, `~/.claude/settings.json` JSON-merge,
+  skill copy, bootstrap scan sweep) — PROPOSED
+- Local `enable` kill switch AND-ed with Supabase `monitoring_enabled`;
+  missing/corrupt local config denies (tamper signal) — PROPOSED
+
+These entries flip to IMPLEMENTED/VERIFIED only with the Phase-1
+regression-gate evidence (live block/allow matrix, tamper case, fail-closed
+refusal+hang pair, settings diff) — see ADR-0017 Consequences.
 
 ---
 

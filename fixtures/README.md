@@ -21,10 +21,20 @@ exhaustive), enough to demo each heatmap state and the main finding anchor types
 | `skills/vuln-prompt-injection-notes` | skill | red | hidden "SYSTEM OVERRIDE" instructions in an HTML comment |
 | `skills/vuln-runtime-download` | skill | red | `curl \| bash` in `install.sh` (CWE-494) |
 | `skills/disagreement-naive-domain-check` | skill | amber (borderline) | naive prefix-match allowlist bypass — designed to plausibly split scanners |
+| `skills/vuln-dependency-lodash` | skill | red (dependency) | pinned `lodash@4.17.15` (CVE-2020-8203, CVE-2021-23337) in `package.json` + lockfile — SCA/dependency-scanner demo target |
 | `mcp/safe-time-server` | mcp | green | clean baseline |
 | `mcp/vuln-command-injection-server` | mcp | red | `shell=True` + unsanitized interpolation (CWE-78), file- and entity-anchored simultaneously |
 | `mcp/vuln-hardcoded-secret-server` | mcp | red | hardcoded API key in `config.py` (CWE-798) |
 | `mcp/vuln-unauthenticated-http-server` | mcp | amber | HTTP transport with no auth check |
+
+## Demo install (Claude Code integration)
+
+`../scripts/install-demo-artifacts.sh` installs a demo subset under demo names:
+three skills copied to `~/.claude/skills/` (`safe-skill`, `vuln-skill`,
+`amber-skill`, frontmatter `name:` rewritten to match) and a demo MCP manifest
+at `~/.tripwire/demo-mcp.json` (`safe-tool`, `vuln-tool`, `amber-tool`) pointing
+at the `mcp/*/run.sh` scripts in place. It then scans the installed copies —
+the enforcement hook verifies those, not the pristine fixtures here.
 
 All MCP servers are registered in `mcp/mcp_manifest.json`. All vulnerable fixtures are inert —
 fake keys, non-resolving `example.invalid`/`webhook.example.com` URLs — they exist to prove a
@@ -32,4 +42,4 @@ scanner catches the pattern, not to cause harm. Run them only inside an isolated
 
 Not yet built (real gaps, not urgent — see spec §8 "Known test gaps"): a purely
 live-introspected MCP server with no source at all, prompt/resource-level findings,
-cross-tool attack chains, and dependency/SCA findings.
+and cross-tool attack chains.

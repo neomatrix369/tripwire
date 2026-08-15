@@ -5,6 +5,7 @@ import { ensureSchema } from '../src/ensureSchema.js';
 import { loadEnv } from '../src/loadEnv.js';
 import { runScan } from '../src/orchestrator.js';
 import { runRoute } from '../src/router.js';
+import { runSetupAgentHooks } from '../src/setupAgentHooks.js';
 
 loadEnv();
 
@@ -67,6 +68,19 @@ program
         sieModel: opts.sieModel,
         modelStudioModel: opts.modelStudioModel,
       });
+    } catch (err) {
+      console.error(err.message || err);
+      process.exitCode = 1;
+    }
+  });
+
+program
+  .command('setup-agent-hooks')
+  .description('Install Claude Code PreToolUse hooks, /tw-* skills, and ~/.tripwire config')
+  .option('--with-demo', 'also install and scan demo artifacts', false)
+  .action(async (opts) => {
+    try {
+      await runSetupAgentHooks({ withDemo: Boolean(opts.withDemo) });
     } catch (err) {
       console.error(err.message || err);
       process.exitCode = 1;

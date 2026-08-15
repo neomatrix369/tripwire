@@ -66,6 +66,14 @@ not a second environment-variable schema.
 | `MCP_SCANNER_API_KEY` | MCP Scanner cloud inspect | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 | `MCP_SCANNER_ENDPOINT` | MCP inspect API base | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 
+## DepShield — no keys required
+
+The DepShield dependency-audit adapter (`depshield-mcp`, baked into the Modal
+image) needs **no vendor account and no `.env` keys**: it audits npm and PyPI
+manifests via OSV.dev over plain network egress from the sandbox. There is
+nothing to procure here and nothing to add to `tripwire-scan-secrets`; the
+`skipped_missing_credential` degraded path does not apply to this engine.
+
 ## Optional — tiered router (SIE + Model Studio)
 
 Not required for scanner Live coverage. Required for `tripwire route` and for
