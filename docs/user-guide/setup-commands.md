@@ -88,6 +88,14 @@ Resolves one or more names, classifies each via Supabase status (injectable
 one pass. See [frontline-output-contract.md](frontline-output-contract.md).
 ATs: `pytest guard/tests/test_tw_verify.py -q`.
 
+**`/tw-scan` (operator):** Claude skill at `.claude/skills/tw-scan/SKILL.md`.
+Resolves one or more names (same rules as `/tw-verify`), accepts `--force` or
+bare `force` to resubmit over a fresh result, and submits via the existing
+`tripwire scan` API (`guard.scan.scan_artifacts`). Confirmation echoes
+slice-26 identifiers (`batch_id`, `scan_run_ids`). See
+[frontline-output-contract.md](frontline-output-contract.md).
+ATs: `pytest guard/tests/test_tw_scan.py -q`.
+
 **`/tw-*` dual output contract:** human Markdown table + machine JSON shape,
 `heatmap_status` → six UI states, and observed `tripwire scan` stdout fields —
 see [frontline-output-contract.md](frontline-output-contract.md).

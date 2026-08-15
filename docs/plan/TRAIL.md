@@ -169,8 +169,8 @@ Branch: `frontline-hackathon-london-2026-agent-hooks`. Source: `internal-docs/04
 |---|------|------|--------|--------|------------|-------|-----------|
 | 26 | [slice-26-api-output-contract](slices/08-H-frontline-agent-hooks/slice-26-api-output-contract.md) | API Introspect + Dual Output Contract | Must | ✅ | 25 | #78 | ~4 min |
 | 27 | [slice-27-tw-enable-disable](slices/08-H-frontline-agent-hooks/slice-27-tw-enable-disable.md) | `/tw-enable` + `/tw-disable` | Must | ✅ | 26 | #80 | ~3 min |
-| 28 | [slice-28-tw-verify](slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md) | `/tw-verify` | Must | 🔀 | 26,27 | — | ~5 min |
-| 29 | [slice-29-tw-scan](slices/08-H-frontline-agent-hooks/slice-29-tw-scan.md) | `/tw-scan` | Must | 📋 | 26 | — | ~4 min |
+| 28 | [slice-28-tw-verify](slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md) | `/tw-verify` | Must | ✅ | 26,27 | #81 | ~5 min |
+| 29 | [slice-29-tw-scan](slices/08-H-frontline-agent-hooks/slice-29-tw-scan.md) | `/tw-scan` | Must | 🔀 | 26 | — | ~4 min |
 | 30 | [slice-30-tw-self-check](slices/08-H-frontline-agent-hooks/slice-30-tw-self-check.md) | `/tw-self-check` | Must | 📋 | 28 | — | ~3 min |
 
 #### H3 — Demos + Phase 1 regression (Must) — HARD GATE
