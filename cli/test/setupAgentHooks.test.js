@@ -36,23 +36,29 @@ function hooksDirFor(home) {
   return path.join(home, '.tripwire', 'hooks');
 }
 
+function isTripwirePreToolUseCommand(command, preToolUseSh) {
+  if (typeof command !== 'string') {
+    return false;
+  }
+  return command === preToolUseSh || command.includes('.tripwire/hooks/pre-tool-use.sh');
+}
+
+function commandStringsFromEntry(entry) {
+  const inner = Array.isArray(entry?.hooks) ? entry.hooks : [];
+  return inner
+    .filter((h) => h?.type === 'command' && typeof h.command === 'string')
+    .map((h) => h.command);
+}
+
 function countTripwirePreToolUse(settings, preToolUseSh) {
   const entries = settings?.hooks?.PreToolUse;
   if (!Array.isArray(entries)) {
     return 0;
   }
-  let count = 0;
-  for (const entry of entries) {
-    const inner = Array.isArray(entry?.hooks) ? entry.hooks : [];
-    for (const h of inner) {
-      if (h?.type === 'command' && typeof h.command === 'string') {
-        if (h.command === preToolUseSh || h.command.includes('.tripwire/hooks/pre-tool-use.sh')) {
-          count += 1;
-        }
-      }
-    }
-  }
-  return count;
+  return entries
+    .flatMap(commandStringsFromEntry)
+    .filter((cmd) => isTripwirePreToolUseCommand(cmd, preToolUseSh))
+    .length;
 }
 
 test('given clean home when setup-agent-hooks runs then hooks exist with mode 700', async () => {
