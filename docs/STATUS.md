@@ -123,9 +123,29 @@ on `main` yet (side-branch only); it is omitted from the catalog until accepted.
 `tripwire setup-agent-hooks`, and five `/tw-*` skills are **DECIDED** as plan-only
 slices 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. See
 [plan/TRAIL.md](./plan/TRAIL.md) Wave H and [plan/DECISIONS.md](./plan/DECISIONS.md).
-Not IMPLEMENTED — no production hook install path or `/tw-*` skills yet. ADR-0015
-Horizon A exclusion remains in force until Wave H lands and a superseding ADR
-records the new production entry.
+
+- **Slice 23 (Config + Handler Scripts):** schema + handler templates are
+  **IMPLEMENTED** and **VERIFIED** (PR #74 into Frontline integration branch) —
+  `guard/config.py` (`enable` default `true`, `scan_validity_days` default `14`),
+  `guard/hooks_entry.py` (stdin → stdout approve/block, fail-closed), install
+  templates under `guard/hooks/`.
+- **Slice 24 (`tripwire setup-agent-hooks`):** **IMPLEMENTED** and **VERIFIED**
+  (PR #75) — `cli/src/setupAgentHooks.js`; installs hooks to `~/.tripwire/hooks`
+  (mode `700`), first-write config via `ensure_default_config`, Claude PreToolUse
+  registration.
+- **Slice 25 (Live Enforce Smoke):** **IMPLEMENTED** and **VERIFIED** (PR #76) —
+  scripted smoke after install proves enable→block (unscanned/RED) and
+  disable→approve; docs state no native install-event hook. H2 checkpoint
+  signed off 2026-08-15.
+- **Slice 26 (API / dual output contract):** ✅ **VERIFIED** (PR #78) — SSOT
+  [user-guide/frontline-output-contract.md](./user-guide/frontline-output-contract.md)
+  documents six UI states, `heatmap_status` mapping, dual human/JSON shape, and
+  observed `tripwire scan` stdout (`batch_id` / `scan_run_ids` / `failed_targets`).
+- **Slice 27 (`/tw-enable` + `/tw-disable`):** 🔀 ON BRANCH — `guard.config.set_enable`,
+  Claude skills under `.claude/skills/tw-{enable,disable}/`, verify/scan remain
+  usable when disabled (probe until slices 28–29).
+- Remaining H Musts/Shoulds: `/tw-verify`, `/tw-scan`, `/tw-self-check` not yet
+  IMPLEMENTED.
 
 ---
 
@@ -145,8 +165,8 @@ Known fixture gaps (not urgent) are listed under
 as shipped capabilities. Guard PreToolUse and Drift/trend remain Future /
 Won't (A) for the Horizon A ship path — see
 [ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md). Frontline Guard
-integration is **DECIDED** as Wave H (plan-only; not shipped) — see DECIDED
-above.
+integration is **DECIDED** as Wave H — see DECIDED above. Slice 23–26 ✅;
+slice 27 `/tw-enable`/`/tw-disable` on branch. Remaining `/tw-*` skills pending.
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 (slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` …

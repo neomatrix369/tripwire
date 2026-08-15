@@ -1,24 +1,65 @@
 {
   "slice": 26,
-  "gate_status": "PLANNED",
+  "gate_status": "PASSED",
   "inferred": false,
-  "branch": null,
-  "date": null,
-  "before_checks": [],
-  "after_checks": [],
-  "planned_commands": [
-    "test -f docs/plan/slices/08-H-frontline-agent-hooks/slice-26-api-output-contract.md",
-    "rg -n \"fresh|stale|unscanned|scanning|not-found|will_be_blocked\" internal-docs/04_frontline/main_prompt.md",
-    "rg -n \"heatmap_status\" guard/",
-    "tripwire scan --help || true"
+  "branch": "slice/26-api-output-contract",
+  "date": "2026-08-15",
+  "spec_path": "docs/plan/slices/08-H-frontline-agent-hooks/slice-26-api-output-contract.md",
+  "contract_path": "docs/user-guide/frontline-output-contract.md",
+  "before_checks": "PASS — slice 25 verdict PASS (PR #76) + H2 checkpoint SIGNED_OFF; branch from Frontline (Wave H base waiver); main_prompt rg recorded; coverage N/A docs-only",
+  "after_checks": [
+    "PASS — contract doc exists at docs/user-guide/frontline-output-contract.md",
+    "PASS — six states + Name|Type|Status|Note columns (pytest + rg)",
+    "PASS — machine JSON fields match main_prompt; scan stdout BACKLOG deltas listed",
+    "PASS — .venv/bin/pytest guard/tests/test_frontline_output_contract.py -q (4 passed)",
+    "PASS — coverage/complexity N/A docs-only (no product-code change)",
+    "PASS — docs-only review exception recorded in DECISIONS 2026-08-15",
+    "PASS — merged to Frontline via PR #78 (merge-equivalent while Wave H active)"
   ],
-  "commands": [],
-  "test_budget": {"acceptance_tests_max": 7, "parametrized_case_counts_as_one": true},
-  "reviewers": [],
-  "review": {"acceptance": "PENDING", "implementation": "PENDING"},
-  "verdict": "NOT_RUN",
-  "coverage_target": "TBD at AT design before IN PROGRESS",
-  "complexity_policy": "enforcing for product-code; N/A for docs-only with reason in evidence",
+  "commands": [
+    {
+      "cmd": "rg -n \"heatmap_status|OUTPUT FORMAT|will_be_blocked\" internal-docs/04_frontline/main_prompt.md",
+      "result": "PASS — OUTPUT FORMAT + will_be_blocked + heatmap_status hits present"
+    },
+    {
+      "cmd": ".venv/bin/pytest guard/tests/test_frontline_output_contract.py -q --tb=short",
+      "result": "PASS exit 0 — 4 passed"
+    },
+    {
+      "cmd": "rg -n \"fresh|stale|unscanned|scanning|not-found|\\| Name \\| Type \\| Status \\| Note \\|\" docs/user-guide/frontline-output-contract.md",
+      "result": "PASS — six states + human table columns greppable"
+    },
+    {
+      "cmd": "rg -n \"batch_id|scan_run_ids|failed_targets\" docs/user-guide/frontline-output-contract.md cli/src/orchestrator.js",
+      "result": "PASS — observed scan stdout fields documented and present in orchestrator"
+    }
+  ],
+  "test_budget": {
+    "acceptance_tests_max": 7,
+    "acceptance_tests_designed": 4,
+    "parametrized_case_counts_as_one": true
+  },
+  "coverage": {
+    "target": "N/A — docs-only",
+    "measured": "N/A",
+    "date": "2026-08-15",
+    "reason": "No product-code change; characterization asserts against existing orchestrator.js + guard_hook.py"
+  },
+  "complexity_policy": "N/A for docs-only — no product-code touched",
+  "reviewers": ["docs-only exception (DECISIONS 2026-08-15)"],
+  "review": {
+    "acceptance": "APPROVED",
+    "implementation": "APPROVED",
+    "notes": "Docs-only GATE_CONTRACT exception; four binary ATs lock SSOT contract path, six states, table columns, machine fields, and observed scan JSON without inventing fields"
+  },
+  "documentation_audit": {
+    "1_human_machine": "PASS — frontline-output-contract.md",
+    "2_heatmap_mapping": "PASS — green/amber/red/grey/error + lifecycle states",
+    "3_links": "PASS — main_prompt + slices 27–30 + setup-commands + docs index",
+    "4_cross_link": "PASS — gate-evidence ↔ TRAIL/PROGRESS"
+  },
+  "verdict": "PASS",
   "phase": "H2",
-  "moscow": "Must"
+  "moscow": "Must",
+  "pr": "https://github.com/neomatrix369/tripwire/pull/78"
 }

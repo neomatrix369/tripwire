@@ -55,6 +55,51 @@ tripwire setup
 # optional: ./scripts/setup-supabase.sh
 ```
 
+### Frontline agent hooks (Claude Code PreToolUse)
+
+Claude Code has **no native install-event hook**. The workaround is a one-shot
+operator install:
+
+```bash
+tripwire setup-agent-hooks
+```
+
+Single install path for Wave H handlers (requires Tripwire Python package
+importable, e.g. repo `.venv` / `uv run`). This installs templates to
+`~/.tripwire/hooks/` with owner-only mode `700`, writes
+`~/.tripwire/config.json` on first run only (`enable=true`,
+`scan_validity_days=14` — see `guard/config.py` / slice 23), and registers a
+PreToolUse command in `~/.claude/settings.json`. Re-runs are idempotent
+(config preserved; hook not duplicated). Fixture/testing overrides:
+`--home <dir>` and `--claude-settings <path>`.
+
+**Enable / disable (operator):** use `/tw-enable` or `/tw-disable` (Claude skills
+at `.claude/skills/tw-enable/SKILL.md` and `.claude/skills/tw-disable/SKILL.md`)
+to toggle only `"enable"` in `~/.tripwire/config.json` — other keys are
+preserved. Same effect as editing the flag by hand: `enable=true` → PreToolUse
+blocks unscanned or RED artifacts; `enable=false` → approve-all bypass.
+`/tw-verify` and `/tw-scan` remain usable when disabled. Scripted smoke:
+`pytest guard/tests/test_live_enforce_smoke.py -q`. Config toggle ATs:
+`pytest guard/tests/test_tw_enable_disable.py -q`.
+
+**`/tw-verify` (operator):** Claude skill at `.claude/skills/tw-verify/SKILL.md`.
+Resolves one or more names, classifies each via Supabase status (injectable
+`guard.verify.verify_artifacts`), and prints the dual-output table + JSON in
+one pass. See [frontline-output-contract.md](frontline-output-contract.md).
+ATs: `pytest guard/tests/test_tw_verify.py -q`.
+
+**`/tw-scan` (operator):** Claude skill at `.claude/skills/tw-scan/SKILL.md`.
+Resolves one or more names (same rules as `/tw-verify`), accepts `--force` or
+bare `force` to resubmit over a fresh result, and submits via the existing
+`tripwire scan` API (`guard.scan.scan_artifacts`). Confirmation echoes
+slice-26 identifiers (`batch_id`, `scan_run_ids`). See
+[frontline-output-contract.md](frontline-output-contract.md).
+ATs: `pytest guard/tests/test_tw_scan.py -q`.
+
+**`/tw-*` dual output contract:** human Markdown table + machine JSON shape,
+`heatmap_status` → six UI states, and observed `tripwire scan` stdout fields —
+see [frontline-output-contract.md](frontline-output-contract.md).
+
 ### Verify Supabase access
 
 After `tripwire setup`, confirm the anon key (what the browser dashboard uses)

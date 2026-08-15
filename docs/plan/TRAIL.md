@@ -159,18 +159,18 @@ Branch: `frontline-hackathon-london-2026-agent-hooks`. Source: `internal-docs/04
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
-| 23 | [slice-23-config-handler-scripts](slices/08-H-frontline-agent-hooks/slice-23-config-handler-scripts.md) | Config + Handler Scripts | Must | 📋 | none | — | ~4 min |
-| 24 | [slice-24-setup-agent-hooks](slices/08-H-frontline-agent-hooks/slice-24-setup-agent-hooks.md) | `tripwire setup-agent-hooks` | Must | 📋 | 23 | — | ~4 min |
-| 25 | [slice-25-live-enforce-smoke](slices/08-H-frontline-agent-hooks/slice-25-live-enforce-smoke.md) | Live Enforce Smoke | Must | 📋 | 24 | — | ~3 min |
+| 23 | [slice-23-config-handler-scripts](slices/08-H-frontline-agent-hooks/slice-23-config-handler-scripts.md) | Config + Handler Scripts | Must | ✅ | none | #74 | ~4 min |
+| 24 | [slice-24-setup-agent-hooks](slices/08-H-frontline-agent-hooks/slice-24-setup-agent-hooks.md) | `tripwire setup-agent-hooks` | Must | ✅ | 23 | #75 | ~4 min |
+| 25 | [slice-25-live-enforce-smoke](slices/08-H-frontline-agent-hooks/slice-25-live-enforce-smoke.md) | Live Enforce Smoke | Must | ✅ | 24 | #76 | ~3 min |
 
 #### H2 — Shared contracts + control skills (Must)
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
-| 26 | [slice-26-api-output-contract](slices/08-H-frontline-agent-hooks/slice-26-api-output-contract.md) | API Introspect + Dual Output Contract | Must | 📋 | 25 | — | ~4 min |
-| 27 | [slice-27-tw-enable-disable](slices/08-H-frontline-agent-hooks/slice-27-tw-enable-disable.md) | `/tw-enable` + `/tw-disable` | Must | 📋 | 26 | — | ~3 min |
-| 28 | [slice-28-tw-verify](slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md) | `/tw-verify` | Must | 📋 | 26,27 | — | ~5 min |
-| 29 | [slice-29-tw-scan](slices/08-H-frontline-agent-hooks/slice-29-tw-scan.md) | `/tw-scan` | Must | 📋 | 26 | — | ~4 min |
+| 26 | [slice-26-api-output-contract](slices/08-H-frontline-agent-hooks/slice-26-api-output-contract.md) | API Introspect + Dual Output Contract | Must | ✅ | 25 | #78 | ~4 min |
+| 27 | [slice-27-tw-enable-disable](slices/08-H-frontline-agent-hooks/slice-27-tw-enable-disable.md) | `/tw-enable` + `/tw-disable` | Must | ✅ | 26 | #80 | ~3 min |
+| 28 | [slice-28-tw-verify](slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md) | `/tw-verify` | Must | ✅ | 26,27 | #81 | ~5 min |
+| 29 | [slice-29-tw-scan](slices/08-H-frontline-agent-hooks/slice-29-tw-scan.md) | `/tw-scan` | Must | 🔀 | 26 | — | ~4 min |
 | 30 | [slice-30-tw-self-check](slices/08-H-frontline-agent-hooks/slice-30-tw-self-check.md) | `/tw-self-check` | Must | 📋 | 28 | — | ~3 min |
 
 #### H3 — Demos + Phase 1 regression (Must) — HARD GATE
