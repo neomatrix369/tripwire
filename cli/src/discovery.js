@@ -66,6 +66,30 @@ async function discoverDefaults() {
   return found;
 }
 
+function collectPathCandidates(entry) {
+  const candidates = [];
+  if (typeof entry.command === 'string') candidates.push(entry.command);
+  if (!Array.isArray(entry.args)) return candidates;
+  for (const arg of entry.args) {
+    if (typeof arg === 'string') candidates.push(arg);
+  }
+  return candidates;
+}
+
+function isPathLikeToken(raw) {
+  // Bare tokens (bash, npx, node) are not packable source roots.
+  return raw.includes('/') || raw.includes('\\');
+}
+
+function resolveMcpServerDir(raw) {
+  if (!isPathLikeToken(raw)) return null;
+  const candidate = path.resolve(raw);
+  if (!existsSync(candidate)) return null;
+  if (looksLikeMcpServer(candidate)) return candidate;
+  const parent = path.dirname(candidate);
+  return looksLikeMcpServer(parent) ? parent : null;
+}
+
 /**
  * Derive a host directory to tar for Modal from an MCP server config entry.
  * Identity stays the config key; this path is pack-only (never the identifier).
@@ -74,21 +98,9 @@ async function discoverDefaults() {
  */
 function resolvePackPathFromEntry(entry) {
   if (!entry || typeof entry !== 'object') return null;
-  const candidates = [];
-  if (typeof entry.command === 'string') candidates.push(entry.command);
-  if (Array.isArray(entry.args)) {
-    for (const arg of entry.args) {
-      if (typeof arg === 'string') candidates.push(arg);
-    }
-  }
-  for (const raw of candidates) {
-    // Bare tokens (bash, npx, node) are not packable source roots.
-    if (!raw.includes('/') && !raw.includes('\\')) continue;
-    const candidate = path.resolve(raw);
-    if (!existsSync(candidate)) continue;
-    if (looksLikeMcpServer(candidate)) return candidate;
-    const parent = path.dirname(candidate);
-    if (looksLikeMcpServer(parent)) return parent;
+  for (const raw of collectPathCandidates(entry)) {
+    const packPath = resolveMcpServerDir(raw);
+    if (packPath) return packPath;
   }
   return null;
 }
