@@ -1,24 +1,65 @@
 {
   "slice": 29,
-  "gate_status": "PLANNED",
+  "gate_status": "ON_BRANCH",
   "inferred": false,
-  "branch": null,
-  "date": null,
-  "before_checks": [],
-  "after_checks": [],
+  "branch": "slice/29-tw-scan",
+  "date": "2026-08-15",
+  "spec_path": "docs/plan/slices/08-H-frontline-agent-hooks/slice-29-tw-scan.md",
+  "output_ssot": "docs/user-guide/frontline-output-contract.md",
+  "skill_layout": [".claude/skills/tw-scan/SKILL.md"],
+  "scan_id_fields": ["batch_id", "scan_run_ids", "failed_targets"],
+  "before_checks": "PASS — slice 26 verdict PASS (PR #78); branch from Frontline (Wave H base waiver); scan ID fields from frontline-output-contract.md; coverage ≥95% on guard/scan.py; complexity enforcing",
+  "after_checks": [
+    "PASS — multi-name submit + both force syntaxes",
+    "PASS — machine echoes batch_id / scan_run_ids / failed_targets",
+    "PASS — .venv/bin/pytest guard/tests/test_tw_scan.py -q (7 passed)",
+    "PASS — coverage 98.7% lines on guard/scan.py (target ≥95%)",
+    "PASS — xenon exit 0; ./scripts/quality-gates.sh PASS",
+    "PASS — review acceptance revised then implementation APPROVED (nw-software-crafter-reviewer)",
+    "PENDING merge — PROGRESS/TRAIL ✅ after merge to Frontline"
+  ],
   "planned_commands": [
-    "test -f docs/plan/slices/08-H-frontline-agent-hooks/slice-29-tw-scan.md",
-    "rg -n \"tw-scan|--force|force\" docs/plan/slices/08-H-frontline-agent-hooks/ internal-docs/04_frontline/",
-    "tripwire scan --help || true",
+    ".venv/bin/pytest guard/tests/test_tw_scan.py -q --tb=short",
+    ".venv/bin/pytest guard/tests/test_tw_scan.py guard/tests/test_scan_units.py --cov=guard.scan --cov-report=term-missing -q",
     "./scripts/quality-gates.sh"
   ],
-  "commands": [],
-  "test_budget": {"acceptance_tests_max": 7, "parametrized_case_counts_as_one": true},
-  "reviewers": [],
-  "review": {"acceptance": "PENDING", "implementation": "PENDING"},
-  "verdict": "NOT_RUN",
-  "coverage_target": "TBD at AT design before IN PROGRESS",
-  "complexity_policy": "enforcing for product-code; N/A for docs-only with reason in evidence",
+  "commands": [
+    {
+      "cmd": ".venv/bin/pytest guard/tests/test_tw_scan.py -q --tb=short",
+      "result": "PASS exit 0 — 7 passed"
+    },
+    {
+      "cmd": ".venv/bin/pytest guard/tests/test_tw_scan.py guard/tests/test_scan_units.py --cov=guard.scan --cov-report=term-missing -q",
+      "result": "PASS — 11 passed; TOTAL 98.7% lines on guard/scan.py"
+    },
+    {
+      "cmd": "./scripts/quality-gates.sh",
+      "result": "PASS — quality-gates passed"
+    },
+    {
+      "cmd": "test -f .claude/skills/tw-scan/SKILL.md",
+      "result": "PASS — Claude skill layout present"
+    }
+  ],
+  "test_budget": {
+    "acceptance_tests_max": 7,
+    "acceptance_tests_designed": 7,
+    "parametrized_case_counts_as_one": true
+  },
+  "coverage": {
+    "target": "≥95% lines on guard/scan.py",
+    "measured": "98.7%",
+    "date": "2026-08-15"
+  },
+  "complexity_policy": "enforcing for product-code; xenon exit 0 via quality-gates",
+  "reviewers": ["nw-acceptance-designer-reviewer", "nw-software-crafter-reviewer"],
+  "review": {
+    "acceptance": "APPROVED",
+    "implementation": "APPROVED",
+    "notes": "Acceptance Then clauses revised for observables; Mandate-14 / 40% error-ratio NITs deferred per DECISIONS Wave H pattern. Implementation APPROVED — zero defects."
+  },
+  "verdict": "ON_BRANCH",
+  "coverage_target": "≥95% lines on guard/scan.py",
   "phase": "H2",
   "moscow": "Must"
 }
