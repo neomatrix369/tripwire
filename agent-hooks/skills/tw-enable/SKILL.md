@@ -7,6 +7,12 @@ description: Turn Tripwire enforcement ON for Claude Code tool calls. Use when t
 
 Flip the local Tripwire kill switch ON. This edits ONLY the `enable` key of `~/.tripwire/config.json` — no Supabase writes, no other keys touched.
 
+## Step 0 — Ask before enabling
+
+**Stop and ask the user:** *Do you want to turn Tripwire enforcement ON?*
+
+**Do not proceed to Step 1 until the user explicitly confirms.** If they decline or are unsure, stop with no config change.
+
 ## Step 1 — Set enable=true (python3 JSON round-trip)
 
 Run exactly this (do not hand-edit the file with text tools):

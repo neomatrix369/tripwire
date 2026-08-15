@@ -284,7 +284,7 @@ test('merges hook into existing settings.json, preserving unrelated keys, with b
         timeout: 10,
       }],
     });
-    assert.equal(HOOK_MATCHER, '^(Skill|mcp__.*)$');
+    assert.equal(HOOK_MATCHER, '^(Skill|Bash|mcp__.*)$');
     const backups = (await readdir(path.join(fx.home, '.claude')))
       .filter(name => name.startsWith('settings.json.tripwire-bak-'));
     assert.equal(backups.length, 1, 'exactly one timestamped backup');
@@ -325,6 +325,27 @@ test('hand-installed `~/…` hook registration is detected — no duplicate entr
     const backups = (await readdir(path.join(fx.home, '.claude')))
       .filter(name => name.startsWith('settings.json.tripwire-bak-'));
     assert.equal(backups.length, 0, 'nothing modified, so no backup');
+  });
+});
+
+test('stale matcher is refreshed on re-run without duplicating the PreToolUse entry', async () => {
+  const settings = JSON.stringify({
+    hooks: {
+      PreToolUse: [{
+        matcher: '^(Skill|mcp__.*)$',
+        hooks: [{ type: 'command', command: '~/.tripwire/hooks/pre-tool-use.sh', timeout: 10 }],
+      }],
+    },
+  }, null, 2);
+  await withFixture({ settings }, async (fx) => {
+    await run(fx);
+    const merged = JSON.parse(readFileSync(path.join(fx.home, '.claude', 'settings.json'), 'utf8'));
+    assert.equal(merged.hooks.PreToolUse.length, 1, 'no duplicate entry');
+    assert.equal(merged.hooks.PreToolUse[0].matcher, HOOK_MATCHER);
+    assert.equal(merged.hooks.PreToolUse[0].hooks[0].command, '~/.tripwire/hooks/pre-tool-use.sh');
+    const backups = (await readdir(path.join(fx.home, '.claude')))
+      .filter(name => name.startsWith('settings.json.tripwire-bak-'));
+    assert.equal(backups.length, 1, 'matcher refresh backs up first');
   });
 });
 

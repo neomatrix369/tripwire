@@ -10,7 +10,9 @@ const execAsync = promisify(execCb);
 
 // Written to be correct under BOTH regex-search and full-match semantics —
 // a bare `^mcp__` would match nothing under full-match (plan §4.2).
-export const HOOK_MATCHER = '^(Skill|mcp__.*)$';
+// Bash is included so skill-path commands (e.g. …/vuln-skill/install.sh) are
+// gated even when /skill-name loads instructions without a Skill tool event.
+export const HOOK_MATCHER = '^(Skill|Bash|mcp__.*)$';
 const HOOK_TIMEOUT_SECONDS = 10;
 const HANDLER_FILES = ['pre-tool-use.sh', '_guard_entry.py'];
 // Any registration form of our handler ends with this suffix (absolute or `~/…`).
@@ -263,18 +265,36 @@ function isTripwireHookCommand(command, homedir) {
 /**
  * JSON-merge the PreToolUse hook into ~/.claude/settings.json: timestamped backup
  * before any modification, idempotent by handler-command suffix, all other keys
- * preserved, atomic replace on write.
+ * preserved, atomic replace on write. Re-runs refresh the matcher when our
+ * handler is already present but the matcher is stale (e.g. Skill|mcp →
+ * Skill|Bash|mcp) without duplicating the entry.
  */
 function mergeSettings({ fs, settingsPath, hookCommand, homedir, now, log }) {
   const { settings, existed } = readSettingsForMerge({ fs, settingsPath });
   const hooks = assertMergeableShape(settings, settingsPath);
   const preToolUse = hooks.PreToolUse || [];
 
-  const already = preToolUse.some(entry =>
+  const oursIdx = preToolUse.findIndex(entry =>
     entry && Array.isArray(entry.hooks) && entry.hooks.some(h => h && isTripwireHookCommand(h.command, homedir)));
-  if (already) {
-    log(`[setup-agent-hooks] Hook already registered in ${settingsPath} — no duplicate written.`);
-    return { changed: false, backupPath: null };
+
+  if (oursIdx >= 0) {
+    if (preToolUse[oursIdx].matcher === HOOK_MATCHER) {
+      log(`[setup-agent-hooks] Hook already registered in ${settingsPath} — no duplicate written.`);
+      return { changed: false, backupPath: null };
+    }
+    let backupPath = null;
+    if (existed) {
+      backupPath = `${settingsPath}.tripwire-bak-${now().toISOString()}`;
+      fs.copyFileSync(settingsPath, backupPath);
+      log(`[setup-agent-hooks] Backed up ${settingsPath} -> ${backupPath}`);
+    }
+    preToolUse[oursIdx] = { ...preToolUse[oursIdx], matcher: HOOK_MATCHER };
+    hooks.PreToolUse = preToolUse;
+    settings.hooks = hooks;
+    fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
+    writeFileAtomic({ fs, filePath: settingsPath, data: JSON.stringify(settings, null, 2) + '\n', mode: 0o600 });
+    log(`[setup-agent-hooks] Refreshed Tripwire PreToolUse matcher in ${settingsPath}.`);
+    return { changed: true, backupPath };
   }
 
   let backupPath = null;

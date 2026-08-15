@@ -1,0 +1,6 @@
+# Intentional SCA demo target — pinned vulnerable lodash for Tripwire scanner demos.
+# See fixtures/README.md. Keep this ignore so repo SCA (CI / security-scan.sh) does not
+# fail on deliberate vulnerabilities.
+[[PackageOverrides]]
+ignore = true
+reason = "Intentional SCA demo fixture — pinned vulnerable lodash for Tripwire scanner demos. See fixtures/README.md."

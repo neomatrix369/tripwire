@@ -4,7 +4,7 @@ Supabase imports are lazy throughout, so importing ``guard.*`` works without
 the optional ``guard`` dependency group installed.
 """
 
-from guard.entry import decide, extract_target, main, resolve_artifact
+from guard.entry import decide, extract_target, main, resolve_artifact, resolve_operator_name
 from guard.guard_hook import check_call, check_call_by_identifier
 from guard.status import (
     DEFAULT_VALIDITY_DAYS,
@@ -24,4 +24,5 @@ __all__ = [
     "main",
     "make_client",
     "resolve_artifact",
+    "resolve_operator_name",
 ]

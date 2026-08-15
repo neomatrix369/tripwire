@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any, TextIO
@@ -46,16 +47,43 @@ _CONFIG_TAMPER_REASON = (
 # The trailing keys stay as defensive fallbacks for other harness versions.
 _SKILL_NAME_KEYS = ("skill", "command", "name", "skillName")
 
+# Path-like tokens in a Bash command that may point into a skills directory.
+# Absolute, ~/…, ./…, ../…, or any token containing a slash / ending in a
+# common script extension. Broad on purpose for token discovery; attribution
+# itself is narrowed in ``_extract_bash_skill_target`` so a skill *directory*
+# passed only as data (``/tw-verify`` / ``/tw-scan`` status drivers) is not
+# gated — otherwise unscanned skills deadlock their own remediation path.
+_BASH_PATH_TOKEN = (
+    r"(?:~|/|\./|\.\./)[^\s;|&\"']+"
+    r"|(?:[^\s;|&\"']+/)+[^\s;|&\"']+"
+    r"|[^\s;|&\"']+\.(?:sh|py|js|mjs|ts|bash)"
+)
+
+# Shell-script invocation shapes: ``bash install.sh``, ``source ./x``, ``./run.sh``.
+# Used with a skill-directory mention to catch ``cd <skill> && bash install.sh``.
+_BASH_SCRIPT_EXEC = re.compile(
+    r"(?:^|[\n;|&])\s*(?:bash|sh|zsh|dash|source|\.)\s+"
+    r"|(?:^|[\n;|&])\s*\./[^\s;|&]+"
+)
+
 
 # ─── stdin payload → target artifact ─────────────────────────────────────────
 
 
-def extract_target(payload: dict) -> dict | None:
+def extract_target(payload: dict, *, cwd: str | None = None) -> dict | None:
     """Map a PreToolUse payload to ``{"kind": "skill"|"mcp", "name": str}``.
 
-    Returns None for tools outside the enforcement triad, and for Skill
-    payloads whose input carries no recognizable name (the caller denies that
-    case — the tool *was* matched, so an unresolvable shape must fail closed).
+    Returns None for tools outside the enforcement set, for ordinary Bash
+    that does not touch a skills path, and for Skill payloads whose input
+    carries no recognizable name (the caller denies that Skill case — the
+    tool *was* matched, so an unresolvable shape must fail closed).
+
+    Bash is attributed when the command *executes* under
+    ``~/.claude/skills/<name>/`` or ``<project>/.claude/skills/<name>/``
+    (cwd inside the skill, a file under it, or ``cd <skill> && bash …``) —
+    closing the slash-command gap where ``/vuln-skill`` injects instructions
+    and the agent runs ``install.sh`` via Bash without a Skill tool event.
+    Skill directories passed only as data arguments are not attributed.
     """
     tool_name = str(payload.get("tool_name") or "")
     if tool_name == "Skill":
@@ -71,6 +99,8 @@ def extract_target(payload: dict) -> dict | None:
                 if name:
                     return {"kind": "skill", "name": name}
         return None
+    if tool_name == "Bash":
+        return _extract_bash_skill_target(payload, cwd if cwd is not None else os.getcwd())
     if tool_name.startswith("mcp__"):
         # mcp__<server>__<tool>; server names may themselves contain "__",
         # so strip only the trailing tool segment.
@@ -78,6 +108,92 @@ def extract_target(payload: dict) -> dict | None:
         if server:
             return {"kind": "mcp", "name": server}
         return None
+    return None
+
+
+def _payload_cwd(payload: dict, fallback: str) -> str:
+    raw = payload.get("cwd")
+    if isinstance(raw, str) and raw.strip():
+        return raw.strip()
+    return fallback
+
+
+def _bash_path_tokens(command: str) -> list[str]:
+    return re.findall(_BASH_PATH_TOKEN, command)
+
+
+def _skill_name_for_resolved_path(resolved: str, cwd: str) -> str | None:
+    """If ``resolved`` lies under a skills root, return the skill dir basename."""
+    for root in _skill_roots(cwd):
+        if not os.path.isdir(root):
+            continue
+        root_resolved = os.path.realpath(root)
+        try:
+            if os.path.commonpath([root_resolved, resolved]) != root_resolved:
+                continue
+        except ValueError:
+            continue
+        rel = os.path.relpath(resolved, root_resolved)
+        parts = [p for p in rel.split(os.sep) if p and p not in (".",)]
+        if not parts or parts[0] == "..":
+            continue
+        skill_name = parts[0]
+        skill_dir = os.path.join(root_resolved, skill_name)
+        if os.path.isdir(skill_dir):
+            return skill_name
+    return None
+
+
+def _resolve_candidate_path(token: str, cwd: str) -> str | None:
+    """Expand ``token`` relative to cwd / ``~`` and realpath it when possible."""
+    expanded = os.path.expanduser(token)
+    if not os.path.isabs(expanded):
+        expanded = os.path.join(cwd, expanded)
+    try:
+        return os.path.realpath(expanded)
+    except OSError:
+        return None
+
+
+def _extract_bash_skill_target(payload: dict, cwd: str) -> dict | None:
+    """Attribute Bash to a skill only when the command *executes* under it.
+
+    Gated shapes (unscanned/RED ⇒ deny):
+    - payload cwd inside a skill directory
+    - a *file* under a skill directory is referenced (e.g. ``…/install.sh``)
+    - a skill directory is named and the command invokes a shell script
+      (``cd …/vuln-skill && bash install.sh``)
+
+    Not gated: skill directories passed only as data args (status/scan drivers).
+    """
+    tool_input = payload.get("tool_input")
+    command = ""
+    if isinstance(tool_input, dict):
+        raw_cmd = tool_input.get("command")
+        if isinstance(raw_cmd, str):
+            command = raw_cmd
+
+    effective_cwd = _payload_cwd(payload, cwd)
+    cwd_resolved = _resolve_candidate_path(effective_cwd, effective_cwd)
+    if cwd_resolved is not None:
+        cwd_skill = _skill_name_for_resolved_path(cwd_resolved, effective_cwd)
+        if cwd_skill:
+            return {"kind": "skill", "name": cwd_skill}
+
+    skill_dirs_mentioned: list[str] = []
+    for token in _bash_path_tokens(command):
+        resolved = _resolve_candidate_path(token, effective_cwd)
+        if resolved is None:
+            continue
+        name = _skill_name_for_resolved_path(resolved, effective_cwd)
+        if not name:
+            continue
+        if os.path.isfile(resolved):
+            return {"kind": "skill", "name": name}
+        skill_dirs_mentioned.append(name)
+
+    if skill_dirs_mentioned and _BASH_SCRIPT_EXEC.search(command):
+        return {"kind": "skill", "name": skill_dirs_mentioned[0]}
     return None
 
 
@@ -246,6 +362,73 @@ def resolve_artifact(target: dict, cwd: str) -> str | None:
     return None
 
 
+# Fixture basename → demo install name (scripts/install-demo-artifacts.sh).
+# Used only by /tw-verify and /tw-scan operator resolution — the PreToolUse
+# hook never sees fixture names (Claude registers the rewritten demo name).
+_OPERATOR_ALIASES = {
+    "vuln-runtime-download": "vuln-skill",
+    "safe-changelog-writer": "safe-skill",
+    "disagreement-naive-domain-check": "amber-skill",
+}
+
+
+def resolve_operator_name(name: str, cwd: str) -> dict[str, str] | None:
+    """Resolve a /tw-verify or /tw-scan name the same way the hook would.
+
+    Order: explicit path with ``SKILL.md`` → skill locus → MCP config key
+    (incl. ``~/.tripwire/demo-mcp.json``) → demo fixture alias. Returns
+    ``{"identifier", "kind"}`` plus optional ``resolved_as`` / ``alias_of``,
+    or ``None`` when nothing matches (caller reports NOT FOUND).
+    """
+    if not isinstance(name, str):
+        return None
+    token = name.strip()
+    if not token:
+        return None
+
+    # Explicit path (absolute or containing a separator) → skill dir if present.
+    if (
+        os.path.isabs(token)
+        or (os.path.sep in token)
+        or (os.path.altsep and os.path.altsep in token)
+    ):
+        candidate = token if os.path.isabs(token) else os.path.join(cwd, token)
+        if os.path.isdir(candidate) and os.path.isfile(os.path.join(candidate, "SKILL.md")):
+            return {
+                "identifier": os.path.realpath(candidate),
+                "kind": "skill",
+                "resolved_as": token,
+            }
+
+    skill = _resolve_skill(token, cwd)
+    if skill is not None:
+        return {"identifier": skill, "kind": "skill", "resolved_as": token}
+
+    mcp = _resolve_mcp_server(token, cwd)
+    if mcp is not None:
+        return {"identifier": mcp, "kind": "mcp", "resolved_as": token}
+
+    alias = _OPERATOR_ALIASES.get(token)
+    if alias and alias != token:
+        skill = _resolve_skill(alias, cwd)
+        if skill is not None:
+            return {
+                "identifier": skill,
+                "kind": "skill",
+                "resolved_as": alias,
+                "alias_of": token,
+            }
+        mcp = _resolve_mcp_server(alias, cwd)
+        if mcp is not None:
+            return {
+                "identifier": mcp,
+                "kind": "mcp",
+                "resolved_as": alias,
+                "alias_of": token,
+            }
+    return None
+
+
 # ─── verdict → decision ──────────────────────────────────────────────────────
 
 
@@ -279,15 +462,20 @@ def decide(
     check = check_fn if check_fn is not None else check_call_by_identifier
 
     tool_name = str(payload.get("tool_name") or "")
-    enforced = tool_name == "Skill" or tool_name.startswith("mcp__")
+    enforced = tool_name == "Skill" or tool_name == "Bash" or tool_name.startswith("mcp__")
     if not enforced:
-        # The matcher only routes Skill|mcp__* here; anything else is a
-        # misconfiguration — allowing avoids bricking ordinary tools, and the
-        # matcher (not this branch) is the enforcement boundary.
+        # Matcher should only route Skill|Bash|mcp__* here; anything else is a
+        # misconfiguration — allowing avoids bricking ordinary tools.
         return {"allow": True, "reason": f"tool '{tool_name}' not subject to tripwire guard"}
 
-    target = extract_target(payload)
+    target = extract_target(payload, cwd=cwd)
     if target is None:
+        if tool_name == "Bash":
+            # Ordinary Bash (no skills-path touch) is not gated.
+            return {
+                "allow": True,
+                "reason": "bash command does not reference a tripwire-scanned skill path",
+            }
         return {
             "allow": False,
             "reason": _block_reason(
@@ -379,7 +567,12 @@ def main(*, stdin: TextIO | None = None, stdout: TextIO | None = None) -> int:
             payload = json.loads(stdin.read() or "{}")
             if not isinstance(payload, dict):
                 raise ValueError("hook payload is not a JSON object")
-            decision = decide(payload, config)
+            payload_cwd = payload.get("cwd")
+            decision = decide(
+                payload,
+                config,
+                cwd=payload_cwd if isinstance(payload_cwd, str) and payload_cwd.strip() else None,
+            )
     except Exception:
         decision = {"allow": False, "reason": _GUARD_ERROR_REASON}
     print(json.dumps(format_decision(decision)), file=stdout)

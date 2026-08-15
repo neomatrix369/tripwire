@@ -205,6 +205,7 @@ test('given unchanged content_hash when runScan with force then spawns with expe
       itemType: 'skill',
       itemId: item.id,
       scanRunId: runId,
+      packPath: null,
     });
   });
 });

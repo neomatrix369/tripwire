@@ -5,7 +5,9 @@ description: Submit Claude Code skills and MCP servers to Tripwire for security 
 
 # tw-scan
 
-Resolve names to artifacts and submit them to the Tripwire scanner. Single pass over ALL requested names — never stop at the first problem; every requested name gets a row in both outputs.
+Resolve names to artifacts and submit them to the Tripwire scanner. Single pass over ALL requested names — never stop at the first problem; every requested name gets a row in the report table. Do **not** dump the driver's raw JSON, the CLI result JSON, or any fenced `{config, artifacts}` block to the user — those payloads are for you to parse only.
+
+**Hard rule — scanning ≠ executing.** Submitting a scan does **not** authorize running the artifact. After submit, artifacts stay blocked (`scanning` / prior verdict) until a completed green-below-threshold verdict exists. Never invoke `Skill` / `mcp__*` / skill `install.sh` for still-blocked targets in the same session “to try them now.”
 
 ## Step 1 — Parse arguments
 
@@ -15,27 +17,36 @@ Names are space- OR comma-separated. **Force**: both syntaxes work — a literal
 
 Read `~/.tripwire/config.json`: `scan_validity_days`, `repo_root`, `cli_bin`, `env_file`, `uv_bin`. If missing/unparseable, tell the user config is missing/corrupt and `tripwire setup-agent-hooks` restores it — then stop (submission needs `cli_bin`/`repo_root`).
 
-## Step 3 — Resolve each name to an artifact (shared resolution procedure)
+## Step 3 — Resolve each name (deterministic — do NOT hand-search loci)
 
-For EACH requested name, search these candidate loci:
+**Hard rule:** never browse skills/MCP loci yourself to decide NOT FOUND. Always run this resolve driver once with every requested name (same helper the PreToolUse hook uses, plus demo fixture aliases):
 
-- **Skills — user scope**: every directory under `~/.claude/skills/`. A directory matches if its basename equals the name OR its `SKILL.md` frontmatter `name:` equals the name (they can differ — check both).
-- **Skills — project scope**: every directory under `./.claude/skills/`, same matching rule.
-- **MCP servers**: config keys, searched in the same order as the enforcement hook: `./.mcp.json` (project scope), `~/.claude.json` (user scope — BOTH the top-level `mcpServers` object AND `projects["<cwd>"].mcpServers`), `~/.tripwire/demo-mcp.json` (demo manifest), `<repo_root>/fixtures/mcp/mcp_manifest.json` (fixtures manifest; `repo_root` from config). A key matches if it equals the name. Config-key resolution only — never derive a directory or path from the entry's `command`/`args`.
+```bash
+cd "<repo_root>" && set -a && source "<env_file>" && set +a && "<uv_bin>" run --extra guard python -c '
+import json, os, sys
+from guard.entry import resolve_operator_name
+cwd = os.getcwd()
+out = []
+for name in sys.argv[1:]:
+    r = resolve_operator_name(name, cwd)
+    if r is None:
+        out.append({"name": name, "found": False})
+    else:
+        out.append({"name": name, "found": True, **r})
+print(json.dumps({"resolutions": out}))
+' <name-1> <name-2> ...
+```
 
-Canonicalize:
+Parse privately:
 
-- Skill match → identifier = **canonical absolute path** of the skill directory (`realpath`, symlinks resolved, no trailing slash).
-- MCP match → identifier = **the config key string itself, always** (key-only identity: an MCP server's identity is its config key, never a path derived from `command`/`args`). Known accepted consequence: the stored `content_hash` for MCP items is `pending:<key>`, so MCP verdicts carry no content binding, and same-named keys in different projects share one identity row — this matches the plan §5.4 manifest-only rule, now uniform for all MCP servers.
+- `found=false` → ❓ NOT FOUND row; tip that demo names are `safe-skill`/`vuln-skill`/`amber-skill` and `safe-tool`/`vuln-tool`/`amber-tool`.
+- `found=true` → use `identifier` + `kind` for later steps. Remember Step 5: MCP keys are submitted via a subset manifest file, never as bare CLI args.
 
-Outcomes per name:
-
-- **No match** → friendly per-name miss report (❓ NOT FOUND row): name, loci searched (`~/.claude/skills`, `./.claude/skills`, `./.mcp.json`, `~/.claude.json` (incl. `projects["<cwd>"]`), `~/.tripwire/demo-mcp.json`, `<repo_root>/fixtures/mcp/mcp_manifest.json`), and the tip that an explicit absolute path also works as a name here. A path the user passed directly that exists on disk is used as-is (realpath it).
-- **Multiple matches** → present the list (path + type) via AskUserQuestion, user picks one or more; each selection is its own row.
+An absolute path the user passed that exists as a skill directory is resolved by the driver.
 
 ## Step 4 — Check current status (skip-vs-submit)
 
-Run the status driver ONCE with all resolved identifiers (substitute `<repo_root>`, `<env_file>`, `<uv_bin>` from config; do not improvise queries):
+Run the status driver ONCE with all **found** identifiers (substitute `<repo_root>`, `<env_file>`, `<uv_bin>` from config; do not improvise queries):
 
 ```bash
 cd "<repo_root>" && set -a && source "<env_file>" && set +a && "<uv_bin>" run --extra guard python -c '
@@ -141,9 +152,9 @@ print(json.dumps(result))
 
 The result is `{"batch_id": ..., "scan_run_ids": [...], "failed_targets": [{"target", "error"}, ...]}`. Mapping run ids to artifacts: `scan_run_ids` lists run ids in the order the targets were passed on the command line — the subset manifest expands in place into one target per key (targets are the bare keys, in the manifest's key order) — minus any targets the CLI itself skipped (defensive: `--force` is always passed, so `[skip] <target> — content unchanged since last scan` lines should not occur) and minus failures that never got a run. Use the `[skip]` lines and `failed_targets` to attribute; if attribution is ambiguous, report the shared `batch_id` and say the per-run mapping is ambiguous rather than guessing.
 
-## Step 6 — Report (table first, then JSON, always both)
+## Step 6 — Report (table only)
 
-One row per requested name:
+One Markdown table, one row per requested name. Parse status-driver and CLI JSON privately; never paste them into the user-facing reply.
 
 | Name | Type | Action | Details |
 |------|------|--------|---------|
@@ -154,25 +165,6 @@ One row per requested name:
 | `broken-target` | mcp | ❌ FAILED | `<error from failed_targets>` |
 | `unknown-skill` | — | ❓ NOT FOUND | No match in ~/.claude/skills, .claude/skills, .mcp.json, ~/.claude.json, ~/.tripwire/demo-mcp.json, fixtures manifest |
 
-Then a fenced json block (§6.3 shape; scan rows add `batch_id`/`scan_run_id`):
+Row mapping: `submitted` → 🚀 SUBMITTED (include `batch_id` / `scan_run_id` in Details when known); `skipped` → ⏭️ SKIPPED; `skipped_by_cli` → ⏭️ SKIPPED (by CLI); `failed` → ❌ FAILED with the `failed_targets` error; `not_found` → ❓ NOT FOUND. Post-submission state for submitted rows is `scanning`.
 
-```json
-{
-  "config": { "enabled": true, "scan_validity_days": 14, "threshold": "red" },
-  "artifacts": [
-    {
-      "name": "new-skill",
-      "resolved_path": "/abs/path/to/skill",
-      "type": "skill",
-      "action": "submitted",
-      "state": "scanning",
-      "batch_id": "…",
-      "scan_run_id": "…",
-      "error": null,
-      "note": "scan submitted"
-    }
-  ]
-}
-```
-
-`action` is `submitted|skipped|skipped_by_cli|failed|not_found`; `state` is the post-submission state (`scanning` for submitted rows, the driver state otherwise, `not-found` for misses); `batch_id`/`scan_run_id` null when not submitted; `error` from `failed_targets` when failed. If anything failed, say plainly that those artifacts remain blocked until a scan completes green, and that the out-of-band remedy is `cd <repo_root> && node <cli_bin> scan <target> --no-defaults --force` in a terminal — where `<target>` is the skill's absolute path, or for an MCP server a manifest `.json` file containing that key (never the bare key, never a server directory).
+If anything failed, say plainly that those artifacts remain blocked until a scan completes green, and that the out-of-band remedy is `cd <repo_root> && node <cli_bin> scan <target> --no-defaults --force` in a terminal — where `<target>` is the skill's absolute path, or for an MCP server a manifest `.json` file containing that key (never the bare key, never a server directory).

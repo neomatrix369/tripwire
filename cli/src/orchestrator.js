@@ -71,7 +71,13 @@ async function dispatchTarget(supabase, target, { batchId, force, spawnFn }) {
     if (runError) throw runError;
 
     try {
-      await spawnFn({ target: target.target, itemType: target.type, itemId: item.id, scanRunId: run.id });
+      await spawnFn({
+        target: target.target,
+        itemType: target.type,
+        itemId: item.id,
+        scanRunId: run.id,
+        packPath: target.packPath || null,
+      });
       return { target: target.target, scanRunId: run.id };
     } catch (err) {
       console.error(`[error] sandbox failed for ${target.target}: ${err.message}`);

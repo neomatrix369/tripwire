@@ -80,9 +80,9 @@ print(json.dumps({
 ' <identifier-1> <identifier-2> ...
 ```
 
-## Step 4 — Report (table first, then JSON, always both)
+## Step 4 — Report (Scan Status table only)
 
-Render exactly the tw-verify output format — same states, emoji, labels, and JSON shape (see `~/.claude/skills/tw-verify/SKILL.md` §Step 5–6). Summary of the row rules (N = `scan_validity_days`):
+Render exactly the tw-verify human table — same states, emoji, and labels (see `~/.claude/skills/tw-verify/SKILL.md` §Step 5). Parse the driver's JSON privately; do **not** dump a fenced `{config, artifacts}` block to the user. Summary of the row rules (N = `scan_validity_days`):
 
 - `fresh` + green → `🟢 GREEN (fresh)`, note `—`.
 - `fresh` + amber → `🟠 AMBER`; `Reported but not blocked at current threshold` when threshold is `red`, else bold **Will be blocked when Tripwire is enabled**.
@@ -91,9 +91,9 @@ Render exactly the tw-verify output format — same states, emoji, labels, and J
 - `scanning` → `⏳ SCANNING`; `Scan in progress — check back shortly` (+ prior verdict if rag non-null).
 - `unscanned` → `🚫 UNSCANNED`; `Never scanned — blocked when Tripwire is enabled` (or `Last scan errored — resubmit (run /tw-scan <name>)` when errored).
 - `changed=true` → `✏️ CHANGED`; bold **content changed since last scan — run /tw-scan <name>** — takes precedence over every state-based row (the hook's tamper deny fires regardless of a green verdict), `will_be_blocked` true.
-- missing install dir → `❓ NOT FOUND`; `Not installed under ~/.claude/skills — run tripwire setup-agent-hooks`.
+- missing install dir → `❓ NOT FOUND`; bold **Will be blocked when Tripwire is enabled** — `Not installed under ~/.claude/skills — run tripwire setup-agent-hooks`.
 
-Then the fenced json block (§6.3 shape: `config` + `artifacts` with `name`, `resolved_path`, `type: "skill"`, `state`, `rag` (fresh only, else null), `scanned_at`, `stale`, `changed`, `will_be_blocked`, `note`). If local `enable` is false, add the "currently bypassed" note; if `monitoring_enabled` is false, add the platform-switch warning.
+If local `enable` is false, add the "currently bypassed" note; if `monitoring_enabled` is false, add the platform-switch warning.
 
 A non-green result here matters: a blocked `tw-*` skill means the hook will block Tripwire's own tooling — the out-of-band remedies are `cd <repo_root> && node <cli_bin> scan <abs path> --no-defaults --force` in a terminal, or hand-editing `~/.tripwire/config.json` to `"enable": false`.
 

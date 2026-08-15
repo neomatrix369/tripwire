@@ -78,6 +78,111 @@ def test_given_non_target_tool_then_none() -> None:
     assert entry.extract_target({}) is None
 
 
+def test_given_bash_command_with_user_skill_path_then_skill_target(
+    fake_home: Path, tmp_path: Path
+) -> None:
+    skill_dir = _install_skill(fake_home, "vuln-skill")
+    (skill_dir / "install.sh").write_text("#!/bin/sh\necho setup\n")
+    payload = {
+        "tool_name": "Bash",
+        "tool_input": {"command": f"bash {skill_dir}/install.sh"},
+    }
+
+    assert entry.extract_target(payload, cwd=str(tmp_path)) == {
+        "kind": "skill",
+        "name": "vuln-skill",
+    }
+
+
+def test_given_bash_cwd_inside_skill_then_relative_script_attributed(
+    fake_home: Path, tmp_path: Path
+) -> None:
+    skill_dir = _install_skill(fake_home, "vuln-skill")
+    (skill_dir / "install.sh").write_text("#!/bin/sh\necho setup\n")
+    payload = {
+        "tool_name": "Bash",
+        "tool_input": {"command": "bash ./install.sh"},
+        "cwd": str(skill_dir),
+    }
+
+    assert entry.extract_target(payload, cwd=str(tmp_path)) == {
+        "kind": "skill",
+        "name": "vuln-skill",
+    }
+
+
+def test_given_bash_tilde_skill_path_then_skill_target(fake_home: Path, tmp_path: Path) -> None:
+    skill_dir = _install_skill(fake_home, "vuln-skill")
+    (skill_dir / "install.sh").write_text("#!/bin/sh\necho setup\n")
+    payload = {
+        "tool_name": "Bash",
+        "tool_input": {"command": "bash ~/.claude/skills/vuln-skill/install.sh"},
+    }
+
+    assert entry.extract_target(payload, cwd=str(tmp_path)) == {
+        "kind": "skill",
+        "name": "vuln-skill",
+    }
+
+
+def test_given_bash_skill_dir_only_as_data_arg_then_no_target(
+    fake_home: Path, tmp_path: Path
+) -> None:
+    """
+    Scenario: Status/scan driver Bash that only passes a skill directory as a
+    data argument is not attributed — otherwise unscanned skills deadlock
+    /tw-verify and /tw-scan (the status query itself would be denied).
+    Slice: Bash skill-path attribution — directory-as-data exemption
+
+    Given a Bash command that names a skill directory only as an argv to an
+    unrelated interpreter (uv/python status driver shape),
+    When extract_target maps the payload,
+    Then no skill target is returned (ordinary Bash / not gated).
+    """
+    ### Given
+    skill_dir = _install_skill(fake_home, "vuln-skill")
+    payload = {
+        "tool_name": "Bash",
+        "tool_input": {
+            "command": (f'uv run --extra guard python -c "print(1)" {skill_dir}'),
+        },
+    }
+
+    ### When
+    actual = entry.extract_target(payload, cwd=str(tmp_path))
+
+    ### Then
+    assert actual is None, f"skill directory as data argv must not attribute; got {actual!r}"
+
+
+def test_given_bash_cd_skill_dir_and_run_install_then_skill_target(
+    fake_home: Path, tmp_path: Path
+) -> None:
+    """
+    Scenario: cd into a skill then run install.sh is still attributed.
+    Slice: Bash skill-path attribution — compound cd + script
+
+    Given a Bash command that cds into an unscanned skill and runs install.sh,
+    When extract_target maps the payload,
+    Then the owning skill is the target (fail-closed for unscanned/RED).
+    """
+    ### Given
+    skill_dir = _install_skill(fake_home, "vuln-skill")
+    (skill_dir / "install.sh").write_text("#!/bin/sh\necho setup\n")
+    payload = {
+        "tool_name": "Bash",
+        "tool_input": {
+            "command": f"cd {skill_dir} && bash install.sh",
+        },
+    }
+
+    ### When
+    actual = entry.extract_target(payload, cwd=str(tmp_path))
+
+    ### Then
+    assert actual == {"kind": "skill", "name": "vuln-skill"}
+
+
 # ─── resolve_artifact: skills ────────────────────────────────────────────────
 
 
@@ -308,6 +413,72 @@ def test_given_unknown_mcp_server_then_none(fake_home: Path, tmp_path: Path) -> 
     assert entry.resolve_artifact({"kind": "mcp", "name": "nope"}, str(tmp_path)) is None
 
 
+# ─── resolve_operator_name (/tw-verify|/tw-scan) ─────────────────────────────
+
+
+def test_given_demo_mcp_key_when_operator_resolve_then_found(
+    fake_home: Path, tmp_path: Path
+) -> None:
+    """
+    Scenario: Operator names like safe-tool resolve via demo-mcp.json without
+    hand-searching loci (the LLM locus walk was producing false NOT FOUND).
+    Slice: resolve_operator_name — MCP demo keys
+
+    Given ~/.tripwire/demo-mcp.json lists safe-tool,
+    When resolve_operator_name is called with that bare key,
+    Then the identifier is the config key and kind is mcp.
+    """
+    ### Given
+    tripwire_dir = fake_home / ".tripwire"
+    tripwire_dir.mkdir()
+    (tripwire_dir / "demo-mcp.json").write_text(
+        json.dumps({"mcpServers": {"safe-tool": {"command": "bash", "args": ["run.sh"]}}})
+    )
+
+    ### When
+    resolved = entry.resolve_operator_name("safe-tool", str(tmp_path))
+
+    ### Then
+    assert resolved == {
+        "identifier": "safe-tool",
+        "kind": "mcp",
+        "resolved_as": "safe-tool",
+    }, f"Expected demo MCP key resolution, got {resolved!r}"
+
+
+def test_given_fixture_alias_when_operator_resolve_then_demo_skill(
+    fake_home: Path, tmp_path: Path
+) -> None:
+    """
+    Scenario: Fixture basename vuln-runtime-download aliases to installed vuln-skill.
+    Slice: resolve_operator_name — demo skill aliases
+
+    Given vuln-skill is installed under ~/.claude/skills,
+    When the operator asks for the fixture name vuln-runtime-download,
+    Then resolution lands on the installed vuln-skill directory.
+    """
+    ### Given
+    skill_dir = _install_skill(fake_home, "vuln-skill")
+
+    ### When
+    resolved = entry.resolve_operator_name("vuln-runtime-download", str(tmp_path))
+
+    ### Then
+    assert resolved is not None
+    assert resolved["identifier"] == os.path.realpath(str(skill_dir))
+    assert resolved["kind"] == "skill"
+    assert resolved["resolved_as"] == "vuln-skill"
+    assert resolved["alias_of"] == "vuln-runtime-download"
+
+
+def test_given_unknown_operator_name_then_none(fake_home: Path, tmp_path: Path) -> None:
+    ### Given / When
+    resolved = entry.resolve_operator_name("nope-not-installed", str(tmp_path))
+
+    ### Then
+    assert resolved is None
+
+
 # ─── decide ──────────────────────────────────────────────────────────────────
 
 
@@ -385,6 +556,53 @@ def test_given_skill_payload_with_no_name_then_deny(tmp_path: Path) -> None:
 def test_given_non_target_tool_then_allow(tmp_path: Path) -> None:
     decision = entry.decide(
         {"tool_name": "Bash", "tool_input": {"command": "ls"}}, CONFIG, cwd=str(tmp_path)
+    )
+
+    assert decision["allow"] is True
+
+
+def test_given_bash_running_blocked_skill_script_then_deny(fake_home: Path, tmp_path: Path) -> None:
+    skill_dir = _install_skill(fake_home, "vuln-skill")
+    (skill_dir / "install.sh").write_text("#!/bin/sh\necho setup\n")
+    seen: dict[str, Any] = {}
+
+    def check_fn(identifier: str, validity_days: int, content_path: str | None = None) -> dict:
+        seen.update(identifier=identifier, content_path=content_path)
+        return {"allow": False, "reason": "never scanned — guard fails closed", "status": "grey"}
+
+    decision = entry.decide(
+        {
+            "tool_name": "Bash",
+            "tool_input": {"command": f"bash {skill_dir}/install.sh"},
+        },
+        CONFIG,
+        cwd=str(tmp_path),
+        check_fn=check_fn,
+    )
+
+    assert decision["allow"] is False
+    assert "vuln-skill" in decision["reason"]
+    assert seen["identifier"] == str(skill_dir.resolve())
+    assert seen["content_path"] == seen["identifier"]
+
+
+def test_given_bash_running_allowed_skill_script_then_allow(
+    fake_home: Path, tmp_path: Path
+) -> None:
+    skill_dir = _install_skill(fake_home, "safe-skill")
+    (skill_dir / "install.sh").write_text("#!/bin/sh\necho setup\n")
+
+    def check_fn(identifier: str, validity_days: int, content_path: str | None = None) -> dict:
+        return {"allow": True, "reason": "rated green — below threshold", "status": "green"}
+
+    decision = entry.decide(
+        {
+            "tool_name": "Bash",
+            "tool_input": {"command": f"bash {skill_dir}/install.sh"},
+        },
+        CONFIG,
+        cwd=str(tmp_path),
+        check_fn=check_fn,
     )
 
     assert decision["allow"] is True
