@@ -92,7 +92,7 @@ REFACTOR: shared config read/write helper if needed; no enforcement logic in the
 - [x] Complexity policy: **enforcing** for product-code; evidence cites quality-gates / complexity report
 - [x] `docs/plan/gate-evidence/slice-27.json` records commands, coverage, complexity, reviewers, and `verdict: ON_BRANCH` (PASS after merge)
 - [x] Review: `acceptance: APPROVED` and `implementation: APPROVED` (nw-software-crafter-reviewer)
-- [ ] `PROGRESS.md` + `TRAIL.md` show slice 27 ✅ (after merge)
+- [x] `PROGRESS.md` + `TRAIL.md` show slice 27 ✅ (PR #80 merged to Frontline)
 
 ## Doc Audit
 
@@ -104,4 +104,4 @@ REFACTOR: shared config read/write helper if needed; no enforcement logic in the
 
 ## Gate Status
 
-🔀 ON BRANCH (pending review + merge)
+✅ PASSED (PR #80)

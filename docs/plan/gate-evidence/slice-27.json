@@ -1,6 +1,6 @@
 {
   "slice": 27,
-  "gate_status": "ON_BRANCH",
+  "gate_status": "PASSED",
   "inferred": false,
   "branch": "slice/27-tw-enable-disable",
   "date": "2026-08-15",
@@ -17,7 +17,7 @@
     "PASS — coverage 100% lines on guard/config.py + guard/control_skills.py (target ≥95%)",
     "PASS — xenon exit 0 on product modules; ./scripts/quality-gates.sh PASS",
     "PASS — review acceptance+implementation APPROVED (nw-software-crafter-reviewer)",
-    "PENDING merge — PROGRESS/TRAIL ✅ after merge to Frontline"
+    "PASS — merged to Frontline via PR #80"
   ],
   "commands": [
     {
@@ -52,14 +52,14 @@
   "review": {
     "acceptance": "APPROVED",
     "implementation": "APPROVED",
-    "notes": "Blocker YAGNI _read_raw_config inlined into set_enable; probe assertions strengthened; 100% cov; quality-gates PASS"
+    "notes": "Blocker YAGNI _read_raw_config inlined into set_enable; probe assertions strengthened; 100% cov; quality-gates PASS; merged PR #80"
   },
   "documentation_audit": {
     "1_config_toggles_only": "PASS — setup-commands.md + SKILL.md",
     "2_verify_scan_when_disabled": "PASS — setup-commands + tw-disable SKILL.md",
     "3_cross_link": "PASS — gate-evidence ↔ TRAIL/PROGRESS; frontline-output-contract links slice-27"
   },
-  "verdict": "ON_BRANCH",
+  "verdict": "PASS",
   "phase": "H2",
   "moscow": "Must",
   "pr": "https://github.com/neomatrix369/tripwire/pull/80"

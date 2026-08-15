@@ -132,7 +132,9 @@ Do not invent scan-stdout fields that are not listed above. Skills compose dual-
 ## Links
 
 - Skills that consume this contract: slices [27](../plan/slices/08-H-frontline-agent-hooks/slice-27-tw-enable-disable.md)–[30](../plan/slices/08-H-frontline-agent-hooks/slice-30-tw-self-check.md)
-  (`/tw-enable` / `/tw-disable` are config toggles only — they do not emit this table)
+  (`/tw-enable` / `/tw-disable` are config toggles only — they do not emit this table;
+  `/tw-verify` implements the table via `guard.verify.verify_artifacts`, slice 28)
 - Operator setup / hooks: [setup-commands.md](setup-commands.md)
 - Gate evidence: [`docs/plan/gate-evidence/slice-26.json`](../plan/gate-evidence/slice-26.json) ·
-  [`slice-27.json`](../plan/gate-evidence/slice-27.json)
+  [`slice-27.json`](../plan/gate-evidence/slice-27.json) ·
+  [`slice-28.json`](../plan/gate-evidence/slice-28.json)

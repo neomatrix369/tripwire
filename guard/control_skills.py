@@ -1,8 +1,8 @@
 """Manual Tripwire control-skill helpers (slice 27+).
 
 ``/tw-enable`` / ``/tw-disable`` flip config only via ``set_enable``.
-``manual_skill_probe`` asserts that verify/scan entry points do not no-op when
-enforcement is disabled — full ``/tw-verify`` / ``/tw-scan`` land in slices 28–29.
+``/tw-verify`` lives in ``guard.verify.verify_artifacts`` (slice 28).
+``manual_skill_probe`` remains for scan independence until slice 29.
 """
 
 from __future__ import annotations

@@ -12,27 +12,26 @@
 | 5 | [`05-E-…`](slices/05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ → 14 (**9+10 SUBSUMED INTO 11**) | ✅ Musts · close-path |
 | 6 | [`06-F-…`](slices/06-F-claim-audit/) | **F — Claim audit** | 15 · 16 | 📦 |
 | 7 | [`07-G-…`](slices/07-G-atdd-closure/) | **G — ATDD closure** | 18, 19, 20, 21, 22 (independent gates) | 📋 parked |
-| 8 | [`08-H-…`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | 23→32 Must · 33–38 Should · 39 Could | 23–26 ✅ · 27 🔀 |
+| 8 | [`08-H-…`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | 23→32 Must · 33–38 Should · 39 Could | 23–27 ✅ · 28 🔀 |
 
-**Current priority:** Wave H Must slice **27** — `/tw-enable` + `/tw-disable` — 🔀 ON BRANCH. Wave G (18–22) parked while H1–H3 is active unless explicitly resumed.
+**Current priority:** Wave H Must slice **28** — `/tw-verify` — 🔀 ON BRANCH (pending review + merge). Wave G (18–22) parked while H1–H3 is active unless explicitly resumed.
 
 ## Execution order (open work)
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| 1 | H2 | 27 | `/tw-enable` + `/tw-disable` | Must | 🔀 ON BRANCH |
-| 2 | H2 | 28 | `/tw-verify` | Must | 📋 PLANNED |
-| 3 | H2 | 29 | `/tw-scan` | Must | 📋 PLANNED |
-| 4 | H2 | 30 | `/tw-self-check` | Must | 📋 PLANNED |
-| 5 | H3 | 31 | Demo Artifacts | Must | 📋 PLANNED |
-| 6 | H3 | 32 | Phase 1 Regression Verification (HARD GATE) | Must | 📋 PLANNED |
-| 7 | H4 | 33 | DepShield Install | Should | 📋 PLANNED |
-| 8 | H4 | 34 | DepShield Dispatch | Should | 📋 PLANNED |
-| 9 | H5 | 35 | Ossprey Access Provisioning | Should | 🔴 BLOCKED |
-| 10 | H5 | 36 | Ossprey Dispatch | Should | 📋 PLANNED |
-| 11 | H6 | 37 | CLI Monitoring | Should | 📋 PLANNED |
-| 12 | H6 | 38 | Full-Chain Validation | Should | 📋 PLANNED |
-| 13 | H6 | 39 | FE/BE Rearchitecture | Could | 📦 DEFERRED |
+| 1 | H2 | 28 | `/tw-verify` | Must | 🔀 ON BRANCH |
+| 2 | H2 | 29 | `/tw-scan` | Must | 📋 PLANNED |
+| 3 | H2 | 30 | `/tw-self-check` | Must | 📋 PLANNED |
+| 4 | H3 | 31 | Demo Artifacts | Must | 📋 PLANNED |
+| 5 | H3 | 32 | Phase 1 Regression Verification (HARD GATE) | Must | 📋 PLANNED |
+| 6 | H4 | 33 | DepShield Install | Should | 📋 PLANNED |
+| 7 | H4 | 34 | DepShield Dispatch | Should | 📋 PLANNED |
+| 8 | H5 | 35 | Ossprey Access Provisioning | Should | 🔴 BLOCKED |
+| 9 | H5 | 36 | Ossprey Dispatch | Should | 📋 PLANNED |
+| 10 | H6 | 37 | CLI Monitoring | Should | 📋 PLANNED |
+| 11 | H6 | 38 | Full-Chain Validation | Should | 📋 PLANNED |
+| 12 | H6 | 39 | FE/BE Rearchitecture | Could | 📦 DEFERRED |
 | — | G | 18–22 | ATDD closure (parked) | Must | 📋 PLANNED |
 
 ## Quick Status (by group)
@@ -94,8 +93,8 @@
 | 24 | [slice-24-setup-agent-hooks](slices/08-H-frontline-agent-hooks/slice-24-setup-agent-hooks.md) | Must | ✅ | 2026-08-15 | 2026-08-15 | ~40 min |
 | 25 | [slice-25-live-enforce-smoke](slices/08-H-frontline-agent-hooks/slice-25-live-enforce-smoke.md) | Must | ✅ | 2026-08-15 | 2026-08-15 | ~30 min |
 | 26 | [slice-26-api-output-contract](slices/08-H-frontline-agent-hooks/slice-26-api-output-contract.md) | Must | ✅ | 2026-08-15 | 2026-08-15 | ~40 min |
-| 27 | [slice-27-tw-enable-disable](slices/08-H-frontline-agent-hooks/slice-27-tw-enable-disable.md) | Must | 🔀 ON BRANCH | 2026-08-15 | — | ~25 min |
-| 28 | [slice-28-tw-verify](slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md) | Must | 📋 PLANNED | — | — | ~50 min |
+| 27 | [slice-27-tw-enable-disable](slices/08-H-frontline-agent-hooks/slice-27-tw-enable-disable.md) | Must | ✅ | 2026-08-15 | 2026-08-15 | ~25 min |
+| 28 | [slice-28-tw-verify](slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md) | Must | 🔀 ON BRANCH | 2026-08-15 | — | ~50 min |
 | 29 | [slice-29-tw-scan](slices/08-H-frontline-agent-hooks/slice-29-tw-scan.md) | Must | 📋 PLANNED | — | — | ~40 min |
 | 30 | [slice-30-tw-self-check](slices/08-H-frontline-agent-hooks/slice-30-tw-self-check.md) | Must | 📋 PLANNED | — | — | ~30 min |
 | 31 | [slice-31-demo-artifacts](slices/08-H-frontline-agent-hooks/slice-31-demo-artifacts.md) | Must | 📋 PLANNED | — | — | ~40 min |
@@ -120,7 +119,7 @@
 
 ## Forward Roadmap
 - Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Slice 15 is retained as a deferred claim-audit artifact, not active work.
-- **Wave H (Frontline):** integration branch `frontline-hackathon-london-2026-agent-hooks`. Slice 23 ✅ (PR #74). Slice 24 ✅ (PR #75). Slice 25 ✅ (PR #76). Slice 26 ✅ (PR #78). Slice 27 🔀 (`/tw-enable` + `/tw-disable`) ON BRANCH pending merge.
+- **Wave H (Frontline):** integration branch `frontline-hackathon-london-2026-agent-hooks`. Slice 23 ✅ (PR #74). Slice 24 ✅ (PR #75). Slice 25 ✅ (PR #76). Slice 26 ✅ (PR #78). Slice 27 ✅ (PR #80). Slice 28 🔀 (`/tw-verify`) ON BRANCH pending review + merge.
 - Wave G (18–22) remains planned but **parked** while Frontline H1–H3 is active unless explicitly resumed.
 - Reopen Slice 15 only for a future live/demo release that needs its security and 3B evidence path.
 - **Deferred / Won't (A):** 4 (in A); 15 and 16 (in F) — reinstate only if a new live/demo need arises
@@ -161,4 +160,5 @@
 | 2026-08-15 | slice/24-setup-agent-hooks | slice-workflow | 24 | ✅ PASSED (PR #75) | setup-agent-hooks; 7 tests; cov 93.11%; merged to Frontline |
 | 2026-08-15 | slice/25-live-enforce-smoke | slice-workflow | 25 | ✅ PASSED (PR #76) | live enforce smoke; H2 checkpoint signed off |
 | 2026-08-15 | slice/26-api-output-contract | slice-workflow | 26 | ✅ PASSED (PR #78) | dual output contract SSOT + 4 ATs; docs-only |
-| 2026-08-15 | slice/27-tw-enable-disable | slice-workflow | 27 | 🔀 ON BRANCH | 5 ATs; set_enable + skills; cov 100%; review APPROVED |
+| 2026-08-15 | slice/27-tw-enable-disable | slice-workflow | 27 | ✅ PASSED (PR #80) | 5 ATs; set_enable + skills; cov 100%; review APPROVED |
+| 2026-08-15 | slice/28-tw-verify | slice-workflow | 28 | 🔀 ON BRANCH | 6 ATs; verify_artifacts dual-output; cov 100%; qg PASS |
