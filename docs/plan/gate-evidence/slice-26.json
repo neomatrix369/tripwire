@@ -1,6 +1,6 @@
 {
   "slice": 26,
-  "gate_status": "ON_BRANCH",
+  "gate_status": "PASSED",
   "inferred": false,
   "branch": "slice/26-api-output-contract",
   "date": "2026-08-15",
@@ -14,7 +14,7 @@
     "PASS — .venv/bin/pytest guard/tests/test_frontline_output_contract.py -q (4 passed)",
     "PASS — coverage/complexity N/A docs-only (no product-code change)",
     "PASS — docs-only review exception recorded in DECISIONS 2026-08-15",
-    "PENDING merge — PROGRESS/TRAIL ✅ after merge to Frontline"
+    "PASS — merged to Frontline via PR #78 (merge-equivalent while Wave H active)"
   ],
   "commands": [
     {
@@ -58,8 +58,8 @@
     "3_links": "PASS — main_prompt + slices 27–30 + setup-commands + docs index",
     "4_cross_link": "PASS — gate-evidence ↔ TRAIL/PROGRESS"
   },
-  "verdict": "ON_BRANCH",
+  "verdict": "PASS",
   "phase": "H2",
   "moscow": "Must",
-  "pr": "https://github.com/neomatrix369/tripwire/pull/77"
+  "pr": "https://github.com/neomatrix369/tripwire/pull/78"
 }

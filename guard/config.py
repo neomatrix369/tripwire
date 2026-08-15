@@ -52,3 +52,27 @@ def ensure_default_config(path: Path | str) -> dict[str, Any]:
     payload = dict(DEFAULT_CONFIG)
     config_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     return payload
+
+
+def set_enable(path: Path | str, enabled: bool) -> dict[str, Any]:
+    """Set only ``enable``; preserve ``scan_validity_days`` and any other keys.
+
+    Creates the file (and parents) when absent, seeding defaults then applying
+    the requested flag. Used by ``/tw-enable`` and ``/tw-disable``.
+    """
+    config_path = Path(path)
+    data: dict[str, Any]
+    if not config_path.is_file():
+        data = dict(DEFAULT_CONFIG)
+    else:
+        try:
+            raw = json.loads(config_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            raw = None
+        data = dict(raw) if isinstance(raw, dict) else dict(DEFAULT_CONFIG)
+    if "scan_validity_days" not in data:
+        data["scan_validity_days"] = DEFAULT_SCAN_VALIDITY_DAYS
+    data["enable"] = bool(enabled)
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    config_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    return data
