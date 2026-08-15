@@ -34,6 +34,7 @@ Use this map to move from a safe first look to the level of setup or project det
 | [user-guide/sie-setup.md](./user-guide/sie-setup.md) | Optional Superlinked SIE keys for tiered routing |
 | [user-guide/model-studio-setup.md](./user-guide/model-studio-setup.md) | Optional Alibaba Cloud Model Studio escalation |
 | [user-guide/reading-router-results.md](./user-guide/reading-router-results.md) | Pathway strips, Escalated / SIE-only filters, categories |
+| [user-guide/frontline-output-contract.md](./user-guide/frontline-output-contract.md) | Frontline `/tw-*` dual output + `heatmap_status` → six UI states |
 | [user-guide/onboarding-cheatsheet.md](./user-guide/onboarding-cheatsheet.md) | Compact shared onboarding reference |
 | [STATUS.md](./STATUS.md) | Evidence-labelled capability claims |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | System diagrams, key flows, and repository layout |

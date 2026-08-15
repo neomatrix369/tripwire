@@ -104,3 +104,7 @@
 | 2026-08-15 | slice-24 | ✅ closed | PR #75 merged into `frontline-hackathon-london-2026-agent-hooks`. Gate evidence `verdict: PASS`. Wave H integration branch remains merge-equivalent for ✅ while H is active. |
 | 2026-08-15 | slice-25 | AT design complete | Three GWTs: enabled block (param unscanned/RED), disabled approve, install-event docs. Smoke uses installed hooks after `setup-agent-hooks`; `TRIPWIRE_CHECK_CALL_FIXTURE` seam avoids live Supabase in CI. |
 | 2026-08-15 | slice-25 | smoke fixture seam | `TRIPWIRE_CHECK_CALL_FIXTURE=unscanned` or `red` in `guard/hooks_entry.py` is CI/smoke only; unset in production → real `check_call`. |
+| 2026-08-15 | slice-25 | ✅ closed | PR #76 merged into `frontline-hackathon-london-2026-agent-hooks`. Gate evidence `verdict: PASS`. |
+| 2026-08-15 | phase-gates | H2 checkpoint signed off | Operator requested start of slice 26 after slice 25 merge (PR #76). Unblocks Phase H2 (26–30). Scripted smoke remains the primary evidence; live Claude Code session observation optional. |
+| 2026-08-15 | slice-26 | AT design complete | Four docs-contract GWTs; SSOT `docs/user-guide/frontline-output-contract.md`; coverage/complexity N/A docs-only. |
+| 2026-08-15 | slice-26 | docs-only review | Documentation + characterization tests only (no product-code change); GATE_CONTRACT docs-only review exception applies (same pattern as slice 17). |

@@ -133,9 +133,14 @@ slices 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. See
   (PR #75) — `cli/src/setupAgentHooks.js`; installs hooks to `~/.tripwire/hooks`
   (mode `700`), first-write config via `ensure_default_config`, Claude PreToolUse
   registration.
-- **Slice 25 (Live Enforce Smoke):** 🔀 ON BRANCH — scripted smoke after install
-  proves enable→block (unscanned/RED) and disable→approve; docs state no native
-  install-event hook. Human H2 checkpoint still required before slices 26–30.
+- **Slice 25 (Live Enforce Smoke):** **IMPLEMENTED** and **VERIFIED** (PR #76) —
+  scripted smoke after install proves enable→block (unscanned/RED) and
+  disable→approve; docs state no native install-event hook. H2 checkpoint
+  signed off 2026-08-15.
+- **Slice 26 (API / dual output contract):** 🔀 ON BRANCH — SSOT
+  [user-guide/frontline-output-contract.md](./user-guide/frontline-output-contract.md)
+  documents six UI states, `heatmap_status` mapping, dual human/JSON shape, and
+  observed `tripwire scan` stdout (`batch_id` / `scan_run_ids` / `failed_targets`).
 - Remaining H Musts/Shoulds: not IMPLEMENTED — no `/tw-*` skills yet.
 
 ---
@@ -156,8 +161,8 @@ Known fixture gaps (not urgent) are listed under
 as shipped capabilities. Guard PreToolUse and Drift/trend remain Future /
 Won't (A) for the Horizon A ship path — see
 [ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md). Frontline Guard
-integration is **DECIDED** as Wave H — see DECIDED above. Slice 23–24 ✅;
-slice 25 live-enforce smoke on branch. `/tw-*` skills still pending later H slices.
+integration is **DECIDED** as Wave H — see DECIDED above. Slice 23–25 ✅;
+slice 26 dual-output contract on branch. `/tw-*` skills still pending later H slices.
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 (slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` …

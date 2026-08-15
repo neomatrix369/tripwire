@@ -92,8 +92,9 @@ REFACTOR: document the install-event workaround without expanding product scope.
 - [x] `docs/plan/gate-evidence/slice-25.json` records commands/observations, reviewers, and `verdict: ON_BRANCH` (PASS after merge)
 - [x] Review: `acceptance: APPROVED` and `implementation: APPROVED` (nimble
       Wave H in-session review per DECISIONS)
-- [ ] `PROGRESS.md` + `TRAIL.md` show slice 25 ✅ (after merge to Frontline)
-- [ ] **Human test checkpoint:** Phase H2 (slices 26–30) must not start until a human signs off this smoke in gate evidence / DECISIONS
+- [x] `PROGRESS.md` + `TRAIL.md` show slice 25 ✅ (after merge to Frontline)
+- [x] **Human test checkpoint:** Phase H2 (slices 26–30) signed off — operator
+      requested start of slice 26 (DECISIONS 2026-08-15)
 
 ## Doc Audit
 
@@ -102,8 +103,8 @@ REFACTOR: document the install-event workaround without expanding product scope.
 | 1 | Install-event absence + `setup-agent-hooks` workaround documented | PASS — setup-commands.md |
 | 2 | Enable/disable smoke steps greppable for operators | PASS |
 | 3 | Cross-link gate-evidence ↔ TRAIL/PROGRESS | PASS |
-| 4 | Human checkpoint before H2 recorded | PASS — PENDING_OPERATOR_SIGNOFF in evidence |
+| 4 | Human checkpoint before H2 recorded | PASS — SIGNED_OFF in evidence + DECISIONS |
 
 ## Gate Status
 
-🔀 ON BRANCH
+✅ PASSED (PR #76)
