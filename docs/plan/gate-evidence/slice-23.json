@@ -1,24 +1,75 @@
 {
   "slice": 23,
-  "gate_status": "PLANNED",
+  "gate_status": "ON_BRANCH",
   "inferred": false,
-  "branch": null,
-  "date": null,
-  "before_checks": [],
-  "after_checks": [],
-  "planned_commands": [
-    "test -f docs/plan/slices/08-H-frontline-agent-hooks/slice-23-config-handler-scripts.md",
-    "rg -n \"check_call|pre_tool_use_hook\" guard/",
-    "python -c \"import json; json.loads('{\\\"enable\\\":true,\\\"scan_validity_days\\\":14}')\"",
-    "./scripts/quality-gates.sh"
+  "branch": "slice/23-config-handler-scripts",
+  "date": "2026-08-15",
+  "spec_path": "docs/plan/slices/08-H-frontline-agent-hooks/slice-23-config-handler-scripts.md",
+  "before_checks": "PASS — branch from frontline-hackathon-london-2026-agent-hooks (DECISIONS Wave H branch-base); rg guard entry points; AT design + cov targets set",
+  "after_checks": [
+    "PASS — 6/6 handler/config GWTs",
+    "PASS — Then clauses assert stdout JSON / exit / config fields",
+    "PASS — pytest guard/tests/test_config_handler_scripts.py -q",
+    "PASS — coverage 98.8% lines on guard/config.py + guard/hooks_entry.py (≥95%)",
+    "PASS — ./scripts/quality-gates.sh (xenon enforcing for product paths)",
+    "PASS — gate-evidence commands recorded",
+    "PASS — review acceptance APPROVED + implementation APPROVED",
+    "PENDING merge — PROGRESS/TRAIL 🔀 until merged to Frontline integration / main"
   ],
-  "commands": [],
-  "test_budget": {"acceptance_tests_max": 7, "parametrized_case_counts_as_one": true},
-  "reviewers": [],
-  "review": {"acceptance": "PENDING", "implementation": "PENDING"},
-  "verdict": "NOT_RUN",
-  "coverage_target": "TBD at AT design before IN PROGRESS",
-  "complexity_policy": "enforcing for product-code; N/A for docs-only with reason in evidence",
+  "commands": [
+    {
+      "cmd": "rg -n \"check_call|pre_tool_use_hook\" guard/",
+      "result": "PASS exit 0 — guard/guard_hook.py:24 check_call; :65 pre_tool_use_hook"
+    },
+    {
+      "cmd": ".venv/bin/pytest guard/tests/test_config_handler_scripts.py -q --tb=short",
+      "result": "PASS exit 0 — 6 passed"
+    },
+    {
+      "cmd": ".venv/bin/pytest guard/tests/ -q --cov=guard.config --cov=guard.hooks_entry --cov-report=term-missing --cov-fail-under=95",
+      "result": "PASS exit 0 — TOTAL 98.8% (config 100%, hooks_entry 98.1%); 14 passed"
+    },
+    {
+      "cmd": "./scripts/quality-gates.sh",
+      "result": "PASS — quality-gates passed"
+    },
+    {
+      "cmd": "rg -n \"enable|scan_validity_days\" guard/config.py",
+      "result": "PASS — schema keys greppable"
+    },
+    {
+      "cmd": "rg -n \"decision|fail closed\" guard/hooks_entry.py guard/hooks/pre-tool-use.sh",
+      "result": "PASS — approve/block + fail-closed greppable"
+    }
+  ],
+  "test_budget": {
+    "acceptance_tests_max": 7,
+    "acceptance_tests_designed": 6,
+    "parametrized_case_counts_as_one": true
+  },
+  "coverage": {
+    "target": "≥95% lines guard/config.py + guard/hooks_entry.py",
+    "measured": "98.8%",
+    "date": "2026-08-15"
+  },
+  "complexity_policy": "enforcing — quality-gates.sh xenon PASS",
+  "reviewers": [
+    "nw-acceptance-designer-reviewer",
+    "nw-software-crafter-reviewer"
+  ],
+  "review": {
+    "acceptance": "APPROVED",
+    "implementation": "APPROVED",
+    "notes": "Acceptance re-review after @contract-shape tags + WS Strategy B in DECISIONS"
+  },
+  "documentation_audit": {
+    "1_schema": "PASS — guard/config.py + docs/STATUS.md Wave H slice 23",
+    "2_handler_contract": "PASS — guard/hooks_entry.py + pre-tool-use.sh",
+    "3_fail_closed": "PASS — hooks_entry + shell comments",
+    "4_cross_link": "PASS — gate-evidence ↔ TRAIL/PROGRESS"
+  },
+  "verdict": "ON_BRANCH",
   "phase": "H1",
-  "moscow": "Must"
+  "moscow": "Must",
+  "pr": null
 }

@@ -32,6 +32,7 @@ packages = ["sandbox", "guard"]
 [tool.hatch.build]
 exclude = [
     "sandbox/tests",
+    "guard/tests",
 ]
 
 [tool.ruff]
@@ -50,8 +51,8 @@ select = ["E", "F", "I", "N", "W", "UP"]
 ignore = ["E501", "E702"]
 
 [tool.pytest.ini_options]
-pythonpath = ["sandbox"]
-testpaths = ["sandbox/tests"]
+pythonpath = [".", "sandbox"]
+testpaths = ["sandbox/tests", "guard/tests"]
 python_files = ["test_*.py"]
 addopts = "-v --tb=short --junitxml=.test-results/junit.xml"
 
