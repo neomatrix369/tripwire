@@ -11,6 +11,7 @@ Horizon A trackers and slice stubs. **Slice files live in wave folders** (execut
 | 5 | [slices/05-E-ship-path-coverage/](slices/05-E-ship-path-coverage/) | Ship-path coverage (8–14) — ✅ |
 | 6 | [slices/06-F-claim-audit/](slices/06-F-claim-audit/) | Claim audit (15–16) |
 | 7 | [slices/07-G-atdd-closure/](slices/07-G-atdd-closure/) | ATDD closure (18–22) — 📋 planned |
+| 8 | [slices/08-H-frontline-agent-hooks/](slices/08-H-frontline-agent-hooks/) | Frontline agent hooks (23–39) — 📋 plan-only |
 
 | Tracker | Role |
 |---------|------|

@@ -1,5 +1,5 @@
 # Progress
-> Last updated: 2026-08-07
+> Last updated: 2026-08-15
 
 ## Slice groups (execution sequence)
 
@@ -13,8 +13,10 @@
 | 6 | [`06-F-…`](slices/06-F-claim-audit/) | **F — Claim audit** | 15 · 16 | 📦 |
 | 7 | [`07-G-…`](slices/07-G-atdd-closure/) | **G — ATDD closure** | 18, 19, 20, 21, 22 (independent gates) | 📋 |
 | 8 | `08-H-…` (stubs pending) | **H — Claude Code Agent Guard integration** (hackathon, ADR-0017) | H0 → H1–H7 (plan §9 steps 0–7) | 🔨 |
+| 7 | [`07-G-…`](slices/07-G-atdd-closure/) | **G — ATDD closure** | 18, 19, 20, 21, 22 (independent gates) | 📋 parked |
+| 8 | [`08-H-…`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | 23→32 Must · 33–38 Should · 39 Could | 📋 plan-only |
 
-**Current priority:** Slice 18 — CLI Operator Evidence Contracts. Wave G uses independent gates; execute one active slice per shared code area.
+**Current priority:** Wave H Must slice **23** — Config + Handler Scripts (Frontline). Wave G (18–22) parked while H1–H3 is active unless explicitly resumed.
 
 ## Execution order (open work)
 
@@ -32,6 +34,24 @@
 `cli/bin/tripwire.js`, the same file slice 18 refactors — one active slice per
 shared code area: slice 18 does not start until the H-wave subcommand lands
 (or is explicitly rebased onto slice 18).
+| 1 | H1 | 23 | Config + Handler Scripts | Must | 📋 PLANNED |
+| 2 | H1 | 24 | `tripwire setup-agent-hooks` | Must | 📋 PLANNED |
+| 3 | H1 | 25 | Live Enforce Smoke | Must | 📋 PLANNED |
+| 4 | H2 | 26 | API Introspect + Dual Output Contract | Must | 📋 PLANNED |
+| 5 | H2 | 27 | `/tw-enable` + `/tw-disable` | Must | 📋 PLANNED |
+| 6 | H2 | 28 | `/tw-verify` | Must | 📋 PLANNED |
+| 7 | H2 | 29 | `/tw-scan` | Must | 📋 PLANNED |
+| 8 | H2 | 30 | `/tw-self-check` | Must | 📋 PLANNED |
+| 9 | H3 | 31 | Demo Artifacts | Must | 📋 PLANNED |
+| 10 | H3 | 32 | Phase 1 Regression Verification (HARD GATE) | Must | 📋 PLANNED |
+| 11 | H4 | 33 | DepShield Install | Should | 📋 PLANNED |
+| 12 | H4 | 34 | DepShield Dispatch | Should | 📋 PLANNED |
+| 13 | H5 | 35 | Ossprey Access Provisioning | Should | 🔴 BLOCKED |
+| 14 | H5 | 36 | Ossprey Dispatch | Should | 📋 PLANNED |
+| 15 | H6 | 37 | CLI Monitoring | Should | 📋 PLANNED |
+| 16 | H6 | 38 | Full-Chain Validation | Should | 📋 PLANNED |
+| 17 | H6 | 39 | FE/BE Rearchitecture | Could | 📦 DEFERRED |
+| — | G | 18–22 | ATDD closure (parked) | Must | 📋 PLANNED |
 
 ## Quick Status (by group)
 
@@ -79,11 +99,32 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 ### G — ATDD closure
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| 18 | [slice-18-cli-operator-evidence](slices/07-G-atdd-closure/slice-18-cli-operator-evidence.md) | Must | 📋 PLANNED | — | — | ~50 min |
-| 19 | [slice-19-sandbox-persistence-contract](slices/07-G-atdd-closure/slice-19-sandbox-persistence-contract.md) | Must | 📋 PLANNED | — | — | ~50 min |
-| 20 | [slice-20-scanner-subprocess-contract](slices/07-G-atdd-closure/slice-20-scanner-subprocess-contract.md) | Must | 📋 PLANNED | — | — | ~50 min |
-| 21 | [slice-21-dashboard-reliability](slices/07-G-atdd-closure/slice-21-dashboard-reliability.md) | Must | 📋 PLANNED | — | — | ~40 min |
-| 22 | [slice-22-dashboard-realtime-recovery](slices/07-G-atdd-closure/slice-22-dashboard-realtime-recovery.md) | Must | 📋 PLANNED | — | — | ~40 min |
+| 18 | [slice-18-cli-operator-evidence](slices/07-G-atdd-closure/slice-18-cli-operator-evidence.md) | Must | 📋 PLANNED (parked) | — | — | ~50 min |
+| 19 | [slice-19-sandbox-persistence-contract](slices/07-G-atdd-closure/slice-19-sandbox-persistence-contract.md) | Must | 📋 PLANNED (parked) | — | — | ~50 min |
+| 20 | [slice-20-scanner-subprocess-contract](slices/07-G-atdd-closure/slice-20-scanner-subprocess-contract.md) | Must | 📋 PLANNED (parked) | — | — | ~50 min |
+| 21 | [slice-21-dashboard-reliability](slices/07-G-atdd-closure/slice-21-dashboard-reliability.md) | Must | 📋 PLANNED (parked) | — | — | ~40 min |
+| 22 | [slice-22-dashboard-realtime-recovery](slices/07-G-atdd-closure/slice-22-dashboard-realtime-recovery.md) | Must | 📋 PLANNED (parked) | — | — | ~40 min |
+
+### H — Frontline agent hooks
+| # | Slice | MoSCoW | Status | Started | Completed | Est. time |
+|---|-------|--------|--------|---------|-----------|-----------|
+| 23 | [slice-23-config-handler-scripts](slices/08-H-frontline-agent-hooks/slice-23-config-handler-scripts.md) | Must | 📋 PLANNED | — | — | ~40 min |
+| 24 | [slice-24-setup-agent-hooks](slices/08-H-frontline-agent-hooks/slice-24-setup-agent-hooks.md) | Must | 📋 PLANNED | — | — | ~40 min |
+| 25 | [slice-25-live-enforce-smoke](slices/08-H-frontline-agent-hooks/slice-25-live-enforce-smoke.md) | Must | 📋 PLANNED | — | — | ~30 min |
+| 26 | [slice-26-api-output-contract](slices/08-H-frontline-agent-hooks/slice-26-api-output-contract.md) | Must | 📋 PLANNED | — | — | ~40 min |
+| 27 | [slice-27-tw-enable-disable](slices/08-H-frontline-agent-hooks/slice-27-tw-enable-disable.md) | Must | 📋 PLANNED | — | — | ~25 min |
+| 28 | [slice-28-tw-verify](slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md) | Must | 📋 PLANNED | — | — | ~50 min |
+| 29 | [slice-29-tw-scan](slices/08-H-frontline-agent-hooks/slice-29-tw-scan.md) | Must | 📋 PLANNED | — | — | ~40 min |
+| 30 | [slice-30-tw-self-check](slices/08-H-frontline-agent-hooks/slice-30-tw-self-check.md) | Must | 📋 PLANNED | — | — | ~30 min |
+| 31 | [slice-31-demo-artifacts](slices/08-H-frontline-agent-hooks/slice-31-demo-artifacts.md) | Must | 📋 PLANNED | — | — | ~40 min |
+| 32 | [slice-32-phase1-regression](slices/08-H-frontline-agent-hooks/slice-32-phase1-regression.md) | Must | 📋 PLANNED | — | — | ~50 min |
+| 33 | [slice-33-depshield-install](slices/08-H-frontline-agent-hooks/slice-33-depshield-install.md) | Should | 📋 PLANNED | — | — | ~30 min |
+| 34 | [slice-34-depshield-dispatch](slices/08-H-frontline-agent-hooks/slice-34-depshield-dispatch.md) | Should | 📋 PLANNED | — | — | ~40 min |
+| 35 | [slice-35-ossprey-access](slices/08-H-frontline-agent-hooks/slice-35-ossprey-access.md) | Should | 🔴 BLOCKED | — | — | ~20 min |
+| 36 | [slice-36-ossprey-dispatch](slices/08-H-frontline-agent-hooks/slice-36-ossprey-dispatch.md) | Should | 📋 PLANNED | — | — | ~40 min |
+| 37 | [slice-37-cli-monitoring](slices/08-H-frontline-agent-hooks/slice-37-cli-monitoring.md) | Should | 📋 PLANNED | — | — | ~30 min |
+| 38 | [slice-38-full-chain-validation](slices/08-H-frontline-agent-hooks/slice-38-full-chain-validation.md) | Should | 📋 PLANNED | — | — | ~50 min |
+| 39 | [slice-39-fe-be-rearchitecture](slices/08-H-frontline-agent-hooks/slice-39-fe-be-rearchitecture.md) | Could | 📦 DEFERRED | — | — | — |
 
 ### H — Claude Code Agent Guard integration (hackathon)
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
@@ -102,19 +143,21 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 ## Blockers
 | Slice | Blocker | Status |
 |-------|---------|--------|
-| — | (none open) | — |
+| 35 | Ossprey access OPEN — credentials not confirmed in DECISIONS | 🔴 BLOCKED |
 | 4 (historical) | Remotion sibling + VO assets missing | 📦 closed with demo/hackathon deferral — reinstate slice 4 if film day returns |
 
 ## Forward Roadmap
 - Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Slice 15 is retained as a deferred claim-audit artifact, not active work.
+- **Wave H (Frontline):** plan-only stubs 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. Execute Musts 23→32 with human tests after H1/H2 and HARD GATE at 32 before Should work.
+- Wave G (18–22) remains planned but **parked** while Frontline H1–H3 is active unless explicitly resumed.
 - Reopen Slice 15 only for a future live/demo release that needs its security and 3B evidence path.
-- Slice 17 Phase 1b changed public documentation UX only: README/docs index hierarchy, Mock first run, workflow orientation, and task routes.
 - **Deferred / Won't (A):** 4 (in A); 15 and 16 (in F) — reinstate only if a new live/demo need arises
-- Slice 17 ✅ = Phase 1 baseline, Phase 1b implementation, and closure record are merged; current review and evidence are recorded. Phase 2 guides remain later work.
+- Slice 39 FE/BE Could stays 📦 until pulled in after slice 38.
 - Gate close: [GATE_CONTRACT.md](GATE_CONTRACT.md)
 - Wave G is planned. Run its independent gates in the reviewable order 18, 19, 20, 21, 22; do not run overlapping source-file slices concurrently.
 - Won't for A: Drift, Phase 4/5, redesign, blast-radius, instruction→install→scan; Live E2E CI Must; support.js 95%; demo video / hackathon film day
 - **2026-08-15:** the "Phase 4" (Agent Guard) part of the line above is amended by ADR-0017 — Guard PreToolUse enforcement is reopened as **Wave H** (Frontline Hackathon London 2026, branch `tripwire-frontline-hack`); Drift and Phase 5 remain Won't (A). STATUS entries stay PROPOSED until the Phase-1 regression gate.
+- Won't for A: Drift, redesign, blast-radius, instruction→install→scan; Live E2E CI Must; support.js 95%; demo video / hackathon film day. Agent Guard for Frontline = Wave H.
 
 ## Interrupt Recovery
 1. Read **Slice groups** — find first open wave, then **Execution order**
@@ -145,3 +188,4 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-02 | main / plan | GATE_CONTRACT | all | 📋 policy | Hard close rule |
 | 2026-08-02 | docs/gate-contract-onboarding-priority | sync-docs + clean-commit | 7, plan | pushed | Groups + close slice 7 on trackers |
 | 2026-08-15 | tripwire-frontline-hack | hackathon build (plan §9 step 0) | H0 | 🔨 | Wave H — ADR-0017 + DECISIONS/STATUS/TRAIL/PROGRESS governance rows |
+| 2026-08-15 | frontline-hackathon-london-2026-agent-hooks | enhanced-flow-planner Add | 23–39 | 📋 stubs | Wave H Frontline plan-only; Wave G parked |

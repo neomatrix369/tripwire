@@ -119,6 +119,14 @@ waivers stay in [plan/DECISIONS.md](./plan/DECISIONS.md). ADR number 0001 is
 reserved for a Proposed Monk Live packaging / deployment draft that is **not**
 on `main` yet (side-branch only); it is omitted from the catalog until accepted.
 
+**Wave H — Frontline agent hooks (2026-08-15):** Claude Code PreToolUse handlers,
+`tripwire setup-agent-hooks`, and five `/tw-*` skills are **DECIDED** as plan-only
+slices 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. See
+[plan/TRAIL.md](./plan/TRAIL.md) Wave H and [plan/DECISIONS.md](./plan/DECISIONS.md).
+Not IMPLEMENTED — no production hook install path or `/tw-*` skills yet. ADR-0015
+Horizon A exclusion remains in force until Wave H lands and a superseding ADR
+records the new production entry.
+
 ---
 
 ## PROPOSED
@@ -162,10 +170,14 @@ Adapter fixture tests (slices 8–9) are planned to tighten this.
 Known fixture gaps (not urgent) are listed under
 [fixtures/README.md](../fixtures/README.md) (“Not yet built”). Do not treat those
 as shipped capabilities. Guard PreToolUse and Drift/trend remain Future /
-Won't (A) — see [ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md).
+Won't (A) for the Horizon A ship path — see
+[ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md). Frontline Guard
+integration is **DECIDED** as Wave H (plan-only; not shipped) — see DECIDED
+above.
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 (slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` …
-`07-G-atdd-closure/`). Wave G (slices 18–22) is planned ATDD closure work, not
-current capability. Claim audit (slice 15) and slice 16 remediations are
-deferred; retain their artifacts for a future live/demo release.
+`08-H-frontline-agent-hooks/`). Wave G (slices 18–22) is planned ATDD closure
+(parked while Wave H Musts run). Wave H (23–39) is Frontline plan-only. Claim
+audit (slice 15) and slice 16 remediations are deferred; retain their artifacts
+for a future live/demo release.

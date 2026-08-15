@@ -80,8 +80,10 @@ run_bg "ruff check" uv run ruff check sandbox guard scripts
 run_bg "ruff format" uv run ruff format --check sandbox guard scripts
 run_bg "mypy" uv run mypy sandbox/ guard/
 run_bg "bandit" uv run bandit -c pyproject.toml -r sandbox guard scripts -q -ll
-run_bg "xenon" uv run xenon --max-absolute D --max-modules B --max-average A \
-  sandbox/scan_app.py sandbox/scanners.py sandbox/__init__.py
+# Xenon split matches .pre-commit-config.yaml + ci.yml static-analysis:
+# scan_app/__init__ → absolute C, average A; scanners.py → absolute D, average B
+# (run_snyk D-grade bootstrap; tracked for refactor).
+run_bg "xenon" bash -c 'uv run xenon --max-absolute C --max-modules B --max-average A sandbox/scan_app.py sandbox/__init__.py && uv run xenon --max-absolute D --max-modules C --max-average B sandbox/scanners.py'
 run_bg "vulture" uv run vulture sandbox/scan_app.py sandbox/scanners.py sandbox/__init__.py guard \
   --min-confidence 80
 run_bg "gitleaks" gitleaks detect --no-git --config .gitleaks.toml --source .

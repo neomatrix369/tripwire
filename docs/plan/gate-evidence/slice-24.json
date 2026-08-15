@@ -1,0 +1,24 @@
+{
+  "slice": 24,
+  "gate_status": "PLANNED",
+  "inferred": false,
+  "branch": null,
+  "date": null,
+  "before_checks": [],
+  "after_checks": [],
+  "planned_commands": [
+    "test -f docs/plan/slices/08-H-frontline-agent-hooks/slice-24-setup-agent-hooks.md",
+    "tripwire --help | rg -n \"setup-agent-hooks|setup\"",
+    "rg -n \"setup-agent-hooks|PreToolUse\" cli/ docs/ || true",
+    "./scripts/quality-gates.sh"
+  ],
+  "commands": [],
+  "test_budget": {"acceptance_tests_max": 7, "parametrized_case_counts_as_one": true},
+  "reviewers": [],
+  "review": {"acceptance": "PENDING", "implementation": "PENDING"},
+  "verdict": "NOT_RUN",
+  "coverage_target": "TBD at AT design before IN PROGRESS",
+  "complexity_policy": "enforcing for product-code; N/A for docs-only with reason in evidence",
+  "phase": "H1",
+  "moscow": "Must"
+}

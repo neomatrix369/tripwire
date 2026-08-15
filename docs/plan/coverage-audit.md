@@ -29,7 +29,7 @@
 | Live dashboard Realtime + poll | IMPLEMENTED / VERIFIED (unit) | unit | Poll: 8s fallback **and** 30s while Realtime+running — STATUS under-claims → slice 16 📦 (reinstate) or note in 15 |
 | Normal-user dashboard path | IMPLEMENTED | unit | Default source is **Live**; select Mock for local demo → slice **17** (onboarding); prose remediations were 16 📦 |
 | Dashboard as ship UI | DECIDED (dc-dashboard as-is) | — | prototypes README “not shipped” tension → slice 16 📦 / claim audit 15 |
-| Guard PreToolUse | Future / Won't for A | missing | ARCHITECTURE Future (Gate A); exclude from coverage bar |
+| Guard PreToolUse | Future / Won't for A; Wave H **DECIDED** plan-only | missing (ship) | ARCHITECTURE/STATUS; exclude from coverage bar until Wave H IMPLEMENTED + superseding ADR |
 | Overmind Phase 5 / Ossprey | Won't / unwired | n/a | Badges stripped Gate A |
 | Coverage floors documented | DECIDED | docs | CONTRIBUTING + STATUS; raise in 11–13 |
 

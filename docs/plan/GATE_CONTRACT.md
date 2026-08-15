@@ -79,4 +79,4 @@ Legacy files (slices 1–6) may use `"verdict": "VERIFIED"`. New slices use `"PA
 2. Resume from the **first unchecked** Before/After item (`PROGRESS` Interrupt Recovery).
 3. Do not mark ✅ in chat or trackers until the Closing rule is satisfied.
 4. When drafting a new slice stub, include Before/After that already meet the quality bar.
-5. Place new stubs under the matching wave folder (`01-A-…` … `07-G-…`); update TRAIL/PROGRESS links.
+5. Place new stubs under the matching wave folder (`01-A-…` … `08-H-…`); update TRAIL/PROGRESS links.
