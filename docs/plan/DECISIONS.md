@@ -112,3 +112,7 @@
 | 2026-08-15 | slice-27 | AT design complete | Five GWTs; `set_enable` preserves unknown keys; skills at `.claude/skills/tw-{enable,disable}/SKILL.md`; ≥95% lines on `guard/config.py` + `guard/control_skills.py`. |
 | 2026-08-15 | slice-27 | review APPROVED | nw-software-crafter-reviewer — inlined `_read_raw_config`; probe shape asserts strengthened. |
 | 2026-08-15 | slice-27 | track tw-* skills | `.gitignore` allows `.claude/skills/tw-*/**` so Frontline control skills ship in-repo while other `.claude/` stays local-only. |
+| 2026-08-15 | slice-27 | ✅ closed | PR #80 merged into `frontline-hackathon-london-2026-agent-hooks`. Gate evidence `verdict: PASS`. |
+| 2026-08-15 | slice-28 | AT design complete | Six GWTs; injectable resolve+fetch_status; ≥95% lines on `guard/verify.py`; SSOT `frontline-output-contract.md`. |
+| 2026-08-15 | slice-28 | review APPROVED | nw-software-crafter-reviewer — nit AT5 docstring only; applied. |
+| 2026-08-15 | wave-h | Multi-agent by default | For **every** Wave H slice: parallelize with Task subagents whenever work is independent. Default fan-out: (1) AT/acceptance critique via `nw-acceptance-designer-reviewer` after DISTILL ATs; (2) implementation critique via `nw-software-crafter-reviewer` before 🔀→merge; (3) optional docs/gate audit in parallel with review; (4) explore/research agents for status APIs / fixtures before GREEN. Do not serialize these when they can run concurrently. Applies to slices 28+ remaining (29–39) and any reopen. |

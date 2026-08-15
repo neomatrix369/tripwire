@@ -82,6 +82,12 @@ blocks unscanned or RED artifacts; `enable=false` → approve-all bypass.
 `pytest guard/tests/test_live_enforce_smoke.py -q`. Config toggle ATs:
 `pytest guard/tests/test_tw_enable_disable.py -q`.
 
+**`/tw-verify` (operator):** Claude skill at `.claude/skills/tw-verify/SKILL.md`.
+Resolves one or more names, classifies each via Supabase status (injectable
+`guard.verify.verify_artifacts`), and prints the dual-output table + JSON in
+one pass. See [frontline-output-contract.md](frontline-output-contract.md).
+ATs: `pytest guard/tests/test_tw_verify.py -q`.
+
 **`/tw-*` dual output contract:** human Markdown table + machine JSON shape,
 `heatmap_status` → six UI states, and observed `tripwire scan` stdout fields —
 see [frontline-output-contract.md](frontline-output-contract.md).

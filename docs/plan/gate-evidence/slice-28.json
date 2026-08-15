@@ -1,24 +1,59 @@
 {
   "slice": 28,
-  "gate_status": "PLANNED",
+  "gate_status": "ON_BRANCH",
   "inferred": false,
-  "branch": null,
-  "date": null,
-  "before_checks": [],
-  "after_checks": [],
-  "planned_commands": [
-    "test -f docs/plan/slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md",
-    "rg -n \"tw-verify|Will be blocked when Tripwire is enabled\" docs/plan/slices/08-H-frontline-agent-hooks/ internal-docs/04_frontline/",
-    "rg -n \"heatmap_status\" guard/",
-    "./scripts/quality-gates.sh"
+  "branch": "slice/28-tw-verify",
+  "date": "2026-08-15",
+  "spec_path": "docs/plan/slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md",
+  "output_ssot": "docs/user-guide/frontline-output-contract.md",
+  "skill_layout": [".claude/skills/tw-verify/SKILL.md"],
+  "before_checks": "PASS — slices 26+27 verdict PASS (PR #78/#80); branch from Frontline (Wave H base waiver); SSOT frontline-output-contract.md; coverage ≥95% on guard/verify.py; complexity enforcing",
+  "after_checks": [
+    "PASS — multi-name one-pass + six-state GWTs",
+    "PASS — RED block note + unscanned→/tw-scan offer asserted",
+    "PASS — not-found human message asserted",
+    "PASS — .venv/bin/pytest guard/tests/test_tw_verify.py -q (11 passed)",
+    "PASS — coverage 100% lines on guard/verify.py (target ≥95%)",
+    "PASS — xenon exit 0; ./scripts/quality-gates.sh PASS",
+    "PASS — review acceptance+implementation APPROVED (nw-software-crafter-reviewer)",
+    "PENDING merge — PROGRESS/TRAIL ✅ after merge to Frontline"
   ],
-  "commands": [],
-  "test_budget": {"acceptance_tests_max": 7, "parametrized_case_counts_as_one": true},
-  "reviewers": [],
-  "review": {"acceptance": "PENDING", "implementation": "PENDING"},
-  "verdict": "NOT_RUN",
-  "coverage_target": "TBD at AT design before IN PROGRESS",
-  "complexity_policy": "enforcing for product-code; N/A for docs-only with reason in evidence",
+  "commands": [
+    {
+      "cmd": ".venv/bin/pytest guard/tests/test_tw_verify.py -q --tb=short",
+      "result": "PASS exit 0 — 11 passed"
+    },
+    {
+      "cmd": ".venv/bin/pytest guard/tests/test_tw_verify.py guard/tests/test_verify_units.py --cov=guard.verify --cov-report=term-missing -q",
+      "result": "PASS — 15 passed; TOTAL 100% lines on guard/verify.py"
+    },
+    {
+      "cmd": "./scripts/quality-gates.sh",
+      "result": "PASS — quality-gates passed"
+    },
+    {
+      "cmd": "test -f .claude/skills/tw-verify/SKILL.md",
+      "result": "PASS — Claude skill layout present"
+    }
+  ],
+  "test_budget": {
+    "acceptance_tests_max": 7,
+    "acceptance_tests_designed": 6,
+    "parametrized_case_counts_as_one": true
+  },
+  "coverage": {
+    "target": "≥95% lines on guard/verify.py",
+    "measured": "100.0% lines (88 stmts)",
+    "date": "2026-08-15"
+  },
+  "complexity_policy": "enforcing for product-code — xenon exit 0 via quality-gates",
+  "reviewers": ["nw-software-crafter-reviewer"],
+  "review": {
+    "acceptance": "APPROVED",
+    "implementation": "APPROVED",
+    "notes": "Nit only: AT5 docstring clarity on fetch_status not invoked for not-found; applied"
+  },
+  "verdict": "ON_BRANCH",
   "phase": "H2",
   "moscow": "Must"
 }
