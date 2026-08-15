@@ -223,7 +223,65 @@ DECIDED in product Phase 2: allowlist deny → `findings` with sandbox `scanner_
 
 ---
 
-## 7. Adapter protocol (PROPOSED)
+## 7. DepShield (`depshield-mcp`)
+
+Zero-credential dependency auditor (npm + PyPI via OSV.dev). Runs for **both**
+item types; group appended **last** in the `SCANNER_GROUPS` registry
+(`sandbox/scanners.py`). Not Sonatype DepShield (GitHub-app-only, discontinued
+2022) — see [DECISIONS.md](../../plan/DECISIONS.md) 2026-08-15.
+
+### Capture (VERIFIED — live run of `depshield-mcp` v1.0.0, serverInfo 0.1.0, 2026-08-15)
+
+Unlike the other adapters (subprocess CLI + JSON), DepShield is driven over
+**MCP stdio** with newline-delimited JSON-RPC:
+
+```
+initialize  {protocolVersion: "2024-11-05", …}
+  → notifications/initialized
+  → tools/call audit_project {filePath: <manifest>, includeDevDependencies: true}
+```
+
+`<manifest>` is the discovered `package.json` / `requirements.txt` in the
+workdir. The package is baked into the Modal image; no keys, no
+`skipped_missing_credential` path.
+
+### Output shape (VERIFIED — same live run)
+
+The tool result is a **human-readable report text**, not structured JSON.
+Parse anchors:
+
+| Anchor | Use |
+|---|---|
+| `Summary: N dependencies scanned` | `checks_run` for the `scan_run_scanners` row |
+| `📦 name@version` block | one vulnerable dependency; seeds `message` prefix |
+| `• ID (SEVERITY): summary` bullet | one finding row per bullet (ID = OSV/GHSA/CVE) |
+
+**Severity collapse:** CRITICAL/HIGH → `red`; MEDIUM/LOW → `amber`;
+UNKNOWN → `amber` (conservative — OSV entries without a severity score must
+not vanish). No INFO tier is emitted, so the cross-cutting `green` row does
+not apply.
+
+Raw report text goes to Storage per the §0 dual-write contract.
+
+### References
+
+| Source | URL | Access | Reputation | Status |
+|---|---|---|---|---|
+| npm package | https://www.npmjs.com/package/depshield-mcp | 2026-08-15 | high (maintainer-owned OSS) | live-run verified |
+| OSV.dev API | https://osv.dev | 2026-08-15 | high | upstream data source |
+
+**Evidence note:** this entry is labeled **VERIFIED** against a live
+MCP-stdio run of `depshield-mcp` v1.0.0 (serverInfo 0.1.0) on 2026-08-15 —
+the invocation sequence and parse anchors above were observed, not inferred
+from docs. That is the same research-vs-verified discipline the other
+sections follow: they stay RESEARCH/PROPOSED until their fixture smokes land.
+
+**Open:** golden report-text fixture under `fixtures/scanner-samples/depshield/`;
+re-verify anchors on version bump (report text is not a stable API).
+
+---
+
+## 8. Adapter protocol (PROPOSED)
 
 ```
 run_engine(target, pinned_version) ->
@@ -236,7 +294,7 @@ Golden samples: `fixtures/scanner-samples/{engine}/{fixture-name}.json` once smo
 
 ---
 
-## 8. Work remaining
+## 9. Work remaining
 
 - [x] Seed `.nwave/trusted-source-domains.yaml`
 - [x] Inventory primary docs + pull JSON schemas for Snyk, Cisco Skill Scanner, Cisco MCP Scanner
@@ -256,3 +314,4 @@ Golden samples: `fixtures/scanner-samples/{engine}/{fixture-name}.json` once smo
 |---|---|
 | 2026-08-01 | Skeleton + Exa source inventory |
 | 2026-08-01 | Filled Snyk / Cisco Skill Scanner / Cisco MCP Scanner field inventories from official raw docs (json-output.md, output-formats.md ×2) |
+| 2026-08-15 | Added §7 DepShield (`depshield-mcp`) — MCP-stdio invocation + report-text parse anchors, VERIFIED against live v1.0.0 run; renumbered protocol/work-remaining sections |

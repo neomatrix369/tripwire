@@ -115,6 +115,17 @@ PreToolUse exclusion is reopened, with the evidence discipline intact.
   must be superseded via a DECISIONS.md row when Phase 3 starts — never
   silently (placeholder recorded in DECISIONS.md 2026-08-15).
 
+## Addendum (2026-08-15): DepShield identification
+
+DepShield in the hackathon plan is the `depshield-mcp` npm package (an
+MCP-stdio dependency auditor covering npm + PyPI via OSV.dev, zero
+credentials, baked into the Modal image) — not Sonatype's discontinued,
+GitHub-app-only DepShield. Because the adapter is entirely sandbox-side with
+no credentials, plan step 8's "DepShield install path in `setup-agent-hooks`"
+collapsed to a no-op ([DECISIONS.md](../plan/DECISIONS.md) 2026-08-15). Its
+dependency findings populate the previously-dormant `findings` columns
+(package/version/advisory anchors) that earlier scanners left empty.
+
 ## Alternatives considered
 
 ### A. Keep Guard closed; ship advisory-only skills

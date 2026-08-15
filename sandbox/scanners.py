@@ -13,8 +13,12 @@ argparse print usage and exit nonzero — Tripwire maps that stderr to status=un
 
 import json
 import os
+import queue
+import re
 import shutil
 import subprocess
+import threading
+import time
 
 SCAN_TIMEOUT = 240  # leaves headroom under the sandbox's 300s hard timeout
 MAX_CONSOLE_CHARS = 3000  # per-scanner console capture limit for Supabase detail
@@ -578,6 +582,332 @@ def run_tessl(workdir):
     return score, [row]
 
 
+# ---- DepShield (dependency vulnerability audit via depshield-mcp) -----------
+# depshield-mcp v1.0.0 (VERIFIED against live server + npm tarball 2026-08-15):
+# MCP JSON-RPC over stdio, newline-delimited (one JSON object per line, no
+# Content-Length headers). audit_project takes filePath (ONE manifest FILE, not
+# a directory) and supports package.json + requirements.txt only — its dispatch
+# is `.json` → package.json parser, anything else → requirements format, so
+# pyproject.toml is deliberately excluded from discovery. Data via OSV.dev /
+# npm / PyPI over the network; zero credentials.
+
+# Whole-group wall-clock budget. The sequential scanner chain must stay under
+# SCAN_TIMEOUT=240s (sandbox hard-kills at 300s), so DepShield gets ~120s:
+# handshake ≤20s + per-manifest audit calls against the shared deadline.
+# Single source of truth for the pinned depshield-mcp version; the Modal image
+# install line in scan_app.py must match (sync-checked by test_scanners_depshield).
+DEPSHIELD_VERSION = "1.0.0"
+DEPSHIELD_TIMEOUT = 120
+DEPSHIELD_HANDSHAKE_TIMEOUT = 20
+DEPSHIELD_MAX_MANIFESTS = 10
+_DEPSHIELD_MANIFEST_NAMES = ("package.json", "requirements.txt")
+_DEPSHIELD_SKIP_DIRS = frozenset({"node_modules", ".git", "venv", ".venv", "__pycache__"})
+
+_DEPSHIELD_SUMMARY_RE = re.compile(
+    r"summary:\s*(\d+)\s+dependenc(?:y|ies)\s+scanned", re.IGNORECASE
+)
+_DEPSHIELD_PACKAGE_RE = re.compile(r"📦\s*(\S+)@(\S+)")
+_DEPSHIELD_ADVISORY_RE = re.compile(
+    r"[•*-]\s*([A-Za-z]+-[A-Za-z0-9-]+)\s*\(([A-Za-z]+)\)\s*:\s*(.*)"
+)
+
+
+class _MCPStdioClient:
+    """Minimal newline-delimited JSON-RPC 2.0 client over a child's stdio.
+
+    A reader thread pumps stdout lines into a queue so every read honors the
+    group deadline; callers must invoke :meth:`close` in a ``finally`` block so
+    the child is terminated/killed even on timeout (no zombie processes).
+    """
+
+    def __init__(self, cmd, deadline):
+        self._deadline = deadline
+        self._next_id = 0
+        self._lines = queue.Queue()
+        self._proc = subprocess.Popen(
+            cmd,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            # Locale-independent: under a forced ASCII locale the emoji-laden
+            # report bytes would raise UnicodeDecodeError in the reader thread
+            # and masquerade as "closed stdout". Replacement chars keep the
+            # stable ASCII parse tokens intact.
+            encoding="utf-8",
+            errors="replace",
+        )
+        threading.Thread(target=self._pump_stdout, daemon=True).start()
+
+    def _pump_stdout(self):
+        try:
+            for line in self._proc.stdout:
+                self._lines.put(line)
+        except ValueError:  # stdout closed mid-iteration by close()
+            pass
+        self._lines.put(None)  # EOF sentinel
+
+    def _send(self, message):
+        try:
+            self._proc.stdin.write(json.dumps(message) + "\n")
+            self._proc.stdin.flush()
+        except (BrokenPipeError, OSError) as exc:
+            raise RuntimeError(f"depshield-mcp stdin closed: {exc}") from exc
+
+    def _read_message(self, deadline):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise TimeoutError("depshield-mcp deadline exceeded")
+        try:
+            line = self._lines.get(timeout=remaining)
+        except queue.Empty as exc:
+            raise TimeoutError("depshield-mcp deadline exceeded") from exc
+        if line is None:
+            # Re-put the sentinel so every later read fails fast instead of
+            # blocking on the drained queue until the group deadline.
+            self._lines.put(None)
+            raise RuntimeError("depshield-mcp closed stdout (process exited)")
+        try:
+            return json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(f"depshield-mcp sent a non-JSON line: {line.strip()[:200]}") from exc
+
+    def notify(self, method):
+        self._send({"jsonrpc": "2.0", "method": method})
+
+    def request(self, method, params, call_timeout=None):
+        self._next_id += 1
+        self._send({"jsonrpc": "2.0", "id": self._next_id, "method": method, "params": params})
+        deadline = self._deadline
+        if call_timeout is not None:
+            deadline = min(deadline, time.monotonic() + call_timeout)
+        while True:  # skip notifications/other ids until our response arrives
+            message = self._read_message(deadline)
+            if isinstance(message, dict) and message.get("id") == self._next_id:
+                return message
+
+    def close(self):
+        try:
+            if self._proc.stdin:
+                self._proc.stdin.close()
+        except OSError:
+            pass
+        self._proc.terminate()
+        try:
+            self._proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            self._proc.kill()
+            try:
+                self._proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                # Nothing left to escalate to after SIGKILL (D-state child);
+                # close() runs in a finally block and must never raise.
+                pass
+
+
+def _depshield_cmd():
+    if _which("depshield-mcp"):
+        return ["depshield-mcp"]
+    if _which("npx"):
+        # Pinned: the interface contract (filePath arg, newline framing,
+        # report wording) was verified against exactly this version; an
+        # unpinned fallback would silently adopt future format drift.
+        return ["npx", "-y", f"depshield-mcp@{DEPSHIELD_VERSION}"]
+    return None
+
+
+def _depshield_handshake(client):
+    resp = client.request(
+        "initialize",
+        {
+            "protocolVersion": "2024-11-05",
+            "capabilities": {},
+            "clientInfo": {"name": "tripwire", "version": "0.4.0"},
+        },
+        call_timeout=DEPSHIELD_HANDSHAKE_TIMEOUT,
+    )
+    if not isinstance(resp.get("result"), dict):
+        raise RuntimeError(f"initialize failed: {json.dumps(resp)[:300]}")
+    client.notify("notifications/initialized")
+
+
+def _depshield_audit(client, manifest_abspath):
+    """Call audit_project for ONE manifest file; return the report text.
+
+    Raises RuntimeError on JSON-RPC error / isError results, TimeoutError when
+    the group deadline expires mid-call.
+    """
+    resp = client.request(
+        "tools/call",
+        {
+            "name": "audit_project",
+            "arguments": {"filePath": manifest_abspath, "includeDevDependencies": True},
+        },
+    )
+    result = resp.get("result")
+    if not isinstance(result, dict):
+        error = resp.get("error") or {}
+        raise RuntimeError(f"audit_project failed: {error.get('message') or 'no result'}")
+    content = result.get("content") or []
+    if not isinstance(content, list):
+        raise RuntimeError(f"audit_project returned malformed content ({type(content).__name__})")
+    text = "\n".join(str(c.get("text") or "") for c in content if isinstance(c, dict))
+    if result.get("isError"):
+        raise RuntimeError(f"audit_project isError: {text.strip()[:300] or 'no message'}")
+    return text
+
+
+def _find_manifests(workdir):
+    """Relative paths of supported dependency manifests under *workdir*.
+
+    Returns ``(kept, total_found)``; *kept* is capped at DEPSHIELD_MAX_MANIFESTS
+    and callers must surface truncation in the row detail (no silent caps).
+    """
+    found = []
+    for root, dirnames, filenames in os.walk(workdir):
+        dirnames[:] = sorted(d for d in dirnames if d not in _DEPSHIELD_SKIP_DIRS)
+        for name in sorted(filenames):
+            if name in _DEPSHIELD_MANIFEST_NAMES:
+                found.append(os.path.relpath(os.path.join(root, name), workdir))
+    return found[:DEPSHIELD_MAX_MANIFESTS], len(found)
+
+
+def _depshield_severity(raw):
+    """CRITICAL/HIGH → red; MEDIUM/LOW/UNKNOWN/anything else → amber.
+
+    UNKNOWN must not vanish: a confirmed advisory with unrated severity matches
+    the tool's own MODERATE-risk verdict, so it stays visible as amber.
+    """
+    return "red" if (raw or "").upper() in ("CRITICAL", "HIGH") else "amber"
+
+
+def _depshield_advisory_url(advisory_id):
+    if advisory_id.upper().startswith("GHSA-"):
+        return f"https://github.com/advisories/{advisory_id}"
+    return f"https://osv.dev/vulnerability/{advisory_id}"
+
+
+def _depshield_finding(package, version, advisory_id, severity_raw, summary, manifest_relpath):
+    sev = severity_raw.upper()
+    return {
+        "severity": _depshield_severity(sev),
+        "category": "dependency_vulnerability",
+        "message": f"{package}@{version}: {advisory_id} ({sev}): {summary.strip() or 'No summary'}",
+        "scanner_source": "DepShield",
+        "file_path": manifest_relpath,
+        "package_name": package,
+        "package_version": version,
+        "cve_ids": [advisory_id],
+        "advisory_url": _depshield_advisory_url(advisory_id),
+        "advisory_provider": "osv.dev",
+    }
+
+
+def _parse_depshield_report(text, manifest_relpath):
+    """Parse the human-readable audit report → (findings, checks_run).
+
+    Matches stable tokens only ("Summary: N dependencies scanned", 📦 package
+    blocks, • advisory bullets) so emoji/whitespace drift stays harmless.
+    """
+    summary = _DEPSHIELD_SUMMARY_RE.search(text)
+    checks = int(summary.group(1)) if summary else 0
+    findings = []
+    package = version = None
+    for line in text.splitlines():
+        pkg = _DEPSHIELD_PACKAGE_RE.search(line)
+        if pkg:
+            package, version = pkg.group(1), pkg.group(2)
+            continue
+        adv = _DEPSHIELD_ADVISORY_RE.search(line)
+        if adv and package:
+            findings.append(
+                _depshield_finding(
+                    package, version, adv.group(1), adv.group(2), adv.group(3), manifest_relpath
+                )
+            )
+    return findings, checks
+
+
+def _depshield_audit_all(client, workdir, manifests):
+    """Audit each manifest; never raises. Returns (findings, checks, reports, errors)."""
+    findings, checks, reports, errors = [], 0, [], []
+    for manifest in manifests:
+        try:
+            text = _depshield_audit(client, os.path.abspath(os.path.join(workdir, manifest)))
+        except TimeoutError as exc:
+            errors.append(f"{manifest}: {exc} — remaining manifests skipped")
+            break
+        except RuntimeError as exc:
+            errors.append(f"{manifest}: {exc}")
+            continue
+        # A "successful" response whose text carries neither the summary token
+        # nor a package block is format drift, not a clean audit — counting it
+        # as a report would roll the item up green on zero evidence.
+        if not (_DEPSHIELD_SUMMARY_RE.search(text) or _DEPSHIELD_PACKAGE_RE.search(text)):
+            errors.append(f"{manifest}: unrecognized report format — treated as audit error")
+            continue
+        reports.append(text)
+        f, c = _parse_depshield_report(text, manifest)
+        findings += f
+        checks += c
+    return findings, checks, reports, errors
+
+
+def run_depshield(workdir, item_type="mcp_server"):
+    """Audit npm/PyPI dependency manifests via the depshield-mcp stdio server.
+
+    includeDevDependencies is always true — a vulnerable dev dependency in an
+    agent skill still executes on the user's machine. *item_type* does not
+    change behavior (same manifests audited for skills and MCP servers).
+    """
+    source = "DepShield"
+    manifests, total = _find_manifests(workdir)
+    if not manifests:
+        return [], [
+            _skipped(
+                source,
+                "not_applicable",
+                detail="no dependency manifests (package.json / requirements.txt) in workdir",
+            )
+        ]
+    cmd = _depshield_cmd()
+    if cmd is None:
+        return [], [_unreachable(source, "depshield-mcp not installed and npx missing from image")]
+
+    client = None
+    try:
+        client = _MCPStdioClient(cmd, time.monotonic() + DEPSHIELD_TIMEOUT)
+        _depshield_handshake(client)
+        findings, checks, reports, errors = _depshield_audit_all(client, workdir, manifests)
+    except (OSError, RuntimeError, TimeoutError, TypeError, ValueError) as exc:
+        # TypeError/ValueError backstop: malformed JSON-RPC envelopes from a
+        # drifted server version must degrade to unreachable, never crash the
+        # scan run (ADR-0005 never-crash contract).
+        return [], [_unreachable(source, f"depshield-mcp session failed: {exc}")]
+    finally:
+        if client is not None:
+            client.close()
+
+    console = _build_console("\n\n".join(reports), "\n".join(errors))
+    if not reports:
+        return [], [
+            _unreachable(
+                source,
+                "; ".join(errors) or "no manifest produced a report",
+                console_output=console,
+            )
+        ]
+    row = _completed(source, checks, findings, console_output=console)
+    notes = []
+    if total > len(manifests):
+        notes.append(f"manifest list truncated to {len(manifests)} of {total} found")
+    if errors:
+        notes.append(f"{len(errors)} manifest audit error(s): " + "; ".join(errors)[:500])
+    if notes:
+        row["detail"] = f"{row['detail']} — {'; '.join(notes)}"[:4000]
+    return findings, [row]
+
+
 def _collapse_severity(raw):
     if not raw:
         return None
@@ -603,10 +933,75 @@ MCP_SCANNER_SOURCES = list(_MCP_ANALYZER_LABEL.values())
 
 TESSL_SOURCES = ["Tessl"]
 SNYK_SOURCES = ["Snyk"]
+DEPSHIELD_SOURCES = ["DepShield"]
+
+
+# ---- Scanner group registry --------------------------------------------------
+# Pluggability seam for new subprocess adapters (ADR-0005 contract): a scanner
+# joins the orchestration by appending a group entry to SCANNER_GROUPS — no
+# edits to run_all_scanners. Each group runner normalizes its adapter's return
+# shape to ``(findings, rows, quality_score)``; adapters that don't produce a
+# quality axis return ``None`` for the third slot, and quality-only adapters
+# (Tessl) return ``[]`` findings.
+
+
+def _run_skill_scanner_group(workdir, item_type, target):
+    """Cisco Skill Scanner group — (findings, rows) adapter, no quality axis."""
+    findings, rows = run_cisco_skill_scanner(workdir)
+    return findings, rows, None
+
+
+def _run_tessl_group(workdir, item_type, target):
+    """Tessl group — quality axis only: (quality_score, rows), never findings."""
+    quality_score, rows = run_tessl(workdir)
+    return [], rows, quality_score
+
+
+def _run_mcp_scanner_group(workdir, item_type, target):
+    """Cisco MCP Scanner group — the only runner that consumes *target*."""
+    findings, rows = run_cisco_mcp_scanner(workdir, target)
+    return findings, rows, None
+
+
+def _run_snyk_group(workdir, item_type, target):
+    """Snyk group — runs for every item type; CLI flags vary per *item_type*."""
+    findings, rows = run_snyk(workdir, item_type)
+    return findings, rows, None
+
+
+def _run_depshield_group(workdir, item_type, target):
+    """DepShield group — dependency audit for both item types, no quality axis."""
+    findings, rows = run_depshield(workdir, item_type)
+    return findings, rows, None
+
+
+# Ordered: skill-only groups (Cisco Skill Scanner, then Tessl), the mcp-only
+# group (Cisco MCP Scanner), then the both-type groups (Snyk, DepShield last).
+SCANNER_GROUPS = [
+    {"sources": SKILL_SCANNER_SOURCES, "applies_to": "skill", "runner": _run_skill_scanner_group},
+    {"sources": TESSL_SOURCES, "applies_to": "skill", "runner": _run_tessl_group},
+    {"sources": MCP_SCANNER_SOURCES, "applies_to": "mcp_server", "runner": _run_mcp_scanner_group},
+    {"sources": SNYK_SOURCES, "applies_to": "both", "runner": _run_snyk_group},
+    {"sources": DEPSHIELD_SOURCES, "applies_to": "both", "runner": _run_depshield_group},
+]
+
+
+def _group_applies(applies_to, item_type):
+    """True when a registry group should run for *item_type*.
+
+    ``'both'`` always runs; ``'skill'`` only for skills; ``'mcp_server'`` for
+    any non-skill item_type — preserving the historical if/else fallthrough
+    where everything that isn't a skill takes the MCP path.
+    """
+    if applies_to == "both":
+        return True
+    if applies_to == "skill":
+        return item_type == "skill"
+    return item_type != "skill"
 
 
 def run_all_scanners(workdir, item_type, target, on_scanner_done=None, on_scanner_start=None):
-    """Run all applicable scanners, optionally relaying results incrementally.
+    """Run every applicable SCANNER_GROUPS entry, optionally relaying results.
 
     When *on_scanner_start* is provided it is called before each scanner group
     with the list of scanner_source names about to run.  This lets the caller
@@ -621,38 +1016,18 @@ def run_all_scanners(workdir, item_type, target, on_scanner_done=None, on_scanne
     findings, scanner_rows = [], []
     quality_score = None
 
-    def _relay(f, r, qs=None):
-        if on_scanner_done:
-            on_scanner_done(f, r, qs)
-
-    def _signal_start(sources):
+    for group in SCANNER_GROUPS:
+        if not _group_applies(group["applies_to"], item_type):
+            continue
         if on_scanner_start:
-            on_scanner_start(sources)
-
-    if item_type == "skill":
-        _signal_start(SKILL_SCANNER_SOURCES)
-        f, r = run_cisco_skill_scanner(workdir)
+            on_scanner_start(group["sources"])
+        f, r, qs = group["runner"](workdir, item_type, target)
         findings += f
         scanner_rows += r
-        _relay(f, r)
-        _signal_start(TESSL_SOURCES)
-        qs, r = run_tessl(workdir)
         if qs is not None:
             quality_score = qs
-        scanner_rows += r
-        _relay([], r, qs)
-    else:
-        _signal_start(MCP_SCANNER_SOURCES)
-        f, r = run_cisco_mcp_scanner(workdir, target)
-        findings += f
-        scanner_rows += r
-        _relay(f, r)
-
-    _signal_start(SNYK_SOURCES)
-    f, r = run_snyk(workdir, item_type)
-    findings += f
-    scanner_rows += r
-    _relay(f, r)
+        if on_scanner_done:
+            on_scanner_done(f, r, qs)
 
     any_unreachable = any(row["status"] == "unreachable" for row in scanner_rows)
     overall_status = "partial-failed" if any_unreachable else "complete"

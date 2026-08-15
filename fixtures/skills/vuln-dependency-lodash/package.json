@@ -1,0 +1,9 @@
+{
+  "name": "vuln-dependency-lodash",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tripwire fixture: pinned known-vulnerable lodash for SCA/dependency-scanner demos. Inert — never installed or executed.",
+  "dependencies": {
+    "lodash": "4.17.15"
+  }
+}

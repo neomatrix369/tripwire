@@ -35,6 +35,13 @@ Reachable through production entry points / config:
 - Scanner adapters shell out to upstream CLIs (`skill-scanner`, `mcp-scanner`,
   `snyk-agent-scan`, `tessl`) with real flags and parse documented output shapes —
   `sandbox/scanners.py`
+- DepShield dependency-audit adapter (`depshield-mcp` over MCP stdio;
+  npm + PyPI via OSV.dev; zero credentials — nothing synced to
+  `tripwire-scan-secrets`; runs for both item types, appended last in the
+  `SCANNER_GROUPS` registry) — `sandbox/scanners.py`, unit-tested in
+  `sandbox/tests/`. IMPLEMENTED only: no live-Modal run recorded yet, so no
+  VERIFIED (operator) claim — see
+  [scanner-output-adapters.md](./research/adapters/scanner-output-adapters.md) §7
 - Fixture set under `fixtures/` — see [fixtures/README.md](../fixtures/README.md)
 - `_acquire_target` dispatch (git clone, local copy, host→sandbox tar upload via
   `local_entrypoint`, MCP introspection-only empty workdir) — `sandbox/`

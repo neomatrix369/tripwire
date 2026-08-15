@@ -49,6 +49,8 @@ image = (
         "ln -sf /root/.local/bin/uvx /usr/local/bin/uvx",
         "uv tool install snyk-agent-scan",
         "ln -sf /root/.local/bin/snyk-agent-scan /usr/local/bin/snyk-agent-scan",
+        # DepShield stdio MCP server (npm/PyPI dependency audit) — pinned so cold `npx` is not the path.
+        "npm install -g depshield-mcp@1.0.0",
         "node --version && test -x /usr/local/bin/snyk-agent-scan",
     )
     .pip_install(
