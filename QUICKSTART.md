@@ -46,13 +46,16 @@ findings until the platform accounts, `.env`, schema, and Modal app are ready.
 
 ## Shared setup reference
 
+- [Prerequisites](docs/user-guide/prerequisites.md)
+- [Path commands (Install → Live)](docs/user-guide/path-commands.md)
 - [Setup command catalog](docs/user-guide/setup-commands.md)
-- [Operational path (Install → Local validation → Live)](docs/user-guide/path-commands.md)
 - [Supabase setup](docs/user-guide/supabase-setup.md)
 - [Modal setup](docs/user-guide/modal-setup.md)
 - [SIE setup](docs/user-guide/sie-setup.md) (optional router)
 - [Model Studio setup](docs/user-guide/model-studio-setup.md) (optional escalation)
+- [Reading router results](docs/user-guide/reading-router-results.md)
 - [Environment keys](docs/user-guide/env-vars.md)
+- [Screenshot gallery](docs/screenshots/README.md)
 
 ## Daily workflow
 
@@ -109,10 +112,12 @@ Values for full five-vendor scan coverage:
 - `MCP_SCANNER_ENDPOINT` (default is prefilled if you keep Cisco endpoint default)
 
 Optional for tiered routing ([sie-setup](docs/user-guide/sie-setup.md),
-[model-studio-setup](docs/user-guide/model-studio-setup.md)):
+[model-studio-setup](docs/user-guide/model-studio-setup.md),
+[env-vars § router](docs/user-guide/env-vars.md#optional--tiered-router-sie--model-studio)):
 
 - `SIE_ENDPOINT`, `SIE_API_KEY` (and optionally `SIE_MODEL`)
 - `DASHSCOPE_API_KEY`, `ALIBABA_OPENAI_BASE_URL` (and optionally `MODEL_STUDIO_MODEL`, `DASHSCOPE_HOST`)
+- `ALIBABA_DASH_SCOPE_API_URL` — sample CLI image/video only; not required by `tripwire route`
 
 Then run bootstrap:
 

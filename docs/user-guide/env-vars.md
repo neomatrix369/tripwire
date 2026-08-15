@@ -110,9 +110,13 @@ secret-creation command.
   4. If you only use interactive setup, skip both values and keep them blank.
 - **Snyk:** open [app.snyk.io](https://app.snyk.io) → Settings → API Tokens and create/copy a token for `SNYK_TOKEN`.
 - **Tessl:** open [tessl.io](https://tessl.io), create/login; use Tessl UI token page or `tessl api-key create --workspace <name>` for `TESSL_TOKEN`, and set `TESSL_WORKSPACE`.
-- **Cisco AI Defense:** open [Cisco Developer](https://developer.cisco.com) and locate AI Defense credentials for:
-  - `AI_DEFENSE_API_KEY`
+- **Cisco Skill / MCP Scanner LLM (Tier B):** provision an OpenAI-compatible (or Azure) LLM for the Cisco Skill and MCP scanner CLIs. Map into:
+  - Skill: `SKILL_SCANNER_LLM_API_KEY`, `SKILL_SCANNER_LLM_MODEL`, `SKILL_SCANNER_LLM_PROVIDER`, `SKILL_SCANNER_LLM_BASE_URL` (optional `SKILL_SCANNER_LLM_API_VERSION`)
+  - MCP: `MCP_SCANNER_LLM_API_KEY`, `MCP_SCANNER_LLM_MODEL`, `MCP_SCANNER_LLM_BASE_URL` (optional `MCP_SCANNER_LLM_API_VERSION`)
+  These are **not** the same as AI Defense cloud inspect keys below; without them Skill/MCP LLM depth is skipped.
+- **Cisco AI Defense (Tier C — paid cloud inspect):** open [Cisco Developer](https://developer.cisco.com) and locate AI Defense credentials for:
+  - `AI_DEFENSE_API_KEY` (and optionally `AI_DEFENSE_API_URL`)
   - `MCP_SCANNER_API_KEY`
   and optionally set `MCP_SCANNER_ENDPOINT` only for non-default hosts.
-- **Superlinked SIE (optional router):** [sie-setup](./sie-setup.md)
-- **Alibaba Cloud Model Studio (optional router escalation):** [model-studio-setup](./model-studio-setup.md)
+- **Superlinked SIE (optional router):** [sie-setup](./sie-setup.md) — `SIE_ENDPOINT`, `SIE_API_KEY`, optional `SIE_MODEL`.
+- **Alibaba Cloud Model Studio (optional router escalation):** [model-studio-setup](./model-studio-setup.md) — `DASHSCOPE_API_KEY`, `ALIBABA_OPENAI_BASE_URL`, optional `DASHSCOPE_HOST` / `MODEL_STUDIO_MODEL` / `ALIBABA_DASH_SCOPE_API_URL` (sample CLI image/video only).
