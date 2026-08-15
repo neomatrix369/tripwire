@@ -174,3 +174,93 @@ def test_given_home_config_when_no_env_override_then_uses_home(
     ### Then
     assert code == 0
     assert json.loads(stdout)["decision"] == "approve"
+
+
+@pytest.mark.parametrize(
+    ("fixture", "reason_snippet"),
+    [
+        ("unscanned", "never scanned"),
+        ("red", "rated red"),
+    ],
+)
+def test_given_check_call_fixture_env_when_handler_runs_then_blocks(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    fixture: str,
+    reason_snippet: str,
+) -> None:
+    """
+    Scenario: TRIPWIRE_CHECK_CALL_FIXTURE supplies unscanned/RED without Supabase.
+    Slice: 25 — smoke seam (in-process coverage)
+    """
+    from guard.hooks_entry import handle_pre_tool_use
+
+    ### Given
+    path = tmp_path / "cfg.json"
+    path.write_text(json.dumps({"enable": True, "scan_validity_days": 14}), encoding="utf-8")
+    monkeypatch.setenv("TRIPWIRE_CHECK_CALL_FIXTURE", fixture)
+
+    ### When
+    stdout, code = handle_pre_tool_use(b"{}", config_path=path)
+
+    ### Then
+    assert code == 0
+    payload = json.loads(stdout)
+    assert payload["decision"] == "block"
+    assert reason_snippet in payload["reason"].lower()
+
+
+def test_given_unknown_check_call_fixture_when_handler_runs_then_uses_default(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Scenario: Unknown fixture key falls through to default check_call."""
+    import sys
+    from types import ModuleType
+
+    from guard import hooks_entry
+
+    ### Given
+    path = tmp_path / "cfg.json"
+    path.write_text(json.dumps({"enable": True, "scan_validity_days": 14}), encoding="utf-8")
+    monkeypatch.setenv("TRIPWIRE_CHECK_CALL_FIXTURE", "not-a-real-fixture")
+
+    fake_hook = ModuleType("guard.guard_hook")
+    fake_hook.check_call = lambda _: {  # type: ignore[attr-defined]
+        "allow": True,
+        "reason": "default path",
+        "status": "green",
+    }
+    monkeypatch.setitem(sys.modules, "guard.guard_hook", fake_hook)
+
+    ### When
+    stdout, code = hooks_entry.handle_pre_tool_use(b"{}", config_path=path)
+
+    ### Then
+    assert code == 0
+    assert json.loads(stdout)["decision"] == "approve"
+
+
+def test_given_main_stdout_already_newline_when_runs_then_no_double_newline(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Scenario: main() does not append a second newline when stdout already ends with one."""
+    from guard import hooks_entry
+
+    ### Given
+    path = tmp_path / "cfg.json"
+    path.write_text(json.dumps({"enable": False, "scan_validity_days": 14}), encoding="utf-8")
+    monkeypatch.setenv("TRIPWIRE_CONFIG", str(path))
+    monkeypatch.setattr(sys, "stdin", io.TextIOWrapper(io.BytesIO(b"{}")))
+    monkeypatch.setattr(
+        hooks_entry,
+        "handle_pre_tool_use",
+        lambda *_a, **_k: ('{"decision":"approve"}\n', 0),
+    )
+
+    ### When
+    with pytest.raises(SystemExit) as exc:
+        hooks_entry.main()
+
+    ### Then
+    assert exc.value.code == 0
+    assert capsys.readouterr().out == '{"decision":"approve"}\n'

@@ -128,12 +128,14 @@ slices 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. See
   **IMPLEMENTED** and **VERIFIED** (PR #74 into Frontline integration branch) —
   `guard/config.py` (`enable` default `true`, `scan_validity_days` default `14`),
   `guard/hooks_entry.py` (stdin → stdout approve/block, fail-closed), install
-  templates under `guard/hooks/`. Install CLI is slice 24.
-- **Slice 24 (`tripwire setup-agent-hooks`):** 🔀 ON BRANCH —
-  **IMPLEMENTED** install path (`cli/src/setupAgentHooks.js` +
-  `tripwire setup-agent-hooks`); installs hooks to `~/.tripwire/hooks` (mode
-  `700`), first-write config via `ensure_default_config`, Claude PreToolUse
-  registration. Merge to Frontline then mark ✅.
+  templates under `guard/hooks/`.
+- **Slice 24 (`tripwire setup-agent-hooks`):** **IMPLEMENTED** and **VERIFIED**
+  (PR #75) — `cli/src/setupAgentHooks.js`; installs hooks to `~/.tripwire/hooks`
+  (mode `700`), first-write config via `ensure_default_config`, Claude PreToolUse
+  registration.
+- **Slice 25 (Live Enforce Smoke):** 🔀 ON BRANCH — scripted smoke after install
+  proves enable→block (unscanned/RED) and disable→approve; docs state no native
+  install-event hook. Human H2 checkpoint still required before slices 26–30.
 - Remaining H Musts/Shoulds: not IMPLEMENTED — no `/tw-*` skills yet.
 
 ---
@@ -154,9 +156,8 @@ Known fixture gaps (not urgent) are listed under
 as shipped capabilities. Guard PreToolUse and Drift/trend remain Future /
 Won't (A) for the Horizon A ship path — see
 [ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md). Frontline Guard
-integration is **DECIDED** as Wave H — see DECIDED above. Slice 23 ✅ handlers/
-config; slice 24 installs via `tripwire setup-agent-hooks` (on branch). `/tw-*`
-skills still pending later H slices.
+integration is **DECIDED** as Wave H — see DECIDED above. Slice 23–24 ✅;
+slice 25 live-enforce smoke on branch. `/tw-*` skills still pending later H slices.
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 (slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` …

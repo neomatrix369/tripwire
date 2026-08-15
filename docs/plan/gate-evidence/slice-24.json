@@ -1,6 +1,6 @@
 {
   "slice": 24,
-  "gate_status": "ON_BRANCH",
+  "gate_status": "PASSED",
   "inferred": false,
   "branch": "slice/24-setup-agent-hooks",
   "date": "2026-08-15",
@@ -13,7 +13,7 @@
     "PASS — coverage 93.11% lines on cli/src/setupAgentHooks.js (≥80%)",
     "PASS — ./scripts/quality-gates.sh",
     "PASS — nimble in-session review acceptance+implementation APPROVED (DECISIONS Wave H nimble reviews)",
-    "PENDING merge — PROGRESS/TRAIL 🔀 until merged to Frontline integration"
+    "PASS — merged to Frontline integration via PR #75"
   ],
   "commands": [
     {
@@ -61,7 +61,7 @@
     "3_config_defaults": "PASS — cross-link guard/config.py / slice 23",
     "4_cross_link": "PASS — gate-evidence ↔ TRAIL/PROGRESS"
   },
-  "verdict": "ON_BRANCH",
+  "verdict": "PASS",
   "phase": "H1",
   "moscow": "Must",
   "pr": "https://github.com/neomatrix369/tripwire/pull/75"

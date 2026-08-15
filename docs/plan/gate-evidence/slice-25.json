@@ -1,24 +1,78 @@
 {
   "slice": 25,
-  "gate_status": "PLANNED",
+  "gate_status": "ON_BRANCH",
   "inferred": false,
-  "branch": null,
-  "date": null,
-  "before_checks": [],
-  "after_checks": [],
-  "planned_commands": [
-    "test -f docs/plan/slices/08-H-frontline-agent-hooks/slice-25-live-enforce-smoke.md",
-    "rg -n \"install-event|setup-agent-hooks\" docs/ internal-docs/04_frontline/",
-    "test -x \"$HOME/.tripwire/hooks/pre-tool-use.sh\" || echo \"hooks not installed yet — expected until GREEN\"",
-    "./scripts/quality-gates.sh"
+  "branch": "slice/25-live-enforce-smoke",
+  "date": "2026-08-15",
+  "spec_path": "docs/plan/slices/08-H-frontline-agent-hooks/slice-25-live-enforce-smoke.md",
+  "before_checks": "PASS — slice 24 verdict PASS (PR #75); branch from Frontline integration (DECISIONS Wave H base); smoke fixture HOME + TRIPWIRE_CHECK_CALL_FIXTURE noted; AT design + cov targets set",
+  "after_checks": [
+    "PASS — enabled unscanned/RED → block (parametrized smoke)",
+    "PASS — disabled → approve (installed pre-tool-use.sh short-circuit)",
+    "PASS — docs greppable: no native install-event hook; setup-agent-hooks workaround",
+    "PASS — .venv/bin/pytest guard/tests/test_live_enforce_smoke.py -q (4 passed)",
+    "PASS — coverage guard.config+hooks_entry 100% lines (≥95%); complexity enforcing via quality-gates",
+    "PASS — ./scripts/quality-gates.sh",
+    "PASS — nimble in-session review acceptance+implementation APPROVED (DECISIONS Wave H nimble reviews)",
+    "PENDING human H2 checkpoint — operator sign-off before slices 26–30",
+    "PENDING merge — PROGRESS/TRAIL 🔀 until merged to Frontline integration"
   ],
-  "commands": [],
-  "test_budget": {"acceptance_tests_max": 7, "parametrized_case_counts_as_one": true},
-  "reviewers": [],
-  "review": {"acceptance": "PENDING", "implementation": "PENDING"},
-  "verdict": "NOT_RUN",
-  "coverage_target": "TBD at AT design before IN PROGRESS",
-  "complexity_policy": "enforcing for product-code; N/A for docs-only with reason in evidence",
+  "commands": [
+    {
+      "cmd": ".venv/bin/pytest guard/tests/test_live_enforce_smoke.py -q --tb=short",
+      "result": "PASS exit 0 — 4 passed (enabled block unscanned|red; disabled approve; docs claim)"
+    },
+    {
+      "cmd": ".venv/bin/pytest guard/tests/test_live_enforce_smoke.py guard/tests/test_config_handler_scripts.py guard/tests/test_config_handler_units.py -q --cov=guard.config --cov=guard.hooks_entry --cov-report=term-missing --cov-fail-under=95",
+      "result": "PASS — 22 passed; 100% lines on guard.config + guard.hooks_entry"
+    },
+    {
+      "cmd": "rg -n \"no native install-event|setup-agent-hooks|Enable / disable smoke\" docs/user-guide/setup-commands.md",
+      "result": "PASS — install-event gap + workaround + enable/disable smoke steps greppable"
+    },
+    {
+      "cmd": "./scripts/quality-gates.sh",
+      "result": "PASS — quality-gates passed"
+    }
+  ],
+  "smoke_procedure": {
+    "install": "node cli/bin/tripwire.js setup-agent-hooks --home <fixture> --claude-settings <fixture>/.claude/settings.json",
+    "enabled_block": "enable=true + TRIPWIRE_CHECK_CALL_FIXTURE=unscanned|red + bash ~/.tripwire/hooks/pre-tool-use.sh",
+    "disabled_approve": "enable=false + same stdin → decision approve",
+    "note": "Fixture seam avoids live Supabase; production leaves TRIPWIRE_CHECK_CALL_FIXTURE unset"
+  },
+  "test_budget": {
+    "acceptance_tests_max": 7,
+    "acceptance_tests_designed": 3,
+    "parametrized_case_counts_as_one": true,
+    "extra_surface_tests": ["in-process fixture seam units for coverage"]
+  },
+  "coverage": {
+    "target": "≥95% lines guard/config.py + guard/hooks_entry.py",
+    "measured": "100%",
+    "date": "2026-08-15"
+  },
+  "complexity_policy": "enforcing — quality-gates.sh xenon PASS",
+  "human_checkpoint_h2": {
+    "required": true,
+    "status": "PENDING_OPERATOR_SIGNOFF",
+    "blocks": "Phase H2 slices 26–30",
+    "note": "Scripted smoke VERIFIED; human Claude Code session observation optional but Phase H2 needs DECISIONS/gate-evidence sign-off"
+  },
+  "reviewers": ["in-session nimble (acceptance+implementation)"],
+  "review": {
+    "acceptance": "APPROVED",
+    "implementation": "APPROVED",
+    "notes": "GWTs bind to real setup-agent-hooks install + installed pre-tool-use.sh; enable short-circuit proven; unscanned/RED via documented smoke seam; install-event docs greppable. No H2 skill surface expansion."
+  },
+  "documentation_audit": {
+    "1_install_event_gap": "PASS — docs/user-guide/setup-commands.md",
+    "2_enable_disable_smoke": "PASS — Enable / disable smoke (operator) paragraph",
+    "3_cross_link": "PASS — gate-evidence ↔ TRAIL/PROGRESS",
+    "4_human_checkpoint": "PASS — recorded PENDING_OPERATOR_SIGNOFF in evidence + slice After-Checks"
+  },
+  "verdict": "ON_BRANCH",
   "phase": "H1",
-  "moscow": "Must"
+  "moscow": "Must",
+  "pr": "https://github.com/neomatrix369/tripwire/pull/76"
 }

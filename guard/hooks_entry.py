@@ -6,7 +6,8 @@ Contract (always exit 0; decision is in stdout JSON):
   error occurs (**fail-closed**).
 
 Does not perform synchronous scans. Wraps ``guard.guard_hook.check_call`` by
-default; tests inject a fake ``check_call``.
+default; tests inject a fake ``check_call``. CI smoke may set
+``TRIPWIRE_CHECK_CALL_FIXTURE`` to ``unscanned`` or ``red`` (unset in production).
 """
 
 from __future__ import annotations
@@ -32,11 +33,40 @@ def _config_path_from_env() -> Path:
     return Path.home() / ".tripwire" / "config.json"
 
 
+_SMOKE_FIXTURES: dict[str, dict[str, Any]] = {
+    "unscanned": {
+        "allow": False,
+        "reason": "never scanned — guard fails closed",
+        "status": "grey",
+    },
+    "red": {
+        "allow": False,
+        "reason": "rated red — at/above threshold",
+        "status": "red",
+    },
+}
+
+
 def _default_check_call(content_bytes: bytes) -> dict[str, Any]:
     # Lazy import: guard_hook pulls supabase; keep hooks_entry importable without it.
     from guard.guard_hook import check_call
 
     return check_call(content_bytes)
+
+
+def _smoke_check_call_from_env() -> CheckCall | None:
+    """Optional CI/smoke seam — unset in production. Values: unscanned | red."""
+    key = (os.environ.get("TRIPWIRE_CHECK_CALL_FIXTURE") or "").strip().lower()
+    if not key:
+        return None
+    fixture = _SMOKE_FIXTURES.get(key)
+    if fixture is None:
+        return None
+
+    def _fixed(_content_bytes: bytes) -> dict[str, Any]:
+        return dict(fixture)
+
+    return _fixed
 
 
 def _decision_approve() -> str:
@@ -61,7 +91,10 @@ def handle_pre_tool_use(
     if not config.get("enable", True):
         return _decision_approve(), 0
 
-    guard_fn = check_call if check_call is not None else _default_check_call
+    if check_call is not None:
+        guard_fn = check_call
+    else:
+        guard_fn = _smoke_check_call_from_env() or _default_check_call
     content = b"" if target_content is None else target_content
     try:
         result = guard_fn(content)

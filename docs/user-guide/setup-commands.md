@@ -57,19 +57,27 @@ tripwire setup
 
 ### Frontline agent hooks (Claude Code PreToolUse)
 
-Single install path for Wave H handlers (requires Tripwire Python package
-importable, e.g. repo `.venv` / `uv run`):
+Claude Code has **no native install-event hook**. The workaround is a one-shot
+operator install:
 
 ```bash
 tripwire setup-agent-hooks
 ```
 
-This installs templates to `~/.tripwire/hooks/` with owner-only mode `700`,
-writes `~/.tripwire/config.json` on first run only (`enable=true`,
+Single install path for Wave H handlers (requires Tripwire Python package
+importable, e.g. repo `.venv` / `uv run`). This installs templates to
+`~/.tripwire/hooks/` with owner-only mode `700`, writes
+`~/.tripwire/config.json` on first run only (`enable=true`,
 `scan_validity_days=14` — see `guard/config.py` / slice 23), and registers a
 PreToolUse command in `~/.claude/settings.json`. Re-runs are idempotent
 (config preserved; hook not duplicated). Fixture/testing overrides:
 `--home <dir>` and `--claude-settings <path>`.
+
+**Enable / disable smoke (operator):** after install, set
+`"enable": true` in `~/.tripwire/config.json` — PreToolUse blocks unscanned or
+RED artifacts. Set `"enable": false` — the same PreToolUse call is approved
+(full bypass). Scripted smoke:
+`pytest guard/tests/test_live_enforce_smoke.py -q`.
 
 ### Verify Supabase access
 
