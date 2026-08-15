@@ -1,0 +1,30 @@
+{
+  "slice": 36,
+  "gate_status": "PLANNED",
+  "inferred": false,
+  "branch": null,
+  "date": null,
+  "before_checks": [],
+  "after_checks": [],
+  "planned_commands": [
+    "./scripts/quality-gates.sh"
+  ],
+  "commands": [],
+  "test_budget": {
+    "acceptance_tests_max": 7,
+    "parametrized_case_counts_as_one": true
+  },
+  "reviewers": [],
+  "review": {
+    "acceptance": "PENDING",
+    "implementation": "PENDING"
+  },
+  "verdict": "NOT_RUN",
+  "coverage_target": "TBD at AT design before IN PROGRESS",
+  "complexity_policy": "enforcing for product-code; N/A for docs-only with reason in evidence",
+  "phase": "H5",
+  "moscow": "Should",
+  "depends_on": [35],
+  "note": "Do not start until slice 35 unblocked and PASS (Ossprey access confirmed in DECISIONS)",
+  "spec_path": "docs/plan/slices/08-H-frontline-agent-hooks/slice-36-ossprey-dispatch.md"
+}

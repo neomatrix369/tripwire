@@ -86,9 +86,12 @@ C4Container
 
 ### Future (not current Horizon A containers)
 
-- `guard/` — PreToolUse-style Agent Guard hook (**Phase 4**, Won't for Horizon A).
-  Code stub may exist; it is **not** a shipped production entry point yet.
-  See [STATUS.md](./STATUS.md) and [plan/TRAIL.md](./plan/TRAIL.md) Forward.
+- `guard/` — PreToolUse-style Agent Guard hook. **Horizon A:** Won't / not a
+  shipped production entry ([ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md)).
+  **Wave H (Frontline, DECIDED plan-only):** slices 23–39 intend Claude Code
+  hooks + `tripwire setup-agent-hooks` + `/tw-*` skills —
+  [plan/TRAIL.md](./plan/TRAIL.md) Wave H. Code stub may exist; it is **not** a
+  shipped production entry point yet. See [STATUS.md](./STATUS.md).
 
 ---
 

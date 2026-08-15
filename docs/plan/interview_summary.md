@@ -34,3 +34,33 @@
 
 ## Divergence result
 - Canonical = **spec** (user continued without a/b/c; default + hybrid). Code is ship evidence for today; GWT E2E tests planned in slices; build-day checkboxes sync on GWT pass; VO/Remotion in sibling repo.
+
+---
+
+# Interview Summary — Wave H Frontline (delta)
+> Generated: 2026-08-15 | Scenario: Brownfield | Path: Add Wave H | Plan-only
+
+## What was provided
+- Brief: `internal-docs/04_frontline/main_prompt.md` (Claude Code only).
+- Branch: `frontline-hackathon-london-2026-agent-hooks`.
+- Path: **Add** Wave H; keep Horizon A / Waves A–G; Wave G not resumed during H1–H3.
+- Mode: plan artifacts + phase gates only — no product execution yet.
+- Architecture: PreToolUse → handler → `guard.guard_hook` → Supabase RAG; skills call existing `tripwire scan` + Supabase status.
+- Config: `~/.tripwire/config.json` — `enable` default **true**, `scan_validity_days` default **14**.
+- Skills: `/tw-verify`, `/tw-scan`, `/tw-enable`, `/tw-disable`, `/tw-self-check` with dual human/JSON output.
+- Install: single path `tripwire setup-agent-hooks`.
+- Sequence phases: H1 enforcement skeleton → H2 control skills → H3 demos + Phase 1 regression hard gate → H4 DepShield → H5 Ossprey (access OPEN) → H6 monitoring/full-chain; FE/BE Could/deferred.
+
+## What was inferred
+- Foundation exists: `guard/guard_hook.py` stub, `tripwire scan`, fixtures; integration layer absent.
+- No Claude Code native install-event hook — workaround is setup command.
+- Status lookup is Supabase-direct (no status CLI), matching guard pattern.
+
+## Constraints
+- Enforcement ON by default from install.
+- Unscanned = blocked when enabled; RED blocked; Amber report-only.
+- BACKLOG items carried in DECISIONS — do not silently resolve.
+- Full DISTILL ATs before any H slice IN PROGRESS.
+
+## Simplest shape
+- Ship Phase 1 Musts (23–32) with human test after each phase; Should dispatch after slice 32 PASS; defer FE/BE unless pulled in.
