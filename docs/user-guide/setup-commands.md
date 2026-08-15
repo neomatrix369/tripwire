@@ -106,6 +106,25 @@ tripwire setup --force
 ./scripts/quality-gates.sh
 ```
 
+### Claude Code agent hooks (optional)
+
+> Requires a working Live path (Supabase + Modal + `.env`) and Claude Code.
+> Design: [ADR-0017](../adr/0017-claude-code-agent-guard-integration.md).
+> Source tree: [agent-hooks/README.md](../../agent-hooks/README.md).
+
+Install PreToolUse hooks, `~/.tripwire/config.json`, and the five `/tw-*`
+skills into the operator home directory:
+
+```bash
+tripwire setup-agent-hooks
+# optional: also install and bootstrap-scan demo artifacts
+tripwire setup-agent-hooks --with-demo
+```
+
+After install: `/tw-verify <name>`, `/tw-scan <name>`, `/tw-enable` /
+`/tw-disable`, `/tw-self-check`. Capability status:
+[STATUS.md](../STATUS.md) (IMPLEMENTED; operator VERIFIED pending Phase-1 gate).
+
 ### Tiered router (optional)
 
 > **Missing credentials → warn and skip.** Scans still complete. Without

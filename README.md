@@ -200,6 +200,7 @@ How to read strips and filters after Route:
 | Run your first Live scan | [Quickstart](QUICKSTART.md#first-live-scan) · [setup commands](docs/user-guide/setup-commands.md) |
 | Preview Mock UI or dry-discover locally | [Optional local validation](QUICKSTART.md#validate-locally-optional) |
 | Enable SIE / Model Studio routing | [SIE setup](docs/user-guide/sie-setup.md) · [Model Studio setup](docs/user-guide/model-studio-setup.md) · [`tripwire route`](docs/user-guide/setup-commands.md#tiered-router-optional) |
+| Install Claude Code agent hooks (optional) | [`tripwire setup-agent-hooks`](docs/user-guide/setup-commands.md#claude-code-agent-hooks-optional) · [agent-hooks](agent-hooks/README.md) |
 | Interpret pathway strips / Escalated / SIE-only | [Reading router results](docs/user-guide/reading-router-results.md) |
 | Browse CLI / dashboard screenshots | [Screenshot gallery](docs/screenshots/README.md) |
 | Smoke-test SIE or Model Studio alone | [SIE sample CLI](prototypes/sie-studio/README.md) · [Model Studio sample CLI](prototypes/model-studio/README.md) |

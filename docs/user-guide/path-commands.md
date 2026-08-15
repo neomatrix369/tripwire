@@ -34,6 +34,9 @@ Modal scanner-secret projection and helper-only synchronization behavior.
 Optional tiered routing: [sie-setup.md](./sie-setup.md) then
 [model-studio-setup.md](./model-studio-setup.md); interpret UI with
 [reading-router-results.md](./reading-router-results.md).
+Optional Claude Code enforcement:
+[setup-agent-hooks](./setup-commands.md#claude-code-agent-hooks-optional)
+([agent-hooks/README.md](../../agent-hooks/README.md)).
 
 ## 5) Maintain or contribute
 

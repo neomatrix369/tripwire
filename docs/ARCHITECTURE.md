@@ -83,15 +83,17 @@ C4Container
 - `scripts/` — setup (Supabase/Modal), `serve-dashboard.mjs`, hygiene gates, router fixtures
 - `fixtures/` — smoke targets — [fixtures/README.md](../fixtures/README.md)
 - `docs/research/adapters/scanner-output-adapters.md` — keep in sync with `sandbox/scanners.py`
+- `agent-hooks/` + `guard/` — Claude Code PreToolUse enforcement (optional):
+  installer `tripwire setup-agent-hooks`, handler sources, `/tw-*` skills —
+  [ADR-0017](./adr/0017-claude-code-agent-guard-integration.md),
+  [agent-hooks/README.md](../agent-hooks/README.md), [STATUS.md](./STATUS.md)
+  (IMPLEMENTED; operator VERIFIED pending slice 32)
 
 ### Future (not current Horizon A containers)
 
-- `guard/` — PreToolUse-style Agent Guard hook. **Horizon A:** Won't / not a
-  shipped production entry ([ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md)).
-  **Wave H (Frontline, DECIDED plan-only):** slices 23–39 intend Claude Code
-  hooks + `tripwire setup-agent-hooks` + `/tw-*` skills —
-  [plan/TRAIL.md](./plan/TRAIL.md) Wave H. Code stub may exist; it is **not** a
-  shipped production entry point yet. See [STATUS.md](./STATUS.md).
+- Drift/trend/diff — remains Won't (A)
+  ([ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md); ADR-0017
+  reopens only Guard PreToolUse, not Drift)
 
 ---
 

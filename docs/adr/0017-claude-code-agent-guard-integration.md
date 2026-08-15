@@ -11,9 +11,9 @@ Frontline Hackathon London 2026 targets a Claude Code integration layer:
 Tripwire verdicts enforced at the moment an agent invokes a skill or MCP tool.
 [ADR-0015](./0015-horizon-a-excludes-guard-and-drift.md) scoped Guard out of
 Horizon A and states that re-opening Guard requires *a new ADR plus STATUS
-evidence, not a stub file*. This is that ADR; the matching STATUS entries are
-**PROPOSED** and flip to IMPLEMENTED/VERIFIED only with the Phase-1
-regression-gate evidence.
+evidence, not a stub file*. This is that ADR. STATUS now records the layer as
+**IMPLEMENTED** (unit-tested on `main`); operator **VERIFIED** still requires
+Phase-1 regression-gate evidence (slice 32).
 
 Two verified facts about Claude Code hooks drive the design: a plain non-zero
 exit from a PreToolUse hook is a *non-blocking* error (the tool call proceeds),
@@ -117,9 +117,10 @@ PreToolUse exclusion is reopened, with the evidence discipline intact.
   same file slice 18's Commander refactor touches. Sequence rule: one active
   slice per shared code area — land the subcommand before slice 18 starts, or
   rebase onto it (called out in TRAIL/PROGRESS).
-- STATUS claims stay PROPOSED until the Phase-1 regression gate (live
+- STATUS claims are **IMPLEMENTED** (unit-tested on `main`, PRs #83/#84);
+  operator **VERIFIED** still waits on the Phase-1 regression gate (live
   block/allow matrix, tamper case, fail-closed refusal+hang pair,
-  `~/.claude/settings.json` diff) records evidence.
+  `~/.claude/settings.json` diff) — slice 32.
 - The §5.4 relative-identifier cleanup ships as a printed, operator-reviewed
   `psql` command in `scripts/install-demo-artifacts.sh` — a deliberate manual
   step, never executed by the tooling itself.
@@ -167,5 +168,5 @@ backstop only.
 - Tripwire × Claude Code Integration — Implementation Plan (hackathon working
   document, 2026-08-15; branch `tripwire-frontline-hack`)
 - [docs/plan/DECISIONS.md](../plan/DECISIONS.md) 2026-08-15 rows ·
-  [docs/STATUS.md](../STATUS.md) PROPOSED section ·
+  [docs/STATUS.md](../STATUS.md) IMPLEMENTED + VERIFIED (unit) ·
   [docs/plan/TRAIL.md](../plan/TRAIL.md) wave H

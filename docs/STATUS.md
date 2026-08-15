@@ -54,14 +54,27 @@ Reachable through production entry points / config:
   (`cli/src/router.js`, `cli/src/orchestrator.js`); dashboard router strip +
   SIE-only / escalated filters — `prototypes/dc-dashboard/`; sample CLIs —
   `prototypes/sie-studio/`, `prototypes/model-studio/` ([ADR-0016](./adr/0016-tiered-router-sie-model-studio.md))
+- Claude Code agent-hooks layer ([ADR-0017](./adr/0017-claude-code-agent-guard-integration.md)):
+  `tripwire setup-agent-hooks` (`cli/src/setupAgentHooks.js`), PreToolUse handler
+  sources under `agent-hooks/hooks/` (installs to `~/.tripwire/hooks/`), five
+  `/tw-*` skills (`agent-hooks/skills/` → `~/.claude/skills/`), guard entry
+  (`guard/entry.py`, `guard/status.py`) with Skill/Bash/MCP matcher and
+  skill-path Bash attribution — reachable production path on `main` (PRs
+  #83/#84). Operator VERIFIED still waits on Phase-1 regression-gate evidence
+  (slice 32)
 
 ---
 
 ## VERIFIED (unit)
 
 - `cd cli && npm test` — discovery, content-hash, schema-probe (incl. `completed_at`),
-  `--force`, tiered router (`cli/test/router.test.js`)
+  `--force`, tiered router (`cli/test/router.test.js`),
+  `setup-agent-hooks` (`cli/test/setupAgentHooks.test.js`)
 - `pytest sandbox/tests/test_acquire_target.py` — acquire-target dispatch
+- `pytest sandbox/tests/test_scanners_depshield.py` /
+  `test_scanner_registry.py` — DepShield adapter + registry (unit only)
+- `uv run --extra guard pytest guard/tests/` — guard entry, status, hash parity,
+  decision matrix (unit; not the live Claude Code block/allow matrix)
 - `cd prototypes/dc-dashboard && npm test` — Live gating, Realtime wiring,
   SCANNING/console/unreachable mapping; optional Live smoke skipped without config
 
@@ -81,16 +94,11 @@ Reachable through production entry points / config:
 
 ---
 
-## VERIFIED (coverage gates) · ON BRANCH (documentation sync)
+## VERIFIED (coverage gates)
 
 Ship-path coverage uplift (~95% instrumented on `cli/src`, `sandbox/`, Live ACL JS;
-omit `guard/` and `support.js`) is verified: slice 11 ✅, 12 ✅, 13 ✅ (CLI and
-live bars from `plan/gate-evidence/slice-12.json` / `slice-13.json`; slice 11
-status via `slice-11` evidence). audit matrix ✅ (slice 7); onboarding Phase 1 ✅
-(17), with the public documentation UX follow-up on branch;
-skill parse ✅ (8). The coverage gates are verified; their final documentation
-sync (slice 14) is on branch and awaits merge. Groups:
-[plan/PROGRESS.md](./plan/PROGRESS.md),
+omit `guard/` and `support.js`) is verified: slices 7–8, 11–14, and 17 ✅.
+Groups: [plan/PROGRESS.md](./plan/PROGRESS.md),
 [plan/DECISIONS.md](./plan/DECISIONS.md), [plan/GATE_CONTRACT.md](./plan/GATE_CONTRACT.md).
 
 Measured ship-path floors are: Python `sandbox/` **95.91%**; Live ACL
@@ -101,7 +109,8 @@ after the router land. Unit coverage for the router **does** exist:
 [`cli/test/router.test.js`](../cli/test/router.test.js). Temporary floors are a
 gate-policy choice, not “missing tests.” [ADR-0013](./adr/0013-ship-path-quality-gates.md)
 still records the intended ≥95% CLI ship-path target. Exact gate matrix:
-[plan/coverage-audit.md](./plan/coverage-audit.md).
+[plan/coverage-audit.md](./plan/coverage-audit.md). `guard/` remains outside
+ADR-0013 bars until a coverage-ratchet follow-up (DECISIONS 2026-08-15).
 
 Heatmap note: card `heatmap_status` is **worst-of** actionable scanner findings
 (any red → red; amber-only → amber); finding-count chips are density, not colour.
@@ -121,45 +130,28 @@ Supabase (0004), scanner adapters (0005), Live/Mock ACL (0006), ship UI (0007),
 anon-read / service-role-write (0008), fail-closed evidence (0009), content-hash
 idempotency (0010), schema bootstrap (0011), target acquisition (0012),
 ship-path quality gates (0013), curated discovery (0014), Horizon A
-excluding Guard/Drift (0015), and tiered SIE/Model Studio router (0016). Slice
+Guard/Drift exclusions (0015, Guard PreToolUse **amended** by 0017), tiered
+SIE/Model Studio router (0016), and Claude Code agent-hooks (0017). Slice
 waivers stay in [plan/DECISIONS.md](./plan/DECISIONS.md). ADR number 0001 is
 reserved for a Proposed Monk Live packaging / deployment draft that is **not**
 on `main` yet (side-branch only); it is omitted from the catalog until accepted.
 
-**Wave H — Frontline agent hooks (2026-08-15):** Claude Code PreToolUse handlers,
-`tripwire setup-agent-hooks`, and five `/tw-*` skills are **DECIDED** as plan-only
-slices 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. See
-[plan/TRAIL.md](./plan/TRAIL.md) Wave H and [plan/DECISIONS.md](./plan/DECISIONS.md).
-Not IMPLEMENTED — no production hook install path or `/tw-*` skills yet. ADR-0015
-Horizon A exclusion remains in force until Wave H lands and a superseding ADR
-records the new production entry.
+**Wave H — Frontline agent hooks:** Phase 1 code (handlers, installer, `/tw-*`
+skills, Bash skill-path gating) and DepShield sandbox adapter landed on `main`
+(PRs #83/#84). Formal slice ✅ closure and operator VERIFIED still require
+Phase-1 regression-gate evidence (slice 32) per [GATE_CONTRACT.md](./plan/GATE_CONTRACT.md).
+Remaining Shoulds: Ossprey (35–36), CLI monitoring / full-chain (37–38);
+slice 33 DepShield install is a documented no-op; slice 39 deferred. See
+[plan/TRAIL.md](./plan/TRAIL.md) Wave H and [plan/PROGRESS.md](./plan/PROGRESS.md).
 
 ---
 
 ## PROPOSED
 
-Claude Code agent-hooks integration layer
-([ADR-0017](./adr/0017-claude-code-agent-guard-integration.md), which amends
-[ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md); this section is
-the STATUS evidence its reopening rule requires — the Future note below
-predates it, and Drift/trend remains Won't (A)):
-
-- PreToolUse enforcement handler at `~/.tripwire/hooks/` (`pre-tool-use.sh` +
-  `_guard_entry.py`; repo source `agent-hooks/hooks/`) — fail-closed decision
-  JSON with internal timeout budget, identifier lookup + CLI-compatible hash
-  comparison, 14-day staleness window — PROPOSED
-- Five `/tw-*` skills (`tw-verify`, `tw-scan`, `tw-enable`, `tw-disable`,
-  `tw-self-check`; repo source `agent-hooks/skills/`, installed to
-  `~/.claude/skills/`) — PROPOSED
-- `tripwire setup-agent-hooks` installer (preflight, `~/.tripwire/config.json`
-  init, handler install, env pre-warm, `~/.claude/settings.json` JSON-merge,
-  skill copy, bootstrap scan sweep) — PROPOSED
-- Local `enable` kill switch AND-ed with Supabase `monitoring_enabled`;
-  missing/corrupt local config denies (tamper signal) — PROPOSED
-
-These entries flip to IMPLEMENTED/VERIFIED only with the Phase-1
-regression-gate evidence (live block/allow matrix, tamper case, fail-closed
-refusal+hang pair, settings diff) — see ADR-0017 Consequences.
+No active PROPOSED capability rows. Agent-hooks entries moved to IMPLEMENTED
+(unit-tested) after PRs #83/#84; operator VERIFIED remains gated on slice 32
+(live block/allow matrix, tamper case, fail-closed refusal+hang pair, settings
+diff) — [ADR-0017](./adr/0017-claude-code-agent-guard-integration.md) Consequences.
 
 ---
 
@@ -176,15 +168,14 @@ Adapter fixture tests (slices 8–9) are planned to tighten this.
 
 Known fixture gaps (not urgent) are listed under
 [fixtures/README.md](../fixtures/README.md) (“Not yet built”). Do not treat those
-as shipped capabilities. Guard PreToolUse and Drift/trend remain Future /
-Won't (A) for the Horizon A ship path — see
-[ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md). Frontline Guard
-integration is **DECIDED** as Wave H (plan-only; not shipped) — see DECIDED
-above.
+as shipped capabilities. **Drift/trend** remains Won't (A) —
+[ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md). Guard PreToolUse is
+no longer Future: it is IMPLEMENTED via ADR-0017 (operator VERIFIED pending
+slice 32).
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 (slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` …
-`08-H-frontline-agent-hooks/`). Wave G (slices 18–22) is planned ATDD closure
-(parked while Wave H Musts run). Wave H (23–39) is Frontline plan-only. Claim
-audit (slice 15) and slice 16 remediations are deferred; retain their artifacts
-for a future live/demo release.
+`08-H-frontline-agent-hooks/`). Wave G (slices 18–22) remains planned ATDD
+closure (parked). Wave H Must code is on `main`; open work is gate closure
+(32) and Should slices 35–38. Claim audit (slice 15) and slice 16 remediations
+are deferred; retain their artifacts for a future live/demo release.

@@ -2,7 +2,7 @@
 > ~8 min read
 
 ## Original Material
-- **Brief**: Horizon A — ship path + onboarding + coverage. GWT-1/2 evidence ✅. **Demo/hackathon wave closed 2026-08-02** (VO/Remotion + film-day prose deferred; reinstate if needed). **Wave +coverage**: ship-path ~95% (cli + sandbox + Live ACL); onboarding slice 17; slices 7–15. **Wave H (2026-08-15):** Frontline Hackathon London 2026 — Claude Code agent hooks + `/tw-*` skills (slices 23–39); plan-only on branch `frontline-hackathon-london-2026-agent-hooks`.
+- **Brief**: Horizon A — ship path + onboarding + coverage. GWT-1/2 evidence ✅. **Demo/hackathon wave closed 2026-08-02** (VO/Remotion + film-day prose deferred; reinstate if needed). **Wave +coverage**: ship-path ~95% (cli + sandbox + Live ACL); onboarding slice 17; slices 7–15. **Wave H (2026-08-15):** Frontline Hackathon London 2026 — Claude Code agent hooks + `/tw-*` skills (slices 23–39); Phase 1 + DepShield on `main` (PRs #83/#84); operator VERIFIED open at slice 32.
 - **Scenario**: Brownfield · Flow D · depth 5–8
 Routing: Brownfield · Chosen: 2026-08-02 · Source: health-check-inferred; Wave H Add: 2026-08-15 · Source: `internal-docs/04_frontline/main_prompt.md`
 - **Canonical plan path**: `docs/plan/` (public). Product SoT remains gitignored private references — do not fork parallel plan trees. Enhanced-flow-planner context pack: private references + `01_demo_video/00-tripwire-demo-script.md` (not `02_prototypes/import-stash/`).
@@ -89,7 +89,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 6 | [`slices/06-F-claim-audit/`](slices/06-F-claim-audit/) | **F — Claim audit** | 15, 16 deferred | 📦 |
 | 7 | [`slices/07-G-atdd-closure/`](slices/07-G-atdd-closure/) | **G — ATDD closure** | 18, 19, 20, 21, 22 (independent gates) | 📋 |
 | 8 | `slices/08-H-agent-guard-integration/` (stubs pending) | **H — Claude Code Agent Guard integration** | H0 governance → H1–H7 (hackathon plan §9 steps 0–7) | 🔨 |
-| 8 | [`slices/08-H-frontline-agent-hooks/`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | 23→32 Must · 33–38 Should · 39 Could | 📋 plan-only |
+| 8 | [`slices/08-H-frontline-agent-hooks/`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | 23→32 Must · 33–38 Should · 39 Could | 🔀 Phase 1 + DepShield on `main`; gate 32 open |
 
 **Status legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 CLOSED — DEFERRED/WON'T`
 
@@ -152,61 +152,60 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 
 ### H — Claude Code Agent Guard integration (opened 2026-08-15)
 
-Hackathon work stream (Frontline Hackathon London 2026) on branch
-`tripwire-frontline-hack`. Authoritative spec: "Tripwire × Claude Code
-Integration — Implementation Plan" (session working document). Governance:
-[ADR-0017](../adr/0017-claude-code-agent-guard-integration.md) (amends
-ADR-0015) + DECISIONS 2026-08-15 rows + STATUS PROPOSED section. Wave folder
-`slices/08-H-agent-guard-integration/` pending; steps tracked against plan §9
-until stubs exist.
+Hackathon work stream (Frontline Hackathon London 2026); Phase 1 merged to
+`main` via PRs #83/#84. Authoritative spec: "Tripwire × Claude Code
+Integration — Implementation Plan" + [ADR-0017](../adr/0017-claude-code-agent-guard-integration.md)
+(amends ADR-0015) + DECISIONS 2026-08-15 rows + STATUS IMPLEMENTED /
+VERIFIED (unit). Operator VERIFIED = slice 32.
 
 | # | Name | MoSCoW | Status | Depends on |
 | --- | --- | --- | --- | --- |
-| H0 | Governance docs (ADR-0017 + DECISIONS/STATUS/TRAIL/PROGRESS rows) | Must | 🔨 | none |
-| H1–H7 | Handler + guard T1/T2 + `guard/status.py` → hook wiring (spike first) → `setup-agent-hooks` → install live → five `/tw-*` skills → demo artifacts → Phase-1 regression gate | Must | 📋 | H0 (blocks merge, not prototyping) |
+| H0 | Governance docs (ADR-0017 + DECISIONS/STATUS/TRAIL/PROGRESS rows) | Must | 🔀 | none |
+| H1–H7 | Handler + guard + `setup-agent-hooks` + `/tw-*` + demo + Bash gating | Must | 🔀 on `main`; VERIFIED open at slice 32 | H0 |
 
-**Shared-file sequencing (slice 18 overlap):** `setup-agent-hooks` lands in
+**Shared-file sequencing (slice 18 overlap):** `setup-agent-hooks` landed in
 `cli/bin/tripwire.js` — the same file slice 18's Commander-composition refactor
-touches. One active slice per shared code area: land the H-wave subcommand
-before slice 18 starts, or rebase it onto slice 18. Do not run both
-concurrently.
-### H — Frontline agent hooks (planned 2026-08-15 — plan-only)
+touches. One active slice per shared code area: slice 18 stays parked until H
+gate work settles, or rebase onto slice 18. Do not run both concurrently.
 
-Branch: `frontline-hackathon-london-2026-agent-hooks`. Source: `internal-docs/04_frontline/main_prompt.md`.
+### H — Frontline agent hooks (landed 2026-08-15 — 🔀; gate 32 open)
 
-**Phase gates:** human test after H1 (25), H2 (30); **HARD GATE** slice 32 PASS before H4+; human test after H4 (34). Parallelism later: after 26, 27∥29; after 32, 33–34 ∥ 35–36 (if access) ∥ 37. AT design before any H → 🔨.
+Branch history: `frontline-hackathon-london-2026-agent-hooks` /
+`tripwire-frontline-hack` → `main`. Source: `internal-docs/04_frontline/main_prompt.md`.
+
+**Phase gates:** human test after H1 (25), H2 (30); **HARD GATE** slice 32 PASS before remaining Shoulds; human test after H4 (34). Parallelism later: after 32, 35–36 (if access) ∥ 37. AT design before any H → 🔨.
 
 #### H1 — Enforcement walking skeleton (Must)
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
-| 23 | [slice-23-config-handler-scripts](slices/08-H-frontline-agent-hooks/slice-23-config-handler-scripts.md) | Config + Handler Scripts | Must | 📋 | none | — | ~4 min |
-| 24 | [slice-24-setup-agent-hooks](slices/08-H-frontline-agent-hooks/slice-24-setup-agent-hooks.md) | `tripwire setup-agent-hooks` | Must | 📋 | 23 | — | ~4 min |
-| 25 | [slice-25-live-enforce-smoke](slices/08-H-frontline-agent-hooks/slice-25-live-enforce-smoke.md) | Live Enforce Smoke | Must | 📋 | 24 | — | ~3 min |
+| 23 | [slice-23-config-handler-scripts](slices/08-H-frontline-agent-hooks/slice-23-config-handler-scripts.md) | Config + Handler Scripts | Must | 🔀 | none | — | ~4 min |
+| 24 | [slice-24-setup-agent-hooks](slices/08-H-frontline-agent-hooks/slice-24-setup-agent-hooks.md) | `tripwire setup-agent-hooks` | Must | 🔀 | 23 | — | ~4 min |
+| 25 | [slice-25-live-enforce-smoke](slices/08-H-frontline-agent-hooks/slice-25-live-enforce-smoke.md) | Live Enforce Smoke | Must | 🔀 | 24 | — | ~3 min |
 
 #### H2 — Shared contracts + control skills (Must)
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
-| 26 | [slice-26-api-output-contract](slices/08-H-frontline-agent-hooks/slice-26-api-output-contract.md) | API Introspect + Dual Output Contract | Must | 📋 | 25 | — | ~4 min |
-| 27 | [slice-27-tw-enable-disable](slices/08-H-frontline-agent-hooks/slice-27-tw-enable-disable.md) | `/tw-enable` + `/tw-disable` | Must | 📋 | 26 | — | ~3 min |
-| 28 | [slice-28-tw-verify](slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md) | `/tw-verify` | Must | 📋 | 26,27 | — | ~5 min |
-| 29 | [slice-29-tw-scan](slices/08-H-frontline-agent-hooks/slice-29-tw-scan.md) | `/tw-scan` | Must | 📋 | 26 | — | ~4 min |
-| 30 | [slice-30-tw-self-check](slices/08-H-frontline-agent-hooks/slice-30-tw-self-check.md) | `/tw-self-check` | Must | 📋 | 28 | — | ~3 min |
+| 26 | [slice-26-api-output-contract](slices/08-H-frontline-agent-hooks/slice-26-api-output-contract.md) | API Introspect + Dual Output Contract | Must | 🔀 | 25 | — | ~4 min |
+| 27 | [slice-27-tw-enable-disable](slices/08-H-frontline-agent-hooks/slice-27-tw-enable-disable.md) | `/tw-enable` + `/tw-disable` | Must | 🔀 | 26 | — | ~3 min |
+| 28 | [slice-28-tw-verify](slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md) | `/tw-verify` | Must | 🔀 | 26,27 | — | ~5 min |
+| 29 | [slice-29-tw-scan](slices/08-H-frontline-agent-hooks/slice-29-tw-scan.md) | `/tw-scan` | Must | 🔀 | 26 | — | ~4 min |
+| 30 | [slice-30-tw-self-check](slices/08-H-frontline-agent-hooks/slice-30-tw-self-check.md) | `/tw-self-check` | Must | 🔀 | 28 | — | ~3 min |
 
 #### H3 — Demos + Phase 1 regression (Must) — HARD GATE
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
-| 31 | [slice-31-demo-artifacts](slices/08-H-frontline-agent-hooks/slice-31-demo-artifacts.md) | Demo Artifacts | Must | 📋 | 25,28,29 | — | ~4 min |
+| 31 | [slice-31-demo-artifacts](slices/08-H-frontline-agent-hooks/slice-31-demo-artifacts.md) | Demo Artifacts | Must | 🔀 | 25,28,29 | — | ~4 min |
 | 32 | [slice-32-phase1-regression](slices/08-H-frontline-agent-hooks/slice-32-phase1-regression.md) | Phase 1 Regression Verification | Must | 📋 | 23–31 | — | ~5 min |
 
 #### H4 — DepShield (Should)
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
-| 33 | [slice-33-depshield-install](slices/08-H-frontline-agent-hooks/slice-33-depshield-install.md) | DepShield Install via setup-agent-hooks | Should | 📋 | 32 | — | ~3 min |
-| 34 | [slice-34-depshield-dispatch](slices/08-H-frontline-agent-hooks/slice-34-depshield-dispatch.md) | Tripwire → DepShield Dispatch | Should | 📋 | 33 | — | ~4 min |
+| 33 | [slice-33-depshield-install](slices/08-H-frontline-agent-hooks/slice-33-depshield-install.md) | DepShield Install via setup-agent-hooks | Should | 📦 | 32 | no-op | ~3 min |
+| 34 | [slice-34-depshield-dispatch](slices/08-H-frontline-agent-hooks/slice-34-depshield-dispatch.md) | Tripwire → DepShield Dispatch | Should | 🔀 | 33 | — | ~4 min |
 
 #### H5 — Ossprey (Should)
 
@@ -267,7 +266,7 @@ See also PROGRESS.md **Slice groups** and [GATE_CONTRACT.md](GATE_CONTRACT.md).
 
 ## Forward (Won't for A — ask 1+C later)
 - Drift / trend / diff / `identifier` UI
-- Phase 4 Agent Guard — **superseded for Frontline by Wave H** (Claude Code hooks + `/tw-*`); Horizon A ship-path still excludes guard coverage bar until H lands
+- Phase 4 Agent Guard — **superseded for Frontline by Wave H** (Claude Code hooks + `/tw-*` on `main`); Horizon A ship-path still excludes the guard coverage bar until a coverage-ratchet slice lands
 - Phase 5 Reconciler / Overmind
 - Dashboard redesign / blast-radius / `--from-instructions`
 - `support.js` / Mock chrome 95% coverage
