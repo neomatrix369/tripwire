@@ -1,24 +1,66 @@
 {
   "slice": 27,
-  "gate_status": "PLANNED",
+  "gate_status": "ON_BRANCH",
   "inferred": false,
-  "branch": null,
-  "date": null,
-  "before_checks": [],
-  "after_checks": [],
-  "planned_commands": [
-    "test -f docs/plan/slices/08-H-frontline-agent-hooks/slice-27-tw-enable-disable.md",
-    "rg -n \"tw-enable|tw-disable|enable\" docs/plan/slices/08-H-frontline-agent-hooks/",
-    "python -c \"import json,os; p=os.path.expanduser('~/.tripwire/config.json'); print(json.load(open(p)) if os.path.exists(p) else 'config absent')\"",
-    "./scripts/quality-gates.sh"
+  "branch": "slice/27-tw-enable-disable",
+  "date": "2026-08-15",
+  "spec_path": "docs/plan/slices/08-H-frontline-agent-hooks/slice-27-tw-enable-disable.md",
+  "skill_layout": [
+    ".claude/skills/tw-enable/SKILL.md",
+    ".claude/skills/tw-disable/SKILL.md"
   ],
-  "commands": [],
-  "test_budget": {"acceptance_tests_max": 7, "parametrized_case_counts_as_one": true},
-  "reviewers": [],
-  "review": {"acceptance": "PENDING", "implementation": "PENDING"},
-  "verdict": "NOT_RUN",
-  "coverage_target": "TBD at AT design before IN PROGRESS",
-  "complexity_policy": "enforcing for product-code; N/A for docs-only with reason in evidence",
+  "before_checks": "PASS — slice 26 verdict PASS (PR #78); branch from Frontline (Wave H base waiver); skill layout .claude/skills/tw-{enable,disable}/SKILL.md; coverage ≥95% on config+control_skills; complexity enforcing",
+  "after_checks": [
+    "PASS — enable/disable GWTs; only enable changes (preserve scan_validity_days + extras)",
+    "PASS — manual verify/scan probe still produces output when enable=false",
+    "PASS — .venv/bin/pytest guard/tests/test_tw_enable_disable.py -q (7 passed)",
+    "PASS — coverage 100% lines on guard/config.py + guard/control_skills.py (target ≥95%)",
+    "PASS — xenon exit 0 on product modules; ./scripts/quality-gates.sh PASS",
+    "PASS — review acceptance+implementation APPROVED (nw-software-crafter-reviewer)",
+    "PENDING merge — PROGRESS/TRAIL ✅ after merge to Frontline"
+  ],
+  "commands": [
+    {
+      "cmd": ".venv/bin/pytest guard/tests/test_tw_enable_disable.py -q --tb=short",
+      "result": "PASS exit 0 — 7 passed"
+    },
+    {
+      "cmd": ".venv/bin/pytest guard/tests/test_tw_enable_disable.py guard/tests/test_control_skills_units.py guard/tests/test_config_handler_units.py --cov=guard.config --cov=guard.control_skills --cov-report=term-missing -q",
+      "result": "PASS — 30 passed; TOTAL 100% (config 100%, control_skills 100%)"
+    },
+    {
+      "cmd": "./scripts/quality-gates.sh",
+      "result": "PASS — quality-gates passed (ruff/mypy/xenon/gitleaks/cli tests)"
+    },
+    {
+      "cmd": "test -f .claude/skills/tw-enable/SKILL.md && test -f .claude/skills/tw-disable/SKILL.md",
+      "result": "PASS — Claude skill layout present"
+    }
+  ],
+  "test_budget": {
+    "acceptance_tests_max": 7,
+    "acceptance_tests_designed": 5,
+    "parametrized_case_counts_as_one": true
+  },
+  "coverage": {
+    "target": "≥95% lines on guard/config.py + guard/control_skills.py",
+    "measured": "100.0% lines (64 stmts)",
+    "date": "2026-08-15"
+  },
+  "complexity_policy": "enforcing for product-code — xenon exit 0 via quality-gates",
+  "reviewers": ["nw-software-crafter-reviewer"],
+  "review": {
+    "acceptance": "APPROVED",
+    "implementation": "APPROVED",
+    "notes": "Blocker YAGNI _read_raw_config inlined into set_enable; probe assertions strengthened; 100% cov; quality-gates PASS"
+  },
+  "documentation_audit": {
+    "1_config_toggles_only": "PASS — setup-commands.md + SKILL.md",
+    "2_verify_scan_when_disabled": "PASS — setup-commands + tw-disable SKILL.md",
+    "3_cross_link": "PASS — gate-evidence ↔ TRAIL/PROGRESS; frontline-output-contract links slice-27"
+  },
+  "verdict": "ON_BRANCH",
   "phase": "H2",
-  "moscow": "Must"
+  "moscow": "Must",
+  "pr": null
 }

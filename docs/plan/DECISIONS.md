@@ -108,3 +108,7 @@
 | 2026-08-15 | phase-gates | H2 checkpoint signed off | Operator requested start of slice 26 after slice 25 merge (PR #76). Unblocks Phase H2 (26–30). Scripted smoke remains the primary evidence; live Claude Code session observation optional. |
 | 2026-08-15 | slice-26 | AT design complete | Four docs-contract GWTs; SSOT `docs/user-guide/frontline-output-contract.md`; coverage/complexity N/A docs-only. |
 | 2026-08-15 | slice-26 | docs-only review | Documentation + characterization tests only (no product-code change); GATE_CONTRACT docs-only review exception applies (same pattern as slice 17). |
+| 2026-08-15 | slice-26 | ✅ closed | PR #78 merged into `frontline-hackathon-london-2026-agent-hooks`. Gate evidence `verdict: PASS`. |
+| 2026-08-15 | slice-27 | AT design complete | Five GWTs; `set_enable` preserves unknown keys; skills at `.claude/skills/tw-{enable,disable}/SKILL.md`; ≥95% lines on `guard/config.py` + `guard/control_skills.py`. |
+| 2026-08-15 | slice-27 | review APPROVED | nw-software-crafter-reviewer — inlined `_read_raw_config`; probe shape asserts strengthened. |
+| 2026-08-15 | slice-27 | track tw-* skills | `.gitignore` allows `.claude/skills/tw-*/**` so Frontline control skills ship in-repo while other `.claude/` stays local-only. |

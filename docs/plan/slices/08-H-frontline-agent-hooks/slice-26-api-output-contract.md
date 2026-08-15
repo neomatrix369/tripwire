@@ -89,7 +89,7 @@ REFACTOR: keep BACKLOG fields explicit; no silent invention.
 - [x] Coverage/complexity: **N/A for docs-only** with reason in evidence
 - [x] `docs/plan/gate-evidence/slice-26.json` records commands, reviewers, and `verdict: ON_BRANCH` (PASS after merge)
 - [x] Review: docs-only exception in DECISIONS (2026-08-15)
-- [ ] `PROGRESS.md` + `TRAIL.md` show slice 26 ✅ (after merge to Frontline)
+- [x] `PROGRESS.md` + `TRAIL.md` show slice 26 ✅ (PR #78 merged to Frontline)
 
 ## Doc Audit
 
@@ -102,4 +102,4 @@ REFACTOR: keep BACKLOG fields explicit; no silent invention.
 
 ## Gate Status
 
-🔀 ON BRANCH
+✅ PASSED

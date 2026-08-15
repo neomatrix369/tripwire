@@ -73,11 +73,14 @@ PreToolUse command in `~/.claude/settings.json`. Re-runs are idempotent
 (config preserved; hook not duplicated). Fixture/testing overrides:
 `--home <dir>` and `--claude-settings <path>`.
 
-**Enable / disable smoke (operator):** after install, set
-`"enable": true` in `~/.tripwire/config.json` — PreToolUse blocks unscanned or
-RED artifacts. Set `"enable": false` — the same PreToolUse call is approved
-(full bypass). Scripted smoke:
-`pytest guard/tests/test_live_enforce_smoke.py -q`.
+**Enable / disable (operator):** use `/tw-enable` or `/tw-disable` (Claude skills
+at `.claude/skills/tw-enable/SKILL.md` and `.claude/skills/tw-disable/SKILL.md`)
+to toggle only `"enable"` in `~/.tripwire/config.json` — other keys are
+preserved. Same effect as editing the flag by hand: `enable=true` → PreToolUse
+blocks unscanned or RED artifacts; `enable=false` → approve-all bypass.
+`/tw-verify` and `/tw-scan` remain usable when disabled. Scripted smoke:
+`pytest guard/tests/test_live_enforce_smoke.py -q`. Config toggle ATs:
+`pytest guard/tests/test_tw_enable_disable.py -q`.
 
 **`/tw-*` dual output contract:** human Markdown table + machine JSON shape,
 `heatmap_status` → six UI states, and observed `tripwire scan` stdout fields —

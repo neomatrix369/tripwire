@@ -2,7 +2,11 @@
 .code-review-graph/
 
 # Local agent / MCP config (project rules under .cursor/rules are tracked)
-.claude/
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/tw-*/
+!.claude/skills/tw-*/**
 .cursor/*
 !.cursor/rules/
 !.cursor/rules/**
