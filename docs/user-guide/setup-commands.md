@@ -55,6 +55,22 @@ tripwire setup
 # optional: ./scripts/setup-supabase.sh
 ```
 
+### Frontline agent hooks (Claude Code PreToolUse)
+
+Single install path for Wave H handlers (requires Tripwire Python package
+importable, e.g. repo `.venv` / `uv run`):
+
+```bash
+tripwire setup-agent-hooks
+```
+
+This installs templates to `~/.tripwire/hooks/` with owner-only mode `700`,
+writes `~/.tripwire/config.json` on first run only (`enable=true`,
+`scan_validity_days=14` — see `guard/config.py` / slice 23), and registers a
+PreToolUse command in `~/.claude/settings.json`. Re-runs are idempotent
+(config preserved; hook not duplicated). Fixture/testing overrides:
+`--home <dir>` and `--claude-settings <path>`.
+
 ### Verify Supabase access
 
 After `tripwire setup`, confirm the anon key (what the browser dashboard uses)

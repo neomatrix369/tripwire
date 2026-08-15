@@ -1,6 +1,6 @@
 {
   "slice": 23,
-  "gate_status": "ON_BRANCH",
+  "gate_status": "PASSED",
   "inferred": false,
   "branch": "slice/23-config-handler-scripts",
   "date": "2026-08-15",
@@ -14,7 +14,7 @@
     "PASS — ./scripts/quality-gates.sh (xenon enforcing for product paths)",
     "PASS — gate-evidence commands recorded",
     "PASS — review acceptance APPROVED + implementation APPROVED",
-    "PENDING merge — PROGRESS/TRAIL 🔀 until merged to Frontline integration / main"
+    "PASS — merged to Wave H integration branch via PR #74 (2026-08-15)"
   ],
   "commands": [
     {
@@ -68,8 +68,10 @@
     "3_fail_closed": "PASS — hooks_entry + shell comments",
     "4_cross_link": "PASS — gate-evidence ↔ TRAIL/PROGRESS"
   },
-  "verdict": "ON_BRANCH",
+  "verdict": "PASS",
   "phase": "H1",
   "moscow": "Must",
-  "pr": null
+  "pr": "https://github.com/neomatrix369/tripwire/pull/74",
+  "merged_into": "frontline-hackathon-london-2026-agent-hooks",
+  "merged_at": "2026-08-15T15:38:39Z"
 }

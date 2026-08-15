@@ -125,8 +125,7 @@ REFACTOR: keep handlers thin; no product behaviour beyond approve/block contract
       complexity, reviewers, and `verdict: ON_BRANCH` (PASS after merge)
 - [x] Review: `acceptance: APPROVED` and `implementation: APPROVED` (or
       docs-only exception in DECISIONS)
-- [ ] `PROGRESS.md` + `TRAIL.md` show slice 23 ✅ and Execution order advanced
-      (🔀 ON BRANCH until merge)
+- [x] `PROGRESS.md` + `TRAIL.md` show slice 23 ✅ and Execution order advanced
 
 ## Doc Audit
 
@@ -139,4 +138,4 @@ REFACTOR: keep handlers thin; no product behaviour beyond approve/block contract
 
 ## Gate Status
 
-🔀 ON BRANCH
+✅ PASSED (PR #74 → `frontline-hackathon-london-2026-agent-hooks`, 2026-08-15)

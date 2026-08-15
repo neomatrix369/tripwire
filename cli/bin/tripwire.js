@@ -5,6 +5,7 @@ import { ensureSchema } from '../src/ensureSchema.js';
 import { loadEnv } from '../src/loadEnv.js';
 import { runScan } from '../src/orchestrator.js';
 import { runRoute } from '../src/router.js';
+import { setupAgentHooks } from '../src/setupAgentHooks.js';
 
 loadEnv();
 
@@ -67,6 +68,32 @@ program
         sieModel: opts.sieModel,
         modelStudioModel: opts.modelStudioModel,
       });
+    } catch (err) {
+      console.error(err.message || err);
+      process.exitCode = 1;
+    }
+  });
+
+program
+  .command('setup-agent-hooks')
+  .description(
+    'Install PreToolUse handlers under ~/.tripwire/hooks (chmod 700), write default config if absent, register Claude Code PreToolUse',
+  )
+  .option('--home <dir>', 'HOME root for ~/.tripwire (tests / alternate install)')
+  .option('--claude-settings <path>', 'Claude Code settings.json path (default: ~/.claude/settings.json)')
+  .action(async (opts) => {
+    try {
+      const result = await setupAgentHooks({
+        homeDir: opts.home,
+        claudeSettingsPath: opts.claudeSettings,
+      });
+      console.log(JSON.stringify({
+        ok: true,
+        hooksDir: result.hooksDir,
+        configPath: result.configPath,
+        claudeSettingsPath: result.claudeSettingsPath,
+        preToolUseSh: result.preToolUseSh,
+      }));
     } catch (err) {
       console.error(err.message || err);
       process.exitCode = 1;
