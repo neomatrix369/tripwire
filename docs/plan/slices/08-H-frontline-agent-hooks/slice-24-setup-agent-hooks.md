@@ -102,7 +102,7 @@ REFACTOR: keep install idempotent; no enforcement behaviour beyond install wirin
       complexity, reviewers, and `verdict: ON_BRANCH` (PASS after merge)
 - [x] Review: `acceptance: APPROVED` and `implementation: APPROVED` (nimble
       Wave H in-session review per DECISIONS)
-- [ ] `PROGRESS.md` + `TRAIL.md` show slice 24 ✅ (after merge to Frontline)
+- [x] `PROGRESS.md` + `TRAIL.md` show slice 24 ✅ (merged Frontline via PR #75)
 
 ## Doc Audit
 
@@ -115,4 +115,4 @@ REFACTOR: keep install idempotent; no enforcement behaviour beyond install wirin
 
 ## Gate Status
 
-🔀 ON BRANCH
+✅ PASSED
