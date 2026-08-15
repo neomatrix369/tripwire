@@ -37,10 +37,10 @@
 
 ---
 
-# Interview Summary — Wave H Frontline (delta)
+## Interview Summary — Wave H Frontline (delta)
 > Generated: 2026-08-15 | Scenario: Brownfield | Path: Add Wave H | Plan-only
 
-## What was provided
+## What was provided (Wave H)
 - Brief: `internal-docs/04_frontline/main_prompt.md` (Claude Code only).
 - Branch: `frontline-hackathon-london-2026-agent-hooks`.
 - Path: **Add** Wave H; keep Horizon A / Waves A–G; Wave G not resumed during H1–H3.
@@ -51,16 +51,16 @@
 - Install: single path `tripwire setup-agent-hooks`.
 - Sequence phases: H1 enforcement skeleton → H2 control skills → H3 demos + Phase 1 regression hard gate → H4 DepShield → H5 Ossprey (access OPEN) → H6 monitoring/full-chain; FE/BE Could/deferred.
 
-## What was inferred
+## What was inferred (Wave H)
 - Foundation exists: `guard/guard_hook.py` stub, `tripwire scan`, fixtures; integration layer absent.
 - No Claude Code native install-event hook — workaround is setup command.
 - Status lookup is Supabase-direct (no status CLI), matching guard pattern.
 
-## Constraints
+## Constraints (Wave H)
 - Enforcement ON by default from install.
 - Unscanned = blocked when enabled; RED blocked; Amber report-only.
 - BACKLOG items carried in DECISIONS — do not silently resolve.
 - Full DISTILL ATs before any H slice IN PROGRESS.
 
-## Simplest shape
+## Simplest shape (Wave H)
 - Ship Phase 1 Musts (23–32) with human test after each phase; Should dispatch after slice 32 PASS; defer FE/BE unless pulled in.

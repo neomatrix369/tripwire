@@ -33,7 +33,7 @@ this slice.
 - Coverage/complexity: enforcing for product-code if activated; N/A while deferred.
 
 **Test inventory (≤7):** only if activated — characterization of hooks + skills
-+ dispatch before/after.
+- dispatch before/after.
 
 ## Before-Checks [GATE]
 
