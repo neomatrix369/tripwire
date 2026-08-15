@@ -88,6 +88,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 5 | [`slices/05-E-ship-path-coverage/`](slices/05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ · (9∥10) → 14 | ✅ closed; 9/10 📦 subsumed |
 | 6 | [`slices/06-F-claim-audit/`](slices/06-F-claim-audit/) | **F — Claim audit** | 15, 16 deferred | 📦 |
 | 7 | [`slices/07-G-atdd-closure/`](slices/07-G-atdd-closure/) | **G — ATDD closure** | 18, 19, 20, 21, 22 (independent gates) | 📋 |
+| 8 | `slices/08-H-agent-guard-integration/` (stubs pending) | **H — Claude Code Agent Guard integration** | H0 governance → H1–H7 (hackathon plan §9 steps 0–7) | 🔨 |
 
 **Status legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 CLOSED — DEFERRED/WON'T`
 
@@ -148,6 +149,27 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 21 | [slice-21-dashboard-reliability](slices/07-G-atdd-closure/slice-21-dashboard-reliability.md) | Dashboard Latest-State Accuracy | Must | 📋 | none | — | ~4 min |
 | 22 | [slice-22-dashboard-realtime-recovery](slices/07-G-atdd-closure/slice-22-dashboard-realtime-recovery.md) | Dashboard Realtime Recovery | Must | 📋 | none | — | ~4 min |
 
+### H — Claude Code Agent Guard integration (opened 2026-08-15)
+
+Hackathon work stream (Frontline Hackathon London 2026) on branch
+`tripwire-frontline-hack`. Authoritative spec: "Tripwire × Claude Code
+Integration — Implementation Plan" (session working document). Governance:
+[ADR-0017](../adr/0017-claude-code-agent-guard-integration.md) (amends
+ADR-0015) + DECISIONS 2026-08-15 rows + STATUS PROPOSED section. Wave folder
+`slices/08-H-agent-guard-integration/` pending; steps tracked against plan §9
+until stubs exist.
+
+| # | Name | MoSCoW | Status | Depends on |
+| --- | --- | --- | --- | --- |
+| H0 | Governance docs (ADR-0017 + DECISIONS/STATUS/TRAIL/PROGRESS rows) | Must | 🔨 | none |
+| H1–H7 | Handler + guard T1/T2 + `guard/status.py` → hook wiring (spike first) → `setup-agent-hooks` → install live → five `/tw-*` skills → demo artifacts → Phase-1 regression gate | Must | 📋 | H0 (blocks merge, not prototyping) |
+
+**Shared-file sequencing (slice 18 overlap):** `setup-agent-hooks` lands in
+`cli/bin/tripwire.js` — the same file slice 18's Commander-composition refactor
+touches. One active slice per shared code area: land the H-wave subcommand
+before slice 18 starts, or rebase it onto slice 18. Do not run both
+concurrently.
+
 ## Supporting Artifacts
 | File | Status |
 |------|--------|
@@ -169,6 +191,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 1. Waves **A–C**, Slice 14, and Slice 17 are merged and closed
 2. Wave **G** closes the acceptance-review findings through independent gates: 18, 19, 20, 21, 22. Prefer one active slice per shared code area to avoid edit conflicts.
 3. Slice 18 is the first pending work. Wave F slices 15 and 16 remain 📦 closed; reinstate either explicitly only for a future live/demo release.
+4. **2026-08-15 addendum:** Wave **H** (Claude Code Agent Guard integration, hackathon) is the active stream on `tripwire-frontline-hack`. It shares `cli/bin/tripwire.js` with slice 18 — slice 18 must not start while H's `setup-agent-hooks` work is open (see the Wave H sequencing note).
 
 ## Wave G source-finding map
 
@@ -193,3 +216,4 @@ See also PROGRESS.md **Slice groups** and [GATE_CONTRACT.md](GATE_CONTRACT.md).
 - `support.js` / Mock chrome 95% coverage
 - Live Modal/Supabase E2E as CI Must (stay slow/optional)
 - **Demo/hackathon:** VO/Remotion (slice 4), film-day claim remediations (slice 16) — reinstate only if a new demo need arises
+- **2026-08-15 amendment:** the "Phase 4 Agent Guard" line above is amended by [ADR-0017](../adr/0017-claude-code-agent-guard-integration.md) — Guard PreToolUse enforcement is reopened as Wave H; Drift/trend, Reconciler/Overmind and the other exclusions remain Won't (A)

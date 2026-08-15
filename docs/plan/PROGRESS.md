@@ -12,6 +12,7 @@
 | 5 | [`05-E-…`](slices/05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ → 14 (**9+10 SUBSUMED INTO 11**) | ✅ Musts · close-path |
 | 6 | [`06-F-…`](slices/06-F-claim-audit/) | **F — Claim audit** | 15 · 16 | 📦 |
 | 7 | [`07-G-…`](slices/07-G-atdd-closure/) | **G — ATDD closure** | 18, 19, 20, 21, 22 (independent gates) | 📋 |
+| 8 | `08-H-…` (stubs pending) | **H — Claude Code Agent Guard integration** (hackathon, ADR-0017) | H0 → H1–H7 (plan §9 steps 0–7) | 🔨 |
 
 **Current priority:** Slice 18 — CLI Operator Evidence Contracts. Wave G uses independent gates; execute one active slice per shared code area.
 
@@ -24,6 +25,13 @@
 | 3 | G | 20 | Scanner Subprocess Adapter Contract | Must | 📋 PLANNED |
 | 4 | G | 21 | Dashboard Latest-State Accuracy | Must | 📋 PLANNED |
 | 5 | G | 22 | Dashboard Realtime Recovery | Must | 📋 PLANNED |
+| 0 (active, 2026-08-15) | H | H0 | Agent Guard governance docs (ADR-0017 + trackers) | Must | 🔨 IN PROGRESS |
+
+**Wave H addendum (2026-08-15):** the hackathon stream (branch
+`tripwire-frontline-hack`) runs ahead of Wave G. `setup-agent-hooks` lands in
+`cli/bin/tripwire.js`, the same file slice 18 refactors — one active slice per
+shared code area: slice 18 does not start until the H-wave subcommand lands
+(or is explicitly rebased onto slice 18).
 
 ## Quick Status (by group)
 
@@ -77,6 +85,16 @@
 | 21 | [slice-21-dashboard-reliability](slices/07-G-atdd-closure/slice-21-dashboard-reliability.md) | Must | 📋 PLANNED | — | — | ~40 min |
 | 22 | [slice-22-dashboard-realtime-recovery](slices/07-G-atdd-closure/slice-22-dashboard-realtime-recovery.md) | Must | 📋 PLANNED | — | — | ~40 min |
 
+### H — Claude Code Agent Guard integration (hackathon)
+| # | Slice | MoSCoW | Status | Started | Completed | Est. time |
+| --- | --- | --- | --- | --- | --- | --- |
+| H0 | Governance docs — [ADR-0017](../adr/0017-claude-code-agent-guard-integration.md) + DECISIONS/STATUS/TRAIL/PROGRESS rows | Must | 🔨 | 2026-08-15 | — | ~25 min |
+| H1–H7 | Handler + guard T1/T2 + `guard/status.py` → hook wiring (spike first) → `setup-agent-hooks` → install → five `/tw-*` skills → demo artifacts → Phase-1 gate | Must | 📋 | — | — | — |
+
+Wave folder `slices/08-H-agent-guard-integration/` pending; spec is the
+hackathon working plan ("Tripwire × Claude Code Integration — Implementation
+Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
+
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 
 **Gate close:** ✅ only per [GATE_CONTRACT.md](GATE_CONTRACT.md) — all After-Checks + evidence `PASS` + review + trackers. `🔀` = checks green on branch, not yet ✅.
@@ -96,6 +114,7 @@
 - Gate close: [GATE_CONTRACT.md](GATE_CONTRACT.md)
 - Wave G is planned. Run its independent gates in the reviewable order 18, 19, 20, 21, 22; do not run overlapping source-file slices concurrently.
 - Won't for A: Drift, Phase 4/5, redesign, blast-radius, instruction→install→scan; Live E2E CI Must; support.js 95%; demo video / hackathon film day
+- **2026-08-15:** the "Phase 4" (Agent Guard) part of the line above is amended by ADR-0017 — Guard PreToolUse enforcement is reopened as **Wave H** (Frontline Hackathon London 2026, branch `tripwire-frontline-hack`); Drift and Phase 5 remain Won't (A). STATUS entries stay PROPOSED until the Phase-1 regression gate.
 
 ## Interrupt Recovery
 1. Read **Slice groups** — find first open wave, then **Execution order**
@@ -125,3 +144,4 @@
 | 2026-08-02 | slice/13-live-acl-coverage-gate-95 | slice-workflow | 13 | ✅ PASSED | Wave E — Live ACL c8 ≥95% lines |
 | 2026-08-02 | main / plan | GATE_CONTRACT | all | 📋 policy | Hard close rule |
 | 2026-08-02 | docs/gate-contract-onboarding-priority | sync-docs + clean-commit | 7, plan | pushed | Groups + close slice 7 on trackers |
+| 2026-08-15 | tripwire-frontline-hack | hackathon build (plan §9 step 0) | H0 | 🔨 | Wave H — ADR-0017 + DECISIONS/STATUS/TRAIL/PROGRESS governance rows |

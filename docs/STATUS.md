@@ -121,6 +121,33 @@ on `main` yet (side-branch only); it is omitted from the catalog until accepted.
 
 ---
 
+## PROPOSED
+
+Claude Code agent-hooks integration layer
+([ADR-0017](./adr/0017-claude-code-agent-guard-integration.md), which amends
+[ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md); this section is
+the STATUS evidence its reopening rule requires — the Future note below
+predates it, and Drift/trend remains Won't (A)):
+
+- PreToolUse enforcement handler at `~/.tripwire/hooks/` (`pre-tool-use.sh` +
+  `_guard_entry.py`; repo source `agent-hooks/hooks/`) — fail-closed decision
+  JSON with internal timeout budget, identifier lookup + CLI-compatible hash
+  comparison, 14-day staleness window — PROPOSED
+- Five `/tw-*` skills (`tw-verify`, `tw-scan`, `tw-enable`, `tw-disable`,
+  `tw-self-check`; repo source `agent-hooks/skills/`, installed to
+  `~/.claude/skills/`) — PROPOSED
+- `tripwire setup-agent-hooks` installer (preflight, `~/.tripwire/config.json`
+  init, handler install, env pre-warm, `~/.claude/settings.json` JSON-merge,
+  skill copy, bootstrap scan sweep) — PROPOSED
+- Local `enable` kill switch AND-ed with Supabase `monitoring_enabled`;
+  missing/corrupt local config denies (tamper signal) — PROPOSED
+
+These entries flip to IMPLEMENTED/VERIFIED only with the Phase-1
+regression-gate evidence (live block/allow matrix, tamper case, fail-closed
+refusal+hang pair, settings diff) — see ADR-0017 Consequences.
+
+---
+
 ## RESEARCH (not VERIFIED)
 
 Exact JSON field names in `sandbox/scanners.py` — cross-check against the pinned

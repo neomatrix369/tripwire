@@ -8,6 +8,7 @@ import { EventEmitter } from 'node:events';
 import { mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { runScan } from '../src/orchestrator.js';
 import { spawnScanSandbox } from '../src/modalClient.js';
 import { hashLocalPath } from '../src/hash.js';
@@ -250,10 +251,12 @@ test('spawnScanSandbox invokes modal run scan_app.py with expected argv (mocked 
     },
   });
 
+  // T3: scan_app.py resolved package-relatively (absolute) so scan works from any cwd.
+  const expectedScanApp = fileURLToPath(new URL('../../sandbox/scan_app.py', import.meta.url));
   assert.equal(spawned.length, 1);
   assert.equal(spawned[0].cmd, 'modal');
   assert.deepEqual(spawned[0].args, [
-    'run', 'sandbox/scan_app.py',
+    'run', expectedScanApp,
     '--target', 'fixtures/mcp/vuln-command-injection-server',
     '--item-type', 'mcp_server',
     '--item-id', 'item-xyz',
