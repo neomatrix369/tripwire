@@ -20,7 +20,7 @@
   "verdict": "NOT_RUN",
   "coverage_target": "TBD at AT design before IN PROGRESS",
   "complexity_policy": "enforcing for product-code; N/A for docs-only with reason in evidence",
-  "phase": "H-skills-scanner",
+  "phase": "H-ss",
   "moscow": "Must",
   "depends_on": [],
   "note": "Decomposes run_snyk (CC=28) and run_cisco_mcp_scanner (CC=23) in sandbox/scanners.py to rank C. Renumbered from 35 (2026-08-17) — slice 35 was already taken by H5 Ossprey Access Provisioning.",

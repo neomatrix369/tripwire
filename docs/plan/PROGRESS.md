@@ -191,3 +191,4 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-15 | tripwire-frontline-hack | hackathon build (plan §9 step 0) | H0 | 🔨 | Wave H — ADR-0017 + DECISIONS/STATUS/TRAIL/PROGRESS governance rows |
 | 2026-08-15 | frontline-hackathon-london-2026-agent-hooks | enhanced-flow-planner Add | 23–39 | 📋 stubs | Wave H Frontline plan-only; Wave G parked |
 | 2026-08-16 | docs/skills-scanner-scan-complexity-study | enhanced-flow-planner + plan-modifier | skills_scanner 35 | 📋 stub | skills_scanner code study: scan() CC=55 → Slice 35 stub ported to `docs/plan/slices/slice-35-scan-complexity-decomposition.md` |
+| 2026-08-17 | docs/slice-40-renumber-and-reframe | sync-docs + clean-commit | 40 | 📋 PLANNED | Renumber conflict (35 taken by H5 Ossprey); reframe as Tripwire-native (run_snyk CC=28, run_cisco_mcp_scanner CC=23); elevate to Must + highest priority. PR #86 |
