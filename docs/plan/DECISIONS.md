@@ -101,3 +101,4 @@
 | 2026-08-15 | priority | Frontline over Wave G | While on Frontline branch, execute priority = Wave H Musts 23→32 first. Do not start Wave G 18–22 unless explicitly resumed. |
 | 2026-08-15 | sync-docs | Wave H DECIDED pointers | STATUS DECIDED+Future, ARCHITECTURE Future, ADR-0015 related note, coverage-audit Guard row — plan-only; no user-guide claim of hooks/`/tw-*` yet. |
 | 2026-08-15 | quality-gates | Xenon split align | `scripts/quality-gates.sh` xenon matched pre-commit/CI split (scan_app absolute C / average A; scanners absolute D / average B). Combined `--max-average A` was a false T1 fail. |
+| 2026-08-16 | skills-scanner study | Added Slice 35 — scan() Complexity Decomposition | scan() CC=55 (rank F) confirmed in 2026-08-16 code study; 12 PLANNED slices touch the same function — decompose before those slices land. Stub: `docs/plan/slices/slice-35-scan-complexity-decomposition.md`. |
