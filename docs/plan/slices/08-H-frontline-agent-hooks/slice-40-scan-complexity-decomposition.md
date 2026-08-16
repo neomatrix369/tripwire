@@ -1,5 +1,5 @@
-<!-- file: docs/plan/slices/slice-35-scan-complexity-decomposition.md -->
-<!-- Source: skills_scanner repo — Slice 35 stub, authored 2026-08-16 during code study session -->
+<!-- file: docs/plan/slices/slice-40-scan-complexity-decomposition.md -->
+<!-- Source: skills_scanner repo — Slice 40 stub, authored 2026-08-16 during code study session; renumbered from 35 (conflict with H5 Ossprey Access) -->
 
 ## Slice: scan() Complexity Decomposition (skills_scanner)
 
@@ -7,7 +7,7 @@ Refactor the monolithic `scan()` orchestrator (CC=55, rank F) into focused singl
 functions; target CC ≤ 15 (rank C) with no behaviour change.
 
 **Project:** `tools-and-utilities/skills_scanner`
-**Branch (in skills_scanner):** `slice/35-scan-complexity-decomposition`
+**Branch (in skills_scanner):** `slice/40-scan-complexity-decomposition`
 **Depends on:** skills_scanner Slice 20c (Tessl CLI Migration)
 
 ---
@@ -31,7 +31,7 @@ functions; target CC ≤ 15 (rank C) with no behaviour change.
 ### Commit pattern
 
 ```
-refactor(slice-35): decompose scan() from CC=55 (rank F) to rank C
+refactor(slice-40): decompose scan() from CC=55 (rank F) to rank C
 
 - Improves maintainability for remaining 12 PLANNED slices that touch scanner code
 - Extracted functions are independently testable; no observable behaviour changed

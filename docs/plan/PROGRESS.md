@@ -51,6 +51,7 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 | 15 | H6 | 37 | CLI Monitoring | Should | 📋 PLANNED |
 | 16 | H6 | 38 | Full-Chain Validation | Should | 📋 PLANNED |
 | 17 | H6 | 39 | FE/BE Rearchitecture | Could | 📦 DEFERRED |
+| 18 | H-ss | 40 | skills_scanner scan() Complexity Decomposition | Should | 📋 PLANNED |
 | — | G | 18–22 | ATDD closure (parked) | Must | 📋 PLANNED |
 
 ## Quick Status (by group)
