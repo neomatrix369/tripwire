@@ -58,6 +58,7 @@ coverage/
 .cache/
 tmp/
 .gate-cache/
+.gemini/
 
 cli/.stryker-tmp/
 cli/reports/
