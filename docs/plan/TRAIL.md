@@ -223,6 +223,12 @@ Branch: `frontline-hackathon-london-2026-agent-hooks`. Source: `internal-docs/04
 | 38 | [slice-38-full-chain-validation](slices/08-H-frontline-agent-hooks/slice-38-full-chain-validation.md) | Full-Chain Validation (+ `/tw-self-check`) | Should | 📋 | 34; 36 if access; 37 | — | ~5 min |
 | 39 | [slice-39-fe-be-rearchitecture](slices/08-H-frontline-agent-hooks/slice-39-fe-be-rearchitecture.md) | FE/BE Rearchitecture | Could | 📦 | 38 | hackathon-too-large | ~3 min |
 
+#### H-ss — skills_scanner cross-project (Must, highest priority)
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| 40 | [slice-40-scanner-complexity-decomposition](slices/08-H-frontline-agent-hooks/slice-40-scan-complexity-decomposition.md) | Scanner Complexity Decomposition (run_snyk + run_cisco_mcp_scanner) | Must | 📋 | — | — | ~4 min |
+
 ## Supporting Artifacts
 | File | Status |
 |------|--------|

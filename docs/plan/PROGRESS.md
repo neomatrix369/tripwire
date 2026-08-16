@@ -16,7 +16,7 @@
 | 7 | [`07-G-…`](slices/07-G-atdd-closure/) | **G — ATDD closure** | 18, 19, 20, 21, 22 (independent gates) | 📋 parked |
 | 8 | [`08-H-…`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | 23→32 Must · 33–38 Should · 39 Could | 📋 plan-only |
 
-**Current priority (2026-08-17):** Slice **40** — skills_scanner scan() Complexity Decomposition (Must; cross-project). Blocked on skills_scanner Slice 20c (Tessl CLI Migration, currently PLANNED). Wave H Musts 23→32 resume after 40 unblocks and clears.
+**Current priority (2026-08-17):** Slice **40** — Scanner Complexity Decomposition (Must). Decomposes `run_snyk` (CC=28, rank D) and `run_cisco_mcp_scanner` (CC=23, rank D) in `sandbox/scanners.py` to rank C. No external dependencies. Wave H Musts 23→32 resume after 40 clears.
 
 ## Execution order (open work)
 
@@ -51,7 +51,7 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 | 15 | H6 | 37 | CLI Monitoring | Should | 📋 PLANNED |
 | 16 | H6 | 38 | Full-Chain Validation | Should | 📋 PLANNED |
 | 17 | H6 | 39 | FE/BE Rearchitecture | Could | 📦 DEFERRED |
-| **0 (next)** | H-ss | **40** | **skills_scanner scan() Complexity Decomposition** | **Must** | 📋 PLANNED (blocked: skills_scanner 20c) |
+| **0 (next)** | H-ss | **40** | **Scanner Complexity Decomposition (run_snyk + run_cisco_mcp_scanner)** | **Must** | 📋 PLANNED |
 | — | G | 18–22 | ATDD closure (parked) | Must | 📋 PLANNED |
 
 ## Quick Status (by group)
