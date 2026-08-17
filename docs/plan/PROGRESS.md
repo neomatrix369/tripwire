@@ -16,7 +16,7 @@
 | 7 | [`07-G-…`](slices/07-G-atdd-closure/) | **G — ATDD closure** | 18, 19, 20, 21, 22 (independent gates) | 📋 parked |
 | 8 | [`08-H-…`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | 23→32 Must · 33–38 Should · 39 Could | 📋 plan-only |
 
-**Current priority (2026-08-17):** Slice **40** — `tripwire scan --type <skill|mcp>` filter (Must). Adds a type-restriction flag to machine-wide discovery; preferred over a new subcommand — scoping concern that composes with existing flags. Branch: `slice/40-scan-type-filter`. Wave H Musts 23→32 resume after 40 clears.
+**Slice 40 ✅ PASSED (2026-08-17):** `tripwire scan --type <skill|mcp>` filter — 110 tests green, code review approved, quality gates pass. Branch: `slice/40-scan-type-filter`. **Next priority:** Wave H Musts 23→32.
 
 ## Execution order (open work)
 
