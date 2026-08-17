@@ -16,7 +16,7 @@
 | 7 | [`07-G-…`](slices/07-G-atdd-closure/) | **G — ATDD closure** | 18, 19, 20, 21, 22 (independent gates) | 📋 parked |
 | 8 | [`08-H-…`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | 23→32 Must · 33–38 Should · 39 Could | 📋 plan-only |
 
-**Current priority (2026-08-17):** Slice **40** — Scanner Complexity Decomposition (Must). Decomposes `run_snyk` (CC=28, rank D) and `run_cisco_mcp_scanner` (CC=23, rank D) in `sandbox/scanners.py` to rank C. No external dependencies. Wave H Musts 23→32 resume after 40 clears.
+**Current priority (2026-08-17):** Slice **40** — `tripwire scan --type <skill|mcp>` filter (Must). Adds a type-restriction flag to machine-wide discovery; preferred over a new subcommand — scoping concern that composes with existing flags. Branch: `slice/40-scan-type-filter`. Wave H Musts 23→32 resume after 40 clears.
 
 ## Execution order (open work)
 
@@ -51,7 +51,7 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 | 15 | H6 | 37 | CLI Monitoring | Should | 📋 PLANNED |
 | 16 | H6 | 38 | Full-Chain Validation | Should | 📋 PLANNED |
 | 17 | H6 | 39 | FE/BE Rearchitecture | Could | 📦 DEFERRED |
-| **0 (next)** | H-ss | **40** | **Scanner Complexity Decomposition (run_snyk + run_cisco_mcp_scanner)** | **Must** | 📋 PLANNED |
+| **0 (next)** | H-ss | **40** | **`tripwire scan --type <skill\|mcp>` filter** | **Must** | 📋 PLANNED |
 | — | G | 18–22 | ATDD closure (parked) | Must | 📋 PLANNED |
 
 ## Quick Status (by group)
@@ -192,3 +192,4 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-15 | frontline-hackathon-london-2026-agent-hooks | enhanced-flow-planner Add | 23–39 | 📋 stubs | Wave H Frontline plan-only; Wave G parked |
 | 2026-08-16 | docs/skills-scanner-scan-complexity-study | enhanced-flow-planner + plan-modifier | skills_scanner 35 | 📋 stub | skills_scanner code study: scan() CC=55 → Slice 35 stub ported to `docs/plan/slices/slice-35-scan-complexity-decomposition.md` |
 | 2026-08-17 | docs/slice-40-renumber-and-reframe | sync-docs + clean-commit | 40 | 📋 PLANNED | Renumber conflict (35 taken by H5 Ossprey); reframe as Tripwire-native (run_snyk CC=28, run_cisco_mcp_scanner CC=23); elevate to Must + highest priority. PR #86 |
+| 2026-08-17 | docs/slice-40-reframe-type-filter | plan-modifier | 40 | 📋 PLANNED | Reframe slice 40 again: user-facing `--type <skill\|mcp>` filter on `tripwire scan` (not internal complexity refactor). UX decision: parameter on existing subcommand over new subcommand. |
