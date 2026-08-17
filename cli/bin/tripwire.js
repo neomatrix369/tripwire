@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import { discoverTargets } from '../src/discovery.js';
+import { discoverTargets, VALID_TYPE_FILTERS } from '../src/discovery.js';
 import { ensureSchema } from '../src/ensureSchema.js';
 import { loadEnv } from '../src/loadEnv.js';
 import { runScan } from '../src/orchestrator.js';
@@ -35,13 +35,17 @@ program
   .option('--force', 're-scan even if content hash is unchanged')
   .option('--no-defaults', 'error instead of scanning machine defaults on empty args')
   .option('--dry-discover', 'print discovered targets and exit, spawn nothing')
+  .option('--type <type>', `restrict discovery to a single artifact category (${VALID_TYPE_FILTERS.join('|')})`)
   .action(async (targets, opts) => {
     try {
       const concurrency = Number(opts.concurrency);
       if (!Number.isInteger(concurrency) || concurrency < 1) {
         throw new Error('--concurrency must be a positive integer');
       }
-      const list = await discoverTargets({ targets, targetsFile: opts.targets, useDefaults: opts.defaults !== false });
+      if (opts.type && !VALID_TYPE_FILTERS.includes(opts.type)) {
+        throw new Error(`--type must be one of: ${VALID_TYPE_FILTERS.join(', ')}`);
+      }
+      const list = await discoverTargets({ targets, targetsFile: opts.targets, useDefaults: opts.defaults !== false, typeFilter: opts.type || null });
       if (opts.dryDiscover) {
         console.log(JSON.stringify(list, null, 2));
         return;

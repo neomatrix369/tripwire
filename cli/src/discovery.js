@@ -146,17 +146,32 @@ async function annotateWithTypes(resolved) {
   return withTypes;
 }
 
-export async function discoverTargets({ targets, targetsFile, useDefaults }) {
+const VALID_TYPE_FILTERS = ['skill', 'mcp'];
+
+function _filterByType(items, typeFilter) {
+  if (!typeFilter) return items;
+  const want = typeFilter === 'mcp' ? 'mcp_server' : 'skill';
+  return items.filter(item => item.type === want);
+}
+
+export async function discoverTargets({ targets, targetsFile, useDefaults, typeFilter = null }) {
   let raw = targets && targets.length ? targets : [];
   if (targetsFile) {
     const json = JSON.parse(await readFile(targetsFile, 'utf8'));
     raw = raw.concat(json.targets || []);
   }
-  if (raw.length === 0) return useDefaults ? discoverDefaults() : [];
+  if (raw.length === 0) {
+    if (!useDefaults) return [];
+    const defaults = await discoverDefaults();
+    if (!typeFilter) return defaults;
+    return _filterByType(await annotateWithTypes(defaults), typeFilter);
+  }
 
   const resolved = [];
   for (const t of raw) {
     resolved.push(...(await resolveTarget(t)));
   }
-  return annotateWithTypes(resolved);
+  return _filterByType(await annotateWithTypes(resolved), typeFilter);
 }
+
+export { VALID_TYPE_FILTERS };
