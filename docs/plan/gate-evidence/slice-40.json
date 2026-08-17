@@ -25,5 +25,5 @@
   "depends_on": [],
   "branch": "slice/40-scan-type-filter",
   "note": "Adds --type <skill|mcp> filter to tripwire scan. Reframed 2026-08-17: user-facing scoping flag on existing scan subcommand, not internal complexity refactor. discoverTargets gains typeFilter param; annotates defaults before filtering when set.",
-  "spec_path": "docs/plan/slices/08-H-frontline-agent-hooks/slice-40-scan-complexity-decomposition.md"
+  "spec_path": "docs/plan/slices/08-H-frontline-agent-hooks/slice-40-scan-type-filter.md"
 }

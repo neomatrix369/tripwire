@@ -1,5 +1,6 @@
 <!-- file: docs/plan/slices/08-H-frontline-agent-hooks/slice-40-scan-type-filter.md -->
 
+
 ## Slice 40: `tripwire scan --type` Filter
 
 Add a `--type <skill|mcp>` option to `tripwire scan` so operators can restrict
