@@ -98,3 +98,20 @@ test('given an explicit MCP endpoint when dry discovery runs then it reports the
   assert.match(stdout, /mcp\.example\.test/);
   assert.match(stdout, /introspection_only/);
 });
+
+test('given invalid --type value when scan starts then it exits non-zero with valid values listed', async () => {
+  /**
+   * Scenario: Invalid type rejected
+   * Given an operator passes --type badvalue
+   * When the scan command is invoked
+   * Then the process exits non-zero with a message explaining valid values.
+   */
+  // -- Given --
+  const args = [tripwireBin, 'scan', '--type', 'badvalue', '--dry-discover'];
+
+  // -- When / Then --
+  await assert.rejects(
+    () => exec('node', args),
+    (error) => error.code === 1 && /skill.*mcp|mcp.*skill/.test(error.stderr),
+  );
+});
