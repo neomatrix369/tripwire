@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `tripwire scan --type <skill|mcp>` — restricts machine-wide discovery to a single artifact
+  category without changing any other scan behaviour; composes with `--dry-discover`,
+  `--force`, `--concurrency`, and explicit path arguments
+
 ## [0.4.0] - 2026-08-14
 
 ### Added

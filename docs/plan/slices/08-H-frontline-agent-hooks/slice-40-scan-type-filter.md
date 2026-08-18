@@ -147,4 +147,8 @@ Commit: `feat(slice-40): add --type <skill|mcp> filter to tripwire scan`
 
 ### Gate Status
 
-📋 PLANNED
+✅ PASSED — 2026-08-17
+- 110/110 tests green (`npm test`)
+- `./scripts/quality-gates.sh` passes all tiers
+- Code review: APPROVED (nw-software-crafter-reviewer, no blockers)
+- Smoke verified: `--type skill` (235 skills), `--type mcp` (14 servers), `--type bad` exits 1

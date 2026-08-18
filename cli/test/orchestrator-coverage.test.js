@@ -27,6 +27,7 @@ function createSupabaseStub({
   runId = 'run-1',
   batchId = 'batch-1',
   batchError = null,
+  scanRunInsertError = null,
 } = {}) {
   const calls = { failedUpdates: 0, rpc: 0, batches: [], updates: 0 };
 
@@ -95,7 +96,10 @@ function createSupabaseStub({
             return {
               select() {
                 return {
-                  single: () => makeThenable({ data: { id: runId, ...row }, error: null }),
+                  single: () => makeThenable({
+                    data: scanRunInsertError ? null : { id: runId, ...row },
+                    error: scanRunInsertError,
+                  }),
                 };
               },
             };
@@ -254,6 +258,35 @@ test('given zero concurrency through the orchestration API when scan starts then
     /positive integer/,
   );
   assert.equal(schemaCalls, 0);
+});
+
+test('given scan_run insert error when dispatch then outer catch returns error without scanRunId', async () => {
+  /**
+   * Scenario: outer catch in dispatchTarget fires when scan_runs.insert returns a DB error.
+   * Slice: coverage — orchestrator.js lines 88-92 (outer catch after inner try)
+   *
+   * Given a target and a supabase stub where scan_runs insert returns an error,
+   * When runScan dispatches the target,
+   * Then the outer catch is taken, scanRunId is null, and runScan surfaces the failure.
+   */
+  // -- Given --
+  const dir = await mkdtemp(path.join(tmpdir(), 'tw-outer-catch-'));
+  await writeFile(path.join(dir, 'SKILL.md'), '# s');
+  const sb = createSupabaseStub({
+    scanRunInsertError: { message: 'db insert error for scan_runs' },
+  });
+  const targets = [{ target: dir, type: 'skill', locus: 'local', avail: 'source_on_disk' }];
+
+  // -- When / Then --
+  await assert.rejects(
+    () => runScan(targets, {
+      ensureSchemaFn: async () => ({ status: 'ready' }),
+      getSupabaseFn: () => sb,
+      spawnFn: async () => { assert.fail('spawn must not be called when scan_run insert fails'); },
+    }),
+    /target scan dispatch failure/,
+  );
+  await rm(dir, { recursive: true, force: true });
 });
 
 async function mkdirSafe(p) {

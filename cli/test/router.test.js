@@ -542,6 +542,140 @@ test('given MS returns unknown severity when arbitrating then falls back to scan
   assert.equal(supabase.calls.inserts[0].severity, 'red');
 });
 
+test('given HTTP non-ok on all SIE attempts when route runs then routing is skipped gracefully', async () => {
+  /**
+   * Scenario: fetchWithTimeout throws on non-ok, callChatApi retries then throws lastError.
+   * Slice: coverage — router.js lines 52-54 (non-ok throw), 87-89 (inner catch), 91 (throw lastError)
+   *
+   * Given globalThis.fetch returns a non-ok response for every call,
+   * When runRoute is invoked with no injected callSieFn (uses real callSie → callChatApi),
+   * Then fetchWithTimeout throws on the non-ok body, both retry attempts fail,
+   *   lastError is thrown on line 91, and runRoute handles it without crashing.
+   */
+  // -- Given --
+  const supabase = createRouterSupabaseStub({});
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => ({
+    ok: false,
+    status: 503,
+    async text() { return 'Service Unavailable'; },
+  });
+
+  // -- When / Then --
+  try {
+    await withRouterEnv(() => runRoute('batch-1', {
+      getSupabaseFn: () => supabase,
+      // no callSieFn — exercises real callSie → callChatApi → fetchWithTimeout
+    }));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+  // runRoute swallows SIE failures — if we got here without throwing, lines were reached
+  assert.equal(supabase.calls.inserts.length, 0, 'no routing inserted when SIE fails');
+});
+
+test('given real callMsArbitration path when SIE escalates then MS arbitration fetch is executed', async () => {
+  /**
+   * Scenario: callMsArbitration executes via the real HTTP path, not an injected fn.
+   * Slice: coverage — router.js lines 124-132 (callMsArbitration body)
+   *
+   * Given a supabase stub with conflicting scanner findings (to trigger escalation),
+   *   and globalThis.fetch mocked to return SIE escalate=true then MS arbitration response,
+   * When runRoute is invoked with no callMsArbitrationFn injection,
+   * Then the real callMsArbitration body executes and a routing_decision finding is inserted.
+   */
+  // -- Given --
+  const supabase = createRouterSupabaseStub({
+    nonRouterFindings: [
+      { scan_run_id: 'run-1', scanner_source: 'Snyk', severity: 'red', category: 'vuln', message: 'CVE-x' },
+      { scan_run_id: 'run-1', scanner_source: 'Cisco', severity: 'green', category: 'vuln', message: 'clean' },
+    ],
+    scanners: [
+      { scanner_source: 'Snyk', status: 'completed' },
+      { scanner_source: 'Cisco', status: 'completed' },
+    ],
+  });
+  const originalFetch = globalThis.fetch;
+  let callCount = 0;
+  globalThis.fetch = async () => {
+    callCount += 1;
+    const content = callCount === 1
+      ? '{"escalate": true, "low_confidence": false, "reasoning": "conflicting scanners"}'
+      : '{"final_severity": "amber", "reasoning": "SIE escalated due to conflict"}';
+    return {
+      ok: true,
+      async json() {
+        return { choices: [{ message: { content } }] };
+      },
+    };
+  };
+
+  // -- When --
+  try {
+    await withRouterEnv(() => runRoute('batch-1', {
+      getSupabaseFn: () => supabase,
+      callSieFn: undefined,           // use real callSie
+      callMsArbitrationFn: undefined, // use real callMsArbitration
+    }));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
+  // -- Then --
+  assert.ok(callCount >= 2, 'both SIE and MS arbitration fetch calls were made');
+  const decision = supabase.calls.inserts.find((f) => f.category === 'routing_decision');
+  assert.ok(decision, 'routing_decision finding inserted via real MS arbitration path');
+});
+
+test('given real callMsTriage path when SIE escalates empty findings then MS triage fetch is executed', async () => {
+  /**
+   * Scenario: callMsTriage executes via the real HTTP path, not an injected fn.
+   * Slice: coverage — router.js lines 134-142 (callMsTriage body)
+   *
+   * Given a supabase stub with no non-router findings but a failed scanner (unusual_status=true),
+   *   and globalThis.fetch mocked to return SIE escalate=true then MS triage response,
+   * When runRoute is invoked with no callMsTriageFn injection,
+   * Then the real callMsTriage body executes and a routing_triage finding is inserted.
+   */
+  // -- Given --
+  const supabase = createRouterSupabaseStub({
+    nonRouterFindings: [],
+    scanners: [
+      { scanner_source: 'Snyk', status: 'partial-failed' },
+    ],
+  });
+  const originalFetch = globalThis.fetch;
+  let callCount = 0;
+  globalThis.fetch = async () => {
+    callCount += 1;
+    const content = callCount === 1
+      ? '{"escalate": true, "low_confidence": false, "reasoning": "scanner failed to complete"}'
+      : '{"severity": "amber", "recommendation": "re-scan with valid credentials", "reasoning": "coverage gap"}';
+    return {
+      ok: true,
+      async json() {
+        return { choices: [{ message: { content } }] };
+      },
+    };
+  };
+
+  // -- When --
+  try {
+    await withRouterEnv(() => runRoute('batch-1', {
+      getSupabaseFn: () => supabase,
+      callSieFn: undefined,       // use real callSie
+      callMsTriageFn: undefined,  // use real callMsTriage
+    }));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
+  // -- Then --
+  assert.ok(callCount >= 2, 'both SIE and MS triage fetch calls were made');
+  const triage = supabase.calls.inserts.find((f) => f.category === 'routing_triage');
+  assert.ok(triage, 'routing_triage finding inserted via real MS triage path');
+});
+
 test('given replace delete fails when writing routing_review then error propagates', async () => {
   /**
    * Scenario: DB delete failure during replace must surface.

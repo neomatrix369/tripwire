@@ -87,3 +87,106 @@ test('real fixture: fixtures/mcp parent dir expands all MCP server subdirs', asy
     assert.equal(r.type, 'mcp_server');
   }
 });
+
+// --- slice-40: typeFilter ---
+
+async function makeMixedFolder() {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'tripwire-mixed-'));
+  const skill = path.join(root, 'my-skill');
+  const mcp = path.join(root, 'my-mcp');
+  await mkdir(skill);
+  await mkdir(mcp);
+  await writeFile(path.join(skill, 'SKILL.md'), '# skill');
+  await writeFile(path.join(mcp, 'server.py'), '# mcp');
+  return root;
+}
+
+test('typeFilter=skill excludes mcp_server targets from a mixed folder', async () => {
+  /**
+   * Scenario: Given a folder with both a skill subdir and an MCP server subdir
+   *   When discoverTargets is called with typeFilter: 'skill'
+   *   Then only items with type 'skill' are returned.
+   */
+  const root = await makeMixedFolder();
+  const result = await discoverTargets({ targets: [root], useDefaults: false, typeFilter: 'skill' });
+  assert.ok(result.length > 0, 'Expected at least one skill');
+  assert.ok(result.every(r => r.type === 'skill'), `Expected all skill, got: ${JSON.stringify(result)}`);
+  await rm(root, { recursive: true, force: true });
+});
+
+test('typeFilter=mcp excludes skill targets from a mixed folder', async () => {
+  /**
+   * Scenario: Given a folder with both a skill subdir and an MCP server subdir
+   *   When discoverTargets is called with typeFilter: 'mcp'
+   *   Then only items with type 'mcp_server' are returned.
+   */
+  const root = await makeMixedFolder();
+  const result = await discoverTargets({ targets: [root], useDefaults: false, typeFilter: 'mcp' });
+  assert.ok(result.length > 0, 'Expected at least one mcp_server');
+  assert.ok(result.every(r => r.type === 'mcp_server'), `Expected all mcp_server, got: ${JSON.stringify(result)}`);
+  await rm(root, { recursive: true, force: true });
+});
+
+test('typeFilter=null returns all types (existing behaviour preserved)', async () => {
+  /**
+   * Scenario: Given a mixed folder
+   *   When discoverTargets is called with no typeFilter
+   *   Then both skill and mcp_server items are returned.
+   */
+  const root = await makeMixedFolder();
+  const result = await discoverTargets({ targets: [root], useDefaults: false });
+  const types = new Set(result.map(r => r.type));
+  assert.ok(types.has('skill'), 'Expected a skill item');
+  assert.ok(types.has('mcp_server'), 'Expected an mcp_server item');
+  await rm(root, { recursive: true, force: true });
+});
+
+test('typeFilter=skill on mixed explicit targets annotates and filters — only skills returned', async () => {
+  /**
+   * Scenario: Given a folder containing both skill and MCP server subdirs
+   *   When discoverTargets is called with typeFilter: 'skill' on explicit targets
+   *   Then every returned item has type 'skill'.
+   *
+   * Note: explicit targets enter via the annotateWithTypes + _filterByType path (line 174).
+   * The useDefaults=true + typeFilter path is tested separately below.
+   */
+  const root = await makeMixedFolder();
+  const result = await discoverTargets({ targets: [root], useDefaults: false, typeFilter: 'skill' });
+  assert.ok(result.length > 0, 'Expected at least one skill from mixed folder');
+  assert.ok(result.every(r => r.type === 'skill'), `Not all items are skills: ${JSON.stringify(result.filter(r => r.type !== 'skill'))}`);
+  await rm(root, { recursive: true, force: true });
+});
+
+test('typeFilter=skill with useDefaults=true on fixture defaults — only skills returned', async () => {
+  /**
+   * Scenario: Given a cwd with .cursor/skills containing a skill subfolder and
+   *   .cursor/mcp.json containing an MCP server entry,
+   *   When discoverTargets is called with useDefaults=true and typeFilter='skill',
+   *   Then every returned item has type 'skill' — MCP defaults are filtered out.
+   *
+   * This exercises discovery.js lines 165-167 — the production code path triggered
+   * by `tripwire scan --type skill` with no explicit targets.
+   */
+  // -- Given --
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'tw-deftype-'));
+  const skillDir = path.join(dir, '.cursor', 'skills', 'demo-skill');
+  await mkdir(skillDir, { recursive: true });
+  await writeFile(path.join(skillDir, 'SKILL.md'), '# demo');
+  await writeFile(path.join(dir, '.cursor', 'mcp.json'), JSON.stringify({
+    mcpServers: { 'demo-mcp': { command: 'npx' } },
+  }));
+  const prev = process.cwd();
+
+  // -- When --
+  try {
+    process.chdir(dir);
+    const result = await discoverTargets({ targets: [], useDefaults: true, typeFilter: 'skill' });
+
+    // -- Then --
+    assert.ok(result.length > 0, 'Expected at least one skill from fixture defaults');
+    assert.ok(result.every(r => r.type === 'skill'), `Not all items are skills: ${JSON.stringify(result.filter(r => r.type !== 'skill'))}`);
+  } finally {
+    process.chdir(prev);
+    await rm(dir, { recursive: true, force: true });
+  }
+});

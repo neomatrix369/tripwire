@@ -98,3 +98,41 @@ test('given an explicit MCP endpoint when dry discovery runs then it reports the
   assert.match(stdout, /mcp\.example\.test/);
   assert.match(stdout, /introspection_only/);
 });
+
+test('given invalid --type value when scan starts then it exits non-zero with valid values listed', async () => {
+  /**
+   * Scenario: Invalid type rejected
+   * Given an operator passes --type badvalue
+   * When the scan command is invoked
+   * Then the process exits non-zero with a message explaining valid values.
+   */
+  // -- Given --
+  const args = [tripwireBin, 'scan', '--type', 'badvalue', '--dry-discover'];
+
+  // -- When / Then --
+  await assert.rejects(
+    () => exec('node', args),
+    (error) => error.code === 1 && /skill.*mcp|mcp.*skill/.test(error.stderr),
+  );
+});
+
+test('given no database credentials when tripwire route runs then exits non-zero', async () => {
+  /**
+   * Scenario: route action try/catch fires when runRoute throws.
+   * Slice: coverage — tripwire.js lines 70-78 (route command action catch branch)
+   *
+   * Given no Supabase credentials in the environment,
+   * When `tripwire route --batch-id test-batch` is invoked as a CLI subprocess,
+   * Then the process exits with a non-zero code (runRoute throws, catch sets exitCode=1).
+   */
+  // -- Given --
+  const env = Object.fromEntries(
+    Object.entries(process.env).filter(([k]) => !k.startsWith('SUPABASE')),
+  );
+
+  // -- When / Then --
+  await assert.rejects(
+    () => exec('node', [tripwireBin, 'route', '--batch-id', 'test-batch'], { env }),
+    (error) => error.code !== 0,
+  );
+});

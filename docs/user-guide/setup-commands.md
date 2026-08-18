@@ -31,6 +31,11 @@ python3 -V
 ```bash
 tripwire scan --dry-discover ./fixtures/skills/safe-csv-cleaner
 tripwire scan --dry-discover ./fixtures/mcp/mcp_manifest.json
+
+# Restrict discovery to one artifact category (--type skill | mcp):
+tripwire scan --type skill --dry-discover   # machine defaults, skills only
+tripwire scan --type mcp   --dry-discover   # machine defaults, MCP servers only
+
 node scripts/serve-dashboard.mjs
 ```
 

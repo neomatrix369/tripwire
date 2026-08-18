@@ -227,7 +227,7 @@ Branch: `frontline-hackathon-london-2026-agent-hooks`. Source: `internal-docs/04
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
-| 40 | [slice-40-scan-type-filter](slices/08-H-frontline-agent-hooks/slice-40-scan-type-filter.md) | `tripwire scan --type <skill\|mcp>` filter | Must | 📋 | — | — | ~3 min |
+| 40 | [slice-40-scan-type-filter](slices/08-H-frontline-agent-hooks/slice-40-scan-type-filter.md) | `tripwire scan --type <skill\|mcp>` filter | Must | ✅ | — | — | ~3 min |
 
 ## Supporting Artifacts
 | File | Status |
