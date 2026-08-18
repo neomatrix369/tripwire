@@ -17,7 +17,7 @@
     "@supabase/supabase-js": "^2.112.3",
     "commander": "^12.1.0",
     "dotenv": "^17.4.2",
-    "pg": "^8.22.0"
+    "pg": "^8.23.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
