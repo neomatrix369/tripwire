@@ -141,14 +141,18 @@ test('typeFilter=null returns all types (existing behaviour preserved)', async (
   await rm(root, { recursive: true, force: true });
 });
 
-test('typeFilter=skill on defaults annotates and filters — only skills returned', async () => {
+test('typeFilter=skill on mixed explicit targets annotates and filters — only skills returned', async () => {
   /**
-   * Scenario: Given machine defaults contain both skills and MCP manifest entries
-   *   When discoverTargets is called with useDefaults=true and typeFilter: 'skill'
-   *   Then every returned item has type 'skill'.
+   * Scenario: Given a folder containing both skill and MCP server subdirs
+   *   When discoverTargets is called with typeFilter: 'skill' on explicit targets
+   *   Then every returned item has type 'skill' (uses same annotateWithTypes + _filterByType path as useDefaults).
+   *
+   * Note: the original version used useDefaults=true which relies on machine-installed skills
+   * that do not exist in CI. Explicit targets exercise the identical code path.
    */
-  const result = await discoverTargets({ targets: [], useDefaults: true, typeFilter: 'skill' });
-  // There must be at least one skill on this machine (this project has local skills)
-  assert.ok(result.length > 0, 'Expected at least one skill from defaults');
+  const root = await makeMixedFolder();
+  const result = await discoverTargets({ targets: [root], useDefaults: false, typeFilter: 'skill' });
+  assert.ok(result.length > 0, 'Expected at least one skill from mixed folder');
   assert.ok(result.every(r => r.type === 'skill'), `Not all items are skills: ${JSON.stringify(result.filter(r => r.type !== 'skill'))}`);
+  await rm(root, { recursive: true, force: true });
 });
