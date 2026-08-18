@@ -141,6 +141,7 @@ async function annotateWithTypes(resolved) {
     const target = typeof t === 'string' ? t : t.manifestEntry;
     const row = { target, ...meta };
     if (typeof t !== 'string' && t.packPath) row.packPath = t.packPath;
+    if (typeof t !== 'string' && t.manifest) row.manifest = t.manifest;
     withTypes.push(row);
   }
   return withTypes;
@@ -163,8 +164,9 @@ export async function discoverTargets({ targets, targetsFile, useDefaults, typeF
   if (raw.length === 0) {
     if (!useDefaults) return [];
     const defaults = await discoverDefaults();
-    if (!typeFilter) return defaults;
-    return _filterByType(await annotateWithTypes(defaults), typeFilter);
+    const annotated = await annotateWithTypes(defaults);
+    if (!typeFilter) return annotated;
+    return _filterByType(annotated, typeFilter);
   }
 
   const resolved = [];

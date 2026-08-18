@@ -138,8 +138,8 @@ test('given cwd mcp manifest when useDefaults then discovers server names', asyn
     process.chdir(root);
     const result = await discoverTargets({ targets: [], useDefaults: true });
 
-    // -- Then — defaults return raw manifest entries (pre-typing)
-    assert.ok(result.some((r) => r.manifestEntry === 'local'));
+    // -- Then — defaults are annotated; entry appears as target with mcp_server type
+    assert.ok(result.some((r) => r.target === 'local'));
   } finally {
     process.chdir(prev);
     await rm(root, { recursive: true, force: true });

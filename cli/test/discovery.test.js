@@ -145,14 +145,48 @@ test('typeFilter=skill on mixed explicit targets annotates and filters — only 
   /**
    * Scenario: Given a folder containing both skill and MCP server subdirs
    *   When discoverTargets is called with typeFilter: 'skill' on explicit targets
-   *   Then every returned item has type 'skill' (uses same annotateWithTypes + _filterByType path as useDefaults).
+   *   Then every returned item has type 'skill'.
    *
-   * Note: the original version used useDefaults=true which relies on machine-installed skills
-   * that do not exist in CI. Explicit targets exercise the identical code path.
+   * Note: explicit targets enter via the annotateWithTypes + _filterByType path (line 174).
+   * The useDefaults=true + typeFilter path is tested separately below.
    */
   const root = await makeMixedFolder();
   const result = await discoverTargets({ targets: [root], useDefaults: false, typeFilter: 'skill' });
   assert.ok(result.length > 0, 'Expected at least one skill from mixed folder');
   assert.ok(result.every(r => r.type === 'skill'), `Not all items are skills: ${JSON.stringify(result.filter(r => r.type !== 'skill'))}`);
   await rm(root, { recursive: true, force: true });
+});
+
+test('typeFilter=skill with useDefaults=true on fixture defaults — only skills returned', async () => {
+  /**
+   * Scenario: Given a cwd with .cursor/skills containing a skill subfolder and
+   *   .cursor/mcp.json containing an MCP server entry,
+   *   When discoverTargets is called with useDefaults=true and typeFilter='skill',
+   *   Then every returned item has type 'skill' — MCP defaults are filtered out.
+   *
+   * This exercises discovery.js lines 165-167 — the production code path triggered
+   * by `tripwire scan --type skill` with no explicit targets.
+   */
+  // -- Given --
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'tw-deftype-'));
+  const skillDir = path.join(dir, '.cursor', 'skills', 'demo-skill');
+  await mkdir(skillDir, { recursive: true });
+  await writeFile(path.join(skillDir, 'SKILL.md'), '# demo');
+  await writeFile(path.join(dir, '.cursor', 'mcp.json'), JSON.stringify({
+    mcpServers: { 'demo-mcp': { command: 'npx' } },
+  }));
+  const prev = process.cwd();
+
+  // -- When --
+  try {
+    process.chdir(dir);
+    const result = await discoverTargets({ targets: [], useDefaults: true, typeFilter: 'skill' });
+
+    // -- Then --
+    assert.ok(result.length > 0, 'Expected at least one skill from fixture defaults');
+    assert.ok(result.every(r => r.type === 'skill'), `Not all items are skills: ${JSON.stringify(result.filter(r => r.type !== 'skill'))}`);
+  } finally {
+    process.chdir(prev);
+    await rm(dir, { recursive: true, force: true });
+  }
 });
