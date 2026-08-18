@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import {
   applySchema,
   ensureSchema,
+  isMissingSchemaError,
   probeSchema,
 } from '../src/ensureSchema.js';
 
@@ -175,6 +176,44 @@ test('given force apply when ensureSchema then applied', async () => {
   // -- Then --
   assert.equal(result.status, 'applied');
   assert.equal(applyCalls, 1);
+});
+
+test('isMissingSchemaError with null or undefined returns false', () => {
+  /**
+   * Scenario: guard against falsy errors short-circuits the regex.
+   * Slice: coverage — ensureSchema.js line 15 true branch
+   */
+  // -- Given / When / Then --
+  assert.equal(isMissingSchemaError(null), false);
+  assert.equal(isMissingSchemaError(undefined), false);
+  assert.equal(isMissingSchemaError(0), false);
+});
+
+test('given ECONNREFUSED when applySchema then error hints at Session pooler', async () => {
+  /**
+   * Scenario: pgConnectHint fires when Postgres refuses the connection.
+   * Slice: coverage — ensureSchema.js lines 53-55
+   *
+   * Given a ClientImpl whose connect() throws ECONNREFUSED,
+   * When applySchema is called with a valid postgresql:// URL,
+   * Then the thrown error message contains the Session pooler hint.
+   */
+  // -- Given --
+  class EconnClient {
+    async connect() {
+      const err = new Error('connect ECONNREFUSED 127.0.0.1:5432');
+      err.code = 'ECONNREFUSED';
+      throw err;
+    }
+    async query() {}
+    async end() {}
+  }
+
+  // -- When / Then --
+  await assert.rejects(
+    () => applySchema({ dbUrl: 'postgresql://u:p@db.example.co:5432/db', ClientImpl: EconnClient }),
+    /Session pooler/,
+  );
 });
 
 test('given apply ok but still missing when ensureSchema then throws', async () => {

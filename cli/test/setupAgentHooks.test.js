@@ -622,3 +622,108 @@ test('extractTrailingJson returns null when no JSON object exists', () => {
   assert.equal(extractTrailingJson(''), null);
   assert.equal(extractTrailingJson(null), null);
 });
+
+// ---------- assertMergeableShape error paths ----------
+
+test('given hooks is a non-object when merging settings then refuses with error', async () => {
+  /**
+   * Scenario: assertMergeableShape rejects a "hooks" value that is not a plain object.
+   * Slice: coverage — setupAgentHooks.js lines 244-246
+   *
+   * Given an existing settings.json where "hooks" is a string,
+   * When runSetupAgentHooks is invoked,
+   * Then it throws an error containing "unexpected" and "hooks".
+   */
+  // -- Given --
+  await withFixture(
+    { settings: JSON.stringify({ hooks: 'not-an-object' }) },
+    async (fx) => {
+      // -- When / Then --
+      await assert.rejects(
+        runSetupAgentHooks(baseOpts(fx)),
+        /unexpected.*hooks|hooks.*unexpected/i,
+      );
+    },
+  );
+});
+
+test('given hooks.PreToolUse is not an array when merging settings then refuses with error', async () => {
+  /**
+   * Scenario: assertMergeableShape rejects a PreToolUse value that is not an array.
+   * Slice: coverage — setupAgentHooks.js lines 248-250
+   *
+   * Given an existing settings.json where "hooks.PreToolUse" is a string,
+   * When runSetupAgentHooks is invoked,
+   * Then it throws an error containing "PreToolUse".
+   */
+  // -- Given --
+  await withFixture(
+    { settings: JSON.stringify({ hooks: { PreToolUse: 'not-an-array' } }) },
+    async (fx) => {
+      // -- When / Then --
+      await assert.rejects(
+        runSetupAgentHooks(baseOpts(fx)),
+        /PreToolUse/,
+      );
+    },
+  );
+});
+
+// ---------- installDemoArtifacts script-not-found ----------
+
+test('given install-demo-artifacts.sh missing when withDemo then logs warning and continues', async () => {
+  /**
+   * Scenario: installDemoArtifacts short-circuits when the script is absent.
+   * Slice: coverage — setupAgentHooks.js lines 344-347 (script not found branch)
+   *
+   * Given withDemo=true and no install-demo-artifacts.sh in repoRoot/scripts/,
+   * When runSetupAgentHooks is invoked,
+   * Then setup completes successfully (no throw) because the missing script is skipped.
+   */
+  // -- Given --
+  const logs = [];
+  await withFixture({}, async (fx) => {
+    // -- When --
+    const result = await runSetupAgentHooks(baseOpts(fx, {
+      withDemo: true,
+      log: (msg) => logs.push(msg),
+    }));
+
+    // -- Then --
+    assert.equal(result.status, 'installed');
+    assert.ok(
+      logs.some((l) => /WARNING.*not found.*skipping/i.test(l)),
+      'should log a warning about the missing script',
+    );
+  });
+});
+
+// ---------- printSummary: scan success (submitted > 0, no failures) ----------
+
+test('given all scans succeed when setup completes then summary logs submitted count', async () => {
+  /**
+   * Scenario: printSummary else branch fires when scans.failed is empty and submitted > 0.
+   * Slice: coverage — setupAgentHooks.js lines 475-477 (else branch in printSummary)
+   *
+   * Given a scan function that returns scan_run_ids with no failed_targets,
+   * When runSetupAgentHooks is invoked,
+   * Then the log contains "Bootstrap scans submitted" (the else branch line).
+   */
+  // -- Given --
+  const SUCCESS_STDOUT = '{\n  "batch_id": "batch-ok",\n  "scan_run_ids": ["r-ok"],\n  "failed_targets": []\n}';
+  const logs = [];
+  await withFixture({}, async (fx) => {
+    // -- When --
+    const result = await runSetupAgentHooks(baseOpts(fx, {
+      scanFn: makeScanFn(SUCCESS_STDOUT),
+      log: (msg) => logs.push(msg),
+    }));
+
+    // -- Then --
+    assert.equal(result.status, 'installed');
+    assert.ok(
+      logs.some((l) => /Bootstrap scans submitted/i.test(l)),
+      'summary should log "Bootstrap scans submitted" when no failures',
+    );
+  });
+});

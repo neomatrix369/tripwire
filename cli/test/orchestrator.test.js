@@ -115,3 +115,24 @@ test('given invalid --type value when scan starts then it exits non-zero with va
     (error) => error.code === 1 && /skill.*mcp|mcp.*skill/.test(error.stderr),
   );
 });
+
+test('given no database credentials when tripwire route runs then exits non-zero', async () => {
+  /**
+   * Scenario: route action try/catch fires when runRoute throws.
+   * Slice: coverage — tripwire.js lines 70-78 (route command action catch branch)
+   *
+   * Given no Supabase credentials in the environment,
+   * When `tripwire route --batch-id test-batch` is invoked as a CLI subprocess,
+   * Then the process exits with a non-zero code (runRoute throws, catch sets exitCode=1).
+   */
+  // -- Given --
+  const env = Object.fromEntries(
+    Object.entries(process.env).filter(([k]) => !k.startsWith('SUPABASE')),
+  );
+
+  // -- When / Then --
+  await assert.rejects(
+    () => exec('node', [tripwireBin, 'route', '--batch-id', 'test-batch'], { env }),
+    (error) => error.code !== 0,
+  );
+});
