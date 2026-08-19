@@ -33,6 +33,7 @@ scratchpad investigation reports (2026-08-19).
 | A5 | **FE/UX** | Medium | ERROR cards show "0 findings" with no contextual explanation | 12 cards |
 | A6 | **Ops** | Low | 2 SCANNING items stuck since Aug 16 (`automate`, `autopilot`) | 2 items |
 | A7 | **DB** | Low | 59 RED/ERROR items with 0 non-router findings in latest scan run | 59 items |
+| A8 | **FE/UX** | Medium | Cards show no scanner run stats — user cannot see how many scanners completed vs failed without clicking into each item | All scanned cards |
 
 > **Note**: A7 count is inflated by A1 (FE can't see the findings for out-of-window runs).
 > Re-audit after A1 fix to get the true DB-only count.
@@ -68,6 +69,20 @@ scratchpad investigation reports (2026-08-19).
 **Given** the dashboard fetches live data
 **When** the fetch completes
 **Then** the `findings` and `scan_run_scanners` Supabase queries are scoped to the scan runs returned for current items (no full-table scan)
+
+### GWT-42.5 — Scanner run stats visible on every scanned card (A8)
+
+**Given** an item has been scanned (at least one entry in `scan_run_scanners` for its latest run)
+**When** the dashboard grid renders
+**Then** each scanned card displays a compact scanner stat badge showing the count of completed scanners and the count of failed/unreachable scanners (e.g. `2✓ 1✗`) — without requiring the user to click into the item
+
+**Given** all scanners for an item completed successfully
+**When** the dashboard grid renders
+**Then** the card shows only the success count (e.g. `3✓`) with no failure badge
+
+**Given** an item has not yet been scanned (no scan_run_scanners rows)
+**When** the dashboard grid renders
+**Then** no scanner stat badge is shown on that card
 
 ---
 
@@ -169,11 +184,52 @@ resubmit: `tripwire scan automate autopilot --force`.
 
 ---
 
-### Sub-task 6 — Fix A4: improve Tessl quality_score logging and parser (Sandbox)
+### Sub-task 6 — Fix A8: scanner run stats badge on cards (FE/UX)
+
+**File**: `prototypes/dc-dashboard/Tripwire.dc.html`
+
+**Where**: `decorateItem()` method (around line 1229) + card template (lines 563–575).
+
+**Logic** (pure FE — no API change needed, data already in `it.scanners`):
+
+```js
+// In decorateItem(), after findingCountParts:
+const FAIL_STATUSES = new Set(['failed', 'unreachable', 'skipped_missing_credential']);
+const scannerOk   = (it.scanners || []).filter(s => s.status === 'completed').length;
+const scannerFail = (it.scanners || []).filter(s => FAIL_STATUSES.has(s.status)).length;
+const hasScannerStats = scannerOk + scannerFail > 0;
+const scannerStatBadge = hasScannerStats
+  ? (scannerFail > 0 ? `${scannerOk}✓ ${scannerFail}✗` : `${scannerOk}✓`)
+  : null;
+```
+
+**Template** — add after the `hasFindingCountSingle` block (line ~574):
+
+```html
+<sc-if value="{{ item.scannerStatBadge }}">
+  <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);
+               background:var(--bg-elevated);padding:2px 6px;border-radius:4px;
+               border:1px solid var(--border-subtle);white-space:nowrap">
+    {{ item.scannerStatBadge }}
+  </span>
+</sc-if>
+```
+
+Color rule: if `scannerFail > 0`, tint the badge amber (`#f59e0b18` background, `#f59e0b` border and text); if all passed, use muted/neutral.
+
+**Tests** (existing `guard/tests/test_dashboard_live_data.py` or a new `test_scanner_stat_badge.py`):
+- Item with 3 scanners all completed → `scannerStatBadge === '3✓'`
+- Item with 2 completed + 1 unreachable → `scannerStatBadge === '2✓ 1✗'`
+- Item with 0 scanners (unscanned) → `scannerStatBadge === null`
+- Item with 1 failed + 0 completed → `scannerStatBadge === '0✓ 1✗'`
+
+---
+
+### Sub-task 7 — Fix A4: improve Tessl quality_score logging and parser (Sandbox)
 
 **Fix is inside this repo** — no external dependency.
 
-**Root cause** (from code audit): `sandbox/scanners.py:559-582` (`run_tessl`) calls
+**Root cause** (from code audit, A4): `sandbox/scanners.py:559-582` (`run_tessl`) calls
 `npx tessl@latest skill review --json <workdir>` and returns `(None, [_unreachable(...)])` on
 any of: non-zero exit code, unparseable JSON, or `_tessl_quality_score()` returning `None`.
 `sandbox/scan_app.py:249-257` only writes `quality_score` to `items` when the value is not `None`.
@@ -207,6 +263,7 @@ any of: non-zero exit code, unparseable JSON, or `_tessl_quality_score()` return
 - [ ] GWT-42.2: `SELECT name, install_locus, source_availability FROM items WHERE type='mcp_server'` — zero rows with `'unknown'` locus
 - [ ] GWT-42.3: Open any ERROR card — panel shows contextual failure message (not bare "0 findings")
 - [ ] GWT-42.4: Network tab confirms `findings` and `scan_run_scanners` requests are scoped (not full-table)
+- [ ] GWT-42.5: Every card with ≥1 scanner shows a compact `N✓` or `N✓ M✗` badge; unscanned cards show no badge; amber tint appears when `M > 0`
 - [ ] All CLI tests pass: `npm test` in `cli/`
 - [ ] Specification coverage: every GWT clause has ≥1 test (GWT-first); essential error paths covered
 - [ ] `quality-gates.sh` passes
