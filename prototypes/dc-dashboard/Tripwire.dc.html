@@ -572,6 +572,9 @@
                       <sc-if value="{{ item.hasFindingCountSingle }}">
                         <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.statusColor }};background:{{ item.statusColor }}18;padding:2px 7px;border-radius:4px;border:1px solid {{ item.statusColor }}30">{{ item.findingCountLabel }}</span>
                       </sc-if>
+                      <sc-if value="{{ item.scannerStatBadge }}">
+                        <span style="font-family:var(--font-mono);font-size:10px;color:{{ item.scannerStatAmber ? '#f59e0b' : 'var(--text-muted)' }};background:{{ item.scannerStatAmber ? '#f59e0b18' : 'var(--bg-elevated)' }};padding:2px 6px;border-radius:4px;border:1px solid {{ item.scannerStatAmber ? '#f59e0b40' : 'var(--border-subtle)' }};white-space:nowrap">{{ item.scannerStatBadge }}</span>
+                      </sc-if>
                     </div>
                     <sc-if value="{{ item.drifted }}">
                       <div style="font-family:var(--font-mono);font-size:10px;color:var(--amber);background:rgba(245,158,11,0.1);display:inline-flex;padding:2px 7px;border-radius:4px;width:fit-content;border:1px solid rgba(245,158,11,0.2)">⟳ changed since last scan</div>
@@ -1230,6 +1233,13 @@ class Component extends DCLogic {
       ? kit.formatFindingCountLabel(it.findings)
       : this.fallbackFindingCountLabel(it.findings);
     const findingCountParts = this.fallbackFindingCountParts(it.findings);
+    const SCANNER_FAIL_STATUSES = new Set(['failed', 'unreachable', 'skipped_missing_credential']);
+    const scannerOk   = (it.scanners || []).filter(s => s.status === 'completed').length;
+    const scannerFail = (it.scanners || []).filter(s => SCANNER_FAIL_STATUSES.has(s.status)).length;
+    const hasScannerStats = scannerOk + scannerFail > 0;
+    const scannerStatBadge = hasScannerStats
+      ? (scannerFail > 0 ? `${scannerOk}✓ ${scannerFail}✗` : `${scannerOk}✓`)
+      : null;
     return {
       ...it,
       ...decorated,
@@ -1237,6 +1247,8 @@ class Component extends DCLogic {
       findingCountParts,
       hasRedAmberSplit: !!findingCountParts,
       hasFindingCountSingle: !!findingCountLabel && !findingCountParts,
+      scannerStatBadge,
+      scannerStatAmber: hasScannerStats && scannerFail > 0,
     };
   }
 
