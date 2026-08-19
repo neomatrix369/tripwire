@@ -5,7 +5,7 @@
 
 | Wave | Folder | Group | Slices | Outcome |
 |-----:|--------|-------|--------|---------|
-| 9 | [`09-I-…`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 | 🔨 |
+| 9 | [`09-I-…`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 | ✅ |
 | 1 | [`01-A-…`](slices/01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 · 4 | ✅ · 4 📦 |
 | 2 | [`02-B-…`](slices/02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`03-C-…`](slices/03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
