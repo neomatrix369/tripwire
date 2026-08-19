@@ -1,6 +1,6 @@
 # Slice 42 — Dashboard Data Quality Fixes
 
-> Wave J | MoSCoW: **Must** | Status: 📋 PLANNED | Est: ~120 min  
+> Wave J | MoSCoW: **Must** | Status: 📋 PLANNED | Est: ~120 min
 > Depends on: none (independent; complements slices 21 and 22)
 
 ---
@@ -43,30 +43,30 @@ scratchpad investigation reports (2026-08-19).
 
 ### GWT-42.1 — scan_runs fetch covers all items (A1)
 
-**Given** the Tripwire dashboard loads live data from Supabase  
-**When** the dashboard renders 235 items with 408 total scan runs  
+**Given** the Tripwire dashboard loads live data from Supabase
+**When** the dashboard renders 235 items with 408 total scan runs
 **Then** every item that has been scanned shows its actual last-scan date, findings count, and scanner outputs (not "never scanned" / 0 findings)
 
 ### GWT-42.2 — MCP servers show resolved locus and availability (A3)
 
-**Given** MCP servers are discovered from `.cursor/mcp.json` or `~/.cursor/mcp.json` manifest files  
-**When** a manifest entry has a resolvable `packPath` (source on disk)  
+**Given** MCP servers are discovered from `.cursor/mcp.json` or `~/.cursor/mcp.json` manifest files
+**When** a manifest entry has a resolvable `packPath` (source on disk)
 **Then** the item is stored with `install_locus='local'` and `source_availability='source_on_disk'` (not `unknown`/`unknown`)
 
-**Given** a manifest entry has no resolvable `packPath` (bare-binary command like `npx context7`)  
-**When** Tripwire discovers the item  
+**Given** a manifest entry has no resolvable `packPath` (bare-binary command like `npx context7`)
+**When** Tripwire discovers the item
 **Then** the item is stored with `install_locus='local'` and `source_availability='introspection_only'` (not `unknown`/`unknown`)
 
 ### GWT-42.3 — ERROR cards communicate scan failure clearly (A5)
 
-**Given** an item's latest scan run status is `failed`  
-**When** a user opens that item's right-panel  
+**Given** an item's latest scan run status is `failed`
+**When** a user opens that item's right-panel
 **Then** the FINDINGS section displays "Scan run failed — no findings available" (not bare "FINDINGS (0)")
 
 ### GWT-42.4 — No unbounded table scans on dashboard load (A2)
 
-**Given** the dashboard fetches live data  
-**When** the fetch completes  
+**Given** the dashboard fetches live data
+**When** the fetch completes
 **Then** the `findings` and `scan_run_scanners` Supabase queries are scoped to the scan runs returned for current items (no full-table scan)
 
 ---
