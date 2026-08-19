@@ -526,13 +526,14 @@
             </div>
           </sc-for>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1 1 auto;min-width:0">
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1 1 420px;min-width:0">
             <sc-for list="{{ typeTabs }}" as="tt" hint-placeholder-count="3">
               <button onClick="{{ tt.onClick }}" style="{{ tt.style }}">{{ tt.label }}</button>
             </sc-for>
+            <div style="width:1px;height:20px;background:var(--border-subtle);flex-shrink:0"></div>
           </div>
-          <div style="display:flex;align-items:center;gap:12px;flex:0 0 auto">
+          <div style="display:flex;align-items:center;gap:12px;flex:0 0 auto;margin-left:auto">
             <input type="text" placeholder="Search by name…" value="{{ searchQuery }}" onChange="{{ onSearchChange }}" style="background:var(--bg-input);border:1px solid var(--border-subtle);color:var(--text-primary);font-family:var(--font-sans);font-size:12px;padding:7px 12px;border-radius:6px;width:180px;outline:none;transition:border-color 200ms" />
             <div style="width:1px;height:20px;background:var(--border-subtle)"></div>
             <sc-for list="{{ viewToggle }}" as="vt" hint-placeholder-count="2">
