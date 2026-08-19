@@ -229,6 +229,12 @@ Branch: `frontline-hackathon-london-2026-agent-hooks`. Source: `internal-docs/04
 |---|------|------|--------|--------|------------|-------|-----------|
 | 40 | [slice-40-scan-type-filter](slices/08-H-frontline-agent-hooks/slice-40-scan-type-filter.md) | `tripwire scan --type <skill\|mcp>` filter | Must | ✅ | — | — | ~3 min |
 
+### I — Landing Intro + Visual Refresh (opened 2026-08-19)
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| 41 | [slice-41-landing-intro-dashboard-restyle](slices/09-I-landing-intro-restyle/slice-41-landing-intro-dashboard-restyle.md) | Landing Page Intro + Dashboard Restyle | Must | 🔨 | none | — | ~3 min |
+
 ## Supporting Artifacts
 | File | Status |
 |------|--------|
