@@ -711,7 +711,7 @@
             </div>
           </sc-if>
 
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Findings ({{ selectedView.findingsView.length }})</div>
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">{{ selectedView.findingsHeadingLabel }}</div>
           <sc-for list="{{ selectedView.findingsView }}" as="f" hint-placeholder-count="1">
             <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-left:3px solid {{ f.sevColor }};border-radius:6px;padding:10px 12px;margin-bottom:8px">
               <div style="display:flex;justify-content:space-between;gap:8px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:4px">
@@ -1450,6 +1450,12 @@ class Component extends DCLogic {
       trendPoints: this.trendPath(selected.trend),
       routerStrip: this.routerStripForItem(selected),
       findingsView: selected.findings.filter(f => f.scanner !== 'tiered_router').map(f => ({ ...f, sevColor: this.severityColor(f.severity) })),
+      findingsHeadingLabel: (() => {
+        const fv = selected.findings.filter(f => f.scanner !== 'tiered_router');
+        return selected.errorMessage && fv.length === 0
+          ? selected.errorMessage
+          : `Findings (${fv.length})`;
+      })(),
       scanningPlaceholder: selected.status === 'running' && selected.scanners.length === 0,
       scanStartedAtLabel: selected.scanStartedAt ? this.fmtTime(selected.scanStartedAt) : null,
       scannersViewLabel: selected.status === 'running' && selected.scanners.length === 0
