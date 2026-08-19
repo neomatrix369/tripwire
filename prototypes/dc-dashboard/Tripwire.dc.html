@@ -563,7 +563,13 @@
                     <div style="display:flex;gap:12px;font-size:11px;color:var(--text-secondary);align-items:center;flex-wrap:wrap">
                       <span>risk {{ item.riskLabel }}</span>
                       <span>{{ item.timeLabel }}</span>
-                      <sc-if value="{{ item.hasFindingCount }}">
+                      <sc-if value="{{ item.hasRedAmberSplit }}">
+                        <span style="display:inline-flex;gap:4px;align-items:center">
+                          <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:#f43f5e;background:#f43f5e18;padding:2px 6px;border-radius:4px;border:1px solid #f43f5e30">{{ item.findingCountParts.red }}●</span>
+                          <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:#f59e0b;background:#f59e0b18;padding:2px 6px;border-radius:4px;border:1px solid #f59e0b30">{{ item.findingCountParts.amber }}▲</span>
+                        </span>
+                      </sc-if>
+                      <sc-if value="{{ item.hasFindingCountSingle }}">
                         <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.statusColor }};background:{{ item.statusColor }}18;padding:2px 7px;border-radius:4px;border:1px solid {{ item.statusColor }}30">{{ item.findingCountLabel }}</span>
                       </sc-if>
                     </div>
@@ -644,7 +650,13 @@
 
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
             <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.statusColor }};background:{{ selectedView.statusColor }}18;padding:3px 8px;border-radius:4px;border:1px solid {{ selectedView.statusColor }}30">{{ selectedView.statusGlyph }} {{ selectedView.statusLabel }}</div>
-            <sc-if value="{{ selectedView.hasFindingCount }}">
+            <sc-if value="{{ selectedView.hasRedAmberSplit }}">
+              <span style="display:inline-flex;gap:4px;align-items:center">
+                <span style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:#f43f5e;background:#f43f5e18;padding:3px 8px;border-radius:4px;border:1px solid #f43f5e30">{{ selectedView.findingCountParts.red }}●</span>
+                <span style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:#f59e0b;background:#f59e0b18;padding:3px 8px;border-radius:4px;border:1px solid #f59e0b30">{{ selectedView.findingCountParts.amber }}▲</span>
+              </span>
+            </sc-if>
+            <sc-if value="{{ selectedView.hasFindingCountSingle }}">
               <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.statusColor }};background:{{ selectedView.statusColor }}18;padding:3px 8px;border-radius:4px;border:1px solid {{ selectedView.statusColor }}30">{{ selectedView.findingCountLabel }}</div>
             </sc-if>
             <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);background:var(--bg-elevated);padding:3px 8px;border-radius:4px">{{ selectedView.locusLabel }}</div>
@@ -1217,12 +1229,27 @@ class Component extends DCLogic {
     const findingCountLabel = kit?.formatFindingCountLabel
       ? kit.formatFindingCountLabel(it.findings)
       : this.fallbackFindingCountLabel(it.findings);
+    const findingCountParts = this.fallbackFindingCountParts(it.findings);
     return {
       ...it,
       ...decorated,
       findingCountLabel,
-      hasFindingCount: !!findingCountLabel
+      findingCountParts,
+      hasRedAmberSplit: !!findingCountParts,
+      hasFindingCountSingle: !!findingCountLabel && !findingCountParts,
     };
+  }
+
+  fallbackFindingCountParts(findings) {
+    if (!findings || !findings.length) return null;
+    let red = 0, amber = 0;
+    for (const f of findings) {
+      if (f.scanner === 'tiered_router') continue;
+      const sev = (f.severity || '').toLowerCase();
+      if (sev === 'red') red += 1;
+      else if (sev === 'amber') amber += 1;
+    }
+    return (red > 0 && amber > 0) ? { red, amber } : null;
   }
 
   fallbackFindingCountLabel(findings) {
