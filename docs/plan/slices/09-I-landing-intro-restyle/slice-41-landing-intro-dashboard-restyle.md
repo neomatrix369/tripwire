@@ -2,9 +2,10 @@
 
 **Wave**: I — Landing Intro + Visual Refresh
 **MoSCoW**: Must
-**Status**: 🔨 IN PROGRESS
+**Status**: ✅ PASSED
 **Depends on**: none
 **Branch**: main (editing `prototypes/dc-dashboard/`)
+**Commits**: `dc8e033`
 
 ## Goal
 
@@ -19,18 +20,18 @@ the landing page's visual identity to the existing dashboard UI.
 ## Before / After checks
 
 ### Before
-- [ ] Dashboard opens directly with no intro
-- [ ] Font: IBM Plex Mono, accent: `#4da2ff` (blue)
-- [ ] No grid overlay, no HUD corner brackets
+- [x] Dashboard opens directly with no intro
+- [x] Font: IBM Plex Mono, accent: `#4da2ff` (blue)
+- [x] No grid overlay, no HUD corner brackets
 
 ### After
-- [ ] On first open: landing intro screen shows (sessionStorage key `tripwire-intro-dismissed` absent)
-- [ ] "Enter Dashboard →" button dismisses intro and remembers choice (sessionStorage)
-- [ ] Nav "About" button toggles intro back on / off
-- [ ] Font: JetBrains Mono, accent: `#00D9FF` (cyan)
-- [ ] Grid overlay (`body::before`, opacity 0.4, masked)
-- [ ] HUD corner bracket system (`--accent` cyan) on intro stat cards
-- [ ] Dashboard tab/guard/footer styling reflects new palette
+- [x] On first open: landing intro screen shows (sessionStorage key `tripwire-intro-dismissed` absent)
+- [x] "Open Dashboard →" button dismisses intro and remembers choice (sessionStorage)
+- [x] Nav "About" button toggles intro back on / off
+- [x] Font: JetBrains Mono, accent: `#00D9FF` (cyan)
+- [x] Grid overlay (`body::before`, opacity 0.4, masked)
+- [x] HUD corner bracket system (`--accent` cyan) on intro stat cards
+- [x] Dashboard tab/guard/footer styling reflects new palette
 
 ## Acceptance scenarios (GWT)
 
@@ -41,7 +42,7 @@ the landing page's visual identity to the existing dashboard UI.
 
 ### Scenario 2 — Enter Dashboard dismisses intro
 **Given** the intro screen is showing
-**When** the user clicks "Enter Dashboard →"
+**When** the user clicks "Open Dashboard →"
 **Then** the intro hides, the dashboard appears, and `tripwire-intro-dismissed` is set in sessionStorage
 
 ### Scenario 3 — Returning user skips intro
@@ -59,21 +60,53 @@ the landing page's visual identity to the existing dashboard UI.
 **When** the page is rendered
 **Then** JetBrains Mono is used for monospaced text, the accent colour is `#00D9FF`, and the grid overlay is visible behind the content
 
-## Implementation notes
+## Implementation summary
 
-- `showIntro` state in DC component, seeded from `sessionStorage.getItem('tripwire-intro-dismissed')`
-- `showDashboard` = `!showIntro` (computed in `renderVals` — avoids `{{ !x }}` template negation)
-- Intro content: hero headline, wire-strip animation, 6 threat-stat cards (from landing page)
-- HUD brackets: CSS-only `.hud`/`.hc-br` system matching landing page
-- Grid overlay: `body::before` with `linear-gradient` grid, `mask-image` radial fade
+All sections from `tripwire-landing-page-index.html` were ported to the dashboard intro:
 
-## Gate evidence stub
+| Section | Status |
+|---|---|
+| Ticker bar (animated scrolling threat stats) | ✅ Implemented |
+| Hero headline + dual CTAs (Dashboard + repo link) | ✅ Implemented |
+| SENSOR-01 / SENSOR-05 labels on wire strip | ✅ Implemented |
+| SEC/01 — H2 + description + stat legend (red/amber/green key) | ✅ Implemented |
+| SEC/01 — 6 threat stat cards (risk/warn) with HUD brackets | ✅ Implemented |
+| SEC/02 — Anatomy of breach (Install → Trust → Breach) | ✅ Implemented |
+| SEC/03 — 5-node architecture flow | ✅ Implemented |
+| SEC/03 — RAG status card grid (Green / Amber / Red / Unscanned) | ✅ Implemented |
+| SEC/04 — Shipped today (/tw-* skill cards + config bar) | ✅ Implemented |
+| SEC/05 — Roadmap (6-milestone vertical timeline) | ✅ Implemented |
+| Section tags (SEC/01 … SEC/05) on dashed dividers | ✅ Implemented |
+| Footer install CTA ($ tripwire setup-agent-hooks) | ✅ Implemented |
+| Visual restyle: JetBrains Mono, #00D9FF accent, grid overlay | ✅ Implemented |
+| All hardcoded JS colours updated (#4da2ff → #00D9FF etc.) | ✅ Implemented |
+
+### Key technical decisions
+
+- `showIntro` state seeded from `sessionStorage.getItem('tripwire-intro-dismissed')`
+- `showDashboard: !s.showIntro` computed in `renderVals()` — avoids `{{ !x }}` negation (dc framework limitation)
+- `enterDashboard` / `toggleIntro` methods manage sessionStorage + state transitions
+- Ticker uses `@keyframes ticker-scroll` with content doubled for seamless loop
+- HUD brackets: CSS-only `.hud` / `.hc-br` system with colour variants (`hud-red`, `hud-amber`, `hud-green`)
+- Grid overlay: `body::before` with `linear-gradient` crosshatch + radial `mask-image` fade
+- Wire pulse: `@keyframes travel` dots riding `::after` on `.wire-line`
+- All inline `style=""` strings in JS methods updated to `#00D9FF` / `rgba(0,217,255,x)` to bypass CSS variable limitation in dynamically generated styles
+
+### Slice-first rule added (process improvement)
+During this slice, the slice stub was initially skipped before code was written.
+Two guardrails were added to prevent recurrence:
+- `CLAUDE.md` (project): **Slice-first rule (MUST NOT skip)** section
+- `~/.claude/skills/enhanced-flow-planner/SKILL.md`: explicit Critical Rule banning code before stub
+
+## Gate evidence
 
 ```json
 {
   "slice": 41,
-  "gate_status": "IN_PROGRESS",
+  "gate_status": "PASSED",
   "inferred": false,
-  "note": "Manual visual verification — open dashboard, confirm intro shows, toggle works"
+  "verification": "Manual visual — intro screen, dashboard toggle, sessionStorage, all sections rendered",
+  "commits": ["dc8e033"],
+  "note": "Pure UI/HTML slice — no automated test runner applicable. Visual verification is the gate."
 }
 ```

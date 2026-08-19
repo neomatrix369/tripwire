@@ -233,7 +233,7 @@ Branch: `frontline-hackathon-london-2026-agent-hooks`. Source: `internal-docs/04
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
-| 41 | [slice-41-landing-intro-dashboard-restyle](slices/09-I-landing-intro-restyle/slice-41-landing-intro-dashboard-restyle.md) | Landing Page Intro + Dashboard Restyle | Must | 🔨 | none | — | ~3 min |
+| 41 | [slice-41-landing-intro-dashboard-restyle](slices/09-I-landing-intro-restyle/slice-41-landing-intro-dashboard-restyle.md) | Landing Page Intro + Dashboard Restyle | Must | ✅ | none | dc8e033 | — |
 
 ## Supporting Artifacts
 | File | Status |
