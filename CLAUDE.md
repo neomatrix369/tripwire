@@ -39,6 +39,19 @@ Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
 
 ---
 
+## Slice-first rule (MUST NOT skip)
+
+**Never write code before a slice stub exists.**
+
+When `/enhanced-flow-planner` detects continuation mode:
+1. Run plan-health-check
+2. Run plan-modifier to **add the slice to TRAIL.md + PROGRESS.md + a slice stub file** under `docs/plan/slices/`
+3. Only then write code
+
+"Keep it simple" narrows scope. It does not bypass the slice stub. The stub *is* the requirement contract — without it there is no acceptance criteria and no gate evidence.
+
+---
+
 ## PR Composition
 
 When creating or updating a PR with `/create-pr` or `/update-pr`, include a **Checklist**

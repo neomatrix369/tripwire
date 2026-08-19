@@ -11,28 +11,31 @@
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-base: #0b1019;
-    --bg-surface: #111a27;
-    --bg-elevated: #182436;
-    --bg-input: #080c14;
-    --bg-deep: #050810;
-    --border-subtle: #192638;
-    --border-default: #1e2d42;
-    --text-primary: #e8edf4;
-    --text-secondary: #8fa3be;
-    --text-muted: #506880;
-    --accent: #4da2ff;
-    --accent-dim: rgba(77,162,255,0.12);
-    --red: #f43f5e;
-    --amber: #f59e0b;
-    --green: #34d399;
-    --grey: #6b7a8e;
+    --bg-base: #05080B;
+    --bg-surface: #0C131A;
+    --bg-elevated: #101923;
+    --bg-input: #050810;
+    --bg-deep: #090E13;
+    --border-subtle: rgba(0,217,255,0.12);
+    --border-default: rgba(0,217,255,0.30);
+    --text-primary: #E7EDF2;
+    --text-secondary: #8CA3AF;
+    --text-muted: #556671;
+    --accent: #00D9FF;
+    --accent-dim: rgba(0,217,255,0.35);
+    --red: #FF5D5D;
+    --red-dim: rgba(255,93,93,0.4);
+    --amber: #FFB020;
+    --amber-dim: rgba(255,176,32,0.32);
+    --green: #34D399;
+    --green-dim: rgba(52,211,153,0.35);
+    --grey: #5B6572;
     --violet: #a78bfa;
     --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   }
   body { margin: 0; background: var(--bg-base); }
   *, *::before, *::after { box-sizing: border-box; }
@@ -41,7 +44,7 @@
   ::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
   a { color: var(--accent); text-decoration: none; }
-  a:hover { color: #7ec0ff; }
+  a:hover { color: #7AEEFF; }
   button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   input:focus-visible { outline: none; border-color: var(--accent) !important; }
   div[style*="cursor:pointer"]:hover { filter: brightness(1.12); }
@@ -63,9 +66,112 @@
       transition-duration: 0.01ms !important;
     }
   }
+
+  /* ── Grid overlay (from landing page) ── */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--border-subtle) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+    background-size: 56px 56px;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, black 0%, transparent 72%);
+  }
+
+  /* ── HUD corner brackets ── */
+  .hud { position: relative; }
+  .hud::before, .hud::after,
+  .hud .hc-br::before, .hud .hc-br::after {
+    content: ""; position: absolute; width: 10px; height: 10px; pointer-events: none;
+  }
+  .hud::before { top: -1px; left: -1px; border-top: 1px solid var(--accent); border-left: 1px solid var(--accent); opacity: 0.55; }
+  .hud::after  { bottom: -1px; right: -1px; border-bottom: 1px solid var(--accent); border-right: 1px solid var(--accent); opacity: 0.55; }
+  .hud .hc-br { position: absolute; inset: 0; pointer-events: none; }
+  .hud .hc-br::before { top: -1px; right: -1px; left: auto; border-top: 1px solid var(--accent); border-right: 1px solid var(--accent); opacity: 0.55; }
+  .hud .hc-br::after  { bottom: -1px; left: -1px; right: auto; border-bottom: 1px solid var(--accent); border-left: 1px solid var(--accent); opacity: 0.55; }
+  .hud.hud-red::before, .hud.hud-red::after { border-color: var(--red); }
+  .hud.hud-red .hc-br::before, .hud.hud-red .hc-br::after { border-color: var(--red); }
+  .hud.hud-amber::before, .hud.hud-amber::after { border-color: var(--amber); }
+  .hud.hud-amber .hc-br::before, .hud.hud-amber .hc-br::after { border-color: var(--amber); }
+  .hud.hud-green::before, .hud.hud-green::after { border-color: var(--green); }
+  .hud.hud-green .hc-br::before, .hud.hud-green .hc-br::after { border-color: var(--green); }
+
+  /* ── Intro screen styles ── */
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+  @keyframes intro-reveal { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+  @keyframes ticker-scroll { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
+  @keyframes travel {
+    0%   { left:-2%; opacity:0; }
+    6%   { opacity:1; }
+    50%  { left:50%; }
+    52%  { background:var(--red); box-shadow:0 0 22px 6px var(--red-dim); transform:translate(-50%,-50%) scale(1.6); }
+    58%  { background:var(--red); transform:translate(-50%,-50%) scale(1); opacity:1; }
+    64%  { opacity:0; }
+    100% { left:50%; opacity:0; }
+  }
+  .intro-screen {
+    flex: 1; overflow-y: auto; position: relative; z-index: 1;
+    animation: intro-reveal 0.4s ease both;
+  }
+  .intro-eyebrow {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--accent);
+    display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
+  }
+  .intro-eyebrow::before {
+    content: ""; width: 7px; height: 7px; background: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-dim); flex-shrink: 0;
+    animation: blink 2.2s ease-in-out infinite;
+  }
+  .wire-strip {
+    position: relative; height: 90px;
+    border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);
+    overflow: hidden; background: linear-gradient(180deg, rgba(0,217,255,0.05), transparent 60%);
+    margin: 24px 0;
+  }
+  .wire-line {
+    position: absolute; left: 0; right: 0; top: 50%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent-dim) 8%, var(--accent) 50%, var(--accent-dim) 92%, transparent);
+    transform: translateY(-50%);
+  }
+  .wire-node {
+    position: absolute; top: 50%; width: 7px; height: 7px;
+    background: var(--bg-base); border: 1px solid var(--grey);
+    transform: translate(-50%,-50%) rotate(45deg);
+  }
+  .wire-pulse {
+    position: absolute; top: 50%; width: 9px; height: 9px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 12px 3px var(--green-dim);
+    transform: translate(-50%,-50%);
+    animation: travel 5.2s linear infinite;
+  }
+  .wire-pulse.p2 { animation-delay: 1.7s; background: var(--accent); box-shadow: 0 0 12px 3px var(--accent-dim); }
+  .wire-pulse.p3 { animation-delay: 3.4s; }
+  .wire-label {
+    position: absolute; left: 50%; top: 10px; transform: translateX(-50%);
+    font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
+    letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap;
+  }
+  .stat-card {
+    background: var(--bg-surface); border-top: 2px solid var(--grey);
+    padding: 20px 18px; position: relative;
+  }
+  .stat-card.risk { border-top-color: var(--red); }
+  .stat-card.risk .stat-tag { color: var(--red); }
+  .stat-card.risk .stat-num { color: var(--red); text-shadow: 0 0 14px var(--red-dim); }
+  .stat-card.warn { border-top-color: var(--amber); }
+  .stat-card.warn .stat-tag { color: var(--amber); }
+  .stat-card.warn .stat-num { color: var(--amber); }
+  .stat-tag { font-family: var(--font-mono); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 10px; display: inline-block; }
+  .stat-num { font-family: var(--font-mono); font-size: 32px; font-weight: 700; line-height: 1; margin-bottom: 8px; }
+  .stat-label { font-family: var(--font-sans); font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.45; }
+  .stat-src { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); border-top: 1px dashed var(--border-default); padding-top: 8px; }
 </style>
 </helmet>
-<div style="display:flex;flex-direction:column;height:100vh;background:var(--bg-base);color:var(--text-primary);font-family:var(--font-sans);overflow:hidden">
+<div style="display:flex;flex-direction:column;height:100vh;background:var(--bg-base);color:var(--text-primary);font-family:var(--font-sans);overflow:hidden;position:relative;z-index:1">
 
   <div style="display:flex;align-items:center;height:52px;padding:0 20px;border-bottom:1px solid var(--border-subtle);gap:10px;flex-shrink:0;background:var(--bg-surface)">
     <div style="font-family:var(--font-mono);font-weight:700;font-size:13px;letter-spacing:0.08em;color:var(--accent);margin-right:16px;display:flex;align-items:center;gap:8px">
@@ -82,30 +188,351 @@
       <div style="width:7px;height:7px;border-radius:50%;background:{{ monitoringDotColor }}"></div>
       {{ monitoringLabel }}
     </div>
+    <div style="width:1px;height:16px;background:var(--border-subtle);margin:0 2px"></div>
+    <button onClick="{{ toggleIntro }}" style="{{ introToggleStyle }}" title="Toggle intro / about">{{ introToggleLabel }}</button>
   </div>
+
+  <!-- ── Intro / landing screen ── -->
+  <sc-if value="{{ showIntro }}" hint-placeholder-val="{{ false }}">
+    <div class="intro-screen">
+
+      <!-- ── Ticker ── -->
+      <div style="border-bottom:1px solid var(--border-subtle);background:var(--bg-deep);overflow:hidden;white-space:nowrap;padding:9px 0">
+        <div style="display:inline-block;padding-left:100%;animation:ticker-scroll 42s linear infinite">
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);letter-spacing:0.02em">
+            <b style="color:var(--red);font-weight:600">1,184</b> malicious skills confirmed on a major agent marketplace
+            <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
+            <b style="color:var(--red);font-weight:600">40+</b> MCP CVEs disclosed in four months
+            <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
+            <b style="color:var(--red);font-weight:600">1.23M+</b> malicious packages blocked across npm, PyPI, Maven, NuGet, Hugging Face
+            <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
+            <b style="color:var(--red);font-weight:600">82%</b> of MCP implementations expose path-traversal-prone file operations
+            <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
+            <b style="color:var(--red);font-weight:600">36%</b> of tested agent skills carry a security flaw
+            <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
+            <b style="color:var(--red);font-weight:600">1,184</b> malicious skills confirmed on a major agent marketplace
+            <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
+            <b style="color:var(--red);font-weight:600">40+</b> MCP CVEs disclosed in four months
+            <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
+            <b style="color:var(--red);font-weight:600">1.23M+</b> malicious packages blocked across npm, PyPI, Maven, NuGet, Hugging Face
+            <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
+            <b style="color:var(--red);font-weight:600">82%</b> of MCP implementations expose path-traversal-prone file operations
+            <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
+            <b style="color:var(--red);font-weight:600">36%</b> of tested agent skills carry a security flaw
+          </span>
+        </div>
+      </div>
+
+      <div style="padding:56px 32px 64px;max-width:1100px;margin:0 auto;width:100%">
+
+        <!-- ── Hero ── -->
+        <div class="intro-eyebrow">Frontline Hackathon London 2026 — Claude Code Integration</div>
+        <h1 style="font-family:var(--font-mono);font-size:clamp(22px,3.6vw,44px);font-weight:600;line-height:1.14;max-width:880px;margin-bottom:20px;color:var(--text-primary)">
+          Every skill, MCP server, and tool your agent installs is
+          <span style="color:var(--accent);text-shadow:0 0 18px var(--accent-dim)">unreviewed code</span>,
+          handed a trusted seat in your session.
+        </h1>
+        <p style="font-family:var(--font-sans);font-size:17px;color:var(--text-secondary);max-width:580px;margin-bottom:32px;line-height:1.55">
+          Tripwire scans agentic artifacts before Claude Code trusts them — and blocks the ones that shouldn't be running in your terminal.
+        </p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:0">
+          <button onClick="{{ enterDashboard }}" style="font-family:var(--font-mono);font-size:13px;padding:13px 22px;background:var(--accent);color:#031017;font-weight:700;border:none;cursor:pointer;border-radius:2px;transition:background 0.15s ease;display:inline-flex;align-items:center;gap:8px">
+            Open Dashboard →
+          </button>
+          <a href="https://github.com/neomatrix369/tripwire/" target="_blank" rel="noopener" style="font-family:var(--font-mono);font-size:13px;padding:13px 22px;border:1px solid var(--border-default);color:var(--text-primary);text-decoration:none;border-radius:2px;display:inline-flex;align-items:center;gap:8px;transition:border-color 0.15s ease">
+            View the repo ↗
+          </a>
+        </div>
+
+        <!-- ── Wire strip ── -->
+        <div class="wire-strip">
+          <div style="position:absolute;left:24px;top:10px;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:0.08em">SENSOR-01</div>
+          <div class="wire-label">pre-tooluse hook — live scan path</div>
+          <div style="position:absolute;right:24px;top:10px;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:0.08em">SENSOR-05</div>
+          <div class="wire-line"></div>
+          <div class="wire-node" style="left:8%"></div>
+          <div class="wire-node" style="left:28%"></div>
+          <div class="wire-node" style="left:50%"></div>
+          <div class="wire-node" style="left:72%"></div>
+          <div class="wire-node" style="left:92%"></div>
+          <div class="wire-pulse p1"></div>
+          <div class="wire-pulse p2"></div>
+          <div class="wire-pulse p3"></div>
+        </div>
+
+        <!-- ── SEC/01 — The problem ── -->
+        <div style="position:relative;padding-top:56px;margin-bottom:52px">
+          <div style="position:absolute;top:0;left:0;right:0;height:1px;background-image:repeating-linear-gradient(90deg,var(--border-default) 0 6px,transparent 6px 14px)"></div>
+          <div style="position:absolute;top:-1px;right:0;background:var(--bg-base);padding:0 10px;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:0.1em">SEC / 01</div>
+          <div class="intro-eyebrow" style="margin-bottom:12px">The scale of the problem</div>
+          <h2 style="font-family:var(--font-mono);font-size:clamp(18px,2.4vw,26px);font-weight:600;margin-bottom:12px">The perimeter around agentic tooling is undefended</h2>
+          <p style="font-family:var(--font-sans);font-size:15px;color:var(--text-secondary);max-width:640px;margin-bottom:22px;line-height:1.55">Skills, MCP servers, and packages are the new install surface for coding agents — and 2026 is the year attackers noticed.</p>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px;font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">
+            <span style="display:inline-flex;align-items:center;gap:7px"><i style="width:7px;height:7px;display:inline-block;background:var(--red);flex-shrink:0;font-style:normal"></i>active threat / confirmed harm</span>
+            <span style="display:inline-flex;align-items:center;gap:7px"><i style="width:7px;height:7px;display:inline-block;background:var(--amber);flex-shrink:0;font-style:normal"></i>exposure / trend to watch</span>
+            <span style="display:inline-flex;align-items:center;gap:7px"><i style="width:7px;height:7px;display:inline-block;background:var(--green);flex-shrink:0;font-style:normal"></i>what Tripwire protects</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+            <div class="stat-card risk hud"><span class="hc-br"></span>
+              <div class="stat-tag">Active threat</div>
+              <div class="stat-num">36%</div>
+              <div class="stat-label">of agent skills tested in Snyk's ToxicSkills study contained a security flaw — 1,467 vulnerable or malicious payloads found.</div>
+              <div class="stat-src">Snyk, ToxicSkills research, 2026</div>
+            </div>
+            <div class="stat-card risk hud"><span class="hc-br"></span>
+              <div class="stat-tag">Confirmed malicious</div>
+              <div class="stat-num">1,184</div>
+              <div class="stat-label">malicious skills confirmed on a single major agent-skill marketplace by independent researchers.</div>
+              <div class="stat-src">Antiy CERT, 2026</div>
+            </div>
+            <div class="stat-card risk hud"><span class="hc-br"></span>
+              <div class="stat-tag">CVEs disclosed</div>
+              <div class="stat-num">40+</div>
+              <div class="stat-label">MCP CVEs disclosed in the first four months of 2026 alone — roughly one filed every four days.</div>
+              <div class="stat-src">Community CVE tracking, Jan–Apr 2026</div>
+            </div>
+            <div class="stat-card warn hud"><span class="hc-br"></span>
+              <div class="stat-tag">Exposure</div>
+              <div class="stat-num">82%</div>
+              <div class="stat-label">of MCP implementations analyzed used file operations prone to path traversal; 67% carried code-injection risk.</div>
+              <div class="stat-src">Endor Labs, 2,614 implementations</div>
+            </div>
+            <div class="stat-card risk hud"><span class="hc-br"></span>
+              <div class="stat-tag">Cumulative harm</div>
+              <div class="stat-num">1.23M+</div>
+              <div class="stat-label">cumulative malicious open-source packages blocked across npm, PyPI, Maven, NuGet and Hugging Face — up 75% YoY.</div>
+              <div class="stat-src">Sonatype, State of the Software Supply Chain, 2026</div>
+            </div>
+            <div class="stat-card warn hud"><span class="hc-br"></span>
+              <div class="stat-tag">Trend</div>
+              <div class="stat-num">10x</div>
+              <div class="stat-label">growth in daily skill submissions to a major marketplace within weeks in early 2026 — outpacing any human review capacity.</div>
+              <div class="stat-src">Snyk, ToxicSkills research, 2026</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SEC/02 — Anatomy of a breach ── -->
+        <div style="position:relative;padding-top:56px;margin-bottom:52px">
+          <div style="position:absolute;top:0;left:0;right:0;height:1px;background-image:repeating-linear-gradient(90deg,var(--border-default) 0 6px,transparent 6px 14px)"></div>
+          <div style="position:absolute;top:-1px;right:0;background:var(--bg-base);padding:0 10px;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:0.1em">SEC / 02</div>
+          <div class="intro-eyebrow" style="margin-bottom:12px">Anatomy of a breach</div>
+          <h2 style="font-family:var(--font-mono);font-size:clamp(18px,2.4vw,26px);font-weight:600;margin-bottom:12px">It doesn't look like an attack. That's the point.</h2>
+          <p style="font-family:var(--font-sans);font-size:15px;color:var(--text-secondary);max-width:640px;margin-bottom:28px;line-height:1.55">Documented 2026 incidents follow the same three beats — a helpful-looking install, a trusted execution context, and a quiet exfiltration.</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+            <div style="background:var(--bg-surface);padding:24px;position:relative" class="hud"><span class="hc-br"></span>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--amber);margin-bottom:14px;font-weight:600;letter-spacing:0.04em">01 — INSTALL</div>
+              <h3 style="font-family:var(--font-mono);font-size:16px;margin-bottom:10px;font-weight:600">One command, zero review</h3>
+              <p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);line-height:1.5">A skill, MCP server, or package is added the same way a trusted one would be. Marketplaces prioritize openness over vetting — there's no gate at the door.</p>
+            </div>
+            <div style="background:var(--bg-surface);padding:24px;position:relative" class="hud"><span class="hc-br"></span>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--amber);margin-bottom:14px;font-weight:600;letter-spacing:0.04em">02 — TRUST</div>
+              <h3 style="font-family:var(--font-mono);font-size:16px;margin-bottom:10px;font-weight:600">The agent can't tell data from instructions</h3>
+              <p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);line-height:1.5">Once loaded, its content sits in the same context the agent reasons over. A dependency helper can quietly redirect installs; a config file can inject commands before any trust dialog appears.</p>
+            </div>
+            <div style="background:linear-gradient(180deg,rgba(255,93,93,0.07),var(--bg-surface));padding:24px;position:relative" class="hud hud-red"><span class="hc-br"></span>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--red);margin-bottom:14px;font-weight:600;letter-spacing:0.04em">03 — BREACH</div>
+              <h3 style="font-family:var(--font-mono);font-size:16px;margin-bottom:10px;font-weight:600">Credentials, secrets, lateral spread</h3>
+              <p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);line-height:1.5">API keys, SSH keys, and environment variables are exfiltrated through normal-looking output — "installing dependency," "running scan" — while the malicious path persists for every future call.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SEC/03 — Architecture ── -->
+        <div style="position:relative;padding-top:56px;margin-bottom:52px">
+          <div style="position:absolute;top:0;left:0;right:0;height:1px;background-image:repeating-linear-gradient(90deg,var(--border-default) 0 6px,transparent 6px 14px)"></div>
+          <div style="position:absolute;top:-1px;right:0;background:var(--bg-base);padding:0 10px;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:0.1em">SEC / 03</div>
+          <div class="intro-eyebrow" style="margin-bottom:12px">How Tripwire stops it</div>
+          <h2 style="font-family:var(--font-mono);font-size:clamp(18px,2.4vw,26px);font-weight:600;margin-bottom:12px">A scan on the wire, before anything runs</h2>
+          <p style="font-family:var(--font-sans);font-size:15px;color:var(--text-secondary);max-width:640px;margin-bottom:28px;line-height:1.55">Tripwire sits between Claude Code's hook system and every skill, tool, or MCP call — dispatching to a scanner and relaying a verdict before execution proceeds.</p>
+          <div style="display:flex;align-items:stretch;gap:0;background:var(--bg-deep);padding:26px 20px;border:1px solid var(--border-subtle);margin-bottom:32px;flex-wrap:wrap" class="hud"><span class="hc-br"></span>
+            <div style="background:var(--bg-surface);border:1px solid var(--border-subtle);padding:14px;flex:1 1 120px;min-width:120px">
+              <div style="font-family:var(--font-mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Claude Code</div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:3px;font-family:var(--font-mono)">Hook event</div>
+              <div style="font-size:11px;color:var(--text-secondary);font-family:var(--font-sans)">PreToolUse fires before any skill/tool/MCP call</div>
+            </div>
+            <div style="flex:0 0 auto;width:26px;text-align:center;color:var(--text-muted);font-family:var(--font-mono);align-self:center">→</div>
+            <div style="background:var(--bg-surface);border:1px solid var(--border-subtle);padding:14px;flex:1 1 120px;min-width:120px">
+              <div style="font-family:var(--font-mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Thin handler</div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:3px;font-family:var(--font-mono)">Handler script</div>
+              <div style="font-size:11px;color:var(--text-secondary);font-family:var(--font-sans)">pre-tool-use.sh — checks config, shells to guard</div>
+            </div>
+            <div style="flex:0 0 auto;width:26px;text-align:center;color:var(--text-muted);font-family:var(--font-mono);align-self:center">→</div>
+            <div style="background:var(--bg-surface);border:1px solid var(--border-subtle);padding:14px;flex:1 1 120px;min-width:120px">
+              <div style="font-family:var(--font-mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Engine</div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:3px;font-family:var(--font-mono)">tripwire CLI</div>
+              <div style="font-size:11px;color:var(--text-secondary);font-family:var(--font-sans)">submit-for-scan &amp; status APIs</div>
+            </div>
+            <div style="flex:0 0 auto;width:26px;text-align:center;color:var(--text-muted);font-family:var(--font-mono);align-self:center">→</div>
+            <div style="background:var(--bg-surface);border:1px solid var(--accent);padding:14px;flex:1 1 120px;min-width:120px">
+              <div style="font-family:var(--font-mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Dispatch</div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:3px;font-family:var(--font-mono)">Scanner layer</div>
+              <div style="font-size:11px;color:var(--text-secondary);font-family:var(--font-sans);margin-bottom:8px">Routed to the right check</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <span style="font-family:var(--font-mono);font-size:9px;padding:2px 7px;border:1px solid var(--border-subtle);color:var(--text-muted)">built-in</span>
+                <span style="font-family:var(--font-mono);font-size:9px;padding:2px 7px;border:1px solid var(--accent);color:var(--accent)">DepShield</span>
+                <span style="font-family:var(--font-mono);font-size:9px;padding:2px 7px;border:1px solid var(--accent);color:var(--accent)">Ossprey</span>
+              </div>
+            </div>
+            <div style="flex:0 0 auto;width:26px;text-align:center;color:var(--text-muted);font-family:var(--font-mono);align-self:center">→</div>
+            <div style="background:var(--bg-surface);border:1px solid var(--amber);padding:14px;flex:1 1 120px;min-width:120px">
+              <div style="font-family:var(--font-mono);font-size:9px;color:var(--amber);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Verdict</div>
+              <div style="font-size:13px;font-weight:600;margin-bottom:3px;font-family:var(--font-mono)">RAG status</div>
+              <div style="font-size:11px;color:var(--text-secondary);font-family:var(--font-sans)">Exit code / stdout JSON relayed back</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
+            <div style="background:var(--bg-surface);border-top:3px solid var(--green);padding:20px;position:relative" class="hud hud-green"><span class="hc-br"></span>
+              <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--green);margin-bottom:10px">Green</div>
+              <h4 style="font-family:var(--font-mono);font-size:15px;margin-bottom:7px;font-weight:600">Clean</h4>
+              <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">Scanned within the validity window, no findings. Runs — soft-report only.</p>
+            </div>
+            <div style="background:var(--bg-surface);border-top:3px solid var(--amber);padding:20px;position:relative" class="hud hud-amber"><span class="hc-br"></span>
+              <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--amber);margin-bottom:10px">Amber</div>
+              <h4 style="font-family:var(--font-mono);font-size:15px;margin-bottom:7px;font-weight:600">Reported</h4>
+              <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">Findings below the block threshold. Logged and surfaced, execution allowed.</p>
+            </div>
+            <div style="background:var(--bg-surface);border-top:3px solid var(--red);padding:20px;position:relative" class="hud hud-red"><span class="hc-br"></span>
+              <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--red);margin-bottom:10px">Red</div>
+              <h4 style="font-family:var(--font-mono);font-size:15px;margin-bottom:7px;font-weight:600">Blocked</h4>
+              <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">At or above threshold. Execution is refused — always with an explicit block reason.</p>
+            </div>
+            <div style="background:var(--bg-surface);border-top:3px solid var(--grey);padding:20px;position:relative" class="hud"><span class="hc-br"></span>
+              <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--grey);margin-bottom:10px">Unscanned / Stale</div>
+              <h4 style="font-family:var(--font-mono);font-size:15px;margin-bottom:7px;font-weight:600">Fail closed</h4>
+              <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">Never scanned, or scan older than the validity window — blocked when enforcement is on.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SEC/04 — Shipped today ── -->
+        <div style="position:relative;padding-top:56px;margin-bottom:52px">
+          <div style="position:absolute;top:0;left:0;right:0;height:1px;background-image:repeating-linear-gradient(90deg,var(--border-default) 0 6px,transparent 6px 14px)"></div>
+          <div style="position:absolute;top:-1px;right:0;background:var(--bg-base);padding:0 10px;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:0.1em">SEC / 04</div>
+          <div class="intro-eyebrow" style="margin-bottom:12px">Shipped today</div>
+          <h2 style="font-family:var(--font-mono);font-size:clamp(18px,2.4vw,26px);font-weight:600;margin-bottom:12px">Five Claude Code skills, wired to a live enforcement layer</h2>
+          <p style="font-family:var(--font-sans);font-size:15px;color:var(--text-secondary);max-width:640px;margin-bottom:28px;line-height:1.55">Built at Frontline Hackathon London 2026: the integration layer that connects Claude Code's hook system to Tripwire's existing scan engine — enforcing from the moment of install.</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px">
+            <div style="background:var(--bg-surface);padding:20px;position:relative" class="hud hud-green"><span class="hc-br"></span>
+              <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green);margin-bottom:9px;display:block">/tw-verify [name(s)]</span>
+              <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">Resolves one or more names, reports fresh / stale / unscanned / scanning / not-found status — human table and JSON.</p>
+            </div>
+            <div style="background:var(--bg-surface);padding:20px;position:relative" class="hud hud-green"><span class="hc-br"></span>
+              <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green);margin-bottom:9px;display:block">/tw-scan [name(s)] --force</span>
+              <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">Submits artifacts for scanning via Tripwire's existing API. --force resubmits over a valid result.</p>
+            </div>
+            <div style="background:var(--bg-surface);padding:20px;position:relative" class="hud hud-green"><span class="hc-br"></span>
+              <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green);margin-bottom:9px;display:block">/tw-enable</span>
+              <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">Turns on enforcement across skills, tools, and MCP uniformly via the config flag.</p>
+            </div>
+            <div style="background:var(--bg-surface);padding:20px;position:relative" class="hud hud-green"><span class="hc-br"></span>
+              <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green);margin-bottom:9px;display:block">/tw-disable</span>
+              <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">Full bypass at the enforcement layer. Manual verify/scan keep working regardless.</p>
+            </div>
+            <div style="background:var(--bg-surface);padding:20px;position:relative" class="hud hud-green"><span class="hc-br"></span>
+              <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green);margin-bottom:9px;display:block">/tw-self-check</span>
+              <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">Runs the same status logic against Tripwire's own five skills — the guard, guarding itself.</p>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;border:1px dashed var(--border-default);color:var(--text-muted);font-family:var(--font-mono);font-size:11px;padding:20px;text-align:center">
+              pre-tool-use.sh · fail-closed on error
+            </div>
+          </div>
+          <div style="display:flex;gap:1px;background:var(--border-subtle);border:1px solid var(--border-subtle)">
+            <div style="flex:1;background:var(--bg-elevated);padding:16px 20px">
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px">Enforcement default</div>
+              <div style="font-family:var(--font-mono);font-size:14px;color:var(--green);font-weight:600">enabled</div>
+            </div>
+            <div style="flex:1;background:var(--bg-elevated);padding:16px 20px">
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px">Scan validity window</div>
+              <div style="font-family:var(--font-mono);font-size:14px;color:var(--accent);font-weight:600">14 days</div>
+            </div>
+            <div style="flex:1;background:var(--bg-elevated);padding:16px 20px">
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px">Unscanned artifacts</div>
+              <div style="font-family:var(--font-mono);font-size:14px;color:var(--green);font-weight:600">blocked</div>
+            </div>
+            <div style="flex:1;background:var(--bg-elevated);padding:16px 20px">
+              <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px">Install path</div>
+              <div style="font-family:var(--font-mono);font-size:13px;color:var(--accent);font-weight:600">tripwire setup-agent-hooks</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SEC/05 — Roadmap ── -->
+        <div style="position:relative;padding-top:56px;margin-bottom:52px">
+          <div style="position:absolute;top:0;left:0;right:0;height:1px;background-image:repeating-linear-gradient(90deg,var(--border-default) 0 6px,transparent 6px 14px)"></div>
+          <div style="position:absolute;top:-1px;right:0;background:var(--bg-base);padding:0 10px;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:0.1em">SEC / 05</div>
+          <div class="intro-eyebrow" style="margin-bottom:12px">Where it goes next</div>
+          <h2 style="font-family:var(--font-mono);font-size:clamp(18px,2.4vw,26px);font-weight:600;margin-bottom:12px">From hook wiring to full dispatch coverage</h2>
+          <p style="font-family:var(--font-sans);font-size:15px;color:var(--text-secondary);max-width:640px;margin-bottom:32px;line-height:1.55">The integration layer is live. What extends next is Tripwire's own dispatch capability — pluggable scanners behind the same RAG verdict contract.</p>
+          <div style="position:relative;padding-left:2px">
+            <div style="position:absolute;left:19px;top:8px;bottom:8px;width:1px;background-image:repeating-linear-gradient(180deg,var(--border-default) 0 4px,transparent 4px 9px)"></div>
+            <div style="display:flex;gap:20px;padding-bottom:28px">
+              <div style="flex:0 0 auto;width:38px;height:38px;background:var(--bg-surface);border:1px solid var(--green);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green);z-index:1">✓</div>
+              <div><h4 style="font-family:var(--font-mono);font-size:14px;margin-bottom:4px;font-weight:600">Phase 1 — Hook &amp; skill integration</h4><p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);max-width:520px;line-height:1.45">Handler scripts, PreToolUse wiring, config bootstrap, the five /tw-* skills, demo artifacts, regression pass.</p><div style="font-family:var(--font-mono);font-size:10px;color:var(--green);margin-top:5px;text-transform:uppercase;letter-spacing:0.06em">Shipped at Frontline Hackathon</div></div>
+            </div>
+            <div style="display:flex;gap:20px;padding-bottom:28px">
+              <div style="flex:0 0 auto;width:38px;height:38px;background:var(--bg-surface);border:1px solid var(--amber);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--amber);z-index:1;box-shadow:0 0 0 4px rgba(255,176,32,0.15)">2</div>
+              <div><h4 style="font-family:var(--font-mono);font-size:14px;margin-bottom:4px;font-weight:600">DepShield</h4><p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);max-width:520px;line-height:1.45">Dependency-focused scanner added as a pluggable dispatch target.</p><div style="font-family:var(--font-mono);font-size:10px;color:var(--amber);margin-top:5px;text-transform:uppercase;letter-spacing:0.06em">Next on the list</div></div>
+            </div>
+            <div style="display:flex;gap:20px;padding-bottom:28px">
+              <div style="flex:0 0 auto;width:38px;height:38px;background:var(--bg-surface);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--text-muted);z-index:1">3</div>
+              <div><h4 style="font-family:var(--font-mono);font-size:14px;margin-bottom:4px;font-weight:600">Ossprey dispatch</h4><p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);max-width:520px;line-height:1.45">Access provisioning, then wiring as a second pluggable scanner.</p></div>
+            </div>
+            <div style="display:flex;gap:20px;padding-bottom:28px">
+              <div style="flex:0 0 auto;width:38px;height:38px;background:var(--bg-surface);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--text-muted);z-index:1">4</div>
+              <div><h4 style="font-family:var(--font-mono);font-size:14px;margin-bottom:4px;font-weight:600">CLI monitoring</h4><p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);max-width:520px;line-height:1.45">Runtime visibility into what's actually being invoked, not just what's installed.</p></div>
+            </div>
+            <div style="display:flex;gap:20px;padding-bottom:28px">
+              <div style="flex:0 0 auto;width:38px;height:38px;background:var(--bg-surface);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--text-muted);z-index:1">5</div>
+              <div><h4 style="font-family:var(--font-mono);font-size:14px;margin-bottom:4px;font-weight:600">Full-chain validation</h4><p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);max-width:520px;line-height:1.45">End-to-end verification across the whole pipeline — including running /tw-self-check as a live gate.</p></div>
+            </div>
+            <div style="display:flex;gap:20px">
+              <div style="flex:0 0 auto;width:38px;height:38px;background:var(--bg-surface);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--text-muted);z-index:1">6</div>
+              <div><h4 style="font-family:var(--font-mono);font-size:14px;margin-bottom:4px;font-weight:600">FE/BE rearchitecture</h4><p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);max-width:520px;line-height:1.45">The integration layer's own frontend and backend, rebuilt on what Phases 1–5 proved out.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Footer CTA ── -->
+        <div style="position:relative;padding-top:48px;margin-top:8px">
+          <div style="position:absolute;top:0;left:0;right:0;height:1px;background-image:repeating-linear-gradient(90deg,var(--border-default) 0 6px,transparent 6px 14px)"></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;padding-bottom:32px;margin-bottom:24px;border-bottom:1px solid var(--border-subtle)">
+            <h3 style="font-family:var(--font-mono);font-size:18px;max-width:400px;font-weight:600">Enforcement should start at install, not after the first incident.</h3>
+            <div style="font-family:var(--font-mono);font-size:13px;background:var(--bg-deep);border:1px solid var(--border-default);padding:14px 18px;color:var(--accent)">$ tripwire setup-agent-hooks</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+            <button onClick="{{ enterDashboard }}" style="font-family:var(--font-mono);font-size:13px;padding:13px 22px;background:var(--accent);color:#031017;font-weight:700;border:none;cursor:pointer;border-radius:2px;transition:background 0.15s ease">
+              Open Dashboard →
+            </button>
+            <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">Use the "About" button in the nav to return here</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ── Main dashboard (hidden while intro is showing) ── -->
+  <sc-if value="{{ showDashboard }}" hint-placeholder-val="{{ true }}">
 
   <sc-if value="{{ activeTabIsDashboard }}" hint-placeholder-val="{{ true }}">
     <div style="display:flex;flex:1;min-height:0">
       <div style="flex:1;display:flex;flex-direction:column;min-width:0">
         <div style="display:flex;gap:10px;padding:16px 20px 0 20px;flex-wrap:wrap">
-          <sc-for list="{{ overviewStats }}" as="stat" hint-placeholder-count="7">
-            <div style="flex:1;min-width:100px;background:var(--bg-surface);border:1px solid var(--border-subtle);border-top:2px solid {{ stat.color }};border-radius:8px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
+          <sc-for list="{{ overviewStats }}" as="stat" hint-placeholder-count="8">
+            <div onClick="{{ stat.onClick }}" style="{{ stat.style }}">
               <div style="font-family:var(--font-mono);font-size:22px;font-weight:700;color:{{ stat.color }};line-height:1.1">{{ stat.value }}</div>
               <div style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px">{{ stat.label }}</div>
             </div>
           </sc-for>
         </div>
-        <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1 1 420px;min-width:0">
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid var(--border-subtle);flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1 1 auto;min-width:0">
             <sc-for list="{{ typeTabs }}" as="tt" hint-placeholder-count="3">
               <button onClick="{{ tt.onClick }}" style="{{ tt.style }}">{{ tt.label }}</button>
             </sc-for>
-            <div style="width:1px;height:20px;background:var(--border-subtle);flex-shrink:0"></div>
-            <sc-for list="{{ statusChips }}" as="sch" hint-placeholder-count="6">
-              <button onClick="{{ sch.onClick }}" style="{{ sch.style }}">{{ sch.label }}</button>
-            </sc-for>
           </div>
-          <div style="display:flex;align-items:center;gap:12px;flex:0 0 auto;margin-left:auto">
+          <div style="display:flex;align-items:center;gap:12px;flex:0 0 auto">
             <input type="text" placeholder="Search by name…" value="{{ searchQuery }}" onChange="{{ onSearchChange }}" style="background:var(--bg-input);border:1px solid var(--border-subtle);color:var(--text-primary);font-family:var(--font-sans);font-size:12px;padding:7px 12px;border-radius:6px;width:180px;outline:none;transition:border-color 200ms" />
             <div style="width:1px;height:20px;background:var(--border-subtle)"></div>
             <sc-for list="{{ viewToggle }}" as="vt" hint-placeholder-count="2">
@@ -120,7 +547,7 @@
                 <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em">No matches</div>
                 <div style="font-size:14px;font-weight:600;color:var(--text-primary);max-width:420px">{{ filterEmptyTitle }}</div>
                 <div style="font-size:12px;color:var(--text-secondary);max-width:420px;line-height:1.5">{{ filterEmptyDetail }}</div>
-                <button onClick="{{ clearFilters }}" style="margin-top:4px;font-family:var(--font-sans);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--accent);background:rgba(77,162,255,0.12);color:var(--accent);transition:all 150ms ease">Clear filters</button>
+                <button onClick="{{ clearFilters }}" style="margin-top:4px;font-family:var(--font-sans);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--accent);background:rgba(0,217,255,0.10);color:var(--accent);transition:all 150ms ease">Clear filters</button>
               </div>
             </sc-if>
             <sc-if value="{{ showItemResults }}" hint-placeholder-val="{{ true }}">
@@ -166,7 +593,7 @@
                 <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em">No matches</div>
                 <div style="font-size:14px;font-weight:600;color:var(--text-primary);max-width:420px">{{ filterEmptyTitle }}</div>
                 <div style="font-size:12px;color:var(--text-secondary);max-width:420px;line-height:1.5">{{ filterEmptyDetail }}</div>
-                <button onClick="{{ clearFilters }}" style="margin-top:4px;font-family:var(--font-sans);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--accent);background:rgba(77,162,255,0.12);color:var(--accent);transition:all 150ms ease">Clear filters</button>
+                <button onClick="{{ clearFilters }}" style="margin-top:4px;font-family:var(--font-sans);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--accent);background:rgba(0,217,255,0.10);color:var(--accent);transition:all 150ms ease">Clear filters</button>
               </div>
             </sc-if>
             <sc-if value="{{ showItemResults }}" hint-placeholder-val="{{ true }}">
@@ -269,7 +696,7 @@
                 <div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px"><span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em">SIE: </span>{{ selectedView.routerStrip.envSie }}</div>
               </sc-if>
               <sc-if value="{{ selectedView.routerStrip.isReview }}">
-                <div style="font-family:var(--font-mono);font-size:10px;color:#7ec0ff;background:rgba(77,162,255,0.1);padding:3px 8px;border-radius:4px;display:inline-block">SIE only — not escalated · No Model Studio call</div>
+                <div style="font-family:var(--font-mono);font-size:10px;color:#7AEEFF;background:rgba(0,217,255,0.08);padding:3px 8px;border-radius:4px;display:inline-block">SIE only — not escalated · No Model Studio call</div>
               </sc-if>
               <sc-if value="{{ selectedView.routerStrip.isSkipped }}">
                 <div style="font-family:var(--font-mono);font-size:10px;color:#9aa8b8;background:rgba(107,122,142,0.12);padding:3px 8px;border-radius:4px;display:inline-block">SIE not called · No Model Studio call</div>
@@ -443,6 +870,8 @@
     </div>
   </sc-if>
 
+  </sc-if><!-- end showDashboard -->
+
   <div style="display:flex;align-items:center;gap:14px;padding:8px 20px;border-top:1px solid var(--border-subtle);font-size:11px;color:var(--text-muted);flex-shrink:0;background:var(--bg-surface);flex-wrap:wrap">
     <span style="font-family:var(--font-mono);color:var(--text-secondary)">Last scan: {{ footerLastScan }}</span>
     <div style="width:1px;height:14px;background:var(--border-subtle)"></div>
@@ -471,7 +900,8 @@ class Component extends DCLogic {
     sortKey: 'name',
     sortDir: 'asc',
     expandedScanners: {},
-    realtimeConnected: false
+    realtimeConnected: false,
+    showIntro: !sessionStorage.getItem('tripwire-intro-dismissed')
   };
 
   componentDidMount() {
@@ -578,6 +1008,21 @@ class Component extends DCLogic {
     }
   }
 
+  enterDashboard = () => {
+    sessionStorage.setItem('tripwire-intro-dismissed', '1');
+    this.setState({ showIntro: false });
+  };
+
+  toggleIntro = () => {
+    const next = !this.state.showIntro;
+    if (next) {
+      sessionStorage.removeItem('tripwire-intro-dismissed');
+    } else {
+      sessionStorage.setItem('tripwire-intro-dismissed', '1');
+    }
+    this.setState({ showIntro: next });
+  };
+
   setTab = (t) => this.setState({ activeTab: t });
   setTypeFilter = (v) => this.setState({ typeFilter: v });
   setStatusFilter = (v) => this.setState({ statusFilter: v });
@@ -627,7 +1072,7 @@ class Component extends DCLogic {
 
   btnStyle(active, base) {
     const b = base || {};
-    return `font-family:var(--font-sans);font-size:${b.size||'12px'};font-weight:${active?'600':'400'};padding:${b.pad||'6px 12px'};border-radius:6px;cursor:pointer;border:1px solid ${active?(b.activeBorder||'#4da2ff'):'#192638'};background:${active?(b.activeBg||'rgba(77,162,255,0.12)'):'transparent'};color:${active?(b.activeColor||'#e8edf4'):'#8fa3be'};white-space:nowrap;transition:all 150ms ease`;
+    return `font-family:var(--font-sans);font-size:${b.size||'12px'};font-weight:${active?'600':'400'};padding:${b.pad||'6px 12px'};border-radius:6px;cursor:pointer;border:1px solid ${active?(b.activeBorder||'#00D9FF'):'rgba(0,217,255,0.12)'};background:${active?(b.activeBg||'rgba(0,217,255,0.10)'):'transparent'};color:${active?(b.activeColor||'#E7EDF2'):'#8CA3AF'};white-space:nowrap;transition:all 150ms ease`;
   }
 
   locusLabel(v) { return { local: 'Local', cloud: 'Cloud', unknown: 'Locus unknown' }[v] || v; }
@@ -726,10 +1171,10 @@ class Component extends DCLogic {
     const escalated = ['routing_decision', 'routing_triage'].includes(rf.category);
     const isTriage = rf.category === 'routing_triage';
     const isReview = rf.category === 'routing_review';
-    const stripColor = escalated ? '#a78bfa' : '#4da2ff';
-    const badgeColor = escalated ? '#d4bcff' : '#7ec0ff';
-    const badgeBg = escalated ? 'rgba(167,139,250,0.15)' : 'rgba(77,162,255,0.1)';
-    const badgeBorder = escalated ? 'rgba(167,139,250,0.3)' : 'rgba(77,162,255,0.25)';
+    const stripColor = escalated ? '#a78bfa' : '#00D9FF';
+    const badgeColor = escalated ? '#d4bcff' : '#00D9FF';
+    const badgeBg = escalated ? 'rgba(167,139,250,0.15)' : 'rgba(0,217,255,0.08)';
+    const badgeBorder = escalated ? 'rgba(167,139,250,0.3)' : 'rgba(0,217,255,0.25)';
     return {
       escalated,
       isReview,
@@ -753,7 +1198,7 @@ class Component extends DCLogic {
       amber: { color: '#f59e0b', label: 'AMBER', glyph: '▲' },
       green: { color: '#34d399', label: 'GREEN', glyph: '✓' },
       grey: { color: '#6b7a8e', label: 'UNSCANNED', glyph: '–' },
-      running: { color: '#4da2ff', label: 'SCANNING', glyph: '◌' },
+      running: { color: '#00D9FF', label: 'SCANNING', glyph: '◌' },
       error: { color: '#a78bfa', label: 'ERROR', glyph: '!' }
     };
     const decorated = kit?.decorateStatus
@@ -809,7 +1254,7 @@ class Component extends DCLogic {
     const kit = this._statusKit;
     if (kit?.scannerExecMeta) return kit.scannerExecMeta(st);
     const fallback = {
-      running: { color: '#4da2ff', label: '◌ Running' },
+      running: { color: '#00D9FF', label: '◌ Running' },
       completed: { color: '#34d399', label: '✓ Completed' },
       skipped_missing_credential: { color: '#6b7a8e', label: '⊘ Skipped' },
       unreachable: { color: '#a78bfa', label: '✗ Unreachable' },
@@ -827,7 +1272,7 @@ class Component extends DCLogic {
       amber: { color: '#f59e0b', label: 'AMBER', glyph: '▲' },
       green: { color: '#34d399', label: 'GREEN', glyph: '✓' },
       grey: { color: '#6b7a8e', label: 'UNSCANNED', glyph: '–' },
-      running: { color: '#4da2ff', label: 'SCANNING', glyph: '◌' },
+      running: { color: '#00D9FF', label: 'SCANNING', glyph: '◌' },
       error: { color: '#a78bfa', label: 'ERROR', glyph: '!' }
     };
 
@@ -841,16 +1286,16 @@ class Component extends DCLogic {
     const guardTab = {
       onClick: () => this.setTab('guard'),
       label: 'Guard',
-      style: `font-family:var(--font-sans);font-size:11px;font-weight:${guardActive ? '600' : '400'};padding:5px 10px;border-radius:5px;cursor:pointer;border:1px solid ${guardActive ? '#1e2d42' : 'transparent'};background:${guardActive ? '#182436' : 'transparent'};color:${guardActive ? '#e8edf4' : '#506880'};transition:all 150ms ease`
+      style: `font-family:var(--font-sans);font-size:11px;font-weight:${guardActive ? '600' : '400'};padding:5px 10px;border-radius:5px;cursor:pointer;border:1px solid ${guardActive ? 'rgba(0,217,255,0.30)' : 'transparent'};background:${guardActive ? 'rgba(0,217,255,0.08)' : 'transparent'};color:${guardActive ? '#E7EDF2' : '#556671'};transition:all 150ms ease`
     };
 
     const dataSourceChips = {
-      loading: { label: 'Loading…', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: '#192638', tooltip: 'Checking data source…' },
+      loading: { label: 'Loading…', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: 'rgba(0,217,255,0.12)', tooltip: 'Checking data source…' },
       live: { label: 'Live · Supabase', dotColor: '#34d399', textColor: '#34d399', bgColor: 'rgba(52,211,153,0.1)', borderColor: 'rgba(52,211,153,0.3)', tooltip: 'Fetching real data from Supabase (polling)' },
       'live-realtime': { label: 'Live · Realtime', dotColor: '#34d399', textColor: '#34d399', bgColor: 'rgba(52,211,153,0.15)', borderColor: 'rgba(52,211,153,0.4)', tooltip: 'Supabase Realtime — updates arrive within ~1s of Modal writes' },
       'live-empty': { label: 'Live · empty', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Connected to Supabase — no items yet' },
-      'mock-selected': { label: 'Demo data', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: '#192638', tooltip: 'Using built-in demo data (user selected)' },
-      mock: { label: 'Demo data', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: '#192638', tooltip: 'Using built-in demo data; configure Supabase and select Live for database results' },
+      'mock-selected': { label: 'Demo data', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: 'rgba(0,217,255,0.12)', tooltip: 'Using built-in demo data (user selected)' },
+      mock: { label: 'Demo data', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: 'rgba(0,217,255,0.12)', tooltip: 'Using built-in demo data; configure Supabase and select Live for database results' },
       'mock-failed': { label: 'Connection error', dotColor: '#f43f5e', textColor: '#f43f5e', bgColor: 'rgba(244,63,94,0.1)', borderColor: 'rgba(244,63,94,0.3)', tooltip: 'Could not reach Supabase (auth, RLS, or network) — showing demo data' },
       'mock-empty': { label: 'Live · empty', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Connected to Supabase — no items yet' }
     };
@@ -858,6 +1303,12 @@ class Component extends DCLogic {
     const dataSourceChip = dataSourceChips[chipKey] || dataSourceChips.loading;
 
     const base = {
+      showIntro: s.showIntro,
+      showDashboard: !s.showIntro,
+      enterDashboard: this.enterDashboard,
+      toggleIntro: this.toggleIntro,
+      introToggleLabel: s.showIntro ? 'Dashboard' : 'About',
+      introToggleStyle: `font-family:var(--font-mono);font-size:11px;padding:4px 10px;border-radius:2px;cursor:pointer;border:1px solid ${s.showIntro ? 'var(--accent)' : 'var(--border-subtle)'};background:${s.showIntro ? 'rgba(0,217,255,0.12)' : 'transparent'};color:${s.showIntro ? 'var(--accent)' : 'var(--text-muted)'};transition:all 150ms`,
       activeTabIsDashboard: s.activeTab === 'dashboard',
       activeTabIsGuard: s.activeTab === 'guard',
       primaryTabs,
@@ -871,7 +1322,7 @@ class Component extends DCLogic {
         ? 'Guard intercepts every skill/tool call and checks its rating before it runs.'
         : 'Monitoring is off — all calls pass through unchecked.',
       monitoringBtnLabel: s.monitoringEnabled ? 'Turn off' : 'Turn on',
-      monitoringBtnStyle: `font-family:var(--font-sans);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid ${s.monitoringEnabled ? '#1e2d42' : '#34d399'};background:${s.monitoringEnabled ? '#182436' : 'rgba(52,211,153,0.12)'};color:${s.monitoringEnabled ? '#e8edf4' : '#34d399'};transition:all 150ms ease`,
+      monitoringBtnStyle: `font-family:var(--font-sans);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid ${s.monitoringEnabled ? 'rgba(0,217,255,0.20)' : '#34D399'};background:${s.monitoringEnabled ? 'rgba(0,217,255,0.07)' : 'rgba(52,211,153,0.12)'};color:${s.monitoringEnabled ? '#E7EDF2' : '#34D399'};transition:all 150ms ease`,
       thresholdOptions: [
         { key: 'red', label: 'Red only' },
         { key: 'red_and_amber', label: 'Red + Amber' }
@@ -883,7 +1334,7 @@ class Component extends DCLogic {
       viewToggle: ['grid', 'list'].map(v => ({
         key: v, label: v === 'grid' ? 'Grid' : 'List',
         onClick: () => this.setViewMode(v),
-        style: this.btnStyle(s.viewMode === v, { activeBg: '#182436', activeBorder: '#4da2ff', activeColor: '#e8edf4' })
+        style: this.btnStyle(s.viewMode === v, { activeBg: 'rgba(0,217,255,0.08)', activeBorder: '#00D9FF', activeColor: '#E7EDF2' })
       })),
       listColumns: [
         { key: 'name', label: 'Name' }, { key: 'type', label: 'Type' },
@@ -911,28 +1362,21 @@ class Component extends DCLogic {
       { key: 'all', label: 'All items' },
       { key: 'skill', label: 'Skills' },
       { key: 'mcp_server', label: 'MCP Servers' }
-    ].map(t => ({ ...t, onClick: () => this.setTypeFilter(t.key), style: this.btnStyle(s.typeFilter === t.key, { activeBg: '#182436', activeBorder: '#4da2ff', activeColor: '#e8edf4' }) }));
+    ].map(t => ({ ...t, onClick: () => this.setTypeFilter(t.key), style: this.btnStyle(s.typeFilter === t.key, { activeBg: 'rgba(0,217,255,0.08)', activeBorder: '#00D9FF', activeColor: '#E7EDF2' }) }));
 
     const routerChipMeta = {
       escalated: { color: '#a78bfa', activeColor: '#d4bcff' },
-      'sie-only': { color: '#4da2ff', activeColor: '#7ec0ff' }
+      'sie-only': { color: '#00D9FF', activeColor: '#7AEEFF' }
     };
     const statusChips = [
-      { key: 'all', label: 'All' },
-      { key: 'red', label: '● Red' },
-      { key: 'amber', label: '▲ Amber' },
-      { key: 'green', label: '✓ Green' },
-      { key: 'grey', label: '– Unscanned' },
-      { key: 'running', label: '◌ Scanning' },
-      { key: 'error', label: '! Error' },
       { key: 'escalated', label: '⬆ Escalated' },
       { key: 'sie-only', label: '◈ SIE-only' }
     ].map(c => {
       const rm = routerChipMeta[c.key];
       return { ...c, onClick: () => this.setStatusFilter(c.key), style: this.btnStyle(s.statusFilter === c.key, {
-        activeBg: (rm ? rm.color : statusMeta[c.key]?.color || '#4da2ff') + '22',
-        activeBorder: rm ? rm.color : statusMeta[c.key]?.color || '#4da2ff',
-        activeColor: rm ? rm.activeColor : statusMeta[c.key]?.color || '#e8edf4'
+        activeBg: rm.color + '22',
+        activeBorder: rm.color,
+        activeColor: rm.activeColor
       }) };
     });
 
@@ -943,6 +1387,7 @@ class Component extends DCLogic {
       if (s.statusFilter === 'all') return true;
       if (s.statusFilter === 'escalated') return it.findings.some(f => f.scanner === 'tiered_router' && ['routing_decision', 'routing_triage'].includes(f.category));
       if (s.statusFilter === 'sie-only') return it.findings.some(f => f.scanner === 'tiered_router' && f.category === 'routing_review');
+      if (s.statusFilter === 'drifted') return !!it.drifted;
       return it.status === s.statusFilter;
     });
 
@@ -966,16 +1411,27 @@ class Component extends DCLogic {
 
     const counts = { red: 0, amber: 0, green: 0, grey: 0, running: 0, error: 0 };
     data.items.forEach(it => { counts[it.status] = (counts[it.status] || 0) + 1; });
+    const escalatedCount = data.items.filter(it => it.findings.some(f => f.scanner === 'tiered_router' && ['routing_decision', 'routing_triage'].includes(f.category))).length;
+    const sieOnlyCount = data.items.filter(it => it.findings.some(f => f.scanner === 'tiered_router' && f.category === 'routing_review')).length;
     const overviewStats = [
-      { label: 'Total items', value: data.items.length, color: '#4da2ff' },
-      { label: 'Red', value: counts.red, color: statusMeta.red.color },
-      { label: 'Amber', value: counts.amber, color: statusMeta.amber.color },
-      { label: 'Green', value: counts.green, color: statusMeta.green.color },
-      { label: 'Scanning', value: counts.running, color: statusMeta.running.color },
-      { label: 'Unscanned', value: counts.grey, color: statusMeta.grey.color },
-      { label: 'Error', value: counts.error, color: statusMeta.error.color },
-      { label: 'Changed since last scan', value: data.items.filter(it => it.drifted).length, color: statusMeta.amber.color }
-    ];
+      { key: 'all', label: 'Total items', value: data.items.length, color: '#00D9FF' },
+      { key: 'red', label: 'Red', value: counts.red, color: statusMeta.red.color },
+      { key: 'amber', label: 'Amber', value: counts.amber, color: statusMeta.amber.color },
+      { key: 'green', label: 'Green', value: counts.green, color: statusMeta.green.color },
+      { key: 'running', label: 'Scanning', value: counts.running, color: statusMeta.running.color },
+      { key: 'grey', label: 'Unscanned', value: counts.grey, color: statusMeta.grey.color },
+      { key: 'error', label: 'Error', value: counts.error, color: statusMeta.error.color },
+      { key: 'drifted', label: 'Changed', value: data.items.filter(it => it.drifted).length, color: statusMeta.amber.color },
+      { key: 'escalated', label: 'Escalated', value: escalatedCount, color: '#a78bfa' },
+      { key: 'sie-only', label: 'SIE-only', value: sieOnlyCount, color: '#4da2ff' }
+    ].map(st => {
+      const active = s.statusFilter === st.key;
+      return {
+        ...st,
+        onClick: () => this.setStatusFilter(st.key),
+        style: `flex:1;min-width:90px;background:${active ? st.color + '12' : 'var(--bg-surface)'};border:1px solid ${active ? st.color + '55' : 'var(--border-subtle)'};border-top:2px solid ${st.color};border-radius:8px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,0.2);cursor:pointer;transition:all 150ms ease;user-select:none`
+      };
+    });
 
     const scannerStatusColor = (st) => this.scannerExecMeta(st).color;
     const scannerStatusLabel = (st) => this.scannerExecMeta(st).label;
