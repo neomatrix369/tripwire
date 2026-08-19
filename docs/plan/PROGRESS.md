@@ -6,6 +6,7 @@
 | Wave | Folder | Group | Slices | Outcome |
 |-----:|--------|-------|--------|---------|
 | 9 | [`09-I-…`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 | ✅ |
+| 10 | [`10-J-…`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 | 📋 |
 | 1 | [`01-A-…`](slices/01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 · 4 | ✅ · 4 📦 |
 | 2 | [`02-B-…`](slices/02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`03-C-…`](slices/03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
@@ -137,6 +138,11 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 Wave folder `slices/08-H-agent-guard-integration/` pending; spec is the
 hackathon working plan ("Tripwire × Claude Code Integration — Implementation
 Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
+
+### J — Dashboard Data Quality Fixes
+| # | Slice | MoSCoW | Status | Started | Completed | Est. time |
+|---|-------|--------|--------|---------|-----------|-----------|
+| 42 | [slice-42-dashboard-data-quality-fixes](slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md) | Must | 📋 PLANNED | — | — | ~120 min |
 
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 
