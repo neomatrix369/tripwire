@@ -190,3 +190,63 @@ test('typeFilter=skill with useDefaults=true on fixture defaults — only skills
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+// --- slice-42 A3: MCP server locus detection from manifest entries ---
+
+test('manifest entry WITH packPath pointing to server.py dir → locus=local avail=source_on_disk', async () => {
+  /**
+   * Scenario: GWT-42.2 — manifest entry has a resolvable packPath (source on disk)
+   *   Given an mcp.json whose command points to a dir containing server.py
+   *   When discoverTargets resolves that manifest
+   *   Then the item has locus='local' and avail='source_on_disk' (not 'unknown')
+   *
+   * Slice: 42 / A3 — MCP server locus detection fix
+   */
+  // ### Given
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'tripwire-mcp-packpath-'));
+  await writeFile(path.join(dir, 'server.py'), '# mcp stub');
+  await writeFile(path.join(dir, 'run.sh'), '#!/bin/bash\necho hello');
+  const manifest = path.join(dir, 'mcp.json');
+  await writeFile(manifest, JSON.stringify({
+    mcpServers: { 'my-server': { command: path.join(dir, 'run.sh') } },
+  }));
+
+  // ### When
+  const result = await discoverTargets({ targets: [manifest], useDefaults: false });
+
+  // ### Then
+  assert.equal(result.length, 1, 'Expected one MCP server item from manifest');
+  assert.equal(result[0].type, 'mcp_server');
+  assert.equal(result[0].locus, 'local', 'locus must be local, not unknown');
+  assert.equal(result[0].avail, 'source_on_disk', 'avail must be source_on_disk for packPath entries');
+
+  await rm(dir, { recursive: true, force: true });
+});
+
+test('manifest entry WITHOUT packPath (bare-binary command) → locus=local avail=introspection_only', async () => {
+  /**
+   * Scenario: GWT-42.2 — manifest entry has no resolvable packPath (bare binary like npx)
+   *   Given an mcp.json with a bare-binary command that has no local filesystem path
+   *   When discoverTargets resolves that manifest
+   *   Then the item has locus='local' and avail='introspection_only' (not 'unknown')
+   *
+   * Slice: 42 / A3 — MCP server locus detection fix
+   */
+  // ### Given
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'tripwire-mcp-bare-'));
+  const manifest = path.join(dir, 'mcp.json');
+  await writeFile(manifest, JSON.stringify({
+    mcpServers: { 'context7': { command: 'npx', args: ['context7'] } },
+  }));
+
+  // ### When
+  const result = await discoverTargets({ targets: [manifest], useDefaults: false });
+
+  // ### Then
+  assert.equal(result.length, 1, 'Expected one MCP server item from manifest');
+  assert.equal(result[0].type, 'mcp_server');
+  assert.equal(result[0].locus, 'local', 'locus must be local, not unknown');
+  assert.equal(result[0].avail, 'introspection_only', 'avail must be introspection_only for bare-binary entries');
+
+  await rm(dir, { recursive: true, force: true });
+});

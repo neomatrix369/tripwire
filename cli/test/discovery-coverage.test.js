@@ -75,7 +75,7 @@ test('given stdio mcp manifest when discover then sets packPath from args', asyn
   const urlOnly = result.find((r) => r.target === 'url-only');
   assert.ok(safe);
   assert.equal(safe.packPath, serverDir);
-  assert.equal(safe.avail, 'unknown'); // pending:<key> hash contract
+  assert.equal(safe.avail, 'source_on_disk'); // packPath resolves to local source (slice-42 A3 fix)
   assert.ok(urlOnly);
   assert.equal(urlOnly.packPath, undefined);
   await rm(dir, { recursive: true, force: true });

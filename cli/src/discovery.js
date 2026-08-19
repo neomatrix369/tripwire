@@ -136,8 +136,11 @@ async function annotateWithTypes(resolved) {
   for (const t of resolved) {
     const meta = typeof t === 'string'
       ? await detectType(t)
-      // Key-only identity + pending:<key> hash: never source_on_disk on the key.
-      : { type: 'mcp_server', locus: 'unknown', avail: 'unknown' };
+      : t.packPath
+        // packPath present → delegate to detectType for proper locus/avail resolution
+        ? await detectType(t.packPath)
+        // Key-only or bare-binary command (e.g. `npx context7`): locally invoked, no source
+        : { type: 'mcp_server', locus: 'local', avail: 'introspection_only' };
     const target = typeof t === 'string' ? t : t.manifestEntry;
     const row = { target, ...meta };
     if (typeof t !== 'string' && t.packPath) row.packPath = t.packPath;
