@@ -20,6 +20,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   category without changing any other scan behaviour; composes with `--dry-discover`,
   `--force`, `--concurrency`, and explicit path arguments
 
+### Fixed (dashboard data quality — slice 42)
+- Dashboard now loads up to 2000 scan runs (was capped at 200), fixing ~35+ cards that
+  incorrectly showed "never scanned" / 0 findings despite having real scan data (A1)
+- `findings` and `scan_run_scanners` fetches are now scoped to the latest run IDs per item
+  rather than full-table scans; eliminates network-level waste on every dashboard load (A2)
+- MCP server discovery (`cli/src/discovery.js`) now resolves `install_locus` and
+  `source_availability` from the manifest entry instead of hardcoding `unknown/unknown`:
+  entries with a resolvable `packPath` get `local/source_on_disk`; bare-binary entries
+  (e.g. `npx context7`) get `local/introspection_only` (A3)
+- ERROR cards now display "Scan run failed — no findings available" in the Findings
+  section header instead of the misleading bare "Findings (0)" (A5)
+- Tessl scanner logs a structured `[tessl]` diagnostic line when `_tessl_quality_score`
+  cannot extract a value from the CLI JSON output, aiding root-cause analysis for the
+  7 skills currently showing `NULL quality_score` (A4)
+- Reconciled 9 scan_run rows stuck in `status=running` since Aug 1–16 (A6)
+
 ## [0.4.0] - 2026-08-14
 
 ### Added
