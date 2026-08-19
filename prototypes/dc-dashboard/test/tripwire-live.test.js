@@ -180,7 +180,7 @@ test('given live config when loadData live then fetches expected Supabase tables
 
   const runsCall = calls.find((c) => c.url.includes('/scan_runs?'));
   assert.match(runsCall.url, /order=started_at\.desc/);
-  assert.match(runsCall.url, /limit=200/);
+  assert.match(runsCall.url, /limit=2000/);
   restoreFetch();
 });
 
