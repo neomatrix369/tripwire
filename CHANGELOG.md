@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Landing intro screen shown on first dashboard open (sessionStorage-persisted toggle);
+  surfaces threat statistics, SEC/01–SEC/05 narrative sections (anatomy of breach,
+  architecture flow, RAG status card grid, shipped `/tw-*` skills, roadmap), animated
+  ticker bar, and `$ tripwire setup-agent-hooks` install CTA. "About" nav button toggles
+  the intro at any time.
+- Dashboard visual restyle: JetBrains Mono (replaces IBM Plex Mono), cyan `#00D9FF`
+  accent, darker panel palette, body grid overlay, and HUD corner bracket system on
+  intro stat cards.
 - `tripwire scan --type <skill|mcp>` — restricts machine-wide discovery to a single artifact
   category without changing any other scan behaviour; composes with `--dry-discover`,
   `--force`, `--concurrency`, and explicit path arguments

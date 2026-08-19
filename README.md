@@ -111,7 +111,12 @@ cd tripwire
 node scripts/serve-dashboard.mjs
 ```
 
-Open [http://127.0.0.1:8765/Tripwire.dc.html](http://127.0.0.1:8765/Tripwire.dc.html).
+Open [http://127.0.0.1:8765/](http://127.0.0.1:8765/).
+
+The first visit shows a landing intro screen (threat statistics, architecture overview,
+shipped skills, and roadmap). Click **Open Dashboard →** to proceed to the scan results
+view. The "About" nav button toggles the intro back on at any time; the choice is
+remembered in `sessionStorage`.
 
 After installing the CLI, you can also validate target discovery locally without
 accounts or a scan:
