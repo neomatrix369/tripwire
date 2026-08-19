@@ -41,14 +41,31 @@ Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
 
 ## Slice-first rule (MUST NOT skip)
 
-**Never write code before a slice stub exists.**
+**Never write code before a slice stub exists AND a branch is created.**
 
 When `/enhanced-flow-planner` detects continuation mode:
 1. Run plan-health-check
 2. Run plan-modifier to **add the slice to TRAIL.md + PROGRESS.md + a slice stub file** under `docs/plan/slices/`
-3. Only then write code
+3. Create a branch: `git checkout -b slice/<N>-<short-name>`
+4. Only then write code
 
-"Keep it simple" narrows scope. It does not bypass the slice stub. The stub *is* the requirement contract — without it there is no acceptance criteria and no gate evidence.
+"Keep it simple" narrows scope. It does not bypass the slice stub or the branch. The stub *is* the requirement contract — without it there is no acceptance criteria and no gate evidence. The branch *is* the delivery unit — without it there is no reviewable PR.
+
+## Branch-before-commit rule (enforced by hook)
+
+**Never commit directly to `main`.** The `pre-commit` hook blocks it.
+
+Every piece of work — however small — goes on a branch:
+```bash
+git checkout -b <type>/<short-description>   # feat/ fix/ docs/ slice/ chore/
+```
+
+Emergency override (coordinators only, never for feature work):
+```bash
+ALLOW_MAIN_COMMIT=1 git commit ...
+```
+
+The hook allows merge commits through automatically. Everything else on `main` is blocked.
 
 ---
 
