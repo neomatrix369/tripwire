@@ -568,6 +568,7 @@ def run_tessl(workdir):
     parsed = _safe_json(out)
     score = _tessl_quality_score(parsed)
     if score is None:
+        print(f"[tessl] quality_score extraction failed — raw output: {out[:500]!r}")
         return None, [
             _unreachable(
                 "Tessl",

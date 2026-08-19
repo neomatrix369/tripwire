@@ -132,7 +132,7 @@ function shapeItem(item, runsByItem, scannersByRun, findingsByRun) {
     lastScan: resolveLastScanTime(latestRun, isRunning),
     drifted: false,
     scanStartedAt: isRunning ? latestRun.started_at : null,
-    errorMessage: runStatus === "failed" ? "Scan run failed" : partialNote,
+    errorMessage: runStatus === "failed" ? "Scan run failed — no findings available" : partialNote,
     findings: mappedFindings,
     scanners: latestScanners.map((s) => shapeScannerRow(s, mappedFindings, item.quality_score)),
     trend: [],
@@ -165,17 +165,27 @@ async function fetchLiveData() {
 
   const { SUPABASE_URL, SUPABASE_ANON_KEY } = cfg;
 
-  const [items, scanRuns, scanRunScanners, findings] = await Promise.all([
+  // Phase 1: fetch items and scan_runs (scan_runs ordered newest-first per item)
+  const [items, scanRuns] = await Promise.all([
     supabaseGet(SUPABASE_URL, SUPABASE_ANON_KEY, "items", "select=*&order=name.asc"),
-    supabaseGet(SUPABASE_URL, SUPABASE_ANON_KEY, "scan_runs", "select=*&order=started_at.desc&limit=200"),
-    supabaseGet(SUPABASE_URL, SUPABASE_ANON_KEY, "scan_run_scanners", "select=*"),
-    supabaseGet(SUPABASE_URL, SUPABASE_ANON_KEY, "findings", "select=*"),
+    supabaseGet(SUPABASE_URL, SUPABASE_ANON_KEY, "scan_runs", "select=*&order=started_at.desc&limit=2000"),
   ]);
 
   const runsByItem = {};
   for (const run of scanRuns) {
     (runsByItem[run.item_id] ??= []).push(run);
   }
+
+  // Phase 2: scope scanners + findings to the latest run ID per item only
+  const latestRunIds = Object.values(runsByItem).map((runs) => runs[0].id);
+  const [scanRunScanners, findings] = latestRunIds.length > 0
+    ? await Promise.all([
+        supabaseGet(SUPABASE_URL, SUPABASE_ANON_KEY, "scan_run_scanners",
+          `select=*&scan_run_id=in.(${latestRunIds.join(",")})`),
+        supabaseGet(SUPABASE_URL, SUPABASE_ANON_KEY, "findings",
+          `select=*&scan_run_id=in.(${latestRunIds.join(",")})`),
+      ])
+    : [[], []];
 
   const scannersByRun = {};
   for (const s of scanRunScanners) {

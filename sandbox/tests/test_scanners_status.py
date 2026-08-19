@@ -364,3 +364,81 @@ def test_given_all_engines_completed_when_run_all_then_complete() -> None:
     ### Then
     assert result["overall_status"] == "complete"
     assert result["quality_score"] == 0.9
+
+
+# --- slice-42 A4: Tessl quality_score parsing and diagnostic logging ---
+
+
+def test_tessl_quality_score_known_shapes_return_float() -> None:
+    """
+    Scenario: _tessl_quality_score extracts a float from each supported CLI output shape.
+      Given a parsed JSON object in the "score" shape, "reviewScore" shape, or "normalizedScore" shape
+      When _tessl_quality_score is called
+      Then a non-None float is returned for each known shape
+
+    Slice: 42 / A4 — Tessl quality_score extraction coverage
+    """
+    ### Given / When / Then — score key
+    assert scanners._tessl_quality_score({"score": 72}) == 72
+
+    ### Given / When / Then — reviewScore inside "review" object
+    assert scanners._tessl_quality_score({"review": {"reviewScore": 68.5}}) == 68.5
+
+    ### Given / When / Then — normalizedScore averaged across judge keys
+    result = scanners._tessl_quality_score(
+        {
+            "descriptionJudge": {"normalizedScore": 0.8},
+            "contentJudge": {"normalizedScore": 0.6},
+        }
+    )
+    assert result is not None
+    assert abs(result - 70.0) < 0.001, f"Expected 70.0 got {result}"
+
+
+def test_tessl_quality_score_unknown_shape_returns_none() -> None:
+    """
+    Scenario: _tessl_quality_score returns None (no crash) for an unknown JSON shape.
+      Given a parsed JSON object with none of the recognised score keys
+      When _tessl_quality_score is called
+      Then None is returned
+
+    Slice: 42 / A4 — Tessl quality_score unknown shape guard
+    """
+    ### Given
+    unknown_shape = {"someOtherKey": 99, "nested": {"value": 42}}
+
+    ### When
+    result = scanners._tessl_quality_score(unknown_shape)
+
+    ### Then
+    assert result is None
+
+
+def test_run_tessl_logs_diagnostic_when_score_is_none(capsys) -> None:
+    """
+    Scenario: run_tessl prints a diagnostic line when _tessl_quality_score returns None.
+      Given the Tessl CLI subprocess exits 0 but its JSON output has an unknown shape
+      When run_tessl is called
+      Then a [tessl] diagnostic line is printed containing the raw output prefix
+      And the function returns (None, [unreachable_row]) without crashing
+
+    Slice: 42 / A4 — Tessl diagnostic logging on score extraction failure
+    """
+    ### Given
+    unknown_json_output = '{"unexpectedKey": "no score here"}'
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "fake-token"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", return_value=(0, unknown_json_output, "")),
+    ):
+        score, rows = scanners.run_tessl("/tmp/fake-skill")
+
+    ### Then
+    assert score is None
+    assert len(rows) == 1
+    assert rows[0]["status"] == "unreachable"
+    captured = capsys.readouterr()
+    assert "[tessl]" in captured.out
+    assert "quality_score extraction failed" in captured.out

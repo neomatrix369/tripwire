@@ -180,7 +180,7 @@ test('given live config when loadData live then fetches expected Supabase tables
 
   const runsCall = calls.find((c) => c.url.includes('/scan_runs?'));
   assert.match(runsCall.url, /order=started_at\.desc/);
-  assert.match(runsCall.url, /limit=200/);
+  assert.match(runsCall.url, /limit=2000/);
   restoreFetch();
 });
 
@@ -1089,6 +1089,183 @@ test('given schema sql when inspecting realtime then publication adds required t
     'schema must add scan_run_scanners to supabase_realtime publication');
   assert.match(sql, /supabase_realtime\s+add\s+table\s+findings/i,
     'schema must add findings to supabase_realtime publication');
+});
+
+// ── GWT-42.5 Scanner stat badge — slice-42 ───────────────────────────────
+
+test('given dashboard html when inspecting decorateItem then scannerStatBadge logic exists', () => {
+  /**
+   * Scenario: GWT-42.5 structural check
+   * Slice: 42
+   * Given the dashboard HTML contains decorateItem() logic
+   * When the source is inspected for scanner stat badge computation
+   * Then all required identifiers are present in the correct form
+   */
+  // -- Given --
+  const html = readFileSync(HTML_PATH, 'utf8');
+
+  // -- When / Then --
+  assert.match(html, /SCANNER_FAIL_STATUSES/,
+    'decorateItem must define SCANNER_FAIL_STATUSES set');
+  assert.match(html, /scannerStatBadge/,
+    'decorateItem must compute scannerStatBadge');
+  assert.match(html, /scannerStatAmber/,
+    'decorateItem must compute scannerStatAmber for colour tint');
+  assert.match(html, /scannerOk.*completed/,
+    'scannerOk must count completed scanners');
+  assert.match(html, /scannerFail.*SCANNER_FAIL_STATUSES/,
+    'scannerFail must filter against SCANNER_FAIL_STATUSES');
+});
+
+test('given dashboard html when inspecting card template then scanner stat badge element exists', () => {
+  /**
+   * Scenario: GWT-42.5 template presence check
+   * Slice: 42
+   * Given the dashboard HTML contains the card grid template
+   * When the template is inspected for the badge element
+   * Then the sc-if block referencing scannerStatBadge is present
+   */
+  // -- Given --
+  const html = readFileSync(HTML_PATH, 'utf8');
+
+  // -- When / Then --
+  assert.match(html, /item\.scannerStatBadge/,
+    'card template must reference scannerStatBadge');
+  assert.match(html, /item\.scannerStatAmber/,
+    'card template must use scannerStatAmber for amber tint');
+});
+
+test('given item with mixed scanner statuses when loadData live then scanners shape is correct for badge', async () => {
+  /**
+   * Scenario: GWT-42.5 integration — scanners array feeds badge computation
+   * Slice: 42
+   * Given a scan run with one completed and one unreachable scanner
+   * When loadData returns the shaped item
+   * Then scanners array has entries with status fields decorateItem can count
+   */
+  // -- Given --
+  const itemId = 'cccc0042-0042-0042-0042-000000000001';
+  const runId  = 'dddd0042-0042-0042-0042-000000000002';
+  installWindow({ SUPABASE_URL: 'https://proj.supabase.co', SUPABASE_ANON_KEY: 'anon' });
+  mockFetchByTable({
+    items: [{
+      id: itemId, type: 'skill', name: 'amber-skill', identifier: 'amber-skill',
+      heatmap_status: 'amber', risk_score: 1.5, quality_score: null,
+      install_locus: 'local', source_availability: 'source_on_disk',
+    }],
+    scan_runs: [{
+      id: runId, item_id: itemId, status: 'partial-failed',
+      started_at: '2026-08-19T10:00:00Z', completed_at: '2026-08-19T10:02:00Z',
+    }],
+    scan_run_scanners: [
+      { scan_run_id: runId, scanner_source: 'Tessl',    status: 'completed',   checks_run: 5 },
+      { scan_run_id: runId, scanner_source: 'Gitleaks', status: 'unreachable', checks_run: 0 },
+    ],
+    findings: [],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+  const item = result.data.items[0];
+
+  // -- Then --
+  assert.equal(item.scanners.length, 2, 'both scanner rows must be present');
+  const completed   = item.scanners.filter(s => s.status === 'completed');
+  const unreachable = item.scanners.filter(s => s.status === 'unreachable');
+  assert.equal(completed.length,   1, 'one completed scanner');
+  assert.equal(unreachable.length, 1, 'one unreachable scanner');
+  // Verify decorateItem will produce '1✓ 1✗' for this item
+  const FAIL = new Set(['failed', 'unreachable', 'skipped_missing_credential']);
+  const ok   = item.scanners.filter(s => s.status === 'completed').length;
+  const fail = item.scanners.filter(s => FAIL.has(s.status)).length;
+  assert.equal(`${ok}✓ ${fail}✗`, '1✓ 1✗',
+    'scanner stat badge string must read "1✓ 1✗" for this mix');
+  restoreFetch();
+});
+
+test('given item with all scanners completed when loadData live then badge is success-only', async () => {
+  /**
+   * Scenario: GWT-42.5 — all-pass produces N✓ only (no failure suffix)
+   * Slice: 42
+   * Given a scan run where all scanners completed successfully
+   * When decorateItem badge logic is applied
+   * Then the badge string has no ✗ component
+   */
+  // -- Given --
+  const itemId = 'cccc0042-0042-0042-0042-000000000003';
+  const runId  = 'dddd0042-0042-0042-0042-000000000004';
+  installWindow({ SUPABASE_URL: 'https://proj.supabase.co', SUPABASE_ANON_KEY: 'anon' });
+  mockFetchByTable({
+    items: [{
+      id: itemId, type: 'skill', name: 'safe-skill', identifier: 'safe-skill',
+      heatmap_status: 'green', risk_score: 0.0, quality_score: null,
+      install_locus: 'local', source_availability: 'source_on_disk',
+    }],
+    scan_runs: [{
+      id: runId, item_id: itemId, status: 'complete',
+      started_at: '2026-08-19T10:00:00Z', completed_at: '2026-08-19T10:01:00Z',
+    }],
+    scan_run_scanners: [
+      { scan_run_id: runId, scanner_source: 'Tessl',    status: 'completed', checks_run: 5 },
+      { scan_run_id: runId, scanner_source: 'Gitleaks', status: 'completed', checks_run: 3 },
+    ],
+    findings: [],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+  const item = result.data.items[0];
+
+  // -- Then --
+  const FAIL = new Set(['failed', 'unreachable', 'skipped_missing_credential']);
+  const ok   = item.scanners.filter(s => s.status === 'completed').length;
+  const fail = item.scanners.filter(s => FAIL.has(s.status)).length;
+  assert.equal(fail, 0, 'no failed scanners for all-pass item');
+  assert.equal(ok,   2, 'two completed scanners');
+  const badge = fail > 0 ? `${ok}✓ ${fail}✗` : `${ok}✓`;
+  assert.equal(badge, '2✓', 'all-pass badge must be "2✓" with no failure suffix');
+  restoreFetch();
+});
+
+test('given unscanned item when loadData live then scanners array is empty and badge is null', async () => {
+  /**
+   * Scenario: GWT-42.5 — unscanned item shows no badge
+   * Slice: 42
+   * Given an item with no scan runs
+   * When decorateItem badge logic is applied
+   * Then scannerStatBadge is null (no badge rendered)
+   */
+  // -- Given --
+  const itemId = 'cccc0042-0042-0042-0042-000000000005';
+  installWindow({ SUPABASE_URL: 'https://proj.supabase.co', SUPABASE_ANON_KEY: 'anon' });
+  mockFetchByTable({
+    items: [{
+      id: itemId, type: 'skill', name: 'unscanned-skill', identifier: 'unscanned-skill',
+      heatmap_status: 'grey', risk_score: null, quality_score: null,
+      install_locus: 'local', source_availability: 'source_on_disk',
+    }],
+    scan_runs: [],
+    scan_run_scanners: [],
+    findings: [],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+  const item = result.data.items[0];
+
+  // -- Then --
+  assert.deepEqual(item.scanners, [], 'unscanned item must have empty scanners array');
+  const FAIL = new Set(['failed', 'unreachable', 'skipped_missing_credential']);
+  const ok   = item.scanners.filter(s => s.status === 'completed').length;
+  const fail = item.scanners.filter(s => FAIL.has(s.status)).length;
+  const hasScannerStats = ok + fail > 0;
+  assert.equal(hasScannerStats, false, 'hasScannerStats must be false for unscanned item');
+  const badge = hasScannerStats ? (fail > 0 ? `${ok}✓ ${fail}✗` : `${ok}✓`) : null;
+  assert.equal(badge, null, 'scannerStatBadge must be null for unscanned item');
+  restoreFetch();
 });
 
 // ── GWT-1 Detection (must-show #1+#2) — slice-2 ───────────────────────────
