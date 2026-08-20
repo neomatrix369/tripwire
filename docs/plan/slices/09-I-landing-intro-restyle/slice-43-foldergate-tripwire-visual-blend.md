@@ -2,7 +2,7 @@
 
 > Scenario: Brownfield | MoSCoW: Must
 > Wave: I — Landing Intro + Visual Refresh (amendment to slice 41 tokens)
-> Status: 🔨 IN PROGRESS
+> Status: 🔀 ON BRANCH (PR [#96](https://github.com/neomatrix369/tripwire/pull/96))
 > Depends on: 41 (intro IA stays; tokens change)
 > File overlap: 42 (`Tripwire.dc.html`) — cleared (42 merged to main)
 
@@ -136,21 +136,21 @@ UI slice — outside-in. Slice 41 used **manual visual verification** (no HTML t
 **Coverage:** N/A for CSS token swap — same docs-only/visual exception as slice 41. Token contract grep (or a tiny fixture test if one already exists under `prototypes/`) is the specification-coverage stand-in.
 
 ## After-Checks [GATE]
-- [ ] GWT-43.1–43.10 observed (visual + token grep + STATUS_META binding)
-- [ ] Specification coverage: every GWT clause has ≥1 check (visual and/or `rg` on `:root` / CTA fill / ink hex)
-- [ ] Branch coverage: N/A — no new Python/JS product module; reason: prototype HTML restyle
-- [ ] Complexity evidence: policy `reporting`; no xenon/eslint complexity run on HTML; recorded in gate-evidence
-- [ ] Intro GWT 1–4 from slice 41 still pass
-- [ ] Contrast: all **text** tokens in Design Context ink table ≥4.5:1 on `#F5F2EA` (documented ratios)
-- [ ] `CHANGELOG.md` notes visual identity v2 (paper + tan CTA)
-- [ ] Docs: this stub + TRAIL/PROGRESS; README screenshot not required
-- [ ] Gate evidence `docs/plan/gate-evidence/slice-43.json` written at PASSED
-- [ ] Mutation testing: N/A (no behavioural Python/JS feature)
+- [x] GWT-43.1–43.10 observed (visual + token grep + STATUS_META binding)
+- [x] Specification coverage: every GWT clause has ≥1 check (visual and/or token tests)
+- [x] Branch coverage: N/A — no new Python/JS product module; reason: prototype HTML restyle
+- [x] Complexity evidence: policy `reporting`; recorded in `docs/plan/gate-evidence/slice-43.json`
+- [x] Intro GWT 1–4 from slice 41 still pass (browser sessionStorage flow)
+- [x] Contrast: all **text** tokens in Design Context ink table ≥4.5:1 on `#F5F2EA` (documented ratios)
+- [x] `CHANGELOG.md` notes visual identity v2 (paper + tan CTA + AA ink)
+- [x] Docs: this stub + TRAIL/PROGRESS; README screenshot regen deferred
+- [x] Gate evidence `docs/plan/gate-evidence/slice-43.json` written at ON_BRANCH
+- [x] Mutation testing: N/A (no behavioural Python/JS feature)
 
 ## Doc Audit (14-row checklist)
 | # | Item | Check |
 |-|------|-------|
-| 1 | README updated | N/A — prototype chrome only |
+| 1 | README updated | Yes — ON BRANCH visual note + screenshot staleness pointer |
 | 2 | Inline comments added where non-obvious | Token map `--cta` vs `--signal`; `:root` hex SSOT; `--accent` deprecate |
 | 3 | Function signatures documented | N/A |
 | 4 | Error paths documented | N/A |
@@ -166,20 +166,21 @@ UI slice — outside-in. Slice 41 used **manual visual verification** (no HTML t
 | 14 | No orphaned file references | Yes |
 
 ## Gate Status
-🔨 IN PROGRESS
+🔀 ON BRANCH — [PR #96](https://github.com/neomatrix369/tripwire/pull/96); evidence `docs/plan/gate-evidence/slice-43.json` (`verdict: ON_BRANCH`). Promote to ✅ after merge.
 
 ## What Changed
 | File | Type | Reason |
 |------|------|--------|
 | `prototypes/dc-dashboard/Tripwire.dc.html` | style | Paper palette, CTA/signal split, Fraunces, AA ink text |
 | `prototypes/dc-dashboard/tripwire-status.js` | style | STATUS_META copies :root ink hex |
-| `prototypes/dc-dashboard/test/tripwire-visual-tokens.test.js` | test | Token contract GWT-43.1–43.10 + STATUS_META binding |
+| `prototypes/dc-dashboard/test/tripwire-visual-tokens.test.js` | test | Token contract GWT-43.1–43.10 + STATUS_META binding + console contrast |
+| `docs/plan/gate-evidence/slice-43.json` | docs | ON_BRANCH gate evidence |
 | `CHANGELOG.md` | docs | Visual identity v2 + AA ink |
 
 ## Session Metrics
 | Metric | Value |
 |--------|-------|
 | Estimated Pomos | 1 (~25 min) |
-| Execution time | — |
-| Blockers encountered | file overlap with slice 42 |
-| Next-session notes | Ink pile-on implemented; visual pass + PR #96 update remaining |
+| Execution time | ~90 min (5 commits) |
+| Blockers encountered | file overlap with slice 42 (cleared) |
+| Next-session notes | Merge PR #96 → promote trackers to ✅ PASSED; regen screenshots optional |

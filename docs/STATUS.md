@@ -49,6 +49,9 @@ Reachable through production entry points / config:
   in-flight UI, scanner console in drawer, partial-failed “n out of m scanners
   unreachable” copy — `prototypes/dc-dashboard/`;
   `scripts/serve-dashboard.mjs` / `scripts/sync-dashboard-config.sh`
+- Landing intro screen (threat stats, SEC/01–05 sections, sessionStorage
+  `tripwire-intro-dismissed`, About toggle) — `prototypes/dc-dashboard/Tripwire.dc.html`
+  (slice 41 ✅)
 - Tiered post-scan router (SIE triage + optional Model Studio escalation) —
   `tripwire route`, auto-route after `tripwire scan`
   (`cli/src/router.js`, `cli/src/orchestrator.js`); dashboard router strip +
@@ -106,6 +109,22 @@ still records the intended ≥95% CLI ship-path target. Exact gate matrix:
 Heatmap note: card `heatmap_status` is **worst-of** actionable scanner findings
 (any red → red; amber-only → amber); finding-count chips are density, not colour.
 Router rows (`tiered_router`) are excluded from severity rollup.
+
+---
+
+## ON BRANCH (awaiting merge)
+
+Dashboard **visual identity v2** (FolderGate cream/tan × Tripwire HUD): paper
+`#F5F2EA`, tan CTA `#C4A574`, signal cyan fills only, Fraunces on `h1`/`h2`, AA
+ink tokens for status/links/muted — `prototypes/dc-dashboard/Tripwire.dc.html`,
+`tripwire-status.js`; token contract tests in
+`prototypes/dc-dashboard/test/tripwire-visual-tokens.test.js`. **IMPLEMENTED**
+on branch `slice/43-foldergate-tripwire-visual-blend`; **VERIFIED** (browser +
+tests) on branch — gate evidence
+[`plan/gate-evidence/slice-43.json`](./plan/gate-evidence/slice-43.json);
+[PR #96](https://github.com/neomatrix369/tripwire/pull/96). Promotes to
+IMPLEMENTED/VERIFIED on `main` after merge. README screenshot gallery still
+shows pre-v2 dark chrome until regen (`node scripts/capture-screenshots.mjs`).
 
 Live Modal/Supabase E2E as a CI Must remains **Won't** for this wave (slow/optional
 skip-without-config stays). Demo/hackathon film day (VO/Remotion slice 4; film-day
