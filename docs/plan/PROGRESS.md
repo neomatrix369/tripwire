@@ -217,3 +217,4 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-20 | plan | enhanced-flow-planner pile-on | 42 | 📋 A13 | Operator-friendly labels (`Risk density`, not `risk_score`). |
 | 2026-08-20 | slice/42-tessl-quality-card-surfacing | nw-review | 42 | APPROVED | software-crafter-reviewer A9–A13; After-Check ticked; PR #98. |
 | 2026-08-20 | slice/42-tessl-quality-card-surfacing | sync-docs | 42 | APPLIED | STATUS/ARCHITECTURE/CHANGELOG/TRAIL: nw-review APPROVED + CSS score-tip truth; still 🔀 until merge. |
+| 2026-08-20 | slice/42-tessl-quality-card-surfacing | sync-docs | 42 | APPLIED | Tip portal supersedes host-elevate absolute bubbles (overflow clip). |

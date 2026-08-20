@@ -131,3 +131,5 @@
 | 2026-08-20 | slice-42 | CSS score tips (not native `title`) | Operator risk/quality hints use `.score-tip` / `.score-tip-bubble` with host `z-index` elevation; native `title=` OS delay + sibling-card clip rejected. |
 | 2026-08-20 | slice-42 | /nw-review APPROVED | software-crafter-reviewer APPROVED A9–A13 delta 2026-08-20; After-Check ticked; gate-evidence `review` field updated. Still 🔀 until PR #98 merges → ✅ PASSED. |
 | 2026-08-20 | sync-docs | Wave J review + tip truth | STATUS/ARCHITECTURE/CHANGELOG/TRAIL/PROGRESS: nw-review APPROVED + CSS tip mechanism; no PASSED promotion. APPLIED |
+| 2026-08-20 | slice-42 | Score tip portal (clip fix) | In-card absolute tips still clipped by grid `overflow-y: auto`. Superseded by fixed `#score-tip-portal` + `initScoreTipPortal` viewport clamp. |
+| 2026-08-20 | sync-docs | Score tip portal truth | STATUS/ARCHITECTURE/CHANGELOG/DECISIONS: portal supersedes host-elevate absolute bubbles. APPLIED |

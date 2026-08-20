@@ -631,7 +631,7 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 1. **Badge copy**: compact `Q 92` / `Q —` / `Q ?` (not spelled-out).
 2. **MCP servers**: omit Tessl quality badge entirely (no `Q n/a`).
 3. **Sequencing vs slice 43**: execute on branch `slice/42-tessl-quality-card-surfacing` from `main` after #96 merges when practical; if #96 still open, rebase onto 43 tip before editing `Tripwire.dc.html` (same-file overlap).
-4. **Risk tooltip**: fast CSS `.score-tip` bubbles (not native `title` — OS delay); keyboard-accessible; copy matches `tripwire_rollup_item` formula (no invented scale max).
+4. **Risk tooltip**: fixed `#score-tip-portal` (not native `title`, not in-card absolute — overflow clip); keyboard-accessible; copy matches `tripwire_rollup_item` formula (no invented scale max).
 5. **Quality tooltip**: required with A9 — Tessl 0–100 skill-review explanation; parity with risk hover; not optional.
 6. **Operator labels**: use GWT-42.10 glossary (`Risk density`, `Tessl quality`, plain locus/avail); no snake_case in chrome.
 

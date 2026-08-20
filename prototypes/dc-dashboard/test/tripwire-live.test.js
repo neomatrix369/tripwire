@@ -1285,11 +1285,10 @@ test('given dashboard html when inspecting cards then quality badge and risk den
   // -- When / Then --
   assert.match(html, /item\.qualityBadge/, 'grid cards must surface qualityBadge');
   assert.match(html, /item\.qualityTooltip/, 'quality badge must carry tooltip');
-  assert.match(html, /score-tip-bubble/, 'score tips must use fast CSS bubbles (not delayed native title)');
+  assert.match(html, /score-tip-bubble/, 'score tips must keep tooltip text source');
   assert.match(html, /class="score-tip"/, 'risk/quality chrome must use score-tip');
-  assert.match(html, /score-tip-host/, 'cards/rows must elevate on tip hover to avoid sibling clip');
-  assert.match(html, /:has\(\.score-tip:hover\)/, 'tip host must raise z-index while tip is open');
-  assert.match(html, /bottom:\s*calc\(100%\s*\+\s*8px\)/, 'tip bubble prefers above badge to reduce row overlap');
+  assert.match(html, /id="score-tip-portal"/, 'tips must use fixed portal to escape overflow clip');
+  assert.match(html, /initScoreTipPortal/, 'portal placer script must be present');
   assert.doesNotMatch(
     html,
     /title="\{\{\s*(item|row|selectedView)\.(risk|quality)Tooltip/,

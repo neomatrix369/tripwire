@@ -113,39 +113,37 @@
   .hud.hud-green .hc-br::before, .hud.hud-green .hc-br::after { border-color: var(--green); }
 
   /* Fast score tips (native title= is ~0.5–1s delayed — A11/A12).
-     Tips must escape sibling paint order: cards use animation/transform
-     stacking contexts, so later grid cards would clip overflowing bubbles. */
+     Bubbles live in a fixed #score-tip-portal so overflow-y:auto grid
+     scrollers and sibling stacking cannot clip them. */
   .score-tip {
     position: relative;
     display: inline-flex;
     align-items: center;
     cursor: help;
     outline: none;
-    z-index: 1;
   }
   .score-tip:focus-visible {
     outline: 2px solid var(--cta);
     outline-offset: 2px;
   }
-  .score-tip-host {
-    position: relative;
-    z-index: 1;
-  }
-  .score-tip-host:has(.score-tip:hover),
-  .score-tip-host:has(.score-tip:focus-visible),
-  .score-tip-host:has(.score-tip:focus-within) {
-    z-index: 60;
-  }
+  /* Text source for the portal — never painted in-card. */
   .score-tip .score-tip-bubble {
     position: absolute;
-    left: 0;
-    bottom: calc(100% + 8px);
-    top: auto;
-    transform: translateY(2px);
-    z-index: 80;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: pre;
+    border: 0;
+  }
+  #score-tip-portal {
+    position: fixed;
+    z-index: 10000;
     box-sizing: border-box;
     min-width: 200px;
-    max-width: min(300px, 72vw);
+    max-width: min(300px, calc(100vw - 16px));
     padding: 8px 10px;
     border-radius: 6px;
     border: 1px solid var(--border-default);
@@ -163,17 +161,14 @@
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity 70ms ease, transform 70ms ease, visibility 70ms;
+    transition: opacity 70ms ease, visibility 70ms;
   }
-  .score-tip:hover .score-tip-bubble,
-  .score-tip:focus-visible .score-tip-bubble,
-  .score-tip:focus-within .score-tip-bubble {
+  #score-tip-portal.is-open {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
   }
   @media (prefers-reduced-motion: reduce) {
-    .score-tip .score-tip-bubble { transition: none; }
+    #score-tip-portal { transition: none; }
   }
 
   /* ── Intro screen styles ── */
@@ -1765,6 +1760,78 @@ class Component extends DCLogic {
   }
 }
 
+</script>
+<div id="score-tip-portal" role="tooltip" aria-hidden="true"></div>
+<script>
+(function initScoreTipPortal() {
+  const portal = document.getElementById('score-tip-portal');
+  if (!portal) return;
+  let active = null;
+
+  function hide() {
+    portal.classList.remove('is-open');
+    portal.textContent = '';
+    portal.setAttribute('aria-hidden', 'true');
+    active = null;
+  }
+
+  function place(tip) {
+    const src = tip.querySelector('.score-tip-bubble');
+    if (!src) return;
+    const text = (src.textContent || '').trim();
+    if (!text) return;
+    portal.textContent = text;
+    portal.classList.add('is-open');
+    portal.setAttribute('aria-hidden', 'false');
+    active = tip;
+
+    const gap = 8;
+    const margin = 8;
+    const r = tip.getBoundingClientRect();
+    // First paint at 0,0 to measure, then clamp into the viewport.
+    portal.style.left = '0px';
+    portal.style.top = '0px';
+    const pr = portal.getBoundingClientRect();
+    let left = r.left;
+    let top = r.top - pr.height - gap;
+    if (top < margin) top = r.bottom + gap;
+    if (top + pr.height > window.innerHeight - margin) {
+      top = Math.max(margin, Math.min(r.top - pr.height - gap, window.innerHeight - pr.height - margin));
+    }
+    left = Math.max(margin, Math.min(left, window.innerWidth - pr.width - margin));
+    portal.style.left = Math.round(left) + 'px';
+    portal.style.top = Math.round(top) + 'px';
+  }
+
+  document.addEventListener('pointerover', (e) => {
+    const tip = e.target && e.target.closest && e.target.closest('.score-tip');
+    if (tip) place(tip);
+  }, true);
+
+  document.addEventListener('pointerout', (e) => {
+    const tip = e.target && e.target.closest && e.target.closest('.score-tip');
+    if (!tip || tip !== active) return;
+    const related = e.relatedTarget;
+    if (related && tip.contains(related)) return;
+    hide();
+  }, true);
+
+  document.addEventListener('focusin', (e) => {
+    const tip = e.target && e.target.closest && e.target.closest('.score-tip');
+    if (tip) place(tip);
+  });
+
+  document.addEventListener('focusout', (e) => {
+    const tip = e.target && e.target.closest && e.target.closest('.score-tip');
+    if (!tip || tip !== active) return;
+    requestAnimationFrame(() => {
+      if (!tip.contains(document.activeElement)) hide();
+    });
+  });
+
+  window.addEventListener('scroll', () => { if (active) place(active); }, true);
+  window.addEventListener('resize', hide);
+})();
 </script>
 </body>
 </html>

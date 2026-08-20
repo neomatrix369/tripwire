@@ -60,12 +60,12 @@ Reachable through production entry points / config:
   (slice 41 ✅)
 - Tessl `quality_score` (0–100 skill-review) persisted on `items`, mapped by Live
   to `item.quality` / Tessl `output.quality_score`, and surfaced on skill cards as
-  compact `Q N` / `Q —` / `Q ?` badges with fast CSS `.score-tip` hover/focus
-  tooltips + schedule cues — `sandbox/scanners.py`, `tripwire-live.js`,
+  compact `Q N` / `Q —` / `Q ?` badges with fixed `#score-tip-portal` hover/focus
+  tips + schedule cues — `sandbox/scanners.py`, `tripwire-live.js`,
   `tripwire-status.js`, `Tripwire.dc.html` (slice 42 A9–A13, ON BRANCH ·
   [PR #98](https://github.com/neomatrix369/tripwire/pull/98); nw-review APPROVED)
 - `risk_score` weighted finding density from `tripwire_rollup_item`; cards show
-  compact `R N.NN` badges with density-formula CSS tips (list header **Risk density**);
+  compact `R N.NN` badges with density-formula portal tips (list header **Risk density**);
   card colour remains worst-of `heatmap_status`, not density (slice 42 A11/A13)
 - Tiered post-scan router (SIE triage + optional Model Studio escalation) —
   `tripwire route`, auto-route after `tripwire scan`
