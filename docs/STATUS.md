@@ -60,11 +60,12 @@ Reachable through production entry points / config:
   (slice 41 ✅)
 - Tessl `quality_score` (0–100 skill-review) persisted on `items`, mapped by Live
   to `item.quality` / Tessl `output.quality_score`, and surfaced on skill cards as
-  compact `Q N` / `Q —` / `Q ?` badges with hover tooltips + schedule cues —
-  `sandbox/scanners.py`, `tripwire-live.js`, `tripwire-status.js`, `Tripwire.dc.html`
-  (slice 42 A9–A12, ON BRANCH)
+  compact `Q N` / `Q —` / `Q ?` badges with fast CSS `.score-tip` hover/focus
+  tooltips + schedule cues — `sandbox/scanners.py`, `tripwire-live.js`,
+  `tripwire-status.js`, `Tripwire.dc.html` (slice 42 A9–A13, ON BRANCH ·
+  [PR #98](https://github.com/neomatrix369/tripwire/pull/98); nw-review APPROVED)
 - `risk_score` weighted finding density from `tripwire_rollup_item`; cards show
-  compact `R N.NN` badges with density-formula tooltips (list header **Risk density**);
+  compact `R N.NN` badges with density-formula CSS tips (list header **Risk density**);
   card colour remains worst-of `heatmap_status`, not density (slice 42 A11/A13)
 - Tiered post-scan router (SIE triage + optional Model Studio escalation) —
   `tripwire route`, auto-route after `tripwire scan`
@@ -131,9 +132,10 @@ sort/trend only — see [ARCHITECTURE.md](./ARCHITECTURE.md) § Quality attribut
 ## ON BRANCH (awaiting merge)
 
 Wave J delta A9–A13 (Tessl quality + risk badges/tooltips + plain labels +
-paper alert-ink polish) on `slice/42-tessl-quality-card-surfacing` — see
-IMPLEMENTED above; gate evidence `docs/plan/gate-evidence/slice-42.json`
-(`gate_status: ON_BRANCH`).
+paper alert-ink polish) on `slice/42-tessl-quality-card-surfacing`
+([PR #98](https://github.com/neomatrix369/tripwire/pull/98)) — nw-review
+**APPROVED** 2026-08-20; awaiting merge for ✅ PASSED. See IMPLEMENTED above;
+gate evidence `docs/plan/gate-evidence/slice-42.json` (`gate_status: ON_BRANCH`).
 
 Live Modal/Supabase E2E as a CI Must remains **Won't** for this wave (slow/optional
 skip-without-config stays). Demo/hackathon film day (VO/Remotion slice 4; film-day
@@ -154,10 +156,11 @@ waivers stay in [plan/DECISIONS.md](./plan/DECISIONS.md). ADR number 0001 is
 reserved for a Proposed Monk Live packaging / deployment draft that is **not**
 on `main` yet (side-branch only); it is omitted from the catalog until accepted.
 
-**Wave J delta — dashboard metric surfacing (2026-08-20):** A9–A13 **IMPLEMENTED**
-on `slice/42-tessl-quality-card-surfacing` (awaiting merge / nw-review). Compact
-`Q` / `R` badges, tooltips, schedule cues, plain labels, alert-ink polish —
-see IMPLEMENTED and [gate-evidence/slice-42.json](./plan/gate-evidence/slice-42.json).
+**Wave J delta — dashboard metric surfacing (2026-08-20):** A9–A13 shipped on
+branch (IMPLEMENTED + runtime-verified tips); **nw-review APPROVED**. Still
+`ON_BRANCH` until [PR #98](https://github.com/neomatrix369/tripwire/pull/98)
+merges — see [ON BRANCH](#on-branch-awaiting-merge) and
+[gate-evidence/slice-42.json](./plan/gate-evidence/slice-42.json).
 Spec: [plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md](./plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md).
 
 **Wave H — Frontline agent hooks (2026-08-15):** Claude Code PreToolUse handlers,

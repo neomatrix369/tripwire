@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Q ?` with hover explaining 0–100 skill-review quality; risk uses compact `R N.NN`
   badge (parity with Q) plus density tooltip; list column stays **Risk density**;
   locus/availability chips use plain language (`On disk`, `No local source`, …).
+  Risk/quality hints use fast CSS `.score-tip` bubbles (host elevates on hover so
+  sibling cards do not clip tips) instead of delayed native `title=` attributes.
 
 ### Added
 - Landing intro screen shown on first dashboard open (sessionStorage-persisted toggle);

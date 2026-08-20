@@ -128,3 +128,6 @@
 | 2026-08-20 | slice-42 | Compact `R` badge parity | Risk chrome uses `R N.NN` / `R —` mono badge (signal-ink) matching `Q` chip UX; tooltip + list header keep “Risk density”. Not RAG-tinted. |
 | 2026-08-20 | slice-43 pile-on | Alert/guard pastel ink on paper | Partial-scan + disagreement banners → `--violet-ink`; Guard result pastels → status ink. Regression in `tripwire-visual-tokens.test.js`. |
 | 2026-08-20 | sync-docs | Wave J A9–A13 IMPLEMENTED | STATUS/ARCHITECTURE promoted from DECIDED; screenshot gallery note cleared after regen. APPLIED |
+| 2026-08-20 | slice-42 | CSS score tips (not native `title`) | Operator risk/quality hints use `.score-tip` / `.score-tip-bubble` with host `z-index` elevation; native `title=` OS delay + sibling-card clip rejected. |
+| 2026-08-20 | slice-42 | /nw-review APPROVED | software-crafter-reviewer APPROVED A9–A13 delta 2026-08-20; After-Check ticked; gate-evidence `review` field updated. Still 🔀 until PR #98 merges → ✅ PASSED. |
+| 2026-08-20 | sync-docs | Wave J review + tip truth | STATUS/ARCHITECTURE/CHANGELOG/TRAIL/PROGRESS: nw-review APPROVED + CSS tip mechanism; no PASSED promotion. APPLIED |
