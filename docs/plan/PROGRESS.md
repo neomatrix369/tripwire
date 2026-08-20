@@ -5,8 +5,8 @@
 
 | Wave | Folder | Group | Slices | Outcome |
 |-----:|--------|-------|--------|---------|
-| 9 | [`09-I-…`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 ✅ · 43 | 41 ✅ · 43 🔀 |
-| 10 | [`10-J-…`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 | A1–A8 ✅ · A9–A11 📋 |
+| 9 | [`09-I-…`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 ✅ · 43 | 41 ✅ · 43 ✅ |
+| 10 | [`10-J-…`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 | A1–A8 ✅ · A9–A13 📋 |
 | 1 | [`01-A-…`](slices/01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 · 4 | ✅ · 4 📦 |
 | 2 | [`02-B-…`](slices/02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`03-C-…`](slices/03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
@@ -24,7 +24,7 @@
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| 0 (delta) | J | 42 | Dashboard Data Quality — Tessl quality UX + risk tooltip (A9–A11) | Must | 📋 PLANNED |
+| 0 (delta) | J | 42 | Dashboard Data Quality — Tessl quality UX + tooltips + plain labels (A9–A13) | Must | 📋 PLANNED |
 | 1 | G | 18 | CLI Operator Evidence Contracts | Must | 📋 PLANNED |
 | 2 | G | 19 | Sandbox Persistence State Contract | Must | 📋 PLANNED |
 | 3 | G | 20 | Scanner Subprocess Adapter Contract | Must | 📋 PLANNED |
@@ -144,12 +144,12 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
 | 41 | [slice-41-landing-intro-dashboard-restyle](slices/09-I-landing-intro-restyle/slice-41-landing-intro-dashboard-restyle.md) | Must | ✅ PASSED | 2026-08-19 | 2026-08-19 | — |
-| 43 | [slice-43-foldergate-tripwire-visual-blend](slices/09-I-landing-intro-restyle/slice-43-foldergate-tripwire-visual-blend.md) | Must | 🔀 ON BRANCH | 2026-08-20 | — | ~90 min |
+| 43 | [slice-43-foldergate-tripwire-visual-blend](slices/09-I-landing-intro-restyle/slice-43-foldergate-tripwire-visual-blend.md) | Must | ✅ PASSED | 2026-08-20 | 2026-08-20 | ~90 min |
 
 ### J — Dashboard Data Quality Fixes
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| 42 | [slice-42-dashboard-data-quality-fixes](slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md) | Must | 📋 PLANNED (delta A9–A11; A1–A8 shipped #95) | 2026-08-19 | — | ~60 min delta |
+| 42 | [slice-42-dashboard-data-quality-fixes](slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md) | Must | 📋 PLANNED (delta A9–A13; A1–A8 shipped #95) | 2026-08-19 | — | ~75 min delta |
 
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 
@@ -209,5 +209,9 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-17 | docs/slice-40-reframe-type-filter | plan-modifier | 40 | 📋 PLANNED | Reframe slice 40 again: user-facing `--type <skill\|mcp>` filter on `tripwire scan` (not internal complexity refactor). UX decision: parameter on existing subcommand over new subcommand. |
 | 2026-08-20 | plan (on slice/42 working tree) | enhanced-flow-planner Path B | 43 | 📋 PLANNED | Amend Wave I: FolderGate cream/tan × Tripwire HUD. Slice 41 stays ✅ (intro). |
 | 2026-08-20 | slice/43-foldergate-tripwire-visual-blend | gate close prep | 43 | 🔀 ON BRANCH | PR #96; gate-evidence slice-43.json; trackers synced. |
+| 2026-08-20 | main | merge PR #96 | 43 | ✅ PASSED | FolderGate × Tripwire visual blend on main. |
 | 2026-08-20 | plan | enhanced-flow-planner augment | 42 | 📋 delta reopen | A9–A10 Tessl quality on cards + inner scan cues; no new slice. |
 | 2026-08-20 | plan | enhanced-flow-planner pile-on | 42 | 📋 A11 | Risk hover tooltip (formula/range/meaning); still no new slice. |
+| 2026-08-20 | plan | enhanced-flow-planner pile-on | 42 | 📋 A12 | Quality not on card top yet; require Tessl 0–100 hover with A9. |
+| 2026-08-20 | docs/slice-42-reopen-a9-a11 | sync-docs | 42·43 | APPLIED | STATUS/ARCHITECTURE + trackers: 43 ✅; A9–A12 DECIDED. |
+| 2026-08-20 | plan | enhanced-flow-planner pile-on | 42 | 📋 A13 | Operator-friendly labels (`Risk density`, not `risk_score`). |
