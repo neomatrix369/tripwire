@@ -114,3 +114,4 @@
 | 2026-08-20 | quality-lens | 15/15 on slice 43 | USER-CONFIRMED |
 | 2026-08-20 | sequencing | Slice 42 then 43 | Finish/merge 42 first; then `git checkout -b slice/43-foldergate-tripwire-visual-blend` from main (or 42 merge tip). Do not start 43 on the 42 branch. USER-CONFIRMED. |
 | 2026-08-20 | slice-43 | 🔨 started on `slice/43-foldergate-tripwire-visual-blend` | Paper tokens + Fraunces + CTA/signal split in `Tripwire.dc.html`; token contract tests green (66 pass / 1 skip). IN PROGRESS. |
+| 2026-08-20 | slice-43 | Pile-on: paper AA ink (no new slice) | AT reviewer: add GWTs + reject neon-as-text. Craft reviewer: `:root` hex SSOT; `STATUS_META` copies ink; binding test; deprecate `--accent`. Scope GWT-43.6–43.10. Ink hex: muted `#6B645A`, cta-ink `#7A5C2E`, red-ink `#B42318`, amber-ink `#8B5A00`, green-ink `#0F766E`, signal-ink `#0E7490`, violet-ink `#6D28D9`. Fills unchanged. Running text = signal-ink (not `#4da2ff`). |
