@@ -1285,6 +1285,16 @@ test('given dashboard html when inspecting cards then quality badge and risk den
   // -- When / Then --
   assert.match(html, /item\.qualityBadge/, 'grid cards must surface qualityBadge');
   assert.match(html, /item\.qualityTooltip/, 'quality badge must carry tooltip');
+  assert.match(html, /score-tip-bubble/, 'score tips must use fast CSS bubbles (not delayed native title)');
+  assert.match(html, /class="score-tip"/, 'risk/quality chrome must use score-tip');
+  assert.match(html, /score-tip-host/, 'cards/rows must elevate on tip hover to avoid sibling clip');
+  assert.match(html, /:has\(\.score-tip:hover\)/, 'tip host must raise z-index while tip is open');
+  assert.match(html, /bottom:\s*calc\(100%\s*\+\s*8px\)/, 'tip bubble prefers above badge to reduce row overlap');
+  assert.doesNotMatch(
+    html,
+    /title="\{\{\s*(item|row|selectedView)\.(risk|quality)Tooltip/,
+    'score tooltips must not rely on native title= delay'
+  );
   assert.match(html, /item\.riskBadge/, 'grid cards must surface compact riskBadge');
   assert.match(html, /item\.riskDensityLabel/, 'risk badge keeps Risk density aria/label');
   assert.match(html, /item\.riskTooltip/, 'risk label must carry tooltip');
@@ -1295,7 +1305,7 @@ test('given dashboard html when inspecting cards then quality badge and risk den
   assert.match(html, /scv\.tesslQuality/, 'Tessl inner card must use tesslQuality');
   assert.match(html, /Tessl quality/, 'operator chrome must say Tessl quality');
   assert.doesNotMatch(
-    html.replace(/title="\{\{[^"]+\}\}"/g, ''),
+    html.replace(/title="\{\{[^"]+\}\}"/g, '').replace(/role="tooltip">\{\{[^<]+\}\}/g, ''),
     />[^<]*\brisk_score\b/,
     'operator-visible chrome must not show risk_score'
   );

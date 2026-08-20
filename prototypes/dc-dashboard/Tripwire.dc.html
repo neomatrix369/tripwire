@@ -112,6 +112,70 @@
   .hud.hud-green::before, .hud.hud-green::after { border-color: var(--green); }
   .hud.hud-green .hc-br::before, .hud.hud-green .hc-br::after { border-color: var(--green); }
 
+  /* Fast score tips (native title= is ~0.5–1s delayed — A11/A12).
+     Tips must escape sibling paint order: cards use animation/transform
+     stacking contexts, so later grid cards would clip overflowing bubbles. */
+  .score-tip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: help;
+    outline: none;
+    z-index: 1;
+  }
+  .score-tip:focus-visible {
+    outline: 2px solid var(--cta);
+    outline-offset: 2px;
+  }
+  .score-tip-host {
+    position: relative;
+    z-index: 1;
+  }
+  .score-tip-host:has(.score-tip:hover),
+  .score-tip-host:has(.score-tip:focus-visible),
+  .score-tip-host:has(.score-tip:focus-within) {
+    z-index: 60;
+  }
+  .score-tip .score-tip-bubble {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 8px);
+    top: auto;
+    transform: translateY(2px);
+    z-index: 80;
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: min(300px, 72vw);
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-default);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.45;
+    letter-spacing: 0;
+    text-transform: none;
+    white-space: pre-wrap;
+    text-align: left;
+    box-shadow: 0 8px 24px rgba(28, 25, 21, 0.18);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 70ms ease, transform 70ms ease, visibility 70ms;
+  }
+  .score-tip:hover .score-tip-bubble,
+  .score-tip:focus-visible .score-tip-bubble,
+  .score-tip:focus-within .score-tip-bubble {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .score-tip .score-tip-bubble { transition: none; }
+  }
+
   /* ── Intro screen styles ── */
   @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
   @keyframes intro-reveal { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
@@ -567,16 +631,16 @@
             <sc-if value="{{ showItemResults }}" hint-placeholder-val="{{ true }}">
               <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
                 <sc-for list="{{ gridItems }}" as="item" hint-placeholder-count="8">
-                  <div onClick="{{ item.onSelect }}" style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-left:3px solid {{ item.statusColor }};border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:all 200ms ease;box-shadow:0 1px 2px rgba(0,0,0,0.15);animation:fadeUp 300ms ease both">
+                  <div class="score-tip-host" onClick="{{ item.onSelect }}" style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-left:3px solid {{ item.statusColor }};border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:all 200ms ease;box-shadow:0 1px 2px rgba(0,0,0,0.15);animation:fadeUp 300ms ease both">
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
                       <div style="font-size:13px;font-weight:600;color:var(--text-primary);word-break:break-word">{{ item.name }}</div>
                       <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.statusColor }};background:{{ item.statusColor }}18;padding:2px 7px;border-radius:4px;white-space:nowrap;border:1px solid {{ item.statusColor }}30">{{ item.statusGlyph }} {{ item.statusLabel }}</div>
                     </div>
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ item.typeLabel }}</div>
                     <div style="display:flex;gap:12px;font-size:11px;color:var(--text-secondary);align-items:center;flex-wrap:wrap">
-                      <span tabindex="0" title="{{ item.riskTooltip }}" aria-label="{{ item.riskDensityLabel }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.riskBadgeColor }};background:{{ item.riskBadgeBg }};padding:2px 6px;border-radius:4px;border:{{ item.riskBadgeBorder }};white-space:nowrap;cursor:help;outline:none">{{ item.riskBadge }}</span>
+                      <span class="score-tip" tabindex="0" aria-label="{{ item.riskDensityLabel }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.riskBadgeColor }};background:{{ item.riskBadgeBg }};padding:2px 6px;border-radius:4px;border:{{ item.riskBadgeBorder }};white-space:nowrap">{{ item.riskBadge }}<span class="score-tip-bubble" role="tooltip">{{ item.riskTooltip }}</span></span>
                       <sc-if value="{{ item.qualityBadge }}">
-                        <span tabindex="0" title="{{ item.qualityTooltip }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.qualityBadgeColor }};background:{{ item.qualityBadgeBg }};padding:2px 6px;border-radius:4px;border:{{ item.qualityBadgeBorder }};white-space:nowrap;cursor:help;outline:none">{{ item.qualityBadge }}</span>
+                        <span class="score-tip" tabindex="0" aria-label="{{ item.qualityBadge }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.qualityBadgeColor }};background:{{ item.qualityBadgeBg }};padding:2px 6px;border-radius:4px;border:{{ item.qualityBadgeBorder }};white-space:nowrap">{{ item.qualityBadge }}<span class="score-tip-bubble" role="tooltip">{{ item.qualityTooltip }}</span></span>
                       </sc-if>
                       <span>{{ item.timeLabel }}</span>
                       <sc-if value="{{ item.hasRedAmberSplit }}">
@@ -623,19 +687,19 @@
               </div>
             </sc-if>
             <sc-if value="{{ showItemResults }}" hint-placeholder-val="{{ true }}">
-              <div style="border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
-                <div style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle)">
+              <div style="border:1px solid var(--border-subtle);border-radius:8px;overflow:visible;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
+                <div style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle);border-radius:8px 8px 0 0">
                   <sc-for list="{{ listColumns }}" as="col" hint-placeholder-count="6">
                     <button onClick="{{ col.onClick }}" style="background:none;border:none;text-align:left;padding:10px 14px;font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);cursor:pointer;font-weight:600">{{ col.label }}{{ col.arrow }}</button>
                   </sc-for>
                 </div>
                 <sc-for list="{{ listRows }}" as="row" hint-placeholder-count="8">
-                  <div onClick="{{ row.onSelect }}" style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;border-bottom:1px solid var(--border-subtle);cursor:pointer;align-items:center;transition:background 150ms">
+                  <div class="score-tip-host" onClick="{{ row.onSelect }}" style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;border-bottom:1px solid var(--border-subtle);cursor:pointer;align-items:center;transition:background 150ms">
                     <div style="padding:10px 14px;font-size:12px;color:var(--text-primary);word-break:break-word">{{ row.name }}</div>
                     <div style="padding:10px 14px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary)">{{ row.typeLabel }}</div>
                     <div style="padding:10px 14px;font-size:11px;color:var(--text-secondary)">{{ row.timeLabel }}</div>
                     <div style="padding:10px 14px"><span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ row.statusColor }};background:{{ row.statusColor }}18;padding:2px 7px;border-radius:4px;border:1px solid {{ row.statusColor }}30">{{ row.statusGlyph }} {{ row.statusLabel }}</span></div>
-                    <div style="padding:10px 14px"><span tabindex="0" title="{{ row.riskTooltip }}" aria-label="{{ row.riskDensityLabel }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ row.riskBadgeColor }};background:{{ row.riskBadgeBg }};padding:2px 6px;border-radius:4px;border:{{ row.riskBadgeBorder }};cursor:help;outline:none;white-space:nowrap">{{ row.riskBadge }}</span></div>
+                    <div style="padding:10px 14px;overflow:visible"><span class="score-tip" tabindex="0" aria-label="{{ row.riskDensityLabel }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ row.riskBadgeColor }};background:{{ row.riskBadgeBg }};padding:2px 6px;border-radius:4px;border:{{ row.riskBadgeBorder }};white-space:nowrap">{{ row.riskBadge }}<span class="score-tip-bubble" role="tooltip">{{ row.riskTooltip }}</span></span></div>
                     <div style="padding:10px 14px;font-size:11px;color:var(--text-secondary)">{{ row.sourceLabel }}</div>
                   </div>
                 </sc-for>
@@ -667,7 +731,7 @@
           </div>
           <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:16px">{{ selectedView.typeLabel }} · {{ selectedView.identifier }}</div>
 
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+          <div class="score-tip-host" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
             <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.statusColor }};background:{{ selectedView.statusColor }}18;padding:3px 8px;border-radius:4px;border:1px solid {{ selectedView.statusColor }}30">{{ selectedView.statusGlyph }} {{ selectedView.statusLabel }}</div>
             <sc-if value="{{ selectedView.hasRedAmberSplit }}">
               <span style="display:inline-flex;gap:4px;align-items:center">
@@ -679,9 +743,9 @@
               <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.statusColor }};background:{{ selectedView.statusColor }}18;padding:3px 8px;border-radius:4px;border:1px solid {{ selectedView.statusColor }}30">{{ selectedView.findingCountLabel }}</div>
             </sc-if>
             <sc-if value="{{ selectedView.qualityBadge }}">
-              <div tabindex="0" title="{{ selectedView.qualityTooltip }}" style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.qualityBadgeColor }};background:{{ selectedView.qualityBadgeBg }};padding:3px 8px;border-radius:4px;border:{{ selectedView.qualityBadgeBorder }};cursor:help;outline:none">{{ selectedView.qualityBadge }}</div>
+              <div class="score-tip" tabindex="0" aria-label="{{ selectedView.qualityBadge }}" style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.qualityBadgeColor }};background:{{ selectedView.qualityBadgeBg }};padding:3px 8px;border-radius:4px;border:{{ selectedView.qualityBadgeBorder }}">{{ selectedView.qualityBadge }}<span class="score-tip-bubble" role="tooltip">{{ selectedView.qualityTooltip }}</span></div>
             </sc-if>
-            <div tabindex="0" title="{{ selectedView.riskTooltip }}" aria-label="{{ selectedView.riskDensityLabel }}" style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.riskBadgeColor }};background:{{ selectedView.riskBadgeBg }};padding:3px 8px;border-radius:4px;border:{{ selectedView.riskBadgeBorder }};cursor:help;outline:none">{{ selectedView.riskBadge }}</div>
+            <div class="score-tip" tabindex="0" aria-label="{{ selectedView.riskDensityLabel }}" style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.riskBadgeColor }};background:{{ selectedView.riskBadgeBg }};padding:3px 8px;border-radius:4px;border:{{ selectedView.riskBadgeBorder }}">{{ selectedView.riskBadge }}<span class="score-tip-bubble" role="tooltip">{{ selectedView.riskTooltip }}</span></div>
             <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);background:var(--bg-elevated);padding:3px 8px;border-radius:4px">{{ selectedView.locusLabel }}</div>
             <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);background:var(--bg-elevated);padding:3px 8px;border-radius:4px">{{ selectedView.availLabel }}</div>
           </div>
@@ -790,7 +854,7 @@
             </div>
           </sc-if>
           <sc-for list="{{ selectedView.scannersView }}" as="scv" hint-placeholder-count="2">
-            <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-left:3px solid {{ scv.statusColor }};border-radius:6px;margin-bottom:6px;overflow:hidden">
+            <div class="score-tip-host" style="background:var(--bg-base);border:1px solid var(--border-subtle);border-left:3px solid {{ scv.statusColor }};border-radius:6px;margin-bottom:6px;overflow:visible">
               <div onClick="{{ scv.onToggle }}" style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;cursor:pointer;gap:8px;user-select:none;transition:background 150ms">
                 <div style="display:flex;align-items:center;gap:8px;min-width:0">
                   <span style="font-size:10px;color:var(--text-secondary);flex-shrink:0;width:12px;text-align:center">{{ scv.chevron }}</span>
@@ -798,7 +862,7 @@
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
                   <sc-if value="{{ scv.tesslQuality }}">
-                    <span tabindex="0" title="{{ scv.tesslQuality.tooltip }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--cta-ink);background:rgba(196,165,116,0.18);padding:2px 6px;border-radius:4px;border:1px solid rgba(196,165,116,0.45);cursor:help;outline:none">{{ scv.tesslQuality.headerBadge }}</span>
+                    <span class="score-tip" tabindex="0" aria-label="{{ scv.tesslQuality.headerBadge }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--cta-ink);background:rgba(196,165,116,0.18);padding:2px 6px;border-radius:4px;border:1px solid rgba(196,165,116,0.45)">{{ scv.tesslQuality.headerBadge }}<span class="score-tip-bubble" role="tooltip">{{ scv.tesslQuality.tooltip }}</span></span>
                   </sc-if>
                   <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ scv.statusColor }};background:{{ scv.statusColor }}18;padding:2px 6px;border-radius:4px;white-space:nowrap;border:1px solid {{ scv.statusColor }}30">{{ scv.statusLabel }}</span>
                   <sc-if value="{{ scv.checks_run }}">
@@ -824,7 +888,7 @@
                     <div style="color:var(--red-ink);margin-bottom:6px">⚠ {{ scv.output.error }}</div>
                   </sc-if>
                   <sc-if value="{{ scv.tesslQuality }}">
-                    <div tabindex="0" title="{{ scv.tesslQuality.tooltip }}" style="margin-bottom:6px;cursor:help;outline:none">{{ scv.tesslQuality.label }}</div>
+                    <div class="score-tip" tabindex="0" style="margin-bottom:6px">{{ scv.tesslQuality.label }}<span class="score-tip-bubble" role="tooltip">{{ scv.tesslQuality.tooltip }}</span></div>
                     <sc-if value="{{ scv.tesslQuality.scheduleCue }}">
                       <div style="font-family:var(--font-mono);font-size:10px;color:var(--amber-ink);margin-bottom:6px">{{ scv.tesslQuality.scheduleCue }}</div>
                     </sc-if>
