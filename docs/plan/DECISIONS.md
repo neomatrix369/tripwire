@@ -125,3 +125,11 @@
 | 2026-08-20 | slice-42 | Pile-on A12 — quality tooltip + top check | Live already maps `quality_score`→`item.quality`; **cards do not show it** (only Tessl expand when truthy). A9 ships top badge; A12 requires hover: Tessl skill-review 0–100, not risk/colour; `Q —`/`Q ?` explained. GWT-42.9 + sub-task 11. |
 | 2026-08-20 | sync-docs | Wave I close + Wave J DECIDED | Slice 43 ✅ after #96; STATUS IMPLEMENTED visual v2 + honest quality/risk UI limits; ARCHITECTURE risk/quality SoT; A9–A12 DECIDED not CHANGELOG Fixed. APPLIED |
 | 2026-08-20 | slice-42 | Pile-on A13 — plain labels | Replace operator chrome `risk_score` → `Risk density`; list `Score` → `Risk density`; `Quality score` → `Tessl quality`; soften locus/avail jargon. Schema names stay in code/tooltips. GWT-42.10. |
+| 2026-08-20 | slice-42 | Compact `R` badge parity | Risk chrome uses `R N.NN` / `R —` mono badge (signal-ink) matching `Q` chip UX; tooltip + list header keep “Risk density”. Not RAG-tinted. |
+| 2026-08-20 | slice-43 pile-on | Alert/guard pastel ink on paper | Partial-scan + disagreement banners → `--violet-ink`; Guard result pastels → status ink. Regression in `tripwire-visual-tokens.test.js`. |
+| 2026-08-20 | sync-docs | Wave J A9–A13 IMPLEMENTED | STATUS/ARCHITECTURE promoted from DECIDED; screenshot gallery note cleared after regen. APPLIED |
+| 2026-08-20 | slice-42 | CSS score tips (not native `title`) | Operator risk/quality hints use `.score-tip` / `.score-tip-bubble` with host `z-index` elevation; native `title=` OS delay + sibling-card clip rejected. |
+| 2026-08-20 | slice-42 | /nw-review APPROVED | software-crafter-reviewer APPROVED A9–A13 delta 2026-08-20; After-Check ticked; gate-evidence `review` field updated. Still 🔀 until PR #98 merges → ✅ PASSED. |
+| 2026-08-20 | sync-docs | Wave J review + tip truth | STATUS/ARCHITECTURE/CHANGELOG/TRAIL/PROGRESS: nw-review APPROVED + CSS tip mechanism; no PASSED promotion. APPLIED |
+| 2026-08-20 | slice-42 | Score tip portal (clip fix) | In-card absolute tips still clipped by grid `overflow-y: auto`. Superseded by fixed `#score-tip-portal` + `initScoreTipPortal` viewport clamp. |
+| 2026-08-20 | sync-docs | Score tip portal truth | STATUS/ARCHITECTURE/CHANGELOG/DECISIONS: portal supersedes host-elevate absolute bubbles. APPLIED |

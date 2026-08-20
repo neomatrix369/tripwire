@@ -1268,6 +1268,64 @@ test('given unscanned item when loadData live then scanners array is empty and b
   restoreFetch();
 });
 
+// ── GWT-42.6–42.10 — quality badge, tooltips, plain labels (delta) ────────
+
+test('given dashboard html when inspecting cards then quality badge and risk density chrome exist', () => {
+  /**
+   * Scenario: GWT-42.6 / 42.8 / 42.10 template contract
+   * Slice: 42 A9–A13
+   *
+   * Given the dashboard HTML templates,
+   * When inspected for quality/risk chrome,
+   * Then qualityBadge, riskDensityLabel, Risk density list header, and Tessl quality are present without risk_score chrome.
+   */
+  // -- Given --
+  const html = readFileSync(HTML_PATH, 'utf8');
+
+  // -- When / Then --
+  assert.match(html, /item\.qualityBadge/, 'grid cards must surface qualityBadge');
+  assert.match(html, /item\.qualityTooltip/, 'quality badge must carry tooltip');
+  assert.match(html, /score-tip-bubble/, 'score tips must keep tooltip text source');
+  assert.match(html, /class="score-tip"/, 'risk/quality chrome must use score-tip');
+  assert.match(html, /id="score-tip-portal"/, 'tips must use fixed portal to escape overflow clip');
+  assert.match(html, /initScoreTipPortal/, 'portal placer script must be present');
+  assert.doesNotMatch(
+    html,
+    /title="\{\{\s*(item|row|selectedView)\.(risk|quality)Tooltip/,
+    'score tooltips must not rely on native title= delay'
+  );
+  assert.match(html, /item\.riskBadge/, 'grid cards must surface compact riskBadge');
+  assert.match(html, /item\.riskDensityLabel/, 'risk badge keeps Risk density aria/label');
+  assert.match(html, /item\.riskTooltip/, 'risk label must carry tooltip');
+  assert.match(html, /label: 'Risk density'/, 'list column must be Risk density not Score');
+  assert.match(html, /selectedView\.riskBadge/, 'detail chips must use riskBadge');
+  assert.match(html, /formatRiskBadge/, 'decorateItem must compute compact R badge');
+  assert.match(html, /selectedView\.qualityScheduleCue/, 'detail must expose schedule cue');
+  assert.match(html, /scv\.tesslQuality/, 'Tessl inner card must use tesslQuality');
+  assert.match(html, /Tessl quality/, 'operator chrome must say Tessl quality');
+  assert.doesNotMatch(
+    html.replace(/title="\{\{[^"]+\}\}"/g, '').replace(/role="tooltip">\{\{[^<]+\}\}/g, ''),
+    />[^<]*\brisk_score\b/,
+    'operator-visible chrome must not show risk_score'
+  );
+  assert.doesNotMatch(html, /Quality score:/, 'Tessl line must not use Quality score:');
+  assert.match(html, /qualitySurfacing|fallbackQualitySurfacing/, 'decorateItem must compute quality surfacing');
+});
+
+test('given dashboard html when inspecting locus avail then glossary phrases present', () => {
+  // -- Given --
+  const html = readFileSync(HTML_PATH, 'utf8');
+
+  // -- When / Then --
+  assert.match(html, /Location unknown/);
+  assert.match(html, /On disk/);
+  assert.match(html, /No local source/);
+  assert.match(html, /Scanability unknown/);
+  assert.doesNotMatch(html, /Locus unknown/);
+  assert.doesNotMatch(html, /Source on disk/);
+  assert.doesNotMatch(html, /Introspection only/);
+});
+
 // ── GWT-1 Detection (must-show #1+#2) — slice-2 ───────────────────────────
 
 test('given must-show skill and MCP live rows when loadData live then GWT-1 detection mapping holds', async () => {

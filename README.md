@@ -118,10 +118,9 @@ shipped skills, and roadmap). Click **Open Dashboard →** to proceed to the sca
 view. The "About" nav button toggles the intro back on at any time; the choice is
 remembered in `sessionStorage`.
 
-> **Visual refresh (ON BRANCH):** [PR #96](https://github.com/neomatrix369/tripwire/pull/96)
-> restyles the dashboard to cream paper, tan primary CTA, and AA-readable ink tokens
-> (Fraunces display headings). Screenshots in [docs/screenshots/](docs/screenshots/README.md)
-> still show the pre-v2 dark theme until regenerated after merge.
+> **Visual identity v2:** cream paper, tan primary CTA, and AA-readable ink tokens
+> (Fraunces display headings) — shipped via [PR #96](https://github.com/neomatrix369/tripwire/pull/96).
+> Screenshots in [docs/screenshots/](docs/screenshots/README.md) regenerated 2026-08-20.
 
 After installing the CLI, you can also validate target discovery locally without
 accounts or a scan:

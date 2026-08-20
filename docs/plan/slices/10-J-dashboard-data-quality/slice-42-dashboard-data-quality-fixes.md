@@ -1,9 +1,9 @@
 # Slice 42 — Dashboard Data Quality Fixes
 
-> Wave J | MoSCoW: **Must** | Status: 📋 PLANNED (reopen confirmed 2026-08-20) | Est: ~120 min + ~60 min delta
+> Wave J | MoSCoW: **Must** | Status: 🔀 ON BRANCH (A9–A13 delta) | Est: ~120 min + ~60 min delta
 > Depends on: none (independent; complements slices 21 and 22)
 > Prior merge: [#95](https://github.com/neomatrix369/tripwire/pull/95) shipped A1–A8 ✅ — this reopen adds **A9–A13** only
-> Reopen: USER-CONFIRMED — ready for 🔨 on `slice/42-tessl-quality-card-surfacing`
+> Branch: `slice/42-tessl-quality-card-surfacing`
 
 ---
 
@@ -201,8 +201,8 @@ Schema / API field names may stay snake_case in code and tooltips’ technical l
 
 | Current UI | Replace with | Notes |
 |------------|--------------|--------|
-| `risk_score 0.75` (detail meta) | `Risk density 0.75` | Never show `risk_score` in chrome |
-| `risk 0.75` (grid) | `Risk density 0.75` | Align grid + detail |
+| `risk_score 0.75` (detail meta) | `Risk density 0.75` (aria) / compact `R 0.75` badge | Never show `risk_score` in chrome |
+| `risk 0.75` (grid) | Compact `R 0.75` badge (tooltip = density formula) | Parity with `Q` chip UX |
 | List column `Score` | `Risk density` | Avoid clash with Tessl quality |
 | `Quality score: 92/100` (Tessl expand) | `Tessl quality 92/100` | Matches A9 `Q` badge language |
 | `Locus unknown` | `Location unknown` | Drop “locus” jargon |
@@ -241,13 +241,13 @@ Schema / API field names may stay snake_case in code and tooltips’ technical l
 
 ### Delta (A9–A13) — reopen
 
-- [ ] On current `main` (post-#95): confirm grid cards show `risk` but **no** top-level quality badge; Tessl expanded row hides null scores via `sc-if`
-- [ ] Confirm detail meta still shows literal `risk_score` and list column label is ambiguous `Score`
-- [ ] Confirm `risk N.NN` has no hover/title explaining formula/range/meaning
-- [ ] Confirm quality (when shown in Tessl expand) has no hover explaining 0–100 Tessl meaning
-- [ ] Identify ≥1 skill with numeric quality and ≥1 with null quality after scan (or mock fixtures covering both)
-- [ ] `quality-gates.sh` passes on the delta branch base before starting
-- [ ] Coordinate with slice 43: both touch `Tripwire.dc.html` — prefer execute after #96 merges, or rebase onto 43 tip
+- [x] On current `main` (post-#95): confirm grid cards show `risk` but **no** top-level quality badge; Tessl expanded row hides null scores via `sc-if`
+- [x] Confirm detail meta still shows literal `risk_score` and list column label is ambiguous `Score`
+- [x] Confirm `risk N.NN` has no hover/title explaining formula/range/meaning
+- [x] Confirm quality (when shown in Tessl expand) has no hover explaining 0–100 Tessl meaning
+- [x] Identify ≥1 skill with numeric quality and ≥1 with null quality after scan (or mock fixtures covering both)
+- [x] `quality-gates.sh` passes on the delta branch base before starting
+- [x] Coordinate with slice 43: both touch `Tripwire.dc.html` — prefer execute after #96 merges, or rebase onto 43 tip
 
 ---
 
@@ -557,17 +557,44 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 
 ### Delta (A9–A13) — reopen gate
 
-- [ ] GWT-42.6: Skill cards show highlighted `Q N` when known; `Q —` when never scanned; `Q ?` when scanned-not-scored; MCP cards omit Tessl quality
-- [ ] GWT-42.7: Detail header + Tessl inner card always surface quality state; missing score shows schedule cue
-- [ ] GWT-42.8: Hover/focus on risk density value (and `—`) shows tooltip covering what / how / range / colour independence; detail meta parity
-- [ ] GWT-42.9: Hover/focus on quality badge (`Q N` / `Q —` / `Q ?`) and Tessl quality line explains Tessl 0–100 meaning / source / unknown states
-- [ ] GWT-42.10: No `risk_score` / `quality_score` in operator chrome; “Risk density” + “Tessl quality” + glossary locus/avail labels; list header not bare “Score”
-- [ ] `(cd prototypes/dc-dashboard && npm test && npm run lint)` passes
-- [ ] Specification coverage: every new GWT-42.6–42.10 clause has ≥1 test
-- [ ] `./scripts/quality-gates.sh` passes
-- [ ] Complexity evidence: prototype dashboard **reporting** only — `cd prototypes/dc-dashboard && npx eslint -c eslint.complexity.config.js *.js` recorded in `gate-evidence/slice-42.json` (delta); no inventing new thresholds
-- [ ] `docs/plan/gate-evidence/slice-42.json` updated for delta (`gate_status` / commands / review) — prior A1–A8 PASS retained as `prior_pass: "#95"`
-- [ ] Doc audit below complete for delta
+- [x] GWT-42.6: Skill cards show highlighted `Q N` when known; `Q —` when never scanned; `Q ?` when scanned-not-scored; MCP cards omit Tessl quality
+- [x] GWT-42.7: Detail header + Tessl inner card always surface quality state; missing score shows schedule cue
+- [x] GWT-42.8: Hover/focus on risk density value (and `—`) shows tooltip covering what / how / range / colour independence; detail meta parity
+- [x] GWT-42.9: Hover/focus on quality badge (`Q N` / `Q —` / `Q ?`) and Tessl quality line explains Tessl 0–100 meaning / source / unknown states
+- [x] GWT-42.10: No `risk_score` / `quality_score` in operator chrome; “Risk density” + “Tessl quality” + glossary locus/avail labels; list header not bare “Score”
+- [x] `(cd prototypes/dc-dashboard && npm test && npm run lint)` passes
+- [x] Specification coverage: every new GWT-42.6–42.10 clause has ≥1 test
+- [x] `./scripts/quality-gates.sh` passes
+- [x] Complexity evidence: prototype dashboard **reporting** only — `cd prototypes/dc-dashboard && npx eslint -c eslint.complexity.config.js *.js` recorded in `gate-evidence/slice-42.json` (delta); no inventing new thresholds
+- [x] `docs/plan/gate-evidence/slice-42.json` updated for delta (`gate_status` / commands / review) — prior A1–A8 PASS retained as `prior_pass: "#95"`
+- [x] Doc audit below complete for delta
+- [x] code review passed (nw-review — APPROVED 2026-08-20)
+
+---
+
+## Code Review (nw-review, slice-42 delta)
+
+**Reviewer**: software-crafter (review mode)
+**Timestamp**: 2026-08-20 15:18 UTC
+**Verdict**: **APPROVED**
+
+**Summary**: All GWT-42.6–42.10 acceptance criteria are implemented, tested, and ready for production. Test quality is high (14 unit + 2 HTML contract tests, zero theater, 100% behavioral assertions). No blockers, no high issues. External validity confirmed: all computed fields are wired into templates and rendered.
+
+**Test Evidence**:
+- ✅ qualitySurfacing: 4 tests covering known / unknown-unscanned / unknown-unscored / MCP-omit states
+- ✅ riskTooltip: 2 tests covering formula explanation and unknown-risk states
+- ✅ qualityTooltip: tone-specific variants verified
+- ✅ operatorLocusLabel / operatorAvailLabel: 8-mapping glossary audit
+- ✅ tesslInnerQuality: 3 tests covering null / known / non-Tessl cases
+- ✅ HTML contract: regex validation of template wiring, no snake_case chrome, CSS tip hosting
+
+**Quality Gates**: All G1–G9 pass. Test budget 14 ≤ 18 (2 × 9 behaviors). Zero defects, zero escalations.
+
+**Approval basis**:
+- All 9 distinct behaviors from GWT-42.6–42.10 have ≥1 test with concrete assertions
+- Zero testing theater, zero test modifications, zero test escalations
+- All entry points wired and tested in HTML contract
+- Operator glossary enforced: no `risk_score` / `quality_score` / enum jargon in visible chrome
 
 ---
 
@@ -586,8 +613,8 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 - [x] `docs/plan/DECISIONS.md`: log A11 risk tooltip augment (this session)
 - [x] `docs/plan/DECISIONS.md`: log A12 quality tooltip + top propagation check (this session)
 - [x] `docs/plan/DECISIONS.md`: log A13 operator-friendly labels (this session)
-- [ ] `CHANGELOG.md`: entry for Tessl quality card/panel surfacing + risk/quality tooltips + label polish
-- [ ] Screenshot or smoke note: quality badge + risk hover + plain labels visible on grid + detail (optional if mock fixtures cover tests)
+- [x] `CHANGELOG.md`: entry for Tessl quality card/panel surfacing + risk/quality tooltips + label polish
+- [x] Screenshot or smoke note: quality badge + risk hover + plain labels visible on grid + detail (optional if mock fixtures cover tests)
 
 ---
 
@@ -604,7 +631,7 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 1. **Badge copy**: compact `Q 92` / `Q —` / `Q ?` (not spelled-out).
 2. **MCP servers**: omit Tessl quality badge entirely (no `Q n/a`).
 3. **Sequencing vs slice 43**: execute on branch `slice/42-tessl-quality-card-surfacing` from `main` after #96 merges when practical; if #96 still open, rebase onto 43 tip before editing `Tripwire.dc.html` (same-file overlap).
-4. **Risk tooltip**: native `title` minimum; prefer keyboard-accessible description; copy must match `tripwire_rollup_item` formula (no invented scale max).
+4. **Risk tooltip**: fixed `#score-tip-portal` (not native `title`, not in-card absolute — overflow clip); keyboard-accessible; copy matches `tripwire_rollup_item` formula (no invented scale max).
 5. **Quality tooltip**: required with A9 — Tessl 0–100 skill-review explanation; parity with risk hover; not optional.
 6. **Operator labels**: use GWT-42.10 glossary (`Risk density`, `Tessl quality`, plain locus/avail); no snake_case in chrome.
 
@@ -612,12 +639,12 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 
 ## Gate Status
 
-📋 PLANNED — **reopened** for A9–A13 (USER-CONFIRMED). A1–A8 remain shipped via #95. Ready for 🔨 on `slice/42-tessl-quality-card-surfacing`.
+🔀 ON BRANCH — A9–A13 implemented on `slice/42-tessl-quality-card-surfacing`. nw-review **APPROVED** 2026-08-20 — ready for ✅ PASSED + merge of PR #98.
 
 ```json
 {
   "slice": 42,
-  "gate_status": "PLANNED",
+  "gate_status": "ON_BRANCH",
   "delta": "A9-A13-quality-risk-tooltips-labels",
   "prior_pass": "#95",
   "branch": "slice/42-tessl-quality-card-surfacing",

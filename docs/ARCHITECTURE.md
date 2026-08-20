@@ -171,11 +171,13 @@ card colour must not be inferred from this number alone.
 
 `quality_score` is the Tessl skill-review axis (0–100, higher better), written
 by `run_tessl` / `_tessl_quality_score` and mapped into Live as `item.quality`.
-It is orthogonal to findings and to `risk_score`. As of 2026-08-20 the dashboard
-shows it only inside an expanded Tessl scanner row when truthy; card-face badges
-and hover explanations for risk/quality are **DECIDED** (slice 42 A9–A13), not
-yet IMPLEMENTED — see [STATUS.md](./STATUS.md) DECIDED. Operator chrome will use
-plain labels (`Risk density`, `Tessl quality`) rather than schema snake_case.
+It is orthogonal to findings and to `risk_score`. Dashboard skill cards surface
+compact `Q N` / `Q —` / `Q ?` badges with a fixed `#score-tip-portal` (not delayed
+native `title=`, not in-card absolute bubbles that clip under `overflow-y: auto`);
+risk uses compact `R N.NN` badges (list header **Risk density**) with the same
+portal tip pattern — slice 42 A9–A13 IMPLEMENTED on branch, nw-review APPROVED
+(see [STATUS.md](./STATUS.md)). Operator chrome uses plain labels
+(`Tessl quality`, locus/avail glossary) rather than schema snake_case.
 
 ---
 

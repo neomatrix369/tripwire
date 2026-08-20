@@ -112,6 +112,65 @@
   .hud.hud-green::before, .hud.hud-green::after { border-color: var(--green); }
   .hud.hud-green .hc-br::before, .hud.hud-green .hc-br::after { border-color: var(--green); }
 
+  /* Fast score tips (native title= is ~0.5–1s delayed — A11/A12).
+     Bubbles live in a fixed #score-tip-portal so overflow-y:auto grid
+     scrollers and sibling stacking cannot clip them. */
+  .score-tip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: help;
+    outline: none;
+  }
+  .score-tip:focus-visible {
+    outline: 2px solid var(--cta);
+    outline-offset: 2px;
+  }
+  /* Text source for the portal — never painted in-card. */
+  .score-tip .score-tip-bubble {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: pre;
+    border: 0;
+  }
+  #score-tip-portal {
+    position: fixed;
+    z-index: 10000;
+    box-sizing: border-box;
+    min-width: 200px;
+    max-width: min(300px, calc(100vw - 16px));
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-default);
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.45;
+    letter-spacing: 0;
+    text-transform: none;
+    white-space: pre-wrap;
+    text-align: left;
+    box-shadow: 0 8px 24px rgba(28, 25, 21, 0.18);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 70ms ease, visibility 70ms;
+  }
+  #score-tip-portal.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #score-tip-portal { transition: none; }
+  }
+
   /* ── Intro screen styles ── */
   @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
   @keyframes intro-reveal { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
@@ -567,14 +626,17 @@
             <sc-if value="{{ showItemResults }}" hint-placeholder-val="{{ true }}">
               <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">
                 <sc-for list="{{ gridItems }}" as="item" hint-placeholder-count="8">
-                  <div onClick="{{ item.onSelect }}" style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-left:3px solid {{ item.statusColor }};border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:all 200ms ease;box-shadow:0 1px 2px rgba(0,0,0,0.15);animation:fadeUp 300ms ease both">
+                  <div class="score-tip-host" onClick="{{ item.onSelect }}" style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-left:3px solid {{ item.statusColor }};border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:all 200ms ease;box-shadow:0 1px 2px rgba(0,0,0,0.15);animation:fadeUp 300ms ease both">
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
                       <div style="font-size:13px;font-weight:600;color:var(--text-primary);word-break:break-word">{{ item.name }}</div>
                       <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.statusColor }};background:{{ item.statusColor }}18;padding:2px 7px;border-radius:4px;white-space:nowrap;border:1px solid {{ item.statusColor }}30">{{ item.statusGlyph }} {{ item.statusLabel }}</div>
                     </div>
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ item.typeLabel }}</div>
                     <div style="display:flex;gap:12px;font-size:11px;color:var(--text-secondary);align-items:center;flex-wrap:wrap">
-                      <span>risk {{ item.riskLabel }}</span>
+                      <span class="score-tip" tabindex="0" aria-label="{{ item.riskDensityLabel }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.riskBadgeColor }};background:{{ item.riskBadgeBg }};padding:2px 6px;border-radius:4px;border:{{ item.riskBadgeBorder }};white-space:nowrap">{{ item.riskBadge }}<span class="score-tip-bubble" role="tooltip">{{ item.riskTooltip }}</span></span>
+                      <sc-if value="{{ item.qualityBadge }}">
+                        <span class="score-tip" tabindex="0" aria-label="{{ item.qualityBadge }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.qualityBadgeColor }};background:{{ item.qualityBadgeBg }};padding:2px 6px;border-radius:4px;border:{{ item.qualityBadgeBorder }};white-space:nowrap">{{ item.qualityBadge }}<span class="score-tip-bubble" role="tooltip">{{ item.qualityTooltip }}</span></span>
+                      </sc-if>
                       <span>{{ item.timeLabel }}</span>
                       <sc-if value="{{ item.hasRedAmberSplit }}">
                         <span style="display:inline-flex;gap:4px;align-items:center">
@@ -620,19 +682,19 @@
               </div>
             </sc-if>
             <sc-if value="{{ showItemResults }}" hint-placeholder-val="{{ true }}">
-              <div style="border:1px solid var(--border-subtle);border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
-                <div style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle)">
+              <div style="border:1px solid var(--border-subtle);border-radius:8px;overflow:visible;box-shadow:0 1px 3px rgba(0,0,0,0.2)">
+                <div style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle);border-radius:8px 8px 0 0">
                   <sc-for list="{{ listColumns }}" as="col" hint-placeholder-count="6">
                     <button onClick="{{ col.onClick }}" style="background:none;border:none;text-align:left;padding:10px 14px;font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);cursor:pointer;font-weight:600">{{ col.label }}{{ col.arrow }}</button>
                   </sc-for>
                 </div>
                 <sc-for list="{{ listRows }}" as="row" hint-placeholder-count="8">
-                  <div onClick="{{ row.onSelect }}" style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;border-bottom:1px solid var(--border-subtle);cursor:pointer;align-items:center;transition:background 150ms">
+                  <div class="score-tip-host" onClick="{{ row.onSelect }}" style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;border-bottom:1px solid var(--border-subtle);cursor:pointer;align-items:center;transition:background 150ms">
                     <div style="padding:10px 14px;font-size:12px;color:var(--text-primary);word-break:break-word">{{ row.name }}</div>
                     <div style="padding:10px 14px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary)">{{ row.typeLabel }}</div>
                     <div style="padding:10px 14px;font-size:11px;color:var(--text-secondary)">{{ row.timeLabel }}</div>
                     <div style="padding:10px 14px"><span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ row.statusColor }};background:{{ row.statusColor }}18;padding:2px 7px;border-radius:4px;border:1px solid {{ row.statusColor }}30">{{ row.statusGlyph }} {{ row.statusLabel }}</span></div>
-                    <div style="padding:10px 14px;font-family:var(--font-mono);font-size:12px;color:var(--text-primary)">{{ row.riskLabel }}</div>
+                    <div style="padding:10px 14px;overflow:visible"><span class="score-tip" tabindex="0" aria-label="{{ row.riskDensityLabel }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ row.riskBadgeColor }};background:{{ row.riskBadgeBg }};padding:2px 6px;border-radius:4px;border:{{ row.riskBadgeBorder }};white-space:nowrap">{{ row.riskBadge }}<span class="score-tip-bubble" role="tooltip">{{ row.riskTooltip }}</span></span></div>
                     <div style="padding:10px 14px;font-size:11px;color:var(--text-secondary)">{{ row.sourceLabel }}</div>
                   </div>
                 </sc-for>
@@ -664,7 +726,7 @@
           </div>
           <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:16px">{{ selectedView.typeLabel }} · {{ selectedView.identifier }}</div>
 
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+          <div class="score-tip-host" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
             <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.statusColor }};background:{{ selectedView.statusColor }}18;padding:3px 8px;border-radius:4px;border:1px solid {{ selectedView.statusColor }}30">{{ selectedView.statusGlyph }} {{ selectedView.statusLabel }}</div>
             <sc-if value="{{ selectedView.hasRedAmberSplit }}">
               <span style="display:inline-flex;gap:4px;align-items:center">
@@ -675,14 +737,21 @@
             <sc-if value="{{ selectedView.hasFindingCountSingle }}">
               <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.statusColor }};background:{{ selectedView.statusColor }}18;padding:3px 8px;border-radius:4px;border:1px solid {{ selectedView.statusColor }}30">{{ selectedView.findingCountLabel }}</div>
             </sc-if>
+            <sc-if value="{{ selectedView.qualityBadge }}">
+              <div class="score-tip" tabindex="0" aria-label="{{ selectedView.qualityBadge }}" style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.qualityBadgeColor }};background:{{ selectedView.qualityBadgeBg }};padding:3px 8px;border-radius:4px;border:{{ selectedView.qualityBadgeBorder }}">{{ selectedView.qualityBadge }}<span class="score-tip-bubble" role="tooltip">{{ selectedView.qualityTooltip }}</span></div>
+            </sc-if>
+            <div class="score-tip" tabindex="0" aria-label="{{ selectedView.riskDensityLabel }}" style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.riskBadgeColor }};background:{{ selectedView.riskBadgeBg }};padding:3px 8px;border-radius:4px;border:{{ selectedView.riskBadgeBorder }}">{{ selectedView.riskBadge }}<span class="score-tip-bubble" role="tooltip">{{ selectedView.riskTooltip }}</span></div>
             <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);background:var(--bg-elevated);padding:3px 8px;border-radius:4px">{{ selectedView.locusLabel }}</div>
             <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);background:var(--bg-elevated);padding:3px 8px;border-radius:4px">{{ selectedView.availLabel }}</div>
           </div>
 
-          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px">risk_score {{ selectedView.riskLabel }} · last scan {{ selectedView.timeLabel }}</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Last scan {{ selectedView.timeLabel }}</div>
+          <sc-if value="{{ selectedView.qualityScheduleCue }}">
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--amber-ink);background:#f59e0b12;border:1px solid #f59e0b30;padding:8px 10px;border-radius:6px;margin-bottom:16px">{{ selectedView.qualityScheduleCue }}</div>
+          </sc-if>
 
           <sc-if value="{{ selectedView.errorMessage }}">
-            <div style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);color:#d4bcff;font-size:12px;padding:10px 12px;border-radius:6px;margin-bottom:16px">{{ selectedView.errorMessage }}</div>
+            <div style="background:rgba(109,40,217,0.08);border:1px solid rgba(109,40,217,0.25);color:var(--violet-ink);font-size:12px;padding:10px 12px;border-radius:6px;margin-bottom:16px">{{ selectedView.errorMessage }}</div>
           </sc-if>
 
           <sc-if value="{{ selectedView.trendPoints }}">
@@ -705,7 +774,7 @@
           </sc-if>
 
           <sc-if value="{{ selectedView.disagreement }}">
-            <div style="font-size:11px;color:#d4bcff;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.2);padding:8px 12px;border-radius:6px;margin-bottom:16px">Scanners disagree on this finding — flagged for Phase 5 reconciler review.</div>
+            <div style="font-size:11px;color:var(--violet-ink);background:rgba(109,40,217,0.08);border:1px solid rgba(109,40,217,0.22);padding:8px 12px;border-radius:6px;margin-bottom:16px">Scanners disagree on this finding — flagged for Phase 5 reconciler review.</div>
           </sc-if>
 
           <sc-if value="{{ selectedView.routerStrip }}">
@@ -780,13 +849,16 @@
             </div>
           </sc-if>
           <sc-for list="{{ selectedView.scannersView }}" as="scv" hint-placeholder-count="2">
-            <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-left:3px solid {{ scv.statusColor }};border-radius:6px;margin-bottom:6px;overflow:hidden">
+            <div class="score-tip-host" style="background:var(--bg-base);border:1px solid var(--border-subtle);border-left:3px solid {{ scv.statusColor }};border-radius:6px;margin-bottom:6px;overflow:visible">
               <div onClick="{{ scv.onToggle }}" style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;cursor:pointer;gap:8px;user-select:none;transition:background 150ms">
                 <div style="display:flex;align-items:center;gap:8px;min-width:0">
                   <span style="font-size:10px;color:var(--text-secondary);flex-shrink:0;width:12px;text-align:center">{{ scv.chevron }}</span>
                   <span style="font-size:12px;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ scv.source }}</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+                  <sc-if value="{{ scv.tesslQuality }}">
+                    <span class="score-tip" tabindex="0" aria-label="{{ scv.tesslQuality.headerBadge }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--cta-ink);background:rgba(196,165,116,0.18);padding:2px 6px;border-radius:4px;border:1px solid rgba(196,165,116,0.45)">{{ scv.tesslQuality.headerBadge }}<span class="score-tip-bubble" role="tooltip">{{ scv.tesslQuality.tooltip }}</span></span>
+                  </sc-if>
                   <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ scv.statusColor }};background:{{ scv.statusColor }}18;padding:2px 6px;border-radius:4px;white-space:nowrap;border:1px solid {{ scv.statusColor }}30">{{ scv.statusLabel }}</span>
                   <sc-if value="{{ scv.checks_run }}">
                     <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);white-space:nowrap">{{ scv.checks_run }} checks</span>
@@ -810,8 +882,11 @@
                   <sc-if value="{{ scv.output.error }}">
                     <div style="color:var(--red-ink);margin-bottom:6px">⚠ {{ scv.output.error }}</div>
                   </sc-if>
-                  <sc-if value="{{ scv.output.quality_score }}">
-                    <div style="margin-bottom:6px">Quality score: <span style="color:var(--cta-ink);font-family:var(--font-mono);font-weight:600">{{ scv.output.quality_score }}</span>/100</div>
+                  <sc-if value="{{ scv.tesslQuality }}">
+                    <div class="score-tip" tabindex="0" style="margin-bottom:6px">{{ scv.tesslQuality.label }}<span class="score-tip-bubble" role="tooltip">{{ scv.tesslQuality.tooltip }}</span></div>
+                    <sc-if value="{{ scv.tesslQuality.scheduleCue }}">
+                      <div style="font-family:var(--font-mono);font-size:10px;color:var(--amber-ink);margin-bottom:6px">{{ scv.tesslQuality.scheduleCue }}</div>
+                    </sc-if>
                   </sc-if>
                   <sc-if value="{{ scv.output.console_output }}">
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 4px">Modal console output</div>
@@ -1104,8 +1179,22 @@ class Component extends DCLogic {
     return `font-family:var(--font-sans);font-size:${b.size||'12px'};font-weight:${active?'600':'400'};padding:${b.pad||'6px 12px'};border-radius:6px;cursor:pointer;border:1px solid ${active?(b.activeBorder||'#C4A574'):'rgba(28,25,21,0.12)'};background:${active?(b.activeBg||'rgba(196,165,116,0.18)'):'transparent'};color:${active?(b.activeColor||'#1C1915'):'#5C564C'};white-space:nowrap;transition:all 150ms ease`;
   }
 
-  locusLabel(v) { return { local: 'Local', cloud: 'Cloud', unknown: 'Locus unknown' }[v] || v; }
-  availLabel(v) { return { source_on_disk: 'Source on disk', cloneable: 'Cloneable', introspection_only: 'Introspection only', unavailable: 'Unavailable', unknown: 'Scannability unknown' }[v] || v; }
+  locusLabel(v) {
+    const kit = this._statusKit;
+    if (kit?.operatorLocusLabel) return kit.operatorLocusLabel(v);
+    return { local: 'Local', cloud: 'Cloud', unknown: 'Location unknown' }[v] || v;
+  }
+  availLabel(v) {
+    const kit = this._statusKit;
+    if (kit?.operatorAvailLabel) return kit.operatorAvailLabel(v);
+    return {
+      source_on_disk: 'On disk',
+      cloneable: 'Cloneable',
+      introspection_only: 'No local source',
+      unavailable: 'Unavailable',
+      unknown: 'Scanability unknown',
+    }[v] || v;
+  }
 
   sortValue(it, key, statusOrder) {
     switch (key) {
@@ -1253,6 +1342,44 @@ class Component extends DCLogic {
     const scannerStatBadge = hasScannerStats
       ? (scannerFail > 0 ? `${scannerOk}✓ ${scannerFail}✗` : `${scannerOk}✓`)
       : null;
+    const quality = kit?.qualitySurfacing
+      ? kit.qualitySurfacing(it)
+      : this.fallbackQualitySurfacing(it);
+    const riskLabel = it.risk == null ? '—' : Number(it.risk).toFixed(2);
+    const riskKnown = riskLabel !== '—';
+    const riskTooltipText = kit?.riskTooltip
+      ? kit.riskTooltip(riskLabel)
+      : '';
+    const riskBadge = kit?.formatRiskBadge
+      ? kit.formatRiskBadge(riskLabel)
+      : `R ${riskLabel}`;
+    const riskDensityLabel = kit?.formatRiskDensityLabel
+      ? kit.formatRiskDensityLabel(riskLabel)
+      : `Risk density ${riskLabel}`;
+    // Neutral metric chip — do not tint from density buckets (card colour ≠ risk).
+    const riskBadgeColor = riskKnown ? 'var(--signal-ink)' : 'var(--text-muted)';
+    const riskBadgeBg = riskKnown ? 'rgba(14,116,144,0.10)' : 'var(--bg-elevated)';
+    const riskBadgeBorder = riskKnown
+      ? '1px solid rgba(14,116,144,0.35)'
+      : '1px solid var(--border-subtle)';
+    const qualityToneStyles = {
+      known: {
+        color: 'var(--cta-ink)',
+        background: 'rgba(196,165,116,0.18)',
+        border: '1px solid rgba(196,165,116,0.45)',
+      },
+      'unknown-unscanned': {
+        color: 'var(--text-muted)',
+        background: 'var(--bg-elevated)',
+        border: '1px solid var(--border-subtle)',
+      },
+      'unknown-unscored': {
+        color: '#8B5A00',
+        background: '#f59e0b18',
+        border: '1px solid #f59e0b40',
+      },
+    };
+    const qStyle = quality ? qualityToneStyles[quality.tone] : null;
     return {
       ...it,
       ...decorated,
@@ -1262,6 +1389,37 @@ class Component extends DCLogic {
       hasFindingCountSingle: !!findingCountLabel && !findingCountParts,
       scannerStatBadge,
       scannerStatAmber: hasScannerStats && scannerFail > 0,
+      qualityBadge: quality?.badge || null,
+      qualityBadgeTone: quality?.tone || null,
+      qualityTooltip: quality?.tooltip || null,
+      qualityScheduleCue: quality?.scheduleCue || null,
+      qualityBadgeColor: qStyle?.color || null,
+      qualityBadgeBg: qStyle?.background || null,
+      qualityBadgeBorder: qStyle?.border || null,
+      riskLabel,
+      riskTooltip: riskTooltipText,
+      riskBadge,
+      riskDensityLabel,
+      riskBadgeColor,
+      riskBadgeBg,
+      riskBadgeBorder,
+    };
+  }
+
+  fallbackQualitySurfacing(it) {
+    if (!it || it.type !== 'skill') return null;
+    const qualityKnown = typeof it.quality === 'number' && !Number.isNaN(it.quality);
+    const neverScanned = !it.lastScan && it.status === 'grey';
+    const tone = qualityKnown ? 'known' : neverScanned ? 'unknown-unscanned' : 'unknown-unscored';
+    const badge = qualityKnown
+      ? `Q ${Math.round(it.quality)}`
+      : neverScanned ? 'Q —' : 'Q ?';
+    const scanTarget = it.identifier || it.name || '<name>';
+    return {
+      badge,
+      tone,
+      tooltip: 'Tessl quality = skill-review score from Tessl (not security risk / not card colour). Range: 0–100.',
+      scheduleCue: tone === 'known' ? null : `Schedule: tripwire scan ${scanTarget} --force`,
     };
   }
 
@@ -1392,7 +1550,7 @@ class Component extends DCLogic {
       listColumns: [
         { key: 'name', label: 'Name' }, { key: 'type', label: 'Type' },
         { key: 'lastScan', label: 'Last scanned' }, { key: 'status', label: 'Health' },
-        { key: 'risk', label: 'Score' }, { key: 'locus', label: 'Source' }
+        { key: 'risk', label: 'Risk density' }, { key: 'locus', label: 'Source' }
       ].map(c => ({ ...c, onClick: () => this.setSort(c.key), arrow: s.sortKey === c.key ? (s.sortDir === 'asc' ? ' ▲' : ' ▼') : '' }))
     };
 
@@ -1449,7 +1607,6 @@ class Component extends DCLogic {
       return {
         ...decorated,
         typeLabel: it.type === 'skill' ? 'Skill' : 'MCP Server',
-        riskLabel: it.risk == null ? '—' : it.risk.toFixed(2),
         timeLabel: it.scanStartedAt ? 'scanning since ' + this.fmtTime(it.scanStartedAt) : it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
         locusLabel: this.locusLabel(it.locus),
         availLabel: this.availLabel(it.avail),
@@ -1492,10 +1649,10 @@ class Component extends DCLogic {
     const selected = s.selectedId ? data.items.find(i => i.id === s.selectedId) : null;
     const selectedView = selected ? (() => {
       const decorated = this.decorateItemStatus(selected);
+      const kit = this._statusKit;
       return {
       ...decorated,
       typeLabel: selected.type === 'skill' ? 'Skill' : 'MCP Server',
-      riskLabel: selected.risk == null ? '—' : selected.risk.toFixed(2),
       timeLabel: selected.scanStartedAt ? 'scanning since ' + this.fmtTime(selected.scanStartedAt) : selected.lastScan ? this.fmtTime(selected.lastScan) : 'never scanned',
       locusLabel: this.locusLabel(selected.locus),
       availLabel: this.availLabel(selected.avail),
@@ -1520,6 +1677,9 @@ class Component extends DCLogic {
           .filter(f => f.scanner === sc.source)
           .map(f => ({ ...f, sevColor: this.severityColor(f.severity) }));
         const durationMs = out.duration_ms;
+        const tesslQuality = kit?.tesslInnerQuality
+          ? kit.tesslInnerQuality({ ...sc, output: out }, selected)
+          : null;
         return {
           ...sc,
           expanded,
@@ -1530,6 +1690,7 @@ class Component extends DCLogic {
           durationLabel: durationMs != null ? (durationMs / 1000).toFixed(1) + 's' : null,
           output: out,
           findingsForScanner,
+          tesslQuality,
           hasDetailJson: !!(out.findings_detail || out.issues_detail || out.scan_results_summary || out.analyzers_run),
           outputJson: JSON.stringify(out.findings_detail || out.issues_detail || out.scan_results_summary || out, null, 2),
           onToggle: () => this.toggleScanner(selected.id, idx)
@@ -1539,10 +1700,10 @@ class Component extends DCLogic {
     })() : null;
 
     const resultCopy = {
-      'deny': { bg: 'rgba(244,63,94,0.12)', color: '#fda4af', text: '⛔ DENIED — rated at/above threshold; call blocked before it ran.' },
-      'allow': { bg: 'rgba(52,211,153,0.12)', color: '#6ee7b7', text: '✓ ALLOWED — below threshold, call proceeded.' },
-      'deny-unscanned': { bg: 'rgba(107,122,142,0.18)', color: '#cbd5e1', text: '⛔ DENIED — never scanned. Guard fails closed on unknown items.' },
-      'allow-monitoring-off': { bg: 'rgba(245,158,11,0.12)', color: '#fcd34d', text: '⚠ ALLOWED — monitoring is off, call passed through unchecked.' }
+      'deny': { bg: 'rgba(244,63,94,0.12)', color: '#B42318', text: '⛔ DENIED — rated at/above threshold; call blocked before it ran.' },
+      'allow': { bg: 'rgba(52,211,153,0.12)', color: '#0F766E', text: '✓ ALLOWED — below threshold, call proceeded.' },
+      'deny-unscanned': { bg: 'rgba(107,122,142,0.18)', color: '#6B645A', text: '⛔ DENIED — never scanned. Guard fails closed on unknown items.' },
+      'allow-monitoring-off': { bg: 'rgba(245,158,11,0.12)', color: '#8B5A00', text: '⚠ ALLOWED — monitoring is off, call passed through unchecked.' }
     };
 
     const guardRows = data.guardScenarios.map(g => {
@@ -1570,7 +1731,6 @@ class Component extends DCLogic {
       ...decorated,
       typeLabel: it.type === 'skill' ? 'Skill' : 'MCP Server',
       timeLabel: it.scanStartedAt ? 'scanning since ' + this.fmtTime(it.scanStartedAt) : it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
-      riskLabel: it.risk == null ? '—' : it.risk.toFixed(2),
       sourceLabel: this.locusLabel(it.locus) + ' · ' + this.availLabel(it.avail),
       onSelect: () => this.selectItem(it.id)
     };
@@ -1600,6 +1760,78 @@ class Component extends DCLogic {
   }
 }
 
+</script>
+<div id="score-tip-portal" role="tooltip" aria-hidden="true"></div>
+<script>
+(function initScoreTipPortal() {
+  const portal = document.getElementById('score-tip-portal');
+  if (!portal) return;
+  let active = null;
+
+  function hide() {
+    portal.classList.remove('is-open');
+    portal.textContent = '';
+    portal.setAttribute('aria-hidden', 'true');
+    active = null;
+  }
+
+  function place(tip) {
+    const src = tip.querySelector('.score-tip-bubble');
+    if (!src) return;
+    const text = (src.textContent || '').trim();
+    if (!text) return;
+    portal.textContent = text;
+    portal.classList.add('is-open');
+    portal.setAttribute('aria-hidden', 'false');
+    active = tip;
+
+    const gap = 8;
+    const margin = 8;
+    const r = tip.getBoundingClientRect();
+    // First paint at 0,0 to measure, then clamp into the viewport.
+    portal.style.left = '0px';
+    portal.style.top = '0px';
+    const pr = portal.getBoundingClientRect();
+    let left = r.left;
+    let top = r.top - pr.height - gap;
+    if (top < margin) top = r.bottom + gap;
+    if (top + pr.height > window.innerHeight - margin) {
+      top = Math.max(margin, Math.min(r.top - pr.height - gap, window.innerHeight - pr.height - margin));
+    }
+    left = Math.max(margin, Math.min(left, window.innerWidth - pr.width - margin));
+    portal.style.left = Math.round(left) + 'px';
+    portal.style.top = Math.round(top) + 'px';
+  }
+
+  document.addEventListener('pointerover', (e) => {
+    const tip = e.target && e.target.closest && e.target.closest('.score-tip');
+    if (tip) place(tip);
+  }, true);
+
+  document.addEventListener('pointerout', (e) => {
+    const tip = e.target && e.target.closest && e.target.closest('.score-tip');
+    if (!tip || tip !== active) return;
+    const related = e.relatedTarget;
+    if (related && tip.contains(related)) return;
+    hide();
+  }, true);
+
+  document.addEventListener('focusin', (e) => {
+    const tip = e.target && e.target.closest && e.target.closest('.score-tip');
+    if (tip) place(tip);
+  });
+
+  document.addEventListener('focusout', (e) => {
+    const tip = e.target && e.target.closest && e.target.closest('.score-tip');
+    if (!tip || tip !== active) return;
+    requestAnimationFrame(() => {
+      if (!tip.contains(document.activeElement)) hide();
+    });
+  });
+
+  window.addEventListener('scroll', () => { if (active) place(active); }, true);
+  window.addEventListener('resize', hide);
+})();
 </script>
 </body>
 </html>

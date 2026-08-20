@@ -51,21 +51,22 @@ Reachable through production entry points / config:
   `scripts/serve-dashboard.mjs` / `scripts/sync-dashboard-config.sh`
 - Dashboard visual identity v2 (FolderGate cream/tan × Tripwire HUD): paper
   `#F5F2EA`, tan CTA `#C4A574`, Fraunces on intro `h1`/`h2`, AA ink tokens,
-  cyan as live signal only — `prototypes/dc-dashboard/Tripwire.dc.html`,
-  `tripwire-status.js` (slice 43 ✅, [PR #96](https://github.com/neomatrix369/tripwire/pull/96)).
-  README screenshot gallery may still show pre-v2 chrome until regen
-  (`node scripts/capture-screenshots.mjs`)
+  cyan as live signal only; partial-scan / Guard banners use violet/status ink
+  (not dark-theme pastels) — `prototypes/dc-dashboard/Tripwire.dc.html`,
+  `tripwire-status.js` (slice 43 ✅, [PR #96](https://github.com/neomatrix369/tripwire/pull/96);
+  alert-ink pile-on on slice 42 branch). Screenshot gallery regenerated 2026-08-20
 - Landing intro screen (threat stats, SEC/01–05 sections, sessionStorage
   `tripwire-intro-dismissed`, About toggle) — `prototypes/dc-dashboard/Tripwire.dc.html`
   (slice 41 ✅)
-- Tessl `quality_score` (0–100 skill-review) persisted on `items` and mapped by
-  Live to `item.quality` / Tessl scanner `output.quality_score` —
-  `sandbox/scanners.py`, `prototypes/dc-dashboard/tripwire-live.js`. **UI today:**
-  score appears only inside an expanded Tessl row when truthy — not on card faces;
-  no hover explanation yet (see DECIDED Wave J delta A9–A13)
+- Tessl `quality_score` (0–100 skill-review) persisted on `items`, mapped by Live
+  to `item.quality` / Tessl `output.quality_score`, and surfaced on skill cards as
+  compact `Q N` / `Q —` / `Q ?` badges with fixed `#score-tip-portal` hover/focus
+  tips + schedule cues — `sandbox/scanners.py`, `tripwire-live.js`,
+  `tripwire-status.js`, `Tripwire.dc.html` (slice 42 A9–A13, ON BRANCH ·
+  [PR #98](https://github.com/neomatrix369/tripwire/pull/98); nw-review APPROVED)
 - `risk_score` weighted finding density from `tripwire_rollup_item`; cards show
-  `risk N.NN` without hover explanation yet (DECIDED A11) — card colour remains
-  worst-of `heatmap_status`, not density
+  compact `R N.NN` badges with density-formula portal tips (list header **Risk density**);
+  card colour remains worst-of `heatmap_status`, not density (slice 42 A11/A13)
 - Tiered post-scan router (SIE triage + optional Model Studio escalation) —
   `tripwire route`, auto-route after `tripwire scan`
   (`cli/src/router.js`, `cli/src/orchestrator.js`); dashboard router strip +
@@ -130,10 +131,11 @@ sort/trend only — see [ARCHITECTURE.md](./ARCHITECTURE.md) § Quality attribut
 
 ## ON BRANCH (awaiting merge)
 
-None for Wave I visual work — slice 43 merged via
-[PR #96](https://github.com/neomatrix369/tripwire/pull/96) (2026-08-20).
-Wave J delta A9–A13 remains plan-only until execution branch
-`slice/42-tessl-quality-card-surfacing` lands (see DECIDED).
+Wave J delta A9–A13 (Tessl quality + risk badges/tooltips + plain labels +
+paper alert-ink polish) on `slice/42-tessl-quality-card-surfacing`
+([PR #98](https://github.com/neomatrix369/tripwire/pull/98)) — nw-review
+**APPROVED** 2026-08-20; awaiting merge for ✅ PASSED. See IMPLEMENTED above;
+gate evidence `docs/plan/gate-evidence/slice-42.json` (`gate_status: ON_BRANCH`).
 
 Live Modal/Supabase E2E as a CI Must remains **Won't** for this wave (slow/optional
 skip-without-config stays). Demo/hackathon film day (VO/Remotion slice 4; film-day
@@ -154,14 +156,12 @@ waivers stay in [plan/DECISIONS.md](./plan/DECISIONS.md). ADR number 0001 is
 reserved for a Proposed Monk Live packaging / deployment draft that is **not**
 on `main` yet (side-branch only); it is omitted from the catalog until accepted.
 
-**Wave J delta — dashboard metric surfacing (2026-08-20):** reopen slice 42 for
-A9–A13 (no new slice). **DECIDED** plan-only:
-- A9/A10 — Tessl quality badge on skill card tops (`Q N` / `Q —` / `Q ?`) + detail/inner cues
-- A11 — hover/focus on risk density explaining formula vs card colour
-- A12 — hover/focus on quality badge explaining Tessl 0–100 skill-review meaning
-- A13 — operator chrome uses plain labels (`Risk density`, `Tessl quality`; no `risk_score`)
+**Wave J delta — dashboard metric surfacing (2026-08-20):** A9–A13 shipped on
+branch (IMPLEMENTED + runtime-verified tips); **nw-review APPROVED**. Still
+`ON_BRANCH` until [PR #98](https://github.com/neomatrix369/tripwire/pull/98)
+merges — see [ON BRANCH](#on-branch-awaiting-merge) and
+[gate-evidence/slice-42.json](./plan/gate-evidence/slice-42.json).
 Spec: [plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md](./plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md).
-Not IMPLEMENTED until executed on `slice/42-tessl-quality-card-surfacing`.
 
 **Wave H — Frontline agent hooks (2026-08-15):** Claude Code PreToolUse handlers,
 `tripwire setup-agent-hooks`, and five `/tw-*` skills are **DECIDED** as plan-only

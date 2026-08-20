@@ -20,15 +20,33 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function clickButtonByText(page, text) {
   const clicked = await page.evaluate((label) => {
-    const btns = [...document.querySelectorAll("button")];
-    const exact = btns.find((b) => b.textContent.trim() === label);
-    const partial = btns.find((b) => b.textContent.trim().includes(label));
-    const btn = exact || partial;
-    if (!btn) return false;
-    btn.click();
-    return true;
+    const buttons = [...document.querySelectorAll("button")];
+    const exactBtn = buttons.find((b) => b.textContent.trim() === label);
+    if (exactBtn) {
+      exactBtn.click();
+      return true;
+    }
+    const partialBtn = buttons.find((b) =>
+      b.textContent.replace(/\s+/g, " ").trim().includes(label),
+    );
+    if (partialBtn) {
+      partialBtn.click();
+      return true;
+    }
+    // Overview stat cards are clickable divs (label is a child leaf).
+    const leaves = [...document.querySelectorAll("*")].filter(
+      (el) => el.children.length === 0 && el.textContent.trim() === label,
+    );
+    for (const leaf of leaves) {
+      const clickable = leaf.closest("[style*='cursor:pointer']") || leaf.parentElement;
+      if (clickable) {
+        clickable.click();
+        return true;
+      }
+    }
+    return false;
   }, text);
-  if (!clicked) throw new Error(`Button not found: ${text}`);
+  if (!clicked) throw new Error(`Clickable not found: ${text}`);
   await sleep(500);
 }
 
@@ -113,7 +131,7 @@ async function shot(page, relPath) {
 
 async function resetFilters(page) {
   await clickButtonByText(page, "All items");
-  await clickButtonByText(page, "All");
+  await clickButtonByText(page, "Total items");
   await clickButtonByText(page, "Grid");
   await sleep(300);
 }
@@ -132,46 +150,52 @@ async function main() {
     // Gallery labels assume Mock fixture severities (Red/Amber/Green examples).
     await page.evaluateOnNewDocument(() => {
       sessionStorage.setItem("tripwire-data-source-mode", "mock");
+      // Slice 41 intro — gallery captures assume dashboard chrome, not landing.
+      sessionStorage.setItem("tripwire-intro-dismissed", "1");
     });
     await page.goto(baseUrl, { waitUntil: "networkidle0", timeout: 60000 });
     await sleep(1500);
 
-    // Ensure we're on Dashboard with Grid
-    await clickButtonByText(page, "Dashboard");
+    // Ensure we're on Dashboard with Grid (intro already dismissed via sessionStorage)
+    try {
+      await clickButtonByText(page, "Dashboard");
+    } catch {
+      await clickButtonByText(page, "Open Dashboard");
+    }
     await resetFilters(page);
 
     // 02 — Dashboard
     await shot(page, "02-dashboard/02-dashboard-overview-grid.png");
 
-    await clickButtonByText(page, "● Red");
+    await clickButtonByText(page, "Red");
     await shot(page, "02-dashboard/03-filter-red.png");
-    await clickButtonByText(page, "All");
+    await clickButtonByText(page, "Total items");
 
-    await clickButtonByText(page, "▲ Amber");
+    await clickButtonByText(page, "Amber");
     await shot(page, "02-dashboard/05-filter-amber.png");
-    await clickButtonByText(page, "All");
+    await clickButtonByText(page, "Total items");
 
-    await clickButtonByText(page, "✓ Green");
+    await clickButtonByText(page, "Green");
     await shot(page, "02-dashboard/07-filter-green.png");
-    await clickButtonByText(page, "All");
+    await clickButtonByText(page, "Total items");
 
     await clickButtonByText(page, "Escalated");
     await shot(page, "02-dashboard/14-filter-escalated.png");
-    await clickButtonByText(page, "All");
+    await clickButtonByText(page, "Total items");
 
     await clickButtonByText(page, "SIE-only");
     await shot(page, "02-dashboard/15-filter-sie-only.png");
-    await clickButtonByText(page, "All");
+    await clickButtonByText(page, "Total items");
 
     // Pathway strip on an escalated Mock card (open detail if strip is on card)
     await clickButtonByText(page, "Escalated");
     await sleep(500);
     await shot(page, "02-dashboard/16-pathway-escalated-grid.png");
-    await clickButtonByText(page, "All");
+    await clickButtonByText(page, "Total items");
     await clickButtonByText(page, "SIE-only");
     await sleep(500);
     await shot(page, "02-dashboard/17-pathway-sie-only-grid.png");
-    await clickButtonByText(page, "All");
+    await clickButtonByText(page, "Total items");
 
     await clickButtonByText(page, "MCP Servers");
     await shot(page, "02-dashboard/09-mcp-servers-all.png");

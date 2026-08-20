@@ -13,8 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   live **signal** only (SENSOR dots, wire pulse, scanning fills). Status labels, links,
   and muted chrome use AA **ink** tokens on paper (`--red-ink` `#B42318`, `--cta-ink`
   `#7A5C2E`, `--text-muted` `#6B645A`, and peers). Modal console and finding snippets
-  on `--bg-deep` use readable ink/secondary text (not HUD terminal neon). Tripwire HUD brackets, grid overlay,
+  on `--bg-deep` use readable ink/secondary text (not HUD terminal neon). Partial-scan /
+  disagreement callouts and Guard result banners use `--violet-ink` / status ink (not
+  dark-theme pastels like `#d4bcff`). Tripwire HUD brackets, grid overlay,
   and RAG fill colours retained. Supersedes slice 41 dark-cyan fill.
+- Dashboard operator chrome (slice 42 A9–A13): skill cards show Tessl `Q N` / `Q —` /
+  `Q ?` with hover explaining 0–100 skill-review quality; risk uses compact `R N.NN`
+  badge (parity with Q) plus density tooltip; list column stays **Risk density**;
+  locus/availability chips use plain language (`On disk`, `No local source`, …).
+  Risk/quality hints use a fixed `#score-tip-portal` (viewport-clamped) fed by
+  `.score-tip` / `.score-tip-bubble` text — escapes grid `overflow` clipping and
+  avoids delayed native `title=` attributes.
 
 ### Added
 - Landing intro screen shown on first dashboard open (sessionStorage-persisted toggle);
