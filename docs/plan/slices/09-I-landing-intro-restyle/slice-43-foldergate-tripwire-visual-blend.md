@@ -166,7 +166,7 @@ UI slice — outside-in. Slice 41 used **manual visual verification** (no HTML t
 | 14 | No orphaned file references | Yes |
 
 ## Gate Status
-🔀 ON BRANCH — [PR #96](https://github.com/neomatrix369/tripwire/pull/96); evidence `docs/plan/gate-evidence/slice-43.json` (`verdict: ON_BRANCH`). Promote to ✅ after merge.
+✅ PASSED — merged [PR #96](https://github.com/neomatrix369/tripwire/pull/96) (2026-08-20); evidence `docs/plan/gate-evidence/slice-43.json`.
 
 ## What Changed
 | File | Type | Reason |
@@ -174,7 +174,7 @@ UI slice — outside-in. Slice 41 used **manual visual verification** (no HTML t
 | `prototypes/dc-dashboard/Tripwire.dc.html` | style | Paper palette, CTA/signal split, Fraunces, AA ink text |
 | `prototypes/dc-dashboard/tripwire-status.js` | style | STATUS_META copies :root ink hex |
 | `prototypes/dc-dashboard/test/tripwire-visual-tokens.test.js` | test | Token contract GWT-43.1–43.10 + STATUS_META binding + console contrast |
-| `docs/plan/gate-evidence/slice-43.json` | docs | ON_BRANCH gate evidence |
+| `docs/plan/gate-evidence/slice-43.json` | docs | Gate evidence (promoted with merge) |
 | `CHANGELOG.md` | docs | Visual identity v2 + AA ink |
 
 ## Session Metrics
@@ -183,4 +183,4 @@ UI slice — outside-in. Slice 41 used **manual visual verification** (no HTML t
 | Estimated Pomos | 1 (~25 min) |
 | Execution time | ~90 min (5 commits) |
 | Blockers encountered | file overlap with slice 42 (cleared) |
-| Next-session notes | Merge PR #96 → promote trackers to ✅ PASSED; regen screenshots optional |
+| Next-session notes | Regen README screenshots optional (`node scripts/capture-screenshots.mjs`) |

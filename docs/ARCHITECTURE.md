@@ -163,6 +163,20 @@ scanner severities; finding-count chips are density, not colour
 ([ADR-0004](./adr/0004-supabase-system-of-record.md),
 [ADR-0016](./adr/0016-tiered-router-sie-model-studio.md)).
 
+`risk_score` (sort/trend only) =
+
+`(3 × red_findings + 1 × amber_findings) / Σ checks_run` on completed scanners
+for the latest run. Range ≥ 0 and unbounded; `null` when unscored. Dashboard
+card colour must not be inferred from this number alone.
+
+`quality_score` is the Tessl skill-review axis (0–100, higher better), written
+by `run_tessl` / `_tessl_quality_score` and mapped into Live as `item.quality`.
+It is orthogonal to findings and to `risk_score`. As of 2026-08-20 the dashboard
+shows it only inside an expanded Tessl scanner row when truthy; card-face badges
+and hover explanations for risk/quality are **DECIDED** (slice 42 A9–A13), not
+yet IMPLEMENTED — see [STATUS.md](./STATUS.md) DECIDED. Operator chrome will use
+plain labels (`Risk density`, `Tessl quality`) rather than schema snake_case.
+
 ---
 
 ## 4. Component Detail (C4 L3)

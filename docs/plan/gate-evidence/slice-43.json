@@ -2,8 +2,10 @@
   "slice": 43,
   "date": "2026-08-20",
   "branch": "slice/43-foldergate-tripwire-visual-blend",
-  "verdict": "ON_BRANCH",
-  "gate_status": "ON_BRANCH",
+  "verdict": "PASS",
+  "gate_status": "PASSED",
+  "merged_pr": "#96",
+  "merged_at": "2026-08-20",
   "before_checks": "all green — slice 42 merged; branch from main; slice 41 intro IA present (sessionStorage tripwire-intro-dismissed)",
   "after_checks": [
     "GWT-43.1–43.10 observed — token tests + browser visual @ http://127.0.0.1:8765/",
@@ -11,7 +13,7 @@
     "Intro GWT 1–4 from slice 41 — sessionStorage dismiss/reload/toggle verified in browser",
     "Contrast — ink table documented; Modal console uses --text-secondary on --bg-deep",
     "CHANGELOG Unreleased — visual identity v2 (paper + tan CTA + AA ink)",
-    "PROGRESS + TRAIL + slice stub synced; PR #96 open"
+    "PROGRESS + TRAIL + slice stub synced; PR #96 merged 2026-08-20"
   ],
   "coverage_pct": 98.41,
   "branch_pct": 90.59,
