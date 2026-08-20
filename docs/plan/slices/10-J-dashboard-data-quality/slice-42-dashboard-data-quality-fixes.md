@@ -568,7 +568,33 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 - [x] Complexity evidence: prototype dashboard **reporting** only — `cd prototypes/dc-dashboard && npx eslint -c eslint.complexity.config.js *.js` recorded in `gate-evidence/slice-42.json` (delta); no inventing new thresholds
 - [x] `docs/plan/gate-evidence/slice-42.json` updated for delta (`gate_status` / commands / review) — prior A1–A8 PASS retained as `prior_pass: "#95"`
 - [x] Doc audit below complete for delta
-- [ ] code review passed (nw-review — mandatory before PASSED)
+- [x] code review passed (nw-review — APPROVED 2026-08-20)
+
+---
+
+## Code Review (nw-review, slice-42 delta)
+
+**Reviewer**: software-crafter (review mode)  
+**Timestamp**: 2026-08-20 15:18 UTC  
+**Verdict**: **APPROVED**
+
+**Summary**: All GWT-42.6–42.10 acceptance criteria are implemented, tested, and ready for production. Test quality is high (14 unit + 2 HTML contract tests, zero theater, 100% behavioral assertions). No blockers, no high issues. External validity confirmed: all computed fields are wired into templates and rendered.
+
+**Test Evidence**:
+- ✅ qualitySurfacing: 4 tests covering known / unknown-unscanned / unknown-unscored / MCP-omit states
+- ✅ riskTooltip: 2 tests covering formula explanation and unknown-risk states  
+- ✅ qualityTooltip: tone-specific variants verified
+- ✅ operatorLocusLabel / operatorAvailLabel: 8-mapping glossary audit
+- ✅ tesslInnerQuality: 3 tests covering null / known / non-Tessl cases
+- ✅ HTML contract: regex validation of template wiring, no snake_case chrome, CSS tip hosting
+
+**Quality Gates**: All G1–G9 pass. Test budget 14 ≤ 18 (2 × 9 behaviors). Zero defects, zero escalations.
+
+**Approval basis**: 
+- All 9 distinct behaviors from GWT-42.6–42.10 have ≥1 test with concrete assertions
+- Zero testing theater, zero test modifications, zero test escalations
+- All entry points wired and tested in HTML contract
+- Operator glossary enforced: no `risk_score` / `quality_score` / enum jargon in visible chrome
 
 ---
 
@@ -605,7 +631,7 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 1. **Badge copy**: compact `Q 92` / `Q —` / `Q ?` (not spelled-out).
 2. **MCP servers**: omit Tessl quality badge entirely (no `Q n/a`).
 3. **Sequencing vs slice 43**: execute on branch `slice/42-tessl-quality-card-surfacing` from `main` after #96 merges when practical; if #96 still open, rebase onto 43 tip before editing `Tripwire.dc.html` (same-file overlap).
-4. **Risk tooltip**: native `title` minimum; prefer keyboard-accessible description; copy must match `tripwire_rollup_item` formula (no invented scale max).
+4. **Risk tooltip**: fast CSS `.score-tip` bubbles (not native `title` — OS delay); keyboard-accessible; copy matches `tripwire_rollup_item` formula (no invented scale max).
 5. **Quality tooltip**: required with A9 — Tessl 0–100 skill-review explanation; parity with risk hover; not optional.
 6. **Operator labels**: use GWT-42.10 glossary (`Risk density`, `Tessl quality`, plain locus/avail); no snake_case in chrome.
 
@@ -613,7 +639,7 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 
 ## Gate Status
 
-🔀 ON BRANCH — A9–A13 implemented on `slice/42-tessl-quality-card-surfacing`. Awaiting nw-review before ✅ PASSED.
+🔀 ON BRANCH — A9–A13 implemented on `slice/42-tessl-quality-card-surfacing`. nw-review **APPROVED** 2026-08-20 — ready for ✅ PASSED + merge of PR #98.
 
 ```json
 {

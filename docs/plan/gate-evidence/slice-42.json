@@ -48,7 +48,7 @@
   "complexity_policy": "reporting",
   "complexity_tool": "eslint.complexity.config.js (prototypes/dc-dashboard)",
   "spec_path": "docs/plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md",
-  "review": "pending nw-review before PASSED",
+  "review": "APPROVED 2026-08-20 — nw-software-crafter-reviewer (A9–A13 delta; After-Check ticked)",
   "inferred": false,
-  "note": "A9–A13 implemented on slice/42-tessl-quality-card-surfacing; SSOT helpers in tripwire-status.js."
+  "note": "A9–A13 implemented on slice/42-tessl-quality-card-surfacing; nw-review APPROVED; ready for PASSED + PR #98 merge."
 }
