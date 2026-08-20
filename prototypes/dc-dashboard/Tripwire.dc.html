@@ -753,7 +753,7 @@
                 <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">{{ f.file_path }}:{{ f.location }}</div>
               </sc-if>
               <sc-if value="{{ f.snippet }}">
-                <div style="font-family:var(--font-mono);font-size:11px;background:var(--bg-deep);padding:6px 8px;border-radius:4px;margin-top:6px;color:#f0a3a3;overflow-x:auto">{{ f.snippet }}</div>
+                <div style="font-family:var(--font-mono);font-size:11px;background:var(--bg-deep);padding:6px 8px;border-radius:4px;margin-top:6px;color:var(--red-ink);overflow-x:auto">{{ f.snippet }}</div>
               </sc-if>
             </div>
           </sc-for>
@@ -815,7 +815,7 @@
                   </sc-if>
                   <sc-if value="{{ scv.output.console_output }}">
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 4px">Modal console output</div>
-                    <div style="font-family:var(--font-mono);font-size:10px;background:var(--bg-deep);padding:6px 8px;border-radius:4px;color:#8fe388;overflow-x:auto;white-space:pre-wrap;max-height:200px;overflow-y:auto;line-height:1.5">{{ scv.output.console_output }}</div>
+                    <div style="font-family:var(--font-mono);font-size:10px;background:var(--bg-deep);padding:6px 8px;border-radius:4px;color:var(--text-secondary);overflow-x:auto;white-space:pre-wrap;max-height:200px;overflow-y:auto;line-height:1.5">{{ scv.output.console_output }}</div>
                   </sc-if>
                   <sc-if value="{{ scv.findingsForScanner.length }}">
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 4px">Findings from this scanner</div>
@@ -826,7 +826,7 @@
                           <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">{{ sf.file_path }}:{{ sf.location }}</div>
                         </sc-if>
                         <sc-if value="{{ sf.snippet }}">
-                          <div style="font-family:var(--font-mono);font-size:10px;background:var(--bg-deep);padding:4px 6px;border-radius:3px;margin-top:4px;color:#f0a3a3;overflow-x:auto">{{ sf.snippet }}</div>
+                          <div style="font-family:var(--font-mono);font-size:10px;background:var(--bg-deep);padding:4px 6px;border-radius:3px;margin-top:4px;color:var(--red-ink);overflow-x:auto">{{ sf.snippet }}</div>
                         </sc-if>
                       </div>
                     </sc-for>

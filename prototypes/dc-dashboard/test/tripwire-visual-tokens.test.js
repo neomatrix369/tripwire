@@ -140,3 +140,19 @@ test('given neon fills when scanned then they are not used as color: text', () =
   assert.doesNotMatch(html, /color:var\(--signal\)(?!-ink)/, 'GWT-43.6: text uses --signal-ink');
   assert.doesNotMatch(html, /color:var\(--cta\)(?!-ink)/, 'GWT-43.7: text uses --cta-ink');
 });
+
+test('given code blocks on bg-deep when scanned then terminal neon is gone', () => {
+  // -- Given / When / Then --
+  assert.doesNotMatch(html, /#8fe388/i, 'Modal console must not use neon mint on tan');
+  assert.doesNotMatch(html, /#f0a3a3/i, 'Finding snippets must not use pale pink on tan');
+  assert.match(
+    html,
+    /background:var\(--bg-deep\)[^>]*color:var\(--text-secondary\)[^>]*>\{\{ scv\.output\.console_output \}\}/,
+    'Modal console text uses --text-secondary on --bg-deep',
+  );
+  assert.match(
+    html,
+    /background:var\(--bg-deep\)[^>]*color:var\(--red-ink\)[^>]*>\{\{ sf\.snippet \}\}/,
+    'Finding snippets use --red-ink on --bg-deep',
+  );
+});
