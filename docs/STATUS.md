@@ -1,9 +1,21 @@
 # Capability status
 
-Evidence-labelled claims for Tripwire:
-RESEARCH · PROPOSED · DECIDED · IMPLEMENTED · VERIFIED · SUPERSEDED.
+Evidence-labelled claims for Tripwire.
 
-Repo entry: [README.md](../README.md) · Get started: [QUICKSTART.md](../QUICKSTART.md)
+Start here: [QUICKSTART](../QUICKSTART.md) · Hub: [docs/README](./README.md) · Repo: [README.md](../README.md)
+
+### Evidence-state legend
+
+| Label | Meaning |
+|---|---|
+| **RESEARCH** | Investigated; no delivery commitment |
+| **PROPOSED** | Candidate awaiting approval |
+| **DECIDED** | Approved direction; may not exist in code yet |
+| **IMPLEMENTED** | Reachable through a production entry point or config |
+| **VERIFIED** | Observed with a dated command, test, probe, or runtime result |
+| **SUPERSEDED** | Replaced by newer evidence or decision |
+
+RESEARCH · PROPOSED · DECIDED · IMPLEMENTED · VERIFIED · SUPERSEDED.
 
 [![Cursor](https://img.shields.io/badge/Cursor-000000?style=flat)](https://cursor.com)
 [![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=flat)](https://modal.com)

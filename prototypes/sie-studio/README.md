@@ -6,7 +6,7 @@ Talks to the Qwen lineup on the cloud cluster: embeddings, rerankers, and genera
 Not part of the shipped Tripwire product UI. The product CLI uses `SIE_ENDPOINT`
 and `SIE_API_KEY` (optional `SIE_MODEL`) for post-scan triage
 (`tripwire route`). Account setup:
-[sie-setup.md](../../docs/user-guide/sie-setup.md). Key map:
+[tiered-router-setup.md](../../docs/user-guide/tiered-router-setup.md). Key map:
 [env-vars.md](../../docs/user-guide/env-vars.md#optional--tiered-router-sie--model-studio).
 
 ## Setup

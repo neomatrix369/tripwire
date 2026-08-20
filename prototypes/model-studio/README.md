@@ -7,7 +7,7 @@ native DashScope image/video APIs from the Visual Model Catalog.
 Not part of the shipped Tripwire product UI. The product CLI uses the same
 DashScope / OpenAI-compatible credentials for optional post-scan escalation
 (`tripwire route`). Account setup:
-[model-studio-setup.md](../../docs/user-guide/model-studio-setup.md). Key map:
+[tiered-router-setup.md](../../docs/user-guide/tiered-router-setup.md). Key map:
 [env-vars.md](../../docs/user-guide/env-vars.md#optional--tiered-router-sie--model-studio).
 
 ## Setup

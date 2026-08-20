@@ -5,6 +5,7 @@
 
 | Wave | Folder | Group | Slices | Outcome |
 |-----:|--------|-------|--------|---------|
+| 11 | [`11-K-…`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** | 📋 |
 | 9 | [`09-I-…`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 ✅ · 43 | 41 ✅ · 43 ✅ |
 | 10 | [`10-J-…`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 | A1–A8 ✅ · A9–A13 🔀 ON BRANCH |
 | 1 | [`01-A-…`](slices/01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 · 4 | ✅ · 4 📦 |
@@ -24,6 +25,7 @@
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
+| 0 (docs) | K | **44** | **Docs UX plain language + compaction** | Must | 📋 PLANNED · contract saved · public docs deferred · `slice/44-docs-ux-plain-language` |
 | 0 (delta) | J | 42 | Dashboard Data Quality — Tessl quality UX + tooltips + plain labels (A9–A13) | Must | 🔀 ON BRANCH · nw-review APPROVED · [#98](https://github.com/neomatrix369/tripwire/pull/98) |
 | 1 | G | 18 | CLI Operator Evidence Contracts | Must | 📋 PLANNED |
 | 2 | G | 19 | Sandbox Persistence State Contract | Must | 📋 PLANNED |
@@ -150,6 +152,11 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
 | 42 | [slice-42-dashboard-data-quality-fixes](slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md) | Must | 🔀 ON BRANCH (A9–A13; nw-review APPROVED · [#98](https://github.com/neomatrix369/tripwire/pull/98); A1–A8 #95) | 2026-08-19 | — | ~75 min delta |
+
+### K — Docs UX plain language + compaction
+| # | Slice | MoSCoW | Status | Started | Completed | Est. time |
+|---|-------|--------|--------|---------|-----------|-----------|
+| 44 | [slice-44-docs-ux-plain-language](slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md) | Must | 📋 PLANNED | 2026-08-20 | — | ~50 min |
 
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 

@@ -42,6 +42,7 @@ Then use this guide for development, quality checks, and sharing changes back. S
 Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Decisions:
 [docs/adr/README.md](docs/adr/README.md). Scanner output notes:
 [docs/research/adapters/scanner-output-adapters.md](docs/research/adapters/scanner-output-adapters.md).
+Claude Code hooks / `/tw-*` skills: [agent-hooks/README.md](agent-hooks/README.md).
 
 ## Dev hygiene
 

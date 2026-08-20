@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Public docs UX + compaction (slice 44): README/QUICKSTART lead with plain language,
+  demo-first (Recommended) then Live (Advanced); badges behind disclosure; path map
+  absorbed into QUICKSTART. Merged `sie-setup` + `model-studio-setup` into
+  `docs/user-guide/tiered-router-setup.md`. Removed thin aliases
+  `onboarding-cheatsheet.md` and `path-commands.md`. Glossary / CLI flags / fail hints
+  absorbed into reading-router-results and setup-commands; docs hub links agent-hooks.
 - Dashboard visual identity v2 (slice 43): warm cream paper field (`#F5F2EA`), tan
   primary CTA (`#C4A574`), Fraunces serif on intro `h1`/`h2`; cyan `#00D9FF` kept as
   live **signal** only (SENSOR dots, wire pulse, scanning fills). Status labels, links,

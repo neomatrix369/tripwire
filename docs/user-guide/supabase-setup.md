@@ -78,5 +78,5 @@ If any table shows HTTP 401 or 403, the script prints the fix command
 ## Next
 
 → [modal-setup.md](./modal-setup.md) · optional router:
-[sie-setup.md](./sie-setup.md) · [model-studio-setup.md](./model-studio-setup.md) ·
-full run: [QUICKSTART → Live capabilities](../../QUICKSTART.md#live-capabilities)
+[tiered-router-setup.md](./tiered-router-setup.md) ·
+full run: [QUICKSTART → Live](../../QUICKSTART.md#live-advanced)

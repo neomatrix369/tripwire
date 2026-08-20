@@ -133,3 +133,6 @@
 | 2026-08-20 | sync-docs | Wave J review + tip truth | STATUS/ARCHITECTURE/CHANGELOG/TRAIL/PROGRESS: nw-review APPROVED + CSS tip mechanism; no PASSED promotion. APPLIED |
 | 2026-08-20 | slice-42 | Score tip portal (clip fix) | In-card absolute tips still clipped by grid `overflow-y: auto`. Superseded by fixed `#score-tip-portal` + `initScoreTipPortal` viewport clamp. |
 | 2026-08-20 | sync-docs | Score tip portal truth | STATUS/ARCHITECTURE/CHANGELOG/DECISIONS: portal supersedes host-elevate absolute bubbles. APPLIED |
+| 2026-08-20 | planning | Added slice 44 (Wave K) | Path B Add — Docs UX plain language + compaction (Wave D Phase 2). Delete cheatsheet/path-commands; merge sie+model-studio → tiered-router-setup; absorb glossary/flags/troubleshoot into SSOTs. No reopen of slice 17. Branch `slice/44-docs-ux-plain-language`. |
+| 2026-08-20 | slice-44 | Documentarist APPROVED | nw-documentarist-reviewer APPROVED; gate-evidence/slice-44.json PASS; 🔀 until merge → ✅. |
+| 2026-08-20 | slice-44 | Phase 1 save only | Contract DECIDED/PLANNED. Public README/user-guide execution deferred. Prior APPROVED/PASS claims SUPERSEDED until Phase 2 lands. |

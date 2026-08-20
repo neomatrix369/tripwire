@@ -1,0 +1,50 @@
+{
+  "slice": 44,
+  "name": "docs-ux-plain-language-compaction",
+  "gate_status": "PASSED",
+  "verdict": "PASS",
+  "date_utc": "2026-08-20",
+  "branch": "slice/44-docs-ux-plain-language",
+  "commit_at_evidence": "pending-commit",
+  "moscow": "Must",
+  "docs_only": true,
+  "checks": [
+    {
+      "id": "readme-fold",
+      "cmd": "wc -l README.md; head -n 20 README.md",
+      "result": "98 lines; metaphor + intent router before badges disclosure"
+    },
+    {
+      "id": "quickstart-demo-first",
+      "cmd": "rg -n 'Try the demo|Live \\(Advanced\\)|Recommended' QUICKSTART.md",
+      "result": "Recommended demo then Advanced Live; path map absorbed"
+    },
+    {
+      "id": "compaction",
+      "cmd": "ls docs/user-guide/",
+      "result": "7 files; deleted cheatsheet/path-commands/sie-setup/model-studio-setup; added tiered-router-setup (net -3)"
+    },
+    {
+      "id": "no-live-dead-links",
+      "cmd": "rg 'sie-setup\\.md|model-studio-setup\\.md|path-commands\\.md|onboarding-cheatsheet\\.md' README.md QUICKSTART.md docs/README.md docs/user-guide docs/ARCHITECTURE.md docs/STATUS.md CONTRIBUTING.md .env.example prototypes",
+      "result": "empty — no live dead links"
+    },
+    {
+      "id": "ssot-absorb",
+      "cmd": "rg -n 'CLI flags|When it fails|Which keys do I need|Plain words \\(glossary\\)|Evidence-state legend|agent-hooks' docs/user-guide/setup-commands.md docs/user-guide/env-vars.md docs/user-guide/reading-router-results.md docs/STATUS.md docs/README.md CONTRIBUTING.md",
+      "result": "flags + fails in setup-commands; checklist in env-vars; glossary in reading-router-results; STATUS legend; agent-hooks on hub + CONTRIBUTING"
+    },
+    {
+      "id": "smoke-routes",
+      "cmd": "rg -n 'tiered-router-setup|Try the demo|agent-hooks' docs/plan/SMOKE_TESTS.md",
+      "result": "SMOKE_TESTS updated for demo-first, tiered-router, agent-hooks"
+    }
+  ],
+  "review": {
+    "reviewer": "nw-documentarist-reviewer",
+    "verdict": "APPROVED",
+    "agent_id": "a553f690-d497-45d1-8580-88daee7ca5cc",
+    "date_utc": "2026-08-20"
+  },
+  "note": "Docs-only slice. Mark TRAIL ✅ PASSED after merge to main; evidence recorded on branch."
+}

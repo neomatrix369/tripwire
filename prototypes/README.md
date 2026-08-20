@@ -18,8 +18,8 @@ Came from [QUICKSTART](../QUICKSTART.md)? Use the **Normal users** path, then re
 | Path              | What                                                                                                                                |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | `dc-dashboard/`   | Data Commons HTML dashboard (`Tripwire.dc.html` + `support.js`). Supports **live Supabase** data or mock data (`tripwire-data.js`). |
-| `model-studio/`   | Sample CLI for Alibaba Cloud Model Studio (chat / image / video). Setup: [model-studio-setup.md](../docs/user-guide/model-studio-setup.md). Copy [`.env.example`](.env.example) → `prototypes/.env`, then run `python3 model-studio/model_studio.py`. See [model-studio/README.md](model-studio/README.md). |
-| `sie-studio/`     | Sample CLI for Superlinked SIE (encode / score / generate on managed Qwen). Setup: [sie-setup.md](../docs/user-guide/sie-setup.md). Set `SIE_ENDPOINT` + `SIE_API_KEY` in [`.env.example`](.env.example) → `prototypes/.env`, then run `python3 sie-studio/sie_studio.py`. See [sie-studio/README.md](sie-studio/README.md). The product CLI also uses these keys for post-scan `tripwire route` (copy into repo-root `.env`). |
+| `model-studio/`   | Sample CLI for Alibaba Cloud Model Studio (chat / image / video). Setup: [tiered-router-setup.md](../docs/user-guide/tiered-router-setup.md). Copy [`.env.example`](.env.example) → `prototypes/.env`, then run `python3 model-studio/model_studio.py`. See [model-studio/README.md](model-studio/README.md). |
+| `sie-studio/`     | Sample CLI for Superlinked SIE (encode / score / generate on managed Qwen). Setup: [tiered-router-setup.md](../docs/user-guide/tiered-router-setup.md). Set `SIE_ENDPOINT` + `SIE_API_KEY` in [`.env.example`](.env.example) → `prototypes/.env`, then run `python3 sie-studio/sie_studio.py`. See [sie-studio/README.md](sie-studio/README.md). The product CLI also uses these keys for post-scan `tripwire route` (copy into repo-root `.env`). |
 
 ## Viewing the dashboard
 

@@ -1,8 +1,11 @@
 # Architecture
 
+This page is a **map of the parts**. Skip it until you can run the
+[demo Quickstart](../QUICKSTART.md#try-the-demo-recommended).
+
 System shape for Tripwire. Diagrams are Mermaid (text, version-controlled).
 
-Repo entry: [README.md](../README.md) · Status: [STATUS.md](./STATUS.md)
+Start here: [QUICKSTART](../QUICKSTART.md) · Hub: [docs/README](./README.md) · Status: [STATUS.md](./STATUS.md)
 
 [![Cursor](https://img.shields.io/badge/Cursor-000000?style=flat)](https://cursor.com)
 [![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=flat)](https://modal.com)
