@@ -574,15 +574,15 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 
 ## Code Review (nw-review, slice-42 delta)
 
-**Reviewer**: software-crafter (review mode)  
-**Timestamp**: 2026-08-20 15:18 UTC  
+**Reviewer**: software-crafter (review mode)
+**Timestamp**: 2026-08-20 15:18 UTC
 **Verdict**: **APPROVED**
 
 **Summary**: All GWT-42.6–42.10 acceptance criteria are implemented, tested, and ready for production. Test quality is high (14 unit + 2 HTML contract tests, zero theater, 100% behavioral assertions). No blockers, no high issues. External validity confirmed: all computed fields are wired into templates and rendered.
 
 **Test Evidence**:
 - ✅ qualitySurfacing: 4 tests covering known / unknown-unscanned / unknown-unscored / MCP-omit states
-- ✅ riskTooltip: 2 tests covering formula explanation and unknown-risk states  
+- ✅ riskTooltip: 2 tests covering formula explanation and unknown-risk states
 - ✅ qualityTooltip: tone-specific variants verified
 - ✅ operatorLocusLabel / operatorAvailLabel: 8-mapping glossary audit
 - ✅ tesslInnerQuality: 3 tests covering null / known / non-Tessl cases
@@ -590,7 +590,7 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 
 **Quality Gates**: All G1–G9 pass. Test budget 14 ≤ 18 (2 × 9 behaviors). Zero defects, zero escalations.
 
-**Approval basis**: 
+**Approval basis**:
 - All 9 distinct behaviors from GWT-42.6–42.10 have ≥1 test with concrete assertions
 - Zero testing theater, zero test modifications, zero test escalations
 - All entry points wired and tested in HTML contract
