@@ -6,7 +6,7 @@
 - **Scenario**: Brownfield · Flow D · depth 5–8
 Routing: Brownfield · Chosen: 2026-08-02 · Source: health-check-inferred; Wave H Add: 2026-08-15 · Source: `internal-docs/04_frontline/main_prompt.md`
 - **Canonical plan path**: `docs/plan/` (public). Product SoT remains gitignored private references — do not fork parallel plan trees. Enhanced-flow-planner context pack: private references + `01_demo_video/00-tripwire-demo-script.md` (not `02_prototypes/import-stash/`).
-- **Model split** — Planning: gpt-5.6-sol (high) · Execution: gpt-5.6-terra (medium) · Design: N/A (UI frozen as-is)
+- **Model split** — Planning: gpt-5.6-sol (high) · Execution: gpt-5.6-terra (medium) · Design: slice 43 (FolderGate cream/tan × Tripwire HUD; slice 41 dark-cyan fill superseded)
 
 <!-- harness-scout output -->
 <!-- NOTE: recommendation models below are cached artifacts; live execution model is overridden in DECISIONS (2026-08-03) to OpenAI (`gpt-5.6-sol` for planning, `gpt-5.6-terra` for execution/review). -->
@@ -90,6 +90,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 7 | [`slices/07-G-atdd-closure/`](slices/07-G-atdd-closure/) | **G — ATDD closure** | 18, 19, 20, 21, 22 (independent gates) | 📋 |
 | 8 | `slices/08-H-agent-guard-integration/` (stubs pending) | **H — Claude Code Agent Guard integration** | H0 governance → H1–H7 (hackathon plan §9 steps 0–7) | 🔨 |
 | 8 | [`slices/08-H-frontline-agent-hooks/`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | 23→32 Must · 33–38 Should · 39 Could | 📋 plan-only |
+| 9 | [`slices/09-I-landing-intro-restyle/`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 ✅ · **43** 📋 | 43 tokens |
 | 10 | [`slices/10-J-dashboard-data-quality/`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 | 📋 |
 
 **Status legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 CLOSED — DEFERRED/WON'T`
@@ -235,6 +236,7 @@ Branch: `frontline-hackathon-london-2026-agent-hooks`. Source: `internal-docs/04
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
 | 41 | [slice-41-landing-intro-dashboard-restyle](slices/09-I-landing-intro-restyle/slice-41-landing-intro-dashboard-restyle.md) | Landing Page Intro + Dashboard Restyle | Must | ✅ | none | dc8e033 | — |
+| 43 | [slice-43-foldergate-tripwire-visual-blend](slices/09-I-landing-intro-restyle/slice-43-foldergate-tripwire-visual-blend.md) | FolderGate × Tripwire Visual Blend | Must | 🔨 | 41 | — | ~3 min |
 
 ### J — Dashboard Data Quality Fixes (opened 2026-08-19)
 
@@ -291,7 +293,7 @@ See also PROGRESS.md **Slice groups** and [GATE_CONTRACT.md](GATE_CONTRACT.md).
 - Drift / trend / diff / `identifier` UI
 - Phase 4 Agent Guard — **superseded for Frontline by Wave H** (Claude Code hooks + `/tw-*`); Horizon A ship-path still excludes guard coverage bar until H lands
 - Phase 5 Reconciler / Overmind
-- Dashboard redesign / blast-radius / `--from-instructions`
+- Dashboard redesign / blast-radius / `--from-instructions` — **visual chrome tokens** reopened as slice 43 (not a product redesign)
 - `support.js` / Mock chrome 95% coverage
 - Live Modal/Supabase E2E as CI Must (stay slow/optional)
 - **Demo/hackathon:** VO/Remotion (slice 4), film-day claim remediations (slice 16) — reinstate only if a new demo need arises
