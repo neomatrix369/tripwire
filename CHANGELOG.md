@@ -7,15 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Dashboard visual identity v2 (slice 43): warm cream paper field (`#F5F2EA`), tan
+  primary CTA (`#C4A574`), Fraunces serif on intro `h1`/`h2`; cyan `#00D9FF` kept as
+  live **signal** only (SENSOR dots, wire pulse, scanning fills). Status labels, links,
+  and muted chrome use AA **ink** tokens on paper (`--red-ink` `#B42318`, `--cta-ink`
+  `#7A5C2E`, `--text-muted` `#6B645A`, and peers). Modal console and finding snippets
+  on `--bg-deep` use readable ink/secondary text (not HUD terminal neon). Tripwire HUD brackets, grid overlay,
+  and RAG fill colours retained. Supersedes slice 41 dark-cyan fill.
+
 ### Added
 - Landing intro screen shown on first dashboard open (sessionStorage-persisted toggle);
   surfaces threat statistics, SEC/01–SEC/05 narrative sections (anatomy of breach,
   architecture flow, RAG status card grid, shipped `/tw-*` skills, roadmap), animated
   ticker bar, and `$ tripwire setup-agent-hooks` install CTA. "About" nav button toggles
   the intro at any time.
-- Dashboard visual restyle: JetBrains Mono (replaces IBM Plex Mono), cyan `#00D9FF`
-  accent, darker panel palette, body grid overlay, and HUD corner bracket system on
-  intro stat cards.
+- Dashboard visual restyle (slice 41, superseded by v2 above): JetBrains Mono, cyan
+  `#00D9FF` accent, darker panel palette, body grid overlay, and HUD corner brackets.
 - `tripwire scan --type <skill|mcp>` — restricts machine-wide discovery to a single artifact
   category without changing any other scan behaviour; composes with `--dry-discover`,
   `--force`, `--concurrency`, and explicit path arguments

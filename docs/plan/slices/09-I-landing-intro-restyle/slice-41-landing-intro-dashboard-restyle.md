@@ -7,6 +7,14 @@
 **Branch**: main (editing `prototypes/dc-dashboard/`)
 **Commits**: `dc8e033`
 
+## Amendment (2026-08-20)
+
+Intro behaviour (GWT 1–4, sessionStorage, About toggle, SEC/01–05 content) remains
+**in force**. The **visual identity** from this slice (dark canvas, JetBrains Mono
+headlines, accent `#00D9FF`) is **superseded** by
+[slice 43](slice-43-foldergate-tripwire-visual-blend.md) — FolderGate cream/tan
+tone blended with Tripwire HUD/grid/status. Do not revert intro IA when executing 43.
+
 ## Goal
 
 Integrate `tripwire-landing-page-index.html` as a soft intro screen that appears

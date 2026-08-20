@@ -1,0 +1,62 @@
+{
+  "slice": 43,
+  "date": "2026-08-20",
+  "branch": "slice/43-foldergate-tripwire-visual-blend",
+  "verdict": "ON_BRANCH",
+  "gate_status": "ON_BRANCH",
+  "before_checks": "all green — slice 42 merged; branch from main; slice 41 intro IA present (sessionStorage tripwire-intro-dismissed)",
+  "after_checks": [
+    "GWT-43.1–43.10 observed — token tests + browser visual @ http://127.0.0.1:8765/",
+    "tripwire-visual-tokens.test.js — 10 contract tests incl. STATUS_META ↔ :root ink binding",
+    "Intro GWT 1–4 from slice 41 — sessionStorage dismiss/reload/toggle verified in browser",
+    "Contrast — ink table documented; Modal console uses --text-secondary on --bg-deep",
+    "CHANGELOG Unreleased — visual identity v2 (paper + tan CTA + AA ink)",
+    "PROGRESS + TRAIL + slice stub synced; PR #96 open"
+  ],
+  "coverage_pct": 98.41,
+  "branch_pct": 90.59,
+  "coverage_target": "N/A — CSS/HTML restyle; dashboard JS modules hold ≥95% via tripwire-status.js et al.",
+  "complexity_policy": "reporting",
+  "complexity_tool": "N/A (HTML/CSS prototype)",
+  "complexity_ceiling": "N/A",
+  "complexity_passed": true,
+  "static_analysis": "ruff + mypy + eslint (dashboard) — CI green on PR #96",
+  "security_scan": "gitleaks + semgrep + trivy — CI green on PR #96",
+  "regression": "298 Python + 129 CLI + 72 dashboard (1 skip) — CI green",
+  "at_completeness": "GWT in slice stub + tripwire-visual-tokens.test.js (no Cucumber — repo UI contract)",
+  "code_review": "PR #96 CI review job pass; merge pending",
+  "commands": [
+    {
+      "cmd": "npm --prefix prototypes/dc-dashboard run test:coverage",
+      "result": "PASS — 72 tests (71 pass, 1 skip); 98.41% stmts / 90.59% branches"
+    },
+    {
+      "cmd": "uv run pytest --cov -q",
+      "result": "PASS — 298 passed; 96.7% line coverage"
+    },
+    {
+      "cmd": "npm --prefix cli run test:coverage",
+      "result": "PASS — 129 passed; 98.44% stmts"
+    },
+    {
+      "cmd": "Browser visual GWT-43.4 @ http://127.0.0.1:8765/Tripwire.dc.html",
+      "result": "PASS — body::before grid; 19 .hud panels; RAG fill tokens; intro dismiss → reload → About toggle"
+    },
+    {
+      "cmd": "gh pr checks 96",
+      "result": "PASS — backend, CLI, dashboard, lint, SAST, secrets (2026-08-20)"
+    }
+  ],
+  "visual_verification": {
+    "url": "http://127.0.0.1:8765/Tripwire.dc.html",
+    "grid_overlay": "body::before 56px crosshatch",
+    "hud_panels": 19,
+    "hud_variants": { "red": 2, "amber": 1, "green": 6 },
+    "intro_dismiss": "sessionStorage tripwire-intro-dismissed; Open Dashboard / About toggle verified"
+  },
+  "review": "CI review pass on PR #96; nw-review deferred — UI slice, token tests + browser visual as gate",
+  "pr": "https://github.com/neomatrix369/tripwire/pull/96",
+  "commits": ["8149f54", "8f2f225", "4f33028", "30eb7fe", "127bac1"],
+  "spec_path": "docs/plan/slices/09-I-landing-intro-restyle/slice-43-foldergate-tripwire-visual-blend.md",
+  "note": "Pure UI/HTML slice — token contract tests + manual browser visual. verdict ON_BRANCH until PR #96 merges; then promote trackers to ✅ PASSED."
+}

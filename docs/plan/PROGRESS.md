@@ -1,12 +1,12 @@
 # Progress
-> Last updated: 2026-08-15
+> Last updated: 2026-08-20
 
 ## Slice groups (execution sequence)
 
 | Wave | Folder | Group | Slices | Outcome |
 |-----:|--------|-------|--------|---------|
-| 9 | [`09-I-…`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 | ✅ |
-| 10 | [`10-J-…`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 | 📋 |
+| 9 | [`09-I-…`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 ✅ · 43 | 41 ✅ · 43 🔀 |
+| 10 | [`10-J-…`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 | ✅ |
 | 1 | [`01-A-…`](slices/01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 · 4 | ✅ · 4 📦 |
 | 2 | [`02-B-…`](slices/02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`03-C-…`](slices/03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
@@ -139,10 +139,16 @@ Wave folder `slices/08-H-agent-guard-integration/` pending; spec is the
 hackathon working plan ("Tripwire × Claude Code Integration — Implementation
 Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 
+### I — Landing Intro + Visual Refresh
+| # | Slice | MoSCoW | Status | Started | Completed | Est. time |
+|---|-------|--------|--------|---------|-----------|-----------|
+| 41 | [slice-41-landing-intro-dashboard-restyle](slices/09-I-landing-intro-restyle/slice-41-landing-intro-dashboard-restyle.md) | Must | ✅ PASSED | 2026-08-19 | 2026-08-19 | — |
+| 43 | [slice-43-foldergate-tripwire-visual-blend](slices/09-I-landing-intro-restyle/slice-43-foldergate-tripwire-visual-blend.md) | Must | 🔀 ON BRANCH | 2026-08-20 | — | ~90 min |
+
 ### J — Dashboard Data Quality Fixes
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| 42 | [slice-42-dashboard-data-quality-fixes](slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md) | Must | 📋 PLANNED | — | — | ~120 min |
+| 42 | [slice-42-dashboard-data-quality-fixes](slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md) | Must | ✅ PASSED | 2026-08-19 | 2026-08-20 | ~120 min |
 
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 
@@ -200,3 +206,5 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-16 | docs/skills-scanner-scan-complexity-study | enhanced-flow-planner + plan-modifier | skills_scanner 35 | 📋 stub | skills_scanner code study: scan() CC=55 → Slice 35 stub ported to `docs/plan/slices/slice-35-scan-complexity-decomposition.md` |
 | 2026-08-17 | docs/slice-40-renumber-and-reframe | sync-docs + clean-commit | 40 | 📋 PLANNED | Renumber conflict (35 taken by H5 Ossprey); reframe as Tripwire-native (run_snyk CC=28, run_cisco_mcp_scanner CC=23); elevate to Must + highest priority. PR #86 |
 | 2026-08-17 | docs/slice-40-reframe-type-filter | plan-modifier | 40 | 📋 PLANNED | Reframe slice 40 again: user-facing `--type <skill\|mcp>` filter on `tripwire scan` (not internal complexity refactor). UX decision: parameter on existing subcommand over new subcommand. |
+| 2026-08-20 | plan (on slice/42 working tree) | enhanced-flow-planner Path B | 43 | 📋 PLANNED | Amend Wave I: FolderGate cream/tan × Tripwire HUD. Slice 41 stays ✅ (intro). |
+| 2026-08-20 | slice/43-foldergate-tripwire-visual-blend | gate close prep | 43 | 🔀 ON BRANCH | PR #96; gate-evidence slice-43.json; trackers synced. |

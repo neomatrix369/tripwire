@@ -11,29 +11,42 @@
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  /* Paper × HUD tokens (slice 43): fills = dots/borders/CTA; *-ink = text on paper.
+     --accent is deprecated — use --cta / --signal / --*-ink. */
   :root {
-    --bg-base: #05080B;
-    --bg-surface: #0C131A;
-    --bg-elevated: #101923;
-    --bg-input: #050810;
-    --bg-deep: #090E13;
-    --border-subtle: rgba(0,217,255,0.12);
-    --border-default: rgba(0,217,255,0.30);
-    --text-primary: #E7EDF2;
-    --text-secondary: #8CA3AF;
-    --text-muted: #556671;
-    --accent: #00D9FF;
-    --accent-dim: rgba(0,217,255,0.35);
+    --bg-base: #F5F2EA;
+    --bg-surface: #EFE9DC;
+    --bg-elevated: #E7DFD0;
+    --bg-input: #F8F5ED;
+    --bg-deep: #E8E0D2;
+    --border-subtle: rgba(28,25,21,0.08);
+    --border-default: rgba(28,25,21,0.18);
+    --text-primary: #1C1915;
+    --text-secondary: #5C564C;
+    --text-muted: #6B645A;
+    --cta: #C4A574;
+    --cta-ink: #7A5C2E;
+    --cta-dim: rgba(196,165,116,0.35);
+    --signal: #00D9FF;
+    --signal-ink: #0E7490;
+    --signal-dim: rgba(0,217,255,0.35);
+    --accent: var(--cta);
+    --accent-dim: var(--cta-dim);
     --red: #FF5D5D;
+    --red-ink: #B42318;
     --red-dim: rgba(255,93,93,0.4);
     --amber: #FFB020;
+    --amber-ink: #8B5A00;
     --amber-dim: rgba(255,176,32,0.32);
     --green: #34D399;
+    --green-ink: #0F766E;
     --green-dim: rgba(52,211,153,0.35);
-    --grey: #5B6572;
+    --grey: #9A9185;
     --violet: #a78bfa;
+    --violet-ink: #6D28D9;
+    --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
     --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   }
@@ -43,11 +56,11 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { color: #7AEEFF; }
-  button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  input:focus-visible { outline: none; border-color: var(--accent) !important; }
-  div[style*="cursor:pointer"]:hover { filter: brightness(1.12); }
+  a { color: var(--cta-ink); text-decoration: none; }
+  a:hover { color: #6B4F24; }
+  button:focus-visible { outline: 2px solid var(--cta); outline-offset: 2px; }
+  input:focus-visible { outline: none; border-color: var(--cta) !important; }
+  div[style*="cursor:pointer"]:hover { box-shadow: 0 0 0 1px var(--border-default); }
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
@@ -118,23 +131,23 @@
   }
   .intro-eyebrow {
     font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em;
-    text-transform: uppercase; color: var(--accent);
+    text-transform: uppercase; color: var(--text-secondary);
     display: flex; align-items: center; gap: 10px; margin-bottom: 18px;
   }
   .intro-eyebrow::before {
-    content: ""; width: 7px; height: 7px; background: var(--accent);
-    box-shadow: 0 0 0 4px var(--accent-dim); flex-shrink: 0;
+    content: ""; width: 7px; height: 7px; background: var(--signal);
+    box-shadow: 0 0 0 4px var(--signal-dim); flex-shrink: 0;
     animation: blink 2.2s ease-in-out infinite;
   }
   .wire-strip {
     position: relative; height: 90px;
     border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);
-    overflow: hidden; background: linear-gradient(180deg, rgba(0,217,255,0.05), transparent 60%);
+    overflow: hidden; background: linear-gradient(180deg, rgba(0,217,255,0.06), transparent 60%);
     margin: 24px 0;
   }
   .wire-line {
     position: absolute; left: 0; right: 0; top: 50%; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent-dim) 8%, var(--accent) 50%, var(--accent-dim) 92%, transparent);
+    background: linear-gradient(90deg, transparent, var(--signal-dim) 8%, var(--signal) 50%, var(--signal-dim) 92%, transparent);
     transform: translateY(-50%);
   }
   .wire-node {
@@ -148,7 +161,7 @@
     transform: translate(-50%,-50%);
     animation: travel 5.2s linear infinite;
   }
-  .wire-pulse.p2 { animation-delay: 1.7s; background: var(--accent); box-shadow: 0 0 12px 3px var(--accent-dim); }
+  .wire-pulse.p2 { animation-delay: 1.7s; background: var(--signal); box-shadow: 0 0 12px 3px var(--signal-dim); }
   .wire-pulse.p3 { animation-delay: 3.4s; }
   .wire-label {
     position: absolute; left: 50%; top: 10px; transform: translateX(-50%);
@@ -160,11 +173,11 @@
     padding: 20px 18px; position: relative;
   }
   .stat-card.risk { border-top-color: var(--red); }
-  .stat-card.risk .stat-tag { color: var(--red); }
-  .stat-card.risk .stat-num { color: var(--red); text-shadow: 0 0 14px var(--red-dim); }
+  .stat-card.risk .stat-tag { color: var(--red-ink); }
+  .stat-card.risk .stat-num { color: var(--red-ink); }
   .stat-card.warn { border-top-color: var(--amber); }
-  .stat-card.warn .stat-tag { color: var(--amber); }
-  .stat-card.warn .stat-num { color: var(--amber); }
+  .stat-card.warn .stat-tag { color: var(--amber-ink); }
+  .stat-card.warn .stat-num { color: var(--amber-ink); }
   .stat-tag { font-family: var(--font-mono); font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 10px; display: inline-block; }
   .stat-num { font-family: var(--font-mono); font-size: 32px; font-weight: 700; line-height: 1; margin-bottom: 8px; }
   .stat-label { font-family: var(--font-sans); font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.45; }
@@ -174,7 +187,7 @@
 <div style="display:flex;flex-direction:column;height:100vh;background:var(--bg-base);color:var(--text-primary);font-family:var(--font-sans);overflow:hidden;position:relative;z-index:1">
 
   <div style="display:flex;align-items:center;height:52px;padding:0 20px;border-bottom:1px solid var(--border-subtle);gap:10px;flex-shrink:0;background:var(--bg-surface)">
-    <div style="font-family:var(--font-mono);font-weight:700;font-size:13px;letter-spacing:0.08em;color:var(--accent);margin-right:16px;display:flex;align-items:center;gap:8px">
+    <div style="font-family:var(--font-mono);font-weight:700;font-size:13px;letter-spacing:0.08em;color:var(--text-primary);margin-right:16px;display:flex;align-items:center;gap:8px">
       <svg width="14" height="16" viewBox="0 0 14 16" fill="none" style="opacity:0.85"><path d="M7 1L13 4V9.5C13 12.5 10 14.5 7 15.5C4 14.5 1 12.5 1 9.5V4L7 1Z" stroke="currentColor" stroke-width="1.2" fill="currentColor" fill-opacity="0.15"/><circle cx="7" cy="7.5" r="1.5" fill="currentColor"/></svg>
       TRIPWIRE
     </div>
@@ -200,25 +213,25 @@
       <div style="border-bottom:1px solid var(--border-subtle);background:var(--bg-deep);overflow:hidden;white-space:nowrap;padding:9px 0">
         <div style="display:inline-block;padding-left:100%;animation:ticker-scroll 42s linear infinite">
           <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);letter-spacing:0.02em">
-            <b style="color:var(--red);font-weight:600">1,184</b> malicious skills confirmed on a major agent marketplace
+            <b style="color:var(--red-ink);font-weight:600">1,184</b> malicious skills confirmed on a major agent marketplace
             <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
-            <b style="color:var(--red);font-weight:600">40+</b> MCP CVEs disclosed in four months
+            <b style="color:var(--red-ink);font-weight:600">40+</b> MCP CVEs disclosed in four months
             <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
-            <b style="color:var(--red);font-weight:600">1.23M+</b> malicious packages blocked across npm, PyPI, Maven, NuGet, Hugging Face
+            <b style="color:var(--red-ink);font-weight:600">1.23M+</b> malicious packages blocked across npm, PyPI, Maven, NuGet, Hugging Face
             <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
-            <b style="color:var(--red);font-weight:600">82%</b> of MCP implementations expose path-traversal-prone file operations
+            <b style="color:var(--red-ink);font-weight:600">82%</b> of MCP implementations expose path-traversal-prone file operations
             <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
-            <b style="color:var(--red);font-weight:600">36%</b> of tested agent skills carry a security flaw
+            <b style="color:var(--red-ink);font-weight:600">36%</b> of tested agent skills carry a security flaw
             <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
-            <b style="color:var(--red);font-weight:600">1,184</b> malicious skills confirmed on a major agent marketplace
+            <b style="color:var(--red-ink);font-weight:600">1,184</b> malicious skills confirmed on a major agent marketplace
             <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
-            <b style="color:var(--red);font-weight:600">40+</b> MCP CVEs disclosed in four months
+            <b style="color:var(--red-ink);font-weight:600">40+</b> MCP CVEs disclosed in four months
             <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
-            <b style="color:var(--red);font-weight:600">1.23M+</b> malicious packages blocked across npm, PyPI, Maven, NuGet, Hugging Face
+            <b style="color:var(--red-ink);font-weight:600">1.23M+</b> malicious packages blocked across npm, PyPI, Maven, NuGet, Hugging Face
             <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
-            <b style="color:var(--red);font-weight:600">82%</b> of MCP implementations expose path-traversal-prone file operations
+            <b style="color:var(--red-ink);font-weight:600">82%</b> of MCP implementations expose path-traversal-prone file operations
             <i style="font-style:normal;margin:0 18px;color:var(--text-muted)">//</i>
-            <b style="color:var(--red);font-weight:600">36%</b> of tested agent skills carry a security flaw
+            <b style="color:var(--red-ink);font-weight:600">36%</b> of tested agent skills carry a security flaw
           </span>
         </div>
       </div>
@@ -227,16 +240,16 @@
 
         <!-- ── Hero ── -->
         <div class="intro-eyebrow">Frontline Hackathon London 2026 — Claude Code Integration</div>
-        <h1 style="font-family:var(--font-mono);font-size:clamp(22px,3.6vw,44px);font-weight:600;line-height:1.14;max-width:880px;margin-bottom:20px;color:var(--text-primary)">
+        <h1 style="font-family:var(--font-display);font-size:clamp(26px,4vw,48px);font-weight:600;line-height:1.14;max-width:880px;margin-bottom:20px;color:var(--text-primary)">
           Every skill, MCP server, and tool your agent installs is
-          <span style="color:var(--accent);text-shadow:0 0 18px var(--accent-dim)">unreviewed code</span>,
+          <span style="color:var(--cta-ink)">unreviewed code</span>,
           handed a trusted seat in your session.
         </h1>
         <p style="font-family:var(--font-sans);font-size:17px;color:var(--text-secondary);max-width:580px;margin-bottom:32px;line-height:1.55">
           Tripwire scans agentic artifacts before Claude Code trusts them — and blocks the ones that shouldn't be running in your terminal.
         </p>
         <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:0">
-          <button onClick="{{ enterDashboard }}" style="font-family:var(--font-mono);font-size:13px;padding:13px 22px;background:var(--accent);color:#031017;font-weight:700;border:none;cursor:pointer;border-radius:2px;transition:background 0.15s ease;display:inline-flex;align-items:center;gap:8px">
+          <button onClick="{{ enterDashboard }}" style="font-family:var(--font-mono);font-size:13px;padding:13px 22px;background:var(--cta);color:#1C1915;font-weight:700;border:none;cursor:pointer;border-radius:2px;transition:background 0.15s ease;display:inline-flex;align-items:center;gap:8px">
             Open Dashboard →
           </button>
           <a href="https://github.com/neomatrix369/tripwire/" target="_blank" rel="noopener" style="font-family:var(--font-mono);font-size:13px;padding:13px 22px;border:1px solid var(--border-default);color:var(--text-primary);text-decoration:none;border-radius:2px;display:inline-flex;align-items:center;gap:8px;transition:border-color 0.15s ease">
@@ -265,7 +278,7 @@
           <div style="position:absolute;top:0;left:0;right:0;height:1px;background-image:repeating-linear-gradient(90deg,var(--border-default) 0 6px,transparent 6px 14px)"></div>
           <div style="position:absolute;top:-1px;right:0;background:var(--bg-base);padding:0 10px;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:0.1em">SEC / 01</div>
           <div class="intro-eyebrow" style="margin-bottom:12px">The scale of the problem</div>
-          <h2 style="font-family:var(--font-mono);font-size:clamp(18px,2.4vw,26px);font-weight:600;margin-bottom:12px">The perimeter around agentic tooling is undefended</h2>
+          <h2 style="font-family:var(--font-display);font-size:clamp(20px,2.6vw,28px);font-weight:600;margin-bottom:12px">The perimeter around agentic tooling is undefended</h2>
           <p style="font-family:var(--font-sans);font-size:15px;color:var(--text-secondary);max-width:640px;margin-bottom:22px;line-height:1.55">Skills, MCP servers, and packages are the new install surface for coding agents — and 2026 is the year attackers noticed.</p>
           <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px;font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">
             <span style="display:inline-flex;align-items:center;gap:7px"><i style="width:7px;height:7px;display:inline-block;background:var(--red);flex-shrink:0;font-style:normal"></i>active threat / confirmed harm</span>
@@ -317,21 +330,21 @@
           <div style="position:absolute;top:0;left:0;right:0;height:1px;background-image:repeating-linear-gradient(90deg,var(--border-default) 0 6px,transparent 6px 14px)"></div>
           <div style="position:absolute;top:-1px;right:0;background:var(--bg-base);padding:0 10px;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:0.1em">SEC / 02</div>
           <div class="intro-eyebrow" style="margin-bottom:12px">Anatomy of a breach</div>
-          <h2 style="font-family:var(--font-mono);font-size:clamp(18px,2.4vw,26px);font-weight:600;margin-bottom:12px">It doesn't look like an attack. That's the point.</h2>
+          <h2 style="font-family:var(--font-display);font-size:clamp(20px,2.6vw,28px);font-weight:600;margin-bottom:12px">It doesn't look like an attack. That's the point.</h2>
           <p style="font-family:var(--font-sans);font-size:15px;color:var(--text-secondary);max-width:640px;margin-bottom:28px;line-height:1.55">Documented 2026 incidents follow the same three beats — a helpful-looking install, a trusted execution context, and a quiet exfiltration.</p>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
             <div style="background:var(--bg-surface);padding:24px;position:relative" class="hud"><span class="hc-br"></span>
-              <div style="font-family:var(--font-mono);font-size:11px;color:var(--amber);margin-bottom:14px;font-weight:600;letter-spacing:0.04em">01 — INSTALL</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--amber-ink);margin-bottom:14px;font-weight:600;letter-spacing:0.04em">01 — INSTALL</div>
               <h3 style="font-family:var(--font-mono);font-size:16px;margin-bottom:10px;font-weight:600">One command, zero review</h3>
               <p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);line-height:1.5">A skill, MCP server, or package is added the same way a trusted one would be. Marketplaces prioritize openness over vetting — there's no gate at the door.</p>
             </div>
             <div style="background:var(--bg-surface);padding:24px;position:relative" class="hud"><span class="hc-br"></span>
-              <div style="font-family:var(--font-mono);font-size:11px;color:var(--amber);margin-bottom:14px;font-weight:600;letter-spacing:0.04em">02 — TRUST</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--amber-ink);margin-bottom:14px;font-weight:600;letter-spacing:0.04em">02 — TRUST</div>
               <h3 style="font-family:var(--font-mono);font-size:16px;margin-bottom:10px;font-weight:600">The agent can't tell data from instructions</h3>
               <p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);line-height:1.5">Once loaded, its content sits in the same context the agent reasons over. A dependency helper can quietly redirect installs; a config file can inject commands before any trust dialog appears.</p>
             </div>
             <div style="background:linear-gradient(180deg,rgba(255,93,93,0.07),var(--bg-surface));padding:24px;position:relative" class="hud hud-red"><span class="hc-br"></span>
-              <div style="font-family:var(--font-mono);font-size:11px;color:var(--red);margin-bottom:14px;font-weight:600;letter-spacing:0.04em">03 — BREACH</div>
+              <div style="font-family:var(--font-mono);font-size:11px;color:var(--red-ink);margin-bottom:14px;font-weight:600;letter-spacing:0.04em">03 — BREACH</div>
               <h3 style="font-family:var(--font-mono);font-size:16px;margin-bottom:10px;font-weight:600">Credentials, secrets, lateral spread</h3>
               <p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);line-height:1.5">API keys, SSH keys, and environment variables are exfiltrated through normal-looking output — "installing dependency," "running scan" — while the malicious path persists for every future call.</p>
             </div>
@@ -343,57 +356,57 @@
           <div style="position:absolute;top:0;left:0;right:0;height:1px;background-image:repeating-linear-gradient(90deg,var(--border-default) 0 6px,transparent 6px 14px)"></div>
           <div style="position:absolute;top:-1px;right:0;background:var(--bg-base);padding:0 10px;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:0.1em">SEC / 03</div>
           <div class="intro-eyebrow" style="margin-bottom:12px">How Tripwire stops it</div>
-          <h2 style="font-family:var(--font-mono);font-size:clamp(18px,2.4vw,26px);font-weight:600;margin-bottom:12px">A scan on the wire, before anything runs</h2>
+          <h2 style="font-family:var(--font-display);font-size:clamp(20px,2.6vw,28px);font-weight:600;margin-bottom:12px">A scan on the wire, before anything runs</h2>
           <p style="font-family:var(--font-sans);font-size:15px;color:var(--text-secondary);max-width:640px;margin-bottom:28px;line-height:1.55">Tripwire sits between Claude Code's hook system and every skill, tool, or MCP call — dispatching to a scanner and relaying a verdict before execution proceeds.</p>
           <div style="display:flex;align-items:stretch;gap:0;background:var(--bg-deep);padding:26px 20px;border:1px solid var(--border-subtle);margin-bottom:32px;flex-wrap:wrap" class="hud"><span class="hc-br"></span>
             <div style="background:var(--bg-surface);border:1px solid var(--border-subtle);padding:14px;flex:1 1 120px;min-width:120px">
-              <div style="font-family:var(--font-mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Claude Code</div>
+              <div style="font-family:var(--font-mono);font-size:9px;color:var(--cta-ink);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Claude Code</div>
               <div style="font-size:13px;font-weight:600;margin-bottom:3px;font-family:var(--font-mono)">Hook event</div>
               <div style="font-size:11px;color:var(--text-secondary);font-family:var(--font-sans)">PreToolUse fires before any skill/tool/MCP call</div>
             </div>
             <div style="flex:0 0 auto;width:26px;text-align:center;color:var(--text-muted);font-family:var(--font-mono);align-self:center">→</div>
             <div style="background:var(--bg-surface);border:1px solid var(--border-subtle);padding:14px;flex:1 1 120px;min-width:120px">
-              <div style="font-family:var(--font-mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Thin handler</div>
+              <div style="font-family:var(--font-mono);font-size:9px;color:var(--cta-ink);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Thin handler</div>
               <div style="font-size:13px;font-weight:600;margin-bottom:3px;font-family:var(--font-mono)">Handler script</div>
               <div style="font-size:11px;color:var(--text-secondary);font-family:var(--font-sans)">pre-tool-use.sh — checks config, shells to guard</div>
             </div>
             <div style="flex:0 0 auto;width:26px;text-align:center;color:var(--text-muted);font-family:var(--font-mono);align-self:center">→</div>
             <div style="background:var(--bg-surface);border:1px solid var(--border-subtle);padding:14px;flex:1 1 120px;min-width:120px">
-              <div style="font-family:var(--font-mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Engine</div>
+              <div style="font-family:var(--font-mono);font-size:9px;color:var(--cta-ink);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Engine</div>
               <div style="font-size:13px;font-weight:600;margin-bottom:3px;font-family:var(--font-mono)">tripwire CLI</div>
               <div style="font-size:11px;color:var(--text-secondary);font-family:var(--font-sans)">submit-for-scan &amp; status APIs</div>
             </div>
             <div style="flex:0 0 auto;width:26px;text-align:center;color:var(--text-muted);font-family:var(--font-mono);align-self:center">→</div>
             <div style="background:var(--bg-surface);border:1px solid var(--accent);padding:14px;flex:1 1 120px;min-width:120px">
-              <div style="font-family:var(--font-mono);font-size:9px;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Dispatch</div>
+              <div style="font-family:var(--font-mono);font-size:9px;color:var(--cta-ink);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Dispatch</div>
               <div style="font-size:13px;font-weight:600;margin-bottom:3px;font-family:var(--font-mono)">Scanner layer</div>
               <div style="font-size:11px;color:var(--text-secondary);font-family:var(--font-sans);margin-bottom:8px">Routed to the right check</div>
               <div style="display:flex;gap:6px;flex-wrap:wrap">
                 <span style="font-family:var(--font-mono);font-size:9px;padding:2px 7px;border:1px solid var(--border-subtle);color:var(--text-muted)">built-in</span>
-                <span style="font-family:var(--font-mono);font-size:9px;padding:2px 7px;border:1px solid var(--accent);color:var(--accent)">DepShield</span>
-                <span style="font-family:var(--font-mono);font-size:9px;padding:2px 7px;border:1px solid var(--accent);color:var(--accent)">Ossprey</span>
+                <span style="font-family:var(--font-mono);font-size:9px;padding:2px 7px;border:1px solid var(--accent);color:var(--cta-ink)">DepShield</span>
+                <span style="font-family:var(--font-mono);font-size:9px;padding:2px 7px;border:1px solid var(--accent);color:var(--cta-ink)">Ossprey</span>
               </div>
             </div>
             <div style="flex:0 0 auto;width:26px;text-align:center;color:var(--text-muted);font-family:var(--font-mono);align-self:center">→</div>
             <div style="background:var(--bg-surface);border:1px solid var(--amber);padding:14px;flex:1 1 120px;min-width:120px">
-              <div style="font-family:var(--font-mono);font-size:9px;color:var(--amber);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Verdict</div>
+              <div style="font-family:var(--font-mono);font-size:9px;color:var(--amber-ink);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Verdict</div>
               <div style="font-size:13px;font-weight:600;margin-bottom:3px;font-family:var(--font-mono)">RAG status</div>
               <div style="font-size:11px;color:var(--text-secondary);font-family:var(--font-sans)">Exit code / stdout JSON relayed back</div>
             </div>
           </div>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px">
             <div style="background:var(--bg-surface);border-top:3px solid var(--green);padding:20px;position:relative" class="hud hud-green"><span class="hc-br"></span>
-              <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--green);margin-bottom:10px">Green</div>
+              <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--green-ink);margin-bottom:10px">Green</div>
               <h4 style="font-family:var(--font-mono);font-size:15px;margin-bottom:7px;font-weight:600">Clean</h4>
               <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">Scanned within the validity window, no findings. Runs — soft-report only.</p>
             </div>
             <div style="background:var(--bg-surface);border-top:3px solid var(--amber);padding:20px;position:relative" class="hud hud-amber"><span class="hc-br"></span>
-              <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--amber);margin-bottom:10px">Amber</div>
+              <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--amber-ink);margin-bottom:10px">Amber</div>
               <h4 style="font-family:var(--font-mono);font-size:15px;margin-bottom:7px;font-weight:600">Reported</h4>
               <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">Findings below the block threshold. Logged and surfaced, execution allowed.</p>
             </div>
             <div style="background:var(--bg-surface);border-top:3px solid var(--red);padding:20px;position:relative" class="hud hud-red"><span class="hc-br"></span>
-              <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--red);margin-bottom:10px">Red</div>
+              <div style="font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--red-ink);margin-bottom:10px">Red</div>
               <h4 style="font-family:var(--font-mono);font-size:15px;margin-bottom:7px;font-weight:600">Blocked</h4>
               <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">At or above threshold. Execution is refused — always with an explicit block reason.</p>
             </div>
@@ -410,27 +423,27 @@
           <div style="position:absolute;top:0;left:0;right:0;height:1px;background-image:repeating-linear-gradient(90deg,var(--border-default) 0 6px,transparent 6px 14px)"></div>
           <div style="position:absolute;top:-1px;right:0;background:var(--bg-base);padding:0 10px;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:0.1em">SEC / 04</div>
           <div class="intro-eyebrow" style="margin-bottom:12px">Shipped today</div>
-          <h2 style="font-family:var(--font-mono);font-size:clamp(18px,2.4vw,26px);font-weight:600;margin-bottom:12px">Five Claude Code skills, wired to a live enforcement layer</h2>
+          <h2 style="font-family:var(--font-display);font-size:clamp(20px,2.6vw,28px);font-weight:600;margin-bottom:12px">Five Claude Code skills, wired to a live enforcement layer</h2>
           <p style="font-family:var(--font-sans);font-size:15px;color:var(--text-secondary);max-width:640px;margin-bottom:28px;line-height:1.55">Built at Frontline Hackathon London 2026: the integration layer that connects Claude Code's hook system to Tripwire's existing scan engine — enforcing from the moment of install.</p>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px">
             <div style="background:var(--bg-surface);padding:20px;position:relative" class="hud hud-green"><span class="hc-br"></span>
-              <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green);margin-bottom:9px;display:block">/tw-verify [name(s)]</span>
+              <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green-ink);margin-bottom:9px;display:block">/tw-verify [name(s)]</span>
               <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">Resolves one or more names, reports fresh / stale / unscanned / scanning / not-found status — human table and JSON.</p>
             </div>
             <div style="background:var(--bg-surface);padding:20px;position:relative" class="hud hud-green"><span class="hc-br"></span>
-              <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green);margin-bottom:9px;display:block">/tw-scan [name(s)] --force</span>
+              <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green-ink);margin-bottom:9px;display:block">/tw-scan [name(s)] --force</span>
               <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">Submits artifacts for scanning via Tripwire's existing API. --force resubmits over a valid result.</p>
             </div>
             <div style="background:var(--bg-surface);padding:20px;position:relative" class="hud hud-green"><span class="hc-br"></span>
-              <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green);margin-bottom:9px;display:block">/tw-enable</span>
+              <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green-ink);margin-bottom:9px;display:block">/tw-enable</span>
               <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">Turns on enforcement across skills, tools, and MCP uniformly via the config flag.</p>
             </div>
             <div style="background:var(--bg-surface);padding:20px;position:relative" class="hud hud-green"><span class="hc-br"></span>
-              <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green);margin-bottom:9px;display:block">/tw-disable</span>
+              <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green-ink);margin-bottom:9px;display:block">/tw-disable</span>
               <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">Full bypass at the enforcement layer. Manual verify/scan keep working regardless.</p>
             </div>
             <div style="background:var(--bg-surface);padding:20px;position:relative" class="hud hud-green"><span class="hc-br"></span>
-              <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green);margin-bottom:9px;display:block">/tw-self-check</span>
+              <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green-ink);margin-bottom:9px;display:block">/tw-self-check</span>
               <p style="font-family:var(--font-sans);font-size:12px;color:var(--text-secondary);line-height:1.45">Runs the same status logic against Tripwire's own five skills — the guard, guarding itself.</p>
             </div>
             <div style="display:flex;align-items:center;justify-content:center;border:1px dashed var(--border-default);color:var(--text-muted);font-family:var(--font-mono);font-size:11px;padding:20px;text-align:center">
@@ -440,19 +453,19 @@
           <div style="display:flex;gap:1px;background:var(--border-subtle);border:1px solid var(--border-subtle)">
             <div style="flex:1;background:var(--bg-elevated);padding:16px 20px">
               <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px">Enforcement default</div>
-              <div style="font-family:var(--font-mono);font-size:14px;color:var(--green);font-weight:600">enabled</div>
+              <div style="font-family:var(--font-mono);font-size:14px;color:var(--green-ink);font-weight:600">enabled</div>
             </div>
             <div style="flex:1;background:var(--bg-elevated);padding:16px 20px">
               <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px">Scan validity window</div>
-              <div style="font-family:var(--font-mono);font-size:14px;color:var(--accent);font-weight:600">14 days</div>
+              <div style="font-family:var(--font-mono);font-size:14px;color:var(--cta-ink);font-weight:600">14 days</div>
             </div>
             <div style="flex:1;background:var(--bg-elevated);padding:16px 20px">
               <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px">Unscanned artifacts</div>
-              <div style="font-family:var(--font-mono);font-size:14px;color:var(--green);font-weight:600">blocked</div>
+              <div style="font-family:var(--font-mono);font-size:14px;color:var(--green-ink);font-weight:600">blocked</div>
             </div>
             <div style="flex:1;background:var(--bg-elevated);padding:16px 20px">
               <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px">Install path</div>
-              <div style="font-family:var(--font-mono);font-size:13px;color:var(--accent);font-weight:600">tripwire setup-agent-hooks</div>
+              <div style="font-family:var(--font-mono);font-size:13px;color:var(--cta-ink);font-weight:600">tripwire setup-agent-hooks</div>
             </div>
           </div>
         </div>
@@ -462,17 +475,17 @@
           <div style="position:absolute;top:0;left:0;right:0;height:1px;background-image:repeating-linear-gradient(90deg,var(--border-default) 0 6px,transparent 6px 14px)"></div>
           <div style="position:absolute;top:-1px;right:0;background:var(--bg-base);padding:0 10px;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);letter-spacing:0.1em">SEC / 05</div>
           <div class="intro-eyebrow" style="margin-bottom:12px">Where it goes next</div>
-          <h2 style="font-family:var(--font-mono);font-size:clamp(18px,2.4vw,26px);font-weight:600;margin-bottom:12px">From hook wiring to full dispatch coverage</h2>
+          <h2 style="font-family:var(--font-display);font-size:clamp(20px,2.6vw,28px);font-weight:600;margin-bottom:12px">From hook wiring to full dispatch coverage</h2>
           <p style="font-family:var(--font-sans);font-size:15px;color:var(--text-secondary);max-width:640px;margin-bottom:32px;line-height:1.55">The integration layer is live. What extends next is Tripwire's own dispatch capability — pluggable scanners behind the same RAG verdict contract.</p>
           <div style="position:relative;padding-left:2px">
             <div style="position:absolute;left:19px;top:8px;bottom:8px;width:1px;background-image:repeating-linear-gradient(180deg,var(--border-default) 0 4px,transparent 4px 9px)"></div>
             <div style="display:flex;gap:20px;padding-bottom:28px">
-              <div style="flex:0 0 auto;width:38px;height:38px;background:var(--bg-surface);border:1px solid var(--green);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green);z-index:1">✓</div>
-              <div><h4 style="font-family:var(--font-mono);font-size:14px;margin-bottom:4px;font-weight:600">Phase 1 — Hook &amp; skill integration</h4><p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);max-width:520px;line-height:1.45">Handler scripts, PreToolUse wiring, config bootstrap, the five /tw-* skills, demo artifacts, regression pass.</p><div style="font-family:var(--font-mono);font-size:10px;color:var(--green);margin-top:5px;text-transform:uppercase;letter-spacing:0.06em">Shipped at Frontline Hackathon</div></div>
+              <div style="flex:0 0 auto;width:38px;height:38px;background:var(--bg-surface);border:1px solid var(--green);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--green-ink);z-index:1">✓</div>
+              <div><h4 style="font-family:var(--font-mono);font-size:14px;margin-bottom:4px;font-weight:600">Phase 1 — Hook &amp; skill integration</h4><p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);max-width:520px;line-height:1.45">Handler scripts, PreToolUse wiring, config bootstrap, the five /tw-* skills, demo artifacts, regression pass.</p><div style="font-family:var(--font-mono);font-size:10px;color:var(--green-ink);margin-top:5px;text-transform:uppercase;letter-spacing:0.06em">Shipped at Frontline Hackathon</div></div>
             </div>
             <div style="display:flex;gap:20px;padding-bottom:28px">
-              <div style="flex:0 0 auto;width:38px;height:38px;background:var(--bg-surface);border:1px solid var(--amber);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--amber);z-index:1;box-shadow:0 0 0 4px rgba(255,176,32,0.15)">2</div>
-              <div><h4 style="font-family:var(--font-mono);font-size:14px;margin-bottom:4px;font-weight:600">DepShield</h4><p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);max-width:520px;line-height:1.45">Dependency-focused scanner added as a pluggable dispatch target.</p><div style="font-family:var(--font-mono);font-size:10px;color:var(--amber);margin-top:5px;text-transform:uppercase;letter-spacing:0.06em">Next on the list</div></div>
+              <div style="flex:0 0 auto;width:38px;height:38px;background:var(--bg-surface);border:1px solid var(--amber);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--amber-ink);z-index:1;box-shadow:0 0 0 4px rgba(255,176,32,0.15)">2</div>
+              <div><h4 style="font-family:var(--font-mono);font-size:14px;margin-bottom:4px;font-weight:600">DepShield</h4><p style="font-family:var(--font-sans);font-size:13px;color:var(--text-secondary);max-width:520px;line-height:1.45">Dependency-focused scanner added as a pluggable dispatch target.</p><div style="font-family:var(--font-mono);font-size:10px;color:var(--amber-ink);margin-top:5px;text-transform:uppercase;letter-spacing:0.06em">Next on the list</div></div>
             </div>
             <div style="display:flex;gap:20px;padding-bottom:28px">
               <div style="flex:0 0 auto;width:38px;height:38px;background:var(--bg-surface);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--text-muted);z-index:1">3</div>
@@ -498,10 +511,10 @@
           <div style="position:absolute;top:0;left:0;right:0;height:1px;background-image:repeating-linear-gradient(90deg,var(--border-default) 0 6px,transparent 6px 14px)"></div>
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;padding-bottom:32px;margin-bottom:24px;border-bottom:1px solid var(--border-subtle)">
             <h3 style="font-family:var(--font-mono);font-size:18px;max-width:400px;font-weight:600">Enforcement should start at install, not after the first incident.</h3>
-            <div style="font-family:var(--font-mono);font-size:13px;background:var(--bg-deep);border:1px solid var(--border-default);padding:14px 18px;color:var(--accent)">$ tripwire setup-agent-hooks</div>
+            <div style="font-family:var(--font-mono);font-size:13px;background:var(--bg-deep);border:1px solid var(--border-default);padding:14px 18px;color:var(--cta-ink)">$ tripwire setup-agent-hooks</div>
           </div>
           <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-            <button onClick="{{ enterDashboard }}" style="font-family:var(--font-mono);font-size:13px;padding:13px 22px;background:var(--accent);color:#031017;font-weight:700;border:none;cursor:pointer;border-radius:2px;transition:background 0.15s ease">
+            <button onClick="{{ enterDashboard }}" style="font-family:var(--font-mono);font-size:13px;padding:13px 22px;background:var(--cta);color:#1C1915;font-weight:700;border:none;cursor:pointer;border-radius:2px;transition:background 0.15s ease">
               Open Dashboard →
             </button>
             <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">Use the "About" button in the nav to return here</span>
@@ -548,7 +561,7 @@
                 <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em">No matches</div>
                 <div style="font-size:14px;font-weight:600;color:var(--text-primary);max-width:420px">{{ filterEmptyTitle }}</div>
                 <div style="font-size:12px;color:var(--text-secondary);max-width:420px;line-height:1.5">{{ filterEmptyDetail }}</div>
-                <button onClick="{{ clearFilters }}" style="margin-top:4px;font-family:var(--font-sans);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--accent);background:rgba(0,217,255,0.10);color:var(--accent);transition:all 150ms ease">Clear filters</button>
+                <button onClick="{{ clearFilters }}" style="margin-top:4px;font-family:var(--font-sans);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--cta);background:rgba(196,165,116,0.18);color:var(--text-primary);transition:all 150ms ease">Clear filters</button>
               </div>
             </sc-if>
             <sc-if value="{{ showItemResults }}" hint-placeholder-val="{{ true }}">
@@ -565,19 +578,19 @@
                       <span>{{ item.timeLabel }}</span>
                       <sc-if value="{{ item.hasRedAmberSplit }}">
                         <span style="display:inline-flex;gap:4px;align-items:center">
-                          <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:#f43f5e;background:#f43f5e18;padding:2px 6px;border-radius:4px;border:1px solid #f43f5e30">{{ item.findingCountParts.red }}●</span>
-                          <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:#f59e0b;background:#f59e0b18;padding:2px 6px;border-radius:4px;border:1px solid #f59e0b30">{{ item.findingCountParts.amber }}▲</span>
+                          <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:#B42318;background:#f43f5e18;padding:2px 6px;border-radius:4px;border:1px solid #f43f5e30">{{ item.findingCountParts.red }}●</span>
+                          <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:#8B5A00;background:#f59e0b18;padding:2px 6px;border-radius:4px;border:1px solid #f59e0b30">{{ item.findingCountParts.amber }}▲</span>
                         </span>
                       </sc-if>
                       <sc-if value="{{ item.hasFindingCountSingle }}">
                         <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.statusColor }};background:{{ item.statusColor }}18;padding:2px 7px;border-radius:4px;border:1px solid {{ item.statusColor }}30">{{ item.findingCountLabel }}</span>
                       </sc-if>
                       <sc-if value="{{ item.scannerStatBadge }}">
-                        <span style="font-family:var(--font-mono);font-size:10px;color:{{ item.scannerStatAmber ? '#f59e0b' : 'var(--text-muted)' }};background:{{ item.scannerStatAmber ? '#f59e0b18' : 'var(--bg-elevated)' }};padding:2px 6px;border-radius:4px;border:1px solid {{ item.scannerStatAmber ? '#f59e0b40' : 'var(--border-subtle)' }};white-space:nowrap">{{ item.scannerStatBadge }}</span>
+                        <span style="font-family:var(--font-mono);font-size:10px;color:{{ item.scannerStatAmber ? '#8B5A00' : 'var(--text-muted)' }};background:{{ item.scannerStatAmber ? '#f59e0b18' : 'var(--bg-elevated)' }};padding:2px 6px;border-radius:4px;border:1px solid {{ item.scannerStatAmber ? '#f59e0b40' : 'var(--border-subtle)' }};white-space:nowrap">{{ item.scannerStatBadge }}</span>
                       </sc-if>
                     </div>
                     <sc-if value="{{ item.drifted }}">
-                      <div style="font-family:var(--font-mono);font-size:10px;color:var(--amber);background:rgba(245,158,11,0.1);display:inline-flex;padding:2px 7px;border-radius:4px;width:fit-content;border:1px solid rgba(245,158,11,0.2)">⟳ changed since last scan</div>
+                      <div style="font-family:var(--font-mono);font-size:10px;color:var(--amber-ink);background:rgba(245,158,11,0.1);display:inline-flex;padding:2px 7px;border-radius:4px;width:fit-content;border:1px solid rgba(245,158,11,0.2)">⟳ changed since last scan</div>
                     </sc-if>
                     <sc-if value="{{ item.routerStrip }}">
                       <div style="font-family:var(--font-mono);font-size:10px;display:flex;align-items:center;gap:6px">
@@ -603,7 +616,7 @@
                 <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em">No matches</div>
                 <div style="font-size:14px;font-weight:600;color:var(--text-primary);max-width:420px">{{ filterEmptyTitle }}</div>
                 <div style="font-size:12px;color:var(--text-secondary);max-width:420px;line-height:1.5">{{ filterEmptyDetail }}</div>
-                <button onClick="{{ clearFilters }}" style="margin-top:4px;font-family:var(--font-sans);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--accent);background:rgba(0,217,255,0.10);color:var(--accent);transition:all 150ms ease">Clear filters</button>
+                <button onClick="{{ clearFilters }}" style="margin-top:4px;font-family:var(--font-sans);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--cta);background:rgba(196,165,116,0.18);color:var(--text-primary);transition:all 150ms ease">Clear filters</button>
               </div>
             </sc-if>
             <sc-if value="{{ showItemResults }}" hint-placeholder-val="{{ true }}">
@@ -655,8 +668,8 @@
             <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.statusColor }};background:{{ selectedView.statusColor }}18;padding:3px 8px;border-radius:4px;border:1px solid {{ selectedView.statusColor }}30">{{ selectedView.statusGlyph }} {{ selectedView.statusLabel }}</div>
             <sc-if value="{{ selectedView.hasRedAmberSplit }}">
               <span style="display:inline-flex;gap:4px;align-items:center">
-                <span style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:#f43f5e;background:#f43f5e18;padding:3px 8px;border-radius:4px;border:1px solid #f43f5e30">{{ selectedView.findingCountParts.red }}●</span>
-                <span style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:#f59e0b;background:#f59e0b18;padding:3px 8px;border-radius:4px;border:1px solid #f59e0b30">{{ selectedView.findingCountParts.amber }}▲</span>
+                <span style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:#B42318;background:#f43f5e18;padding:3px 8px;border-radius:4px;border:1px solid #f43f5e30">{{ selectedView.findingCountParts.red }}●</span>
+                <span style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:#8B5A00;background:#f59e0b18;padding:3px 8px;border-radius:4px;border:1px solid #f59e0b30">{{ selectedView.findingCountParts.amber }}▲</span>
               </span>
             </sc-if>
             <sc-if value="{{ selectedView.hasFindingCountSingle }}">
@@ -685,7 +698,7 @@
             <div style="margin-bottom:20px">
               <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Diff vs previous scan</div>
               <sc-for list="{{ selectedView.diff.new }}" as="d" hint-placeholder-count="1">
-                <div style="font-size:12px;color:var(--amber);margin-bottom:4px">+ new: {{ d.message }}</div>
+                <div style="font-size:12px;color:var(--amber-ink);margin-bottom:4px">+ new: {{ d.message }}</div>
               </sc-for>
               <div style="font-size:11px;color:var(--text-muted)">resolved: {{ selectedView.diff.resolved.length }} · persisted: {{ selectedView.diff.persisted.length }}</div>
             </div>
@@ -712,7 +725,7 @@
                 <div style="font-size:11px;color:var(--text-secondary);margin-bottom:4px"><span style="font-family:var(--font-mono);font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em">SIE: </span>{{ selectedView.routerStrip.envSie }}</div>
               </sc-if>
               <sc-if value="{{ selectedView.routerStrip.isReview }}">
-                <div style="font-family:var(--font-mono);font-size:10px;color:#7AEEFF;background:rgba(0,217,255,0.08);padding:3px 8px;border-radius:4px;display:inline-block">SIE only — not escalated · No Model Studio call</div>
+                <div style="font-family:var(--font-mono);font-size:10px;color:var(--signal-ink);background:rgba(0,217,255,0.10);padding:3px 8px;border-radius:4px;display:inline-block">SIE only — not escalated · No Model Studio call</div>
               </sc-if>
               <sc-if value="{{ selectedView.routerStrip.isSkipped }}">
                 <div style="font-family:var(--font-mono);font-size:10px;color:#9aa8b8;background:rgba(107,122,142,0.12);padding:3px 8px;border-radius:4px;display:inline-block">SIE not called · No Model Studio call</div>
@@ -734,13 +747,13 @@
               </div>
               <div style="font-size:12px;color:var(--text-primary);margin-bottom:4px">{{ f.message }}</div>
               <sc-if value="{{ f.entity_name }}">
-                <div style="font-family:var(--font-mono);font-size:11px;color:var(--accent)">tool: {{ f.entity_name }}</div>
+                <div style="font-family:var(--font-mono);font-size:11px;color:var(--cta-ink)">tool: {{ f.entity_name }}</div>
               </sc-if>
               <sc-if value="{{ f.file_path }}">
                 <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">{{ f.file_path }}:{{ f.location }}</div>
               </sc-if>
               <sc-if value="{{ f.snippet }}">
-                <div style="font-family:var(--font-mono);font-size:11px;background:var(--bg-deep);padding:6px 8px;border-radius:4px;margin-top:6px;color:#f0a3a3;overflow-x:auto">{{ f.snippet }}</div>
+                <div style="font-family:var(--font-mono);font-size:11px;background:var(--bg-deep);padding:6px 8px;border-radius:4px;margin-top:6px;color:var(--red-ink);overflow-x:auto">{{ f.snippet }}</div>
               </sc-if>
             </div>
           </sc-for>
@@ -751,16 +764,16 @@
               <div>sandbox_id: <span style="color:var(--text-primary);font-family:var(--font-mono)">{{ selectedView.sandbox.id }}</span></div>
               <div style="margin-top:4px">egress policy: {{ selectedView.sandbox.egressPhase }}</div>
               <sc-for list="{{ selectedView.sandbox.denied }}" as="deny" hint-placeholder-count="0">
-                <div style="color:var(--amber);margin-top:4px">⛔ denied egress: {{ deny.host }} — {{ deny.reason }}</div>
+                <div style="color:var(--amber-ink);margin-top:4px">⛔ denied egress: {{ deny.host }} — {{ deny.reason }}</div>
               </sc-for>
-              <div style="margin-top:4px;color:var(--green)">✓ cleanup confirmed</div>
+              <div style="margin-top:4px;color:var(--green-ink)">✓ cleanup confirmed</div>
             </div>
           </sc-if>
 
           <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px">Scanner outputs ({{ selectedView.scannersViewLabel }})</div>
           <sc-if value="{{ selectedView.scanningPlaceholder }}">
             <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-left:3px solid var(--accent);border-radius:6px;padding:12px 14px;margin-bottom:6px">
-              <div style="color:var(--accent);animation:pulse 1.5s ease-in-out infinite;font-size:12px;margin-bottom:4px">◌ Scan in progress — waiting for Modal scanner output…</div>
+              <div style="color:var(--cta-ink);animation:pulse 1.5s ease-in-out infinite;font-size:12px;margin-bottom:4px">◌ Scan in progress — waiting for Modal scanner output…</div>
               <sc-if value="{{ selectedView.scanStartedAtLabel }}">
                 <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">Started {{ selectedView.scanStartedAtLabel }}</div>
               </sc-if>
@@ -786,23 +799,23 @@
               <sc-if value="{{ scv.expanded }}">
                 <div style="border-top:1px solid var(--border-subtle);padding:8px 10px 10px 30px;font-size:11px;color:var(--text-secondary)">
                   <sc-if value="{{ scv.isRunning }}">
-                    <div style="color:var(--accent);margin-bottom:6px;animation:pulse 1.5s ease-in-out infinite">◌ Scanner running on Modal sandbox…</div>
+                    <div style="color:var(--cta-ink);margin-bottom:6px;animation:pulse 1.5s ease-in-out infinite">◌ Scanner running on Modal sandbox…</div>
                   </sc-if>
                   <sc-if value="{{ scv.output.raw_summary }}">
                     <div style="margin-bottom:6px;color:var(--text-primary)">{{ scv.output.raw_summary }}</div>
                   </sc-if>
                   <sc-if value="{{ scv.output.reason }}">
-                    <div style="color:var(--amber);margin-bottom:6px">⊘ {{ scv.output.reason }}</div>
+                    <div style="color:var(--amber-ink);margin-bottom:6px">⊘ {{ scv.output.reason }}</div>
                   </sc-if>
                   <sc-if value="{{ scv.output.error }}">
-                    <div style="color:var(--red);margin-bottom:6px">⚠ {{ scv.output.error }}</div>
+                    <div style="color:var(--red-ink);margin-bottom:6px">⚠ {{ scv.output.error }}</div>
                   </sc-if>
                   <sc-if value="{{ scv.output.quality_score }}">
-                    <div style="margin-bottom:6px">Quality score: <span style="color:var(--accent);font-family:var(--font-mono);font-weight:600">{{ scv.output.quality_score }}</span>/100</div>
+                    <div style="margin-bottom:6px">Quality score: <span style="color:var(--cta-ink);font-family:var(--font-mono);font-weight:600">{{ scv.output.quality_score }}</span>/100</div>
                   </sc-if>
                   <sc-if value="{{ scv.output.console_output }}">
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 4px">Modal console output</div>
-                    <div style="font-family:var(--font-mono);font-size:10px;background:var(--bg-deep);padding:6px 8px;border-radius:4px;color:#8fe388;overflow-x:auto;white-space:pre-wrap;max-height:200px;overflow-y:auto;line-height:1.5">{{ scv.output.console_output }}</div>
+                    <div style="font-family:var(--font-mono);font-size:10px;background:var(--bg-deep);padding:6px 8px;border-radius:4px;color:var(--text-secondary);overflow-x:auto;white-space:pre-wrap;max-height:200px;overflow-y:auto;line-height:1.5">{{ scv.output.console_output }}</div>
                   </sc-if>
                   <sc-if value="{{ scv.findingsForScanner.length }}">
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 4px">Findings from this scanner</div>
@@ -813,7 +826,7 @@
                           <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">{{ sf.file_path }}:{{ sf.location }}</div>
                         </sc-if>
                         <sc-if value="{{ sf.snippet }}">
-                          <div style="font-family:var(--font-mono);font-size:10px;background:var(--bg-deep);padding:4px 6px;border-radius:3px;margin-top:4px;color:#f0a3a3;overflow-x:auto">{{ sf.snippet }}</div>
+                          <div style="font-family:var(--font-mono);font-size:10px;background:var(--bg-deep);padding:4px 6px;border-radius:3px;margin-top:4px;color:var(--red-ink);overflow-x:auto">{{ sf.snippet }}</div>
                         </sc-if>
                       </div>
                     </sc-for>
@@ -1088,7 +1101,7 @@ class Component extends DCLogic {
 
   btnStyle(active, base) {
     const b = base || {};
-    return `font-family:var(--font-sans);font-size:${b.size||'12px'};font-weight:${active?'600':'400'};padding:${b.pad||'6px 12px'};border-radius:6px;cursor:pointer;border:1px solid ${active?(b.activeBorder||'#00D9FF'):'rgba(0,217,255,0.12)'};background:${active?(b.activeBg||'rgba(0,217,255,0.10)'):'transparent'};color:${active?(b.activeColor||'#E7EDF2'):'#8CA3AF'};white-space:nowrap;transition:all 150ms ease`;
+    return `font-family:var(--font-sans);font-size:${b.size||'12px'};font-weight:${active?'600':'400'};padding:${b.pad||'6px 12px'};border-radius:6px;cursor:pointer;border:1px solid ${active?(b.activeBorder||'#C4A574'):'rgba(28,25,21,0.12)'};background:${active?(b.activeBg||'rgba(196,165,116,0.18)'):'transparent'};color:${active?(b.activeColor||'#1C1915'):'#5C564C'};white-space:nowrap;transition:all 150ms ease`;
   }
 
   locusLabel(v) { return { local: 'Local', cloud: 'Cloud', unknown: 'Locus unknown' }[v] || v; }
@@ -1154,8 +1167,8 @@ class Component extends DCLogic {
       isReview: false,
       isSkipped: true,
       stripText: 'Scan → ■',
-      stripColor: '#9aa8b8',
-      badgeColor: '#9aa8b8',
+      stripColor: '#6B645A',
+      badgeColor: '#6B645A',
       badgeBg: 'rgba(107,122,142,0.12)',
       badgeBorder: 'rgba(107,122,142,0.28)',
       badgeLabel: 'SIE not called',
@@ -1187,8 +1200,8 @@ class Component extends DCLogic {
     const escalated = ['routing_decision', 'routing_triage'].includes(rf.category);
     const isTriage = rf.category === 'routing_triage';
     const isReview = rf.category === 'routing_review';
-    const stripColor = escalated ? '#a78bfa' : '#00D9FF';
-    const badgeColor = escalated ? '#d4bcff' : '#00D9FF';
+    const stripColor = escalated ? '#6D28D9' : '#0E7490';
+    const badgeColor = escalated ? '#6D28D9' : '#0E7490';
     const badgeBg = escalated ? 'rgba(167,139,250,0.15)' : 'rgba(0,217,255,0.08)';
     const badgeBorder = escalated ? 'rgba(167,139,250,0.3)' : 'rgba(0,217,255,0.25)';
     return {
@@ -1210,12 +1223,12 @@ class Component extends DCLogic {
   decorateItemStatus(it) {
     const kit = this._statusKit;
     const statusMeta = kit?.STATUS_META || {
-      red: { color: '#f43f5e', label: 'RED', glyph: '●' },
-      amber: { color: '#f59e0b', label: 'AMBER', glyph: '▲' },
-      green: { color: '#34d399', label: 'GREEN', glyph: '✓' },
-      grey: { color: '#6b7a8e', label: 'UNSCANNED', glyph: '–' },
-      running: { color: '#00D9FF', label: 'SCANNING', glyph: '◌' },
-      error: { color: '#a78bfa', label: 'ERROR', glyph: '!' }
+      red: { color: '#B42318', label: 'RED', glyph: '●' },
+      amber: { color: '#8B5A00', label: 'AMBER', glyph: '▲' },
+      green: { color: '#0F766E', label: 'GREEN', glyph: '✓' },
+      grey: { color: '#6B645A', label: 'UNSCANNED', glyph: '–' },
+      running: { color: '#0E7490', label: 'SCANNING', glyph: '◌' },
+      error: { color: '#6D28D9', label: 'ERROR', glyph: '!' }
     };
     const decorated = kit?.decorateStatus
       ? kit.decorateStatus(it.status)
@@ -1284,7 +1297,7 @@ class Component extends DCLogic {
     const kit = this._statusKit;
     if (kit?.severityColor) return kit.severityColor(severity);
     const statusMeta = {
-      red: '#f43f5e', amber: '#f59e0b', green: '#34d399', grey: '#6b7a8e'
+      red: '#B42318', amber: '#8B5A00', green: '#0F766E', grey: '#6B645A'
     };
     const key = (severity || '').toLowerCase();
     return statusMeta[key] || statusMeta.grey;
@@ -1294,26 +1307,26 @@ class Component extends DCLogic {
     const kit = this._statusKit;
     if (kit?.scannerExecMeta) return kit.scannerExecMeta(st);
     const fallback = {
-      running: { color: '#00D9FF', label: '◌ Running' },
-      completed: { color: '#34d399', label: '✓ Completed' },
-      skipped_missing_credential: { color: '#6b7a8e', label: '⊘ Skipped' },
-      unreachable: { color: '#a78bfa', label: '✗ Unreachable' },
-      not_applicable: { color: '#506880', label: '— N/A' },
-      failed: { color: '#a78bfa', label: '✗ Failed' }
+      running: { color: '#0E7490', label: '◌ Running' },
+      completed: { color: '#0F766E', label: '✓ Completed' },
+      skipped_missing_credential: { color: '#6B645A', label: '⊘ Skipped' },
+      unreachable: { color: '#6D28D9', label: '✗ Unreachable' },
+      not_applicable: { color: '#6B645A', label: '— N/A' },
+      failed: { color: '#6D28D9', label: '✗ Failed' }
     };
-    return fallback[st] || { color: '#6b7a8e', label: st || 'unknown' };
+    return fallback[st] || { color: '#6B645A', label: st || 'unknown' };
   }
 
   renderVals() {
     const s = this.state;
     const data = s.data;
     const statusMeta = this._statusKit?.STATUS_META || {
-      red: { color: '#f43f5e', label: 'RED', glyph: '●' },
-      amber: { color: '#f59e0b', label: 'AMBER', glyph: '▲' },
-      green: { color: '#34d399', label: 'GREEN', glyph: '✓' },
-      grey: { color: '#6b7a8e', label: 'UNSCANNED', glyph: '–' },
-      running: { color: '#00D9FF', label: 'SCANNING', glyph: '◌' },
-      error: { color: '#a78bfa', label: 'ERROR', glyph: '!' }
+      red: { color: '#B42318', label: 'RED', glyph: '●' },
+      amber: { color: '#8B5A00', label: 'AMBER', glyph: '▲' },
+      green: { color: '#0F766E', label: 'GREEN', glyph: '✓' },
+      grey: { color: '#6B645A', label: 'UNSCANNED', glyph: '–' },
+      running: { color: '#0E7490', label: 'SCANNING', glyph: '◌' },
+      error: { color: '#6D28D9', label: 'ERROR', glyph: '!' }
     };
 
     const primaryTabs = ['dashboard'].map(key => ({
@@ -1326,18 +1339,18 @@ class Component extends DCLogic {
     const guardTab = {
       onClick: () => this.setTab('guard'),
       label: 'Guard',
-      style: `font-family:var(--font-sans);font-size:11px;font-weight:${guardActive ? '600' : '400'};padding:5px 10px;border-radius:5px;cursor:pointer;border:1px solid ${guardActive ? 'rgba(0,217,255,0.30)' : 'transparent'};background:${guardActive ? 'rgba(0,217,255,0.08)' : 'transparent'};color:${guardActive ? '#E7EDF2' : '#556671'};transition:all 150ms ease`
+      style: `font-family:var(--font-sans);font-size:11px;font-weight:${guardActive ? '600' : '400'};padding:5px 10px;border-radius:5px;cursor:pointer;border:1px solid ${guardActive ? 'rgba(196,165,116,0.45)' : 'transparent'};background:${guardActive ? 'rgba(196,165,116,0.18)' : 'transparent'};color:${guardActive ? '#1C1915' : '#6B645A'};transition:all 150ms ease`
     };
 
     const dataSourceChips = {
-      loading: { label: 'Loading…', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: 'rgba(0,217,255,0.12)', tooltip: 'Checking data source…' },
-      live: { label: 'Live · Supabase', dotColor: '#34d399', textColor: '#34d399', bgColor: 'rgba(52,211,153,0.1)', borderColor: 'rgba(52,211,153,0.3)', tooltip: 'Fetching real data from Supabase (polling)' },
-      'live-realtime': { label: 'Live · Realtime', dotColor: '#34d399', textColor: '#34d399', bgColor: 'rgba(52,211,153,0.15)', borderColor: 'rgba(52,211,153,0.4)', tooltip: 'Supabase Realtime — updates arrive within ~1s of Modal writes' },
-      'live-empty': { label: 'Live · empty', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Connected to Supabase — no items yet' },
-      'mock-selected': { label: 'Demo data', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: 'rgba(0,217,255,0.12)', tooltip: 'Using built-in demo data (user selected)' },
-      mock: { label: 'Demo data', dotColor: '#6b7a8e', textColor: '#8fa3be', bgColor: 'rgba(107,122,142,0.1)', borderColor: 'rgba(0,217,255,0.12)', tooltip: 'Using built-in demo data; configure Supabase and select Live for database results' },
-      'mock-failed': { label: 'Connection error', dotColor: '#f43f5e', textColor: '#f43f5e', bgColor: 'rgba(244,63,94,0.1)', borderColor: 'rgba(244,63,94,0.3)', tooltip: 'Could not reach Supabase (auth, RLS, or network) — showing demo data' },
-      'mock-empty': { label: 'Live · empty', dotColor: '#f59e0b', textColor: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Connected to Supabase — no items yet' }
+      loading: { label: 'Loading…', dotColor: '#6b7a8e', textColor: '#5C564C', bgColor: 'rgba(107,122,142,0.1)', borderColor: 'rgba(28,25,21,0.12)', tooltip: 'Checking data source…' },
+      live: { label: 'Live · Supabase', dotColor: '#34d399', textColor: '#0F766E', bgColor: 'rgba(52,211,153,0.1)', borderColor: 'rgba(52,211,153,0.3)', tooltip: 'Fetching real data from Supabase (polling)' },
+      'live-realtime': { label: 'Live · Realtime', dotColor: '#34d399', textColor: '#0F766E', bgColor: 'rgba(52,211,153,0.15)', borderColor: 'rgba(52,211,153,0.4)', tooltip: 'Supabase Realtime — updates arrive within ~1s of Modal writes' },
+      'live-empty': { label: 'Live · empty', dotColor: '#f59e0b', textColor: '#8B5A00', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Connected to Supabase — no items yet' },
+      'mock-selected': { label: 'Demo data', dotColor: '#6b7a8e', textColor: '#5C564C', bgColor: 'rgba(107,122,142,0.1)', borderColor: 'rgba(28,25,21,0.12)', tooltip: 'Using built-in demo data (user selected)' },
+      mock: { label: 'Demo data', dotColor: '#6b7a8e', textColor: '#5C564C', bgColor: 'rgba(107,122,142,0.1)', borderColor: 'rgba(28,25,21,0.12)', tooltip: 'Using built-in demo data; configure Supabase and select Live for database results' },
+      'mock-failed': { label: 'Connection error', dotColor: '#f43f5e', textColor: '#B42318', bgColor: 'rgba(244,63,94,0.1)', borderColor: 'rgba(244,63,94,0.3)', tooltip: 'Could not reach Supabase (auth, RLS, or network) — showing demo data' },
+      'mock-empty': { label: 'Live · empty', dotColor: '#f59e0b', textColor: '#8B5A00', bgColor: 'rgba(245,158,11,0.1)', borderColor: 'rgba(245,158,11,0.3)', tooltip: 'Connected to Supabase — no items yet' }
     };
     const chipKey = s.realtimeConnected && s.dataSource === 'live' ? 'live-realtime' : s.dataSource;
     const dataSourceChip = dataSourceChips[chipKey] || dataSourceChips.loading;
@@ -1348,7 +1361,7 @@ class Component extends DCLogic {
       enterDashboard: this.enterDashboard,
       toggleIntro: this.toggleIntro,
       introToggleLabel: s.showIntro ? 'Dashboard' : 'About',
-      introToggleStyle: `font-family:var(--font-mono);font-size:11px;padding:4px 10px;border-radius:2px;cursor:pointer;border:1px solid ${s.showIntro ? 'var(--accent)' : 'var(--border-subtle)'};background:${s.showIntro ? 'rgba(0,217,255,0.12)' : 'transparent'};color:${s.showIntro ? 'var(--accent)' : 'var(--text-muted)'};transition:all 150ms`,
+      introToggleStyle: `font-family:var(--font-mono);font-size:11px;padding:4px 10px;border-radius:2px;cursor:pointer;border:1px solid ${s.showIntro ? 'var(--cta)' : 'var(--border-subtle)'};background:${s.showIntro ? 'rgba(196,165,116,0.18)' : 'transparent'};color:${s.showIntro ? 'var(--text-primary)' : 'var(--text-muted)'};transition:all 150ms`,
       activeTabIsDashboard: s.activeTab === 'dashboard',
       activeTabIsGuard: s.activeTab === 'guard',
       primaryTabs,
@@ -1362,7 +1375,7 @@ class Component extends DCLogic {
         ? 'Guard intercepts every skill/tool call and checks its rating before it runs.'
         : 'Monitoring is off — all calls pass through unchecked.',
       monitoringBtnLabel: s.monitoringEnabled ? 'Turn off' : 'Turn on',
-      monitoringBtnStyle: `font-family:var(--font-sans);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid ${s.monitoringEnabled ? 'rgba(0,217,255,0.20)' : '#34D399'};background:${s.monitoringEnabled ? 'rgba(0,217,255,0.07)' : 'rgba(52,211,153,0.12)'};color:${s.monitoringEnabled ? '#E7EDF2' : '#34D399'};transition:all 150ms ease`,
+      monitoringBtnStyle: `font-family:var(--font-sans);font-size:12px;font-weight:600;padding:8px 14px;border-radius:6px;cursor:pointer;border:1px solid ${s.monitoringEnabled ? 'rgba(28,25,21,0.18)' : '#34D399'};background:${s.monitoringEnabled ? 'rgba(196,165,116,0.12)' : 'rgba(52,211,153,0.12)'};color:${s.monitoringEnabled ? '#1C1915' : '#0F766E'};transition:all 150ms ease`,
       thresholdOptions: [
         { key: 'red', label: 'Red only' },
         { key: 'red_and_amber', label: 'Red + Amber' }
@@ -1374,7 +1387,7 @@ class Component extends DCLogic {
       viewToggle: ['grid', 'list'].map(v => ({
         key: v, label: v === 'grid' ? 'Grid' : 'List',
         onClick: () => this.setViewMode(v),
-        style: this.btnStyle(s.viewMode === v, { activeBg: 'rgba(0,217,255,0.08)', activeBorder: '#00D9FF', activeColor: '#E7EDF2' })
+        style: this.btnStyle(s.viewMode === v, { activeBg: 'rgba(196,165,116,0.18)', activeBorder: '#C4A574', activeColor: '#1C1915' })
       })),
       listColumns: [
         { key: 'name', label: 'Name' }, { key: 'type', label: 'Type' },
@@ -1402,11 +1415,11 @@ class Component extends DCLogic {
       { key: 'all', label: 'All items' },
       { key: 'skill', label: 'Skills' },
       { key: 'mcp_server', label: 'MCP Servers' }
-    ].map(t => ({ ...t, onClick: () => this.setTypeFilter(t.key), style: this.btnStyle(s.typeFilter === t.key, { activeBg: 'rgba(0,217,255,0.08)', activeBorder: '#00D9FF', activeColor: '#E7EDF2' }) }));
+    ].map(t => ({ ...t, onClick: () => this.setTypeFilter(t.key), style: this.btnStyle(s.typeFilter === t.key, { activeBg: 'rgba(196,165,116,0.18)', activeBorder: '#C4A574', activeColor: '#1C1915' }) }));
 
     const routerChipMeta = {
-      escalated: { color: '#a78bfa', activeColor: '#d4bcff' },
-      'sie-only': { color: '#00D9FF', activeColor: '#7AEEFF' }
+      escalated: { color: '#6D28D9', activeColor: '#5B21B6' },
+      'sie-only': { color: '#0E7490', activeColor: '#155E75' }
     };
     const statusChips = [
       { key: 'escalated', label: '⬆ Escalated' },
@@ -1454,7 +1467,7 @@ class Component extends DCLogic {
     const escalatedCount = data.items.filter(it => it.findings.some(f => f.scanner === 'tiered_router' && ['routing_decision', 'routing_triage'].includes(f.category))).length;
     const sieOnlyCount = data.items.filter(it => it.findings.some(f => f.scanner === 'tiered_router' && f.category === 'routing_review')).length;
     const overviewStats = [
-      { key: 'all', label: 'Total items', value: data.items.length, color: '#00D9FF' },
+      { key: 'all', label: 'Total items', value: data.items.length, color: '#7A5C2E' },
       { key: 'red', label: 'Red', value: counts.red, color: statusMeta.red.color },
       { key: 'amber', label: 'Amber', value: counts.amber, color: statusMeta.amber.color },
       { key: 'green', label: 'Green', value: counts.green, color: statusMeta.green.color },
@@ -1462,8 +1475,8 @@ class Component extends DCLogic {
       { key: 'grey', label: 'Unscanned', value: counts.grey, color: statusMeta.grey.color },
       { key: 'error', label: 'Error', value: counts.error, color: statusMeta.error.color },
       { key: 'drifted', label: 'Changed', value: data.items.filter(it => it.drifted).length, color: statusMeta.amber.color },
-      { key: 'escalated', label: 'Escalated', value: escalatedCount, color: '#a78bfa' },
-      { key: 'sie-only', label: 'SIE-only', value: sieOnlyCount, color: '#4da2ff' }
+      { key: 'escalated', label: 'Escalated', value: escalatedCount, color: '#6D28D9' },
+      { key: 'sie-only', label: 'SIE-only', value: sieOnlyCount, color: '#0E7490' }
     ].map(st => {
       const active = s.statusFilter === st.key;
       return {
