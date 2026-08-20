@@ -143,7 +143,7 @@ UI slice — outside-in. Slice 41 used **manual visual verification** (no HTML t
 - [x] Intro GWT 1–4 from slice 41 still pass (browser sessionStorage flow)
 - [x] Contrast: all **text** tokens in Design Context ink table ≥4.5:1 on `#F5F2EA` (documented ratios)
 - [x] `CHANGELOG.md` notes visual identity v2 (paper + tan CTA + AA ink)
-- [x] Docs: this stub + TRAIL/PROGRESS; README screenshot regen deferred
+- [x] Docs: this stub + TRAIL/PROGRESS; README screenshot regen done 2026-08-20
 - [x] Gate evidence `docs/plan/gate-evidence/slice-43.json` written at ON_BRANCH
 - [x] Mutation testing: N/A (no behavioural Python/JS feature)
 
@@ -183,4 +183,4 @@ UI slice — outside-in. Slice 41 used **manual visual verification** (no HTML t
 | Estimated Pomos | 1 (~25 min) |
 | Execution time | ~90 min (5 commits) |
 | Blockers encountered | file overlap with slice 42 (cleared) |
-| Next-session notes | Regen README screenshots optional (`node scripts/capture-screenshots.mjs`) |
+| Next-session notes | README screenshots regenerated 2026-08-20 (`capture-screenshots.mjs` — intro dismiss + overview-stat click fix) |

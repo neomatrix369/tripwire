@@ -574,7 +574,10 @@
                     </div>
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ item.typeLabel }}</div>
                     <div style="display:flex;gap:12px;font-size:11px;color:var(--text-secondary);align-items:center;flex-wrap:wrap">
-                      <span>risk {{ item.riskLabel }}</span>
+                      <span tabindex="0" title="{{ item.riskTooltip }}" aria-label="{{ item.riskDensityLabel }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.riskBadgeColor }};background:{{ item.riskBadgeBg }};padding:2px 6px;border-radius:4px;border:{{ item.riskBadgeBorder }};white-space:nowrap;cursor:help;outline:none">{{ item.riskBadge }}</span>
+                      <sc-if value="{{ item.qualityBadge }}">
+                        <span tabindex="0" title="{{ item.qualityTooltip }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.qualityBadgeColor }};background:{{ item.qualityBadgeBg }};padding:2px 6px;border-radius:4px;border:{{ item.qualityBadgeBorder }};white-space:nowrap;cursor:help;outline:none">{{ item.qualityBadge }}</span>
+                      </sc-if>
                       <span>{{ item.timeLabel }}</span>
                       <sc-if value="{{ item.hasRedAmberSplit }}">
                         <span style="display:inline-flex;gap:4px;align-items:center">
@@ -632,7 +635,7 @@
                     <div style="padding:10px 14px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary)">{{ row.typeLabel }}</div>
                     <div style="padding:10px 14px;font-size:11px;color:var(--text-secondary)">{{ row.timeLabel }}</div>
                     <div style="padding:10px 14px"><span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ row.statusColor }};background:{{ row.statusColor }}18;padding:2px 7px;border-radius:4px;border:1px solid {{ row.statusColor }}30">{{ row.statusGlyph }} {{ row.statusLabel }}</span></div>
-                    <div style="padding:10px 14px;font-family:var(--font-mono);font-size:12px;color:var(--text-primary)">{{ row.riskLabel }}</div>
+                    <div style="padding:10px 14px"><span tabindex="0" title="{{ row.riskTooltip }}" aria-label="{{ row.riskDensityLabel }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ row.riskBadgeColor }};background:{{ row.riskBadgeBg }};padding:2px 6px;border-radius:4px;border:{{ row.riskBadgeBorder }};cursor:help;outline:none;white-space:nowrap">{{ row.riskBadge }}</span></div>
                     <div style="padding:10px 14px;font-size:11px;color:var(--text-secondary)">{{ row.sourceLabel }}</div>
                   </div>
                 </sc-for>
@@ -675,14 +678,21 @@
             <sc-if value="{{ selectedView.hasFindingCountSingle }}">
               <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.statusColor }};background:{{ selectedView.statusColor }}18;padding:3px 8px;border-radius:4px;border:1px solid {{ selectedView.statusColor }}30">{{ selectedView.findingCountLabel }}</div>
             </sc-if>
+            <sc-if value="{{ selectedView.qualityBadge }}">
+              <div tabindex="0" title="{{ selectedView.qualityTooltip }}" style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.qualityBadgeColor }};background:{{ selectedView.qualityBadgeBg }};padding:3px 8px;border-radius:4px;border:{{ selectedView.qualityBadgeBorder }};cursor:help;outline:none">{{ selectedView.qualityBadge }}</div>
+            </sc-if>
+            <div tabindex="0" title="{{ selectedView.riskTooltip }}" aria-label="{{ selectedView.riskDensityLabel }}" style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:{{ selectedView.riskBadgeColor }};background:{{ selectedView.riskBadgeBg }};padding:3px 8px;border-radius:4px;border:{{ selectedView.riskBadgeBorder }};cursor:help;outline:none">{{ selectedView.riskBadge }}</div>
             <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);background:var(--bg-elevated);padding:3px 8px;border-radius:4px">{{ selectedView.locusLabel }}</div>
             <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);background:var(--bg-elevated);padding:3px 8px;border-radius:4px">{{ selectedView.availLabel }}</div>
           </div>
 
-          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:16px">risk_score {{ selectedView.riskLabel }} · last scan {{ selectedView.timeLabel }}</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Last scan {{ selectedView.timeLabel }}</div>
+          <sc-if value="{{ selectedView.qualityScheduleCue }}">
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--amber-ink);background:#f59e0b12;border:1px solid #f59e0b30;padding:8px 10px;border-radius:6px;margin-bottom:16px">{{ selectedView.qualityScheduleCue }}</div>
+          </sc-if>
 
           <sc-if value="{{ selectedView.errorMessage }}">
-            <div style="background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);color:#d4bcff;font-size:12px;padding:10px 12px;border-radius:6px;margin-bottom:16px">{{ selectedView.errorMessage }}</div>
+            <div style="background:rgba(109,40,217,0.08);border:1px solid rgba(109,40,217,0.25);color:var(--violet-ink);font-size:12px;padding:10px 12px;border-radius:6px;margin-bottom:16px">{{ selectedView.errorMessage }}</div>
           </sc-if>
 
           <sc-if value="{{ selectedView.trendPoints }}">
@@ -705,7 +715,7 @@
           </sc-if>
 
           <sc-if value="{{ selectedView.disagreement }}">
-            <div style="font-size:11px;color:#d4bcff;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.2);padding:8px 12px;border-radius:6px;margin-bottom:16px">Scanners disagree on this finding — flagged for Phase 5 reconciler review.</div>
+            <div style="font-size:11px;color:var(--violet-ink);background:rgba(109,40,217,0.08);border:1px solid rgba(109,40,217,0.22);padding:8px 12px;border-radius:6px;margin-bottom:16px">Scanners disagree on this finding — flagged for Phase 5 reconciler review.</div>
           </sc-if>
 
           <sc-if value="{{ selectedView.routerStrip }}">
@@ -787,6 +797,9 @@
                   <span style="font-size:12px;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ scv.source }}</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+                  <sc-if value="{{ scv.tesslQuality }}">
+                    <span tabindex="0" title="{{ scv.tesslQuality.tooltip }}" style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--cta-ink);background:rgba(196,165,116,0.18);padding:2px 6px;border-radius:4px;border:1px solid rgba(196,165,116,0.45);cursor:help;outline:none">{{ scv.tesslQuality.headerBadge }}</span>
+                  </sc-if>
                   <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ scv.statusColor }};background:{{ scv.statusColor }}18;padding:2px 6px;border-radius:4px;white-space:nowrap;border:1px solid {{ scv.statusColor }}30">{{ scv.statusLabel }}</span>
                   <sc-if value="{{ scv.checks_run }}">
                     <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);white-space:nowrap">{{ scv.checks_run }} checks</span>
@@ -810,8 +823,11 @@
                   <sc-if value="{{ scv.output.error }}">
                     <div style="color:var(--red-ink);margin-bottom:6px">⚠ {{ scv.output.error }}</div>
                   </sc-if>
-                  <sc-if value="{{ scv.output.quality_score }}">
-                    <div style="margin-bottom:6px">Quality score: <span style="color:var(--cta-ink);font-family:var(--font-mono);font-weight:600">{{ scv.output.quality_score }}</span>/100</div>
+                  <sc-if value="{{ scv.tesslQuality }}">
+                    <div tabindex="0" title="{{ scv.tesslQuality.tooltip }}" style="margin-bottom:6px;cursor:help;outline:none">{{ scv.tesslQuality.label }}</div>
+                    <sc-if value="{{ scv.tesslQuality.scheduleCue }}">
+                      <div style="font-family:var(--font-mono);font-size:10px;color:var(--amber-ink);margin-bottom:6px">{{ scv.tesslQuality.scheduleCue }}</div>
+                    </sc-if>
                   </sc-if>
                   <sc-if value="{{ scv.output.console_output }}">
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 4px">Modal console output</div>
@@ -1104,8 +1120,22 @@ class Component extends DCLogic {
     return `font-family:var(--font-sans);font-size:${b.size||'12px'};font-weight:${active?'600':'400'};padding:${b.pad||'6px 12px'};border-radius:6px;cursor:pointer;border:1px solid ${active?(b.activeBorder||'#C4A574'):'rgba(28,25,21,0.12)'};background:${active?(b.activeBg||'rgba(196,165,116,0.18)'):'transparent'};color:${active?(b.activeColor||'#1C1915'):'#5C564C'};white-space:nowrap;transition:all 150ms ease`;
   }
 
-  locusLabel(v) { return { local: 'Local', cloud: 'Cloud', unknown: 'Locus unknown' }[v] || v; }
-  availLabel(v) { return { source_on_disk: 'Source on disk', cloneable: 'Cloneable', introspection_only: 'Introspection only', unavailable: 'Unavailable', unknown: 'Scannability unknown' }[v] || v; }
+  locusLabel(v) {
+    const kit = this._statusKit;
+    if (kit?.operatorLocusLabel) return kit.operatorLocusLabel(v);
+    return { local: 'Local', cloud: 'Cloud', unknown: 'Location unknown' }[v] || v;
+  }
+  availLabel(v) {
+    const kit = this._statusKit;
+    if (kit?.operatorAvailLabel) return kit.operatorAvailLabel(v);
+    return {
+      source_on_disk: 'On disk',
+      cloneable: 'Cloneable',
+      introspection_only: 'No local source',
+      unavailable: 'Unavailable',
+      unknown: 'Scanability unknown',
+    }[v] || v;
+  }
 
   sortValue(it, key, statusOrder) {
     switch (key) {
@@ -1253,6 +1283,44 @@ class Component extends DCLogic {
     const scannerStatBadge = hasScannerStats
       ? (scannerFail > 0 ? `${scannerOk}✓ ${scannerFail}✗` : `${scannerOk}✓`)
       : null;
+    const quality = kit?.qualitySurfacing
+      ? kit.qualitySurfacing(it)
+      : this.fallbackQualitySurfacing(it);
+    const riskLabel = it.risk == null ? '—' : Number(it.risk).toFixed(2);
+    const riskKnown = riskLabel !== '—';
+    const riskTooltipText = kit?.riskTooltip
+      ? kit.riskTooltip(riskLabel)
+      : '';
+    const riskBadge = kit?.formatRiskBadge
+      ? kit.formatRiskBadge(riskLabel)
+      : `R ${riskLabel}`;
+    const riskDensityLabel = kit?.formatRiskDensityLabel
+      ? kit.formatRiskDensityLabel(riskLabel)
+      : `Risk density ${riskLabel}`;
+    // Neutral metric chip — do not tint from density buckets (card colour ≠ risk).
+    const riskBadgeColor = riskKnown ? 'var(--signal-ink)' : 'var(--text-muted)';
+    const riskBadgeBg = riskKnown ? 'rgba(14,116,144,0.10)' : 'var(--bg-elevated)';
+    const riskBadgeBorder = riskKnown
+      ? '1px solid rgba(14,116,144,0.35)'
+      : '1px solid var(--border-subtle)';
+    const qualityToneStyles = {
+      known: {
+        color: 'var(--cta-ink)',
+        background: 'rgba(196,165,116,0.18)',
+        border: '1px solid rgba(196,165,116,0.45)',
+      },
+      'unknown-unscanned': {
+        color: 'var(--text-muted)',
+        background: 'var(--bg-elevated)',
+        border: '1px solid var(--border-subtle)',
+      },
+      'unknown-unscored': {
+        color: '#8B5A00',
+        background: '#f59e0b18',
+        border: '1px solid #f59e0b40',
+      },
+    };
+    const qStyle = quality ? qualityToneStyles[quality.tone] : null;
     return {
       ...it,
       ...decorated,
@@ -1262,6 +1330,37 @@ class Component extends DCLogic {
       hasFindingCountSingle: !!findingCountLabel && !findingCountParts,
       scannerStatBadge,
       scannerStatAmber: hasScannerStats && scannerFail > 0,
+      qualityBadge: quality?.badge || null,
+      qualityBadgeTone: quality?.tone || null,
+      qualityTooltip: quality?.tooltip || null,
+      qualityScheduleCue: quality?.scheduleCue || null,
+      qualityBadgeColor: qStyle?.color || null,
+      qualityBadgeBg: qStyle?.background || null,
+      qualityBadgeBorder: qStyle?.border || null,
+      riskLabel,
+      riskTooltip: riskTooltipText,
+      riskBadge,
+      riskDensityLabel,
+      riskBadgeColor,
+      riskBadgeBg,
+      riskBadgeBorder,
+    };
+  }
+
+  fallbackQualitySurfacing(it) {
+    if (!it || it.type !== 'skill') return null;
+    const qualityKnown = typeof it.quality === 'number' && !Number.isNaN(it.quality);
+    const neverScanned = !it.lastScan && it.status === 'grey';
+    const tone = qualityKnown ? 'known' : neverScanned ? 'unknown-unscanned' : 'unknown-unscored';
+    const badge = qualityKnown
+      ? `Q ${Math.round(it.quality)}`
+      : neverScanned ? 'Q —' : 'Q ?';
+    const scanTarget = it.identifier || it.name || '<name>';
+    return {
+      badge,
+      tone,
+      tooltip: 'Tessl quality = skill-review score from Tessl (not security risk / not card colour). Range: 0–100.',
+      scheduleCue: tone === 'known' ? null : `Schedule: tripwire scan ${scanTarget} --force`,
     };
   }
 
@@ -1392,7 +1491,7 @@ class Component extends DCLogic {
       listColumns: [
         { key: 'name', label: 'Name' }, { key: 'type', label: 'Type' },
         { key: 'lastScan', label: 'Last scanned' }, { key: 'status', label: 'Health' },
-        { key: 'risk', label: 'Score' }, { key: 'locus', label: 'Source' }
+        { key: 'risk', label: 'Risk density' }, { key: 'locus', label: 'Source' }
       ].map(c => ({ ...c, onClick: () => this.setSort(c.key), arrow: s.sortKey === c.key ? (s.sortDir === 'asc' ? ' ▲' : ' ▼') : '' }))
     };
 
@@ -1449,7 +1548,6 @@ class Component extends DCLogic {
       return {
         ...decorated,
         typeLabel: it.type === 'skill' ? 'Skill' : 'MCP Server',
-        riskLabel: it.risk == null ? '—' : it.risk.toFixed(2),
         timeLabel: it.scanStartedAt ? 'scanning since ' + this.fmtTime(it.scanStartedAt) : it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
         locusLabel: this.locusLabel(it.locus),
         availLabel: this.availLabel(it.avail),
@@ -1492,10 +1590,10 @@ class Component extends DCLogic {
     const selected = s.selectedId ? data.items.find(i => i.id === s.selectedId) : null;
     const selectedView = selected ? (() => {
       const decorated = this.decorateItemStatus(selected);
+      const kit = this._statusKit;
       return {
       ...decorated,
       typeLabel: selected.type === 'skill' ? 'Skill' : 'MCP Server',
-      riskLabel: selected.risk == null ? '—' : selected.risk.toFixed(2),
       timeLabel: selected.scanStartedAt ? 'scanning since ' + this.fmtTime(selected.scanStartedAt) : selected.lastScan ? this.fmtTime(selected.lastScan) : 'never scanned',
       locusLabel: this.locusLabel(selected.locus),
       availLabel: this.availLabel(selected.avail),
@@ -1520,6 +1618,9 @@ class Component extends DCLogic {
           .filter(f => f.scanner === sc.source)
           .map(f => ({ ...f, sevColor: this.severityColor(f.severity) }));
         const durationMs = out.duration_ms;
+        const tesslQuality = kit?.tesslInnerQuality
+          ? kit.tesslInnerQuality({ ...sc, output: out }, selected)
+          : null;
         return {
           ...sc,
           expanded,
@@ -1530,6 +1631,7 @@ class Component extends DCLogic {
           durationLabel: durationMs != null ? (durationMs / 1000).toFixed(1) + 's' : null,
           output: out,
           findingsForScanner,
+          tesslQuality,
           hasDetailJson: !!(out.findings_detail || out.issues_detail || out.scan_results_summary || out.analyzers_run),
           outputJson: JSON.stringify(out.findings_detail || out.issues_detail || out.scan_results_summary || out, null, 2),
           onToggle: () => this.toggleScanner(selected.id, idx)
@@ -1539,10 +1641,10 @@ class Component extends DCLogic {
     })() : null;
 
     const resultCopy = {
-      'deny': { bg: 'rgba(244,63,94,0.12)', color: '#fda4af', text: '⛔ DENIED — rated at/above threshold; call blocked before it ran.' },
-      'allow': { bg: 'rgba(52,211,153,0.12)', color: '#6ee7b7', text: '✓ ALLOWED — below threshold, call proceeded.' },
-      'deny-unscanned': { bg: 'rgba(107,122,142,0.18)', color: '#cbd5e1', text: '⛔ DENIED — never scanned. Guard fails closed on unknown items.' },
-      'allow-monitoring-off': { bg: 'rgba(245,158,11,0.12)', color: '#fcd34d', text: '⚠ ALLOWED — monitoring is off, call passed through unchecked.' }
+      'deny': { bg: 'rgba(244,63,94,0.12)', color: '#B42318', text: '⛔ DENIED — rated at/above threshold; call blocked before it ran.' },
+      'allow': { bg: 'rgba(52,211,153,0.12)', color: '#0F766E', text: '✓ ALLOWED — below threshold, call proceeded.' },
+      'deny-unscanned': { bg: 'rgba(107,122,142,0.18)', color: '#6B645A', text: '⛔ DENIED — never scanned. Guard fails closed on unknown items.' },
+      'allow-monitoring-off': { bg: 'rgba(245,158,11,0.12)', color: '#8B5A00', text: '⚠ ALLOWED — monitoring is off, call passed through unchecked.' }
     };
 
     const guardRows = data.guardScenarios.map(g => {
@@ -1570,7 +1672,6 @@ class Component extends DCLogic {
       ...decorated,
       typeLabel: it.type === 'skill' ? 'Skill' : 'MCP Server',
       timeLabel: it.scanStartedAt ? 'scanning since ' + this.fmtTime(it.scanStartedAt) : it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
-      riskLabel: it.risk == null ? '—' : it.risk.toFixed(2),
       sourceLabel: this.locusLabel(it.locus) + ' · ' + this.availLabel(it.avail),
       onSelect: () => this.selectItem(it.id)
     };

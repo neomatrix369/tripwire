@@ -26,7 +26,7 @@
   "security_scan": "gitleaks + semgrep + trivy — CI green on PR #96",
   "regression": "298 Python + 129 CLI + 72 dashboard (1 skip) — CI green",
   "at_completeness": "GWT in slice stub + tripwire-visual-tokens.test.js (no Cucumber — repo UI contract)",
-  "code_review": "PR #96 CI review job pass; merge pending",
+  "code_review": "PR #96 CI review job pass; merged 2026-08-20",
   "commands": [
     {
       "cmd": "npm --prefix prototypes/dc-dashboard run test:coverage",
@@ -60,5 +60,5 @@
   "pr": "https://github.com/neomatrix369/tripwire/pull/96",
   "commits": ["8149f54", "8f2f225", "4f33028", "30eb7fe", "127bac1"],
   "spec_path": "docs/plan/slices/09-I-landing-intro-restyle/slice-43-foldergate-tripwire-visual-blend.md",
-  "note": "Pure UI/HTML slice — token contract tests + manual browser visual. verdict ON_BRANCH until PR #96 merges; then promote trackers to ✅ PASSED."
+  "note": "Pure UI/HTML slice — token contract tests + manual browser visual. Merged via PR #96; trackers ✅ PASSED."
 }

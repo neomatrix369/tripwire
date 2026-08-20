@@ -245,7 +245,7 @@ Audit report: `~/.claude/plans/iterate-through-all-of-lovely-stearns.md`
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
-| 42 | [slice-42-dashboard-data-quality-fixes](slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md) | Dashboard Data Quality Fixes (A1–A8 ✅ · A9–A13 Tessl quality + tooltips + labels) | Must | 📋 | none | [#95](https://github.com/neomatrix369/tripwire/pull/95) prior · delta reopen | ~3 min |
+| 42 | [slice-42-dashboard-data-quality-fixes](slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md) | Dashboard Data Quality Fixes (A1–A8 ✅ · A9–A13 Tessl quality + tooltips + labels) | Must | 🔀 | none | [#95](https://github.com/neomatrix369/tripwire/pull/95) prior · delta ON BRANCH | ~3 min |
 
 ## Supporting Artifacts
 | File | Status |

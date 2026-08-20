@@ -141,6 +141,28 @@ test('given neon fills when scanned then they are not used as color: text', () =
   assert.doesNotMatch(html, /color:var\(--cta\)(?!-ink)/, 'GWT-43.7: text uses --cta-ink');
 });
 
+test('given alert and guard banners when scanned then pastel dark-theme text is gone', () => {
+  /**
+   * Scenario: Error/partial-scan callouts remain AA-readable on cream paper.
+   * Slice: 43 pile-on (missed violet alert + guard result pastels)
+   *
+   * Given paper #F5F2EA,
+   * When errorMessage / disagreement / guard result text colours are scanned,
+   * Then dark-theme pastels (#d4bcff, #fda4af, #6ee7b7, #fcd34d, #cbd5e1) are not used as color.
+   */
+  // -- Given / When / Then --
+  assert.doesNotMatch(html, /color:\s*#d4bcff/i, 'partial-scan alert must not use pale violet text');
+  assert.doesNotMatch(html, /color:\s*#fda4af/i, 'guard deny text must not use pale rose');
+  assert.doesNotMatch(html, /color:\s*#6ee7b7/i, 'guard allow text must not use pale mint');
+  assert.doesNotMatch(html, /color:\s*#fcd34d/i, 'guard monitoring-off text must not use pale amber');
+  assert.doesNotMatch(html, /color:\s*#cbd5e1/i, 'guard unscanned text must not use pale slate');
+  assert.match(
+    html,
+    /selectedView\.errorMessage[\s\S]{0,200}color:var\(--violet-ink\)/,
+    'errorMessage banner uses --violet-ink on paper',
+  );
+});
+
 test('given code blocks on bg-deep when scanned then terminal neon is gone', () => {
   // -- Given / When / Then --
   assert.doesNotMatch(html, /#8fe388/i, 'Modal console must not use neon mint on tan');

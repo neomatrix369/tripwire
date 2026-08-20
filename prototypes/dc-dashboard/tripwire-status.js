@@ -211,6 +211,176 @@ export function decorateStatus(status) {
   };
 }
 
+/** Operator-facing chrome for risk density (GWT-42.8 / 42.10). */
+export const RISK_TOOLTIP_KNOWN =
+  "Risk density = weighted finding density for sort/trend (not card colour).\n" +
+  "Formula: (3×red + 1×amber) ÷ completed scanner checks. Router findings excluded.\n" +
+  "Range: 0 = clean density; higher = denser weighted findings (unbounded; ≥1.5 is high-density fallback).\n" +
+  "Card colour (RED/AMBER/GREEN) = worst actionable finding, independent of this number.";
+
+export const RISK_TOOLTIP_UNKNOWN =
+  "Risk density is unknown until a completed or partial-failed scan produces a rollup — not zero risk.\n" +
+  "Formula when scored: (3×red + 1×amber) ÷ completed scanner checks (router findings excluded).\n" +
+  "Card colour is independent of this number.";
+
+/**
+ * @param {string|null|undefined} riskLabel displayed value (`0.75` or `—`)
+ * @returns {string}
+ */
+export function riskTooltip(riskLabel) {
+  if (riskLabel == null || riskLabel === "—" || riskLabel === "") {
+    return RISK_TOOLTIP_UNKNOWN;
+  }
+  return RISK_TOOLTIP_KNOWN;
+}
+
+/**
+ * Compact risk density badge (parity with Tessl `Q N`).
+ * @param {string|null|undefined} riskLabel
+ * @returns {string} e.g. `R 0.75` or `R —`
+ */
+export function formatRiskBadge(riskLabel) {
+  const value = riskLabel == null || riskLabel === "" ? "—" : String(riskLabel);
+  return `R ${value}`;
+}
+
+/**
+ * Long-form risk chrome (list header / aria); prefer `formatRiskBadge` on cards.
+ * @param {string|null|undefined} riskLabel
+ * @returns {string} e.g. `Risk density 0.75`
+ */
+export function formatRiskDensityLabel(riskLabel) {
+  const value = riskLabel == null || riskLabel === "" ? "—" : String(riskLabel);
+  return `Risk density ${value}`;
+}
+
+/**
+ * Tessl quality badge + tooltip + schedule cue for skill cards (GWT-42.6–42.9).
+ * MCP / non-skills → null (omit badge).
+ *
+ * @param {{
+ *   type?: string,
+ *   quality?: number|null,
+ *   lastScan?: string|null,
+ *   status?: string|null,
+ *   identifier?: string|null,
+ *   name?: string|null,
+ * }} item
+ * @returns {{
+ *   badge: string,
+ *   tone: 'known'|'unknown-unscanned'|'unknown-unscored',
+ *   tooltip: string,
+ *   scheduleCue: string|null,
+ * }|null}
+ */
+export function qualitySurfacing(item) {
+  if (!item || item.type !== "skill") return null;
+
+  const qualityKnown =
+    typeof item.quality === "number" && !Number.isNaN(item.quality);
+  const neverScanned = !item.lastScan && item.status === "grey";
+  const tone = qualityKnown
+    ? "known"
+    : neverScanned
+      ? "unknown-unscanned"
+      : "unknown-unscored";
+  const badge = qualityKnown
+    ? `Q ${Math.round(item.quality)}`
+    : neverScanned
+      ? "Q —"
+      : "Q ?";
+  const scanTarget = item.identifier || item.name || "<name>";
+  const scheduleCue =
+    tone === "known"
+      ? null
+      : `Schedule: tripwire scan ${scanTarget} --force`;
+
+  return {
+    badge,
+    tone,
+    tooltip: qualityTooltip(tone),
+    scheduleCue,
+  };
+}
+
+/**
+ * @param {'known'|'unknown-unscanned'|'unknown-unscored'|string} tone
+ * @returns {string}
+ */
+export function qualityTooltip(tone) {
+  const base =
+    "Tessl quality = skill-review score from Tessl (not security risk / not card colour).\n" +
+    "Range: 0–100 (higher is better). Source: tessl skill review --json → items.quality_score.";
+  if (tone === "unknown-unscanned") {
+    return `${base}\nQ — = never scanned / no Tessl score yet.`;
+  }
+  if (tone === "unknown-unscored") {
+    return (
+      `${base}\nQ ? = scanned but Tessl did not yield a score — schedule: tripwire scan <id> --force.`
+    );
+  }
+  return base;
+}
+
+/** Plain-language install locus (GWT-42.10). */
+export function operatorLocusLabel(v) {
+  return (
+    {
+      local: "Local",
+      cloud: "Cloud",
+      unknown: "Location unknown",
+    }[v] || v
+  );
+}
+
+/** Plain-language source availability (GWT-42.10). */
+export function operatorAvailLabel(v) {
+  return (
+    {
+      source_on_disk: "On disk",
+      cloneable: "Cloneable",
+      introspection_only: "No local source",
+      unavailable: "Unavailable",
+      unknown: "Scanability unknown",
+    }[v] || v
+  );
+}
+
+/**
+ * Tessl inner-card quality line when score may be missing (GWT-42.7 / 42.9).
+ * @param {{ source?: string, status?: string, output?: { quality_score?: number|null } }|null|undefined} scanner
+ * @param {{ identifier?: string, name?: string }|null|undefined} item
+ * @returns {{
+ *   show: boolean,
+ *   label: string,
+ *   headerBadge: string,
+ *   tooltip: string,
+ *   scheduleCue: string|null,
+ * }|null}
+ */
+export function tesslInnerQuality(scanner, item) {
+  const src = String(scanner?.source || "");
+  if (!/tessl/i.test(src)) return null;
+
+  const score = scanner?.output?.quality_score;
+  const known = typeof score === "number" && !Number.isNaN(score);
+  const unreachable =
+    scanner?.status === "unreachable" || scanner?.status === "failed";
+  const label = known
+    ? `Tessl quality ${Math.round(score)}/100`
+    : unreachable
+      ? "Tessl quality not scored (unreachable)"
+      : "Tessl quality not scored";
+  const scanTarget = item?.identifier || item?.name || "<name>";
+  return {
+    show: true,
+    label,
+    headerBadge: known ? `Q ${Math.round(score)}` : "Q ?",
+    tooltip: qualityTooltip(known ? "known" : "unknown-unscored"),
+    scheduleCue: known ? null : `Schedule: tripwire scan ${scanTarget} --force`,
+  };
+}
+
 export default {
   STATUS_META,
   RESULT_STATUSES,
@@ -225,4 +395,14 @@ export default {
   SCANNER_EXEC_META,
   scannerExecMeta,
   decorateStatus,
+  RISK_TOOLTIP_KNOWN,
+  RISK_TOOLTIP_UNKNOWN,
+  riskTooltip,
+  formatRiskBadge,
+  formatRiskDensityLabel,
+  qualitySurfacing,
+  qualityTooltip,
+  operatorLocusLabel,
+  operatorAvailLabel,
+  tesslInnerQuality,
 };

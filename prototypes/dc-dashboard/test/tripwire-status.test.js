@@ -4,7 +4,8 @@
  * Author: swami
  * Created: 2026-08-01
  * Scope: statusFromRisk density fallback, resolveItemStatus priority (worst-of),
- *   severity normalize, finding-count chip labels
+ *   severity normalize, finding-count chip labels; slice-42 A9–A13 quality/risk
+ *   tooltips and operator labels
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -18,6 +19,14 @@ import {
   severityColor,
   scannerExecMeta,
   STATUS_META,
+  qualitySurfacing,
+  qualityTooltip,
+  riskTooltip,
+  formatRiskDensityLabel,
+  formatRiskBadge,
+  operatorLocusLabel,
+  operatorAvailLabel,
+  tesslInnerQuality,
 } from '../tripwire-status.js';
 
 test('given risk scores when statusFromRisk then matches density buckets', () => {
@@ -185,4 +194,148 @@ test('given scanner running when scannerExecMeta then uses scanning blue', () =>
     'running scanner must use SCANNING ink color');
   assert.match(meta.label, /Running/i,
     'running scanner label must say Running');
+});
+
+// ── GWT-42.6 / 42.9 — Tessl quality surfacing ─────────────────────────────
+
+test('given skill with numeric quality when qualitySurfacing then Q badge known', () => {
+  /**
+   * Scenario: GWT-42.6 known Tessl quality on skill card.
+   * Slice: 42 A9
+   *
+   * Given a skill with quality 92,
+   * When qualitySurfacing runs,
+   * Then badge is Q 92 with known tone and Tessl tooltip.
+   */
+  // -- Given --
+  const item = {
+    type: 'skill',
+    quality: 92,
+    lastScan: '2026-08-19T10:00:00Z',
+    status: 'green',
+    identifier: 'amber-skill',
+  };
+
+  // -- When --
+  const actual = qualitySurfacing(item);
+
+  // -- Then --
+  assert.equal(actual.badge, 'Q 92');
+  assert.equal(actual.tone, 'known');
+  assert.equal(actual.scheduleCue, null);
+  assert.match(actual.tooltip, /Tessl/);
+  assert.match(actual.tooltip, /0–100|0-100/);
+});
+
+test('given never-scanned skill when qualitySurfacing then Q em dash', () => {
+  // -- Given / When --
+  const actual = qualitySurfacing({
+    type: 'skill',
+    quality: null,
+    lastScan: null,
+    status: 'grey',
+    identifier: 'new-skill',
+  });
+
+  // -- Then --
+  assert.equal(actual.badge, 'Q —');
+  assert.equal(actual.tone, 'unknown-unscanned');
+  assert.match(actual.scheduleCue, /tripwire scan new-skill --force/);
+  assert.match(actual.tooltip, /never scanned/i);
+});
+
+test('given scanned skill without quality when qualitySurfacing then Q question', () => {
+  // -- Given / When --
+  const actual = qualitySurfacing({
+    type: 'skill',
+    quality: null,
+    lastScan: '2026-08-19T10:00:00Z',
+    status: 'amber',
+    identifier: 'partial-skill',
+  });
+
+  // -- Then --
+  assert.equal(actual.badge, 'Q ?');
+  assert.equal(actual.tone, 'unknown-unscored');
+  assert.match(actual.scheduleCue, /tripwire scan partial-skill --force/);
+  assert.match(qualityTooltip('unknown-unscored'), /Q \?/);
+});
+
+test('given mcp server when qualitySurfacing then omit badge', () => {
+  // -- Given / When / Then --
+  assert.equal(
+    qualitySurfacing({ type: 'mcp_server', quality: 50, status: 'green' }),
+    null,
+    'MCP cards must not invent Tessl quality'
+  );
+});
+
+// ── GWT-42.8 — risk tooltip ───────────────────────────────────────────────
+
+test('given numeric risk when riskTooltip then covers formula and colour independence', () => {
+  // -- Given / When --
+  const tip = riskTooltip('0.75');
+
+  // -- Then --
+  assert.match(tip, /3×|3\*/);
+  assert.match(tip, /checks/i);
+  assert.match(tip, /colour|color/i);
+  assert.match(tip, /not card/i);
+});
+
+test('given unknown risk when riskTooltip then not zero risk', () => {
+  assert.match(riskTooltip('—'), /unknown/i);
+  assert.match(riskTooltip('—'), /not zero/i);
+  assert.equal(formatRiskDensityLabel('0.75'), 'Risk density 0.75');
+  assert.equal(formatRiskDensityLabel('—'), 'Risk density —');
+  assert.equal(formatRiskBadge('1.19'), 'R 1.19');
+  assert.equal(formatRiskBadge('—'), 'R —');
+});
+
+// ── GWT-42.10 — operator labels ───────────────────────────────────────────
+
+test('given locus and avail enums when operator labels then glossary phrases', () => {
+  assert.equal(operatorLocusLabel('unknown'), 'Location unknown');
+  assert.equal(operatorAvailLabel('source_on_disk'), 'On disk');
+  assert.equal(operatorAvailLabel('introspection_only'), 'No local source');
+  assert.equal(operatorAvailLabel('unknown'), 'Scanability unknown');
+});
+
+// ── GWT-42.7 — Tessl inner quality ────────────────────────────────────────
+
+test('given Tessl scanner with null score when tesslInnerQuality then not-scored cue', () => {
+  // -- Given --
+  const scanner = {
+    source: 'Tessl',
+    status: 'unreachable',
+    output: { quality_score: null },
+  };
+
+  // -- When --
+  const actual = tesslInnerQuality(scanner, { identifier: 'canvas' });
+
+  // -- Then --
+  assert.equal(actual.show, true);
+  assert.match(actual.label, /Tessl quality not scored/i);
+  assert.match(actual.scheduleCue, /tripwire scan canvas --force/);
+  assert.match(actual.tooltip, /Tessl/);
+});
+
+test('given Tessl scanner with score when tesslInnerQuality then numeric label', () => {
+  const actual = tesslInnerQuality(
+    { source: 'Tessl', status: 'completed', output: { quality_score: 88 } },
+    { identifier: 'canvas' }
+  );
+  assert.equal(actual.label, 'Tessl quality 88/100');
+  assert.equal(actual.scheduleCue, null);
+});
+
+test('given non-Tessl scanner when tesslInnerQuality then null', () => {
+  assert.equal(
+    tesslInnerQuality(
+      { source: 'Snyk', status: 'completed', output: { quality_score: 1 } },
+      { identifier: 'x' }
+    ),
+    null
+  );
 });
