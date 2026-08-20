@@ -1,0 +1,29 @@
+{
+  "slice": 42,
+  "gate_status": "PLANNED",
+  "delta": "A9-A11-quality-and-risk-tooltip",
+  "prior_pass": {
+    "pr": "#95",
+    "scope": "A1-A8",
+    "merged": "2026-08-20",
+    "note": "A1–A8 shipped; evidence for prior PASS recorded via PR #95. This file tracks the A9–A11 delta reopen."
+  },
+  "branch": "slice/42-tessl-quality-card-surfacing",
+  "open_questions": [],
+  "reopen_confirmed": "2026-08-20",
+  "delta_defaults": {
+    "badge_copy": "Q N | Q — | Q ?",
+    "mcp_quality": "omit",
+    "seq_vs_43": "rebase onto 43 if #96 open, else branch from main after merge",
+    "risk_tooltip": "title + keyboard-accessible; formula from tripwire_rollup_item"
+  },
+  "risk_score_sot": {
+    "source": "db/schema.sql tripwire_rollup_item",
+    "formula": "(3 * red_count + 1 * amber_count) / sum(checks_run completed)",
+    "excludes": "tiered_router findings",
+    "meaning": "weighted finding density for sort/trend; card colour is worst-of heatmap_status",
+    "range": ">= 0, unbounded; null when unscored"
+  },
+  "inferred": false,
+  "note": "Reopened 2026-08-20 by enhanced-flow-planner — USER-CONFIRMED; A11 pile-on risk hover; no new slice number."
+}
