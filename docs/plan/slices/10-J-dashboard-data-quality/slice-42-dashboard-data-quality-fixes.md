@@ -111,9 +111,11 @@ scratchpad investigation reports (2026-08-19). Delta request: enhanced-flow-plan
 **Given** a skill item has never been scanned (`status=grey` / no last scan) **or** has been scanned but `quality` is null (Tessl incomplete / unreachable / not applicable yet)
 **When** the dashboard grid renders that card
 **Then** the card shows an explicit quality-state indicator distinguishing:
-  - **never scanned** → e.g. `Q —` / `quality unknown` with muted/grey treatment
-  - **scanned, score not known** (Tessl missing/unreachable/null after a run) → e.g. `Q ?` / `quality not scored` with amber or muted attention treatment
-  so operators can tell “not scanned yet” from “scanned but Tessl score absent”
+
+- **never scanned** → e.g. `Q —` / `quality unknown` with muted/grey treatment
+- **scanned, score not known** (Tessl missing/unreachable/null after a run) → e.g. `Q ?` / `quality not scored` with amber or muted attention treatment
+
+so operators can tell “not scanned yet” from “scanned but Tessl score absent”
 
 **Given** an MCP server item (Tessl not in the skill-quality path)
 **When** the dashboard grid renders
