@@ -171,9 +171,10 @@ UI slice — outside-in. Slice 41 used **manual visual verification** (no HTML t
 ## What Changed
 | File | Type | Reason |
 |------|------|--------|
-| `prototypes/dc-dashboard/Tripwire.dc.html` | style | Paper palette, CTA/signal split, Fraunces, light chrome |
-| `prototypes/dc-dashboard/test/tripwire-visual-tokens.test.js` | test | Token contract GWT-43.1–43.5 |
-| `CHANGELOG.md` | docs | Visual identity v2 |
+| `prototypes/dc-dashboard/Tripwire.dc.html` | style | Paper palette, CTA/signal split, Fraunces, AA ink text |
+| `prototypes/dc-dashboard/tripwire-status.js` | style | STATUS_META copies :root ink hex |
+| `prototypes/dc-dashboard/test/tripwire-visual-tokens.test.js` | test | Token contract GWT-43.1–43.10 + STATUS_META binding |
+| `CHANGELOG.md` | docs | Visual identity v2 + AA ink |
 
 ## Session Metrics
 | Metric | Value |
@@ -181,4 +182,4 @@ UI slice — outside-in. Slice 41 used **manual visual verification** (no HTML t
 | Estimated Pomos | 1 (~25 min) |
 | Execution time | — |
 | Blockers encountered | file overlap with slice 42 |
-| Next-session notes | Implement GWT-43.6–43.10 on this branch (PR #96); ink tokens + STATUS_META binding |
+| Next-session notes | Ink pile-on implemented; visual pass + PR #96 update remaining |

@@ -11,12 +11,13 @@
  */
 
 export const STATUS_META = {
-  red: { color: "#f43f5e", label: "RED", glyph: "●" },
-  amber: { color: "#f59e0b", label: "AMBER", glyph: "▲" },
-  green: { color: "#34d399", label: "GREEN", glyph: "✓" },
-  grey: { color: "#6b7a8e", label: "UNSCANNED", glyph: "–" },
-  running: { color: "#4da2ff", label: "SCANNING", glyph: "◌" },
-  error: { color: "#a78bfa", label: "ERROR", glyph: "!" },
+  // Hex must equal Tripwire.dc.html :root --*-ink (CSS owns the SSOT).
+  red: { color: "#B42318", label: "RED", glyph: "●" }, // must equal --red-ink
+  amber: { color: "#8B5A00", label: "AMBER", glyph: "▲" }, // must equal --amber-ink
+  green: { color: "#0F766E", label: "GREEN", glyph: "✓" }, // must equal --green-ink
+  grey: { color: "#6B645A", label: "UNSCANNED", glyph: "–" }, // must equal --text-muted
+  running: { color: "#0E7490", label: "SCANNING", glyph: "◌" }, // must equal --signal-ink
+  error: { color: "#6D28D9", label: "ERROR", glyph: "!" }, // must equal --violet-ink
 };
 
 /** Result colors only (completed scans with a risk bucket). */
@@ -178,7 +179,7 @@ export const SCANNER_EXEC_META = {
   completed: { color: STATUS_META.green.color, label: "✓ Completed" },
   skipped_missing_credential: { color: STATUS_META.grey.color, label: "⊘ Skipped" },
   unreachable: { color: STATUS_META.error.color, label: "✗ Unreachable" },
-  not_applicable: { color: "#506880", label: "— N/A" },
+  not_applicable: { color: STATUS_META.grey.color, label: "— N/A" },
   failed: { color: STATUS_META.error.color, label: "✗ Failed" },
 };
 

@@ -10,8 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Dashboard visual identity v2 (slice 43): warm cream paper field (`#F5F2EA`), tan
   primary CTA (`#C4A574`), Fraunces serif on intro `h1`/`h2`; cyan `#00D9FF` kept as
-  live **signal** only (SENSOR dots, wire pulse, scanning). Tripwire HUD brackets,
-  grid overlay, and RAG status colours retained. Supersedes slice 41 dark-cyan fill.
+  live **signal** only (SENSOR dots, wire pulse, scanning fills). Status labels, links,
+  and muted chrome use AA **ink** tokens on paper (`--red-ink` `#B42318`, `--cta-ink`
+  `#7A5C2E`, `--text-muted` `#6B645A`, and peers). Tripwire HUD brackets, grid overlay,
+  and RAG fill colours retained. Supersedes slice 41 dark-cyan fill.
 
 ### Added
 - Landing intro screen shown on first dashboard open (sessionStorage-persisted toggle);

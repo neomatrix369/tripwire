@@ -10,6 +10,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { test } from 'node:test';
+import { STATUS_META } from '../tripwire-status.js';
 
 const html = readFileSync(
   join(dirname(fileURLToPath(import.meta.url)), '..', 'Tripwire.dc.html'),
@@ -52,7 +53,90 @@ test('given hardcoded styles when scanned then cyan is not used as chrome button
   );
   assert.match(
     html,
-    /running:\s*\{\s*color:\s*'#00D9FF'/,
-    'GWT-43.2: scanning/running status may keep signal cyan',
+    /running:\s*\{\s*color:\s*'#0E7490'/,
+    'GWT-43.6: scanning/running *text* uses signal-ink, not neon cyan',
   );
+});
+
+const INK = {
+  muted: '#6B645A',
+  cta: '#7A5C2E',
+  red: '#B42318',
+  amber: '#8B5A00',
+  green: '#0F766E',
+  signal: '#0E7490',
+  violet: '#6D28D9',
+};
+
+function rootToken(name) {
+  const m = html.match(new RegExp(`--${name}:\\s*(#[0-9A-Fa-f]{6})`));
+  return m ? m[1].toUpperCase() : null;
+}
+
+test('given paper field when :root is read then ink tokens meet AA hex contract', () => {
+  // -- Given / When / Then --
+  assert.equal(rootToken('text-muted'), INK.muted, 'GWT-43.7: muted ink');
+  assert.equal(rootToken('cta-ink'), INK.cta, 'GWT-43.7: link ink');
+  assert.equal(rootToken('red-ink'), INK.red, 'GWT-43.6: red ink');
+  assert.equal(rootToken('amber-ink'), INK.amber, 'GWT-43.6: amber ink');
+  assert.equal(rootToken('green-ink'), INK.green, 'GWT-43.6: green ink');
+  assert.equal(rootToken('signal-ink'), INK.signal, 'GWT-43.6: signal ink');
+  assert.equal(rootToken('violet-ink'), INK.violet, 'GWT-43.8: error ink');
+});
+
+test('given intro chrome when scanned then logo and links use AA ink not tan fill', () => {
+  // -- Given / When / Then --
+  assert.match(html, /a \{ color: var\(--cta-ink\)/, 'GWT-43.7: links use --cta-ink');
+  assert.match(
+    html,
+    /letter-spacing:0\.08em;color:var\(--text-primary\);margin-right:16px/,
+    'GWT-43.7: TRIPWIRE wordmark is charcoal',
+  );
+  assert.doesNotMatch(
+    html,
+    /span style="color:var\(--cta\)">unreviewed code/,
+    'GWT-43.9: hero emphasis is not tan fill as text',
+  );
+});
+
+test('given glow and hover when scanned then cream is not blown out', () => {
+  // -- Given / When / Then --
+  assert.doesNotMatch(
+    html,
+    /\.stat-card\.risk \.stat-num \{[^}]*text-shadow/,
+    'GWT-43.10: no neon text-shadow on risk stat numbers',
+  );
+  assert.doesNotMatch(
+    html,
+    /filter:\s*brightness\(1\.12\)/,
+    'GWT-43.10: no brightness(1.12) hover on cream',
+  );
+});
+
+test('given STATUS_META when compared to :root then ink hexes bind', () => {
+  // -- Given / When / Then --
+  assert.equal(STATUS_META.red.color.toUpperCase(), INK.red, 'GWT-43.8: red');
+  assert.equal(STATUS_META.amber.color.toUpperCase(), INK.amber, 'GWT-43.8: amber');
+  assert.equal(STATUS_META.green.color.toUpperCase(), INK.green, 'GWT-43.8: green');
+  assert.equal(STATUS_META.running.color.toUpperCase(), INK.signal, 'GWT-43.8: running');
+  assert.equal(STATUS_META.error.color.toUpperCase(), INK.violet, 'GWT-43.8: error');
+  assert.equal(STATUS_META.grey.color.toUpperCase(), INK.muted, 'GWT-43.8: grey');
+});
+
+test('given neon fills when scanned then they are not used as color: text', () => {
+  // CSS `color:` only — not dotColor/textColor/activeColor property names
+  const cssColor = String.raw`(?<![a-zA-Z-])color:\s*`;
+  // -- Given / When / Then --
+  assert.doesNotMatch(html, new RegExp(`${cssColor}#FFB020`, 'i'), 'GWT-43.9: amber fill not text');
+  assert.doesNotMatch(html, new RegExp(`${cssColor}#34D399`, 'i'), 'GWT-43.9: green fill not text');
+  assert.doesNotMatch(html, new RegExp(`${cssColor}#00D9FF`, 'i'), 'GWT-43.9: cyan fill not text');
+  assert.doesNotMatch(html, new RegExp(`${cssColor}#C4A574`, 'i'), 'GWT-43.9: tan fill not text');
+  assert.doesNotMatch(html, new RegExp(`${cssColor}'#f43f5e'`, 'i'), 'GWT-43.9: old rose not status text');
+  assert.doesNotMatch(html, new RegExp(`${cssColor}'#f59e0b'`, 'i'), 'GWT-43.9: old amber not status text');
+  assert.doesNotMatch(html, new RegExp(`${cssColor}'#4da2ff'`, 'i'), 'GWT-43.9: old scanning blue not text');
+  assert.doesNotMatch(html, /color:var\(--red\)(?!-ink)/, 'GWT-43.6: text uses --red-ink');
+  assert.doesNotMatch(html, /color:var\(--amber\)(?!-ink)/, 'GWT-43.6: text uses --amber-ink');
+  assert.doesNotMatch(html, /color:var\(--green\)(?!-ink)/, 'GWT-43.6: text uses --green-ink');
+  assert.doesNotMatch(html, /color:var\(--signal\)(?!-ink)/, 'GWT-43.6: text uses --signal-ink');
+  assert.doesNotMatch(html, /color:var\(--cta\)(?!-ink)/, 'GWT-43.7: text uses --cta-ink');
 });

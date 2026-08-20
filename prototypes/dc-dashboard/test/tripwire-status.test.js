@@ -182,7 +182,7 @@ test('given scanner running when scannerExecMeta then uses scanning blue', () =>
 
   // -- Then --
   assert.equal(meta.color, STATUS_META.running.color,
-    'running scanner must use SCANNING blue color');
+    'running scanner must use SCANNING ink color');
   assert.match(meta.label, /Running/i,
     'running scanner label must say Running');
 });
