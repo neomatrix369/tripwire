@@ -6,6 +6,9 @@ Product UI and CLI captures, grouped by surface. Paths are relative to this fold
 and Escalated / SIE-only examples stay stable. **CLI shots are live terminal
 captures** from the current CLI.
 
+Skill cards show compact **`R`** (risk density) and **`Q`** (Tessl quality)
+badges; card colour is worst-of finding status — **colour ≠ density**.
+
 > **Note (2026-08-20):** Gallery PNGs regenerated for slice-43 paper/tan visual
 > identity v2 (and slice-42 metric badges). Re-run the commands below after further
 > chrome changes.

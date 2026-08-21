@@ -59,11 +59,13 @@ service-role keys, or credential-bearing URLs.
 - Open [docs/README.md](./README.md).
 
 Checks:
-- `README.md` and `docs/README.md` render a clear ordered path (install → run → contributing → maintenance).
+- `README.md` opens with a plain metaphor and intent router (demo / Live / contribute / understand).
+- `docs/README.md` is the deep task hub (including agent-hooks and tiered-router-setup).
 - No dead/obvious broken links from these entry points to first-run docs.
 
 Expected result:
 - You can find the complete startup path without requiring extra source files.
+- Demo (Recommended) is discoverable before Live (Advanced).
 
 ### 2) Local prerequisites
 
@@ -232,6 +234,16 @@ Checks:
   `tripwire setup --force` recovery path.
 - A failure is recorded as `fail` or `blocked-by-env`; do not mask it with `|| true`.
 
+### 5d) Optional tiered router docs
+
+Files:
+- [tiered-router-setup.md](./user-guide/tiered-router-setup.md)
+- [reading-router-results.md](./user-guide/reading-router-results.md)
+
+Checks:
+- SIE + Model Studio live on one page; glossary terms are plain.
+- Hub links resolve; no references to deleted `sie-setup.md` / `model-studio-setup.md`.
+
 ### 6) Contributor path
 
 File: [CONTRIBUTING.md](../CONTRIBUTING.md)
@@ -263,11 +275,12 @@ If project behavior, setup flow, or maintenance flow changes, run this additiona
   - [CLAUDE.md](../CLAUDE.md)
 - review other likely impacted docs in this sequence:
   - `QUICKSTART.md`
-  - `docs/user-guide/{prerequisites,setup-commands,supabase-setup,modal-setup,env-vars}.md`
+  - `docs/user-guide/{prerequisites,setup-commands,supabase-setup,modal-setup,env-vars,tiered-router-setup,reading-router-results}.md`
+  - `agent-hooks/README.md` (if hooks install path changed)
   - `fixtures/OPTIONAL_SCANNER_KEYS.md`
   - `docs/STATUS.md`
   - `docs/ARCHITECTURE.md` (if architecture/deployment flow changed)
-  - `docs/plan/{PROGRESS.md,TRAIL.md,gate-evidence/slice-17.json}` (if scope/status changed)
+  - `docs/plan/{PROGRESS.md,TRAIL.md,gate-evidence/slice-44.json}` (if scope/status changed)
 - re-run this docs smoke test before merge.
 
 ### 7) Maintenance / re-run path

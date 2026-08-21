@@ -133,3 +133,14 @@
 | 2026-08-20 | sync-docs | Wave J review + tip truth | STATUS/ARCHITECTURE/CHANGELOG/TRAIL/PROGRESS: nw-review APPROVED + CSS tip mechanism; no PASSED promotion. APPLIED |
 | 2026-08-20 | slice-42 | Score tip portal (clip fix) | In-card absolute tips still clipped by grid `overflow-y: auto`. Superseded by fixed `#score-tip-portal` + `initScoreTipPortal` viewport clamp. |
 | 2026-08-20 | sync-docs | Score tip portal truth | STATUS/ARCHITECTURE/CHANGELOG/DECISIONS: portal supersedes host-elevate absolute bubbles. APPLIED |
+| 2026-08-20 | planning | Added slice 44 (Wave K) | Path B Add — Docs UX plain language + compaction (Wave D Phase 2). Delete cheatsheet/path-commands; merge sie+model-studio → tiered-router-setup; absorb glossary/flags/troubleshoot into SSOTs. No reopen of slice 17. Branch `slice/44-docs-ux-plain-language`. |
+| 2026-08-20 | slice-44 | Documentarist APPROVED | nw-documentarist-reviewer APPROVED; gate-evidence/slice-44.json PASS; 🔀 until merge → ✅. |
+| 2026-08-20 | slice-44 | Phase 1 save only | Contract DECIDED/PLANNED. Public README/user-guide execution deferred. Prior APPROVED/PASS claims SUPERSEDED until Phase 2 lands. |
+| 2026-08-21 | audit | Docs UX allocation (setup→maintain) | Demo+nav strong; main gap = Setup (accounts) vs Configure (keys) + louder MVP Live. documentation-best-practices + documentation-ux-patterns advice largely taken. |
+| 2026-08-21 | slice-44 | Pile-on GWT-44.5–44.7 | Fold audit polish into slice 44: Accounts→Keys→Bootstrap; MVP Live; Maintain hub; prerequisites Account vs Keys; env-vars Configure framing; screenshots `R`/`Q`. Edit existing pages only. |
+| 2026-08-21 | slice-44 | Pile-on GWT-44.8 | ARCHITECTURE: External services inventory + operator journey + dependency-order Mermaid; hub/prerequisites link in. |
+| 2026-08-21 | sync-docs | Slice 44 plan SSOT | TRAIL/PROGRESS/stub/gate-evidence + Cursor audit plan disposition: GWT-44.5–44.8 APPLIED on branch (not deferred). |
+| 2026-08-21 | sync-docs | Wave K + Wave J truth | STATUS: Wave J ✅ via #98; Wave K slice 44 ON BRANCH (GWT-44.1–44.8). ARCHITECTURE quality note + README Architecture link. APPLIED |
+| 2026-08-21 | slice-44 | Documentarist pile-on APPROVED WITH FOLLOW-ON | QUICKSTART / docs hub / screenshots README APPROVED. Pre-existing DIVIO issues in env-vars (procurement steps vs preamble) and prerequisites (capability notes = Explanation) DECIDED for same-branch content rewrite; merge not held. Targets unchanged in plan-record commit; rewrite shape in slice stub. |
+| 2026-08-21 | sync-docs | Slice 44 documentarist disposition | STATUS ON BRANCH + DECIDED Wave K: APPROVED WITH FOLLOW-ON + DIVIO targets DECIDED/pending. README/AGENTS NO_CHANGE. User-guide targets untouched. APPLIED |
+| 2026-08-22 | sync-docs | Slice 44 PR + evidence SHA | STATUS/PROGRESS link PR #99; gate-evidence `commit_at_evidence` → `0362d36`. README/AGENTS NO_CHANGE. APPLIED |

@@ -1,8 +1,11 @@
 # Architecture
 
+This page is a **map of the parts**. Skip it until you can run the
+[demo Quickstart](../QUICKSTART.md#try-the-demo-recommended).
+
 System shape for Tripwire. Diagrams are Mermaid (text, version-controlled).
 
-Repo entry: [README.md](../README.md) · Status: [STATUS.md](./STATUS.md)
+Start here: [QUICKSTART](../QUICKSTART.md) · Hub: [docs/README](./README.md) · Status: [STATUS.md](./STATUS.md)
 
 [![Cursor](https://img.shields.io/badge/Cursor-000000?style=flat)](https://cursor.com)
 [![Modal](https://img.shields.io/badge/Modal-7C5CFF?style=flat)](https://modal.com)
@@ -14,6 +17,96 @@ Repo entry: [README.md](../README.md) · Status: [STATUS.md](./STATUS.md)
 [![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
 [![Superlinked SIE](https://img.shields.io/badge/Superlinked%20SIE-0B1F3A?style=flat)](https://superlinked.com)
 [![Alibaba Cloud Model Studio](https://img.shields.io/badge/Alibaba%20Cloud%20Model%20Studio-FF6A00?style=flat)](https://www.alibabacloud.com/product/modelstudio)
+
+---
+
+## 0. External services (inventory)
+
+Named dependencies Tripwire uses or can use. **Setup** = create account/project;
+**Configure** = keys / wiring. Local tools (Git, Node, Python, npm) are not cloud
+services — see [prerequisites](./user-guide/prerequisites.md).
+
+| Service | Role | Needed for | Setup / Configure |
+|---|---|---|---|
+| **Supabase** | Postgres + Realtime system of record | MVP Live | [supabase-setup](./user-guide/supabase-setup.md) → [env-vars](./user-guide/env-vars.md) |
+| **Modal** | Isolated scanner sandbox compute | MVP Live | [modal-setup](./user-guide/modal-setup.md) → [env-vars](./user-guide/env-vars.md) |
+| **Snyk** | Skill/MCP depth scanner | Full scanner coverage | [procurement](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
+| **Tessl** | Skill-review quality + findings | Full scanner coverage | [procurement](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
+| **Cisco AI Defense** | Skill Scanner / MCP Scanner / AI Defense APIs | Full scanner coverage | [procurement](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
+| **Superlinked SIE** | Cheap post-scan triage | Optional tiered router | [tiered-router-setup](./user-guide/tiered-router-setup.md) |
+| **Alibaba Cloud Model Studio** | Escalation arbitration / triage | Optional tiered router | [tiered-router-setup](./user-guide/tiered-router-setup.md) |
+| **DepShield** (`depshield-mcp`) | Local dependency-audit adapter over MCP stdio | Optional / local | No cloud account — npm package; see [STATUS](./STATUS.md) |
+| **GitHub Actions** | CI / Nightly / complexity workflows | Contributors | Repo secrets as needed — not operator Live |
+| **Cursor / Claude Code** | Dev tooling; Wave H agent hooks (plan) | Contributors / future hooks | [agent-hooks](../agent-hooks/README.md) · Wave H in [TRAIL](./plan/TRAIL.md) |
+
+Demo / Mock path needs **no** rows above. Capability honesty: [STATUS.md](./STATUS.md).
+
+### Operator journey (start → finish)
+
+```mermaid
+flowchart TD
+  start([Clone repo]) --> demo{Want Live cloud?}
+  demo -->|No — Recommended| tools[Install Node 22 + Python 3.12]
+  tools --> link[npm link CLI]
+  link --> dry[scan --dry-discover]
+  dry --> mock[serve-dashboard Mock]
+  mock --> doneDemo([Demo done])
+
+  demo -->|Yes — Advanced| fit[Prerequisites fit check]
+  fit --> setupA[A. Create accounts — Setup]
+  setupA --> mvp{MVP or full scanners?}
+  mvp -->|MVP| acct2[Supabase + Modal only]
+  mvp -->|Full| acct5[Supabase + Modal + Snyk Tessl Cisco]
+  acct2 --> keys[B. Configure keys — .env]
+  acct5 --> keys
+  keys --> boot[C. Bootstrap — setup + setup-modal]
+  boot --> scan[tripwire scan]
+  scan --> dash[Dashboard Live]
+  dash --> opt{Optional router?}
+  opt -->|Yes| route[tripwire route]
+  opt -->|No| maintain
+  route --> maintain[Maintain — force / secrets-only / fail table]
+  maintain --> doneLive([Live ops loop])
+```
+
+### Dependency order (what before what)
+
+```mermaid
+flowchart LR
+  subgraph local [Local — Demo]
+    N[Node 22 + npm]
+    P[Python 3.12]
+    N --> CLI[tripwire CLI]
+    P --> CLI
+  end
+
+  subgraph mvp [MVP Live]
+    SB[Supabase project + keys]
+    MD[Modal account + tokens]
+    SB --> schema[tripwire setup]
+    MD --> secrets[setup-modal.sh]
+    schema --> liveScan[Live scan]
+    secrets --> liveScan
+  end
+
+  subgraph scanners [Full coverage — optional]
+    SK[Snyk]
+    TS[Tessl]
+    CS[Cisco AI Defense]
+    SK --> liveScan
+    TS --> liveScan
+    CS --> liveScan
+  end
+
+  subgraph router [Post-scan — optional]
+    SIE[SIE]
+    MS[Model Studio]
+    liveScan --> SIE
+    SIE --> MS
+  end
+
+  CLI -.->|Advanced only| SB
+```
 
 ---
 
@@ -175,9 +268,12 @@ It is orthogonal to findings and to `risk_score`. Dashboard skill cards surface
 compact `Q N` / `Q —` / `Q ?` badges with a fixed `#score-tip-portal` (not delayed
 native `title=`, not in-card absolute bubbles that clip under `overflow-y: auto`);
 risk uses compact `R N.NN` badges (list header **Risk density**) with the same
-portal tip pattern — slice 42 A9–A13 IMPLEMENTED on branch, nw-review APPROVED
-(see [STATUS.md](./STATUS.md)). Operator chrome uses plain labels
+portal tip pattern — slice 42 A9–A13 IMPLEMENTED ([PR #98](https://github.com/neomatrix369/tripwire/pull/98));
+operator chrome uses plain labels
 (`Tessl quality`, locus/avail glossary) rather than schema snake_case.
+
+Public docs map services and Setup→Maintain order in
+[§0 External services](#0-external-services-inventory) (slice 44 GWT-44.8, ON BRANCH).
 
 ---
 

@@ -1,30 +1,51 @@
 # Environment variables
 
-> Procurement SSOT for every key in [`.env.example`](../../.env.example).
-> For the recommended complete Live setup, provision all five vendors before
-> `cp .env.example .env`: [Supabase](./supabase-setup.md),
-> [Modal](./modal-setup.md), Snyk, Tessl, and Cisco AI Defense.
-> If a scanner credential is absent, the runtime safely reports
-> `skipped_missing_credential` for that engine. Treat this as a degraded
-> diagnostic path, not complete scan coverage.
+> **Configure (keys) SSOT** for every key in [`.env.example`](../../.env.example).
+> Create accounts first (**Setup**): [prerequisites five-vendor map](./prerequisites.md#five-vendor-setup-map),
+> [Supabase](./supabase-setup.md), [Modal](./modal-setup.md), then paste values here.
+
+Start here: [QUICKSTART](../../QUICKSTART.md) · Hub: [docs/README](../README.md)
+
+> **Minimum Viable Live:** Supabase + Modal keys only. Add Snyk / Tessl / Cisco
+> when you want full scanner coverage. If a scanner credential is absent, the
+> runtime safely reports `skipped_missing_credential` for that engine — not a
+> complete “all clear.”
+>
+> For full Live coverage, provision all five vendors before `cp .env.example .env`.
 >
 > **Cost and billing:** creating accounts, provisioning resources, deploying
 > Modal apps, and running Live scans can incur charges or consume provider
-> quotas. Review billing and usage controls for all five vendors before
-> proceeding; use the local Mock path when you do not intend to incur costs.
+> quotas. Review billing and usage controls before proceeding; use the local
+> Mock path when you do not intend to incur costs.
 >
-> Keep vendor account and key-procurement instructions on this page. The
-> [setup command catalog](./setup-commands.md) owns command order; the
+> Account-creation how-tos live on vendor setup pages; this page owns key names
+> and procurement mapping. The [setup command catalog](./setup-commands.md)
+> owns command order; the
 > [Modal scanner-secret reference](../../fixtures/OPTIONAL_SCANNER_KEYS.md)
 > owns only the Modal secret allowlist and safe sync behavior.
 
 Companion allowlist: [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md).
 
+## Which keys do I need?
+
+| Goal | Keys |
+|---|---|
+| Demo / Mock only | None — skip `.env` |
+| Live platform (store + sandbox) | All `SUPABASE_*` + `MODAL_TOKEN_*` |
+| Full scanner coverage | Platform + `SNYK_TOKEN` + `TESSL_*` + Cisco Skill/MCP / AI Defense keys below |
+| Optional post-scan routing | `SIE_ENDPOINT` + `SIE_API_KEY` (required); Model Studio keys for escalation |
+| Sample SIE / Model Studio CLIs only | Same router keys; may also live in `prototypes/.env` |
+
+Procurement steps: [vendor procurement quick-steps](#vendor-procurement-quick-steps).
+Router how-to: [tiered-router-setup.md](./tiered-router-setup.md).
+
 ## Scope boundary
 
-This is the sole reference for provider accounts, credential procurement, every
-`.env` key, and key-to-capability mapping. Do not duplicate those explanations
-in the Modal secret reference. [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md)
+This is the sole reference for **Configure** — credential procurement, every
+`.env` key, and key-to-capability mapping. Account creation (**Setup**) is owned
+by vendor setup pages and the [prerequisites map](./prerequisites.md#five-vendor-setup-map).
+Do not duplicate key explanations in the Modal secret reference.
+[OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md)
 only projects a selected subset of these already-defined keys into
 `tripwire-scan-secrets`; repeated names there are operational allowlist entries,
 not a second environment-variable schema.
@@ -85,14 +106,14 @@ and skips. Prototype CLIs under `prototypes/sie-studio/` and
 
 | Key | Required for | Where to get it |
 |-----|--------------|-----------------|
-| `SIE_ENDPOINT` | Tiered router + SIE sample CLI | [sie-setup](./sie-setup.md) — us-east-2 `https://api.superlinked.com`; EU `https://eu.api.superlinked.com` |
-| `SIE_API_KEY` | Tiered router + SIE sample CLI | [sie-setup](./sie-setup.md) — Superlinked console → Keys (`sk-sie-…`) |
-| `SIE_MODEL` | Optional SIE model override (default `gen-4b`) | [sie-setup](./sie-setup.md) / `prototypes/sie-studio/models.json` |
-| `DASHSCOPE_API_KEY` | Model Studio escalation + sample CLI | [model-studio-setup](./model-studio-setup.md) |
-| `DASHSCOPE_HOST` | Optional host used to derive Model Studio URLs when blank | [model-studio-setup](./model-studio-setup.md) |
-| `ALIBABA_OPENAI_BASE_URL` | Router Model Studio chat + `model_studio.py chat` | [model-studio-setup](./model-studio-setup.md) |
-| `ALIBABA_DASH_SCOPE_API_URL` | Sample CLI image/video only | [model-studio-setup](./model-studio-setup.md); not required by the CLI router |
-| `MODEL_STUDIO_MODEL` | Optional Model Studio model override (default `qwen3.8-max`) | [model-studio-setup](./model-studio-setup.md) |
+| `SIE_ENDPOINT` | Tiered router + SIE sample CLI | [tiered-router-setup](./tiered-router-setup.md) — us-east-2 `https://api.superlinked.com`; EU `https://eu.api.superlinked.com` |
+| `SIE_API_KEY` | Tiered router + SIE sample CLI | [tiered-router-setup](./tiered-router-setup.md) — Superlinked console → Keys (`sk-sie-…`) |
+| `SIE_MODEL` | Optional SIE model override (default `gen-4b`) | [tiered-router-setup](./tiered-router-setup.md) / `prototypes/sie-studio/models.json` |
+| `DASHSCOPE_API_KEY` | Model Studio escalation + sample CLI | [tiered-router-setup](./tiered-router-setup.md) |
+| `DASHSCOPE_HOST` | Optional host used to derive Model Studio URLs when blank | [tiered-router-setup](./tiered-router-setup.md) |
+| `ALIBABA_OPENAI_BASE_URL` | Router Model Studio chat + `model_studio.py chat` | [tiered-router-setup](./tiered-router-setup.md) |
+| `ALIBABA_DASH_SCOPE_API_URL` | Sample CLI image/video only | [tiered-router-setup](./tiered-router-setup.md); not required by the CLI router |
+| `MODEL_STUDIO_MODEL` | Optional Model Studio model override (default `qwen3.8-max`) | [tiered-router-setup](./tiered-router-setup.md) |
 
 ## Wire into Modal
 
@@ -126,5 +147,5 @@ secret-creation command.
   - `AI_DEFENSE_API_KEY` (and optionally `AI_DEFENSE_API_URL`)
   - `MCP_SCANNER_API_KEY`
   and optionally set `MCP_SCANNER_ENDPOINT` only for non-default hosts.
-- **Superlinked SIE (optional router):** [sie-setup](./sie-setup.md) — `SIE_ENDPOINT`, `SIE_API_KEY`, optional `SIE_MODEL`.
-- **Alibaba Cloud Model Studio (optional router escalation):** [model-studio-setup](./model-studio-setup.md) — `DASHSCOPE_API_KEY`, `ALIBABA_OPENAI_BASE_URL`, optional `DASHSCOPE_HOST` / `MODEL_STUDIO_MODEL` / `ALIBABA_DASH_SCOPE_API_URL` (sample CLI image/video only).
+- **Superlinked SIE (optional router):** [tiered-router-setup](./tiered-router-setup.md) — `SIE_ENDPOINT`, `SIE_API_KEY`, optional `SIE_MODEL`.
+- **Alibaba Cloud Model Studio (optional router escalation):** [tiered-router-setup](./tiered-router-setup.md) — `DASHSCOPE_API_KEY`, `ALIBABA_OPENAI_BASE_URL`, optional `DASHSCOPE_HOST` / `MODEL_STUDIO_MODEL` / `ALIBABA_DASH_SCOPE_API_URL` (sample CLI image/video only).

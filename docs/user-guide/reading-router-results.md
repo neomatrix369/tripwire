@@ -4,8 +4,23 @@
 > `tiered_router` finding categories after optional post-scan routing
 > ([ADR-0016](../adr/0016-tiered-router-sie-model-studio.md)).
 
-Setup first: [sie-setup.md](./sie-setup.md) · [model-studio-setup.md](./model-studio-setup.md) ·
+Start here: [QUICKSTART](../../QUICKSTART.md) · Setup:
+[tiered-router-setup.md](./tiered-router-setup.md) ·
 [setup-commands.md § Tiered router](./setup-commands.md#tiered-router-optional).
+
+## Plain words (glossary)
+
+| Term | Plain meaning |
+|---|---|
+| **Mock** | Demo dashboard data — no cloud accounts, not a real scan |
+| **Live** | Real scan results stored in Supabase |
+| **Heatmap / card colour** | Worst scanner severity (red / amber / green) — not the same as risk density |
+| **Risk density** | Sort/trend number from finding counts; not the card colour |
+| **Tessl quality** | Tessl skill-review score (0–100), shown as `Q` — not risk |
+| **Pathway strip** | Short path drawn on a card: Scan → SIE → Model Studio |
+| **Escalated** | Model Studio actually ran (arbitration or triage) |
+| **SIE-only** | SIE reviewed; Model Studio did **not** run |
+| **tiered_router** | Informational triage row — not a fourth scanner; excluded from risk rollup |
 
 ## What you are looking at
 
