@@ -176,8 +176,8 @@ on `main` yet (side-branch only); it is omitted from the catalog until accepted.
 (nw-review APPROVED). Spec:
 [plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md](./plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md).
 
-**Wave K — docs UX (2026-08-20/21):** Slice 44 compaction + Setup/Configure framing
-+ services/diagrams pile-ons are **IMPLEMENTED** on branch (public docs);
+**Wave K — docs UX (2026-08-20/21):** Slice 44 compaction, Setup/Configure framing,
+and services/diagrams pile-ons are **IMPLEMENTED** on branch (public docs);
 see [ON BRANCH](#on-branch-awaiting-merge). Spec:
 [plan/slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md](./plan/slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md).
 
