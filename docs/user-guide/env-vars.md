@@ -74,6 +74,26 @@ manifests via OSV.dev over plain network egress from the sandbox. There is
 nothing to procure here and nothing to add to `tripwire-scan-secrets`; the
 `skipped_missing_credential` degraded path does not apply to this engine.
 
+## Ossprey — malware scan (access OPEN / pending)
+
+The Ossprey adapter (`ossprey-cli`, [ossprey.com](https://ossprey.com)) detects
+**malicious code / malware** in open-source packages — distinct from Snyk and
+DepShield, which audit dependency **CVEs**. Access provisioning is currently
+**[OPEN]**: no key is available in this environment, so the adapter safely
+reports `skipped_missing_credential` and becomes active only once a key is set.
+
+| Key | Required for | Where to get it |
+|-----|--------------|-----------------|
+| `OSSPREY_API_KEY` | Ossprey malware scan (once access lands) | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file — **pending access** |
+
+The value is an `ospy_…` key (the CLI also accepts `API_KEY` as a fallback, or
+an Auth0 browser login). It is allowlisted in
+[OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md) so
+`setup-modal.sh` syncs it into `tripwire-scan-secrets` automatically when it
+becomes available; leave it blank until then. Credential-free `--local` /
+`--dry-run-safe` / `--dry-run-malicious` modes exist for local testing without a
+key.
+
 ## Optional — tiered router (SIE + Model Studio)
 
 Not required for scanner Live coverage. Required for `tripwire route` and for
@@ -126,5 +146,10 @@ secret-creation command.
   - `AI_DEFENSE_API_KEY` (and optionally `AI_DEFENSE_API_URL`)
   - `MCP_SCANNER_API_KEY`
   and optionally set `MCP_SCANNER_ENDPOINT` only for non-default hosts.
+- **Ossprey (malware scan — access OPEN / pending):** provisioning is not yet
+  available in this environment. When access lands, obtain an `ospy_…` key via
+  `ossprey init` or the [ossprey.com](https://ossprey.com) dashboard and set
+  `OSSPREY_API_KEY`. Until then leave it blank — the adapter reports
+  `skipped_missing_credential`.
 - **Superlinked SIE (optional router):** [sie-setup](./sie-setup.md) — `SIE_ENDPOINT`, `SIE_API_KEY`, optional `SIE_MODEL`.
 - **Alibaba Cloud Model Studio (optional router escalation):** [model-studio-setup](./model-studio-setup.md) — `DASHSCOPE_API_KEY`, `ALIBABA_OPENAI_BASE_URL`, optional `DASHSCOPE_HOST` / `MODEL_STUDIO_MODEL` / `ALIBABA_DASH_SCOPE_API_URL` (sample CLI image/video only).

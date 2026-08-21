@@ -17,6 +17,7 @@ import queue
 import re
 import shutil
 import subprocess
+import tempfile
 import threading
 import time
 
@@ -909,6 +910,181 @@ def run_depshield(workdir, item_type="mcp_server"):
     return findings, [row]
 
 
+# ---- Ossprey (malicious-package / malware detection) ------------------------
+# RESEARCH-grade adapter (ADR-0005): the shape below is taken from ossprey.com
+# and the OSSPREY GitHub org docs, NOT round-tripped against a live ossprey-cli.
+# The OSSBOM JSON schema and the malware-verdict wording are UNVERIFIED —
+# reconcile against the pinned CLI version's --help / --json before this blocks a
+# merge; it cannot claim VERIFIED. Ossprey detects MALICIOUS code (static +
+# behavioural) in open-source packages — distinct from DepShield's dependency-CVE
+# audit.
+#
+# Runtime state TODAY: access provisioning is OPEN (no ospy_ key in this
+# environment, repo marks slice 35 BLOCKED), so the credential gate is the first
+# branch and the default path is skipped_missing_credential. The adapter becomes
+# active the moment a key is supplied.
+#
+# Exit-code contract (docs): 0 = clean/skipped, 1 = malware OR scan failure. The
+# adapter MUST disambiguate — a finding is emitted only on a POSITIVE malware
+# signal (a malicious OSSBOM entry, or an unambiguous verdict line). exit 1 with
+# no such signal is a scan failure → unreachable, never a phantom red finding.
+OSSPREY_TIMEOUT = 200  # fits under SCAN_TIMEOUT=240 / the 300s sandbox hard kill
+
+# RESEARCH: verdict wording UNVERIFIED. Match malware/malicious lines but drop
+# obvious negations so a clean-scan summary ("no malicious packages found") is
+# never read as a positive.
+_OSSPREY_NEGATION_RE = re.compile(r"\b(no|not|zero|none|clean)\b|\b0\s+malicious\b")
+_OSSPREY_MALICIOUS_VERDICTS = ("malicious", "malware")
+
+
+def _ossprey_component_is_malicious(comp):
+    """True when an OSSBOM component carries a positive malicious signal.
+
+    RESEARCH — the flag key is UNVERIFIED, so several plausible shapes are
+    tolerated: a boolean ``malicious``/``malware`` flag, or a verdict / status /
+    classification / result string equal to 'malicious' or 'malware'.
+    """
+    if comp.get("malicious") is True or comp.get("malware") is True:
+        return True
+    for key in ("verdict", "status", "classification", "result"):
+        val = comp.get(key)
+        if isinstance(val, str) and val.strip().lower() in _OSSPREY_MALICIOUS_VERDICTS:
+            return True
+    return False
+
+
+def _ossprey_finding(comp):
+    """Build a red 'malware' finding row from a malicious OSSBOM component."""
+    name = comp.get("name") or comp.get("package") or comp.get("package_name")
+    version = comp.get("version") or comp.get("package_version")
+    verdict = comp.get("verdict") or comp.get("classification") or comp.get("status") or "malicious"
+    label = f"{name}@{version}" if name and version else (name or "package")
+    return {
+        "severity": "red",  # malware is always red
+        "category": "malware",
+        "message": f"{label}: {verdict}",
+        "scanner_source": "Ossprey",
+        "package_name": name,
+        "package_version": version,
+    }
+
+
+def _parse_ossprey_ossbom(json_obj):
+    """Parse an OSSBOM object → ``(malware_findings, package_count)``.
+
+    RESEARCH — the OSSBOM schema is UNVERIFIED and needs live reconciliation.
+    Tolerates both a bare list of components and a ``{"components": [...]}`` (or
+    ``{"packages": [...]}``) envelope, with defensive ``.get()`` throughout. A
+    finding is emitted only for a component flagged malicious.
+    """
+    if isinstance(json_obj, list):
+        components = json_obj
+    elif isinstance(json_obj, dict):
+        components = json_obj.get("components") or json_obj.get("packages") or []
+    else:
+        components = []
+    if not isinstance(components, list):
+        components = []
+    findings = [
+        _ossprey_finding(c)
+        for c in components
+        if isinstance(c, dict) and _ossprey_component_is_malicious(c)
+    ]
+    return findings, len(components)
+
+
+def _ossprey_malware_verdict_line(text):
+    """First unambiguous malware/malicious verdict line in stdout, else None.
+
+    RESEARCH — wording UNVERIFIED. Negated lines ('no malicious packages',
+    'clean') are skipped so a clean-scan summary is never a phantom positive.
+    """
+    for line in (text or "").splitlines():
+        low = line.lower()
+        if "malware" not in low and "malicious" not in low:
+            continue
+        if _OSSPREY_NEGATION_RE.search(low):
+            continue
+        return line.strip()[:200]
+    return None
+
+
+def _read_ossprey_ossbom(path):
+    """Read + JSON-parse the OSSBOM file written by ``-o``; None if absent/bad."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return _safe_json(fh.read())
+    except OSError:
+        return None
+
+
+def _ossprey_verdict(source, code, out, err, findings, n_packages, console):
+    """Disambiguate the exit code (0 = clean, 1 = malware OR failure) into a row.
+
+    exit 0 → completed clean (the exit code is authoritative; parsed findings are
+    surfaced only when the nonzero exit corroborates them). Nonzero with a
+    positive malware signal → completed with the red finding(s). Nonzero with no
+    signal → unreachable (scan failure), never a phantom finding.
+    """
+    checks = n_packages or 1
+    if code == 0:
+        return [], [_completed(source, checks, [], console_output=console)]
+    if not findings:
+        verdict_line = _ossprey_malware_verdict_line(out)
+        if verdict_line:
+            findings = [
+                {
+                    "severity": "red",
+                    "category": "malware",
+                    "message": verdict_line,
+                    "scanner_source": source,
+                }
+            ]
+    if findings:
+        return findings, [_completed(source, checks, findings, console_output=console)]
+    return [], [_unreachable(source, err or out or f"exit {code}", console_output=console)]
+
+
+def run_ossprey(workdir, item_type="mcp_server"):
+    """Scan *workdir* for malicious / malware packages via the ossprey CLI.
+
+    Credential-gated: skipped_missing_credential is the default runtime path
+    today because Ossprey access provisioning is OPEN (no key). *item_type* does
+    not change behavior — the same manifests/lockfiles are scanned for skills and
+    MCP servers.
+    """
+    source = "Ossprey"
+    # Credential gate FIRST — the actual runtime state today (no ospy_ key).
+    # ospy_... is read from OSSPREY_API_KEY, with API_KEY as the documented fallback.
+    if not os.environ.get("OSSPREY_API_KEY") and not os.environ.get("API_KEY"):
+        return [], [
+            _skipped(
+                source,
+                "skipped_missing_credential",
+                detail="OSSPREY_API_KEY not set — Ossprey access provisioning is OPEN",
+            )
+        ]
+    if not _which("ossprey"):
+        return [], [_unreachable(source, "ossprey CLI not installed in image")]
+
+    # OSSBOM is written to a temp file via -o; cleaned up in finally regardless.
+    fd, ossbom_path = tempfile.mkstemp(prefix="ossprey-", suffix=".json")
+    os.close(fd)
+    try:
+        code, out, err = _run(
+            ["ossprey", "scan", workdir, "-o", ossbom_path], timeout=OSSPREY_TIMEOUT
+        )
+        console = _build_console(out, err)
+        findings, n_packages = _parse_ossprey_ossbom(_read_ossprey_ossbom(ossbom_path))
+    finally:
+        try:
+            os.remove(ossbom_path)
+        except OSError:
+            pass
+
+    return _ossprey_verdict(source, code, out, err, findings, n_packages, console)
+
+
 def _collapse_severity(raw):
     if not raw:
         return None
@@ -935,6 +1111,7 @@ MCP_SCANNER_SOURCES = list(_MCP_ANALYZER_LABEL.values())
 TESSL_SOURCES = ["Tessl"]
 SNYK_SOURCES = ["Snyk"]
 DEPSHIELD_SOURCES = ["DepShield"]
+OSSPREY_SOURCES = ["Ossprey"]
 
 
 # ---- Scanner group registry --------------------------------------------------
@@ -976,14 +1153,22 @@ def _run_depshield_group(workdir, item_type, target):
     return findings, rows, None
 
 
+def _run_ossprey_group(workdir, item_type, target):
+    """Ossprey group — malicious-package detection for both item types, no quality axis."""
+    findings, rows = run_ossprey(workdir, item_type)
+    return findings, rows, None
+
+
 # Ordered: skill-only groups (Cisco Skill Scanner, then Tessl), the mcp-only
-# group (Cisco MCP Scanner), then the both-type groups (Snyk, DepShield last).
+# group (Cisco MCP Scanner), then the both-type groups (Snyk, DepShield, then
+# Ossprey last — the RESEARCH-grade malicious-package adapter, credential-gated).
 SCANNER_GROUPS = [
     {"sources": SKILL_SCANNER_SOURCES, "applies_to": "skill", "runner": _run_skill_scanner_group},
     {"sources": TESSL_SOURCES, "applies_to": "skill", "runner": _run_tessl_group},
     {"sources": MCP_SCANNER_SOURCES, "applies_to": "mcp_server", "runner": _run_mcp_scanner_group},
     {"sources": SNYK_SOURCES, "applies_to": "both", "runner": _run_snyk_group},
     {"sources": DEPSHIELD_SOURCES, "applies_to": "both", "runner": _run_depshield_group},
+    {"sources": OSSPREY_SOURCES, "applies_to": "both", "runner": _run_ossprey_group},
 ]
 
 

@@ -38,6 +38,14 @@ app = modal.App("tripwire-scan")
 # Node 20+ from official tarball (Debian apt nodejs is still 18; Tessl needs ≥20).
 # Preinstall snyk-agent-scan via uv tool so cold `uvx …@latest` is not the path.
 _NODE_VERSION = "20.18.1"
+# Ossprey CLI (Go) — malicious-package / malware detection. RESEARCH: the exact
+# release tag needs confirming when Ossprey access provisioning lands (ADR-0005);
+# this is a best-effort placeholder, NOT a verified tag. The install line is
+# guarded with `|| true`, so a 404 leaves the binary absent and run_ossprey
+# reports `unreachable` — the acceptable degraded path while provisioning is OPEN
+# (slice 35 BLOCKED). Provisioning also gates the credential, so today the
+# adapter short-circuits to skipped_missing_credential before the binary matters.
+_OSSPREY_VERSION = "v0.1.0"  # placeholder — confirm against the real release tag
 image = (
     modal.Image.debian_slim(python_version="3.11")
     .apt_install("git", "curl", "ca-certificates", "xz-utils")
@@ -51,6 +59,11 @@ image = (
         "ln -sf /root/.local/bin/snyk-agent-scan /usr/local/bin/snyk-agent-scan",
         # DepShield stdio MCP server (npm/PyPI dependency audit) — pinned so cold `npx` is not the path.
         "npm install -g depshield-mcp@1.0.0",
+        # Ossprey CLI (linux amd64 release binary; sudo-less). `|| true` keeps the
+        # image build green if the URL/tag 404s — an absent binary just yields
+        # run_ossprey's `unreachable` path (acceptable while provisioning is OPEN).
+        f"(curl -fsSL https://github.com/OSSPREY/ossprey-cli/releases/download/{_OSSPREY_VERSION}/ossprey-linux-amd64 "
+        "-o /usr/local/bin/ossprey && chmod +x /usr/local/bin/ossprey) || true",
         "node --version && test -x /usr/local/bin/snyk-agent-scan",
     )
     .pip_install(

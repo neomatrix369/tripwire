@@ -138,6 +138,22 @@ collapsed to a no-op ([DECISIONS.md](../plan/DECISIONS.md) 2026-08-15). Its
 dependency findings populate the previously-dormant `findings` columns
 (package/version/advisory anchors) that earlier scanners left empty.
 
+## Addendum (2026-08-15): Ossprey adapter
+
+Ossprey ([ossprey.com](https://ossprey.com), `ossprey-cli`) joins as the
+**second dispatch extension** after DepShield — an open-source malware /
+malicious-code detector (distinct from DepShield's dependency-CVE audit),
+registered after DepShield in `SCANNER_GROUPS`. It ships **RESEARCH-labeled**
+(vendor docs only, not live-probed; reconcile against the pinned CLI `--help` /
+OSSBOM schema before VERIFIED, per [ADR-0005](./0005-upstream-scanner-cli-adapters.md))
+and **credential-gated** — access provisioning is OPEN, so it emits
+`skipped_missing_credential` until an `OSSPREY_API_KEY` exists
+([DECISIONS.md](../plan/DECISIONS.md) 2026-08-15). Because there is no
+user-facing functionality yet, the trust-strip gate is preserved unchanged: no
+Ossprey mention enters README/QUICKSTART/CONTRIBUTING/STATUS/ARCHITECTURE until
+provisioning and live verification land, consistent with the Ossprey re-mention
+gate above.
+
 ## Alternatives considered
 
 ### A. Keep Guard closed; ship advisory-only skills

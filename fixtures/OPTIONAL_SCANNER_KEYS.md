@@ -29,9 +29,19 @@ placeholder token, but this is a degraded diagnostic path.
 | Cisco Skill Scanner LLM | `SKILL_SCANNER_LLM_API_KEY`, `SKILL_SCANNER_LLM_MODEL`, `SKILL_SCANNER_LLM_PROVIDER`, `SKILL_SCANNER_LLM_BASE_URL`, `SKILL_SCANNER_LLM_API_VERSION` |
 | Cisco MCP Scanner LLM | `MCP_SCANNER_LLM_API_KEY`, `MCP_SCANNER_LLM_MODEL`, `MCP_SCANNER_LLM_BASE_URL`, `MCP_SCANNER_LLM_API_VERSION` |
 | Cisco AI Defense | `AI_DEFENSE_API_KEY`, `AI_DEFENSE_API_URL`, `MCP_SCANNER_API_KEY`, `MCP_SCANNER_ENDPOINT` |
+| Ossprey malware scan (access **OPEN** / pending) | `OSSPREY_API_KEY` |
 
 Scanner environment variable names stay upstream. Do not add `TRIPWIRE_*` or
 `CISCO_AI_DEFENSE_API_KEY` aliases.
+
+**`OSSPREY_API_KEY` is allowlisted but not yet obtainable.** Access provisioning
+for the Ossprey adapter is **[OPEN]** — no key exists in this environment
+([env-vars.md](../docs/user-guide/env-vars.md) · [DECISIONS.md](../docs/plan/DECISIONS.md)
+2026-08-15, slice 35 `🔴 BLOCKED`). The row is present so that once a key
+(`ospy_…`) is provided, `setup-modal.sh` syncs it into `tripwire-scan-secrets`
+with no further change here. Until then the value stays blank and the adapter
+reports `skipped_missing_credential` — unlike DepShield below, Ossprey *does*
+take a credential, so it uses that safe-skip path rather than being credential-free.
 
 **DepShield has no row above by design.** The DepShield adapter
 (`depshield-mcp`, baked into the Modal image) requires **no credentials**: it

@@ -197,6 +197,7 @@ def test_given_callback_when_run_all_then_callback_called_per_scanner_group() ->
     tessl_rows = [{"scanner_source": "Tessl", "status": "completed", "checks_run": 1}]
     snyk_rows = [{"scanner_source": "Snyk", "status": "completed", "checks_run": 1}]
     depshield_rows = [{"scanner_source": "DepShield", "status": "completed", "checks_run": 1}]
+    ossprey_rows = [{"scanner_source": "Ossprey", "status": "completed", "checks_run": 1}]
     callback_calls = []
 
     def on_done(findings, rows, quality_score=None):
@@ -210,14 +211,15 @@ def test_given_callback_when_run_all_then_callback_called_per_scanner_group() ->
         patch.object(scanners, "run_tessl", return_value=(85.0, tessl_rows)),
         patch.object(scanners, "run_snyk", return_value=([], snyk_rows)),
         patch.object(scanners, "run_depshield", return_value=([], depshield_rows)),
+        patch.object(scanners, "run_ossprey", return_value=([], ossprey_rows)),
     ):
         result = scanners.run_all_scanners(
             "/tmp/skill", "skill", "/tmp/skill", on_scanner_done=on_done
         )
 
     ### Then
-    assert len(callback_calls) == 4, (
-        "must call back once per scanner group (Cisco, Tessl, Snyk, DepShield)"
+    assert len(callback_calls) == 5, (
+        "must call back once per scanner group (Cisco, Tessl, Snyk, DepShield, Ossprey)"
     )
 
     assert callback_calls[0]["findings"] == cisco_findings
@@ -230,6 +232,8 @@ def test_given_callback_when_run_all_then_callback_called_per_scanner_group() ->
     assert callback_calls[2]["rows"] == snyk_rows
 
     assert callback_calls[3]["rows"] == depshield_rows
+
+    assert callback_calls[4]["rows"] == ossprey_rows
 
     assert result["overall_status"] == "complete"
     assert result["quality_score"] == 85.0
@@ -257,6 +261,7 @@ def test_given_no_callback_when_run_all_then_works_unchanged() -> None:
             return_value=([], [{"scanner_source": "Snyk", "status": "completed", "checks_run": 1}]),
         ),
         patch.object(scanners, "run_depshield", return_value=([], [])),
+        patch.object(scanners, "run_ossprey", return_value=([], [])),
     ):
         result = scanners.run_all_scanners("/tmp/mcp", "mcp_server", "https://example.com")
 
@@ -307,6 +312,7 @@ def test_given_cisco_complete_and_tessl_unreachable_when_run_all_then_partial_fa
             return_value=([], [scanners._unreachable("Snyk", "cold install failed")]),
         ),
         patch.object(scanners, "run_depshield", return_value=([], [])),
+        patch.object(scanners, "run_ossprey", return_value=([], [])),
     ):
         result = scanners.run_all_scanners("/tmp/skill", "skill", "/tmp/skill")
 
@@ -356,6 +362,14 @@ def test_given_all_engines_completed_when_run_all_then_complete() -> None:
             return_value=(
                 [],
                 [{"scanner_source": "DepShield", "status": "completed", "checks_run": 1}],
+            ),
+        ),
+        patch.object(
+            scanners,
+            "run_ossprey",
+            return_value=(
+                [],
+                [{"scanner_source": "Ossprey", "status": "completed", "checks_run": 1}],
             ),
         ),
     ):

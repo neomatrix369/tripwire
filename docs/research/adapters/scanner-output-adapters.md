@@ -281,7 +281,98 @@ re-verify anchors on version bump (report text is not a stable API).
 
 ---
 
-## 8. Adapter protocol (PROPOSED)
+## 8. Ossprey (`ossprey-adapter`)
+
+Open-source **malware / malicious-code** detector (static + behavioural signals
+over manifests and lockfiles) from [ossprey.com](https://ossprey.com) (GitHub org
+`OSSPREY`), CLI `ossprey-cli` (Go). This is **not** CVE/SCA — it answers "does
+this package tree contain malware?", complementary to and distinct from §7
+DepShield's dependency-CVE audit. Registered **after** DepShield in
+`SCANNER_GROUPS` (`sandbox/scanners.py`); runs credential-gated (see Evidence
+note) so today it emits `skipped_missing_credential`, becoming active only when a
+key is provided.
+
+### Capture (RESEARCH — vendor docs only, NOT live-probed)
+
+```bash
+# Primary: scan a directory statically (no execution), emit OSSBOM JSON
+ossprey scan <path> -o <ossbom.json>
+
+# Single package by ecosystem
+ossprey check -e <pypi|npm> <pkg>[@version]
+```
+
+- Install for the Modal image: GitHub release binaries (linux amd64/arm64,
+  sudo-less friendly), `install.sh`, or `make build` (Go 1.25+).
+- Static parse of manifests/lockfiles, no execution: Python
+  (`requirements.txt`, `Pipfile.lock`, `poetry.lock`, `uv.lock`, `pdm.lock`,
+  `setup.py`, `pyproject.toml`) and JS (`package.json`, `package-lock.json`,
+  `yarn.lock`, `pnpm-lock.yaml`).
+- `--local` emits the SBOM to stdout with **no API call**;
+  `--dry-run-safe` / `--dry-run-malicious` (the latter injects a fake finding)
+  give credential-free test paths. Endpoint `https://api.ossprey.com` is
+  overridable via `--url` (mockable in tests).
+
+### Output shape (RESEARCH — vendor docs only)
+
+Two channels, and the adapter must read **both**:
+
+| Channel | Content | Adapter use |
+|---|---|---|
+| OSSBOM JSON (`-o <file>` or `--local` to stdout) | SBOM of the scanned tree | raw blob → Storage per §0; component inventory |
+| Human-readable stdout + **exit code** | the malware **verdict** | drives the finding decision |
+
+**Exit-code disambiguation (load-bearing):**
+
+| Exit | Meaning | Adapter action |
+|---|---|---|
+| `0` | clean **or** skipped | no finding row |
+| `1` | malware **OR** scan failure | must disambiguate error text from a real malware verdict |
+
+Because `1` is overloaded, the adapter emits a **finding only on a positive
+malware signal** (verdict text / OSSBOM malware entry) — otherwise exit `1` is a
+scan failure → `unreachable`, never a fabricated malware row. A `--json` verdict
+flag is **UNVERIFIED**; until confirmed at pin time, parse the documented
+human-readable verdict + exit code, not an assumed JSON schema.
+
+**Severity:** any positive malware signal → **`red`** (malware is not tiered;
+there is no amber/green malware verdict). Clean/skipped → no row.
+
+### Auth (RESEARCH)
+
+API key `ospy_...` via `--api-key` or `OSSPREY_API_KEY` env (fallback
+`API_KEY`); or Auth0 browser login. Key procurement is **[OPEN]** — no key
+exists in this environment (slice 35 `🔴 BLOCKED`), so the adapter's live path
+is `skipped_missing_credential` today. The credential-free `--local` /
+`--dry-run-*` modes exercise parsing without a key.
+
+### References
+
+| Source | URL | Access | Reputation | Status |
+|---|---|---|---|---|
+| Product site | https://ossprey.com | 2026-08-15 | vendor | vendor docs (not live-probed) |
+| GitHub org / `ossprey-cli` | https://github.com/OSSPREY | 2026-08-15 | vendor | vendor docs (not live-probed) |
+| API endpoint | https://api.ossprey.com | 2026-08-15 | vendor | referenced, not called |
+
+**Evidence note:** this entry is **RESEARCH** — sourced from Ossprey vendor
+docs only and **NOT live-probed**. It must be reconciled against the pinned
+`ossprey-cli` version's `--help` and a real OSSBOM sample (and the
+still-`UNVERIFIED` `--json` verdict flag) **before it may be labeled VERIFIED**
+or block a merge — the same discipline [ADR-0005](../../adr/0005-upstream-scanner-cli-adapters.md)
+records ("Exact JSON field names remain RESEARCH until fixture-round-tripped
+against the pinned CLI") and the same posture as the adapter module's own
+`RESEARCH` docstring. Credential provisioning is `[OPEN]`
+([DECISIONS.md](../../plan/DECISIONS.md) 2026-08-15, slice 35 `🔴 BLOCKED`).
+
+**Open:** pin `ossprey-cli` version + reconcile `scan`/`check` flags and OSSBOM
+schema against `--help`; confirm or drop the `--json` verdict flag; golden
+OSSBOM + verdict fixtures under `fixtures/scanner-samples/ossprey/`
+(`--dry-run-malicious` for the positive case); flip to VERIFIED after a
+credentialed live round-trip once access lands.
+
+---
+
+## 9. Adapter protocol (PROPOSED)
 
 ```
 run_engine(target, pinned_version) ->
@@ -294,7 +385,7 @@ Golden samples: `fixtures/scanner-samples/{engine}/{fixture-name}.json` once smo
 
 ---
 
-## 9. Work remaining
+## 10. Work remaining
 
 - [x] Seed `.nwave/trusted-source-domains.yaml`
 - [x] Inventory primary docs + pull JSON schemas for Snyk, Cisco Skill Scanner, Cisco MCP Scanner
@@ -304,6 +395,7 @@ Golden samples: `fixtures/scanner-samples/{engine}/{fixture-name}.json` once smo
 - [ ] Pin versions + reconcile mcp-scanner CLI vs spec §8
 - [ ] Capture golden outputs on Tripwire fixtures
 - [ ] Storage key layout ADR one-liner
+- [ ] Ossprey: provision access (slice 35 OPEN), pin `ossprey-cli`, reconcile `scan`/`check` + OSSBOM against `--help`, confirm/drop `--json` verdict flag → then VERIFIED
 - [ ] Mark each adapter VERIFIED after Supabase round-trip
 
 ---
@@ -315,3 +407,4 @@ Golden samples: `fixtures/scanner-samples/{engine}/{fixture-name}.json` once smo
 | 2026-08-01 | Skeleton + Exa source inventory |
 | 2026-08-01 | Filled Snyk / Cisco Skill Scanner / Cisco MCP Scanner field inventories from official raw docs (json-output.md, output-formats.md ×2) |
 | 2026-08-15 | Added §7 DepShield (`depshield-mcp`) — MCP-stdio invocation + report-text parse anchors, VERIFIED against live v1.0.0 run; renumbered protocol/work-remaining sections |
+| 2026-08-15 | Added §8 Ossprey (`ossprey-adapter`) — malware/malicious-code detection (not CVE), `ossprey scan <path> -o <ossbom.json>`, OSSBOM JSON + exit-code (0 clean / 1 malware-OR-failure) disambiguation, `OSSPREY_API_KEY` auth + `--local`/`--dry-run-*` credential-free modes, malware→`red`. Labeled **RESEARCH** (vendor docs only, not live-probed); credential-gated (`skipped_missing_credential`, access OPEN). Renumbered protocol §8→§9 and work-remaining §9→§10 |
