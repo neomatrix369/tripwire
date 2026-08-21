@@ -65,10 +65,10 @@ modal app list
 # Expect tripwire-scan (or your deployed app name) after a successful deploy
 ```
 
-Then run a fixture scan and Live dashboard per [QUICKSTART → Live capabilities](../../QUICKSTART.md#live-capabilities).
+Then run a fixture scan and Live dashboard per [QUICKSTART → Live](../../QUICKSTART.md#live-advanced).
 
 ## Next
 
 → [env-vars.md](./env-vars.md) (procurement SSOT) · optional router:
-[sie-setup.md](./sie-setup.md) · [model-studio-setup.md](./model-studio-setup.md) ·
+[tiered-router-setup.md](./tiered-router-setup.md) ·
 back to [prerequisites](./prerequisites.md)

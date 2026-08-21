@@ -2,8 +2,37 @@
 
 > Canonical command list for one-off setup and maintenance tasks.
 
+Start here: [QUICKSTART](../../QUICKSTART.md) · Hub: [docs/README](../README.md)
+
 Use this page as the single source for shared setup, validation, scan, and
 maintenance commands.
+
+## CLI flags (reference)
+
+| Command / flag | What it does |
+|---|---|
+| `tripwire setup [--force]` | Apply schema to Supabase if tables missing (`SUPABASE_DB_URL`) |
+| `tripwire scan [targets…]` | Discover and scan (default command) |
+| `tripwire scan --dry-discover` | Print discovered targets; spawn nothing |
+| `tripwire scan --type skill\|mcp` | Restrict discovery to one artifact category |
+| `tripwire scan --force` | Re-scan even if content hash is unchanged |
+| `tripwire scan --concurrency <n>` | Max concurrent sandboxes (default 5) |
+| `tripwire scan --targets <file>` | JSON file with a `targets` array |
+| `tripwire scan --no-defaults` | Error instead of machine defaults on empty args |
+| `tripwire route --batch-id <id>` | Re-run tiered router for a completed batch |
+| `tripwire setup-agent-hooks` | Install Claude Code hooks + `/tw-*` skills |
+
+Full help: `tripwire --help` · `tripwire scan --help`.
+
+## When it fails
+
+| Symptom | What to try |
+|---|---|
+| Live dashboard blank or stale | Switch Mock ↔ Live in Guard; keep `serve-dashboard.mjs` running; run `./scripts/check-supabase.sh` |
+| Missing scanner output | Confirm vendor keys in [env-vars](./env-vars.md); absent keys → `skipped_missing_credential` |
+| `dry-discover` / `tripwire` not found | Finish [CLI bootstrap](#repository-and-cli-bootstrap) (`npm link`) |
+| Port / bind errors on dashboard | Another process may hold `8765`; stop it or note the printed port |
+| Auto-route skipped | Missing `SIE_*` → warn and skip (scan still OK). See [tiered-router-setup](./tiered-router-setup.md) |
 
 ## 1) One-off setup commands
 
@@ -153,8 +182,7 @@ Troubleshooting empty/disabled states:
 > SIE escalates.
 
 After a Live scan, Tripwire auto-routes the batch when **SIE** keys are set.
-Provision accounts with [sie-setup.md](./sie-setup.md) and (for escalation)
-[model-studio-setup.md](./model-studio-setup.md); key map:
+Provision accounts with [tiered-router-setup.md](./tiered-router-setup.md); key map:
 [env-vars.md](./env-vars.md#optional--tiered-router-sie--model-studio).
 Design: [ADR-0016](../adr/0016-tiered-router-sie-model-studio.md). UI:
 [reading-router-results.md](./reading-router-results.md).
