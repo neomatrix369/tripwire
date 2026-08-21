@@ -62,7 +62,7 @@ if [ -f "$CONFIG_JSON" ] && grep -q '"enable"' "$CONFIG_JSON" 2>/dev/null; then
     record "hooks-installed" "FAIL" "config.json present but hook not registered — run tripwire setup-agent-hooks"
   fi
 else
-  record "hooks-installed" "BLOCKED(setup)" "~/.tripwire/config.json missing — run tripwire setup-agent-hooks"
+  record "hooks-installed" "BLOCKED(setup)" "$CONFIG_JSON missing — run tripwire setup-agent-hooks"
 fi
 
 # ── 3. demo artifacts ────────────────────────────────────────────────────────
@@ -78,14 +78,14 @@ fi
 
 # ── 4-6. live scan → verify → DepShield rows (need credentials) ──────────────
 if [ "$ENV_OK" = 1 ]; then
-  SCAN_OUT="$(cd "$ROOT" && node cli/bin/tripwire.js scan "$HOME/.claude/skills/safe-skill" --no-defaults --force 2>&1 || true)"
+  SCAN_OUT="$(cd "$ROOT" && node cli/bin/tripwire.js scan "$HOME/.claude/skills/safe-skill" --no-defaults --force 2>&1)" || true
   if printf '%s' "$SCAN_OUT" | grep -q '"batch_id"'; then
     record "scan-dispatch" "PASS" "scan submitted (batch_id in output)"
   else
     record "scan-dispatch" "FAIL" "no batch_id in scan output: $(printf '%s' "$SCAN_OUT" | tail -1 | cut -c1-160)"
   fi
 
-  STATUS_JSON="$(cd "$ROOT" && node cli/bin/tripwire.js status --json 2>/dev/null || true)"
+  STATUS_JSON="$(cd "$ROOT" && node cli/bin/tripwire.js status --json 2>/dev/null)" || true
   if printf '%s' "$STATUS_JSON" | python3 -c 'import json,sys; d=json.load(sys.stdin); sys.exit(0 if d.get("items") else 1)' 2>/dev/null; then
     record "verify-status" "PASS" "tripwire status --json returns item/run health"
   else
