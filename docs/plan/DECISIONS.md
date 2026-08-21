@@ -143,3 +143,4 @@
 | 2026-08-21 | sync-docs | Wave K + Wave J truth | STATUS: Wave J ✅ via #98; Wave K slice 44 ON BRANCH (GWT-44.1–44.8). ARCHITECTURE quality note + README Architecture link. APPLIED |
 | 2026-08-21 | slice-44 | Documentarist pile-on APPROVED WITH FOLLOW-ON | QUICKSTART / docs hub / screenshots README APPROVED. Pre-existing DIVIO issues in env-vars (procurement steps vs preamble) and prerequisites (capability notes = Explanation) DECIDED for same-branch content rewrite; merge not held. Targets unchanged in plan-record commit; rewrite shape in slice stub. |
 | 2026-08-21 | sync-docs | Slice 44 documentarist disposition | STATUS ON BRANCH + DECIDED Wave K: APPROVED WITH FOLLOW-ON + DIVIO targets DECIDED/pending. README/AGENTS NO_CHANGE. User-guide targets untouched. APPLIED |
+| 2026-08-22 | sync-docs | Slice 44 PR + evidence SHA | STATUS/PROGRESS link PR #99; gate-evidence `commit_at_evidence` → `0362d36`. README/AGENTS NO_CHANGE. APPLIED |

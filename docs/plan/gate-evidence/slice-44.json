@@ -5,7 +5,7 @@
   "verdict": "PASS",
   "date_utc": "2026-08-21",
   "branch": "slice/44-docs-ux-plain-language",
-  "commit_at_evidence": "pending-pile-on-commit",
+  "commit_at_evidence": "0362d36",
   "moscow": "Must",
   "docs_only": true,
   "checks": [

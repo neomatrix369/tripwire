@@ -145,15 +145,16 @@ sort/trend only — see [ARCHITECTURE.md](./ARCHITECTURE.md) § Quality attribut
 ## ON BRANCH (awaiting merge)
 
 Wave K — Docs UX plain language + compaction (slice 44) on
-`slice/44-docs-ux-plain-language`: GWT-44.1–44.4 compaction plus pile-ons
-GWT-44.5–44.8 (Setup vs Configure beats, MVP Live, Maintain hub, screenshots
-`R`/`Q`, ARCHITECTURE External services inventory + operator journey +
-dependency-order Mermaid). Documentarist pile-on **APPROVED WITH FOLLOW-ON**
-(2026-08-21): QUICKSTART / docs hub / screenshots APPROVED; pre-existing DIVIO
-rewrites for `env-vars` procurement table and `prerequisites` capability bullets
-are **DECIDED** (same-branch content commit; merge not held; targets still
-pending). Gate evidence `docs/plan/gate-evidence/slice-44.json`
-(`gate_status: ON_BRANCH`).
+`slice/44-docs-ux-plain-language` ([PR #99](https://github.com/neomatrix369/tripwire/pull/99)):
+GWT-44.1–44.4 compaction plus pile-ons GWT-44.5–44.8 (Setup vs Configure beats,
+MVP Live, Maintain hub, screenshots `R`/`Q`, ARCHITECTURE External services
+inventory + operator journey + dependency-order Mermaid). Documentarist pile-on
+**APPROVED WITH FOLLOW-ON** (2026-08-21): QUICKSTART / docs hub / screenshots
+APPROVED; pre-existing DIVIO rewrites for `env-vars` procurement table and
+`prerequisites` capability bullets are **DECIDED** (same-branch content commit;
+merge not held; targets still pending). Gate evidence
+`docs/plan/gate-evidence/slice-44.json` (`gate_status: ON_BRANCH`,
+`commit_at_evidence: 0362d36`).
 
 Live Modal/Supabase E2E as a CI Must remains **Won't** for this wave (slow/optional
 skip-without-config stays). Demo/hackathon film day (VO/Remotion slice 4; film-day
