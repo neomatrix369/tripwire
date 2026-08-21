@@ -41,7 +41,7 @@ preservation; invalid input; (optional) empty-state / disabled hooks messaging.
 
 - [ ] `docs/plan/gate-evidence/slice-32.json` has `"verdict": "PASS"` (or waived in DECISIONS)
 - [ ] Branch `slice/37-cli-monitoring` created from Wave H integration branch
-- [ ] Monitoring CLI surface/name sketched in evidence or DECISIONS before RED
+- [x] Monitoring CLI surface/name sketched in evidence or DECISIONS before RED
 
 ## TDD execution
 

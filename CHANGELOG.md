@@ -26,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   avoids delayed native `title=` attributes.
 
 ### Added
+- `tripwire status [--json] [--limit <n>]` — read-only monitoring report (slice 37):
+  agent-hook install/enable state with the two-switch view (local `enable` AND Supabase
+  `config.monitoring_enabled`, disagreement warned), items heatmap distribution, recent
+  scan-run health with stranded-`running` detection (>30 min Modal-timeout strand;
+  remedy `scripts/reconcile-stuck-scan-runs.mjs`), and latest per-scanner status.
+  Degrades to local-only hooks output when Supabase credentials are missing (exit 0);
+  invalid flags exit nonzero with an actionable message
 - Landing intro screen shown on first dashboard open (sessionStorage-persisted toggle);
   surfaces threat statistics, SEC/01–SEC/05 narrative sections (anatomy of breach,
   architecture flow, RAG status card grid, shipped `/tw-*` skills, roadmap), animated

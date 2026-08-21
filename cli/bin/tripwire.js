@@ -6,6 +6,7 @@ import { loadEnv } from '../src/loadEnv.js';
 import { runScan } from '../src/orchestrator.js';
 import { runRoute } from '../src/router.js';
 import { runSetupAgentHooks } from '../src/setupAgentHooks.js';
+import { runStatus } from '../src/statusCommand.js';
 
 loadEnv();
 
@@ -85,6 +86,20 @@ program
   .action(async (opts) => {
     try {
       await runSetupAgentHooks({ withDemo: Boolean(opts.withDemo) });
+    } catch (err) {
+      console.error(err.message || err);
+      process.exitCode = 1;
+    }
+  });
+
+program
+  .command('status')
+  .description('Show Tripwire agent-hook + scan/dispatch health (read-only)')
+  .option('--json', 'print one machine-readable JSON object instead of prose', false)
+  .option('--limit <n>', 'recent scan runs to inspect (1-200)', '20')
+  .action(async (opts) => {
+    try {
+      await runStatus({ json: Boolean(opts.json), limit: opts.limit });
     } catch (err) {
       console.error(err.message || err);
       process.exitCode = 1;

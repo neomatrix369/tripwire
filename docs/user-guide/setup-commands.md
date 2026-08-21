@@ -111,6 +111,40 @@ tripwire setup --force
 ./scripts/quality-gates.sh
 ```
 
+### Monitoring / health check
+
+```bash
+tripwire status                # human-readable report
+tripwire status --json         # one machine-readable JSON object instead
+tripwire status --limit 50     # inspect the last 50 scan runs (default 20, max 200)
+```
+
+`tripwire status` is **read-only**: it never changes PreToolUse enforcement,
+Supabase rows, or local files. It reports:
+
+- **Hooks** — `~/.tripwire/config.json` (`enable`, `scan_validity_days`,
+  `repo_root`), whether `~/.claude/settings.json` registers the Tripwire
+  PreToolUse hook, and the Supabase platform switch
+  (`config.monitoring_enabled` + `threshold`). A warning prints when the local
+  and platform switches disagree — effective enforcement is their AND.
+- **Items** — `heatmap_status` distribution (red/amber/green/grey/error).
+- **Recent scan runs** — status counts for the last `--limit` runs, the newest
+  few lines, and any `running` rows older than 30 minutes (STRANDED — remedy:
+  `node scripts/reconcile-stuck-scan-runs.mjs`).
+- **Scanners** — latest status per scanner source across those runs, with
+  `unreachable` / `skipped_missing_credential` counts.
+
+Troubleshooting empty/disabled states:
+
+- `not installed (~/.tripwire/config.json missing)` — run
+  `tripwire setup-agent-hooks` first.
+- `Supabase unreachable — set SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY` — the
+  local hooks section still prints (exit 0); fill `.env` per
+  [env-vars.md](./env-vars.md) to get scan/dispatch health too.
+- `no items recorded yet` / `no scan runs recorded yet` — run `tripwire scan`.
+- Invalid flags (for example `--limit notanumber`) exit nonzero with an
+  actionable message.
+
 ### Tiered router (optional)
 
 > **Missing credentials → warn and skip.** Scans still complete. Without
