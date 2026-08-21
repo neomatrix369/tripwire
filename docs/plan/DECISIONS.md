@@ -141,3 +141,5 @@
 | 2026-08-21 | slice-44 | Pile-on GWT-44.8 | ARCHITECTURE: External services inventory + operator journey + dependency-order Mermaid; hub/prerequisites link in. |
 | 2026-08-21 | sync-docs | Slice 44 plan SSOT | TRAIL/PROGRESS/stub/gate-evidence + Cursor audit plan disposition: GWT-44.5–44.8 APPLIED on branch (not deferred). |
 | 2026-08-21 | sync-docs | Wave K + Wave J truth | STATUS: Wave J ✅ via #98; Wave K slice 44 ON BRANCH (GWT-44.1–44.8). ARCHITECTURE quality note + README Architecture link. APPLIED |
+| 2026-08-21 | slice-44 | Documentarist pile-on APPROVED WITH FOLLOW-ON | QUICKSTART / docs hub / screenshots README APPROVED. Pre-existing DIVIO issues in env-vars (procurement steps vs preamble) and prerequisites (capability notes = Explanation) DECIDED for same-branch content rewrite; merge not held. Targets unchanged in plan-record commit; rewrite shape in slice stub. |
+| 2026-08-21 | sync-docs | Slice 44 documentarist disposition | STATUS ON BRANCH + DECIDED Wave K: APPROVED WITH FOLLOW-ON + DIVIO targets DECIDED/pending. README/AGENTS NO_CHANGE. User-guide targets untouched. APPLIED |

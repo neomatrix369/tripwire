@@ -148,9 +148,12 @@ Wave K — Docs UX plain language + compaction (slice 44) on
 `slice/44-docs-ux-plain-language`: GWT-44.1–44.4 compaction plus pile-ons
 GWT-44.5–44.8 (Setup vs Configure beats, MVP Live, Maintain hub, screenshots
 `R`/`Q`, ARCHITECTURE External services inventory + operator journey +
-dependency-order Mermaid). Documentarist APPROVED for compaction; pile-on
-re-review before merge. Gate evidence
-`docs/plan/gate-evidence/slice-44.json` (`gate_status: ON_BRANCH`).
+dependency-order Mermaid). Documentarist pile-on **APPROVED WITH FOLLOW-ON**
+(2026-08-21): QUICKSTART / docs hub / screenshots APPROVED; pre-existing DIVIO
+rewrites for `env-vars` procurement table and `prerequisites` capability bullets
+are **DECIDED** (same-branch content commit; merge not held; targets still
+pending). Gate evidence `docs/plan/gate-evidence/slice-44.json`
+(`gate_status: ON_BRANCH`).
 
 Live Modal/Supabase E2E as a CI Must remains **Won't** for this wave (slow/optional
 skip-without-config stays). Demo/hackathon film day (VO/Remotion slice 4; film-day
@@ -178,7 +181,9 @@ on `main` yet (side-branch only); it is omitted from the catalog until accepted.
 
 **Wave K — docs UX (2026-08-20/21):** Slice 44 compaction, Setup/Configure framing,
 and services/diagrams pile-ons are **IMPLEMENTED** on branch (public docs);
-see [ON BRANCH](#on-branch-awaiting-merge). Spec:
+documentarist pile-on **APPROVED WITH FOLLOW-ON**; DIVIO purity rewrites
+(env-vars / prerequisites) remain **DECIDED** pending content commit — see
+[ON BRANCH](#on-branch-awaiting-merge). Spec:
 [plan/slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md](./plan/slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md).
 
 **Wave H — Frontline agent hooks (2026-08-15):** Claude Code PreToolUse handlers,

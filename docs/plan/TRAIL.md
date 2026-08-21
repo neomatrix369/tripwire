@@ -252,7 +252,9 @@ Audit report: `~/.claude/plans/iterate-through-all-of-lovely-stearns.md`
 
 Wave D Phase 2 continuation (slice 17 ✅). Less-is-more compaction (GWT-44.1–44.4) **plus** pile-ons:
 Setup vs Configure framing, MVP Live, Maintain hub (GWT-44.5–44.7); External services inventory +
-operator journey + dependency-order Mermaid in ARCHITECTURE (GWT-44.8).
+operator journey + dependency-order Mermaid in ARCHITECTURE (GWT-44.8). Documentarist pile-on
+**APPROVED WITH FOLLOW-ON** (2026-08-21): DIVIO rewrites for env-vars procurement table +
+prerequisites capability bullets DECIDED, targets pending on this branch.
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|

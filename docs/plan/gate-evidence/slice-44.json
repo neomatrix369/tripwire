@@ -52,10 +52,10 @@
   ],
   "review": {
     "reviewer": "nw-documentarist-reviewer",
-    "verdict": "APPROVED",
+    "verdict": "APPROVED_WITH_FOLLOW_ON",
     "agent_id": "a553f690-d497-45d1-8580-88daee7ca5cc",
-    "date_utc": "2026-08-20",
-    "note": "Compaction APPROVED 2026-08-20; pile-on GWT-44.5–44.8 awaiting re-review before merge"
+    "date_utc": "2026-08-21",
+    "note": "Compaction APPROVED 2026-08-20. Pile-on re-review 2026-08-21: QUICKSTART/docs hub/screenshots APPROVED; env-vars procurement steps + prerequisites capability notes NEEDS_REVISION (pre-existing DIVIO) — DECIDED same-branch rewrite, targets pending; merge not held"
   },
-  "note": "Docs-only slice. Compaction + Setup/Configure framing (44.5–44.7) + services/diagrams (44.8). Mark TRAIL ✅ PASSED after merge to main."
+  "note": "Docs-only slice. Compaction + Setup/Configure framing (44.5–44.7) + services/diagrams (44.8). DIVIO follow-on DECIDED (env-vars table; prerequisites one-line bullets) — not yet applied. Mark TRAIL ✅ PASSED after merge to main."
 }
