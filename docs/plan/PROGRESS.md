@@ -1,13 +1,13 @@
 # Progress
-> Last updated: 2026-08-20
+> Last updated: 2026-08-21
 
 ## Slice groups (execution sequence)
 
 | Wave | Folder | Group | Slices | Outcome |
 |-----:|--------|-------|--------|---------|
-| 11 | [`11-K-…`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** | 📋 |
+| 11 | [`11-K-…`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** | 🔀 |
 | 9 | [`09-I-…`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 ✅ · 43 | 41 ✅ · 43 ✅ |
-| 10 | [`10-J-…`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 | A1–A8 ✅ · A9–A13 🔀 ON BRANCH |
+| 10 | [`10-J-…`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 | A1–A13 ✅ |
 | 1 | [`01-A-…`](slices/01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 · 4 | ✅ · 4 📦 |
 | 2 | [`02-B-…`](slices/02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
 | 3 | [`03-C-…`](slices/03-C-trust-coverage-audit/) | **C — Trust + coverage audit** | 7 | ✅ |
@@ -25,8 +25,8 @@
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| 0 (docs) | K | **44** | **Docs UX plain language + compaction** | Must | 📋 PLANNED · contract saved · public docs deferred · `slice/44-docs-ux-plain-language` |
-| 0 (delta) | J | 42 | Dashboard Data Quality — Tessl quality UX + tooltips + plain labels (A9–A13) | Must | 🔀 ON BRANCH · nw-review APPROVED · [#98](https://github.com/neomatrix369/tripwire/pull/98) |
+| 0 (docs) | K | **44** | **Docs UX plain language + compaction** | Must | 🔀 ON BRANCH · GWT-44.1–44.8 (compaction + Setup/Configure + services/diagrams) · `slice/44-docs-ux-plain-language` |
+| 0 (delta) | J | 42 | Dashboard Data Quality — Tessl quality UX + tooltips + plain labels (A9–A13) | Must | ✅ PASSED · [#98](https://github.com/neomatrix369/tripwire/pull/98) |
 | 1 | G | 18 | CLI Operator Evidence Contracts | Must | 📋 PLANNED |
 | 2 | G | 19 | Sandbox Persistence State Contract | Must | 📋 PLANNED |
 | 3 | G | 20 | Scanner Subprocess Adapter Contract | Must | 📋 PLANNED |
@@ -151,12 +151,12 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 ### J — Dashboard Data Quality Fixes
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| 42 | [slice-42-dashboard-data-quality-fixes](slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md) | Must | 🔀 ON BRANCH (A9–A13; nw-review APPROVED · [#98](https://github.com/neomatrix369/tripwire/pull/98); A1–A8 #95) | 2026-08-19 | — | ~75 min delta |
+| 42 | [slice-42-dashboard-data-quality-fixes](slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md) | Must | ✅ PASSED (A9–A13 · [#98](https://github.com/neomatrix369/tripwire/pull/98); A1–A8 #95) | 2026-08-19 | — | ~75 min delta |
 
 ### K — Docs UX plain language + compaction
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| 44 | [slice-44-docs-ux-plain-language](slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md) | Must | 📋 PLANNED | 2026-08-20 | — | ~50 min |
+| 44 | [slice-44-docs-ux-plain-language](slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md) | Must | 🔀 ON BRANCH | 2026-08-20 | — | ~50 min |
 
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 
@@ -225,3 +225,8 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-20 | slice/42-tessl-quality-card-surfacing | nw-review | 42 | APPROVED | software-crafter-reviewer A9–A13; After-Check ticked; PR #98. |
 | 2026-08-20 | slice/42-tessl-quality-card-surfacing | sync-docs | 42 | APPLIED | STATUS/ARCHITECTURE/CHANGELOG/TRAIL: nw-review APPROVED + CSS score-tip truth; still 🔀 until merge. |
 | 2026-08-20 | slice/42-tessl-quality-card-surfacing | sync-docs | 42 | APPLIED | Tip portal supersedes host-elevate absolute bubbles (overflow clip). |
+| 2026-08-21 | plan | docs UX allocation audit | — | 📋 recorded | Setup vs Configure / MVP Live gaps noted; polish folded into slice 44. |
+| 2026-08-21 | slice/44-docs-ux-plain-language | pile-on GWT-44.5–44.7 | 44 | 🔀 ON BRANCH | Setup vs Configure framing, MVP Live, Maintain hub, screenshots `R`/`Q`. |
+| 2026-08-21 | slice/44-docs-ux-plain-language | pile-on GWT-44.8 | 44 | 🔀 ON BRANCH | Services inventory + journey/dependency Mermaid in ARCHITECTURE. |
+| 2026-08-21 | plan | sync SSOT | 44 | APPLIED | TRAIL/PROGRESS/stub/gate-evidence + audit Cursor plan: GWT-44.5–44.8 on branch; PCTO plan cancelled. |
+| 2026-08-21 | slice/44-docs-ux-plain-language | sync-docs | 44 | APPLIED | STATUS Wave K ON BRANCH + Wave J ✅ (#98); ARCHITECTURE/README entry links. |

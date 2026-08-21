@@ -1,23 +1,26 @@
 # Environment variables
 
-> Procurement SSOT for every key in [`.env.example`](../../.env.example).
+> **Configure (keys) SSOT** for every key in [`.env.example`](../../.env.example).
+> Create accounts first (**Setup**): [prerequisites five-vendor map](./prerequisites.md#five-vendor-setup-map),
+> [Supabase](./supabase-setup.md), [Modal](./modal-setup.md), then paste values here.
 
 Start here: [QUICKSTART](../../QUICKSTART.md) · Hub: [docs/README](../README.md)
 
-> For the recommended complete Live setup, provision all five vendors before
-> `cp .env.example .env`: [Supabase](./supabase-setup.md),
-> [Modal](./modal-setup.md), Snyk, Tessl, and Cisco AI Defense.
-> If a scanner credential is absent, the runtime safely reports
-> `skipped_missing_credential` for that engine. Treat this as a degraded
-> diagnostic path, not complete scan coverage.
+> **Minimum Viable Live:** Supabase + Modal keys only. Add Snyk / Tessl / Cisco
+> when you want full scanner coverage. If a scanner credential is absent, the
+> runtime safely reports `skipped_missing_credential` for that engine — not a
+> complete “all clear.”
+>
+> For full Live coverage, provision all five vendors before `cp .env.example .env`.
 >
 > **Cost and billing:** creating accounts, provisioning resources, deploying
 > Modal apps, and running Live scans can incur charges or consume provider
-> quotas. Review billing and usage controls for all five vendors before
-> proceeding; use the local Mock path when you do not intend to incur costs.
+> quotas. Review billing and usage controls before proceeding; use the local
+> Mock path when you do not intend to incur costs.
 >
-> Keep vendor account and key-procurement instructions on this page. The
-> [setup command catalog](./setup-commands.md) owns command order; the
+> Account-creation how-tos live on vendor setup pages; this page owns key names
+> and procurement mapping. The [setup command catalog](./setup-commands.md)
+> owns command order; the
 > [Modal scanner-secret reference](../../fixtures/OPTIONAL_SCANNER_KEYS.md)
 > owns only the Modal secret allowlist and safe sync behavior.
 
@@ -38,9 +41,11 @@ Router how-to: [tiered-router-setup.md](./tiered-router-setup.md).
 
 ## Scope boundary
 
-This is the sole reference for provider accounts, credential procurement, every
-`.env` key, and key-to-capability mapping. Do not duplicate those explanations
-in the Modal secret reference. [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md)
+This is the sole reference for **Configure** — credential procurement, every
+`.env` key, and key-to-capability mapping. Account creation (**Setup**) is owned
+by vendor setup pages and the [prerequisites map](./prerequisites.md#five-vendor-setup-map).
+Do not duplicate key explanations in the Modal secret reference.
+[OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md)
 only projects a selected subset of these already-defined keys into
 `tripwire-scan-secrets`; repeated names there are operational allowlist entries,
 not a second environment-variable schema.

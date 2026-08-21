@@ -7,6 +7,8 @@ Start here: [QUICKSTART](../../QUICKSTART.md) · Hub: [docs/README](../README.md
 Pins: Node **22** (`.nvmrc`) · Python **3.12** (`.python-version`).
 
 Use this page to determine what must be ready before running any command sequence.
+Cloud and scanner dependency order (diagram): [ARCHITECTURE — dependency order](../ARCHITECTURE.md#dependency-order-what-before-what).
+Full service list: [ARCHITECTURE — External services](../ARCHITECTURE.md#0-external-services-inventory).
 
 ## Who can set up and run Tripwire
 
@@ -66,17 +68,19 @@ python3 -V   # 3.12.x (.python-version)
 
 ## Five-vendor setup map
 
-Open the applicable account/setup page for every Live capability you intend to
-enable, then use [env-vars.md](./env-vars.md) to map the obtained values into
-`.env`.
+**Setup** = create the vendor account / project. **Configure** = collect keys and
+map them into `.env` via [env-vars.md](./env-vars.md). Open the account page for
+every Live capability you intend to enable, then configure keys.
 
-| Vendor | Account and setup reference | Values to collect |
+| Vendor | Account (Setup) | Keys (Configure) |
 |---|---|---|
-| Supabase | [Supabase setup](./supabase-setup.md) and [Supabase Dashboard](https://supabase.com/dashboard) | Project URL, API keys, and database connection string |
-| Modal | [Modal setup](./modal-setup.md) and [Modal](https://modal.com) | Authentication or a token pair for non-interactive setup |
-| Snyk | [Snyk account/API tokens](https://app.snyk.io) and [vendor procurement steps](./env-vars.md#vendor-procurement-quick-steps) | `SNYK_TOKEN` |
-| Tessl | [Tessl](https://tessl.io) and [vendor procurement steps](./env-vars.md#vendor-procurement-quick-steps) | `TESSL_TOKEN`, `TESSL_WORKSPACE` |
-| Cisco AI Defense | [Cisco Developer](https://developer.cisco.com) and [vendor procurement steps](./env-vars.md#vendor-procurement-quick-steps) | AI Defense and MCP scanner credentials as applicable |
+| Supabase | [Supabase setup](./supabase-setup.md) · [Dashboard](https://supabase.com/dashboard) | Project URL, API keys, DB connection string → [env-vars](./env-vars.md) |
+| Modal | [Modal setup](./modal-setup.md) · [Modal](https://modal.com) | Token pair for non-interactive setup → [env-vars](./env-vars.md) |
+| Snyk | [Snyk account](https://app.snyk.io) · [procurement](./env-vars.md#vendor-procurement-quick-steps) | `SNYK_TOKEN` |
+| Tessl | [Tessl](https://tessl.io) · [procurement](./env-vars.md#vendor-procurement-quick-steps) | `TESSL_TOKEN`, `TESSL_WORKSPACE` |
+| Cisco AI Defense | [Cisco Developer](https://developer.cisco.com) · [procurement](./env-vars.md#vendor-procurement-quick-steps) | AI Defense and MCP scanner credentials as applicable |
+
+Minimum Live needs only Supabase + Modal (Setup then Configure). Scanner rows are optional until you want full coverage.
 
 ## Secrets SSOT
 

@@ -1,11 +1,11 @@
 {
   "slice": 44,
   "name": "docs-ux-plain-language-compaction",
-  "gate_status": "PASSED",
+  "gate_status": "ON_BRANCH",
   "verdict": "PASS",
-  "date_utc": "2026-08-20",
+  "date_utc": "2026-08-21",
   "branch": "slice/44-docs-ux-plain-language",
-  "commit_at_evidence": "pending-commit",
+  "commit_at_evidence": "pending-pile-on-commit",
   "moscow": "Must",
   "docs_only": true,
   "checks": [
@@ -16,8 +16,8 @@
     },
     {
       "id": "quickstart-demo-first",
-      "cmd": "rg -n 'Try the demo|Live \\(Advanced\\)|Recommended' QUICKSTART.md",
-      "result": "Recommended demo then Advanced Live; path map absorbed"
+      "cmd": "rg -n 'Try the demo|Live \\(Advanced\\)|Recommended|Minimum Viable Live|Create accounts \\(Setup\\)' QUICKSTART.md",
+      "result": "Recommended demo then Advanced Live; Setup→Configure→Bootstrap; MVP Live callout; Daily maintenance cheat lines"
     },
     {
       "id": "compaction",
@@ -35,6 +35,16 @@
       "result": "flags + fails in setup-commands; checklist in env-vars; glossary in reading-router-results; STATUS legend; agent-hooks on hub + CONTRIBUTING"
     },
     {
+      "id": "setup-configure-framing",
+      "cmd": "rg -n 'Create accounts \\(Setup\\)|Configure \\(keys\\)|Minimum Viable Live|Maintain Live|Account \\(Setup\\)|colour ≠ density' QUICKSTART.md docs/README.md docs/user-guide/prerequisites.md docs/user-guide/env-vars.md docs/screenshots/README.md",
+      "result": "GWT-44.5–44.7 surfaces present"
+    },
+    {
+      "id": "services-diagrams",
+      "cmd": "rg -n 'External services|Operator journey|Dependency order' docs/ARCHITECTURE.md docs/README.md docs/user-guide/prerequisites.md",
+      "result": "GWT-44.8 inventory + two Mermaid diagrams; hub + prerequisites link"
+    },
+    {
       "id": "smoke-routes",
       "cmd": "rg -n 'tiered-router-setup|Try the demo|agent-hooks' docs/plan/SMOKE_TESTS.md",
       "result": "SMOKE_TESTS updated for demo-first, tiered-router, agent-hooks"
@@ -44,7 +54,8 @@
     "reviewer": "nw-documentarist-reviewer",
     "verdict": "APPROVED",
     "agent_id": "a553f690-d497-45d1-8580-88daee7ca5cc",
-    "date_utc": "2026-08-20"
+    "date_utc": "2026-08-20",
+    "note": "Compaction APPROVED 2026-08-20; pile-on GWT-44.5–44.8 awaiting re-review before merge"
   },
-  "note": "Docs-only slice. Mark TRAIL ✅ PASSED after merge to main; evidence recorded on branch."
+  "note": "Docs-only slice. Compaction + Setup/Configure framing (44.5–44.7) + services/diagrams (44.8). Mark TRAIL ✅ PASSED after merge to main."
 }

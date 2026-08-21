@@ -44,13 +44,15 @@ Contributors: complete [Dev hygiene](CONTRIBUTING.md#dev-hygiene) before your fi
 
 Do these in order. Do not expect Live findings until accounts, `.env`, schema, and Modal are ready.
 
-### Stages (Install → Live → maintain)
+> **Minimum Viable Live:** start with **Supabase + Modal only** (store + sandbox). Add Snyk / Tessl / Cisco accounts and keys when you want full scanner coverage. Missing scanner keys soft-skip that engine — they do not block platform Live.
 
-1. **Fit** — [prerequisites](docs/user-guide/prerequisites.md).
+### Stages (Setup → Configure → run → maintain)
+
+1. **Fit** — [prerequisites](docs/user-guide/prerequisites.md) (Account vs Keys map).
 2. **Install** — [CLI bootstrap](docs/user-guide/setup-commands.md#repository-and-cli-bootstrap) (same as demo step 2).
-3. **Accounts** — [Supabase](docs/user-guide/supabase-setup.md) → [Modal](docs/user-guide/modal-setup.md) → Snyk / Tessl / Cisco via [env-vars](docs/user-guide/env-vars.md#vendor-procurement-quick-steps).
-4. **Keys** — create `.env` only after you have values; fill with [env-vars.md](docs/user-guide/env-vars.md). Review billing/quotas first.
-5. **Bootstrap** — [Live environment bootstrap](docs/user-guide/setup-commands.md#live-environment-bootstrap):
+3. **A. Create accounts (Setup)** — [Supabase](docs/user-guide/supabase-setup.md) → [Modal](docs/user-guide/modal-setup.md). Optional scanners: account steps under [env-vars procurement](docs/user-guide/env-vars.md#vendor-procurement-quick-steps).
+4. **B. Configure keys** — create `.env` only after you have values; fill with [env-vars.md](docs/user-guide/env-vars.md) (Configure SSOT). Review billing/quotas first.
+5. **C. Bootstrap commands** — [Live environment bootstrap](docs/user-guide/setup-commands.md#live-environment-bootstrap):
 
 ```bash
 cp .env.example .env
@@ -67,6 +69,8 @@ node scripts/serve-dashboard.mjs
 # Open Live (Supabase) in the dashboard
 ```
 
+> **Gotcha:** a missing scanner key means that engine was **skipped**, not that the skill is “all clear.” Platform Live can still succeed with Supabase + Modal alone.
+
 7. **Optional router** (after Live works) — [tiered-router-setup](docs/user-guide/tiered-router-setup.md), then:
 
 ```bash
@@ -77,16 +81,18 @@ Read strips and filters: [reading-router-results.md](docs/user-guide/reading-rou
 
 ### Required Live keys (summary)
 
-- Platform: `SUPABASE_*`, `MODAL_TOKEN_*`
+- **MVP Live:** `SUPABASE_*`, `MODAL_TOKEN_*`
 - Full scanner coverage: `SNYK_TOKEN`, `TESSL_*`, Cisco Skill/MCP / AI Defense keys — see [env-vars](docs/user-guide/env-vars.md)
 - Optional router: `SIE_*`, then Model Studio `DASHSCOPE_*` / `ALIBABA_OPENAI_BASE_URL`
 
-If a scanner credential is missing, that engine is reported as skipped — not as a complete scan.
-
 ### Daily maintenance
 
-- [Re-run and maintenance](docs/user-guide/setup-commands.md#re-run-and-maintenance-commands)
-- [When it fails](docs/user-guide/setup-commands.md#when-it-fails)
+Cheat lines (full catalog linked):
+
+- Re-scan unchanged content: `tripwire scan --force <path>` — [re-run](docs/user-guide/setup-commands.md#re-run-and-maintenance-commands)
+- Re-route a batch: `tripwire route --batch-id <batch_id>` — [tiered router](docs/user-guide/setup-commands.md#tiered-router-optional)
+- Secrets-only Modal redeploy: `./scripts/setup-modal.sh --secrets-only` — [same section](docs/user-guide/setup-commands.md#re-run-and-maintenance-commands)
+- Failures: [When it fails](docs/user-guide/setup-commands.md#when-it-fails)
 
 ---
 

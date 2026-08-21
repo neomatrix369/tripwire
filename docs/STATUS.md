@@ -74,8 +74,8 @@ Reachable through production entry points / config:
   to `item.quality` / Tessl `output.quality_score`, and surfaced on skill cards as
   compact `Q N` / `Q —` / `Q ?` badges with fixed `#score-tip-portal` hover/focus
   tips + schedule cues — `sandbox/scanners.py`, `tripwire-live.js`,
-  `tripwire-status.js`, `Tripwire.dc.html` (slice 42 A9–A13, ON BRANCH ·
-  [PR #98](https://github.com/neomatrix369/tripwire/pull/98); nw-review APPROVED)
+  `tripwire-status.js`, `Tripwire.dc.html` (slice 42 A9–A13 ✅,
+  [PR #98](https://github.com/neomatrix369/tripwire/pull/98))
 - `risk_score` weighted finding density from `tripwire_rollup_item`; cards show
   compact `R N.NN` badges with density-formula portal tips (list header **Risk density**);
   card colour remains worst-of `heatmap_status`, not density (slice 42 A11/A13)
@@ -117,7 +117,8 @@ Ship-path coverage uplift (~95% instrumented on `cli/src`, `sandbox/`, Live ACL 
 omit `guard/` and `support.js`) is verified: slice 11 ✅, 12 ✅, 13 ✅ (CLI and
 live bars from `plan/gate-evidence/slice-12.json` / `slice-13.json`; slice 11
 status via `slice-11` evidence). audit matrix ✅ (slice 7); onboarding Phase 1 ✅
-(17), with the public documentation UX follow-up on branch;
+(17); Wave K public docs UX (slice 44) on branch — Setup vs Configure framing,
+services inventory + journey/dependency diagrams;
 skill parse ✅ (8). The coverage gates are verified; their final documentation
 sync (slice 14) is on branch and awaits merge. Groups:
 [plan/PROGRESS.md](./plan/PROGRESS.md),
@@ -143,11 +144,13 @@ sort/trend only — see [ARCHITECTURE.md](./ARCHITECTURE.md) § Quality attribut
 
 ## ON BRANCH (awaiting merge)
 
-Wave J delta A9–A13 (Tessl quality + risk badges/tooltips + plain labels +
-paper alert-ink polish) on `slice/42-tessl-quality-card-surfacing`
-([PR #98](https://github.com/neomatrix369/tripwire/pull/98)) — nw-review
-**APPROVED** 2026-08-20; awaiting merge for ✅ PASSED. See IMPLEMENTED above;
-gate evidence `docs/plan/gate-evidence/slice-42.json` (`gate_status: ON_BRANCH`).
+Wave K — Docs UX plain language + compaction (slice 44) on
+`slice/44-docs-ux-plain-language`: GWT-44.1–44.4 compaction plus pile-ons
+GWT-44.5–44.8 (Setup vs Configure beats, MVP Live, Maintain hub, screenshots
+`R`/`Q`, ARCHITECTURE External services inventory + operator journey +
+dependency-order Mermaid). Documentarist APPROVED for compaction; pile-on
+re-review before merge. Gate evidence
+`docs/plan/gate-evidence/slice-44.json` (`gate_status: ON_BRANCH`).
 
 Live Modal/Supabase E2E as a CI Must remains **Won't** for this wave (slow/optional
 skip-without-config stays). Demo/hackathon film day (VO/Remotion slice 4; film-day
@@ -168,12 +171,15 @@ waivers stay in [plan/DECISIONS.md](./plan/DECISIONS.md). ADR number 0001 is
 reserved for a Proposed Monk Live packaging / deployment draft that is **not**
 on `main` yet (side-branch only); it is omitted from the catalog until accepted.
 
-**Wave J delta — dashboard metric surfacing (2026-08-20):** A9–A13 shipped on
-branch (IMPLEMENTED + runtime-verified tips); **nw-review APPROVED**. Still
-`ON_BRANCH` until [PR #98](https://github.com/neomatrix369/tripwire/pull/98)
-merges — see [ON BRANCH](#on-branch-awaiting-merge) and
-[gate-evidence/slice-42.json](./plan/gate-evidence/slice-42.json).
-Spec: [plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md](./plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md).
+**Wave J delta — dashboard metric surfacing (2026-08-20):** A9–A13
+**IMPLEMENTED** on `main` via [PR #98](https://github.com/neomatrix369/tripwire/pull/98)
+(nw-review APPROVED). Spec:
+[plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md](./plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md).
+
+**Wave K — docs UX (2026-08-20/21):** Slice 44 compaction + Setup/Configure framing
++ services/diagrams pile-ons are **IMPLEMENTED** on branch (public docs);
+see [ON BRANCH](#on-branch-awaiting-merge). Spec:
+[plan/slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md](./plan/slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md).
 
 **Wave H — Frontline agent hooks (2026-08-15):** Claude Code PreToolUse handlers,
 `tripwire setup-agent-hooks`, and five `/tw-*` skills are **DECIDED** as plan-only

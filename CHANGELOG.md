@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `docs/user-guide/tiered-router-setup.md`. Removed thin aliases
   `onboarding-cheatsheet.md` and `path-commands.md`. Glossary / CLI flags / fail hints
   absorbed into reading-router-results and setup-commands; docs hub links agent-hooks.
+  Pile-on: Setup (accounts) vs Configure (keys) beats; loud Minimum Viable Live
+  (Supabase + Modal); Maintain hub row; Daily maintenance cheat lines; screenshots
+  note `R`/`Q` colour ≠ density. ARCHITECTURE adds External services inventory plus
+  operator-journey and dependency-order Mermaid diagrams.
 - Dashboard visual identity v2 (slice 43): warm cream paper field (`#F5F2EA`), tan
   primary CTA (`#C4A574`), Fraunces serif on intro `h1`/`h2`; cyan `#00D9FF` kept as
   live **signal** only (SENSOR dots, wire pulse, scanning fills). Status labels, links,

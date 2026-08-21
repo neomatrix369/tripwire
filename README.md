@@ -12,7 +12,7 @@ checks them with safety scanners, and shows the results in one screen.
 | **Try a safe demo** (no cloud accounts) — Recommended | [QUICKSTART — Try the demo](QUICKSTART.md#try-the-demo-recommended) |
 | **Run a real Live scan** — Advanced | [QUICKSTART — Live](QUICKSTART.md#live-advanced) |
 | **Change the code** | [CONTRIBUTING](CONTRIBUTING.md) |
-| **Understand the system** | [docs hub](docs/README.md) · [Architecture](docs/ARCHITECTURE.md) · [Status](docs/STATUS.md) |
+| **Understand the system** | [Architecture](docs/ARCHITECTURE.md) (services + flows) · [docs hub](docs/README.md) · [Status](docs/STATUS.md) |
 
 <details>
 <summary>Badges and stack</summary>
