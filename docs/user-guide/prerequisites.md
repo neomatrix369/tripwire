@@ -48,23 +48,14 @@ python3 -V   # 3.12.x (.python-version)
 
 ## Capability-specific notes
 
-- Full scan coverage requires accounts and setup for all five vendors:
-  Supabase, Modal, Snyk, Tessl, and Cisco AI Defense. Supabase and Modal enable
-  Live mode; each scanner vendor enables its respective scanner engine.
-- Optional post-scan routing needs [SIE + Model Studio](./tiered-router-setup.md).
-  Missing router keys warn and skip; they do not block the scan.
-- Create a disposable Supabase project and collect its connection values. Create and
-  authenticate the Modal account. Create scanner-vendor accounts and obtain keys for
-  Snyk, Tessl, and Cisco AI Defense before enabling those scanners.
-- Copy `.env.example` to `.env` and add the values you collected **before** running
-  Modal secret synchronization or deployment commands. Follow
-  [supabase-setup.md](./supabase-setup.md), [modal-setup.md](./modal-setup.md),
-  [tiered-router-setup.md](./tiered-router-setup.md),
-  and [env-vars.md](./env-vars.md) for the exact account setup and key mapping.
-- Supabase and Modal are the Live platform prerequisites. Snyk, Tessl, and Cisco AI
-  Defense enable their respective scanner engines; a missing scanner key is
-  reported as `skipped_missing_credential`, not silently treated as configured.
-- Use demo mode and dry-discover when you want local validation without Live services.
+| Capability | Requires |
+|---|---|
+| Demo / dry-discover | No vendor accounts — local tools only |
+| Live (MVP) | Supabase + Modal accounts and keys |
+| Full scanner coverage | + Snyk, Tessl, Cisco AI Defense keys (missing key → `skipped_missing_credential`) |
+| Optional tiered router | + SIE + Model Studio keys (missing → warn and skip; scan unaffected) |
+
+Key mapping and procurement → [env-vars.md](./env-vars.md).
 
 ## Five-vendor setup map
 

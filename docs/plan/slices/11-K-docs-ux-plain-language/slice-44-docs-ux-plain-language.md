@@ -124,14 +124,14 @@ troubleshooting into existing SSOTs. No new glossary/cli/troubleshooting files.
 UX patterns applied at execution: reader router, examples-first, copy-paste demo, Recommended vs Advanced, progressive disclosure (badges), Diátaxis ownership, less-is-more compaction.
 Pile-ons: Setup vs Configure labeling, loud MVP Live, Maintain hub; services inventory + journey/dependency diagrams (GWT-44.5–44.8).
 
-## DIVIO follow-on (DECIDED — targets pending)
+## DIVIO follow-on (APPLIED 2026-08-22)
 
-Pile-on documentarist re-review (2026-08-21): **QUICKSTART.md**, **docs/README.md**, **docs/screenshots/README.md** APPROVED. Two pre-existing DIVIO purity issues (not introduced by the pile-on) are **DECIDED** for a same-branch content commit; merge is **not** held for them. Targets not edited in the plan-record commit.
+Pile-on documentarist re-review (2026-08-21): **QUICKSTART.md**, **docs/README.md**, **docs/screenshots/README.md** APPROVED. Two pre-existing DIVIO purity issues (not introduced by the pile-on) rewritten same-branch (2026-08-22).
 
-| Target | Issue | Intended rewrite (do not apply until content commit) |
+| Target | Issue | Applied rewrite |
 |---|---|---|
-| `docs/user-guide/env-vars.md` — Vendor procurement quick-steps | Procedural account-creation steps contradict preamble (“how-tos live on vendor setup pages; this page owns key names”) | Replace numbered steps with a reference table: Vendor → Setup guide link → Keys to copy here (`SUPABASE_*`, `MODAL_TOKEN_*` + blank-OK, Snyk/Tessl/Cisco/SIE/Model Studio key names only) |
-| `docs/user-guide/prerequisites.md` — Capability-specific notes | Explanation prose (why / what happens) inside a Reference page | Collapse to one-line reference bullets per capability + one honesty line for `skipped_missing_credential`; do **not** move rationale into ARCHITECTURE |
+| `docs/user-guide/env-vars.md` — Vendor procurement quick-steps | Procedural account-creation steps contradicted preamble | Replaced with Reference table: Vendor → Keys → Setup guide link. Procedural steps stay in vendor setup pages. |
+| `docs/user-guide/prerequisites.md` — Capability-specific notes | Explanation prose (why / what happens) inside a Reference page | Collapsed to a 4-row Reference table: Capability → Requires. Key mapping pointer → env-vars. |
 
 ## Gate Status
-🔀 ON BRANCH — GWT-44.1–44.8 on branch; pile-on documentarist **APPROVED WITH FOLLOW-ON** (DIVIO target rewrites DECIDED, not yet applied). ✅ PASSED after merge to main.
+🔀 ON BRANCH — GWT-44.1–44.8 on branch; pile-on documentarist **APPROVED** (DIVIO rewrites applied 2026-08-22). ✅ PASSED after merge to main.

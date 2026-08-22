@@ -107,8 +107,10 @@ reports `skipped_missing_credential` and becomes active only once a key is set.
 |-----|--------------|-----------------|
 | `OSSPREY_API_KEY` | Ossprey malware scan (once access lands) | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file — **pending access** |
 
-The value is an `ospy_…` key (the CLI also accepts `API_KEY` as a fallback, or
-an Auth0 browser login). It is allowlisted in
+The value is an `ospy_…` key from `ossprey init` or the vendor dashboard. Tripwire's
+adapter reads **`OSSPREY_API_KEY` only** (generic `API_KEY` is ignored until the
+vendor contract is VERIFIED). The upstream CLI may accept other auth modes (Auth0,
+`API_KEY`); Tripwire does not wire those into Modal secrets. The key is allowlisted in
 [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md) so
 `setup-modal.sh` syncs it into `tripwire-scan-secrets` automatically when it
 becomes available; leave it blank until then. Credential-free `--local` /
@@ -148,29 +150,17 @@ secret-creation command.
 
 ## Vendor procurement quick-steps
 
-- **Supabase (platform-required):** [supabase-setup](./supabase-setup.md)
-  1. Sign in at [supabase.com/dashboard](https://supabase.com/dashboard), create or select a project.
-  2. Copy `SUPABASE_URL` and API keys from **Project Settings → API**.
-  3. Copy `SUPABASE_DB_URL` from **Project Settings → Database**.
-- **Modal (platform required for live scan):** [modal-setup](./modal-setup.md)
-  1. Sign in at [modal.com](https://modal.com).
-  2. If using non-interactive setup: go to **Settings → Tokens** and create a token pair.
-  3. Copy `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` from token details.
-  4. If you only use interactive setup, skip both values and keep them blank.
-- **Snyk:** open [app.snyk.io](https://app.snyk.io) → Settings → API Tokens and create/copy a token for `SNYK_TOKEN`.
-- **Tessl:** open [tessl.io](https://tessl.io), create/login; use Tessl UI token page or `tessl api-key create --workspace <name>` for `TESSL_TOKEN`, and set `TESSL_WORKSPACE`.
-- **Cisco Skill / MCP Scanner LLM (Tier B):** provision an OpenAI-compatible (or Azure) LLM for the Cisco Skill and MCP scanner CLIs. Map into:
-  - Skill: `SKILL_SCANNER_LLM_API_KEY`, `SKILL_SCANNER_LLM_MODEL`, `SKILL_SCANNER_LLM_PROVIDER`, `SKILL_SCANNER_LLM_BASE_URL` (optional `SKILL_SCANNER_LLM_API_VERSION`)
-  - MCP: `MCP_SCANNER_LLM_API_KEY`, `MCP_SCANNER_LLM_MODEL`, `MCP_SCANNER_LLM_BASE_URL` (optional `MCP_SCANNER_LLM_API_VERSION`)
-  These are **not** the same as AI Defense cloud inspect keys below; without them Skill/MCP LLM depth is skipped.
-- **Cisco AI Defense (Tier C — paid cloud inspect):** open [Cisco Developer](https://developer.cisco.com) and locate AI Defense credentials for:
-  - `AI_DEFENSE_API_KEY` (and optionally `AI_DEFENSE_API_URL`)
-  - `MCP_SCANNER_API_KEY`
-  and optionally set `MCP_SCANNER_ENDPOINT` only for non-default hosts.
-- **Ossprey (malware scan — access OPEN / pending):** provisioning is not yet
-  available in this environment. When access lands, obtain an `ospy_…` key via
-  `ossprey init` or the [ossprey.com](https://ossprey.com) dashboard and set
-  `OSSPREY_API_KEY`. Until then leave it blank — the adapter reports
-  `skipped_missing_credential`.
-- **Superlinked SIE (optional router):** [tiered-router-setup](./tiered-router-setup.md) — `SIE_ENDPOINT`, `SIE_API_KEY`, optional `SIE_MODEL`.
-- **Alibaba Cloud Model Studio (optional router escalation):** [tiered-router-setup](./tiered-router-setup.md) — `DASHSCOPE_API_KEY`, `ALIBABA_OPENAI_BASE_URL`, optional `DASHSCOPE_HOST` / `MODEL_STUDIO_MODEL` / `ALIBABA_DASH_SCOPE_API_URL` (sample CLI image/video only).
+Account creation (Setup) is owned by the vendor setup pages. This table maps each
+vendor to the keys you need in `.env` and where to get them.
+
+| Vendor | Keys (set in `.env`) | Setup guide |
+|---|---|---|
+| **Supabase** (platform — MVP) | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL` | [supabase-setup](./supabase-setup.md) |
+| **Modal** (platform — MVP) | `MODAL_TOKEN_ID`, `MODAL_TOKEN_SECRET` (blank if interactive only) | [modal-setup](./modal-setup.md) |
+| **Snyk** (scanner) | `SNYK_TOKEN` | [app.snyk.io](https://app.snyk.io) → Settings → API Tokens |
+| **Tessl** (scanner) | `TESSL_TOKEN`, `TESSL_WORKSPACE` | [tessl.io](https://tessl.io) → workspace → API key |
+| **Cisco Skill / MCP LLM** (scanner Tier B) | `SKILL_SCANNER_LLM_API_KEY`, `SKILL_SCANNER_LLM_MODEL`, `SKILL_SCANNER_LLM_PROVIDER`, `SKILL_SCANNER_LLM_BASE_URL`; `MCP_SCANNER_LLM_API_KEY`, `MCP_SCANNER_LLM_MODEL`, `MCP_SCANNER_LLM_BASE_URL` | Any OpenAI-compatible or Azure LLM — not the same as AI Defense cloud keys below |
+| **Cisco AI Defense** (scanner Tier C) | `AI_DEFENSE_API_KEY`, `MCP_SCANNER_API_KEY`; optional `AI_DEFENSE_API_URL`, `MCP_SCANNER_ENDPOINT` | [developer.cisco.com](https://developer.cisco.com) → AI Defense |
+| **Ossprey** (malware — access OPEN/pending) | `OSSPREY_API_KEY` (`ospy_…`) | Access not yet available — leave blank; adapter reports `skipped_missing_credential` |
+| **SIE** (optional router) | `SIE_ENDPOINT`, `SIE_API_KEY`; optional `SIE_MODEL` | [tiered-router-setup](./tiered-router-setup.md) |
+| **Model Studio** (optional router) | `DASHSCOPE_API_KEY`, `ALIBABA_OPENAI_BASE_URL`; optional `DASHSCOPE_HOST`, `MODEL_STUDIO_MODEL`, `ALIBABA_DASH_SCOPE_API_URL` | [tiered-router-setup](./tiered-router-setup.md) |
