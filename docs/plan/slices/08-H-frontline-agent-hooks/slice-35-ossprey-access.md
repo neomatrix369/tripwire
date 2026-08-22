@@ -51,6 +51,7 @@ first; add a minimal connectivity probe only if needed for binary After-Checks.
 ## After-Checks [GATE]
 
 - [ ] `DECISIONS.md` row confirms Ossprey access (date, owner, non-secret proof)
+- [ ] **Live CLI reconcile:** pinned `ossprey-cli` `--help`, OSSBOM `-o` sample, and stdout verdict wording recorded in gate evidence (adapter stays RESEARCH until this passes — see slice 36)
 - [ ] Env/key names documented in the approved user-guide/env path (no secret values)
 - [ ] Evidence JSON updated: `gate_status` leaves `BLOCKED`, records commands/checklist, verdict `PASS` when closed
 - [ ] Complexity: **N/A docs-only** with reason in evidence (or enforcing if product code)

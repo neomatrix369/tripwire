@@ -45,7 +45,7 @@ _NODE_VERSION = "20.18.1"
 # reports `unreachable` — the acceptable degraded path while provisioning is OPEN
 # (slice 35 BLOCKED). Provisioning also gates the credential, so today the
 # adapter short-circuits to skipped_missing_credential before the binary matters.
-_OSSPREY_VERSION = "v0.1.0"  # placeholder — confirm against the real release tag
+_OSSPREY_VERSION = "v0.12.0"  # verified OSSPREY/ossprey-cli release (linux-amd64 asset)
 image = (
     modal.Image.debian_slim(python_version="3.11")
     .apt_install("git", "curl", "ca-certificates", "xz-utils")
@@ -59,11 +59,12 @@ image = (
         "ln -sf /root/.local/bin/snyk-agent-scan /usr/local/bin/snyk-agent-scan",
         # DepShield stdio MCP server (npm/PyPI dependency audit) — pinned so cold `npx` is not the path.
         "npm install -g depshield-mcp@1.0.0",
-        # Ossprey CLI (linux amd64 release binary; sudo-less). `|| true` keeps the
-        # image build green if the URL/tag 404s — an absent binary just yields
-        # run_ossprey's `unreachable` path (acceptable while provisioning is OPEN).
+        # Ossprey CLI (linux amd64 release binary; sudo-less). Warn loudly when the
+        # pinned release asset is missing so operators do not confuse unreachable
+        # with a clean malware scan once credentials land.
         f"(curl -fsSL https://github.com/OSSPREY/ossprey-cli/releases/download/{_OSSPREY_VERSION}/ossprey-linux-amd64 "
-        "-o /usr/local/bin/ossprey && chmod +x /usr/local/bin/ossprey) || true",
+        "-o /usr/local/bin/ossprey && chmod +x /usr/local/bin/ossprey && test -x /usr/local/bin/ossprey) "
+        f"|| echo \"WARNING: Ossprey {_OSSPREY_VERSION} binary missing — run_ossprey will report unreachable\" >&2",
         "node --version && test -x /usr/local/bin/snyk-agent-scan",
     )
     .pip_install(

@@ -35,6 +35,34 @@ record() { # $1 stage, $2 result, $3 detail
   printf '  [%s] %s — %s\n' "$2" "$1" "$3"
 }
 
+SELFCHECK_TIMEOUT=120
+
+# Wall-clock cap for live claude -p (max-turns does not bound hang time).
+run_with_timeout() {
+  local limit=$1
+  shift
+  if command -v timeout >/dev/null 2>&1; then
+    timeout "$limit" "$@"
+    return $?
+  fi
+  if command -v gtimeout >/dev/null 2>&1; then
+    gtimeout "$limit" "$@"
+    return $?
+  fi
+  python3 - "$limit" "$@" <<'PY'
+import subprocess
+import sys
+
+limit = int(sys.argv[1])
+cmd = sys.argv[2:]
+try:
+    completed = subprocess.run(cmd, timeout=limit)
+    sys.exit(completed.returncode)
+except subprocess.TimeoutExpired:
+    sys.exit(124)
+PY
+}
+
 echo "[full-chain] Tripwire agent-hooks validation (slice 38)"
 echo
 
@@ -104,7 +132,7 @@ else
 fi
 
 # ── 7. Ossprey — explicit skip while access is OPEN (slice-38 GWT 3) ─────────
-if [ -n "${OSSPREY_API_KEY:-}" ] || [ -n "${API_KEY:-}" ]; then
+if [ -n "${OSSPREY_API_KEY:-}" ]; then
   record "ossprey-dispatch" "PASS" "OSSPREY_API_KEY present — adapter active (verify rows in scanner health)"
 else
   record "ossprey-dispatch" "SKIPPED(access)" "slice 35 BLOCKED — no OSSPREY_API_KEY; adapter reports skipped_missing_credential by design"
@@ -121,8 +149,14 @@ fi
 if command -v claude >/dev/null \
   && claude auth status 2>/dev/null | grep -q '"loggedIn": true' \
   && [ -d "$HOME/.claude/skills/tw-self-check" ]; then
-  if claude -p "Use the Skill tool to invoke the tw-self-check skill and output its full table and JSON." \
+  SELFCHECK_RC=0
+  run_with_timeout "$SELFCHECK_TIMEOUT" \
+    claude -p "Use the Skill tool to invoke the tw-self-check skill and output its full table and JSON." \
       --max-turns 8 > "$SELFCHECK_OUT" 2>&1 \
+    || SELFCHECK_RC=$?
+  if [ "$SELFCHECK_RC" -eq 124 ]; then
+    record "tw-self-check" "BLOCKED(timeout)" "claude -p exceeded ${SELFCHECK_TIMEOUT}s wall clock"
+  elif [ "$SELFCHECK_RC" -eq 0 ] \
     && grep -qE 'tw-(verify|scan|enable|disable|self-check)' "$SELFCHECK_OUT"; then
     record "tw-self-check" "PASS" "live invocation produced the five-skill report (captured in evidence)"
   else

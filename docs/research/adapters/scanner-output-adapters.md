@@ -340,8 +340,9 @@ there is no amber/green malware verdict). Clean/skipped → no row.
 
 ### Auth (RESEARCH)
 
-API key `ospy_...` via `--api-key` or `OSSPREY_API_KEY` env (fallback
-`API_KEY`); or Auth0 browser login. Key procurement is **[OPEN]** — no key
+API key `ospy_...` via `--api-key` or `OSSPREY_API_KEY` env (the upstream CLI
+also accepts generic `API_KEY`; **Tripwire's adapter reads `OSSPREY_API_KEY`
+only** until the contract is VERIFIED); or Auth0 browser login. Key procurement is **[OPEN]** — no key
 exists in this environment (slice 35 `🔴 BLOCKED`), so the adapter's live path
 is `skipped_missing_credential` today. The credential-free `--local` /
 `--dry-run-*` modes exercise parsing without a key.

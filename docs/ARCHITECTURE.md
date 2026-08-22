@@ -177,6 +177,24 @@ C4Container
 - `fixtures/` — smoke targets — [fixtures/README.md](../fixtures/README.md)
 - `docs/research/adapters/scanner-output-adapters.md` — keep in sync with `sandbox/scanners.py`
 
+### Scanner timeout budget
+
+Scanners in `run_all_scanners` run **sequentially**. Each adapter passes an
+individual `timeout=` to `_run`; `SCAN_TIMEOUT` (240s) is the per-call ceiling.
+Modal hard-kills the sandbox at `TIMEOUT_SECONDS` (300s in `scan_app.py`).
+
+| Constant | Value | Role |
+| -------- | ----- | ---- |
+| `SCAN_TIMEOUT` | 240s | Default per-scanner subprocess cap |
+| `DEPSHIELD_TIMEOUT` | 120s | DepShield MCP stdio client |
+| `OSSPREY_TIMEOUT` | 100s | Ossprey malware scan (tail group) |
+
+CI enforces `DEPSHIELD_TIMEOUT + OSSPREY_TIMEOUT <= SCAN_TIMEOUT` via
+[`scripts/check-scanner-timeout-budget.sh`](../scripts/check-scanner-timeout-budget.sh).
+Earlier groups (Skill, Tessl, MCP, Snyk) must finish within the remaining wall
+clock before Modal's 300s kill — operators reconcile stranded `running` rows with
+[`scripts/reconcile-stuck-scan-runs.mjs`](../scripts/reconcile-stuck-scan-runs.mjs).
+
 ### Future (not current Horizon A containers)
 
 - `guard/` — PreToolUse-style Agent Guard hook. **Horizon A:** Won't / not a

@@ -53,6 +53,7 @@ REFACTOR: share dispatch-port patterns with DepShield.
 ## After-Checks [GATE]
 
 - [ ] Each GWT clause has an observable output/state assertion; no mock-call-only Then
+- [ ] **Live CLI reconcile** against pinned `ossprey-cli` (OSSBOM schema + exit-code disambiguation) recorded before promoting adapter beyond RESEARCH
 - [ ] Ossprey dispatch success and failure scenarios pass; commands in evidence
 - [ ] Preservation check for DepShield/baseline recorded
 - [ ] `./scripts/quality-gates.sh` exit 0 recorded in `docs/plan/gate-evidence/slice-36.json`

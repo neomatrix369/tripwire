@@ -5,7 +5,7 @@ detection via the ossprey CLI).
 Author: devansh
 Created: 2026-08-15
 Scope: credential gate (skipped_missing_credential — the DEFAULT runtime path
-       today, access provisioning OPEN), API_KEY fallback, missing-binary
+       today, access provisioning OPEN), generic API_KEY ignored, missing-binary
        unreachable, exit-code disambiguation (0=clean / 1=malware vs failure),
        OSSBOM parsing for list + {"components":[...]} shapes and a missing file,
        stdout verdict-line detection with negation guard, temp OSSBOM cleanup,
@@ -55,7 +55,7 @@ def test_given_no_key_when_run_ossprey_then_skipped_missing_credential_default()
     Scenario: With no Ossprey key, the adapter skips before doing anything else.
     Slice: run_ossprey — credential gate (default path)
 
-    Given neither OSSPREY_API_KEY nor API_KEY is set (the real state today —
+    Given neither OSSPREY_API_KEY nor a generic API_KEY is set (the real state today —
     provisioning is OPEN),
     When run_ossprey runs,
     Then it returns skipped_missing_credential, spawns no subprocess, and never
@@ -84,27 +84,33 @@ def test_given_no_key_when_run_ossprey_then_skipped_missing_credential_default()
     which_mock.assert_not_called()
 
 
-def test_given_api_key_fallback_when_run_ossprey_then_gate_passed() -> None:
+def test_given_api_key_only_when_run_ossprey_then_still_skipped() -> None:
     """
-    Scenario: API_KEY is the documented fallback for the credential gate.
-    Slice: run_ossprey — API_KEY fallback
+    Scenario: Generic API_KEY must not activate the adapter (OSSPREY_API_KEY only).
+    Slice: run_ossprey — credential gate
 
-    Given only API_KEY is set (no OSSPREY_API_KEY) and the binary is absent,
+    Given only API_KEY is set (no OSSPREY_API_KEY),
     When run_ossprey runs,
-    Then the credential gate is passed (proven by reaching the binary gate →
-    unreachable, not skipped_missing_credential).
+    Then the adapter skips with skipped_missing_credential and never probes the binary.
     """
-    ### Given / When
+    ### Given
+    run_mock = MagicMock()
+    which_mock = MagicMock()
+
+    ### When
     with (
         patch.dict(scanners.os.environ, {"API_KEY": "ospy_fallback"}, clear=True),
-        patch.object(scanners, "_which", return_value=False),
+        patch.object(scanners, "_run", run_mock),
+        patch.object(scanners, "_which", which_mock),
     ):
         findings, rows = scanners.run_ossprey("/tmp/scan", "skill")
 
     ### Then
     assert findings == []
-    assert rows[0]["status"] == "unreachable"
-    assert "not installed" in rows[0]["detail"]
+    assert rows[0]["status"] == "skipped_missing_credential"
+    assert "OSSPREY_API_KEY" in rows[0]["detail"]
+    run_mock.assert_not_called()
+    which_mock.assert_not_called()
 
 
 # ---------------------------------------------------------------------------
@@ -296,6 +302,34 @@ def test_given_exit1_stdout_verdict_only_when_run_ossprey_then_red_from_line(
     assert rows[0]["status"] == "completed"
 
 
+def test_given_exit1_positive_line_with_not_false_positive_when_run_ossprey_then_red(
+    tmp_path: Path,
+) -> None:
+    """
+    Scenario: A positive verdict line containing 'not a false positive' is kept.
+    Slice: run_ossprey — negation guard (no bare 'not' suppression)
+
+    Given exit 1, empty OSSBOM, and stdout naming a malicious package while
+    disclaiming a false positive,
+    When run_ossprey runs,
+    Then a red malware finding is emitted (narrow clean-summary patterns only).
+    """
+    ### Given / When
+    stdout = "pkg@1.0 is malicious — this is not a false positive"
+    with (
+        patch.dict(scanners.os.environ, {"OSSPREY_API_KEY": "ospy_test"}, clear=True),
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", side_effect=_fake_run(1, stdout=stdout)),
+    ):
+        findings, rows = scanners.run_ossprey(str(tmp_path), "mcp_server")
+
+    ### Then
+    assert len(findings) == 1
+    assert findings[0]["severity"] == "red"
+    assert "malicious" in findings[0]["message"].lower()
+    assert rows[0]["status"] == "completed"
+
+
 def test_given_exit1_negated_verdict_line_when_run_ossprey_then_unreachable(
     tmp_path: Path,
 ) -> None:
@@ -331,7 +365,7 @@ def test_given_timeout_when_run_ossprey_then_unreachable(tmp_path: Path) -> None
     with (
         patch.dict(scanners.os.environ, {"OSSPREY_API_KEY": "ospy_test"}, clear=True),
         patch.object(scanners, "_which", return_value=True),
-        patch.object(scanners, "_run", side_effect=_fake_run(None, stderr="timeout after 200s")),
+        patch.object(scanners, "_run", side_effect=_fake_run(None, stderr="timeout after 100s")),
     ):
         findings, rows = scanners.run_ossprey(str(tmp_path), "mcp_server")
 
@@ -530,7 +564,8 @@ def test_given_component_when_checked_then_malicious_flag(comp, expected) -> Non
         ("line one\nmalicious package: bad\nline three", "malicious package: bad"),
         ("No malicious packages found", None),
         ("0 malicious packages", None),
-        ("scan clean", None),
+        ("not malicious: all packages verified", None),
+        ("pkg@1.0 is malicious — this is not a false positive", "pkg@1.0 is malicious — this is not a false positive"),
         ("all good here", None),
         ("", None),
         (None, None),

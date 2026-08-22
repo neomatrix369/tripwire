@@ -928,12 +928,20 @@ def run_depshield(workdir, item_type="mcp_server"):
 # adapter MUST disambiguate — a finding is emitted only on a POSITIVE malware
 # signal (a malicious OSSBOM entry, or an unambiguous verdict line). exit 1 with
 # no such signal is a scan failure → unreachable, never a phantom red finding.
-OSSPREY_TIMEOUT = 200  # fits under SCAN_TIMEOUT=240 / the 300s sandbox hard kill
+# Tail budget: DEPSHIELD_TIMEOUT + OSSPREY_TIMEOUT must stay <= SCAN_TIMEOUT;
+# see scripts/check-scanner-timeout-budget.sh and docs/ARCHITECTURE.md.
+OSSPREY_TIMEOUT = 100
 
-# RESEARCH: verdict wording UNVERIFIED. Match malware/malicious lines but drop
-# obvious negations so a clean-scan summary ("no malicious packages found") is
-# never read as a positive.
-_OSSPREY_NEGATION_RE = re.compile(r"\b(no|not|zero|none|clean)\b|\b0\s+malicious\b")
+# RESEARCH: verdict wording UNVERIFIED. Match malware/malicious lines but skip
+# known clean-summary phrases only — never bare "not"/"clean" (false negatives).
+_OSSPREY_CLEAN_SUMMARY_RES = (
+    re.compile(r"\bno\s+mal(?:ware|icious)\b"),
+    re.compile(r"\bnot\s+mal(?:ware|icious)\b"),
+    re.compile(r"\bzero\s+mal(?:ware|icious)\b"),
+    re.compile(r"\bnone\s+mal(?:ware|icious)\b"),
+    re.compile(r"\b0\s+mal(?:ware|icious)\b"),
+    re.compile(r"\bclean\s+(?:scan|result)\b"),
+)
 _OSSPREY_MALICIOUS_VERDICTS = ("malicious", "malware")
 
 
@@ -1003,7 +1011,7 @@ def _ossprey_malware_verdict_line(text):
         low = line.lower()
         if "malware" not in low and "malicious" not in low:
             continue
-        if _OSSPREY_NEGATION_RE.search(low):
+        if any(p.search(low) for p in _OSSPREY_CLEAN_SUMMARY_RES):
             continue
         return line.strip()[:200]
     return None
@@ -1055,13 +1063,17 @@ def run_ossprey(workdir, item_type="mcp_server"):
     """
     source = "Ossprey"
     # Credential gate FIRST — the actual runtime state today (no ospy_ key).
-    # ospy_... is read from OSSPREY_API_KEY, with API_KEY as the documented fallback.
-    if not os.environ.get("OSSPREY_API_KEY") and not os.environ.get("API_KEY"):
+    # Tripwire accepts OSSPREY_API_KEY only (not generic API_KEY) until the
+    # vendor contract is VERIFIED — avoids accidental activation from unrelated keys.
+    if not os.environ.get("OSSPREY_API_KEY"):
         return [], [
             _skipped(
                 source,
                 "skipped_missing_credential",
-                detail="OSSPREY_API_KEY not set — Ossprey access provisioning is OPEN",
+                detail=(
+                    "OSSPREY_API_KEY not set — Ossprey access provisioning is OPEN "
+                    "(set OSSPREY_API_KEY when access lands; generic API_KEY is ignored)"
+                ),
             )
         ]
     if not _which("ossprey"):

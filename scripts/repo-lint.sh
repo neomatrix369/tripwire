@@ -10,6 +10,9 @@ find_precommit_bin() {
   find "${HOME}/.cache/pre-commit" -type f -name "$name" 2>/dev/null | head -1 || true
 }
 
+echo "--- scanner timeout budget ---"
+bash scripts/check-scanner-timeout-budget.sh
+
 echo "--- shellcheck ---"
 if command -v shellcheck >/dev/null 2>&1; then
   shellcheck scripts/*.sh
