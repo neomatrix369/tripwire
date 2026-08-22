@@ -9,6 +9,7 @@ checks them with safety scanners, and shows the results in one screen.
 
 | If you want to… | Go here |
 |---|---|
+| **Try a hosted dashboard** (no clone) | [Live demo on neomatrix369.github.io](https://neomatrix369.github.io/demos/tripwire-dashboard/) |
 | **Try a safe demo** (no cloud accounts) — Recommended | [QUICKSTART — Try the demo](QUICKSTART.md#try-the-demo-recommended) |
 | **Run a real Live scan** — Advanced | [QUICKSTART — Live](QUICKSTART.md#live-advanced) |
 | **Change the code** | [CONTRIBUTING](CONTRIBUTING.md) |

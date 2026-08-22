@@ -6,6 +6,7 @@
 
 | Path | Effort | What you get |
 |---|---|---|
+| [Hosted dashboard](https://neomatrix369.github.io/demos/tripwire-dashboard/) | **No clone** — browse in browser | Live/Mock UI preview on GitHub Pages |
 | [Try the demo](#try-the-demo-recommended) | **Recommended** — no cloud accounts | Local discovery + Mock dashboard |
 | [Live scan](#live-advanced) | **Advanced** — five vendors + `.env` | Real scans stored online |
 
