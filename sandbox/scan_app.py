@@ -64,7 +64,7 @@ image = (
         # with a clean malware scan once credentials land.
         f"(curl -fsSL https://github.com/OSSPREY/ossprey-cli/releases/download/{_OSSPREY_VERSION}/ossprey-linux-amd64 "
         "-o /usr/local/bin/ossprey && chmod +x /usr/local/bin/ossprey && test -x /usr/local/bin/ossprey) "
-        f"|| echo \"WARNING: Ossprey {_OSSPREY_VERSION} binary missing — run_ossprey will report unreachable\" >&2",
+        f'|| echo "WARNING: Ossprey {_OSSPREY_VERSION} binary missing — run_ossprey will report unreachable" >&2',
         "node --version && test -x /usr/local/bin/snyk-agent-scan",
     )
     .pip_install(

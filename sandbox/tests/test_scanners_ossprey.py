@@ -565,7 +565,10 @@ def test_given_component_when_checked_then_malicious_flag(comp, expected) -> Non
         ("No malicious packages found", None),
         ("0 malicious packages", None),
         ("not malicious: all packages verified", None),
-        ("pkg@1.0 is malicious — this is not a false positive", "pkg@1.0 is malicious — this is not a false positive"),
+        (
+            "pkg@1.0 is malicious — this is not a false positive",
+            "pkg@1.0 is malicious — this is not a false positive",
+        ),
         ("all good here", None),
         ("", None),
         (None, None),
