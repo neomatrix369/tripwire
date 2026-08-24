@@ -86,8 +86,9 @@ truncate responses. Symptoms:
 - Detail drawer shows **`Scanner outputs (0)`** even though Supabase has rows for
   that scan run
 - Card shows a recent **Last scan** time but no scanner list
-- New Tessl rows (`Tessl: Lint`, `Tessl: Review (Quality)`) missing while older
-  `"Tessl"` rows still appear on other items
+- New Tessl rows (`Tessl: Lint`, `Tessl: Review (Quality)`,
+  `Tessl: Scenario Generation`) missing while older `"Tessl"` rows still appear
+  on other items
 
 This limit is **not** in `.env` or repo config — it is a **project setting** on
 Supabase.

@@ -204,8 +204,9 @@ Product note that file `--output` was flaky on a tested build: re-test on pin; p
 
 | Item | Status |
 |---|---|
-| Target | DECIDED — `items.quality_score` only |
+| Target | DECIDED — `items.quality_score` only (Review Quality row; Lint / Scenario Generation do not write this axis) |
 | Capture | IMPLEMENTED (slice 47) — `tessl review run quality --json --workspace`; run ID via `review view --last --json` (fallback: run JSON `id`/`runId`/`run_id`). Requires `TESSL_TOKEN` + `TESSL_WORKSPACE`. |
+| Scenario Generation | IMPLEMENTED unit (slice 49) — separate `scan_run_scanners` row; plugin-path `scenario generate` / `download` into `<plugin>/evals/`; no `quality_score` write |
 | Raw | Store JSON in Storage for audit |
 
 ### References

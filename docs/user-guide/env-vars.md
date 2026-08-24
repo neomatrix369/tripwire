@@ -9,7 +9,8 @@ Start here: [QUICKSTART](../../QUICKSTART.md) · Hub: [docs/README](../README.md
 > **Minimum Viable Live:** Supabase + Modal keys only. Add Snyk / Tessl / Cisco
 > when you want full scanner coverage. Missing Snyk/Cisco keys report
 > `skipped_missing_credential`. Missing `TESSL_TOKEN` or `TESSL_WORKSPACE` still
-> runs Lint (auth-free) and marks Review (Quality) `needs_setup` — not a complete
+> runs Lint (auth-free) and marks Review (Quality) `needs_setup`; missing
+> `TESSL_TOKEN` also marks Scenario Generation `needs_setup` — not a complete
 > “all clear.”
 >
 > For full Live coverage, provision all five vendors before `cp .env.example .env`.
