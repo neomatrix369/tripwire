@@ -52,7 +52,7 @@ function buildScannerOutput(s, scannerFindings) {
 function shapeScannerRow(s, mappedFindings, itemQualityScore) {
   const scannerFindings = mappedFindings.filter((f) => f.scanner === s.scanner_source);
   const output = buildScannerOutput(s, scannerFindings);
-  if (s.scanner_source === "Tessl" && itemQualityScore != null) {
+  if (s.scanner_source === "Tessl: Review (Quality)" && itemQualityScore != null) {
     output.quality_score = itemQualityScore;
   }
   return {

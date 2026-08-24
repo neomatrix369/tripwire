@@ -14,9 +14,11 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DASHBOARD_ROOT = join(HERE, '..');
+const REPO_ROOT = join(DASHBOARD_ROOT, '..', '..');
 const LIVE_MODULE = join(DASHBOARD_ROOT, 'tripwire-live.js');
 const HTML_PATH = join(DASHBOARD_ROOT, 'Tripwire.dc.html');
 const CONFIG_PATH = join(DASHBOARD_ROOT, 'tripwire-dashboard.config.js');
+const REPO_ENV_PATH = join(REPO_ROOT, '.env');
 
 const EXPECTED_TABLES = ['items', 'scan_runs', 'scan_run_scanners', 'findings'];
 const ORIGINAL_FETCH = globalThis.fetch;
@@ -303,7 +305,7 @@ test('given partial-failed run with heatmap risk when loadData live then keeps r
       },
       {
         scan_run_id: runId,
-        scanner_source: 'Tessl',
+        scanner_source: 'Tessl: Review (Quality)',
         status: 'unreachable',
         checks_run: 0,
         detail: 'Node.js version 18 is not supported',
@@ -341,7 +343,7 @@ test('given partial-failed run with heatmap risk when loadData live then keeps r
     '1 out of 2 scanners unreachable — risk from completed engines',
   );
   assert.notEqual(item.status, 'error');
-  const tessl = item.scanners.find((s) => s.source === 'Tessl');
+  const tessl = item.scanners.find((s) => s.source === 'Tessl: Review (Quality)');
   assert.equal(tessl.status, 'unreachable');
   assert.match(tessl.detail || '', /Node\.js/);
   restoreFetch();
@@ -474,7 +476,7 @@ test('given dashboard html when filter bar wraps then chips stay grouped without
 test(
   'optional smoke: given local live config when fetching items then supabase responds',
   { skip: !hasLiveConfigForSmoke() },
-  async (t) => {
+  async () => {
     // -- Given --
     restoreFetch();
     const cfg = readLiveConfigForSmoke();
@@ -491,8 +493,7 @@ test(
         },
       });
     } catch (err) {
-      t.skip(`network unavailable for Live smoke: ${err.message}`);
-      return;
+      assert.fail(`Live smoke fetch failed: ${err.message}`);
     }
     const body = await res.json().catch(() => null);
 
@@ -752,7 +753,7 @@ test('given completed scanner without detail and no findings when loadData live 
         status: 'completed', checks_run: 34,
       },
       {
-        scan_run_id: runId, scanner_source: 'Tessl',
+        scan_run_id: runId, scanner_source: 'Tessl: Review (Quality)',
         status: 'completed', checks_run: 1,
       },
     ],
@@ -768,9 +769,55 @@ test('given completed scanner without detail and no findings when loadData live 
   assert.equal(scanners[0].output.raw_summary, '34 checks passed — no findings',
     'completed scanner with no findings must show clean pass summary');
   assert.equal(scanners[1].output.quality_score, 95,
-    'Tessl scanner must include quality_score');
+    'Tessl Review (Quality) scanner must include quality_score');
   assert.equal(scanners[1].output.raw_summary, '1 checks passed — no findings',
-    'Tessl scanner without detail must still get synthesized summary');
+    'Tessl Review (Quality) scanner without detail must still get synthesized summary');
+  restoreFetch();
+});
+
+test('given Lint and Review rows when loadData live then Lint is first Tessl row without quality_score', async () => {
+  /**
+   * Scenario: GWT-46.4 — Lint row at Tessl-block position 1; no quality badge data on Lint.
+   * Slice: 46
+   * Given a scan_run with Tessl: Lint then Tessl: Review (Quality)
+   * When loadData live maps scanners
+   * Then Lint is first in the Tessl block and has no quality_score
+   * And Review (Quality) receives the item quality_score
+   */
+  // -- Given --
+  const itemId = 'eeee0046-0046-0046-0046-000000000001';
+  const runId  = 'ffff0046-0046-0046-0046-000000000002';
+  installWindow({ SUPABASE_URL: 'https://proj.supabase.co', SUPABASE_ANON_KEY: 'anon' });
+  mockFetchByTable({
+    items: [{
+      id: itemId, type: 'skill', name: 'lint-skill', identifier: 'lint-skill',
+      heatmap_status: 'green', risk_score: 0.0, quality_score: 88,
+      install_locus: 'local', source_availability: 'source_on_disk',
+    }],
+    scan_runs: [{
+      id: runId, item_id: itemId, status: 'complete',
+      started_at: '2026-08-24T19:00:00Z', completed_at: '2026-08-24T19:01:00Z',
+    }],
+    scan_run_scanners: [
+      { scan_run_id: runId, scanner_source: 'Tessl: Lint', status: 'completed', checks_run: 12, detail: '12 checks — 0 findings' },
+      { scan_run_id: runId, scanner_source: 'Tessl: Review (Quality)', status: 'completed', checks_run: 1 },
+    ],
+    findings: [],
+  });
+  const loadData = await importLoadDataFresh();
+
+  // -- When --
+  const result = await loadData('live');
+  const tesslBlock = result.data.items[0].scanners.filter((s) =>
+    String(s.source).startsWith('Tessl:')
+  );
+
+  // -- Then --
+  assert.equal(tesslBlock.length, 2);
+  assert.equal(tesslBlock[0].source, 'Tessl: Lint');
+  assert.equal(tesslBlock[0].output.quality_score, undefined);
+  assert.equal(tesslBlock[1].source, 'Tessl: Review (Quality)');
+  assert.equal(tesslBlock[1].output.quality_score, 88);
   restoreFetch();
 });
 
@@ -1158,7 +1205,7 @@ test('given item with mixed scanner statuses when loadData live then scanners sh
       started_at: '2026-08-19T10:00:00Z', completed_at: '2026-08-19T10:02:00Z',
     }],
     scan_run_scanners: [
-      { scan_run_id: runId, scanner_source: 'Tessl',    status: 'completed',   checks_run: 5 },
+      { scan_run_id: runId, scanner_source: 'Tessl: Review (Quality)', status: 'completed',   checks_run: 5 },
       { scan_run_id: runId, scanner_source: 'Gitleaks', status: 'unreachable', checks_run: 0 },
     ],
     findings: [],
@@ -1207,7 +1254,7 @@ test('given item with all scanners completed when loadData live then badge is su
       started_at: '2026-08-19T10:00:00Z', completed_at: '2026-08-19T10:01:00Z',
     }],
     scan_run_scanners: [
-      { scan_run_id: runId, scanner_source: 'Tessl',    status: 'completed', checks_run: 5 },
+      { scan_run_id: runId, scanner_source: 'Tessl: Review (Quality)', status: 'completed', checks_run: 5 },
       { scan_run_id: runId, scanner_source: 'Gitleaks', status: 'completed', checks_run: 3 },
     ],
     findings: [],
@@ -1544,18 +1591,35 @@ test('given must-show MCP completed scan_run when loadData live then GWT-2 sandb
 
 // ── Smoke / live helpers ──────────────────────────────────────────────────
 
-function hasLiveConfigForSmoke() {
-  if (!existsSync(CONFIG_PATH)) return false;
-  const cfg = readLiveConfigForSmoke();
+function envFileValue(text, key) {
+  const match = text.match(new RegExp(`^${key}=(.*)$`, 'm'));
+  if (!match) return '';
+  return match[1].trim().replace(/^['"]|['"]$/g, '');
+}
+
+function isDirectSupabaseConfig(cfg) {
   if (!cfg?.SUPABASE_URL || !cfg?.SUPABASE_ANON_KEY) return false;
   // Local proxy uses a placeholder token; unit suite must not depend on a running server.
-  // Optional smoke is for direct browser→Supabase (real anon JWT in gitignored config).
+  // Optional smoke is for direct browser→Supabase (real anon JWT in gitignored config or .env).
   if (cfg.SUPABASE_ANON_KEY === 'local-dashboard-proxy') return false;
   if (/127\.0\.0\.1|localhost/.test(cfg.SUPABASE_URL)) return false;
   return true;
 }
 
+function hasLiveConfigForSmoke() {
+  const cfg = readLiveConfigForSmoke();
+  return isDirectSupabaseConfig(cfg);
+}
+
 function readLiveConfigForSmoke() {
+  if (existsSync(REPO_ENV_PATH)) {
+    const envText = readFileSync(REPO_ENV_PATH, 'utf8');
+    const fromEnv = {
+      SUPABASE_URL: envFileValue(envText, 'SUPABASE_URL'),
+      SUPABASE_ANON_KEY: envFileValue(envText, 'SUPABASE_ANON_KEY'),
+    };
+    if (isDirectSupabaseConfig(fromEnv)) return fromEnv;
+  }
   if (!existsSync(CONFIG_PATH)) return null;
   const text = readFileSync(CONFIG_PATH, 'utf8');
   const url = text.match(/SUPABASE_URL:\s*"([^"]*)"/)?.[1] ?? '';

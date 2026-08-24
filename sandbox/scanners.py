@@ -564,11 +564,15 @@ def _parse_tessl_lint_detail(output: str) -> tuple[int | None, str]:
     """Extract check count and summary from tessl skill lint text output.
 
     Returns (checks_run, detail). checks_run is None when the output contains
-    no recognisable count pattern. detail is capped at 500 chars.
+    no recognisable count pattern and is not a package-valid success line.
+    Live CLI (2026-08-24) prints ``✔ Plugin <name>@<ver> is valid`` with no
+    numeric count — that is one package-level check. detail is capped at 500 chars.
     """
     text = output.strip()
     match = _TESSL_LINT_COUNT_RE.search(text)
     checks_run = int(match.group(1)) if match else None
+    if checks_run is None and re.search(r"\bis valid\b", text, re.IGNORECASE):
+        checks_run = 1
     detail = text[:500] if text else "lint completed — no output"
     return checks_run, detail
 

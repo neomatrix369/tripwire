@@ -500,6 +500,9 @@ def test_run_tessl_without_token_emits_lint_completed_and_review_needs_setup() -
     lint_row, review_row = rows
     assert lint_row["scanner_source"] == "Tessl: Lint"
     assert lint_row["status"] == "completed"
+    assert lint_row["checks_run"] == 12
+    assert "12 checks" in lint_row["detail"]
+    assert lint_row.get("tessl_run_id") is None
     assert review_row["scanner_source"] == "Tessl: Review (Quality)"
     assert review_row["status"] == "needs_setup"
 
@@ -616,3 +619,23 @@ def test_parse_tessl_lint_detail_extracts_count_from_text() -> None:
     checks_run3, detail3 = scanners._parse_tessl_lint_detail("")
     assert checks_run3 is None
     assert detail3 == "lint completed — no output"
+
+
+def test_parse_tessl_lint_detail_live_valid_plugin_counts_one_check() -> None:
+    """
+    Scenario: live tessl skill lint success has no numeric count.
+      Given stdout captured 2026-08-24 from `tessl skill lint` on a plugin package
+      When _parse_tessl_lint_detail is called
+      Then checks_run is 1 (one package validation ran) and detail keeps the valid line
+
+    Slice: 46 — GWT-46.3 live completed path (plugin-is-valid stdout)
+    """
+    ### Given
+    live_stdout = "✔ Plugin tripwire/safe-changelog-writer@0.0.1 is valid"
+
+    ### When
+    checks_run, detail = scanners._parse_tessl_lint_detail(live_stdout)
+
+    ### Then
+    assert checks_run == 1
+    assert "is valid" in detail.lower()
