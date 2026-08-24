@@ -265,7 +265,15 @@ prerequisites capability bullets DECIDED, targets pending on this branch.
 Design source: [`docs/design/tessl-5-row-expansion.md`](../design/tessl-5-row-expansion.md)
 Replaces the single `"Tessl"` scanner row with 5 flat sibling rows following the Cisco 3-row precedent. Slices 45–48 are Must (ship together as a self-contained rollout unit); 49–50 are Should; 51–52 are Could.
 
-**Coverage Gaps that block certain slices**: A (run-ID stdout timing), B (`tessl scenario view <id>` support), C (agent-assisted generation in Modal) — must be resolved before slices 49–52 begin. See `docs/design/tessl-5-row-expansion.md § Open Questions`.
+**Coverage Gaps (2026-08-24 Tessl CLI + docs probe)**:
+
+- **A** (run-ID timing): **Partially resolved** — `scenario generate` polls until complete; capture ID via `scenario view <id> --json`. `eval run --json` returns eval IDs immediately.
+- **B** (`scenario view <id>`): **Resolved** — explicit ID supported for scenario view/download.
+- **C** (agent-assisted generation in Modal): **Still open** — blocks CLI injection of Quality findings into scenario gen only; plain `scenario generate` path is unaffected.
+
+Slices 49–50 may proceed on Gap A/B resolution; slice 52 cross-read for scenario_gen uses Gap B. Gap C limits UI-only Quality context panel (slice 52 Scenario 3).
+
+See `docs/design/tessl-5-row-expansion.md § Open Questions`.
 
 **PARKED**: retry invocation mechanism (single-row vs. full-scan) — schema is designed to support either; product decision deferred.
 
@@ -275,10 +283,10 @@ Replaces the single `"Tessl"` scanner row with 5 flat sibling rows following the
 | 46 | [slice-46-lint-adapter](slices/12-L-tessl-5-row-expansion/slice-46-lint-adapter.md) | Tessl: Lint Adapter (Row 1) | Must | 🔀 | 45 | [#105](https://github.com/neomatrix369/tripwire/pull/105) | ~4 min |
 | 47 | [slice-47-review-quality-split](slices/12-L-tessl-5-row-expansion/slice-47-review-quality-split.md) | Tessl: Review (Quality) Split + `tesslQuality` Scope Fix (Row 2) | Must | 📋 | 45, 46 | — | ~4 min |
 | 48 | [slice-48-not-available-yet-ui](slices/12-L-tessl-5-row-expansion/slice-48-not-available-yet-ui.md) | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | 📋 | 47 | — | ~3 min |
-| 49 | [slice-49-scenario-generation](slices/12-L-tessl-5-row-expansion/slice-49-scenario-generation.md) | Tessl: Scenario Generation + Resume Checkpoint (Row 3) | Should | 📋 | 47, 48; Gaps A+B | — | ~5 min |
-| 50 | [slice-50-eval-auto-chain](slices/12-L-tessl-5-row-expansion/slice-50-eval-auto-chain.md) | Tessl: Eval + Scenario→Eval Auto-Chain (Row 4) | Should | 📋 | 49 | — | ~4 min |
+| 49 | [slice-49-scenario-generation](slices/12-L-tessl-5-row-expansion/slice-49-scenario-generation.md) | Tessl: Scenario Generation + Resume Checkpoint (Row 3) | Should | 📋 | 47, 48 | — | ~6 min |
+| 50 | [slice-50-eval-auto-chain](slices/12-L-tessl-5-row-expansion/slice-50-eval-auto-chain.md) | Tessl: Eval + Scenario→Eval Auto-Chain (Row 4) | Should | 📋 | 49 | — | ~5 min |
 | 51 | [slice-51-review-security](slices/12-L-tessl-5-row-expansion/slice-51-review-security.md) | Tessl: Review (Security) Adapter (Row 5) | Could | 📋 | 47 | — | ~3 min |
-| 52 | [slice-52-id-lineage-wiring](slices/12-L-tessl-5-row-expansion/slice-52-id-lineage-wiring.md) | ID Lineage Cross-Reads + UI Side-by-Side Findings | Could | 📋 | 49, 50, 51; Gaps A+B+C | — | ~4 min |
+| 52 | [slice-52-id-lineage-wiring](slices/12-L-tessl-5-row-expansion/slice-52-id-lineage-wiring.md) | ID Lineage Cross-Reads + UI Side-by-Side Findings | Could | 📋 | 49, 50, 51; Gap C UI-only | — | ~5 min |
 
 ## Supporting Artifacts
 | File | Status |

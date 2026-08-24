@@ -39,9 +39,14 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (d) — "Not Availabl
 
 ### Scenario 4 — Sentinel rows disappear when feature ships
 
-**Given** a future implementation inserts a `"Tessl: Scenario Generation"` row for a scan_run
+**Given** a future implementation inserts a `"Tessl: Scenario Generation"` or `"Tessl: Eval"` row for a scan_run (slices 49–50)
 **When** the dashboard renders
-**Then** the sentinel placeholder for Scenario Generation is replaced by the real row (with its actual status pill)
+**Then** the sentinel placeholder for that capability is replaced by the real DB row (with its actual status pill, e.g. Eval `blocked`, `running`, or `completed`)
+**And** only `"Tessl: Review (Security)"` remains a sentinel until slice 51 ships
+
+## Forward compatibility (slices 49–50)
+
+Slice 48 ships with rows 3–5 as UI-only sentinels. When slice 49 lands, `"Tessl: Scenario Generation"` is written by the runner; when slice 50 lands, `"Tessl: Eval"` is written (initially `blocked`, then auto-chained). The `TESSL_CAPABILITY_SOURCES` merge logic in this slice must continue to prefer DB rows over sentinels — no dashboard rewrite required.
 
 ## Files to touch
 
