@@ -75,6 +75,43 @@ OK: all tables readable by the anon key.
 If any table shows HTTP 401 or 403, the script prints the fix command
 (`tripwire setup --force`).
 
+## 6. Data API max rows (Live dashboard fleet size)
+
+Supabase’s **Data API** (PostgREST) caps every REST response at **Max rows**
+(default **1000**). Tripwire’s Live dashboard reads **`dashboard_latest_runs`**
+(one row per item) and **batches** `scan_run_scanners` / `findings` fetches (~40
+run IDs per request). With a large fleet, a low Max rows setting can still
+truncate responses. Symptoms:
+
+- Detail drawer shows **`Scanner outputs (0)`** even though Supabase has rows for
+  that scan run
+- Card shows a recent **Last scan** time but no scanner list
+- New Tessl rows (`Tessl: Lint`, `Tessl: Review (Quality)`) missing while older
+  `"Tessl"` rows still appear on other items
+
+This limit is **not** in `.env` or repo config — it is a **project setting** on
+Supabase.
+
+### Raise Max rows (Tripwire live project)
+
+1. Open **Integrations → Data API → Settings** for the live project:
+   [Data API settings](https://supabase.com/dashboard/project/pdvaedgtternbfkztpkq/integrations/data_api/settings)
+2. Find **Max rows** — *“The maximum number of rows returned from a view,
+   table, or function. Limits payload size for accidental or malicious requests.”*
+3. Set it **above your fleet’s latest-run scanner row count** (e.g. **2000** or
+   **5000** when you have hundreds of items). Save.
+
+For another Supabase project: **Dashboard → your project → Integrations → Data
+API → Settings → Max rows**.
+
+After raising the cap, hard-refresh the Live dashboard (`serve-dashboard.mjs`,
+Guard → Live). Run `tripwire setup --force` once if upgrading to a release that
+adds the `dashboard_latest_runs` view (required for per-item latest state).
+
+> **Note:** The dashboard queries `dashboard_latest_runs` instead of a global
+> `scan_runs?limit=2000` page, and batches child-table fetches. Historic
+> `scan_runs` rows remain in Postgres until you define a retention policy.
+
 ## Next
 
 → [modal-setup.md](./modal-setup.md) · optional router:

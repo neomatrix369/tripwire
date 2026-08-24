@@ -63,9 +63,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   category without changing any other scan behaviour; composes with `--dry-discover`,
   `--force`, `--concurrency`, and explicit path arguments
 
+### Fixed
+- Live dashboard latest-state accuracy (partial slice 21): `db/schema.sql` adds
+  `dashboard_latest_runs` view (`DISTINCT ON (item_id)`); `tripwire-live.js` queries
+  it instead of a global `scan_runs?limit=2000` page and batches
+  `scan_run_scanners` / `findings` fetches (~40 run IDs per request) to stay under
+  PostgREST **Max rows**. Historic `scan_runs` rows are retained. Operator:
+  `tripwire setup --force` after upgrade; optional Max rows raise —
+  [supabase-setup § Data API max rows](docs/user-guide/supabase-setup.md#6-data-api-max-rows-live-dashboard-fleet-size).
+
 ### Fixed (dashboard data quality — slice 42)
-- Dashboard now loads up to 2000 scan runs (was capped at 200), fixing ~35+ cards that
-  incorrectly showed "never scanned" / 0 findings despite having real scan data (A1)
+- Dashboard per-item latest run selection (slice 42 A1): superseded for Live load
+  path by `dashboard_latest_runs` view above; the interim `limit=2000` global page
+  fixed ~35+ cards that incorrectly showed "never scanned" / 0 findings when the
+  true latest run fell outside the window
 - `findings` and `scan_run_scanners` fetches are now scoped to the latest run IDs per item
   rather than full-table scans; eliminates network-level waste on every dashboard load (A2)
 - MCP server discovery (`cli/src/discovery.js`) now resolves `install_locus` and

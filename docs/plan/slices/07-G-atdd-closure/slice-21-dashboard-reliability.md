@@ -1,6 +1,10 @@
 # Slice 21: Dashboard Latest-State Accuracy
 
 > Scenario: Brownfield | MoSCoW: Must | Depends on: none
+>
+> **Partial landing (2026-08-24):** `dashboard_latest_runs` view + Live loader
+> batching on branch `fix/dashboard-latest-runs`. Full slice gate (schema contract
+> script, >200-run GWT, gate-evidence PASS) still pending.
 
 ## Outcome
 
