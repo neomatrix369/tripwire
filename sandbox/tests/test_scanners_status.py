@@ -550,6 +550,10 @@ def test_run_tessl_with_token_emits_lint_and_review_rows() -> None:
     assert review_row["status"] == "completed"
     assert review_row["tessl_run_id"] == "rev_abc123"
     assert review_row["tessl_run_id_at"]
+    sources = {row["scanner_source"] for row in rows}
+    assert "Tessl: Scenario Generation" not in sources
+    assert "Tessl: Eval" not in sources
+    assert "Tessl: Review (Security)" not in sources
 
 
 def test_run_tessl_lint_failure_emits_failed_row() -> None:
