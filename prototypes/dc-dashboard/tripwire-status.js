@@ -360,7 +360,7 @@ export function operatorAvailLabel(v) {
  */
 export function tesslInnerQuality(scanner, item) {
   const src = String(scanner?.source || "");
-  if (!/tessl/i.test(src)) return null;
+  if (src !== "Tessl: Review (Quality)") return null;
 
   const score = scanner?.output?.quality_score;
   const known = typeof score === "number" && !Number.isNaN(score);

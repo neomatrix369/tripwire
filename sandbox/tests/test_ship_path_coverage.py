@@ -673,16 +673,24 @@ def test_given_tessl_token_when_run_ok_then_quality_score() -> None:
 
 def test_given_no_tessl_token_when_run_then_skipped() -> None:
     """
-    Scenario: Missing TESSL_TOKEN skips Tessl.
-    Slice: slice-11 — run_tessl skip
+    Scenario: Missing TESSL_TOKEN — Lint completes, Review (Quality) is needs_setup.
+    Slice: slice-11 updated for slice-46 — run_tessl lint-first two-row behavior
     """
     ### Given / When
-    with patch.dict("os.environ", {"TESSL_TOKEN": ""}, clear=False):
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": ""}, clear=False),
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", return_value=(0, "0 checks — 0 findings", "")),
+    ):
         score, rows = scanners.run_tessl("/tmp")
 
     ### Then
     assert score is None
-    assert rows[0]["status"] == "skipped_missing_credential"
+    assert len(rows) == 2
+    assert rows[0]["scanner_source"] == "Tessl: Lint"
+    assert rows[0]["status"] == "completed"
+    assert rows[1]["scanner_source"] == "Tessl: Review (Quality)"
+    assert rows[1]["status"] == "needs_setup"
 
 
 def test_given_tessl_npx_missing_when_run_then_unreachable() -> None:
@@ -704,20 +712,25 @@ def test_given_tessl_npx_missing_when_run_then_unreachable() -> None:
 
 def test_given_tessl_nonzero_when_run_then_unreachable() -> None:
     """
-    Scenario: Nonzero Tessl exit is unreachable.
-    Slice: slice-11 — run_tessl fail
+    Scenario: Nonzero Review exit is unreachable; lint row is unaffected.
+    Slice: slice-11 updated for slice-46 — run_tessl two-row: review fails
     """
     ### Given / When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t"}, clear=False),
         patch.object(scanners, "_which", return_value=True),
-        patch.object(scanners, "_run", return_value=(1, "", "fail")),
+        patch.object(
+            scanners, "_run", side_effect=[(0, "0 checks — 0 findings", ""), (1, "", "fail")]
+        ),
     ):
         score, rows = scanners.run_tessl("/tmp")
 
     ### Then
     assert score is None
-    assert rows[0]["status"] == "unreachable"
+    assert rows[0]["scanner_source"] == "Tessl: Lint"
+    assert rows[0]["status"] == "completed"
+    assert rows[1]["scanner_source"] == "Tessl: Review (Quality)"
+    assert rows[1]["status"] == "unreachable"
 
 
 # ---------------------------------------------------------------------------
@@ -1059,25 +1072,28 @@ def test_given_tessl_no_console_when_completed_then_no_console_key() -> None:
 
 def test_given_tessl_empty_success_output_when_run_then_not_reported_completed() -> None:
     """
-    Scenario: Tessl needs a parseable quality score to certify completion.
-    Slice: scanner evidence integrity
+    Scenario: Tessl Review needs a parseable quality score to certify completion.
+    Slice: scanner evidence integrity (updated for slice-46 two-row behavior)
 
-    Given Tessl exits zero but writes an empty JSON object,
+    Given Tessl exits zero for lint (normal) and for review with an empty JSON object,
     When the quality adapter maps the response,
-    Then it is unreachable instead of a one-check clean result.
+    Then the review row is unreachable instead of a one-check clean result.
     """
     ### Given / When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t"}, clear=False),
         patch.object(scanners, "_which", return_value=True),
-        patch.object(scanners, "_run", return_value=(0, "{}", "")),
+        patch.object(
+            scanners, "_run", side_effect=[(0, "0 checks — 0 findings", ""), (0, "{}", "")]
+        ),
     ):
         score, rows = scanners.run_tessl("/tmp")
 
     ### Then
     assert score is None
-    assert rows[0]["status"] == "unreachable"
-    assert "no parseable quality score" in rows[0]["detail"]
+    assert rows[1]["scanner_source"] == "Tessl: Review (Quality)"
+    assert rows[1]["status"] == "unreachable"
+    assert "no parseable quality score" in rows[1]["detail"]
 
 
 def test_given_on_scanner_start_when_run_all_skill_then_signalled() -> None:

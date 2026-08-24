@@ -537,6 +537,9 @@ def run_snyk(workdir, item_type="mcp_server"):
 
 # ---- Tessl (skills quality axis only, never findings) -----------------------
 
+# Patterns that tessl skill lint may print; captures the leading digit group.
+_TESSL_LINT_COUNT_RE = re.compile(r"(\d+)\s+(?:check|issue|error|warning|finding)", re.IGNORECASE)
+
 
 def _tessl_quality_score(parsed):
     """Extract Tessl quality score (0–100) from current CLI --json shape."""
@@ -557,31 +560,90 @@ def _tessl_quality_score(parsed):
     return None
 
 
+def _parse_tessl_lint_detail(output: str) -> tuple[int | None, str]:
+    """Extract check count and summary from tessl skill lint text output.
+
+    Returns (checks_run, detail). checks_run is None when the output contains
+    no recognisable count pattern. detail is capped at 500 chars.
+    """
+    text = output.strip()
+    match = _TESSL_LINT_COUNT_RE.search(text)
+    checks_run = int(match.group(1)) if match else None
+    detail = text[:500] if text else "lint completed — no output"
+    return checks_run, detail
+
+
 def run_tessl(workdir):
-    if not os.environ.get("TESSL_TOKEN"):
-        return None, [_skipped("Tessl")]
+    """Run Tessl Lint (auth-free) then Review Quality (token-gated) — two rows.
+
+    Lint is synchronous and never requires TESSL_TOKEN; it always runs when npx
+    is available.  Review Quality requires TESSL_TOKEN; its row transitions to
+    needs_setup when the token is absent.
+
+    Returns (quality_score, [lint_row, review_row]).  quality_score is None when
+    Review Quality did not complete successfully.
+    """
+    rows: list[dict] = []
+
+    # --- Tessl: Lint (auth-free, synchronous) ---
     if not _which("npx"):
-        return None, [_unreachable("Tessl", "npx not available (node/npm missing from image)")]
+        rows.append(_unreachable("Tessl: Lint", "npx not available (node/npm missing from image)"))
+    else:
+        code, out, err = _run(["npx", "--yes", "tessl@latest", "skill", "lint", workdir])
+        console = _build_console(out, err)
+        if code != 0:
+            lint_row = {
+                "scanner_source": "Tessl: Lint",
+                "status": "failed",
+                "checks_run": 0,
+                "detail": (err or out or "lint subprocess exited non-zero").strip()[:4000],
+            }
+            if console:
+                lint_row["console_output"] = console
+        else:
+            checks_run, detail = _parse_tessl_lint_detail(out)
+            lint_row = {
+                "scanner_source": "Tessl: Lint",
+                "status": "completed",
+                "checks_run": checks_run,
+                "detail": detail,
+            }
+            if console:
+                lint_row["console_output"] = console
+        rows.append(lint_row)
+
+    # --- Tessl: Review (Quality) (TESSL_TOKEN required) ---
+    if not os.environ.get("TESSL_TOKEN"):
+        rows.append(_skipped("Tessl: Review (Quality)", reason="needs_setup"))
+        return None, rows
     code, out, err = _run(["npx", "--yes", "tessl@latest", "skill", "review", "--json", workdir])
     console = _build_console(out, err)
     if code != 0:
-        return None, [_unreachable("Tessl", err or out, console_output=console)]
+        rows.append(_unreachable("Tessl: Review (Quality)", err or out, console_output=console))
+        return None, rows
     parsed = _safe_json(out)
     score = _tessl_quality_score(parsed)
     if score is None:
         print(f"[tessl] quality_score extraction failed — raw output: {out[:500]!r}")
-        return None, [
+        rows.append(
             _unreachable(
-                "Tessl",
+                "Tessl: Review (Quality)",
                 "scanner returned no parseable quality score",
                 console_output=console,
             )
-        ]
+        )
+        return None, rows
     detail = f"quality_score = {score}"
-    row = {"scanner_source": "Tessl", "status": "completed", "checks_run": 1, "detail": detail}
+    review_row = {
+        "scanner_source": "Tessl: Review (Quality)",
+        "status": "completed",
+        "checks_run": 1,
+        "detail": detail,
+    }
     if console:
-        row["console_output"] = console
-    return score, [row]
+        review_row["console_output"] = console
+    rows.append(review_row)
+    return score, rows
 
 
 # ---- DepShield (dependency vulnerability audit via depshield-mcp) -----------
@@ -1120,7 +1182,7 @@ SKILL_SCANNER_SOURCES = [
 
 MCP_SCANNER_SOURCES = list(_MCP_ANALYZER_LABEL.values())
 
-TESSL_SOURCES = ["Tessl"]
+TESSL_SOURCES = ["Tessl: Lint", "Tessl: Review (Quality)"]
 SNYK_SOURCES = ["Snyk"]
 DEPSHIELD_SOURCES = ["DepShield"]
 OSSPREY_SOURCES = ["Ossprey"]
