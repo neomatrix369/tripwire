@@ -637,6 +637,339 @@ def _update_tessl_id_context(ctx: dict[str, str | None], key: str, run_id: str |
     ctx[key] = run_id
 
 
+def _attach_upstream_run_ids(row: dict, ctx: dict[str, str | None], *keys: str) -> None:
+    """Copy selected Tessl ID-context keys onto the row before CLI invoke."""
+    row["upstream_run_ids"] = {key: ctx.get(key) for key in keys}
+
+
+_TESSL_SCENARIO_SOURCE = "Tessl: Scenario Generation"
+_TESSL_SCENARIO_COUNT = 3
+_TESSL_SCENARIO_POLL_SLEEP_S = 2
+_TESSL_SCENARIO_POLL_MAX = 90
+
+
+def _has_tessl_plugin_manifest(workdir: str) -> bool:
+    return os.path.isfile(os.path.join(workdir, ".tessl-plugin", "plugin.json"))
+
+
+def _parse_scenario_status(parsed) -> str | None:
+    if not isinstance(parsed, dict):
+        return None
+    for key in ("status", "state"):
+        value = parsed.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip().lower()
+    nested = parsed.get("generation")
+    if isinstance(nested, dict):
+        return _parse_scenario_status(nested)
+    return None
+
+
+def _parse_scenario_count(parsed) -> int | None:
+    if not isinstance(parsed, dict):
+        return None
+    for key in ("scenarioCount", "scenario_count", "count", "checks_run"):
+        value = parsed.get(key)
+        if isinstance(value, int) and value >= 0:
+            return value
+    scenarios = parsed.get("scenarios")
+    if isinstance(scenarios, list):
+        return len(scenarios)
+    nested = parsed.get("generation")
+    if isinstance(nested, dict):
+        return _parse_scenario_count(nested)
+    return None
+
+
+def _parse_scenario_gen_id(parsed) -> str | None:
+    """Extract scenario generation ID from generate/view --json."""
+    if not isinstance(parsed, dict):
+        return None
+    for key in ("id", "runId", "run_id", "generationId", "generation_id"):
+        value = parsed.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    nested = parsed.get("generation")
+    if isinstance(nested, dict):
+        return _parse_scenario_gen_id(nested)
+    return _parse_tessl_run_id(parsed)
+
+
+def _tessl_scenario_generate_argv(workdir: str, count: int = _TESSL_SCENARIO_COUNT) -> list[str]:
+    return [
+        "npx",
+        "--yes",
+        "tessl@latest",
+        "scenario",
+        "generate",
+        workdir,
+        "--count",
+        str(count),
+    ]
+
+
+def _tessl_scenario_view_argv(gen_id: str | None) -> list[str]:
+    argv = ["npx", "--yes", "tessl@latest", "scenario", "view"]
+    if gen_id:
+        argv.append(gen_id)
+    else:
+        argv.extend(["--last", "--mine"])
+    argv.append("--json")
+    return argv
+
+
+def _tessl_scenario_download_argv(gen_id: str, workdir: str) -> list[str]:
+    return [
+        "npx",
+        "--yes",
+        "tessl@latest",
+        "scenario",
+        "download",
+        gen_id,
+        "-o",
+        os.path.join(workdir, "evals"),
+    ]
+
+
+def _emit_tessl_row_progress(on_progress, row: dict) -> None:
+    if on_progress is None:
+        return
+    on_progress(dict(row))
+
+
+def _count_evals_scenarios(workdir: str) -> int:
+    evals_dir = os.path.join(workdir, "evals")
+    if not os.path.isdir(evals_dir):
+        return 0
+    count = 0
+    for name in os.listdir(evals_dir):
+        path = os.path.join(evals_dir, name)
+        if os.path.isdir(path) and not name.startswith("."):
+            count += 1
+    return count
+
+
+def _poll_scenario_until_terminal(
+    gen_id: str | None,
+    *,
+    max_attempts: int = _TESSL_SCENARIO_POLL_MAX,
+    sleep_s: float = _TESSL_SCENARIO_POLL_SLEEP_S,
+) -> tuple[str | None, dict | None, str]:
+    """Poll scenario view until completed/failed. Returns (status, parsed, console)."""
+    last_console = ""
+    last_parsed = None
+    for _ in range(max_attempts):
+        code, out, err = _run(_tessl_scenario_view_argv(gen_id))
+        last_console = _build_console(out, err) or last_console
+        parsed = _safe_json(out)
+        last_parsed = parsed if isinstance(parsed, dict) else last_parsed
+        status = _parse_scenario_status(parsed)
+        if status in {"completed", "failed"}:
+            return status, last_parsed, last_console
+        if code not in (0, None) and status is None:
+            return "failed", last_parsed, last_console
+        if sleep_s > 0:
+            time.sleep(sleep_s)
+    return _parse_scenario_status(last_parsed), last_parsed, last_console
+
+
+def _capture_scenario_gen_id(generate_out: str, known_id: str | None = None) -> str | None:
+    if known_id:
+        return known_id
+    from_generate = _parse_scenario_gen_id(_safe_json(generate_out))
+    if from_generate:
+        return from_generate
+    _code, out, _err = _run(_tessl_scenario_view_argv(None))
+    return _parse_scenario_gen_id(_safe_json(out))
+
+
+def _scenario_row_with_console(row: dict, consoles: list[str]) -> dict:
+    if consoles:
+        row["console_output"] = "\n".join(consoles)[:MAX_CONSOLE_CHARS]
+    return row
+
+
+def _scenario_checkpoint_row(
+    row: dict,
+    *,
+    status: str,
+    detail: str,
+    gen_id: str | None,
+    consoles: list[str],
+    on_progress,
+) -> dict:
+    row["status"] = status
+    row["detail"] = detail[:4000]
+    if gen_id:
+        row["resume_checkpoint"] = {"stage": "generated", "gen_id": gen_id}
+        _stamp_tessl_run_id(row, gen_id)
+    _scenario_row_with_console(row, consoles)
+    _emit_tessl_row_progress(on_progress, row)
+    return row
+
+
+def _scenario_gen_preflight(workdir: str, upstream_run_ids: dict) -> dict | None:
+    """Return an early terminal row when token/plugin prerequisites fail."""
+    if not os.environ.get("TESSL_TOKEN"):
+        skipped: dict = _skipped(
+            _TESSL_SCENARIO_SOURCE, reason="needs_setup", detail="TESSL_TOKEN required"
+        )
+        skipped["upstream_run_ids"] = upstream_run_ids
+        return skipped
+    if _has_tessl_plugin_manifest(workdir):
+        return None
+    return {
+        "scanner_source": _TESSL_SCENARIO_SOURCE,
+        "status": "failed",
+        "checks_run": 0,
+        "detail": (
+            "missing .tessl-plugin/plugin.json — import via `tessl skill import` "
+            "or add a plugin manifest before scenario generation"
+        ),
+        "upstream_run_ids": upstream_run_ids,
+    }
+
+
+def _ensure_scenario_generated(
+    workdir: str,
+    row: dict,
+    gen_id: str | None,
+    stage: str | None,
+    consoles: list[str],
+    on_progress,
+) -> tuple[str | None, dict | None]:
+    """Ensure generation completed. Returns (gen_id, early_row_or_None)."""
+    if stage == "generated" and gen_id:
+        status, view_parsed, view_console = _poll_scenario_until_terminal(gen_id)
+        if view_console:
+            consoles.append(view_console)
+        if status != "completed":
+            early = _scenario_checkpoint_row(
+                row,
+                status="failed" if status == "failed" else "interrupted",
+                detail=f"scenario generation status={status or 'unknown'} — download deferred",
+                gen_id=gen_id,
+                consoles=consoles,
+                on_progress=on_progress,
+            )
+            return gen_id, early
+        count_hint = _parse_scenario_count(view_parsed)
+        if count_hint is not None:
+            row["checks_run"] = count_hint
+        return gen_id, None
+
+    code, out, err = _run(_tessl_scenario_generate_argv(workdir))
+    console = _build_console(out, err)
+    if console:
+        consoles.append(console)
+    if code is None:
+        timed_out_id = _capture_scenario_gen_id(out, gen_id)
+        early = _scenario_checkpoint_row(
+            row,
+            status="interrupted",
+            detail=(err or out or "scenario generate timed out").strip(),
+            gen_id=timed_out_id,
+            consoles=consoles,
+            on_progress=on_progress,
+        )
+        return timed_out_id, early
+    if code != 0:
+        row["status"] = "failed"
+        row["detail"] = (err or out or "scenario generate exited non-zero").strip()[:4000]
+        return None, _scenario_row_with_console(row, consoles)
+    captured_id = _capture_scenario_gen_id(out, gen_id)
+    if not captured_id:
+        row["status"] = "failed"
+        row["detail"] = "scenario generate succeeded but no generation id was captured"
+        return None, _scenario_row_with_console(row, consoles)
+    row["resume_checkpoint"] = {"stage": "generated", "gen_id": captured_id}
+    _stamp_tessl_run_id(row, captured_id)
+    _emit_tessl_row_progress(on_progress, row)
+    return captured_id, None
+
+
+def _scenario_download_and_finish(
+    workdir: str,
+    ctx: dict[str, str | None],
+    row: dict,
+    gen_id: str,
+    consoles: list[str],
+    on_progress,
+) -> dict:
+    code, out, err = _run(_tessl_scenario_download_argv(gen_id, workdir))
+    console = _build_console(out, err)
+    if console:
+        consoles.append(console)
+    if code != 0:
+        return _scenario_checkpoint_row(
+            row,
+            status="failed",
+            detail=(err or out or "scenario download exited non-zero").strip(),
+            gen_id=gen_id,
+            consoles=consoles,
+            on_progress=on_progress,
+        )
+
+    row["resume_checkpoint"] = {"stage": "moved"}
+    _emit_tessl_row_progress(on_progress, row)
+
+    checks = _count_evals_scenarios(workdir)
+    if checks == 0:
+        view_code, view_out, view_err = _run(_tessl_scenario_view_argv(gen_id))
+        view_console = _build_console(view_out, view_err)
+        if view_console:
+            consoles.append(view_console)
+        if view_code == 0:
+            parsed_count = _parse_scenario_count(_safe_json(view_out))
+            if parsed_count is not None:
+                checks = parsed_count
+
+    row["status"] = "completed"
+    row["checks_run"] = checks
+    row["detail"] = f"{checks} scenario{'s' if checks != 1 else ''} downloaded to evals/"
+    row["resume_checkpoint"] = None
+    _stamp_tessl_run_id(row, gen_id)
+    _update_tessl_id_context(ctx, "scenario_gen", gen_id)
+    _scenario_row_with_console(row, consoles)
+    _emit_tessl_row_progress(on_progress, row)
+    return row
+
+
+def _run_tessl_scenario_gen(
+    workdir: str,
+    ctx: dict[str, str | None],
+    *,
+    resume_checkpoint: dict | None = None,
+    on_progress=None,
+) -> dict:
+    """Run plugin-path scenario generate → download with resume_checkpoint support."""
+    row: dict = {
+        "scanner_source": _TESSL_SCENARIO_SOURCE,
+        "status": "running",
+        "checks_run": 0,
+    }
+    _attach_upstream_run_ids(row, ctx, "review_quality")
+    _emit_tessl_row_progress(on_progress, row)
+
+    gated = _scenario_gen_preflight(workdir, row["upstream_run_ids"])
+    if gated is not None:
+        return gated
+
+    checkpoint = dict(resume_checkpoint) if isinstance(resume_checkpoint, dict) else {}
+    gen_id = checkpoint.get("gen_id") if isinstance(checkpoint.get("gen_id"), str) else None
+    stage = checkpoint.get("stage") if isinstance(checkpoint.get("stage"), str) else None
+    consoles: list[str] = []
+
+    gen_id, early = _ensure_scenario_generated(workdir, row, gen_id, stage, consoles, on_progress)
+    if early is not None:
+        return early
+    if not gen_id:
+        row["status"] = "failed"
+        row["detail"] = "scenario generation id missing after generate"
+        return _scenario_row_with_console(row, consoles)
+    return _scenario_download_and_finish(workdir, ctx, row, gen_id, consoles, on_progress)
+
+
 def _finish_tessl_review(
     judge_type: str, source: str, workspace: str, code, out: str, err: str
 ) -> tuple[float | None, dict]:
@@ -702,18 +1035,27 @@ def _parse_tessl_lint_detail(output: str) -> tuple[int | None, str]:
     return checks_run, detail
 
 
-def run_tessl(workdir, id_context: dict[str, str | None] | None = None):
-    """Run Tessl Lint (auth-free) then Review Quality (token-gated) — two rows.
+def run_tessl(
+    workdir,
+    id_context: dict[str, str | None] | None = None,
+    *,
+    resume_checkpoint: dict | None = None,
+    on_row_progress=None,
+):
+    """Run Tessl Lint, Review Quality, then Scenario Generation.
 
     Lint is synchronous and never requires TESSL_TOKEN; it always runs when npx
     is available.  Review Quality requires TESSL_TOKEN and TESSL_WORKSPACE; its
-    row transitions to needs_setup when either is absent.
+    row transitions to needs_setup when either is absent. Scenario Generation
+    requires TESSL_TOKEN and ``.tessl-plugin/plugin.json``.
 
-    Returns (quality_score, [lint_row, review_row]).  quality_score is None when
-    Review Quality did not complete successfully.
+    Returns (quality_score, [lint_row, review_row, scenario_row]). quality_score
+    is None when Review Quality did not complete successfully.
 
     id_context is the in-process Tessl ID bag for this invocation (GWT-47.5).
     Tests inject it to observe carry-forward; production seeds a fresh dict.
+    resume_checkpoint resumes Scenario Generation after Modal detach/timeout.
+    on_row_progress receives partial Scenario Generation rows for mid-scan persist.
     """
     rows: list[dict] = []
     ctx = id_context if id_context is not None else _new_tessl_id_context()
@@ -746,14 +1088,24 @@ def run_tessl(workdir, id_context: dict[str, str | None] | None = None):
         rows.append(lint_row)
 
     # --- Tessl: Review (Quality) (TESSL_TOKEN + TESSL_WORKSPACE required) ---
+    score = None
     if not os.environ.get("TESSL_TOKEN") or not (os.environ.get("TESSL_WORKSPACE") or "").strip():
         rows.append(_skipped("Tessl: Review (Quality)", reason="needs_setup"))
         _update_tessl_id_context(ctx, "review_quality", None)
-        return None, rows
-    workspace = os.environ["TESSL_WORKSPACE"].strip()
-    score, review_row = _run_tessl_review("quality", workdir, workspace)
-    rows.append(review_row)
-    _update_tessl_id_context(ctx, "review_quality", review_row.get("tessl_run_id"))
+    else:
+        workspace = os.environ["TESSL_WORKSPACE"].strip()
+        score, review_row = _run_tessl_review("quality", workdir, workspace)
+        rows.append(review_row)
+        _update_tessl_id_context(ctx, "review_quality", review_row.get("tessl_run_id"))
+
+    # --- Tessl: Scenario Generation (token + plugin manifest) ---
+    scenario_row = _run_tessl_scenario_gen(
+        workdir,
+        ctx,
+        resume_checkpoint=resume_checkpoint,
+        on_progress=on_row_progress,
+    )
+    rows.append(scenario_row)
     return score, rows
 
 
@@ -1293,7 +1645,7 @@ SKILL_SCANNER_SOURCES = [
 
 MCP_SCANNER_SOURCES = list(_MCP_ANALYZER_LABEL.values())
 
-TESSL_SOURCES = ["Tessl: Lint", "Tessl: Review (Quality)"]
+TESSL_SOURCES = ["Tessl: Lint", "Tessl: Review (Quality)", "Tessl: Scenario Generation"]
 SNYK_SOURCES = ["Snyk"]
 DEPSHIELD_SOURCES = ["DepShield"]
 OSSPREY_SOURCES = ["Ossprey"]
@@ -1314,9 +1666,20 @@ def _run_skill_scanner_group(workdir, item_type, target):
     return findings, rows, None
 
 
-def _run_tessl_group(workdir, item_type, target):
+def _run_tessl_group(
+    workdir,
+    item_type,
+    target,
+    *,
+    resume_checkpoint: dict | None = None,
+    on_row_progress=None,
+):
     """Tessl group — quality axis only: (quality_score, rows), never findings."""
-    quality_score, rows = run_tessl(workdir)
+    quality_score, rows = run_tessl(
+        workdir,
+        resume_checkpoint=resume_checkpoint,
+        on_row_progress=on_row_progress,
+    )
     return [], rows, quality_score
 
 
@@ -1371,7 +1734,15 @@ def _group_applies(applies_to, item_type):
     return item_type != "skill"
 
 
-def run_all_scanners(workdir, item_type, target, on_scanner_done=None, on_scanner_start=None):
+def run_all_scanners(
+    workdir,
+    item_type,
+    target,
+    on_scanner_done=None,
+    on_scanner_start=None,
+    on_scanner_progress=None,
+    tessl_scenario_resume=None,
+):
     """Run every applicable SCANNER_GROUPS entry, optionally relaying results.
 
     When *on_scanner_start* is provided it is called before each scanner group
@@ -1383,6 +1754,10 @@ def run_all_scanners(workdir, item_type, target, on_scanner_done=None, on_scanne
     finishes with ``(findings, scanner_rows, quality_score)``.  This lets the
     caller (scan_app) persist rows/findings to Supabase as they arrive so the
     dashboard shows progress scanner-by-scanner.
+
+    When *on_scanner_progress* is provided it receives mid-group Tessl row
+    updates (e.g. Scenario Generation ``resume_checkpoint``) for partial persist.
+    *tessl_scenario_resume* rehydrates Scenario Generation after Modal timeout.
     """
     findings, scanner_rows = [], []
     quality_score = None
@@ -1392,7 +1767,16 @@ def run_all_scanners(workdir, item_type, target, on_scanner_done=None, on_scanne
             continue
         if on_scanner_start:
             on_scanner_start(group["sources"])
-        f, r, qs = group["runner"](workdir, item_type, target)
+        if group["runner"] is _run_tessl_group:
+            f, r, qs = _run_tessl_group(
+                workdir,
+                item_type,
+                target,
+                resume_checkpoint=tessl_scenario_resume,
+                on_row_progress=on_scanner_progress,
+            )
+        else:
+            f, r, qs = group["runner"](workdir, item_type, target)
         findings += f
         scanner_rows += r
         if qs is not None:

@@ -51,9 +51,10 @@ Rejected: fixture and local skill scans are the primary operator path.
 
 ## Later decisions
 
-Host `evals/` on Tessl plugins is **DECIDED** as omitted from the upload tar
-(`tessl.json` or `.tessl-plugin/` at the skill root). That exclude is **not**
-in `_pack_local_dir` yet — current behaviour is still a whole-tree gzipped tar.
+Host `evals/` on Tessl plugins is omitted from the upload tar and from
+same-machine `_copy_local` when `tessl.json` or `.tessl-plugin/` is at the
+skill root (`_pack_local_dir` filter). Non-Tessl trees keep `evals/`.
+Git clone and `hashLocalPath` still walk on-disk `evals/`.
 See [plan/DECISIONS.md](../plan/DECISIONS.md) (2026-08-24 packing).
 
 ## References

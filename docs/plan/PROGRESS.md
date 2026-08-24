@@ -27,7 +27,7 @@
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
 | 0 (docs) | K | **44** | **Docs UX plain language + compaction** | Must | 🔀 ON BRANCH · [#99](https://github.com/neomatrix369/tripwire/pull/99) · GWT-44.1–44.8 · documentarist APPROVED WITH FOLLOW-ON (DIVIO targets pending) · `slice/44-docs-ux-plain-language` |
-| 0 (active) | L | **48** | **"Not Available Yet" Placeholder Rows (Rows 3–5)** | Must | 🔨 IN PROGRESS · after-checks green · awaiting commit/PR · `slice/48-not-available-yet-ui` |
+| 0 (active) | L | **49** | **Tessl: Scenario Generation + Resume Checkpoint (Row 3)** | Should | 🔄 IN PROGRESS · quality-gates green · `slice/49-scenario-generation` |
 | 0 (delta) | J | 42 | Dashboard Data Quality — Tessl quality UX + tooltips + plain labels (A9–A13) | Must | ✅ PASSED · [#98](https://github.com/neomatrix369/tripwire/pull/98) |
 | 1 | G | 18 | CLI Operator Evidence Contracts | Must | 📋 PLANNED |
 | 2 | G | 19 | Sandbox Persistence State Contract | Must | 📋 PLANNED |
@@ -175,7 +175,7 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 46 | [slice-46-lint-adapter](slices/12-L-tessl-5-row-expansion/slice-46-lint-adapter.md) | Must | ✅ PASSED ([#105](https://github.com/neomatrix369/tripwire/pull/105)) | 2026-08-24 | 2026-08-24 | ~4 min |
 | 47 | [slice-47-review-quality-split](slices/12-L-tessl-5-row-expansion/slice-47-review-quality-split.md) | Must | ✅ PASSED ([#109](https://github.com/neomatrix369/tripwire/pull/109)) | 2026-08-24 | 2026-08-24 | ~4 min |
 | 48 | [slice-48-not-available-yet-ui](slices/12-L-tessl-5-row-expansion/slice-48-not-available-yet-ui.md) | Must | 🔨 IN PROGRESS | 2026-08-24 | — | ~3 min |
-| 49 | [slice-49-scenario-generation](slices/12-L-tessl-5-row-expansion/slice-49-scenario-generation.md) | Should | 📋 PLANNED | — | — | ~6 min |
+| 49 | [slice-49-scenario-generation](slices/12-L-tessl-5-row-expansion/slice-49-scenario-generation.md) | Should | 🔄 IN PROGRESS | — | — | ~6 min |
 | 50 | [slice-50-eval-auto-chain](slices/12-L-tessl-5-row-expansion/slice-50-eval-auto-chain.md) | Should | 📋 PLANNED | — | — | ~5 min |
 | 51 | [slice-51-review-security](slices/12-L-tessl-5-row-expansion/slice-51-review-security.md) | Could | 📋 PLANNED | — | — | ~3 min |
 | 52 | [slice-52-id-lineage-wiring](slices/12-L-tessl-5-row-expansion/slice-52-id-lineage-wiring.md) | Could | 📋 PLANNED | — | — | ~5 min |
