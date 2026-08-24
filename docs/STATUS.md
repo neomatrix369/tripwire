@@ -82,8 +82,9 @@ Reachable through production entry points / config:
   and `needs_setup` when `TESSL_TOKEN` is absent. Mock dashboard fixtures include
   Lint at Tessl-block position 1. Live CLI 2026-08-24: lint targets plugin
   packages; skill-folder fixtures exit 1 (adapter → `failed`). IMPLEMENTED +
-  VERIFIED(unit); live Modal scan not recorded — `sandbox/scanners.py`,
-  `prototypes/dc-dashboard/` (slice 46 🔀)
+  VERIFIED(unit) + VERIFIED(live persist scan_run `a36cad9f`, 2026-08-24) —
+  `sandbox/scanners.py`, `prototypes/dc-dashboard/` (slice 46 🔀,
+  [PR #105](https://github.com/neomatrix369/tripwire/pull/105))
 - `risk_score` weighted finding density from `tripwire_rollup_item`; cards show
   compact `R N.NN` badges with density-formula portal tips (list header **Risk density**);
   card colour remains worst-of `heatmap_status`, not density (slice 42 A11/A13)
@@ -102,8 +103,8 @@ Reachable through production entry points / config:
 - `pytest sandbox/tests/test_acquire_target.py` — acquire-target dispatch
 - `cd prototypes/dc-dashboard && npm test` — Live gating, Realtime wiring,
   SCANNING/console/unreachable mapping; Tessl Lint vs Review (Quality) inner
-  quality scope (GWT-46.4) — 89 pass / 1 skip (2026-08-24); optional Live smoke
-  skipped without config
+  quality scope (GWT-46.4) — 90 pass / 0 skip (2026-08-24); live-smoke reads
+  repo `.env`
 
 ---
 

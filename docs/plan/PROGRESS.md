@@ -250,3 +250,4 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-21 | slice/44-docs-ux-plain-language | sync-docs | 44 | APPLIED | STATUS ON BRANCH/DECIDED aligned to APPROVED WITH FOLLOW-ON; user-guide targets untouched. |
 | 2026-08-22 | slice/44-docs-ux-plain-language | sync-docs | 44 | APPLIED | PR #99 linked in STATUS/PROGRESS; gate-evidence SHA `0362d36`. |
 | 2026-08-24 | slice/46-tessl-lint-adapter | verify-slice repair | 46 | 🔀 ON BRANCH | Dashboard name contract + design Coverage Gap 1 + trackers; live `tessl skill lint --help` probed. |
+| 2026-08-24 | slice/46-tessl-lint-adapter | sync-docs | 46 | 🔀 ON BRANCH | Live persist VERIFIED(scan_run a36cad9f); TRAIL/gate-evidence PR #105. Still 🔀 until merge. |

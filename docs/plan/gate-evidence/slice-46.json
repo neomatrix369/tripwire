@@ -5,7 +5,7 @@
   "verdict": "PASS",
   "date": "2026-08-24",
   "branch": "slice/46-tessl-lint-adapter",
-  "commit_at_evidence": "2be308d plus uncommitted dashboard+docs+live-parser repair",
+  "commit_at_evidence": "c05a53f",
   "moscow": "Must",
   "before_checks": "slice stub present; depends on slice 45 ✅ (#103); live Supabase 14-state constraint applied 2026-08-24 via tripwire setup --force",
   "after_checks": [
@@ -51,7 +51,7 @@
   ],
   "coverage_pct": "sandbox 97.03% / scanners.py 98.6% (fail-under 95)",
   "complexity_tool": "xenon scanners.py max-absolute D (exit 0); radon via scripts/complexity-report.sh",
-  "doc_audit": "docs/design/tessl-5-row-expansion.md Coverage Gap 1 IMPLEMENTED; STATUS/CHANGELOG/PROGRESS/TRAIL/ARCHITECTURE/prerequisites/env-vars updated; Mock UI GWT-46.4 observed",
+  "doc_audit": "docs/design/tessl-5-row-expansion.md Coverage Gap 1 IMPLEMENTED; STATUS live persist VERIFIED(scan_run a36cad9f); CHANGELOG/PROGRESS/TRAIL(#105)/ARCHITECTURE/prerequisites/env-vars; Mock UI GWT-46.4 observed",
   "live_migration_applied": "2026-08-24",
   "live_cli": {
     "date_utc": "2026-08-24",
@@ -71,5 +71,5 @@
     "gwt_46_4": "Tessl: Lint first (Completed, 12 checks, no Q badge); Tessl: Review (Quality) second (Q 92)"
   },
   "review": "nw-review APPROVED 2026-08-24 (nw-software-crafter-reviewer)",
-  "pr": null
+  "pr": "https://github.com/neomatrix369/tripwire/pull/105"
 }

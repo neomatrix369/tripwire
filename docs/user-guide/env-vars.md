@@ -7,9 +7,9 @@
 Start here: [QUICKSTART](../../QUICKSTART.md) · Hub: [docs/README](../README.md)
 
 > **Minimum Viable Live:** Supabase + Modal keys only. Add Snyk / Tessl / Cisco
-> when you want full scanner coverage. If a scanner credential is absent, the
-> runtime safely reports `skipped_missing_credential` for that engine — not a
-> complete “all clear.”
+> when you want full scanner coverage. Missing Snyk/Cisco keys report
+> `skipped_missing_credential`. Missing `TESSL_TOKEN` still runs Lint (auth-free)
+> and marks Review (Quality) `needs_setup` — not a complete “all clear.”
 >
 > For full Live coverage, provision all five vendors before `cp .env.example .env`.
 >
@@ -75,7 +75,7 @@ not a second environment-variable schema.
 | `MCP_SCANNER_LLM_MODEL` | MCP LLM routing | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 | `MCP_SCANNER_LLM_BASE_URL` | Custom MCP LLM endpoint | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 | `MCP_SCANNER_LLM_API_VERSION` | Azure-style APIs | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
-| `TESSL_TOKEN` | Tessl on Modal/CI | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
+| `TESSL_TOKEN` | Tessl Review (Quality) on Modal/CI (Lint is auth-free) | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 | `TESSL_WORKSPACE` | Tessl workspace name | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 
 ## Tier C — Full depth (paid Cisco AI Defense)

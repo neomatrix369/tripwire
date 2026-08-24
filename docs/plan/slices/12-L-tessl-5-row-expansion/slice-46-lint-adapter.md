@@ -8,20 +8,13 @@
 
 ## Pre-conditions (operator gate — before first live scan)
 
-> **Live Supabase migration required.** Slice 45 CI verified the schema change against `db/schema.sql` only — no live DB was in CI. Before any scan data from this slice reaches the production Supabase instance, the operator must apply the migration manually:
->
-> ```sql
-> -- Run against the live Supabase instance (SQL editor or psql)
-> -- Full idempotent block is in db/schema.sql § scan_run_scanners_status_check
-> ```
->
-> Without this step, any insert with a new status value (`needs_setup`, `queued`, `running`, etc.) will fail with a Supabase constraint violation. Record the run date in gate evidence under `live_migration_applied`.
+> **Live Supabase migration applied 2026-08-24** via `tripwire setup --force` (recorded in gate evidence `live_migration_applied`). Re-apply only on an environment that still has the old 6-state constraint. Slice 45 CI verified the schema against `db/schema.sql` only. Without the 14-state constraint, inserts with `needs_setup` / `queued` / `running` fail. Idempotent SQL: `db/schema.sql` § `scan_run_scanners_status_check`.
 
 ## Context
 
 Add `Tessl: Lint` as the first of the 5 new Tessl rows. `tessl skill lint <path>` is deterministic, fast, auth-free, and synchronous — the simplest Tessl capability to implement first.
 
-Today Tripwire does NOT invoke lint (Coverage Gap verified: `sandbox/scanners.py:560–585` only calls `skill review`). This slice adds lint as a separate `scanner_source` row alongside the existing review row.
+**At slice start** Tripwire invoked only `skill review`. **On this branch:** `run_tessl()` calls `npx --yes tessl@latest skill lint <workdir>` first and writes `scanner_source = "Tessl: Lint"`, then `"Tessl: Review (Quality)"`. Live persist VERIFIED 2026-08-24 (`scan_run a36cad9f`).
 
 Design reference: `docs/design/tessl-5-row-expansion.md § (a), (b), (d)`
 
@@ -59,7 +52,8 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a), (b), (d)`
 ## Files to touch
 
 - `sandbox/scanners.py` — extend `run_tessl()` to emit a Lint row (follow Cisco pattern: separate invocation, separate `scanner_source` string)
-- `prototypes/dc-dashboard/Tripwire.dc.html` — ensure `tesslQuality` badge is scoped to `"Tessl: Review (Quality)"` only (not `"Tessl: Lint"`)
+- `prototypes/dc-dashboard/tripwire-status.js` — `tesslInnerQuality` scoped to `"Tessl: Review (Quality)"` only (not `"Tessl: Lint"`)
+- `prototypes/dc-dashboard/tripwire-live.js` — attach Live `quality_score` to the Review source only
 
 ## Gate evidence fields
 

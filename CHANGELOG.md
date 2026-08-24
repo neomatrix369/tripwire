@@ -42,6 +42,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   marks Review `needs_setup`. Dashboard Mock/Live bind quality badges to Review
   only. Live CLI probe 2026-08-24: lint validates plugin packages; skill-folder
   fixtures exit 1. Live success stdout `✔ Plugin … is valid` maps to `checks_run=1`.
+  Live persist VERIFIED 2026-08-24: scan_run `a36cad9f` wrote Lint `failed`
+  (no plugin manifest on the SKILL.md-only fixture) and Review `completed`
+  (quality_score 64).
 - `tripwire status [--json] [--limit <n>]` — read-only monitoring report (slice 37):
   agent-hook install/enable state with the two-switch view (local `enable` AND Supabase
   `config.monitoring_enabled`, disagreement warned), items heatmap distribution, recent

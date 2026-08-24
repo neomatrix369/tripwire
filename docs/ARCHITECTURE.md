@@ -283,8 +283,8 @@ card colour must not be inferred from this number alone.
 `quality_score` is the Tessl skill-review axis (0–100, higher better), written
 by `run_tessl` / `_tessl_quality_score` and mapped into Live as `item.quality`
 on the `"Tessl: Review (Quality)"` scanner row only. `"Tessl: Lint"` is a
-separate `scan_run_scanners` row (slice 46 IMPLEMENTED): `tessl skill lint`,
-auth-free, no `tessl_run_id`. It is orthogonal to findings and to `risk_score`. Dashboard skill cards surface
+separate `scan_run_scanners` row (slice 46 IMPLEMENTED + VERIFIED persist
+scan_run `a36cad9f`): `tessl skill lint`, auth-free, no `tessl_run_id`. It is orthogonal to findings and to `risk_score`. Dashboard skill cards surface
 compact `Q N` / `Q —` / `Q ?` badges with a fixed `#score-tip-portal` (not delayed
 native `title=`, not in-card absolute bubbles that clip under `overflow-y: auto`);
 risk uses compact `R N.NN` badges (list header **Risk density**) with the same
