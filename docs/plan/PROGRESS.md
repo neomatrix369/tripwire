@@ -6,7 +6,7 @@
 | Wave | Folder | Group | Slices | Outcome |
 |-----:|--------|-------|--------|---------|
 | 11 | [`11-K-…`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** | 🔀 |
-| 12 | [`12-L-…`](slices/12-L-tessl-5-row-expansion/) | **L — Tessl 5-row expansion** | 45 ✅ · **46** 🔀 · 47–52 📋 | 45 ✅ · 46 🔀 |
+| 12 | [`12-L-…`](slices/12-L-tessl-5-row-expansion/) | **L — Tessl 5-row expansion** | 45 ✅ · 46 ✅ · **47** 🔨 · 48–52 📋 | 45 ✅ · 46 ✅ · 47 🔨 |
 | 9 | [`09-I-…`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 ✅ · 43 | 41 ✅ · 43 ✅ |
 | 10 | [`10-J-…`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 | A1–A13 ✅ |
 | 1 | [`01-A-…`](slices/01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 · 4 | ✅ · 4 📦 |
@@ -27,7 +27,7 @@
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
 | 0 (docs) | K | **44** | **Docs UX plain language + compaction** | Must | 🔀 ON BRANCH · [#99](https://github.com/neomatrix369/tripwire/pull/99) · GWT-44.1–44.8 · documentarist APPROVED WITH FOLLOW-ON (DIVIO targets pending) · `slice/44-docs-ux-plain-language` |
-| 0 (active) | L | **46** | **Tessl: Lint Adapter (Row 1)** | Must | 🔀 ON BRANCH · `slice/46-tessl-lint-adapter` · GWT-46.1–46.4 |
+| 0 (active) | L | **47** | **Tessl: Review (Quality) Split (Row 2)** | Must | 🔨 IN PROGRESS · `slice/47-review-quality-split` · GWT-47.1–47.4 |
 | 0 (delta) | J | 42 | Dashboard Data Quality — Tessl quality UX + tooltips + plain labels (A9–A13) | Must | ✅ PASSED · [#98](https://github.com/neomatrix369/tripwire/pull/98) |
 | 1 | G | 18 | CLI Operator Evidence Contracts | Must | 📋 PLANNED |
 | 2 | G | 19 | Sandbox Persistence State Contract | Must | 📋 PLANNED |
@@ -61,8 +61,8 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 | **0 (next)** | H-ss | **40** | **`tripwire scan --type <skill\|mcp>` filter** | **Must** | 📋 PLANNED |
 | — | G | 18–22 | ATDD closure (parked) | Must | 📋 PLANNED |
 | — | L | 45 | DB Schema Migration (14-state enum + 4 columns) | Must | ✅ PASSED · [#103](https://github.com/neomatrix369/tripwire/pull/103) |
-| — | L | 46 | Tessl: Lint Adapter (Row 1) | Must | 🔀 ON BRANCH · `slice/46-tessl-lint-adapter` |
-| — | L | 47 | Tessl: Review (Quality) Split (Row 2) | Must | 📋 PLANNED |
+| — | L | 46 | Tessl: Lint Adapter (Row 1) | Must | ✅ PASSED · [#105](https://github.com/neomatrix369/tripwire/pull/105) |
+| — | L | 47 | Tessl: Review (Quality) Split (Row 2) | Must | 🔨 IN PROGRESS · `slice/47-review-quality-split` |
 | — | L | 48 | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | 📋 PLANNED |
 | — | L | 49 | Tessl: Scenario Generation + Resume Checkpoint (Row 3) | Should | 📋 PLANNED |
 | — | L | 50 | Tessl: Eval + Auto-Chain (Row 4) | Should | 📋 PLANNED |
@@ -172,8 +172,8 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
 | 45 | [slice-45-schema-migration](slices/12-L-tessl-5-row-expansion/slice-45-schema-migration.md) | Must | ✅ PASSED ([#103](https://github.com/neomatrix369/tripwire/pull/103)) | 2026-08-24 | 2026-08-24 | ~3 min |
-| 46 | [slice-46-lint-adapter](slices/12-L-tessl-5-row-expansion/slice-46-lint-adapter.md) | Must | 🔀 ON BRANCH | 2026-08-24 | — | ~4 min |
-| 47 | [slice-47-review-quality-split](slices/12-L-tessl-5-row-expansion/slice-47-review-quality-split.md) | Must | 📋 PLANNED | — | — | ~4 min |
+| 46 | [slice-46-lint-adapter](slices/12-L-tessl-5-row-expansion/slice-46-lint-adapter.md) | Must | ✅ PASSED ([#105](https://github.com/neomatrix369/tripwire/pull/105)) | 2026-08-24 | 2026-08-24 | ~4 min |
+| 47 | [slice-47-review-quality-split](slices/12-L-tessl-5-row-expansion/slice-47-review-quality-split.md) | Must | 🔨 IN PROGRESS | 2026-08-24 | — | ~4 min |
 | 48 | [slice-48-not-available-yet-ui](slices/12-L-tessl-5-row-expansion/slice-48-not-available-yet-ui.md) | Must | 📋 PLANNED | — | — | ~3 min |
 | 49 | [slice-49-scenario-generation](slices/12-L-tessl-5-row-expansion/slice-49-scenario-generation.md) | Should | 📋 PLANNED | — | — | ~6 min |
 | 50 | [slice-50-eval-auto-chain](slices/12-L-tessl-5-row-expansion/slice-50-eval-auto-chain.md) | Should | 📋 PLANNED | — | — | ~5 min |
@@ -258,3 +258,4 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-24 | slice/46-tessl-lint-adapter | verify-slice repair | 46 | 🔀 ON BRANCH | Dashboard name contract + design Coverage Gap 1 + trackers; live `tessl skill lint --help` probed. |
 | 2026-08-24 | slice/46-tessl-lint-adapter | sync-docs | 46 | 🔀 ON BRANCH | Live persist VERIFIED(scan_run a36cad9f); TRAIL/gate-evidence PR #105. Still 🔀 until merge. |
 | 2026-08-24 | plan | Tessl scenario/eval slice contract | 49–52 | 📋 PLANNED | Tessl CLI+docs probe: Gap B resolved; slices 49–50 aligned to generate→download→eval run pipeline; slice 52 lineage; TRAIL+design updated. |
+| 2026-08-24 | slice/47-review-quality-split | slice-workflow | 47 | 🔨 IN PROGRESS | `_run_tessl_review(quality)` + tessl_run_id via view --last; slice 46 closed ✅ #105 |

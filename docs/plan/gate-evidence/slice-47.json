@@ -1,0 +1,40 @@
+{
+  "slice": 47,
+  "name": "tessl-review-quality-split",
+  "gate_status": "ON_BRANCH",
+  "verdict": "ON_BRANCH",
+  "date": "2026-08-24",
+  "branch": "slice/47-review-quality-split",
+  "moscow": "Must",
+  "before_checks": "slice 45 ✅ #103; slice 46 ✅ #105; live CLI tessl review run quality / review view probed 2026-08-24; TESSL_WORKSPACE in env allowlist",
+  "after_checks": [
+    "GWT-47.1 — tessl_run_id from review view --last --json; fallback to run JSON id (unit)",
+    "GWT-47.2 — tesslInnerQuality still null on Lint (slice 46 regression, dashboard tests)",
+    "GWT-47.3 — missing TESSL_TOKEN or TESSL_WORKSPACE → Review needs_setup (unit)",
+    "GWT-47.4 — _run_tessl_review(judge_type=quality) argv is tessl review run quality --json --workspace"
+  ],
+  "commands": [
+    {
+      "cmd": "npx --yes tessl@latest review run quality --help && npx --yes tessl@latest review view --help",
+      "result": "PASS — quality subcommand; --json --workspace; view --last --json. skill review deprecated (docs.tessl.io migrate page)"
+    },
+    {
+      "cmd": "uv run pytest sandbox/tests/test_scanners_status.py sandbox/tests/test_ship_path_coverage.py -q",
+      "result": "PASS — 78 tests"
+    },
+    {
+      "cmd": "./scripts/quality-gates.sh",
+      "result": "PASS — 245 pytest (sandbox 96.8%, scanners.py 98.3%), 138 CLI tests, ruff/mypy/xenon/bandit/pip-audit/gitleaks green"
+    }
+  ],
+  "coverage_pct": "sandbox 96.8% / scanners.py 98.3% (fail-under 95)",
+  "complexity_tool": "xenon scanners.py max-absolute D (exit 0); radon via scripts/complexity-report.sh",
+  "doc_audit": "env-vars TESSL_WORKSPACE required for --json; STATUS/ARCHITECTURE/CHANGELOG/design Gap 5+A; tooltip source tessl review run quality",
+  "live_cli": {
+    "date_utc": "2026-08-24",
+    "command": "npx tessl@latest review run quality --help; review view --help",
+    "boundary": "help text only; live Modal persist of tessl_run_id not yet observed"
+  },
+  "review": null,
+  "pr": null
+}

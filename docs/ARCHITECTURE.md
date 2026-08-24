@@ -31,7 +31,7 @@ services — see [prerequisites](./user-guide/prerequisites.md).
 | **Supabase** | Postgres + Realtime system of record | MVP Live | [supabase-setup](./user-guide/supabase-setup.md) → [env-vars](./user-guide/env-vars.md) |
 | **Modal** | Isolated scanner sandbox compute | MVP Live | [modal-setup](./user-guide/modal-setup.md) → [env-vars](./user-guide/env-vars.md) |
 | **Snyk** | Skill/MCP depth scanner | Full scanner coverage | [procurement](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
-| **Tessl** | Skill lint (auth-free plugin-package check) + skill-review quality | Full scanner coverage | [procurement](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
+| **Tessl** | Skill lint (auth-free) + review run quality (`TESSL_TOKEN` + `TESSL_WORKSPACE`) | Full scanner coverage | [procurement](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
 | **Cisco AI Defense** | Skill Scanner / MCP Scanner / AI Defense APIs | Full scanner coverage | [procurement](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
 | **Superlinked SIE** | Cheap post-scan triage | Optional tiered router | [tiered-router-setup](./user-guide/tiered-router-setup.md) |
 | **Alibaba Cloud Model Studio** | Escalation arbitration / triage | Optional tiered router | [tiered-router-setup](./user-guide/tiered-router-setup.md) |
@@ -284,8 +284,10 @@ card colour must not be inferred from this number alone.
 `quality_score` is the Tessl skill-review axis (0–100, higher better), written
 by `run_tessl` / `_tessl_quality_score` and mapped into Live as `item.quality`
 on the `"Tessl: Review (Quality)"` scanner row only. `"Tessl: Lint"` is a
-separate `scan_run_scanners` row (slice 46 IMPLEMENTED + VERIFIED persist
-scan_run `a36cad9f`): `tessl skill lint`, auth-free, no `tessl_run_id`. It is orthogonal to findings and to `risk_score`. **DECIDED (not implemented):** rows 3–5
+separate `scan_run_scanners` row (slice 46 ✅ persist scan_run `a36cad9f`):
+`tessl skill lint`, auth-free, no `tessl_run_id`. Review Quality (slice 47 🔨)
+uses `tessl review run quality --json --workspace` and stamps `tessl_run_id`
+from `tessl review view --last --json`. It is orthogonal to findings and to `risk_score`. **DECIDED (not implemented):** rows 3–5
 (Scenario Generation, Eval, Security Review) — see
 [design/tessl-5-row-expansion.md](./design/tessl-5-row-expansion.md) and slices
 49–51; scenario→eval pipeline is generate → download → `eval run` on disk

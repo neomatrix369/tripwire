@@ -3,7 +3,7 @@
 **Wave**: 12-L
 **MoSCoW**: Must
 **Depends on**: 45
-**Status**: 🔀 ON BRANCH `slice/46-tessl-lint-adapter`
+**Status**: ✅ PASSED ([#105](https://github.com/neomatrix369/tripwire/pull/105))
 **Read time**: ~4 min
 
 ## Pre-conditions (operator gate — before first live scan)

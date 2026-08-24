@@ -79,12 +79,18 @@ Reachable through production entry points / config:
   scoped off `"Tessl: Lint"` in slice 46)
 - `"Tessl: Lint"` scanner row — `run_tessl()` invokes `npx tessl@latest skill lint`
   first (auth-free, no `tessl_run_id`); Review row is `"Tessl: Review (Quality)"`
-  and `needs_setup` when `TESSL_TOKEN` is absent. Mock dashboard fixtures include
+  and Review `needs_setup` when `TESSL_TOKEN` or `TESSL_WORKSPACE` is absent
+  (Lint still runs). Mock dashboard fixtures include
   Lint at Tessl-block position 1. Live CLI 2026-08-24: lint targets plugin
   packages; skill-folder fixtures exit 1 (adapter → `failed`). IMPLEMENTED +
   VERIFIED(unit) + VERIFIED(live persist scan_run `a36cad9f`, 2026-08-24) —
-  `sandbox/scanners.py`, `prototypes/dc-dashboard/` (slice 46 🔀,
+  `sandbox/scanners.py`, `prototypes/dc-dashboard/` (slice 46 ✅,
   [PR #105](https://github.com/neomatrix369/tripwire/pull/105))
+- `"Tessl: Review (Quality)"` run-ID capture — `_run_tessl_review(judge_type="quality")`
+  invokes `tessl review run quality --json --workspace` (deprecated `skill review`
+  replaced) then `tessl review view --last --json` to persist `tessl_run_id` +
+  `tessl_run_id_at`. Missing `TESSL_WORKSPACE` → `needs_setup`. IMPLEMENTED (unit)
+  — `sandbox/scanners.py` (slice 47 🔨, `slice/47-review-quality-split`)
 - Live dashboard latest-state read path — `dashboard_latest_runs` view (one row per
   item) + batched child-table fetches in `tripwire-live.js`; replaces global
   `scan_runs?limit=2000` page that could miss per-item newest runs and PostgREST

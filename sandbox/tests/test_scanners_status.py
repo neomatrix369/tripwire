@@ -446,7 +446,7 @@ def test_run_tessl_logs_diagnostic_when_score_is_none(capsys) -> None:
 
     ### When
     with (
-        patch.dict("os.environ", {"TESSL_TOKEN": "fake-token"}),
+        patch.dict("os.environ", {"TESSL_TOKEN": "fake-token", "TESSL_WORKSPACE": "engteam"}),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(
             scanners,
@@ -524,12 +524,16 @@ def test_run_tessl_with_token_emits_lint_and_review_rows() -> None:
 
     ### When
     with (
-        patch.dict("os.environ", {"TESSL_TOKEN": "tok-abc"}),
+        patch.dict("os.environ", {"TESSL_TOKEN": "tok-abc", "TESSL_WORKSPACE": "engteam"}),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(
             scanners,
             "_run",
-            side_effect=[(0, lint_output, ""), (0, review_json, "")],
+            side_effect=[
+                (0, lint_output, ""),
+                (0, review_json, ""),
+                (0, '{"id": "rev_abc123", "score": 75}', ""),
+            ],
         ),
     ):
         score, rows = scanners.run_tessl("/tmp/fake-skill")
@@ -543,6 +547,8 @@ def test_run_tessl_with_token_emits_lint_and_review_rows() -> None:
     assert lint_row.get("tessl_run_id") is None
     assert review_row["scanner_source"] == "Tessl: Review (Quality)"
     assert review_row["status"] == "completed"
+    assert review_row["tessl_run_id"] == "rev_abc123"
+    assert review_row["tessl_run_id_at"]
 
 
 def test_run_tessl_lint_failure_emits_failed_row() -> None:
@@ -639,3 +645,157 @@ def test_parse_tessl_lint_detail_live_valid_plugin_counts_one_check() -> None:
     ### Then
     assert checks_run == 1
     assert "is valid" in detail.lower()
+
+
+def test_parse_tessl_run_id_from_common_json_shapes() -> None:
+    """
+    Scenario: _parse_tessl_run_id reads id / runId / nested review.id.
+    Slice: 47 — GWT-47.1 tessl_run_id capture
+
+    Given Tessl --json objects with drifting id keys,
+    When _parse_tessl_run_id is called,
+    Then the run id string is returned (or None when absent).
+    """
+    ### Given / When / Then
+    assert scanners._parse_tessl_run_id({"id": "rev_abc123"}) == "rev_abc123"
+    assert scanners._parse_tessl_run_id({"runId": "rev_xyz"}) == "rev_xyz"
+    assert scanners._parse_tessl_run_id({"run_id": "rev_under"}) == "rev_under"
+    assert scanners._parse_tessl_run_id({"review": {"id": "rev_nested"}}) == "rev_nested"
+    assert scanners._parse_tessl_run_id({"score": 70}) is None
+    assert scanners._parse_tessl_run_id(None) is None
+
+
+def test_run_tessl_review_quality_invokes_review_run_quality() -> None:
+    """
+    Scenario: Quality review uses tessl review run quality, not skill review.
+    Slice: 47 — GWT-47.4 parameterised judge_type=quality
+
+    Given TESSL_TOKEN and TESSL_WORKSPACE are set,
+    When run_tessl is called,
+    Then the review subprocess is tessl review run quality --json --workspace,
+    And the row is Tessl: Review (Quality) only.
+    """
+    ### Given
+    captured: list[list[str]] = []
+
+    def _capture_run(cmd, timeout=None):
+        captured.append(cmd)
+        if cmd[3:5] == ["skill", "lint"]:
+            return 0, "1 check", ""
+        if cmd[3:6] == ["review", "run", "quality"]:
+            return 0, '{"score": 80, "id": "rev_from_run"}', ""
+        if cmd[3:6] == ["review", "view", "--last"]:
+            return 0, '{"id": "rev_from_view", "score": 80}', ""
+        raise AssertionError(f"unexpected cmd: {cmd}")
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_capture_run),
+    ):
+        score, rows = scanners.run_tessl("/tmp/fake-skill")
+
+    ### Then
+    assert score == 80
+    review_cmds = [c for c in captured if c[3:5] == ["review", "run"]]
+    assert len(review_cmds) == 1
+    assert review_cmds[0][5] == "quality"
+    assert "--workspace" in review_cmds[0]
+    assert "engteam" in review_cmds[0]
+    assert rows[1]["scanner_source"] == "Tessl: Review (Quality)"
+    assert all(r["scanner_source"] != "Tessl: Review (Security)" for r in rows)
+
+
+def test_run_tessl_captures_run_id_from_view_last_json() -> None:
+    """
+    Scenario: tessl_run_id comes from tessl review view --last --json.
+    Slice: 47 — GWT-47.1
+
+    Given review run JSON has a different id than view --last,
+    When run_tessl completes,
+    Then tessl_run_id is the view --last id and tessl_run_id_at is set.
+    """
+    ### Given
+    lint_output = "4 checks"
+    run_json = '{"score": 64, "id": "rev_from_run"}'
+    view_json = '{"score": 64, "id": "rev_from_view"}'
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(
+            scanners,
+            "_run",
+            side_effect=[(0, lint_output, ""), (0, run_json, ""), (0, view_json, "")],
+        ),
+    ):
+        _score, rows = scanners.run_tessl("/tmp/fake-skill")
+
+    ### Then
+    review_row = rows[1]
+    assert review_row["scanner_source"] == "Tessl: Review (Quality)"
+    assert review_row["tessl_run_id"] == "rev_from_view"
+    assert review_row["tessl_run_id_at"]
+    assert "T" in review_row["tessl_run_id_at"]
+
+
+def test_run_tessl_falls_back_to_run_json_id_when_view_last_fails() -> None:
+    """
+    Scenario: view --last failure still stamps tessl_run_id from run --json.
+    Slice: 47 — GWT-47.1 fallback
+
+    Given review run JSON includes id and view --last exits non-zero,
+    When run_tessl completes,
+    Then tessl_run_id is the run JSON id.
+    """
+    ### Given / When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(
+            scanners,
+            "_run",
+            side_effect=[
+                (0, "1 check", ""),
+                (0, '{"score": 50, "id": "rev_run_only"}', ""),
+                (1, "", "view failed"),
+            ],
+        ),
+    ):
+        _score, rows = scanners.run_tessl("/tmp/fake-skill")
+
+    ### Then
+    assert rows[1]["tessl_run_id"] == "rev_run_only"
+
+
+def test_run_tessl_without_workspace_emits_review_needs_setup() -> None:
+    """
+    Scenario: TESSL_WORKSPACE absent — Review (Quality) is needs_setup.
+    Slice: 47 — GWT-47.3 needs_setup for missing review config
+
+    Given TESSL_TOKEN is set and TESSL_WORKSPACE is absent,
+    When run_tessl is called,
+    Then Review (Quality) status is needs_setup and no review subprocess runs.
+    """
+    ### Given
+    ran: list[list[str]] = []
+
+    def _record(cmd, timeout=None):
+        ran.append(cmd)
+        return 0, "1 check", ""
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t"}, clear=True),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_record),
+    ):
+        score, rows = scanners.run_tessl("/tmp/fake-skill")
+
+    ### Then
+    assert score is None
+    assert rows[1]["scanner_source"] == "Tessl: Review (Quality)"
+    assert rows[1]["status"] == "needs_setup"
+    assert all(c[3:5] != ["review", "run"] for c in ran)

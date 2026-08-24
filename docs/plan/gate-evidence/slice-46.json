@@ -1,7 +1,8 @@
 {
   "slice": 46,
   "name": "tessl-lint-adapter",
-  "gate_status": "ON_BRANCH",
+  "gate_status": "PASS",
+  "merged": "2026-08-24",
   "verdict": "PASS",
   "date": "2026-08-24",
   "branch": "slice/46-tessl-lint-adapter",

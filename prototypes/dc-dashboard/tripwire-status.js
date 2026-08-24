@@ -310,8 +310,8 @@ export function qualitySurfacing(item) {
  */
 export function qualityTooltip(tone) {
   const base =
-    "Tessl quality = skill-review score from Tessl (not security risk / not card colour).\n" +
-    "Range: 0–100 (higher is better). Source: tessl skill review --json → items.quality_score.";
+    "Tessl quality = quality review score from Tessl (not security risk / not card colour).\n" +
+    "Range: 0–100 (higher is better). Source: tessl review run quality --json → items.quality_score.";
   if (tone === "unknown-unscanned") {
     return `${base}\nQ — = never scanned / no Tessl score yet.`;
   }

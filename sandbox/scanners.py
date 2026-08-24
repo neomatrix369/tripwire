@@ -20,6 +20,7 @@ import subprocess
 import tempfile
 import threading
 import time
+from datetime import UTC, datetime
 
 SCAN_TIMEOUT = 240  # leaves headroom under the sandbox's 300s hard timeout
 MAX_CONSOLE_CHARS = 3000  # per-scanner console capture limit for Supabase detail
@@ -560,6 +561,120 @@ def _tessl_quality_score(parsed):
     return None
 
 
+_TESSL_REVIEW_SOURCES = {
+    "quality": "Tessl: Review (Quality)",
+    "security": "Tessl: Review (Security)",
+}
+
+
+def _parse_tessl_run_id(parsed) -> str | None:
+    """Extract Tessl review run ID from CLI --json (id / runId / run_id)."""
+    if not isinstance(parsed, dict):
+        return None
+    for key in ("id", "runId", "run_id"):
+        value = parsed.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    nested = parsed.get("review")
+    if isinstance(nested, dict):
+        return _parse_tessl_run_id(nested)
+    return None
+
+
+def _tessl_review_run_argv(judge_type: str, workdir: str, workspace: str, force: bool) -> list[str]:
+    argv = [
+        "npx",
+        "--yes",
+        "tessl@latest",
+        "review",
+        "run",
+        judge_type,
+        "--json",
+        "--workspace",
+        workspace,
+    ]
+    if force:
+        argv.append("--force")
+    argv.append(workdir)
+    return argv
+
+
+def _capture_review_run_id(workspace: str, run_parsed) -> str | None:
+    """Prefer tessl review view --last --json; fall back to run --json id."""
+    _code, out, _err = _run(
+        [
+            "npx",
+            "--yes",
+            "tessl@latest",
+            "review",
+            "view",
+            "--last",
+            "--json",
+            "--workspace",
+            workspace,
+        ]
+    )
+    view_id = _parse_tessl_run_id(_safe_json(out))
+    if view_id:
+        return view_id
+    return _parse_tessl_run_id(run_parsed)
+
+
+def _stamp_tessl_run_id(row: dict, run_id: str | None) -> None:
+    if not run_id:
+        return
+    row["tessl_run_id"] = run_id
+    row["tessl_run_id_at"] = datetime.now(UTC).isoformat()
+
+
+def _finish_tessl_review(
+    judge_type: str, source: str, workspace: str, code, out: str, err: str
+) -> tuple[float | None, dict]:
+    console = _build_console(out, err)
+    if code != 0:
+        return None, _unreachable(source, err or out, console_output=console)
+    parsed = _safe_json(out)
+    score = _tessl_quality_score(parsed) if judge_type == "quality" else None
+    if judge_type == "quality" and score is None:
+        print(f"[tessl] quality_score extraction failed — raw output: {out[:500]!r}")
+        return None, _unreachable(
+            source,
+            "scanner returned no parseable quality score",
+            console_output=console,
+        )
+    detail = f"quality_score = {score}" if judge_type == "quality" else "review completed"
+    row = {
+        "scanner_source": source,
+        "status": "completed",
+        "checks_run": 1,
+        "detail": detail,
+    }
+    _stamp_tessl_run_id(row, _capture_review_run_id(workspace, parsed))
+    if console:
+        row["console_output"] = console
+    return score, row
+
+
+def _run_tessl_review(
+    judge_type: str,
+    workdir: str,
+    workspace: str,
+    prior_run_id: str | None = None,
+    force: bool = False,
+) -> tuple[float | None, dict]:
+    """Run tessl review run <judge_type> and capture tessl_run_id via view --last.
+
+    prior_run_id is reserved for cache-hit (design § Shared Review Mechanic);
+    unused in slice 47.
+    """
+    del prior_run_id
+    source = _TESSL_REVIEW_SOURCES[judge_type]
+    if not _which("npx"):
+        return None, _unreachable(source, "npx not available (node/npm missing from image)")
+    code, out, err = _run(_tessl_review_run_argv(judge_type, workdir, workspace, force))
+    return _finish_tessl_review(judge_type, source, workspace, code, out, err)
+
+
 def _parse_tessl_lint_detail(output: str) -> tuple[int | None, str]:
     """Extract check count and summary from tessl skill lint text output.
 
@@ -581,8 +696,8 @@ def run_tessl(workdir):
     """Run Tessl Lint (auth-free) then Review Quality (token-gated) — two rows.
 
     Lint is synchronous and never requires TESSL_TOKEN; it always runs when npx
-    is available.  Review Quality requires TESSL_TOKEN; its row transitions to
-    needs_setup when the token is absent.
+    is available.  Review Quality requires TESSL_TOKEN and TESSL_WORKSPACE; its
+    row transitions to needs_setup when either is absent.
 
     Returns (quality_score, [lint_row, review_row]).  quality_score is None when
     Review Quality did not complete successfully.
@@ -616,36 +731,12 @@ def run_tessl(workdir):
                 lint_row["console_output"] = console
         rows.append(lint_row)
 
-    # --- Tessl: Review (Quality) (TESSL_TOKEN required) ---
-    if not os.environ.get("TESSL_TOKEN"):
+    # --- Tessl: Review (Quality) (TESSL_TOKEN + TESSL_WORKSPACE required) ---
+    if not os.environ.get("TESSL_TOKEN") or not (os.environ.get("TESSL_WORKSPACE") or "").strip():
         rows.append(_skipped("Tessl: Review (Quality)", reason="needs_setup"))
         return None, rows
-    code, out, err = _run(["npx", "--yes", "tessl@latest", "skill", "review", "--json", workdir])
-    console = _build_console(out, err)
-    if code != 0:
-        rows.append(_unreachable("Tessl: Review (Quality)", err or out, console_output=console))
-        return None, rows
-    parsed = _safe_json(out)
-    score = _tessl_quality_score(parsed)
-    if score is None:
-        print(f"[tessl] quality_score extraction failed — raw output: {out[:500]!r}")
-        rows.append(
-            _unreachable(
-                "Tessl: Review (Quality)",
-                "scanner returned no parseable quality score",
-                console_output=console,
-            )
-        )
-        return None, rows
-    detail = f"quality_score = {score}"
-    review_row = {
-        "scanner_source": "Tessl: Review (Quality)",
-        "status": "completed",
-        "checks_run": 1,
-        "detail": detail,
-    }
-    if console:
-        review_row["console_output"] = console
+    workspace = os.environ["TESSL_WORKSPACE"].strip()
+    score, review_row = _run_tessl_review("quality", workdir, workspace)
     rows.append(review_row)
     return score, rows
 
