@@ -58,7 +58,7 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 | 17 | H6 | 39 | FE/BE Rearchitecture | Could | 📦 DEFERRED |
 | **0 (next)** | H-ss | **40** | **`tripwire scan --type <skill\|mcp>` filter** | **Must** | 📋 PLANNED |
 | — | G | 18–22 | ATDD closure (parked) | Must | 📋 PLANNED |
-| — | L | 45 | DB Schema Migration (12-state enum + 4 columns) | Must | 📋 PLANNED |
+| — | L | 45 | DB Schema Migration (14-state enum + 4 columns) | Must | 🔀 ON BRANCH (`slice/45-schema-migration`) |
 | — | L | 46 | Tessl: Lint Adapter (Row 1) | Must | 📋 PLANNED |
 | — | L | 47 | Tessl: Review (Quality) Split (Row 2) | Must | 📋 PLANNED |
 | — | L | 48 | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | 📋 PLANNED |
