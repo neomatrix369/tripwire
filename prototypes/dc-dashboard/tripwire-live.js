@@ -1,8 +1,9 @@
 /**
  * Live Supabase data loader for the Tripwire dashboard.
  *
- * Fetches items, scan_runs, scan_run_scanners, and findings from Supabase
- * and reshapes them into the same structure as tripwire-data.js (mock).
+ * Fetches items, dashboard_latest_runs (one row per item), scan_run_scanners,
+ * and findings from Supabase and reshapes them into the same structure as
+ * tripwire-data.js (mock).
  *
  * Uses demo data when Live is selected but:
  *  - window.__TRIPWIRE_CONFIG is not set (config file missing)
@@ -157,6 +158,34 @@ async function supabaseGet(baseUrl, anonKey, table, params = "") {
   return res.json();
 }
 
+/** Split an array into fixed-size chunks (PostgREST `in.(…)` batching). */
+function chunkArray(values, size) {
+  const chunks = [];
+  for (let i = 0; i < values.length; i += size) {
+    chunks.push(values.slice(i, i + size));
+  }
+  return chunks;
+}
+
+/** PostgREST Max rows (default 1000) can truncate large `in.(…)` responses. */
+const SCAN_CHILD_BATCH_SIZE = 40;
+
+async function supabaseGetByRunIds(baseUrl, anonKey, table, runIds) {
+  if (runIds.length === 0) return [];
+  const batches = chunkArray(runIds, SCAN_CHILD_BATCH_SIZE);
+  const parts = await Promise.all(
+    batches.map((ids) =>
+      supabaseGet(
+        baseUrl,
+        anonKey,
+        table,
+        `select=*&scan_run_id=in.(${ids.join(",")})`
+      )
+    )
+  );
+  return parts.flat();
+}
+
 async function fetchLiveData() {
   const cfg = window.__TRIPWIRE_CONFIG;
   if (!cfg || !cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {
@@ -165,27 +194,23 @@ async function fetchLiveData() {
 
   const { SUPABASE_URL, SUPABASE_ANON_KEY } = cfg;
 
-  // Phase 1: fetch items and scan_runs (scan_runs ordered newest-first per item)
-  const [items, scanRuns] = await Promise.all([
+  // Phase 1: items + one latest scan_run per item (view, not global limit=2000 page)
+  const [items, latestRuns] = await Promise.all([
     supabaseGet(SUPABASE_URL, SUPABASE_ANON_KEY, "items", "select=*&order=name.asc"),
-    supabaseGet(SUPABASE_URL, SUPABASE_ANON_KEY, "scan_runs", "select=*&order=started_at.desc&limit=2000"),
+    supabaseGet(SUPABASE_URL, SUPABASE_ANON_KEY, "dashboard_latest_runs", "select=*"),
   ]);
 
   const runsByItem = {};
-  for (const run of scanRuns) {
+  for (const run of latestRuns) {
     (runsByItem[run.item_id] ??= []).push(run);
   }
 
-  // Phase 2: scope scanners + findings to the latest run ID per item only
-  const latestRunIds = Object.values(runsByItem).map((runs) => runs[0].id);
-  const [scanRunScanners, findings] = latestRunIds.length > 0
-    ? await Promise.all([
-        supabaseGet(SUPABASE_URL, SUPABASE_ANON_KEY, "scan_run_scanners",
-          `select=*&scan_run_id=in.(${latestRunIds.join(",")})`),
-        supabaseGet(SUPABASE_URL, SUPABASE_ANON_KEY, "findings",
-          `select=*&scan_run_id=in.(${latestRunIds.join(",")})`),
-      ])
-    : [[], []];
+  // Phase 2: scanners + findings for those latest runs (batched under PostgREST Max rows)
+  const latestRunIds = latestRuns.map((run) => run.id);
+  const [scanRunScanners, findings] = await Promise.all([
+    supabaseGetByRunIds(SUPABASE_URL, SUPABASE_ANON_KEY, "scan_run_scanners", latestRunIds),
+    supabaseGetByRunIds(SUPABASE_URL, SUPABASE_ANON_KEY, "findings", latestRunIds),
+  ]);
 
   const scannersByRun = {};
   for (const s of scanRunScanners) {

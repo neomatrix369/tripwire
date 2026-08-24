@@ -20,7 +20,7 @@ const HTML_PATH = join(DASHBOARD_ROOT, 'Tripwire.dc.html');
 const CONFIG_PATH = join(DASHBOARD_ROOT, 'tripwire-dashboard.config.js');
 const REPO_ENV_PATH = join(REPO_ROOT, '.env');
 
-const EXPECTED_TABLES = ['items', 'scan_runs', 'scan_run_scanners', 'findings'];
+const EXPECTED_TABLES = ['items', 'dashboard_latest_runs', 'scan_run_scanners', 'findings'];
 const ORIGINAL_FETCH = globalThis.fetch;
 
 function installWindow(config) {
@@ -122,7 +122,7 @@ test('given live config when loadData live then fetches expected Supabase tables
         source_availability: 'source_on_disk',
       },
     ],
-    scan_runs: [
+    dashboard_latest_runs: [
       {
         id: runId,
         item_id: itemId,
@@ -180,9 +180,14 @@ test('given live config when loadData live then fetches expected Supabase tables
   assert.match(itemsCall.url, /select=\*/);
   assert.match(itemsCall.url, /order=name\.asc/);
 
-  const runsCall = calls.find((c) => c.url.includes('/scan_runs?'));
-  assert.match(runsCall.url, /order=started_at\.desc/);
-  assert.match(runsCall.url, /limit=2000/);
+  const runsCall = calls.find((c) => c.url.includes('/dashboard_latest_runs?'));
+  assert.match(runsCall.url, /select=\*/);
+  assert.doesNotMatch(runsCall.url, /limit=/, 'latest runs come from per-item view, not a global page');
+  assert.equal(
+    calls.filter((c) => c.url.includes('/scan_runs?')).length,
+    0,
+    'must not fetch raw scan_runs for card state'
+  );
   restoreFetch();
 });
 
@@ -208,7 +213,7 @@ test('given successful supabase rows when loadData live then maps UI item shape'
         source_availability: 'cloneable',
       },
     ],
-    scan_runs: [
+    dashboard_latest_runs: [
       {
         id: runId,
         item_id: itemId,
@@ -287,7 +292,7 @@ test('given partial-failed run with heatmap risk when loadData live then keeps r
         source_availability: 'source_on_disk',
       },
     ],
-    scan_runs: [
+    dashboard_latest_runs: [
       {
         id: runId,
         item_id: itemId,
@@ -357,7 +362,7 @@ test('given zero items when loadData live then source is live-empty not mock', a
   });
   mockFetchByTable({
     items: [],
-    scan_runs: [],
+    dashboard_latest_runs: [],
     scan_run_scanners: [],
     findings: [],
   });
@@ -381,7 +386,7 @@ test('given supabase http error when loadData live then source is mock-failed wi
   });
   mockFetchByTable({
     items: { errorStatus: 401 },
-    scan_runs: [],
+    dashboard_latest_runs: [],
     scan_run_scanners: [],
     findings: [],
   });
@@ -530,7 +535,7 @@ test('given running run with stale green heatmap when loadData live then status 
         source_availability: 'source_on_disk',
       },
     ],
-    scan_runs: [
+    dashboard_latest_runs: [
       {
         id: runId,
         item_id: itemId,
@@ -579,7 +584,7 @@ test('given error heatmap with red findings when loadData live then status is re
         source_availability: 'source_on_disk',
       },
     ],
-    scan_runs: [
+    dashboard_latest_runs: [
       {
         id: runId,
         item_id: itemId,
@@ -639,7 +644,7 @@ test('given completed scanner with detail when loadData live then output.raw_sum
         install_locus: 'local', source_availability: 'source_on_disk',
       },
     ],
-    scan_runs: [
+    dashboard_latest_runs: [
       {
         id: runId, item_id: itemId, status: 'complete',
         started_at: '2026-08-01T10:00:00Z', completed_at: '2026-08-01T10:01:00Z',
@@ -683,7 +688,7 @@ test('given completed scanner without detail when loadData live then synthesizes
         install_locus: 'local', source_availability: 'source_on_disk',
       },
     ],
-    scan_runs: [
+    dashboard_latest_runs: [
       {
         id: runId, item_id: itemId, status: 'complete',
         started_at: '2026-08-01T11:00:00Z', completed_at: '2026-08-01T11:01:00Z',
@@ -741,7 +746,7 @@ test('given completed scanner without detail and no findings when loadData live 
         install_locus: 'local', source_availability: 'source_on_disk',
       },
     ],
-    scan_runs: [
+    dashboard_latest_runs: [
       {
         id: runId, item_id: itemId, status: 'complete',
         started_at: '2026-08-01T12:00:00Z', completed_at: '2026-08-01T12:01:00Z',
@@ -794,7 +799,7 @@ test('given Lint and Review rows when loadData live then Lint is first Tessl row
       heatmap_status: 'green', risk_score: 0.0, quality_score: 88,
       install_locus: 'local', source_availability: 'source_on_disk',
     }],
-    scan_runs: [{
+    dashboard_latest_runs: [{
       id: runId, item_id: itemId, status: 'complete',
       started_at: '2026-08-24T19:00:00Z', completed_at: '2026-08-24T19:01:00Z',
     }],
@@ -838,7 +843,7 @@ test('given running scanner with console_output when loadData live then output.c
         install_locus: 'local', source_availability: 'source_on_disk',
       },
     ],
-    scan_runs: [
+    dashboard_latest_runs: [
       {
         id: runId, item_id: itemId, status: 'running',
         started_at: '2026-08-01T17:00:00Z', completed_at: null,
@@ -924,7 +929,7 @@ test('given completed scanner with console_output when loadData live then consol
         install_locus: 'local', source_availability: 'source_on_disk',
       },
     ],
-    scan_runs: [
+    dashboard_latest_runs: [
       {
         id: runId, item_id: itemId, status: 'complete',
         started_at: '2026-08-01T16:00:00Z', completed_at: '2026-08-01T16:02:00Z',
@@ -984,7 +989,7 @@ test('given running scanner with detail when loadData live then detail maps to r
         install_locus: 'cloud', source_availability: 'cloneable',
       },
     ],
-    scan_runs: [
+    dashboard_latest_runs: [
       {
         id: runId, item_id: itemId, status: 'running',
         started_at: '2026-08-01T17:30:00Z', completed_at: null,
@@ -1136,6 +1141,143 @@ test('given schema sql when inspecting realtime then publication adds required t
     'schema must add scan_run_scanners to supabase_realtime publication');
   assert.match(sql, /supabase_realtime\s+add\s+table\s+findings/i,
     'schema must add findings to supabase_realtime publication');
+  assert.match(sql, /create\s+or\s+replace\s+view\s+dashboard_latest_runs/i,
+    'schema must define dashboard_latest_runs view for per-item latest state');
+  assert.match(sql, /distinct\s+on\s*\(\s*item_id\s*\)/i,
+    'view must pick one latest row per item');
+  assert.match(sql, /grant\s+select\s+on\s+dashboard_latest_runs/i,
+    'anon must be able to read the latest-runs view');
+});
+
+test('given many latest run ids when loadData live then batches scan_run_scanners fetches', async () => {
+  /**
+   * Outcome anchor: PostgREST Max rows must not drop scanner rows for latest runs.
+   * Slice: 21 (partial — client batching)
+   */
+  const itemCount = 45; // SCAN_CHILD_BATCH_SIZE is 40 → expect 2 scanner batches
+  const items = [];
+  const latestRuns = [];
+  const runIds = [];
+  for (let i = 0; i < itemCount; i += 1) {
+    const itemId = `10000000-0000-4000-8000-${String(i).padStart(12, '0')}`;
+    const runId = `20000000-0000-4000-8000-${String(i).padStart(12, '0')}`;
+    items.push({
+      id: itemId,
+      type: 'skill',
+      name: `skill-${i}`,
+      identifier: `fixtures/skills/skill-${i}`,
+      heatmap_status: 'green',
+      risk_score: 0,
+      quality_score: null,
+      install_locus: 'local',
+      source_availability: 'source_on_disk',
+    });
+    latestRuns.push({
+      id: runId,
+      item_id: itemId,
+      status: 'complete',
+      started_at: '2026-08-24T10:00:00Z',
+      completed_at: '2026-08-24T10:01:00Z',
+    });
+    runIds.push(runId);
+  }
+
+  installWindow({ SUPABASE_URL: 'https://proj.supabase.co', SUPABASE_ANON_KEY: 'anon' });
+  const calls = [];
+  globalThis.fetch = async (url, init = {}) => {
+    calls.push({ url: String(url), init });
+    const tableMatch = String(url).match(/\/rest\/v1\/([^?]+)/);
+    const table = tableMatch ? tableMatch[1] : '';
+    if (table === 'items') return jsonResponse(items);
+    if (table === 'dashboard_latest_runs') return jsonResponse(latestRuns);
+    if (table === 'findings') return jsonResponse([]);
+    if (table === 'scan_run_scanners') {
+      const idMatch = String(url).match(/scan_run_id=in\.\(([^)]+)\)/);
+      const ids = idMatch ? idMatch[1].split(',') : [];
+      return jsonResponse(
+        ids.map((runId) => ({
+          scan_run_id: runId,
+          scanner_source: 'snyk',
+          status: 'completed',
+          checks_run: 1,
+        }))
+      );
+    }
+    return jsonResponse({ message: `unexpected table ${table}` }, 500);
+  };
+  const loadData = await importLoadDataFresh();
+
+  const result = await loadData('live');
+
+  assert.equal(result.source, 'live');
+  assert.equal(result.data.items.length, itemCount);
+  const scannerCalls = calls.filter((c) => c.url.includes('/scan_run_scanners?'));
+  assert.equal(scannerCalls.length, 2, 'must batch scanner fetches under PostgREST row cap');
+  for (const item of result.data.items) {
+    assert.equal(item.scanners.length, 1, 'each card must include its latest run scanners');
+  }
+  restoreFetch();
+});
+
+test('given view returns newest run only when loadData live then card reflects that run', async () => {
+  /**
+   * Outcome anchor: Every dashboard card shows its newest scan (not an older global page).
+   * Slice: 21 (partial — dashboard_latest_runs view)
+   */
+  const itemId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  const oldRunId = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+  const newRunId = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
+  installWindow({
+    SUPABASE_URL: 'https://proj.supabase.co',
+    SUPABASE_ANON_KEY: 'anon',
+  });
+  mockFetchByTable({
+    items: [{
+      id: itemId,
+      type: 'skill',
+      name: 'safe-csv-cleaner',
+      identifier: 'fixtures/skills/safe-csv-cleaner',
+      heatmap_status: 'green',
+      risk_score: 0,
+      quality_score: 65,
+      install_locus: 'local',
+      source_availability: 'source_on_disk',
+    }],
+    // View exposes only the per-item latest row (older runs stay in scan_runs history).
+    dashboard_latest_runs: [{
+      id: newRunId,
+      item_id: itemId,
+      status: 'complete',
+      started_at: '2026-08-24T12:00:00Z',
+      completed_at: '2026-08-24T12:05:00Z',
+    }],
+    scan_run_scanners: [
+      {
+        scan_run_id: newRunId,
+        scanner_source: 'Tessl: Lint',
+        status: 'failed',
+        checks_run: 1,
+        detail: 'no plugin manifest',
+      },
+      {
+        scan_run_id: oldRunId,
+        scanner_source: 'Tessl',
+        status: 'completed',
+        checks_run: 5,
+        detail: 'legacy row must not appear on card',
+      },
+    ],
+    findings: [],
+  });
+  const loadData = await importLoadDataFresh();
+
+  const result = await loadData('live');
+  const item = result.data.items[0];
+
+  assert.equal(item.lastScan, '2026-08-24T12:05:00Z');
+  assert.equal(item.scanners.length, 1);
+  assert.equal(item.scanners[0].source, 'Tessl: Lint');
+  restoreFetch();
 });
 
 // ── GWT-42.5 Scanner stat badge — slice-42 ───────────────────────────────
@@ -1200,7 +1342,7 @@ test('given item with mixed scanner statuses when loadData live then scanners sh
       heatmap_status: 'amber', risk_score: 1.5, quality_score: null,
       install_locus: 'local', source_availability: 'source_on_disk',
     }],
-    scan_runs: [{
+    dashboard_latest_runs: [{
       id: runId, item_id: itemId, status: 'partial-failed',
       started_at: '2026-08-19T10:00:00Z', completed_at: '2026-08-19T10:02:00Z',
     }],
@@ -1249,7 +1391,7 @@ test('given item with all scanners completed when loadData live then badge is su
       heatmap_status: 'green', risk_score: 0.0, quality_score: null,
       install_locus: 'local', source_availability: 'source_on_disk',
     }],
-    scan_runs: [{
+    dashboard_latest_runs: [{
       id: runId, item_id: itemId, status: 'complete',
       started_at: '2026-08-19T10:00:00Z', completed_at: '2026-08-19T10:01:00Z',
     }],
@@ -1293,7 +1435,7 @@ test('given unscanned item when loadData live then scanners array is empty and b
       heatmap_status: 'grey', risk_score: null, quality_score: null,
       install_locus: 'local', source_availability: 'source_on_disk',
     }],
-    scan_runs: [],
+    dashboard_latest_runs: [],
     scan_run_scanners: [],
     findings: [],
   });
@@ -1418,7 +1560,7 @@ test('given must-show skill and MCP live rows when loadData live then GWT-1 dete
         source_availability: 'source_on_disk',
       },
     ],
-    scan_runs: [
+    dashboard_latest_runs: [
       {
         id: skillRunId,
         item_id: skillId,
@@ -1525,7 +1667,7 @@ test('given must-show MCP completed scan_run when loadData live then GWT-2 sandb
         source_availability: 'source_on_disk',
       },
     ],
-    scan_runs: [
+    dashboard_latest_runs: [
       {
         id: mcpRunId,
         item_id: mcpId,
