@@ -84,7 +84,7 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a), (d), § Shared R
 - [x] GWT-47.2 — `tesslInnerQuality` still null on Lint (slice 46 regression)
 - [x] GWT-47.3 — missing token **or** workspace → Review `needs_setup`
 - [x] GWT-47.4 — `_run_tessl_review("quality", …)` argv is `review run quality`
-- [ ] GWT-47.5 — `_TesslIdContext` seeded; `ctx["review_quality"]` set after Quality stamp
+- [x] GWT-47.5 — `_TesslIdContext` seeded; `ctx["review_quality"]` set after Quality stamp
 - [x] `pytest sandbox/tests/test_scanners_status.py sandbox/tests/test_ship_path_coverage.py` exit 0
 - [x] Specification coverage: every GWT clause has ≥1 test
 - [x] `./scripts/quality-gates.sh` passes locally

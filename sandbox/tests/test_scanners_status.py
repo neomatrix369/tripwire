@@ -6,7 +6,8 @@ Author: swami
 Created: 2026-08-01
 Scope: run_all_scanners overall_status; _unreachable detail truncation;
        _build_console / _truncate_console; on_scanner_done callback relay;
-       _completed console_output passthrough
+       _completed console_output passthrough;
+       Tessl ID context seed after Review Quality (GWT-47.5)
 """
 
 from __future__ import annotations
@@ -799,3 +800,97 @@ def test_run_tessl_without_workspace_emits_review_needs_setup() -> None:
     assert rows[1]["scanner_source"] == "Tessl: Review (Quality)"
     assert rows[1]["status"] == "needs_setup"
     assert all(c[3:5] != ["review", "run"] for c in ran)
+
+
+def test_given_quality_review_completes_when_run_tessl_then_ctx_review_quality_is_stamped_id() -> (
+    None
+):
+    """
+    Scenario: Quality Review run ID seeds in-process Tessl ID context.
+    Slice: 47 — GWT-47.5 _TesslIdContext after Quality stamp
+
+    Given run_tessl initialises ctx with review_quality and scenario_gen as None,
+    When Quality Review completes and stamps tessl_run_id,
+    Then ctx["review_quality"] is that run ID for downstream steps in this invocation,
+    And Lint stays outside the ID chain (no tessl_run_id; no ctx update from Lint).
+    """
+    ### Given
+    ctx = scanners._new_tessl_id_context()
+    lint_output = "4 checks"
+    run_json = '{"score": 64, "id": "rev_from_run"}'
+    view_json = '{"score": 64, "id": "rev_from_view"}'
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(
+            scanners,
+            "_run",
+            side_effect=[(0, lint_output, ""), (0, run_json, ""), (0, view_json, "")],
+        ),
+    ):
+        _score, rows = scanners.run_tessl("/tmp/fake-skill", id_context=ctx)
+
+    ### Then
+    expected_run_id = "rev_from_view"
+    actual_ctx_quality = ctx["review_quality"]
+    assert actual_ctx_quality == expected_run_id, (
+        f"ctx['review_quality'] should carry the stamped Quality run ID; got {actual_ctx_quality!r}"
+    )
+    assert ctx["scenario_gen"] is None, "scenario_gen must stay None until slice 49 stamps it"
+    lint_row = rows[0]
+    assert lint_row["scanner_source"] == "Tessl: Lint"
+    assert lint_row.get("tessl_run_id") is None, (
+        "Lint is outside the Tessl ID chain — tessl_run_id must stay unset"
+    )
+
+
+def test_given_review_needs_setup_when_run_tessl_then_ctx_review_quality_stays_none() -> None:
+    """
+    Scenario: Missing Review credentials leave Tessl ID context unseeded for Quality.
+    Slice: 47 — GWT-47.5 ctx stays null when Quality does not stamp
+
+    Given TESSL_TOKEN is absent,
+    When run_tessl runs Lint then marks Review needs_setup,
+    Then ctx["review_quality"] stays None,
+    And Lint still has no tessl_run_id.
+    """
+    ### Given
+    ctx = scanners._new_tessl_id_context()
+
+    ### When
+    with (
+        patch.dict("os.environ", {}, clear=True),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", return_value=(0, "1 check", "")),
+    ):
+        _score, rows = scanners.run_tessl("/tmp/fake-skill", id_context=ctx)
+
+    ### Then
+    assert ctx["review_quality"] is None, (
+        "Quality run ID must not be invented when Review is needs_setup"
+    )
+    assert ctx["scenario_gen"] is None, "scenario_gen must stay None in slice 47"
+    assert rows[0].get("tessl_run_id") is None, (
+        "Lint remains outside the ID chain when Review is skipped"
+    )
+
+
+def test_given_empty_state_when_new_tessl_id_context_then_quality_and_scenario_keys_are_none() -> (
+    None
+):
+    """
+    Scenario: Tessl ID context starts with Quality and scenario_gen unset.
+    Slice: 47 — GWT-47.5 _TesslIdContext seed shape
+
+    Given no prior Tessl step has run,
+    When _new_tessl_id_context is called,
+    Then review_quality and scenario_gen are present and None.
+    """
+    ### Given / When
+    actual_ctx = scanners._new_tessl_id_context()
+
+    ### Then
+    expected_ctx = {"review_quality": None, "scenario_gen": None}
+    assert actual_ctx == expected_ctx, f"Seed ctx must be {expected_ctx!r}, got {actual_ctx!r}"
