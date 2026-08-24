@@ -113,10 +113,10 @@ Coverage Gap C (agent-assisted scenario generation via `tessl install tessl-labs
 
 ## Review
 
-**Date**: 2026-08-25  
-**Reviewer**: nw-software-crafter-reviewer (ATDD-pure, C_REVIEWER_AUDIT)  
-**Review ID**: crafter-review-slice49-20260825  
-**Verdict**: APPROVED  
+**Date**: 2026-08-25
+**Reviewer**: nw-software-crafter-reviewer (ATDD-pure, C_REVIEWER_AUDIT)
+**Review ID**: crafter-review-slice49-20260825
+**Verdict**: APPROVED
 **Iteration**: 1
 
 ### Findings summary
