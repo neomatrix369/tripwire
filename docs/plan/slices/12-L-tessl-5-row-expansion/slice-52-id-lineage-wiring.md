@@ -4,49 +4,61 @@
 **MoSCoW**: Could
 **Depends on**: 49, 50, 51
 **Status**: 📋 PLANNED
-**Read time**: ~4 min
+**Read time**: ~5 min
 
 ## Context
 
-Wires the full ID lineage cross-read described in the design doc: each downstream feature fetches prior features' findings via `tessl <cmd> view <id> --json` using `upstream_run_ids`, and the dashboard displays cross-linked findings side-by-side for human review prioritisation.
+Wires the full ID lineage cross-read described in the design doc: each downstream feature fetches prior features' persisted state via `tessl <cmd> view <id> --json` using `upstream_run_ids`, and the dashboard displays cross-linked findings side-by-side for human review prioritisation.
 
-This is a Could slice — the `upstream_run_ids` column is populated by earlier slices (46–51), but the UI rendering and the `tessl review view <id> --json` fetch call are deferred here.
+This is a Could slice — the `upstream_run_ids` column is populated by earlier slices (46–51), but the UI rendering and the server-side or dashboard fetch calls are deferred here.
 
 Design reference: `docs/design/tessl-5-row-expansion.md § (c) ID Lineage Cross-Reads`
 
-**Prerequisite**: Coverage Gaps A and B must be resolved. If `tessl scenario view <id>` is not supported (Gap B), the scenario_gen entry in `upstream_run_ids` remains null and this slice documents the gap.
+**Coverage Gap status (2026-08-24, Tessl CLI + docs)**:
+
+- **Gap A**: Partially resolved — capture run IDs via `view <id> --json` after async completion; `eval run --json` returns IDs immediately.
+- **Gap B**: **Resolved** — `tessl scenario view <id>`, `tessl scenario download <id>`, `tessl eval view <id>`, and `tessl review view <id>` all support explicit IDs ([cli-commands](https://docs.tessl.io/reference/cli-commands)).
+- **Gap C**: Still open — agent-assisted scenario generation not verified for headless Modal; UI shows Quality findings as context only.
 
 ## Acceptance Criteria (GWT)
 
 ### Scenario 1 — Security Review fetches Quality findings via run ID
 
 **Given** Security Review's `upstream_run_ids.review_quality = "rev_abc123"`
-**When** the dashboard renders the Security Review expanded section
+**When** the dashboard renders the Security Review expanded section (or scan-time adapter stores cross-read in `detail`)
 **Then** Quality findings fetched via `tessl review view rev_abc123 --json` are shown alongside Security findings
-**And** the fetch result is cached in the expanded view (not re-fetched on every render)
+**And** the fetch result is cached (expanded view or row `detail`) — not re-fetched on every render
 
-### Scenario 2 — Scenario Generation cross-read documented when CLI injection unavailable
+### Scenario 2 — Eval cross-reads scenario generation metadata via gen_id
+
+**Given** Eval's `upstream_run_ids.scenario_gen = "gen_abc123"` (populated by slice 50)
+**When** the Eval row expanded section renders (or scan-time adapter stores cross-read in `detail`)
+**Then** scenario metadata fetched via `tessl scenario view gen_abc123 --json` is shown (generation status, scenario titles, checklist counts)
+**And** the UI does **not** imply eval was invoked with that ID — eval used filesystem `evals/` (slice 50 contract)
+
+### Scenario 3 — Scenario Generation cross-read when CLI injection unavailable
 
 **Given** the agent-assisted scenario generation path (Coverage Gap C) is not usable in Modal sandbox
 **When** the Scenario Generation row is expanded in the dashboard
-**Then** the Quality findings are shown as a "context for review" panel (UI-level only)
-**And** the `upstream_run_ids.review_quality` link is visible so a human can inspect Quality findings before reviewing generated scenarios
+**Then** Quality findings are shown as a "context for review" panel (UI-level only)
+**And** `upstream_run_ids.review_quality` link is visible so a human can inspect Quality findings before reviewing generated scenarios
+**And** when `upstream_run_ids.scenario_gen` or row `tessl_run_id` is set, a link to `scenario view <id>` metadata is shown
 
-### Scenario 3 — Null upstream_run_ids handled gracefully
+### Scenario 4 — Null upstream_run_ids handled gracefully
 
-**Given** a feature has `upstream_run_ids = null` or `upstream_run_ids.review_quality = null`
+**Given** a feature has `upstream_run_ids = null` or a key such as `review_quality` / `scenario_gen` is null
 **When** the dashboard renders the expanded section
-**Then** no cross-linked findings panel appears
+**Then** no cross-linked panel appears for that missing key
 **And** no error is thrown
 
 ## Files to touch
 
-- `prototypes/dc-dashboard/Tripwire.dc.html` — expanded section: add cross-linked findings panel when `scv.upstream_run_ids.review_quality` is populated; fetch `tessl review view <id> --json` via the existing Supabase/API pattern (or store fetched findings in `detail` at scan time)
-- `sandbox/scanners.py` — optionally: fetch and store Quality findings in the Security/Scenario Gen row's `detail` at scan time (simpler than a live UI fetch)
+- `prototypes/dc-dashboard/Tripwire.dc.html` — expanded section: cross-linked findings panels when `scv.upstream_run_ids.*` is populated
+- `sandbox/scanners.py` — optionally: fetch and store cross-read JSON in row `detail` at scan time (preferred for Modal — no live CLI from dashboard)
 
 ## Open Question dependency
 
-If storing cross-read findings in `detail` at scan time (server side, in the adapter) is preferred over a live dashboard fetch, this slice becomes pure backend work and the dashboard change is minimal. Decide before implementation.
+If storing cross-read findings in `detail` at scan time (server side, in the adapter) is preferred over a live dashboard fetch, this slice becomes primarily backend work and the dashboard change is minimal. Decide before implementation.
 
 ## Gate evidence fields
 

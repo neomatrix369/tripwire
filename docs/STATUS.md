@@ -206,6 +206,17 @@ Not IMPLEMENTED — no production hook install path or `/tw-*` skills yet. ADR-0
 Horizon A exclusion remains in force until Wave H lands and a superseding ADR
 records the new production entry.
 
+**Wave L — Tessl scenario generation + eval (2026-08-24):** Rows 3–4
+(`"Tessl: Scenario Generation"`, `"Tessl: Eval"`) are **DECIDED** in slices
+49–50 — not IMPLEMENTED. Contract (Tessl CLI + docs probe): `scenario generate
+<plugin-path>` (CLI polls) → `scenario download <gen_id>` into `<plugin>/evals/`
+→ `eval run <plugin> --runs 3 -y` (filesystem only; no scenario-gen ID on eval).
+Eval auto-chains from `blocked` when generation completes and `evals/` is
+populated. Coverage Gap B (`scenario view <id>`) resolved; Gap C (agent-assisted
+generation) open. Spec:
+[design/tessl-5-row-expansion.md](./design/tessl-5-row-expansion.md),
+[slices 49–50](./plan/slices/12-L-tessl-5-row-expansion/).
+
 ---
 
 ## PROPOSED

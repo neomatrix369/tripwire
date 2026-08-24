@@ -4,32 +4,63 @@
 **MoSCoW**: Should
 **Depends on**: 47, 48
 **Status**: 📋 PLANNED
-**Read time**: ~5 min
+**Read time**: ~6 min
 
 ## Context
 
-Implements the Scenario Generation capability: `tessl scenario generate <plugin> --workspace <ws>` → `tessl scenario download --last` → move scenarios into `<plugin-dir>/evals/`. This is the most fragile step (manual move required; non-deterministic if interrupted). The `resume_checkpoint` jsonb column is essential here.
+Implements the Scenario Generation capability for **plugin-path** generation (Tripwire scans local plugin directories, not repo commits):
+
+```
+tessl scenario generate <plugin-path> [--count N]
+  → (CLI polls server-side until completed or failed)
+  → tessl scenario view <gen_id> --json          # capture tessl_run_id + scenario count
+  → tessl scenario download <gen_id> -o <plugin>/evals
+```
+
+Tessl docs ([evaluate-skill-quality-using-scenarios](https://docs.tessl.io/improving-your-skills/evaluate-skill-quality-using-scenarios), [cli-commands § scenario](https://docs.tessl.io/reference/cli-commands)):
+
+- `scenario generate` runs **server-side**; the CLI **polls until complete** by default. Ctrl-C detaches without cancelling — progress via `tessl scenario list --status …`.
+- `--workspace` is **repo-only** (with `--commits` / `--prs`); do **not** pass it for plugin-path generation.
+- `scenario download` accepts an explicit generation ID (`tessl scenario download <id>`) or `--last`. If the generation is still `pending` / `in_progress`, download **reports status and exits** — it does not wait. Eval must not start until download succeeds.
+- Scenarios must land in `<plugin>/evals/` because `tessl eval run ./my-plugin` reads from there (see slice 50).
+- Standalone skills require a plugin manifest first (`tessl skill import`); lint (slice 46) already enforces `.tessl-plugin/plugin.json`.
+
+The manual move step in v0 stubs exists because download defaults to `evals/` relative to **cwd**; the adapter either runs download with `-o <plugin>/evals` from a known cwd, or downloads to a temp dir and moves. The `resume_checkpoint` jsonb column covers interruption between generate-complete and files-in-evals.
 
 Design reference: `docs/design/tessl-5-row-expansion.md § (a) resume_checkpoint, § (b) Scenario Generation resume path, § (c) 7(b)`
 
-**Coverage Gap dependency**: If Coverage Gap A (does `tessl scenario generate` print a run ID to stdout?) resolves as No, the adapter must use `tessl scenario view --last` to look up results — and Coverage Gap B (is `view <id>` supported?) affects whether cross-feature lineage can store an explicit ID for scenario gen.
+**Coverage Gap status (2026-08-24, Tessl CLI + docs)**:
+
+- **Gap A (run ID at trigger time)**: `scenario generate` blocks until done; capture `tessl_run_id` from `scenario view <id> --json` (or `generate --json` output if present). No need to guess from stdout alone.
+- **Gap B (`scenario view <id>`)**: **Resolved** — explicit ID form documented and supported. Prefer explicit ID over `--last` for lineage correctness.
 
 ## Acceptance Criteria (GWT)
 
-### Scenario 1 — Successful generation, move, and row update
+### Scenario 1 — Successful generation, download, and row update
 
 **Given** Quality Review has completed and `tessl_run_id` is populated
+**And** the scan target is a Tessl plugin directory (`.tessl-plugin/plugin.json` present)
 **When** Scenario Generation runs
-**Then** `tessl scenario generate` is invoked; scenarios are downloaded and moved to `<plugin>/evals/`
-**And** `resume_checkpoint` transitions through `{"stage": "generated"}` → `{"stage": "moved"}` as each step completes
-**And** final row status is `completed` and `resume_checkpoint` is cleared to `null`
+**Then** `tessl scenario generate <plugin-path> --count 3` is invoked (CLI polls until `completed` or `failed`)
+**And** on success the adapter captures `gen_id` from `scenario view --json` (prefer the ID returned by generate/view JSON; use `--last --mine` only when no checkpoint exists)
+**And** `tessl scenario download <gen_id> -o <plugin>/evals` is invoked (only after generation is `completed`)
+**And** `tessl_run_id = gen_id` and `tessl_run_id_at` are written on the Scenario Generation row
+**And** `resume_checkpoint` transitions through `{"stage": "generated", "gen_id": "<id>"}` → `{"stage": "moved"}` as each step completes
+**And** final row status is `completed`, `checks_run` reflects downloaded scenario count, and `resume_checkpoint` is cleared to `null`
 
-### Scenario 2 — Interrupted after generate, before move
+### Scenario 2 — Interrupted after generate, before evals/ is populated
 
-**Given** the runner is interrupted after `generate` succeeds but before the move
+**Given** the runner is interrupted after `generate` succeeds but before scenarios are in `<plugin>/evals/`
 **When** the runner resumes
-**Then** `resume_checkpoint.stage == "generated"` is detected
-**And** the generate step is skipped; only the move is retried
+**Then** `resume_checkpoint.stage == "generated"` and `resume_checkpoint.gen_id` are detected
+**And** the generate step is skipped; only `tessl scenario download <gen_id> -o <plugin>/evals` (or the move from temp) is retried
+
+### Scenario 2b — Modal timeout during server-side generate (detach/resume)
+
+**Given** `tessl scenario generate` was detached (Modal timeout or Ctrl-C equivalent) while server status is still `in_progress`
+**When** the runner resumes
+**Then** the adapter polls `tessl scenario view <gen_id> --json` (from checkpoint or `--last --mine`) until `completed` or `failed`
+**And** does **not** call `scenario download` until status is `completed` (download exits early otherwise)
 
 ### Scenario 3 — upstream_run_ids populated from Quality Review
 
@@ -44,14 +75,27 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a) resume_checkpoint
 **Then** Scenario Generation row `status = "failed"`
 **And** Eval row `status` remains `"blocked"` (no auto-chain)
 
+### Scenario 5 — Missing TESSL_TOKEN or plugin manifest
+
+**Given** `TESSL_TOKEN` is absent or the scan target lacks `.tessl-plugin/plugin.json`
+**When** Scenario Generation would run
+**Then** the row has `status = "needs_setup"` (no token) or `status = "failed"` with actionable detail (no plugin manifest; lint row from slice 46 may already surface this)
+**And** Eval row remains `"blocked"`
+
 ## Files to touch
 
-- `sandbox/scanners.py` — add scenario generation step to `run_tessl()` group runner; implement `resume_checkpoint` write/read; implement `upstream_run_ids` population
-- `sandbox/scan_app.py` — verify `resume_checkpoint` is persisted between Modal function invocations (verify Modal timeout handling)
+- `sandbox/scanners.py` — add scenario generation step to `run_tessl()` after Review (Quality); implement `_run_tessl_scenario_gen()` helper; `resume_checkpoint` write/read; `upstream_run_ids` population; extend `TESSL_SOURCES` with `"Tessl: Scenario Generation"`
+- `sandbox/scan_app.py` — persist `resume_checkpoint` and partial row updates between Modal invocations when generate/download spans timeout budget
+
+## Prerequisites (Tessl docs)
+
+- `TESSL_TOKEN` + Publisher workspace access (same as Review).
+- Plugin manifest at scan target (slice 46 lint gate); import via `tessl skill import` when missing.
+- Generation ID captured as `tessl_run_id`; use explicit ID for download/view — avoid `--last` except as bootstrap when no checkpoint exists.
 
 ## Open Question dependency
 
-Coverage Gaps A and B must be resolved before implementing the `tessl_run_id` capture for this feature. If `tessl scenario view <id>` is unsupported (Gap B), store `null` and document the limitation.
+Coverage Gap C (agent-assisted scenario generation via `tessl install tessl-labs/tessl-skill-eval-scenarios`) remains **unverified** for headless Modal. v1 uses plain `scenario generate` only; Quality findings are UI context, not CLI-injected.
 
 ## Gate evidence fields
 

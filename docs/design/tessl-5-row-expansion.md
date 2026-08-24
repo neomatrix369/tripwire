@@ -23,8 +23,8 @@ The task prompt lists 6 Coverage Gaps to "flag, do not infer." Each is resolved 
 
 | # | Gap | Why it matters |
 |---|---|---|
-| A | Does `tessl review run` / `tessl scenario generate` print a run ID to stdout at trigger time, or only discoverable afterward via `view --last`? | Determines whether the adapter can capture `tessl_run_id` immediately on invocation or must call `view --last --json` after the async job completes. |
-| B | Is `tessl scenario view <id>` (explicit ID form, not `--last`) actually supported? | The cheatsheet only documents `--last`. Needed for cross-feature ID lineage on scenario generation — if unsupported, `tessl_run_id` for that feature has no retrieval path beyond `--last`. |
+| A | Does `tessl review run` / `tessl scenario generate` print a run ID to stdout at trigger time, or only discoverable afterward via `view --last`? | **Partially resolved (2026-08-24).** `scenario generate` blocks and polls until complete; capture ID via `scenario view --json` after completion (or `generate --json` if emitted). `eval run --json` returns eval run IDs immediately without polling. Review remains slice 47 (`review view --last --json` after async completion). |
+| B | Is `tessl scenario view <id>` (explicit ID form, not `--last`) actually supported? | **Resolved (2026-08-24).** CLI help + [cli-commands § scenario view/download](https://docs.tessl.io/reference/cli-commands) document explicit IDs. Adapter should capture `gen_id` after generate and use `scenario download <gen_id>` — not `--last`. |
 | C | Is the agent-assisted scenario generation path (`tessl install tessl-labs/tessl-skill-eval-scenarios`) usable from Tripwire's headless Modal sandbox orchestration? | This is the only documented channel for threading Quality review findings into scenario generation (rule 7b). If it requires an interactive agent prompt, it cannot be scripted. |
 
 ---
@@ -107,7 +107,7 @@ ALTER TABLE scan_run_scanners
 | `tessl_run_id` | `text` | YES | The Tessl-side run ID for the last completed or in-flight invocation of this feature. `NULL` until first run produces one. Used for cache-hit check and cross-feature ID lineage reads via `tessl <cmd> view <id> --json`. |
 | `tessl_run_id_at` | `timestamptz` | YES | Timestamp when `tessl_run_id` was last written. Used to detect staleness (e.g. older than cache TTL). |
 | `resume_checkpoint` | `jsonb` | YES | Minimal state blob for interrupted-run resumability. `NULL` when not interrupted. Structure is feature-specific — see section (b) for per-feature shapes. |
-| `upstream_run_ids` | `jsonb` | YES | Map of Tessl run IDs from sibling features read at this feature's start. Populated by the adapter for traceability and cross-feature lineage reads. Example: `{"review_quality": "rev_abc123", "scenario_gen": null}`. `NULL` until populated. |
+| `upstream_run_ids` | `jsonb` | YES | Map of Tessl run IDs from sibling features read at this feature's start. Populated by the adapter for traceability and cross-feature lineage reads. Example: `{"review_quality": "rev_abc123", "scenario_gen": "gen_abc123"}`. `NULL` until populated. |
 
 ### Per-Feature `scanner_source` Strings
 
@@ -165,12 +165,12 @@ The two rows are fully separate in the DB, dashboard, and state machine — they
   upstream_run_ids:  null      -- quality review has no upstream dependencies
 }
 
--- Tessl: Scenario Generation (interrupted mid-move; resume_checkpoint populated)
+-- Tessl: Scenario Generation (interrupted mid-download; resume_checkpoint populated)
 {
   scanner_source:    "Tessl: Scenario Generation",
   status:            "interrupted",
-  tessl_run_id:      null,     -- scenario gen may lack a server-side ID (Coverage Gap B)
-  resume_checkpoint: {"stage": "generated", "scenario_tmp_path": "/tmp/scenarios-xyz/"},
+  tessl_run_id:      "gen_abc123",     -- captured via scenario view --json after generate completes
+  resume_checkpoint: {"stage": "generated", "gen_id": "gen_abc123", "scenario_tmp_path": "/tmp/scenarios-xyz/"},
   upstream_run_ids:  {"review_quality": "rev_abc123"}
 }
 
@@ -179,8 +179,8 @@ The two rows are fully separate in the DB, dashboard, and state machine — they
   scanner_source:    "Tessl: Eval",
   status:            "completed",
   tessl_run_id:      "eval_xyz789",
-  upstream_run_ids:  {"review_quality": "rev_abc123", "scenario_gen": null}
-  -- scenario_gen tessl_run_id is null due to Coverage Gap B
+  upstream_run_ids:  {"review_quality": "rev_abc123", "scenario_gen": "gen_abc123"}
+  -- scenario_gen ID is for lineage/cross-read; eval invocation reads <plugin>/evals/ on disk
 }
 
 -- Tessl: Review (Security)
@@ -204,8 +204,8 @@ After an interruption, resume using the minimum state needed. The adapter checks
 |---|---|---|---|
 | **Lint** | During subprocess | Re-run `tessl skill lint` from scratch — deterministic, fast, no server-side state | No |
 | **Review (Quality)** | CLI polling; server job still running | Call `tessl review view --last --json`; if `status=completed` use cached result and persist `tessl_run_id`; else continue polling | No — Tessl CLI natively supports detach/resume |
-| **Scenario Generation** | After `tessl scenario generate`, before or during move to `<plugin>/evals/` | Read `resume_checkpoint.stage`: if `"generated"`, skip generate and move scenarios; if `"moved"`, confirm evals/ contains scenarios and proceed | Yes — fragile hand-off between generate and move |
-| **Eval** | During `--runs 3` polling | Call `tessl eval view --last --json`; if `status=completed` use result; else continue polling | No — same detach/resume as review |
+| **Scenario Generation** | After `tessl scenario generate`, before or during download to `<plugin>/evals/` | CLI polls on `generate` until `completed`/`failed`. If detached (Modal timeout), resume via `scenario view <gen_id> --json` until complete, then `scenario download <gen_id> -o <plugin>/evals` (download exits if still in progress). Checkpoint stores `gen_id` + stage. | Yes — fragile hand-off between server completion and evals/ on disk |
+| **Eval** | During `--runs 3` polling | `eval run` polls by default; or `eval run --json` for immediate ID + `eval view <id> --json` on resume. Requires scenarios in `<plugin>/evals/` first — **no scenario-gen ID parameter**. | No — Tessl CLI detach/resume via eval view |
 | **Review (Security)** | CLI polling; server job still running | Same as Review (Quality), parameterised with `judge_type=security` | No |
 
 ### `resume_checkpoint` Schema per Feature
@@ -215,12 +215,13 @@ Only Scenario Generation requires a checkpoint blob; all other features rely on 
 ```jsonc
 // Tessl: Scenario Generation — possible stage values
 {
-  "stage": "generated",              // tessl scenario generate completed; move not yet done
-  "scenario_tmp_path": "/tmp/…"      // where generated files landed
+  "stage": "generated",              // server-side generate completed; evals/ not yet populated
+  "gen_id": "019c4791-…",            // tessl scenario generation run ID (for view/download)
+  "scenario_tmp_path": "/tmp/…"      // optional: where download landed before move into plugin/evals/
 }
 // or
 {
-  "stage": "moved"                   // files moved to <plugin>/evals/; eval not yet triggered
+  "stage": "moved"                   // files in <plugin>/evals/; eval not yet triggered
 }
 ```
 
@@ -228,13 +229,33 @@ Only Scenario Generation requires a checkpoint blob; all other features rely on 
 
 ```
 WHEN scenario_gen.status transitions to 'completed'
-  AND resume_checkpoint.stage == 'moved'          -- confirms files are in evals/
+  AND <plugin>/evals/ is non-empty          -- scenarios on disk (download succeeded)
   AND eval.status IN ('blocked', 'not_started')   -- first-run guard
-THEN eval.status → 'queued'                       -- auto-transition within same Run Scan
+THEN eval.status → 'queued' → 'running'    -- auto-transition within same Run Scan
+  AND tessl eval run <plugin> --runs 3 -y   -- reads evals/ from disk; no scenario-gen ID
 ```
 
 - If `scenario_gen` ends `failed` or `timed_out` → `eval` stays `blocked`.
 - If `scenario_gen` is **re-run** after `eval` already `completed` → `eval.status` transitions to `stale`. This is **not** an auto-cascade to `queued`: the adapter detects `eval.status == 'completed'` and `scenario_gen.tessl_run_id` changed (or `scenario_gen.tessl_run_id_at` is newer than `eval.completed_at`), then sets `eval.status = 'stale'`. No new eval run fires automatically.
+
+### Scenario Generation → Eval pipeline (Tessl CLI contract, slices 49–50)
+
+Verified against [Tessl CLI reference](https://docs.tessl.io/reference/cli-commands) and [evaluate-skill-quality-using-scenarios](https://docs.tessl.io/improving-your-skills/evaluate-skill-quality-using-scenarios) (2026-08-24):
+
+```
+1. run_tessl() emits Eval row status=blocked
+2. tessl scenario generate <plugin-path> --count 3     # CLI polls until completed/failed
+3. gen_id ← scenario view --json (after generate; store as tessl_run_id)
+4. tessl scenario download <gen_id> -o <plugin>/evals  # fails fast if still in_progress
+5. scenario_gen row → completed; resume_checkpoint cleared
+6. IF evals/ non-empty AND eval.status IN (blocked, not_started):
+     tessl project repair (if needed)
+     tessl eval run <plugin-path> --runs 3 -y          # reads evals/ from disk
+7. eval_id ← eval view --json (or eval run --json on detach)
+8. eval row → completed; upstream_run_ids.scenario_gen = gen_id (lineage only)
+```
+
+**Not supported by Tessl CLI**: passing `gen_id` to `eval run`. Eval always consumes on-disk scenarios. **`--workspace`** on `scenario generate` is for repo mode (`org/repo --commits …`), not plugin-path generation.
 
 > **⚠ OPEN — Retry Invocation Mechanism**
 >
@@ -262,11 +283,11 @@ Each feature that reads from a prior feature's persisted state does so by:
 
 **What is read**: Same Quality Review `tessl_run_id` lookup; `tessl review view <id> --json` to retrieve Quality findings.
 
-**Threading findings into scenario generation**: The **plain CLI form** (`tessl scenario generate <plugin> --workspace <ws>`) has no context-injection flag. To thread Quality findings into scenario generation, the **agent-assisted path** (`tessl install tessl-labs/tessl-skill-eval-scenarios`) is the only documented channel.
+**Threading findings into scenario generation**: The **plain CLI form** (`tessl scenario generate <plugin-path> [--count N]`) has no context-injection flag. `--workspace` applies to **repo** generation (`org/repo --commits …`), not plugin-path generation. To thread Quality findings into scenario generation, the **agent-assisted path** (`tessl install tessl-labs/tessl-skill-eval-scenarios`) is the only documented channel.
 
 **Caveat — agent-assisted path in headless sandbox**: This path is designed around an interactive agent prompt. Whether it can be scripted from Tripwire's headless Modal sandbox orchestration is **unverified** (Coverage Gap C). Until verified, the plain CLI form is used for scenario generation, and the Quality findings are surfaced in the UI as context for human review of the generated scenarios rather than injected into the CLI call.
 
-**What is persisted**: `upstream_run_ids: { "review_quality": "rev_abc123" }` on both the Scenario Generation and Eval rows.
+**What is persisted**: `upstream_run_ids: { "review_quality": "rev_abc123", "scenario_gen": "gen_abc123" }` on the Eval row. The `scenario_gen` ID enables cross-read via `tessl scenario view gen_abc123 --json` (slice 52); eval execution still uses filesystem `evals/`.
 
 ### 7(c) — Extended Cross-Feature Insights (v1 Not Wired)
 
@@ -365,7 +386,7 @@ Both paths are compatible with the schema above. The retry control (UI affordanc
 
 | # | Gap | Impact if unresolved |
 |---|---|---|
-| A | Does `tessl review run` / `tessl scenario generate` print a run ID to stdout at trigger time, or only via `view --last --json`? | Adapter must choose between capturing ID immediately vs. always polling `view --last` after completion. The latter is safe but slightly less precise if multiple concurrent runs exist. |
-| B | Is `tessl scenario view <id>` (explicit ID form) supported, or only `--last`? | If only `--last` is supported, cross-feature ID lineage for Scenario Generation relies on sequential execution (no concurrent runs) to ensure `--last` references the correct run. Flag as a correctness risk. |
+| A | Does `tessl review run` / `tessl scenario generate` print a run ID to stdout at trigger time, or only via `view --last --json`? | **Partially resolved (2026-08-24).** `scenario generate` blocks/polls until complete — capture via `scenario view <id> --json`. `eval run --json` returns IDs immediately without polling. Review capture remains slice 47 (`review view --json` after async completion). Prefer explicit IDs over `--last`. |
+| B | Is `tessl scenario view <id>` (explicit ID form) supported, or only `--last`? | **Resolved (2026-08-24).** Use explicit IDs for scenario view/download and eval/review view. |
 | C | Is the agent-assisted scenario generation path usable from Tripwire's headless Modal sandbox? | If not, Quality Review findings cannot be threaded into scenario generation programmatically in v1. The fallback is UI-level display of Quality findings alongside the scenario generation row for human reference. |
 | D | Should "Not Available Yet" rows be included in the Scanner Outputs count? | Minor UX decision. Recommendation: include (consistent with Cisco credential-absent rows). Requires explicit product sign-off. |
