@@ -27,7 +27,7 @@
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
 | 0 (docs) | K | **44** | **Docs UX plain language + compaction** | Must | 🔀 ON BRANCH · [#99](https://github.com/neomatrix369/tripwire/pull/99) · GWT-44.1–44.8 · documentarist APPROVED WITH FOLLOW-ON (DIVIO targets pending) · `slice/44-docs-ux-plain-language` |
-| 0 (active) | L | **47** | **Tessl: Review (Quality) Split (Row 2)** | Must | 🔨 IN PROGRESS · `slice/47-review-quality-split` · GWT-47.1–47.4 |
+| 0 (active) | L | **47** | **Tessl: Review (Quality) Split (Row 2)** | Must | 🔨 IN PROGRESS · `slice/47-review-quality-split` · GWT-47.1–47.5 |
 | 0 (delta) | J | 42 | Dashboard Data Quality — Tessl quality UX + tooltips + plain labels (A9–A13) | Must | ✅ PASSED · [#98](https://github.com/neomatrix369/tripwire/pull/98) |
 | 1 | G | 18 | CLI Operator Evidence Contracts | Must | 📋 PLANNED |
 | 2 | G | 19 | Sandbox Persistence State Contract | Must | 📋 PLANNED |
@@ -260,3 +260,4 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-24 | plan | Tessl scenario/eval slice contract | 49–50 | 📋 PLANNED | Tessl CLI+docs probe: Gap B resolved; slices 49–50 aligned to generate→download→eval run pipeline; slice 52 lineage; TRAIL+design updated. |
 | 2026-08-24 | plan | Tessl ID carry-forward contract | 47–52 | 📋 PLANNED | Design § ID carry-forward + slices 45–52: `_TesslIdContext`, `_attach_upstream_run_ids`, per-row stamp rules; slice 52 depends on 47/49/50/51 populating persisted JSON. |
 | 2026-08-24 | slice/47-review-quality-split | slice-workflow | 47 | 🔨 IN PROGRESS | `_run_tessl_review(quality)` + tessl_run_id via view --last; slice 46 closed ✅ #105 |
+| 2026-08-24 | slice/47-review-quality-split | slice-workflow | 47 | 🔨 IN PROGRESS | GWT-47.5 `_TesslIdContext` seed + `_update_tessl_id_context` after Quality stamp |

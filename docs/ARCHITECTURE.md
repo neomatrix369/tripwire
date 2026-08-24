@@ -287,7 +287,8 @@ on the `"Tessl: Review (Quality)"` scanner row only. `"Tessl: Lint"` is a
 separate `scan_run_scanners` row (slice 46 ✅ persist scan_run `a36cad9f`):
 `tessl skill lint`, auth-free, no `tessl_run_id`. Review Quality (slice 47 🔨)
 uses `tessl review run quality --json --workspace` and stamps `tessl_run_id`
-from `tessl review view --last --json`. It is orthogonal to findings and to `risk_score`. **DECIDED (not implemented):** rows 3–5
+from `tessl review view --last --json`, then seeds in-process
+`_TesslIdContext["review_quality"]` for slices 49–51 (GWT-47.5). It is orthogonal to findings and to `risk_score`. **DECIDED (not implemented):** rows 3–5
 (Scenario Generation, Eval, Security Review) — see
 [design/tessl-5-row-expansion.md](./design/tessl-5-row-expansion.md) and slices
 49–51; scenario→eval pipeline is generate → download → `eval run` on disk

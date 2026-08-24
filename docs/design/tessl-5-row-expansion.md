@@ -288,7 +288,7 @@ ctx: dict[str, str | None] = {
 
 - `_stamp_tessl_run_id(row, run_id)` — slice 47 ✅
 - `_attach_upstream_run_ids(row, ctx, *keys)` — copies selected keys from `ctx` onto row (null for missing keys); slices 49–51
-- `_update_tessl_id_context(ctx, key, run_id)` — sets ctx after stamp; slices 47, 49, 51
+- `_update_tessl_id_context(ctx, key, run_id)` — sets ctx after stamp; slice 47 ✅ (Quality seed); slices 49, 51 reuse
 
 **Rules:**
 

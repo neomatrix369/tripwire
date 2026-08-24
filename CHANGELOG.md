@@ -39,7 +39,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tessl Review (Quality) run-ID capture (slice 47): `_run_tessl_review(judge_type="quality")`
   runs `tessl review run quality --json --workspace` (replaces deprecated
   `tessl skill review`) then `tessl review view --last --json` to persist
-  `tessl_run_id` + `tessl_run_id_at`. Missing `TESSL_WORKSPACE` → `needs_setup`.
+  `tessl_run_id` + `tessl_run_id_at`. After stamp, `_update_tessl_id_context`
+  sets in-process `ctx["review_quality"]` (GWT-47.5) for slices 49–51.
+  Missing `TESSL_WORKSPACE` → `needs_setup`. Lint stays outside the ID chain.
 - Tessl Lint adapter (slice 46): `run_tessl()` writes a `"Tessl: Lint"` row via
   `npx tessl@latest skill lint` (auth-free, synchronous, no `tessl_run_id`)
   before `"Tessl: Review (Quality)"`. Missing `TESSL_TOKEN` still runs Lint and

@@ -89,7 +89,8 @@ Reachable through production entry points / config:
 - `"Tessl: Review (Quality)"` run-ID capture — `_run_tessl_review(judge_type="quality")`
   invokes `tessl review run quality --json --workspace` (deprecated `skill review`
   replaced) then `tessl review view --last --json` to persist `tessl_run_id` +
-  `tessl_run_id_at`. Missing `TESSL_WORKSPACE` → `needs_setup`. IMPLEMENTED (unit)
+  `tessl_run_id_at`. `_update_tessl_id_context` seeds `ctx["review_quality"]`
+  in-process (GWT-47.5). Missing `TESSL_WORKSPACE` → `needs_setup`. IMPLEMENTED (unit)
   — `sandbox/scanners.py` (slice 47 🔨, `slice/47-review-quality-split`)
 - Live dashboard latest-state read path — `dashboard_latest_runs` view (one row per
   item) + batched child-table fetches in `tripwire-live.js`; replaces global

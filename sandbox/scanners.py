@@ -627,6 +627,16 @@ def _stamp_tessl_run_id(row: dict, run_id: str | None) -> None:
     row["tessl_run_id_at"] = datetime.now(UTC).isoformat()
 
 
+def _new_tessl_id_context() -> dict[str, str | None]:
+    """Seed in-process Tessl ID carry-forward (design § ID carry-forward)."""
+    return {"review_quality": None, "scenario_gen": None}
+
+
+def _update_tessl_id_context(ctx: dict[str, str | None], key: str, run_id: str | None) -> None:
+    """Record a step's Tessl run ID for later steps in the same run_tessl() call."""
+    ctx[key] = run_id
+
+
 def _finish_tessl_review(
     judge_type: str, source: str, workspace: str, code, out: str, err: str
 ) -> tuple[float | None, dict]:
@@ -692,7 +702,7 @@ def _parse_tessl_lint_detail(output: str) -> tuple[int | None, str]:
     return checks_run, detail
 
 
-def run_tessl(workdir):
+def run_tessl(workdir, id_context: dict[str, str | None] | None = None):
     """Run Tessl Lint (auth-free) then Review Quality (token-gated) — two rows.
 
     Lint is synchronous and never requires TESSL_TOKEN; it always runs when npx
@@ -701,8 +711,12 @@ def run_tessl(workdir):
 
     Returns (quality_score, [lint_row, review_row]).  quality_score is None when
     Review Quality did not complete successfully.
+
+    id_context is the in-process Tessl ID bag for this invocation (GWT-47.5).
+    Tests inject it to observe carry-forward; production seeds a fresh dict.
     """
     rows: list[dict] = []
+    ctx = id_context if id_context is not None else _new_tessl_id_context()
 
     # --- Tessl: Lint (auth-free, synchronous) ---
     if not _which("npx"):
@@ -734,10 +748,12 @@ def run_tessl(workdir):
     # --- Tessl: Review (Quality) (TESSL_TOKEN + TESSL_WORKSPACE required) ---
     if not os.environ.get("TESSL_TOKEN") or not (os.environ.get("TESSL_WORKSPACE") or "").strip():
         rows.append(_skipped("Tessl: Review (Quality)", reason="needs_setup"))
+        _update_tessl_id_context(ctx, "review_quality", None)
         return None, rows
     workspace = os.environ["TESSL_WORKSPACE"].strip()
     score, review_row = _run_tessl_review("quality", workdir, workspace)
     rows.append(review_row)
+    _update_tessl_id_context(ctx, "review_quality", review_row.get("tessl_run_id"))
     return score, rows
 
 

@@ -11,7 +11,8 @@
     "GWT-47.1 — tessl_run_id from review view --last --json; fallback to run JSON id (unit)",
     "GWT-47.2 — tesslInnerQuality still null on Lint (slice 46 regression, dashboard tests)",
     "GWT-47.3 — missing TESSL_TOKEN or TESSL_WORKSPACE → Review needs_setup (unit)",
-    "GWT-47.4 — _run_tessl_review(judge_type=quality) argv is tessl review run quality --json --workspace"
+    "GWT-47.4 — _run_tessl_review(judge_type=quality) argv is tessl review run quality --json --workspace",
+    "GWT-47.5 — _TesslIdContext seeded; ctx[review_quality] set after Quality stamp (unit)"
   ],
   "commands": [
     {
@@ -20,11 +21,11 @@
     },
     {
       "cmd": "uv run pytest sandbox/tests/test_scanners_status.py sandbox/tests/test_ship_path_coverage.py -q",
-      "result": "PASS — 78 tests"
+      "result": "PASS — 81 tests"
     },
     {
       "cmd": "./scripts/quality-gates.sh",
-      "result": "PASS — 245 pytest (sandbox 96.8%, scanners.py 98.3%), 138 CLI tests, ruff/mypy/xenon/bandit/pip-audit/gitleaks green"
+      "result": "PASS — 248 pytest (sandbox 96.8%, scanners.py 98.3%), 138 CLI tests, ruff/mypy/xenon/bandit/pip-audit/gitleaks green"
     }
   ],
   "coverage_pct": "sandbox 96.8% / scanners.py 98.3% (fail-under 95)",
