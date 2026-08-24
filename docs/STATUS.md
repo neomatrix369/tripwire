@@ -71,11 +71,19 @@ Reachable through production entry points / config:
   `tripwire-intro-dismissed`, About toggle) — `prototypes/dc-dashboard/Tripwire.dc.html`
   (slice 41 ✅)
 - Tessl `quality_score` (0–100 skill-review) persisted on `items`, mapped by Live
-  to `item.quality` / Tessl `output.quality_score`, and surfaced on skill cards as
+  to `item.quality` / `"Tessl: Review (Quality)"` `output.quality_score`, and surfaced on skill cards as
   compact `Q N` / `Q —` / `Q ?` badges with fixed `#score-tip-portal` hover/focus
   tips + schedule cues — `sandbox/scanners.py`, `tripwire-live.js`,
   `tripwire-status.js`, `Tripwire.dc.html` (slice 42 A9–A13 ✅,
-  [PR #98](https://github.com/neomatrix369/tripwire/pull/98))
+  [PR #98](https://github.com/neomatrix369/tripwire/pull/98); quality binding
+  scoped off `"Tessl: Lint"` in slice 46)
+- `"Tessl: Lint"` scanner row — `run_tessl()` invokes `npx tessl@latest skill lint`
+  first (auth-free, no `tessl_run_id`); Review row is `"Tessl: Review (Quality)"`
+  and `needs_setup` when `TESSL_TOKEN` is absent. Mock dashboard fixtures include
+  Lint at Tessl-block position 1. Live CLI 2026-08-24: lint targets plugin
+  packages; skill-folder fixtures exit 1 (adapter → `failed`). IMPLEMENTED +
+  VERIFIED(unit); live Modal scan not recorded — `sandbox/scanners.py`,
+  `prototypes/dc-dashboard/` (slice 46 🔀)
 - `risk_score` weighted finding density from `tripwire_rollup_item`; cards show
   compact `R N.NN` badges with density-formula portal tips (list header **Risk density**);
   card colour remains worst-of `heatmap_status`, not density (slice 42 A11/A13)
@@ -93,7 +101,9 @@ Reachable through production entry points / config:
   `--force`, tiered router (`cli/test/router.test.js`)
 - `pytest sandbox/tests/test_acquire_target.py` — acquire-target dispatch
 - `cd prototypes/dc-dashboard && npm test` — Live gating, Realtime wiring,
-  SCANNING/console/unreachable mapping; optional Live smoke skipped without config
+  SCANNING/console/unreachable mapping; Tessl Lint vs Review (Quality) inner
+  quality scope (GWT-46.4) — 89 pass / 1 skip (2026-08-24); optional Live smoke
+  skipped without config
 
 ---
 

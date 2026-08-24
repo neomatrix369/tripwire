@@ -36,6 +36,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   avoids delayed native `title=` attributes.
 
 ### Added
+- Tessl Lint adapter (slice 46): `run_tessl()` writes a `"Tessl: Lint"` row via
+  `npx tessl@latest skill lint` (auth-free, synchronous, no `tessl_run_id`)
+  before `"Tessl: Review (Quality)"`. Missing `TESSL_TOKEN` still runs Lint and
+  marks Review `needs_setup`. Dashboard Mock/Live bind quality badges to Review
+  only. Live CLI probe 2026-08-24: lint validates plugin packages; skill-folder
+  fixtures exit 1. Live success stdout `✔ Plugin … is valid` maps to `checks_run=1`.
 - `tripwire status [--json] [--limit <n>]` — read-only monitoring report (slice 37):
   agent-hook install/enable state with the two-switch view (local `enable` AND Supabase
   `config.monitoring_enabled`, disagreement warned), items heatmap distribution, recent

@@ -31,7 +31,7 @@ services — see [prerequisites](./user-guide/prerequisites.md).
 | **Supabase** | Postgres + Realtime system of record | MVP Live | [supabase-setup](./user-guide/supabase-setup.md) → [env-vars](./user-guide/env-vars.md) |
 | **Modal** | Isolated scanner sandbox compute | MVP Live | [modal-setup](./user-guide/modal-setup.md) → [env-vars](./user-guide/env-vars.md) |
 | **Snyk** | Skill/MCP depth scanner | Full scanner coverage | [procurement](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
-| **Tessl** | Skill-review quality + findings | Full scanner coverage | [procurement](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
+| **Tessl** | Skill lint (auth-free plugin-package check) + skill-review quality | Full scanner coverage | [procurement](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
 | **Cisco AI Defense** | Skill Scanner / MCP Scanner / AI Defense APIs | Full scanner coverage | [procurement](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
 | **Superlinked SIE** | Cheap post-scan triage | Optional tiered router | [tiered-router-setup](./user-guide/tiered-router-setup.md) |
 | **Alibaba Cloud Model Studio** | Escalation arbitration / triage | Optional tiered router | [tiered-router-setup](./user-guide/tiered-router-setup.md) |
@@ -281,8 +281,10 @@ for the latest run. Range ≥ 0 and unbounded; `null` when unscored. Dashboard
 card colour must not be inferred from this number alone.
 
 `quality_score` is the Tessl skill-review axis (0–100, higher better), written
-by `run_tessl` / `_tessl_quality_score` and mapped into Live as `item.quality`.
-It is orthogonal to findings and to `risk_score`. Dashboard skill cards surface
+by `run_tessl` / `_tessl_quality_score` and mapped into Live as `item.quality`
+on the `"Tessl: Review (Quality)"` scanner row only. `"Tessl: Lint"` is a
+separate `scan_run_scanners` row (slice 46 IMPLEMENTED): `tessl skill lint`,
+auth-free, no `tessl_run_id`. It is orthogonal to findings and to `risk_score`. Dashboard skill cards surface
 compact `Q N` / `Q —` / `Q ?` badges with a fixed `#score-tip-portal` (not delayed
 native `title=`, not in-card absolute bubbles that clip under `overflow-y: auto`);
 risk uses compact `R N.NN` badges (list header **Risk density**) with the same

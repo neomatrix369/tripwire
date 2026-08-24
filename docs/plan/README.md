@@ -15,7 +15,7 @@ Horizon A trackers and slice stubs. **Slice files live in wave folders** (execut
 | 9 | [slices/09-I-landing-intro-restyle/](slices/09-I-landing-intro-restyle/) | Landing intro + visual refresh (41, 43) — ✅ |
 | 10 | [slices/10-J-dashboard-data-quality/](slices/10-J-dashboard-data-quality/) | Dashboard data quality fixes (42) — ✅ |
 | 11 | [slices/11-K-docs-ux-plain-language/](slices/11-K-docs-ux-plain-language/) | Docs UX plain language + compaction (44) — 🔀 |
-| 12 | [slices/12-L-tessl-5-row-expansion/](slices/12-L-tessl-5-row-expansion/) | Tessl 5-row expansion (45–52) — 📋 planned · design: [tessl-5-row-expansion.md](../design/tessl-5-row-expansion.md) |
+| 12 | [slices/12-L-tessl-5-row-expansion/](slices/12-L-tessl-5-row-expansion/) | Tessl 5-row expansion (45–52) — 45 ✅ · 46 🔀 · 47–52 📋 · design: [tessl-5-row-expansion.md](../design/tessl-5-row-expansion.md) |
 
 | Tracker | Role |
 |---------|------|
