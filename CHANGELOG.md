@@ -71,6 +71,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   PostgREST **Max rows**. Historic `scan_runs` rows are retained. Operator:
   `tripwire setup --force` after upgrade; optional Max rows raise —
   [supabase-setup § Data API max rows](docs/user-guide/supabase-setup.md#6-data-api-max-rows-live-dashboard-fleet-size).
+- Live dashboard **Scanner outputs** drawer pills sort **A–Z by scanner source**
+  (Live + Mock); order no longer follows DB insert sequence.
 
 ### Fixed (dashboard data quality — slice 42)
 - Dashboard per-item latest run selection (slice 42 A1): superseded for Live load

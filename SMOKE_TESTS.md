@@ -26,7 +26,9 @@ fetch-window miss.
    [supabase-setup § Data API max rows](docs/user-guide/supabase-setup.md#6-data-api-max-rows-live-dashboard-fleet-size).
    Batching reduces but may not eliminate the need for a higher cap on very
    large fleets.
-5. Count RED/AMBER cards that show **last-scan date** and **≥1 finding** (or a
+5. Open an item detail drawer: **Scanner outputs** pills must appear **A–Z by
+   scanner name** (e.g. Cisco before Snyk before Tessl: Lint), not DB insert order.
+6. Count RED/AMBER cards that show **last-scan date** and **≥1 finding** (or a
    justified 0 with a scanner explanation). A card showing "never scanned" with a
    non-NULL `heatmap_status='red'` in Supabase is a regression.
 
