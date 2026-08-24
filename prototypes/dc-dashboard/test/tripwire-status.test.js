@@ -306,7 +306,7 @@ test('given locus and avail enums when operator labels then glossary phrases', (
 test('given Tessl scanner with null score when tesslInnerQuality then not-scored cue', () => {
   // -- Given --
   const scanner = {
-    source: 'Tessl',
+    source: 'Tessl: Review (Quality)',
     status: 'unreachable',
     output: { quality_score: null },
   };
@@ -323,11 +323,31 @@ test('given Tessl scanner with null score when tesslInnerQuality then not-scored
 
 test('given Tessl scanner with score when tesslInnerQuality then numeric label', () => {
   const actual = tesslInnerQuality(
-    { source: 'Tessl', status: 'completed', output: { quality_score: 88 } },
+    { source: 'Tessl: Review (Quality)', status: 'completed', output: { quality_score: 88 } },
     { identifier: 'canvas' }
   );
   assert.equal(actual.label, 'Tessl quality 88/100');
   assert.equal(actual.scheduleCue, null);
+});
+
+test('given Tessl Lint scanner when tesslInnerQuality then null', () => {
+  assert.equal(
+    tesslInnerQuality(
+      { source: 'Tessl: Lint', status: 'completed', output: { quality_score: 88 } },
+      { identifier: 'x' }
+    ),
+    null
+  );
+});
+
+test('given legacy Tessl scanner when tesslInnerQuality then null', () => {
+  assert.equal(
+    tesslInnerQuality(
+      { source: 'Tessl', status: 'completed', output: { quality_score: 88 } },
+      { identifier: 'x' }
+    ),
+    null
+  );
 });
 
 test('given non-Tessl scanner when tesslInnerQuality then null', () => {
@@ -338,4 +358,9 @@ test('given non-Tessl scanner when tesslInnerQuality then null', () => {
     ),
     null
   );
+});
+
+test('given needs_setup when scannerExecMeta then Needs Setup label', () => {
+  const actual = scannerExecMeta('needs_setup');
+  assert.equal(actual.label, 'Needs Setup');
 });

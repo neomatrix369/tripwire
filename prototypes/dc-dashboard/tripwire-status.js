@@ -178,6 +178,7 @@ export const SCANNER_EXEC_META = {
   running: { color: STATUS_META.running.color, label: "◌ Running" },
   completed: { color: STATUS_META.green.color, label: "✓ Completed" },
   skipped_missing_credential: { color: STATUS_META.grey.color, label: "⊘ Skipped" },
+  needs_setup: { color: STATUS_META.amber.color, label: "Needs Setup" },
   unreachable: { color: STATUS_META.error.color, label: "✗ Unreachable" },
   not_applicable: { color: STATUS_META.grey.color, label: "— N/A" },
   failed: { color: STATUS_META.error.color, label: "✗ Failed" },
@@ -360,7 +361,7 @@ export function operatorAvailLabel(v) {
  */
 export function tesslInnerQuality(scanner, item) {
   const src = String(scanner?.source || "");
-  if (!/tessl/i.test(src)) return null;
+  if (src !== "Tessl: Review (Quality)") return null;
 
   const score = scanner?.output?.quality_score;
   const known = typeof score === "number" && !Number.isNaN(score);

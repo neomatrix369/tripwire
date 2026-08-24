@@ -1,8 +1,8 @@
 # Design: Tessl 5-Row Expansion
 
-**Status**: Draft
+**Status**: Schema IMPLEMENTED (slice 45 ✅). Lint adapter + Review source rename IMPLEMENTED (slice 46, branch `slice/46-tessl-lint-adapter`). Rows 3–5 remain DECIDED / not implemented.
 **Date**: 2026-08-24
-**Scope**: Design document only — no implementation code. Covers schema extension, resume logic, ID lineage, and UI contract for replacing the single Tessl scanner row with 5 flat capability rows.
+**Scope**: Design contract for replacing the single Tessl scanner row with 5 flat capability rows. Current-truth notes below mark what has shipped; remaining rows stay future-state.
 
 ---
 
@@ -12,12 +12,12 @@ The task prompt lists 6 Coverage Gaps to "flag, do not infer." Each is resolved 
 
 | # | Coverage Gap | Status | Evidence |
 |---|---|---|---|
-| 1 | Does Tripwire invoke `tessl skill lint` today? | **Verified — No.** Only `npx --yes tessl@latest skill review --json <workdir>` is called. Lint is not invoked anywhere. | `sandbox/scanners.py:560–585` |
+| 1 | Does Tripwire invoke `tessl skill lint` today? | **IMPLEMENTED (slice 46) + VERIFIED live persist.** `run_tessl()` calls `npx --yes tessl@latest skill lint <workdir>` first, then Review. Live CLI 2026-08-24: `tessl skill lint [<source>]` validates a **publishable plugin package** (not skill-folder quality). Fixture `fixtures/skills/safe-changelog-writer` exits 1: "Found SKILL.md but no plugin manifest" — adapter maps non-zero to `failed`. Plugin-package success: `✔ Plugin <name>@<ver> is valid` (exit 0); parser maps that to `checks_run=1`. Live scan_run `a36cad9f` persisted Lint `failed` + Review `completed`. | `sandbox/scanners.py` (`run_tessl`, `_parse_tessl_lint_detail`); live `npx tessl@latest skill lint`; scan_run `a36cad9f` |
 | 2 | Is `TESSL_TOKEN` available inside the Modal sandbox? | **Verified — Yes.** It is injected via the `tripwire-scan-secrets` Modal secret alongside `SNYK_TOKEN`, `SKILL_SCANNER_LLM_API_KEY`, and others. | `sandbox/scan_app.py:151–157` |
-| 3 | Can the current orchestration dispatch multiple distinct Tessl subcommands within one scan_run? | **Verified — Yes, no orchestration changes needed.** `run_all_scanners()` iterates whatever row-list the group runner returns. The Cisco Skill Scanner (3 rows) and Cisco MCP Scanner (4 rows) already prove this pattern. | `sandbox/scanners.py:1177–1239`, `sandbox/scan_app.py:224–271` |
-| 4 | Does `scan_run_scanners` already support multiple rows per scan_run for the same logical scanner? | **Verified — Yes.** `scanner_source` is a plain `text` column with no uniqueness constraint. Rows are matched for update by `(scan_run_id, scanner_source)` pair. Cisco writes 3 distinct rows per scan_run today. | `db/schema.sql:47–70`, `sandbox/scan_app.py:231–235` |
-| 5 | Is there a per-feature Tessl run-ID column today? | **Verified — No.** `scan_run_scanners` has no `tessl_run_id` or equivalent column. This is net-new in this design. | `db/schema.sql:47–70` |
-| 6 | Does the dashboard UI need a new component for 5 Tessl rows? | **Verified — No.** The `<sc-for list="{{ selectedView.scannersView }}">` loop renders N rows independently. The only Tessl-specific binding (`tesslQuality`) must be scoped to `Tessl: Review (Quality)` only (currently it matches any row with `scanner_source == "Tessl"`). | `Tripwire.dc.html:842–916, 1672–1698` |
+| 3 | Can the current orchestration dispatch multiple distinct Tessl subcommands within one scan_run? | **Verified — Yes, no orchestration changes needed.** `run_all_scanners()` iterates whatever row-list the group runner returns. The Cisco Skill Scanner (3 rows) and Cisco MCP Scanner (4 rows) already prove this pattern. Slice 46 uses this for Lint + Review. | `sandbox/scanners.py` `TESSL_SOURCES` / `SCANNER_GROUPS` |
+| 4 | Does `scan_run_scanners` already support multiple rows per scan_run for the same logical scanner? | **Verified — Yes.** `scanner_source` is a plain `text` column with no uniqueness constraint. Rows are matched for update by `(scan_run_id, scanner_source)` pair. Cisco writes 3 distinct rows per scan_run today. | `db/schema.sql`, `sandbox/scan_app.py` |
+| 5 | Is there a per-feature Tessl run-ID column today? | **IMPLEMENTED (slice 45).** `tessl_run_id`, `tessl_run_id_at`, `resume_checkpoint`, `upstream_run_ids` exist. Lint sets no run ID (local/sync). Review `view --last` capture remains slice 47. | `db/schema.sql` |
+| 6 | Does the dashboard UI need a new component for 5 Tessl rows? | **Verified — No.** The `<sc-for list="{{ selectedView.scannersView }}">` loop renders N rows independently. `tesslInnerQuality` is scoped to `scanner_source === "Tessl: Review (Quality)"` (slice 46). Live maps `quality_score` onto that source only. Rows 3–5 placeholders remain slice 48. | `tripwire-status.js` `tesslInnerQuality`; `tripwire-live.js` `shapeScannerRow` |
 
 **Still Open** (not resolvable by reading the repo — require CLI experimentation or Tessl docs):
 
@@ -289,8 +289,8 @@ The single existing `"Tessl"` row is replaced by 5 flat sibling rows, in this ex
 
 | Position | `scanner_source` | Day-1 pill | Notes |
 |---|---|---|---|
-| 1 | `Tessl: Lint` | `Not Started` | Implemented when shipped; replaces no existing row |
-| 2 | `Tessl: Review (Quality)` | `Not Started` | Replaces the current single `"Tessl"` row |
+| 1 | `Tessl: Lint` | live status (`completed` / `failed` / `unreachable`) | **IMPLEMENTED** (slice 46) — new row; auth-free `tessl skill lint` |
+| 2 | `Tessl: Review (Quality)` | live status (`completed` / `needs_setup` / …) | **IMPLEMENTED** source string (slice 46); `tessl_run_id` capture remains slice 47 |
 | 3 | `Tessl: Scenario Generation` | `Not Available Yet` | UI placeholder only — not yet implemented |
 | 4 | `Tessl: Eval` | `Not Available Yet` | UI placeholder only — not yet implemented |
 | 5 | `Tessl: Review (Security)` | `Not Available Yet` | UI placeholder only — not yet implemented |
@@ -345,7 +345,7 @@ Extends `scannerStatusColor` and `scannerStatusLabel` in the dashboard JS:
 
 ### `tesslQuality` Binding Scope Fix
 
-The existing `tesslQuality` logic in `Tripwire.dc.html:1672–1698` currently applies to any row whose `scanner_source` matches the old `"Tessl"` string. After expansion, scope it to `scanner_source === "Tessl: Review (Quality)"` only. The quality score badge should not appear on the Lint, Scenario Generation, Eval, or Security Review rows.
+The existing `tesslQuality` logic is implemented in `tesslInnerQuality` (`tripwire-status.js`) and is scoped to `scanner_source === "Tessl: Review (Quality)"`. Live attaches `output.quality_score` only for that source (`tripwire-live.js`). The quality score badge does not appear on Lint (slice 46 VERIFIED(unit)). Scenario Generation, Eval, and Security Review rows remain unbuilt (slice 48+).
 
 ---
 

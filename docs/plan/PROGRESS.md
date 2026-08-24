@@ -1,11 +1,12 @@
 # Progress
-> Last updated: 2026-08-21
+> Last updated: 2026-08-24
 
 ## Slice groups (execution sequence)
 
 | Wave | Folder | Group | Slices | Outcome |
 |-----:|--------|-------|--------|---------|
 | 11 | [`11-K-…`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** | 🔀 |
+| 12 | [`12-L-…`](slices/12-L-tessl-5-row-expansion/) | **L — Tessl 5-row expansion** | 45 ✅ · **46** 🔀 · 47–52 📋 | 45 ✅ · 46 🔀 |
 | 9 | [`09-I-…`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 ✅ · 43 | 41 ✅ · 43 ✅ |
 | 10 | [`10-J-…`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 | A1–A13 ✅ |
 | 1 | [`01-A-…`](slices/01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 · 4 | ✅ · 4 📦 |
@@ -26,6 +27,7 @@
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
 | 0 (docs) | K | **44** | **Docs UX plain language + compaction** | Must | 🔀 ON BRANCH · [#99](https://github.com/neomatrix369/tripwire/pull/99) · GWT-44.1–44.8 · documentarist APPROVED WITH FOLLOW-ON (DIVIO targets pending) · `slice/44-docs-ux-plain-language` |
+| 0 (active) | L | **46** | **Tessl: Lint Adapter (Row 1)** | Must | 🔀 ON BRANCH · `slice/46-tessl-lint-adapter` · GWT-46.1–46.4 |
 | 0 (delta) | J | 42 | Dashboard Data Quality — Tessl quality UX + tooltips + plain labels (A9–A13) | Must | ✅ PASSED · [#98](https://github.com/neomatrix369/tripwire/pull/98) |
 | 1 | G | 18 | CLI Operator Evidence Contracts | Must | 📋 PLANNED |
 | 2 | G | 19 | Sandbox Persistence State Contract | Must | 📋 PLANNED |
@@ -59,7 +61,7 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 | **0 (next)** | H-ss | **40** | **`tripwire scan --type <skill\|mcp>` filter** | **Must** | 📋 PLANNED |
 | — | G | 18–22 | ATDD closure (parked) | Must | 📋 PLANNED |
 | — | L | 45 | DB Schema Migration (14-state enum + 4 columns) | Must | ✅ PASSED · [#103](https://github.com/neomatrix369/tripwire/pull/103) |
-| — | L | 46 | Tessl: Lint Adapter (Row 1) | Must | 📋 PLANNED |
+| — | L | 46 | Tessl: Lint Adapter (Row 1) | Must | 🔀 ON BRANCH · `slice/46-tessl-lint-adapter` |
 | — | L | 47 | Tessl: Review (Quality) Split (Row 2) | Must | 📋 PLANNED |
 | — | L | 48 | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | 📋 PLANNED |
 | — | L | 49 | Tessl: Scenario Generation + Resume Checkpoint (Row 3) | Should | 📋 PLANNED |
@@ -166,6 +168,12 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 |---|-------|--------|--------|---------|-----------|-----------|
 | 44 | [slice-44-docs-ux-plain-language](slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md) | Must | 🔀 ON BRANCH | 2026-08-20 | — | ~50 min |
 
+### L — Tessl 5-row expansion
+| # | Slice | MoSCoW | Status | Started | Completed | Est. time |
+|---|-------|--------|--------|---------|-----------|-----------|
+| 45 | [slice-45-schema-migration](slices/12-L-tessl-5-row-expansion/slice-45-schema-migration.md) | Must | ✅ PASSED ([#103](https://github.com/neomatrix369/tripwire/pull/103)) | 2026-08-24 | 2026-08-24 | ~3 min |
+| 46 | [slice-46-lint-adapter](slices/12-L-tessl-5-row-expansion/slice-46-lint-adapter.md) | Must | 🔀 ON BRANCH | 2026-08-24 | — | ~4 min |
+
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 
 **Gate close:** ✅ only per [GATE_CONTRACT.md](GATE_CONTRACT.md) — all After-Checks + evidence `PASS` + review + trackers. `🔀` = checks green on branch, not yet ✅.
@@ -241,3 +249,5 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-21 | slice/44-docs-ux-plain-language | documentarist pile-on | 44 | APPROVED WITH FOLLOW-ON | QUICKSTART/hub/screenshots OK; env-vars + prerequisites DIVIO rewrite DECIDED, targets pending; still 🔀. |
 | 2026-08-21 | slice/44-docs-ux-plain-language | sync-docs | 44 | APPLIED | STATUS ON BRANCH/DECIDED aligned to APPROVED WITH FOLLOW-ON; user-guide targets untouched. |
 | 2026-08-22 | slice/44-docs-ux-plain-language | sync-docs | 44 | APPLIED | PR #99 linked in STATUS/PROGRESS; gate-evidence SHA `0362d36`. |
+| 2026-08-24 | slice/46-tessl-lint-adapter | verify-slice repair | 46 | 🔀 ON BRANCH | Dashboard name contract + design Coverage Gap 1 + trackers; live `tessl skill lint --help` probed. |
+| 2026-08-24 | slice/46-tessl-lint-adapter | sync-docs | 46 | 🔀 ON BRANCH | Live persist VERIFIED(scan_run a36cad9f); TRAIL/gate-evidence PR #105. Still 🔀 until merge. |

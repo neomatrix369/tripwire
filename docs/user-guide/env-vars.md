@@ -7,9 +7,9 @@
 Start here: [QUICKSTART](../../QUICKSTART.md) · Hub: [docs/README](../README.md)
 
 > **Minimum Viable Live:** Supabase + Modal keys only. Add Snyk / Tessl / Cisco
-> when you want full scanner coverage. If a scanner credential is absent, the
-> runtime safely reports `skipped_missing_credential` for that engine — not a
-> complete “all clear.”
+> when you want full scanner coverage. Missing Snyk/Cisco keys report
+> `skipped_missing_credential`. Missing `TESSL_TOKEN` still runs Lint (auth-free)
+> and marks Review (Quality) `needs_setup` — not a complete “all clear.”
 >
 > For full Live coverage, provision all five vendors before `cp .env.example .env`.
 >
@@ -75,7 +75,7 @@ not a second environment-variable schema.
 | `MCP_SCANNER_LLM_MODEL` | MCP LLM routing | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 | `MCP_SCANNER_LLM_BASE_URL` | Custom MCP LLM endpoint | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 | `MCP_SCANNER_LLM_API_VERSION` | Azure-style APIs | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
-| `TESSL_TOKEN` | Tessl on Modal/CI | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
+| `TESSL_TOKEN` | Tessl Review (Quality) on Modal/CI (Lint is auth-free) | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 | `TESSL_WORKSPACE` | Tessl workspace name | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 
 ## Tier C — Full depth (paid Cisco AI Defense)
@@ -158,7 +158,7 @@ vendor to the keys you need in `.env` and where to get them.
 | **Supabase** (platform — MVP) | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL` | [supabase-setup](./supabase-setup.md) |
 | **Modal** (platform — MVP) | `MODAL_TOKEN_ID`, `MODAL_TOKEN_SECRET` (blank if interactive only) | [modal-setup](./modal-setup.md) |
 | **Snyk** (scanner) | `SNYK_TOKEN` | [app.snyk.io](https://app.snyk.io) → Settings → API Tokens |
-| **Tessl** (scanner) | `TESSL_TOKEN`, `TESSL_WORKSPACE` | [tessl.io](https://tessl.io) → workspace → API key |
+| **Tessl** (scanner) | `TESSL_TOKEN`, `TESSL_WORKSPACE` | [tessl.io](https://tessl.io) → workspace → API key. Lint (`tessl skill lint`) is auth-free; token gates Review (Quality) (`needs_setup` if absent). |
 | **Cisco Skill / MCP LLM** (scanner Tier B) | `SKILL_SCANNER_LLM_API_KEY`, `SKILL_SCANNER_LLM_MODEL`, `SKILL_SCANNER_LLM_PROVIDER`, `SKILL_SCANNER_LLM_BASE_URL`; `MCP_SCANNER_LLM_API_KEY`, `MCP_SCANNER_LLM_MODEL`, `MCP_SCANNER_LLM_BASE_URL` | Any OpenAI-compatible or Azure LLM — not the same as AI Defense cloud keys below |
 | **Cisco AI Defense** (scanner Tier C) | `AI_DEFENSE_API_KEY`, `MCP_SCANNER_API_KEY`; optional `AI_DEFENSE_API_URL`, `MCP_SCANNER_ENDPOINT` | [developer.cisco.com](https://developer.cisco.com) → AI Defense |
 | **Ossprey** (malware — access OPEN/pending) | `OSSPREY_API_KEY` (`ospy_…`) | Access not yet available — leave blank; adapter reports `skipped_missing_credential` |

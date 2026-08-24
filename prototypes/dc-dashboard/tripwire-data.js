@@ -2,7 +2,8 @@ const items = [
   { id:'i1', type:'skill', name:'safe-changelog-writer', identifier:'safe-changelog-writer', status:'green', risk:0.10, quality:92, locus:'local', avail:'source_on_disk', lastScan:'2026-07-30T14:02:00Z', findings:[], scanners:[
     {source:'Cisco Skill Scanner: static/bytecode/pipeline', status:'completed', checks_run:34, output:{raw_summary:'34 checks passed — no findings'}},
     {source:'Snyk', status:'completed', checks_run:18, output:{raw_summary:'18 checks passed — 0 issues'}},
-    {source:'Tessl', status:'completed', checks_run:1, output:{quality_score:92}}
+    {source:'Tessl: Lint', status:'completed', checks_run:12, output:{raw_summary:'12 checks — 0 findings'}},
+    {source:'Tessl: Review (Quality)', status:'completed', checks_run:1, output:{quality_score:92}}
   ], trend:[{d:'07-24',r:0.10},{d:'07-27',r:0.10},{d:'07-30',r:0.10}],
   sandbox:{id:'sb_71cd0a', started:'2026-07-30T14:01:40Z', completed:'2026-07-30T14:02:00Z', egressPhase:'static allowlist (no dynamic domains needed)', denied:[], cleanup:true} },
 
@@ -11,7 +12,8 @@ const items = [
   ], scanners:[
     {source:'Cisco Skill Scanner: static/bytecode/pipeline', status:'completed', checks_run:29, output:{raw_summary:'29 checks passed — no findings'}},
     {source:'Snyk', status:'completed', checks_run:15, output:{raw_summary:'15 checks passed — 0 issues'}},
-    {source:'Tessl', status:'completed', checks_run:1, output:{quality_score:88}}
+    {source:'Tessl: Lint', status:'completed', checks_run:12, output:{raw_summary:'12 checks — 0 findings'}},
+    {source:'Tessl: Review (Quality)', status:'completed', checks_run:1, output:{quality_score:88}}
   ], trend:[{d:'07-22',r:0.05},{d:'07-25',r:0.05},{d:'07-29',r:0.05}],
   sandbox:{id:'sb_2b9e41', started:'2026-07-29T09:11:50Z', completed:'2026-07-29T09:12:00Z', egressPhase:'static allowlist', denied:[], cleanup:true} },
 
@@ -21,7 +23,8 @@ const items = [
     {source:'Cisco Skill Scanner: static/bytecode/pipeline', status:'completed', checks_run:34, output:{raw_summary:'34 checks passed — no findings'}},
     {source:'Cisco Skill Scanner: LLM-judge', status:'completed', checks_run:12, output:{raw_summary:'12 checks — 1 finding (red): hidden SYSTEM OVERRIDE instruction block'}},
     {source:'Snyk', status:'completed', checks_run:20, output:{raw_summary:'20 checks passed — 0 issues'}},
-    {source:'Tessl', status:'completed', checks_run:1, output:{quality_score:61}}
+    {source:'Tessl: Lint', status:'completed', checks_run:12, output:{raw_summary:'12 checks — 0 findings'}},
+    {source:'Tessl: Review (Quality)', status:'completed', checks_run:1, output:{quality_score:61}}
   ], trend:[{d:'07-20',r:0.10},{d:'07-25',r:0.10},{d:'07-31',r:0.04}],
   sandbox:{id:'sb_8f2a1c', started:'2026-07-31T18:43:20Z', completed:'2026-07-31T18:44:00Z', egressPhase:'static+dynamic allowlist (LLM provider only)', denied:[], cleanup:true} },
 
@@ -30,7 +33,8 @@ const items = [
   ], scanners:[
     {source:'Cisco Skill Scanner: static/bytecode/pipeline', status:'completed', checks_run:31, output:{raw_summary:'31 checks passed — no findings'}},
     {source:'Snyk', status:'completed', checks_run:19, output:{raw_summary:'19 checks — 1 issue (red): curl|bash supply-chain risk'}},
-    {source:'Tessl', status:'completed', checks_run:1, output:{quality_score:70}}
+    {source:'Tessl: Lint', status:'completed', checks_run:12, output:{raw_summary:'12 checks — 0 findings'}},
+    {source:'Tessl: Review (Quality)', status:'completed', checks_run:1, output:{quality_score:70}}
   ], trend:[{d:'07-21',r:1.80},{d:'07-26',r:1.80},{d:'07-31',r:1.80}],
   sandbox:{id:'sb_c40917', started:'2026-07-31T11:19:35Z', completed:'2026-07-31T11:20:00Z', egressPhase:'static allowlist', denied:[{host:'example.invalid', reason:'not in allowlist for this scan'}], cleanup:true} },
 
@@ -87,7 +91,8 @@ const items = [
   ], scanners:[
     {source:'Cisco Skill Scanner: static/bytecode/pipeline', status:'completed', checks_run:34, output:{raw_summary:'34 checks passed — no findings'}},
     {source:'Snyk', status:'completed', checks_run:18, output:{raw_summary:'18 checks passed — 0 issues'}},
-    {source:'Tessl', status:'completed', checks_run:1, output:{quality_score:90}},
+    {source:'Tessl: Lint', status:'completed', checks_run:12, output:{raw_summary:'12 checks — 0 findings'}},
+    {source:'Tessl: Review (Quality)', status:'completed', checks_run:1, output:{quality_score:90}},
     {source:'Tripwire Sandbox (egress log)', status:'completed', checks_run:1, output:{raw_summary:'1 denied egress attempt: webhook.example.com'}}
   ], trend:[{d:'07-24',r:0.10},{d:'07-27',r:0.10},{d:'08-01',r:0.50}],
   diff:{new:[{category:'undeclared_egress_attempt', message:'Undeclared outbound POST to webhook.example.com'}], resolved:[], persisted:[]},
@@ -99,7 +104,8 @@ const items = [
     {source:'Cisco Skill Scanner: static/bytecode/pipeline', status:'completed', checks_run:28, output:{raw_summary:'28 checks passed — no findings', console_output:'{"findings": [], "findings_count": 28}\nScan completed.'}},
     {source:'Cisco Skill Scanner: LLM-judge', status:'running', checks_run:null, output:{}},
     {source:'Cisco Skill Scanner: AI Defense', status:'running', checks_run:null, output:{}},
-    {source:'Tessl', status:'running', checks_run:null, output:{}},
+    {source:'Tessl: Lint', status:'running', checks_run:null, output:{}},
+    {source:'Tessl: Review (Quality)', status:'running', checks_run:null, output:{}},
     {source:'Snyk', status:'running', checks_run:null, output:{}}
   ], trend:[],
   sandbox:{id:'sb_running1', started:new Date(Date.now() - 45000).toISOString(), completed:null, egressPhase:'static allowlist', denied:[], cleanup:false} },

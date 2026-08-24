@@ -1,0 +1,75 @@
+{
+  "slice": 46,
+  "name": "tessl-lint-adapter",
+  "gate_status": "ON_BRANCH",
+  "verdict": "PASS",
+  "date": "2026-08-24",
+  "branch": "slice/46-tessl-lint-adapter",
+  "commit_at_evidence": "c05a53f",
+  "moscow": "Must",
+  "before_checks": "slice stub present; depends on slice 45 ✅ (#103); live Supabase 14-state constraint applied 2026-08-24 via tripwire setup --force",
+  "after_checks": [
+    "GWT-46.1 — run_tessl emits Tessl: Lint completed/failed (unit)",
+    "GWT-46.2 — Lint without TESSL_TOKEN; Review needs_setup (unit)",
+    "GWT-46.3 — checks_run/detail parsed; tessl_run_id omitted; live 'is valid' stdout → checks_run=1 (unit + live CLI)",
+    "GWT-46.4 — Lint first in Tessl block; tesslInnerQuality null on Lint; Mock UI VERIFIED (safe-changelog-writer drawer)",
+    "live persist — scan_run a36cad9f: Tessl: Lint failed + Review completed (constraint accepted new source strings)"
+  ],
+  "commands": [
+    {
+      "cmd": "./scripts/quality-gates.sh",
+      "result": "PASS — 240 pytest (sandbox 97.03%, scanners.py 98.6%), 138 CLI tests, ruff/mypy/xenon/bandit/pip-audit/gitleaks green"
+    },
+    {
+      "cmd": "npm --prefix prototypes/dc-dashboard test",
+      "result": "PASS — 90 tests (90 pass, 0 skip); live-smoke reads repo .env"
+    },
+    {
+      "cmd": "node cli/bin/tripwire.js setup --force",
+      "result": "PASS — Schema ready, status applied; live CHECK includes needs_setup/queued/not_started; tessl_* columns present"
+    },
+    {
+      "cmd": "npx --yes tessl@latest skill lint --help",
+      "result": "PASS — tessl skill lint [<source>] validates publishable plugin packages (not quality)"
+    },
+    {
+      "cmd": "npx --yes tessl@latest skill lint fixtures/skills/safe-changelog-writer",
+      "result": "exit 1 — Found SKILL.md but no plugin manifest; adapter maps non-zero to failed"
+    },
+    {
+      "cmd": "tessl skill import --force then tessl skill lint /tmp/tessl-lint-probe-46",
+      "result": "exit 0 — ✔ Plugin tripwire/safe-changelog-writer@0.0.1 is valid; parser maps to checks_run=1"
+    },
+    {
+      "cmd": "node cli/bin/tripwire.js scan --no-defaults --force fixtures/skills/safe-changelog-writer",
+      "result": "PASS — scan_run a36cad9f persisted Tessl: Lint failed (no plugin manifest) + Tessl: Review (Quality) completed score 64; tessl_run_id null on Lint"
+    },
+    {
+      "cmd": "/nw-review @nw-software-crafter implementation slice-46-lint-adapter.md step_id=46",
+      "result": "APPROVED — appended to slice stub; zero blocking issues"
+    }
+  ],
+  "coverage_pct": "sandbox 97.03% / scanners.py 98.6% (fail-under 95)",
+  "complexity_tool": "xenon scanners.py max-absolute D (exit 0); radon via scripts/complexity-report.sh",
+  "doc_audit": "docs/design/tessl-5-row-expansion.md Coverage Gap 1 IMPLEMENTED; STATUS live persist VERIFIED(scan_run a36cad9f); CHANGELOG/PROGRESS/TRAIL(#105)/ARCHITECTURE/prerequisites/env-vars; Mock UI GWT-46.4 observed",
+  "live_migration_applied": "2026-08-24",
+  "live_cli": {
+    "date_utc": "2026-08-24",
+    "command": "npx tessl@latest skill lint",
+    "boundary": "live CLI help + fixture fail + plugin-package success stdout; Modal persist observed"
+  },
+  "live_scan": {
+    "date_utc": "2026-08-24",
+    "cmd": "node cli/bin/tripwire.js scan --no-defaults --force fixtures/skills/safe-changelog-writer",
+    "scan_run_id": "a36cad9f-08a1-4a6e-a856-48f0a4209622",
+    "tessl_lint": "failed, checks_run=0, tessl_run_id null, detail=Found SKILL.md but no plugin manifest",
+    "tessl_review": "completed, quality_score=64"
+  },
+  "mock_ui": {
+    "date_utc": "2026-08-24",
+    "item": "safe-changelog-writer",
+    "gwt_46_4": "Tessl: Lint first (Completed, 12 checks, no Q badge); Tessl: Review (Quality) second (Q 92)"
+  },
+  "review": "nw-review APPROVED 2026-08-24 (nw-software-crafter-reviewer)",
+  "pr": "https://github.com/neomatrix369/tripwire/pull/105"
+}

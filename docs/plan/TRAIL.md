@@ -272,7 +272,7 @@ Replaces the single `"Tessl"` scanner row with 5 flat sibling rows following the
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
 | 45 | [slice-45-schema-migration](slices/12-L-tessl-5-row-expansion/slice-45-schema-migration.md) | DB Schema Migration (12-state enum + 4 new columns) | Must | ✅ | 44 | [#103](https://github.com/neomatrix369/tripwire/pull/103) | ~3 min |
-| 46 | [slice-46-lint-adapter](slices/12-L-tessl-5-row-expansion/slice-46-lint-adapter.md) | Tessl: Lint Adapter (Row 1) | Must | 📋 | 45 | — | ~4 min |
+| 46 | [slice-46-lint-adapter](slices/12-L-tessl-5-row-expansion/slice-46-lint-adapter.md) | Tessl: Lint Adapter (Row 1) | Must | 🔀 | 45 | [#105](https://github.com/neomatrix369/tripwire/pull/105) | ~4 min |
 | 47 | [slice-47-review-quality-split](slices/12-L-tessl-5-row-expansion/slice-47-review-quality-split.md) | Tessl: Review (Quality) Split + `tesslQuality` Scope Fix (Row 2) | Must | 📋 | 45, 46 | — | ~4 min |
 | 48 | [slice-48-not-available-yet-ui](slices/12-L-tessl-5-row-expansion/slice-48-not-available-yet-ui.md) | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | 📋 | 47 | — | ~3 min |
 | 49 | [slice-49-scenario-generation](slices/12-L-tessl-5-row-expansion/slice-49-scenario-generation.md) | Tessl: Scenario Generation + Resume Checkpoint (Row 3) | Should | 📋 | 47, 48; Gaps A+B | — | ~5 min |

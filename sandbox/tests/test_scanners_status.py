@@ -304,7 +304,7 @@ def test_given_cisco_complete_and_tessl_unreachable_when_run_all_then_partial_fa
         patch.object(
             scanners,
             "run_tessl",
-            return_value=(None, [scanners._unreachable("Tessl", "node too old")]),
+            return_value=(None, [scanners._unreachable("Tessl: Review (Quality)", "node too old")]),
         ),
         patch.object(
             scanners,
@@ -320,7 +320,9 @@ def test_given_cisco_complete_and_tessl_unreachable_when_run_all_then_partial_fa
     assert result["overall_status"] == "partial-failed"
     assert len(result["findings"]) == 1
     assert result["findings"][0]["severity"] == "red"
-    tessl = next(r for r in result["scanner_rows"] if r["scanner_source"] == "Tessl")
+    tessl = next(
+        r for r in result["scanner_rows"] if r["scanner_source"] == "Tessl: Review (Quality)"
+    )
     assert tessl["detail"] == "node too old"
 
 
@@ -431,28 +433,209 @@ def test_tessl_quality_score_unknown_shape_returns_none() -> None:
 def test_run_tessl_logs_diagnostic_when_score_is_none(capsys) -> None:
     """
     Scenario: run_tessl prints a diagnostic line when _tessl_quality_score returns None.
-      Given the Tessl CLI subprocess exits 0 but its JSON output has an unknown shape
+      Given TESSL_TOKEN set, npx available, lint exits 0, review exits 0 with unknown JSON
       When run_tessl is called
       Then a [tessl] diagnostic line is printed containing the raw output prefix
-      And the function returns (None, [unreachable_row]) without crashing
+      And the function returns (None, [lint_completed, review_unreachable]) without crashing
 
     Slice: 42 / A4 — Tessl diagnostic logging on score extraction failure
     """
     ### Given
+    lint_output = "12 checks — 0 findings"
     unknown_json_output = '{"unexpectedKey": "no score here"}'
 
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "fake-token"}),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
-        patch.object(scanners, "_run", return_value=(0, unknown_json_output, "")),
+        patch.object(
+            scanners,
+            "_run",
+            side_effect=[(0, lint_output, ""), (0, unknown_json_output, "")],
+        ),
     ):
         score, rows = scanners.run_tessl("/tmp/fake-skill")
 
     ### Then
     assert score is None
-    assert len(rows) == 1
-    assert rows[0]["status"] == "unreachable"
+    assert len(rows) == 2
+    lint_row, review_row = rows
+    assert lint_row["scanner_source"] == "Tessl: Lint"
+    assert lint_row["status"] == "completed"
+    assert review_row["scanner_source"] == "Tessl: Review (Quality)"
+    assert review_row["status"] == "unreachable"
     captured = capsys.readouterr()
     assert "[tessl]" in captured.out
     assert "quality_score extraction failed" in captured.out
+
+
+# --- slice-46: Tessl Lint Adapter (Row 1) ---
+
+
+def test_run_tessl_without_token_emits_lint_completed_and_review_needs_setup() -> None:
+    """
+    Scenario: TESSL_TOKEN absent — Lint runs, Review (Quality) is needs_setup.
+      Given TESSL_TOKEN is absent from the environment
+      When run_tessl is called with npx available and lint exits 0
+      Then a Tessl: Lint row with status completed is returned
+      And a Tessl: Review (Quality) row with status needs_setup is returned
+      And quality_score is None
+
+    Slice: 46 — GWT-46.2 lint auth-free / review needs_setup
+    """
+    ### Given
+    lint_output = "12 checks — 0 findings"
+
+    ### When
+    with (
+        patch.dict("os.environ", {}, clear=True),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", return_value=(0, lint_output, "")),
+    ):
+        score, rows = scanners.run_tessl("/tmp/fake-skill")
+
+    ### Then
+    assert score is None
+    assert len(rows) == 2
+    lint_row, review_row = rows
+    assert lint_row["scanner_source"] == "Tessl: Lint"
+    assert lint_row["status"] == "completed"
+    assert lint_row["checks_run"] == 12
+    assert "12 checks" in lint_row["detail"]
+    assert lint_row.get("tessl_run_id") is None
+    assert review_row["scanner_source"] == "Tessl: Review (Quality)"
+    assert review_row["status"] == "needs_setup"
+
+
+def test_run_tessl_with_token_emits_lint_and_review_rows() -> None:
+    """
+    Scenario: TESSL_TOKEN present — both Lint and Review (Quality) rows returned.
+      Given TESSL_TOKEN is present and both subprocess calls succeed
+      When run_tessl is called
+      Then lint row is completed at position 0
+      And review row is completed at position 1 with quality_score extracted
+      And quality_score is returned as a float
+
+    Slice: 46 — GWT-46.1 lint row present with token
+    """
+    ### Given
+    lint_output = "8 checks — 2 findings"
+    review_json = '{"score": 75}'
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "tok-abc"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(
+            scanners,
+            "_run",
+            side_effect=[(0, lint_output, ""), (0, review_json, "")],
+        ),
+    ):
+        score, rows = scanners.run_tessl("/tmp/fake-skill")
+
+    ### Then
+    assert score == 75
+    assert len(rows) == 2
+    lint_row, review_row = rows
+    assert lint_row["scanner_source"] == "Tessl: Lint"
+    assert lint_row["status"] == "completed"
+    assert lint_row.get("tessl_run_id") is None
+    assert review_row["scanner_source"] == "Tessl: Review (Quality)"
+    assert review_row["status"] == "completed"
+
+
+def test_run_tessl_lint_failure_emits_failed_row() -> None:
+    """
+    Scenario: Lint subprocess exits non-zero — row status is failed.
+      Given TESSL_TOKEN absent (so only lint runs), npx available, lint exits 1
+      When run_tessl is called
+      Then the Tessl: Lint row has status failed
+      And the review row has status needs_setup
+
+    Slice: 46 — GWT-46.1 lint failed row
+    """
+    ### Given / When
+    with (
+        patch.dict("os.environ", {}, clear=True),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", return_value=(1, "", "lint process crashed")),
+    ):
+        score, rows = scanners.run_tessl("/tmp/fake-skill")
+
+    ### Then
+    assert score is None
+    lint_row, review_row = rows
+    assert lint_row["scanner_source"] == "Tessl: Lint"
+    assert lint_row["status"] == "failed"
+    assert review_row["scanner_source"] == "Tessl: Review (Quality)"
+    assert review_row["status"] == "needs_setup"
+
+
+def test_run_tessl_no_npx_emits_lint_unreachable() -> None:
+    """
+    Scenario: npx missing — Lint row is unreachable.
+      Given npx is not on PATH and TESSL_TOKEN absent
+      When run_tessl is called
+      Then the Tessl: Lint row has status unreachable
+      And the review row has status needs_setup
+
+    Slice: 46 — GWT-46.1 lint unreachable when npx absent
+    """
+    ### Given / When
+    with (
+        patch.dict("os.environ", {}, clear=True),
+        patch.object(scanners, "_which", return_value=None),
+    ):
+        score, rows = scanners.run_tessl("/tmp/fake-skill")
+
+    ### Then
+    assert score is None
+    assert len(rows) == 2
+    lint_row, review_row = rows
+    assert lint_row["scanner_source"] == "Tessl: Lint"
+    assert lint_row["status"] == "unreachable"
+    assert review_row["scanner_source"] == "Tessl: Review (Quality)"
+    assert review_row["status"] == "needs_setup"
+
+
+def test_parse_tessl_lint_detail_extracts_count_from_text() -> None:
+    """
+    Scenario: _parse_tessl_lint_detail extracts check count from common output patterns.
+      Given lint output containing "12 checks", "3 warnings", or "0 findings"
+      When _parse_tessl_lint_detail is called
+      Then checks_run is the leading digit and detail is the first 500 chars
+
+    Slice: 46 — GWT-46.3 lint counts parsed
+    """
+    ### Given / When / Then
+    checks_run, detail = scanners._parse_tessl_lint_detail("12 checks — 0 findings")
+    assert checks_run == 12
+    assert "12 checks" in detail
+
+    checks_run2, _ = scanners._parse_tessl_lint_detail("3 warnings found")
+    assert checks_run2 == 3
+
+    checks_run3, detail3 = scanners._parse_tessl_lint_detail("")
+    assert checks_run3 is None
+    assert detail3 == "lint completed — no output"
+
+
+def test_parse_tessl_lint_detail_live_valid_plugin_counts_one_check() -> None:
+    """
+    Scenario: live tessl skill lint success has no numeric count.
+      Given stdout captured 2026-08-24 from `tessl skill lint` on a plugin package
+      When _parse_tessl_lint_detail is called
+      Then checks_run is 1 (one package validation ran) and detail keeps the valid line
+
+    Slice: 46 — GWT-46.3 live completed path (plugin-is-valid stdout)
+    """
+    ### Given
+    live_stdout = "✔ Plugin tripwire/safe-changelog-writer@0.0.1 is valid"
+
+    ### When
+    checks_run, detail = scanners._parse_tessl_lint_detail(live_stdout)
+
+    ### Then
+    assert checks_run == 1
+    assert "is valid" in detail.lower()

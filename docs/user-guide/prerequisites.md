@@ -52,7 +52,7 @@ python3 -V   # 3.12.x (.python-version)
 |---|---|
 | Demo / dry-discover | No vendor accounts — local tools only |
 | Live (MVP) | Supabase + Modal accounts and keys |
-| Full scanner coverage | + Snyk, Tessl, Cisco AI Defense keys (missing key → `skipped_missing_credential`) |
+| Full scanner coverage | + Snyk, Tessl, Cisco AI Defense keys (missing Snyk/Cisco key → `skipped_missing_credential`; missing `TESSL_TOKEN` → Review is `needs_setup`, Lint still runs) |
 | Optional tiered router | + SIE + Model Studio keys (missing → warn and skip; scan unaffected) |
 
 Key mapping and procurement → [env-vars.md](./env-vars.md).
