@@ -48,7 +48,13 @@ create table if not exists scan_run_scanners (
   id             uuid primary key default gen_random_uuid(),
   scan_run_id    uuid not null references scan_runs(id),
   scanner_source text not null,
-  status         text not null check (status in ('running','completed','failed','skipped_missing_credential','unreachable','not_applicable')),
+  status         text not null check (status in (
+    -- Tessl 5-row states (Wave 12-L design § a)
+    'not_started','needs_setup','blocked','queued','running',
+    'retrying','interrupted','completed','stale','failed','timed_out',
+    -- Legacy states still written by Cisco/Snyk/DepShield/Ossprey adapters
+    'skipped_missing_credential','unreachable','not_applicable'
+  )),
   checks_run     integer,
   detail         text,  -- human-readable summary (e.g. "3 checks — 1 finding (red): injection")
   console_output text,  -- raw stdout/stderr from scanner subprocess (truncated)
@@ -61,12 +67,21 @@ alter table scan_run_scanners add column if not exists console_output text;
 alter table scan_run_scanners add column if not exists started_at timestamptz;
 alter table scan_run_scanners add column if not exists completed_at timestamptz;
 -- Widen status enum for existing DBs (idempotent: no-op if already correct).
+-- Wave 12-L: extends to 14-state list (11 new Tessl states + 3 legacy adapter values).
 do $$ begin
   alter table scan_run_scanners drop constraint if exists scan_run_scanners_status_check;
-  alter table scan_run_scanners add constraint scan_run_scanners_status_check
-    check (status in ('running','completed','failed','skipped_missing_credential','unreachable','not_applicable'));
+  alter table scan_run_scanners add constraint scan_run_scanners_status_check check (status in (
+    'not_started','needs_setup','blocked','queued','running',
+    'retrying','interrupted','completed','stale','failed','timed_out',
+    'skipped_missing_credential','unreachable','not_applicable'
+  ));
 exception when others then null;
 end $$;
+-- Tessl 5-row per-feature run-ID columns (all nullable; idempotent; Wave 12-L § a).
+alter table scan_run_scanners add column if not exists tessl_run_id text;
+alter table scan_run_scanners add column if not exists tessl_run_id_at timestamptz;
+alter table scan_run_scanners add column if not exists resume_checkpoint jsonb;
+alter table scan_run_scanners add column if not exists upstream_run_ids jsonb;
 
 create table if not exists findings (
   id                 uuid primary key default gen_random_uuid(),
