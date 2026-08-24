@@ -48,6 +48,8 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (d) — "Not Availabl
 
 Slice 48 ships with rows 3–5 as UI-only sentinels. When slice 49 lands, `"Tessl: Scenario Generation"` is written by the runner; when slice 50 lands, `"Tessl: Eval"` is written (initially `blocked`, then auto-chained). The `TESSL_CAPABILITY_SOURCES` merge logic in this slice must continue to prefer DB rows over sentinels — no dashboard rewrite required.
 
+When real rows replace sentinels (slices 49–51), the dashboard may surface `tessl_run_id` and `upstream_run_ids` on expanded views (full cross-read UI deferred to slice 52). Sentinels never carry these fields.
+
 ## Files to touch
 
 - `prototypes/dc-dashboard/Tripwire.dc.html` — add `TESSL_CAPABILITY_SOURCES` constant (ordered list of 5 strings); extend `scannersView` map to merge DB rows with sentinel objects for missing Tessl sources; add `status === 'not_available_yet'` style branch

@@ -10,9 +10,11 @@
 
 Wires the full ID lineage cross-read described in the design doc: each downstream feature fetches prior features' persisted state via `tessl <cmd> view <id> --json` using `upstream_run_ids`, and the dashboard displays cross-linked findings side-by-side for human review prioritisation.
 
-This is a Could slice — the `upstream_run_ids` column is populated by earlier slices (46–51), but the UI rendering and the server-side or dashboard fetch calls are deferred here.
+**Prerequisite (MUST — not optional)**: slices 47, 49, 50, and 51 must populate `upstream_run_ids` and `tessl_run_id` per the ID carry-forward contract in `docs/design/tessl-5-row-expansion.md § ID carry-forward contract`. Slice 52 assumes persisted JSON is authoritative; it does not reconstruct lineage from sibling row queries.
 
-Design reference: `docs/design/tessl-5-row-expansion.md § (c) ID Lineage Cross-Reads`
+This is a Could slice — UI rendering and optional scan-time cross-read fetches are deferred here; **column population is owned by 47/49/50/51**.
+
+Design reference: `docs/design/tessl-5-row-expansion.md § (c) ID Lineage Cross-Reads, § ID carry-forward contract`
 
 **Coverage Gap status (2026-08-24, Tessl CLI + docs)**:
 
@@ -21,6 +23,15 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (c) ID Lineage Cross-
 - **Gap C**: Still open — agent-assisted scenario generation not verified for headless Modal; UI shows Quality findings as context only.
 
 ## Acceptance Criteria (GWT)
+
+### Scenario 0 — upstream_run_ids present on persisted rows (gate)
+
+**Given** a completed Tessl 5-row scan where slices 47/49/50/51 have landed
+**When** slice 52 reads `scan_run_scanners` rows from Supabase
+**Then** Scenario Generation row has `upstream_run_ids.review_quality` set (or explicit null)
+**And** Eval row has `upstream_run_ids.review_quality` and `upstream_run_ids.scenario_gen` set (or explicit null per key)
+**And** Security row has `upstream_run_ids.review_quality` set (or explicit null)
+**And** each row that completed a server-side Tessl command has its own `tessl_run_id` populated
 
 ### Scenario 1 — Security Review fetches Quality findings via run ID
 

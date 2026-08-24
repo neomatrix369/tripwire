@@ -1,6 +1,6 @@
 # Design: Tessl 5-Row Expansion
 
-**Status**: Schema IMPLEMENTED (slice 45 ✅). Lint adapter + Review source rename IMPLEMENTED (slice 46, branch `slice/46-tessl-lint-adapter`). Rows 3–5 remain DECIDED / not implemented.
+**Status**: Schema IMPLEMENTED (slice 45 ✅). Lint adapter IMPLEMENTED (slice 46 ✅ #105). Review Quality run-ID capture IMPLEMENTED unit (slice 47 🔨). Rows 3–5 remain DECIDED / not implemented.
 **Date**: 2026-08-24
 **Scope**: Design contract for replacing the single Tessl scanner row with 5 flat capability rows. Current-truth notes below mark what has shipped; remaining rows stay future-state.
 
@@ -16,14 +16,14 @@ The task prompt lists 6 Coverage Gaps to "flag, do not infer." Each is resolved 
 | 2 | Is `TESSL_TOKEN` available inside the Modal sandbox? | **Verified — Yes.** It is injected via the `tripwire-scan-secrets` Modal secret alongside `SNYK_TOKEN`, `SKILL_SCANNER_LLM_API_KEY`, and others. | `sandbox/scan_app.py:151–157` |
 | 3 | Can the current orchestration dispatch multiple distinct Tessl subcommands within one scan_run? | **Verified — Yes, no orchestration changes needed.** `run_all_scanners()` iterates whatever row-list the group runner returns. The Cisco Skill Scanner (3 rows) and Cisco MCP Scanner (4 rows) already prove this pattern. Slice 46 uses this for Lint + Review. | `sandbox/scanners.py` `TESSL_SOURCES` / `SCANNER_GROUPS` |
 | 4 | Does `scan_run_scanners` already support multiple rows per scan_run for the same logical scanner? | **Verified — Yes.** `scanner_source` is a plain `text` column with no uniqueness constraint. Rows are matched for update by `(scan_run_id, scanner_source)` pair. Cisco writes 3 distinct rows per scan_run today. | `db/schema.sql`, `sandbox/scan_app.py` |
-| 5 | Is there a per-feature Tessl run-ID column today? | **IMPLEMENTED (slice 45).** `tessl_run_id`, `tessl_run_id_at`, `resume_checkpoint`, `upstream_run_ids` exist. Lint sets no run ID (local/sync). Review `view --last` capture remains slice 47. | `db/schema.sql` |
+| 5 | Is there a per-feature Tessl run-ID column today? | **IMPLEMENTED (slice 45).** `tessl_run_id`, `tessl_run_id_at`, `resume_checkpoint`, `upstream_run_ids` exist. Lint sets no run ID (local/sync). Review Quality capture **IMPLEMENTED (unit, slice 47)** via `tessl review view --last --json` after `tessl review run quality`. | `db/schema.sql`; `sandbox/scanners.py` `_capture_review_run_id` |
 | 6 | Does the dashboard UI need a new component for 5 Tessl rows? | **Verified — No.** The `<sc-for list="{{ selectedView.scannersView }}">` loop renders N rows independently. `tesslInnerQuality` is scoped to `scanner_source === "Tessl: Review (Quality)"` (slice 46). Live maps `quality_score` onto that source only. Rows 3–5 placeholders remain slice 48. | `tripwire-status.js` `tesslInnerQuality`; `tripwire-live.js` `shapeScannerRow` |
 
 **Still Open** (not resolvable by reading the repo — require CLI experimentation or Tessl docs):
 
 | # | Gap | Why it matters |
 |---|---|---|
-| A | Does `tessl review run` / `tessl scenario generate` print a run ID to stdout at trigger time, or only discoverable afterward via `view --last`? | **Partially resolved (2026-08-24).** `scenario generate` blocks and polls until complete; capture ID via `scenario view --json` after completion (or `generate --json` if emitted). `eval run --json` returns eval run IDs immediately without polling. Review remains slice 47 (`review view --last --json` after async completion). |
+| A | Does `tessl review run` / `tessl scenario generate` print a run ID to stdout at trigger time, or only discoverable afterward via `view --last`? | **Partially resolved (2026-08-24).** `scenario generate` blocks and polls until complete; capture ID via `scenario view --json` after completion (or `generate --json` if emitted). `eval run --json` returns eval run IDs immediately without polling. Review Quality (slice 47) captures via `review view --last --json` after `review run quality` completes, falling back to run JSON `id`/`runId`/`run_id`. |
 | B | Is `tessl scenario view <id>` (explicit ID form, not `--last`) actually supported? | **Resolved (2026-08-24).** CLI help + [cli-commands § scenario view/download](https://docs.tessl.io/reference/cli-commands) document explicit IDs. Adapter should capture `gen_id` after generate and use `scenario download <gen_id>` — not `--last`. |
 | C | Is the agent-assisted scenario generation path (`tessl install tessl-labs/tessl-skill-eval-scenarios`) usable from Tripwire's headless Modal sandbox orchestration? | This is the only documented channel for threading Quality review findings into scenario generation (rule 7b). If it requires an interactive agent prompt, it cannot be scripted. |
 
@@ -243,19 +243,62 @@ THEN eval.status → 'queued' → 'running'    -- auto-transition within same Ru
 Verified against [Tessl CLI reference](https://docs.tessl.io/reference/cli-commands) and [evaluate-skill-quality-using-scenarios](https://docs.tessl.io/improving-your-skills/evaluate-skill-quality-using-scenarios) (2026-08-24):
 
 ```
-1. run_tessl() emits Eval row status=blocked
-2. tessl scenario generate <plugin-path> --count 3     # CLI polls until completed/failed
-3. gen_id ← scenario view --json (after generate; store as tessl_run_id)
-4. tessl scenario download <gen_id> -o <plugin>/evals  # fails fast if still in_progress
-5. scenario_gen row → completed; resume_checkpoint cleared
-6. IF evals/ non-empty AND eval.status IN (blocked, not_started):
-     tessl project repair (if needed)
-     tessl eval run <plugin-path> --runs 3 -y          # reads evals/ from disk
-7. eval_id ← eval view --json (or eval run --json on detach)
-8. eval row → completed; upstream_run_ids.scenario_gen = gen_id (lineage only)
+1. run_tessl() init ctx={review_quality: null, scenario_gen: null}
+2. Lint → no tessl_run_id
+3. Quality → stamp tessl_run_id; ctx.review_quality = id
+4. Eval row emitted status=blocked (no tessl_run_id yet)
+5. Scenario Gen → upstream_run_ids={review_quality}; generate; stamp tessl_run_id; ctx.scenario_gen = gen_id; download
+6. IF evals/ non-empty AND eval blocked:
+     upstream_run_ids={review_quality, scenario_gen}; eval run; stamp tessl_run_id
+7. Security (slice 51) → upstream_run_ids={review_quality}; review run security; stamp tessl_run_id
 ```
 
 **Not supported by Tessl CLI**: passing `gen_id` to `eval run`. Eval always consumes on-disk scenarios. **`--workspace`** on `scenario generate` is for repo mode (`org/repo --commits …`), not plugin-path generation.
+
+### ID carry-forward contract (MUST — slices 47–51)
+
+Every Tessl row that produces a server-side run ID **must** persist it on that row **and** feed downstream linked steps within the same `run_tessl()` invocation. Without this, Scenario Gen, Eval, Security cross-reads, and slice 52 UI cannot work.
+
+**Two persisted fields (per row):**
+
+| Field | When written | Purpose |
+|---|---|---|
+| `tessl_run_id` + `tessl_run_id_at` | After this step’s Tessl command completes (or resume via `view <id>`) | This row’s own run ID |
+| `upstream_run_ids` | **Before** this step’s Tessl command starts (downstream rows only) | Snapshot of prior steps’ IDs for cross-read / traceability |
+
+**In-process context** — `run_tessl()` maintains a dict (implementation name: `_TesslIdContext`) updated after each step that emits an ID:
+
+```python
+# Keys match upstream_run_ids JSON keys exactly
+ctx: dict[str, str | None] = {
+    "review_quality": None,
+    "scenario_gen": None,
+}
+```
+
+| Step | Row | Stamp `tessl_run_id`? | Write `upstream_run_ids` before run? | Update `ctx` after success |
+|---|---|---|---|---|
+| 1 Lint | `Tessl: Lint` | No (sync; always null) | No | No |
+| 2 Quality | `Tessl: Review (Quality)` | Yes (`review view --last --json`) | No (no upstream) | `ctx["review_quality"] = id` |
+| 3 Scenario Gen | `Tessl: Scenario Generation` | Yes (`scenario view <id> --json`) | `{"review_quality": ctx[…]}` | `ctx["scenario_gen"] = id` |
+| 4 Eval | `Tessl: Eval` | Yes (`eval view <id> --json`) | `{"review_quality", "scenario_gen"}` | (eval id not consumed downstream in v1) |
+| 5 Security | `Tessl: Review (Security)` | Yes (same as Quality) | `{"review_quality": ctx[…]}` | — |
+
+**Helper seam (implement once in `sandbox/scanners.py`):**
+
+- `_stamp_tessl_run_id(row, run_id)` — slice 47 ✅
+- `_attach_upstream_run_ids(row, ctx, *keys)` — copies selected keys from `ctx` onto row (null for missing keys); slices 49–51
+- `_update_tessl_id_context(ctx, key, run_id)` — sets ctx after stamp; slices 47, 49, 51
+
+**Rules:**
+
+1. Downstream steps read IDs from **`ctx` in-process**, not by re-querying Supabase mid-scan (same Modal invocation).
+2. `upstream_run_ids` is written on the row **before** invocation so partial persist / dashboard poll mid-run still shows lineage.
+3. Missing upstream ID → store JSON `null` for that key; step proceeds unless the slice explicitly blocks (Eval blocked until scenario gen completes).
+4. Resume across Modal timeout: rehydrate `ctx` from persisted sibling rows or `resume_checkpoint.gen_id` before continuing.
+5. Lint is **outside** the ID chain — no `tessl_run_id`, no `upstream_run_ids`.
+
+Slice ownership: **47** seeds ctx from Quality · **49** consumes `review_quality`, stamps `scenario_gen` · **50** consumes both, stamps eval id · **51** consumes `review_quality`, stamps security id · **52** reads persisted `upstream_run_ids` for UI cross-reads.
 
 > **⚠ OPEN — Retry Invocation Mechanism**
 >
@@ -266,8 +309,8 @@ Verified against [Tessl CLI reference](https://docs.tessl.io/reference/cli-comma
 ## (c) ID Lineage Cross-Reads
 
 Each feature that reads from a prior feature's persisted state does so by:
-1. Looking up the prior feature's `tessl_run_id` from its own row's `upstream_run_ids` column (populated at start of the reading feature's run).
-2. Calling `tessl <cmd> view <id> --json` to retrieve full detail.
+1. Reading `upstream_run_ids` on **this** row (populated at step start from in-process `ctx` — see § ID carry-forward contract).
+2. Calling `tessl <cmd> view <id> --json` with the ID from `upstream_run_ids` (or this row's own `tessl_run_id` for self-view).
 
 ### 7(a) — Review (Security) ← Review (Quality)
 
@@ -311,7 +354,7 @@ The single existing `"Tessl"` row is replaced by 5 flat sibling rows, in this ex
 | Position | `scanner_source` | Day-1 pill | Notes |
 |---|---|---|---|
 | 1 | `Tessl: Lint` | live status (`completed` / `failed` / `unreachable`) | **IMPLEMENTED** (slice 46) — new row; auth-free `tessl skill lint` |
-| 2 | `Tessl: Review (Quality)` | live status (`completed` / `needs_setup` / …) | **IMPLEMENTED** source string (slice 46); `tessl_run_id` capture remains slice 47 |
+| 2 | `Tessl: Review (Quality)` | live status (`completed` / `needs_setup` / …) | **IMPLEMENTED** source string (slice 46); `tessl_run_id` capture **IMPLEMENTED unit** (slice 47) via `review view --last --json` |
 | 3 | `Tessl: Scenario Generation` | `Not Available Yet` | UI placeholder only — not yet implemented |
 | 4 | `Tessl: Eval` | `Not Available Yet` | UI placeholder only — not yet implemented |
 | 5 | `Tessl: Review (Security)` | `Not Available Yet` | UI placeholder only — not yet implemented |
@@ -386,7 +429,7 @@ Both paths are compatible with the schema above. The retry control (UI affordanc
 
 | # | Gap | Impact if unresolved |
 |---|---|---|
-| A | Does `tessl review run` / `tessl scenario generate` print a run ID to stdout at trigger time, or only via `view --last --json`? | **Partially resolved (2026-08-24).** `scenario generate` blocks/polls until complete — capture via `scenario view <id> --json`. `eval run --json` returns IDs immediately without polling. Review capture remains slice 47 (`review view --json` after async completion). Prefer explicit IDs over `--last`. |
+| A | Does `tessl review run` / `tessl scenario generate` print a run ID to stdout at trigger time, or only via `view --last --json`? | **Partially resolved (2026-08-24).** `scenario generate` blocks/polls until complete — capture via `scenario view <id> --json`. `eval run --json` returns IDs immediately without polling. Review Quality (slice 47) captures via `review view --last --json` after `review run quality`, with fallback to run JSON `id`. Prefer explicit IDs over `--last` when the run payload includes one. |
 | B | Is `tessl scenario view <id>` (explicit ID form) supported, or only `--last`? | **Resolved (2026-08-24).** Use explicit IDs for scenario view/download and eval/review view. |
 | C | Is the agent-assisted scenario generation path usable from Tripwire's headless Modal sandbox? | If not, Quality Review findings cannot be threaded into scenario generation programmatically in v1. The fallback is UI-level display of Quality findings alongside the scenario generation row for human reference. |
 | D | Should "Not Available Yet" rows be included in the Scanner Outputs count? | Minor UX decision. Recommendation: include (consistent with Cisco credential-absent rows). Requires explicit product sign-off. |

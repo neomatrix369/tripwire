@@ -19,7 +19,9 @@ Tessl docs ([cli-commands § eval run](https://docs.tessl.io/reference/cli-comma
 
 The critical design constraint is the first-run auto-chain: Eval must auto-transition from `blocked` → `queued` → `running` when Scenario Generation completes successfully **and** `<plugin>/evals/` contains scenarios. If Scenario Generation is re-run after Eval has already completed once, Eval transitions to `stale` (no auto-cascade).
 
-Design reference: `docs/design/tessl-5-row-expansion.md § (b) auto-chain, § (b) Stale non-cascade`
+Design reference: `docs/design/tessl-5-row-expansion.md § (b) auto-chain, § (b) Stale non-cascade, § ID carry-forward contract`
+
+**ID carry-forward**: Eval reads `ctx["review_quality"]` and `ctx["scenario_gen"]` at step start (populated by slices 47 and 49 in the same `run_tessl()` invocation). Persist via `_attach_upstream_run_ids(row, ctx, "review_quality", "scenario_gen")` **before** `eval run`. Stamp Eval's own `tessl_run_id` after completion; eval ID is not consumed downstream in v1.
 
 ## Acceptance Criteria (GWT)
 
@@ -64,13 +66,20 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (b) auto-chain, § (b
 **Then** Eval row `status` transitions to `"stale"`
 **And** no new Eval run is triggered automatically
 
-### Scenario 4 — upstream_run_ids populated
+### Scenario 4 — upstream_run_ids populated from in-process ctx
 
-**Given** Quality Review's `tessl_run_id` is available
-**And** Scenario Generation's `tessl_run_id` (`gen_id`) was captured
-**When** Eval starts
-**Then** `upstream_run_ids = {"review_quality": "<id>", "scenario_gen": "<gen_id>"}` is written
+**Given** `ctx["review_quality"]` and `ctx["scenario_gen"]` are set from prior steps in the same `run_tessl()` invocation
+**When** Eval transitions from `blocked` to `running`
+**Then** `_attach_upstream_run_ids(row, ctx, "review_quality", "scenario_gen")` writes `upstream_run_ids = {"review_quality": "<id>", "scenario_gen": "<gen_id>"}` **before** `eval run`
 **And** the scenario_gen ID is for lineage/cross-read only — eval invocation uses filesystem `evals/`, not this ID
+**And** after eval completes, `_stamp_tessl_run_id(row, eval_id)` persists Eval's own run ID
+
+### Scenario 4b — Partial ctx (scenario gen failed)
+
+**Given** Scenario Generation failed and `ctx["scenario_gen"]` is still null
+**When** Eval auto-chain gate runs
+**Then** Eval remains `blocked` (no eval invocation)
+**And** if Eval had started in a resume path with only Quality ID available, `upstream_run_ids.scenario_gen` is null (not omitted)
 
 ### Scenario 5 — Non-deterministic score handling
 
@@ -95,7 +104,7 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (b) auto-chain, § (b
 
 ## Files to touch
 
-- `sandbox/scanners.py` — add eval step to `run_tessl()` after scenario gen; emit initial `blocked` Eval row; auto-chain gate; Stale transition; `_run_tessl_eval()` helper; `tessl project repair` preflight; extend `TESSL_SOURCES` with `"Tessl: Eval"`
+- `sandbox/scanners.py` — add eval step to `run_tessl()` after scenario gen; emit initial `blocked` Eval row; auto-chain gate; Stale transition; `_run_tessl_eval()` helper; `_attach_upstream_run_ids` before eval; `_stamp_tessl_run_id` after eval; `tessl project repair` preflight; extend `TESSL_SOURCES` with `"Tessl: Eval"`
 - `sandbox/scan_app.py` — persist intermediate Eval row states (`blocked` → `queued` → `running`) via partial `_on_scanner_done` updates when Modal budget requires split invocations
 
 ## Gate evidence fields

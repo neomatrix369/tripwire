@@ -205,7 +205,7 @@ Product note that file `--output` was flaky on a tested build: re-test on pin; p
 | Item | Status |
 |---|---|
 | Target | DECIDED — `items.quality_score` only |
-| Capture | RESEARCH — confirm `tessl review run … --json` (CLI drifts; check docs.tessl.io + `--help` at pin time) |
+| Capture | IMPLEMENTED (slice 47) — `tessl review run quality --json --workspace`; run ID via `review view --last --json` (fallback: run JSON `id`/`runId`/`run_id`). Requires `TESSL_TOKEN` + `TESSL_WORKSPACE`. |
 | Raw | Store JSON in Storage for audit |
 
 ### References

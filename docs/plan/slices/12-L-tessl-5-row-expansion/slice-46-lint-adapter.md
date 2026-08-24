@@ -3,7 +3,7 @@
 **Wave**: 12-L
 **MoSCoW**: Must
 **Depends on**: 45
-**Status**: 🔀 ON BRANCH `slice/46-tessl-lint-adapter`
+**Status**: ✅ PASSED ([#105](https://github.com/neomatrix369/tripwire/pull/105))
 **Read time**: ~4 min
 
 ## Pre-conditions (operator gate — before first live scan)
@@ -17,6 +17,8 @@ Add `Tessl: Lint` as the first of the 5 new Tessl rows. `tessl skill lint <path>
 **At slice start** Tripwire invoked only `skill review`. **On this branch:** `run_tessl()` calls `npx --yes tessl@latest skill lint <workdir>` first and writes `scanner_source = "Tessl: Lint"`, then `"Tessl: Review (Quality)"`. Live persist VERIFIED 2026-08-24 (`scan_run a36cad9f`).
 
 Design reference: `docs/design/tessl-5-row-expansion.md § (a), (b), (d)`
+
+**Lineage (ID carry-forward)**: Lint is **outside** the Tessl ID chain — no `tessl_run_id`, no `upstream_run_ids`, no `_TesslIdContext` update. Quality (slice 47) is the first row that seeds `ctx["review_quality"]` for downstream rows 3–5.
 
 ## Acceptance Criteria (GWT)
 

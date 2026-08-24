@@ -1422,7 +1422,7 @@ class Component extends DCLogic {
     return {
       badge,
       tone,
-      tooltip: 'Tessl quality = skill-review score from Tessl (not security risk / not card colour). Range: 0–100.',
+      tooltip: 'Tessl quality = quality review score from Tessl (not security risk / not card colour).\nRange: 0–100 (higher is better). Source: tessl review run quality --json → items.quality_score.',
       scheduleCue: tone === 'known' ? null : `Schedule: tripwire scan ${scanTarget} --force`,
     };
   }
