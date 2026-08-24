@@ -826,6 +826,44 @@ test('given Lint and Review rows when loadData live then Lint is first Tessl row
   restoreFetch();
 });
 
+test('given unsorted scanner rows when loadData live then scanners are A-Z by source', async () => {
+  /**
+   * Outcome anchor: Scanner outputs drawer pills sort alphabetically by source name.
+   */
+  const itemId = '11111111-2222-3333-4444-555555555555';
+  const runId = '22222222-3333-4444-5555-666666666666';
+  installWindow({ SUPABASE_URL: 'https://proj.supabase.co', SUPABASE_ANON_KEY: 'anon' });
+  mockFetchByTable({
+    items: [{
+      id: itemId, type: 'skill', name: 'sort-test', identifier: 'sort-test',
+      heatmap_status: 'green', risk_score: 0, quality_score: null,
+      install_locus: 'local', source_availability: 'source_on_disk',
+    }],
+    dashboard_latest_runs: [{
+      id: runId, item_id: itemId, status: 'complete',
+      started_at: '2026-08-24T20:00:00Z', completed_at: '2026-08-24T20:01:00Z',
+    }],
+    // Deliberately unsorted (DB insert order ≠ display order)
+    scan_run_scanners: [
+      { scan_run_id: runId, scanner_source: 'Tessl: Lint', status: 'completed', checks_run: 1 },
+      { scan_run_id: runId, scanner_source: 'Snyk', status: 'completed', checks_run: 5 },
+      { scan_run_id: runId, scanner_source: 'Cisco Skill Scanner: static/bytecode/pipeline', status: 'completed', checks_run: 3 },
+      { scan_run_id: runId, scanner_source: 'Tessl: Review (Quality)', status: 'completed', checks_run: 1 },
+    ],
+    findings: [],
+  });
+  const loadData = await importLoadDataFresh();
+
+  const result = await loadData('live');
+  const sources = result.data.items[0].scanners.map((s) => s.source);
+  const sorted = [...sources].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+
+  assert.deepEqual(sources, sorted, 'scanners must be ordered A-Z by source');
+  assert.equal(sources[0], 'Cisco Skill Scanner: static/bytecode/pipeline');
+  assert.equal(sources[sources.length - 1], 'Tessl: Review (Quality)');
+  restoreFetch();
+});
+
 test('given running scanner with console_output when loadData live then output.console_output relayed', async () => {
   // -- Given --
   const itemId = 'a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1';

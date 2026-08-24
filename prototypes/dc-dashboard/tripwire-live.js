@@ -50,6 +50,12 @@ function buildScannerOutput(s, scannerFindings) {
   return output;
 }
 
+function compareScannerSource(a, b) {
+  const left = String(a.scanner_source ?? a.source ?? "");
+  const right = String(b.scanner_source ?? b.source ?? "");
+  return left.localeCompare(right, undefined, { sensitivity: "base" });
+}
+
 function shapeScannerRow(s, mappedFindings, itemQualityScore) {
   const scannerFindings = mappedFindings.filter((f) => f.scanner === s.scanner_source);
   const output = buildScannerOutput(s, scannerFindings);
@@ -135,7 +141,9 @@ function shapeItem(item, runsByItem, scannersByRun, findingsByRun) {
     scanStartedAt: isRunning ? latestRun.started_at : null,
     errorMessage: runStatus === "failed" ? "Scan run failed — no findings available" : partialNote,
     findings: mappedFindings,
-    scanners: latestScanners.map((s) => shapeScannerRow(s, mappedFindings, item.quality_score)),
+    scanners: [...latestScanners]
+      .sort(compareScannerSource)
+      .map((s) => shapeScannerRow(s, mappedFindings, item.quality_score)),
     trend: [],
     sandbox: latestRun
       ? { id: latestRunId, started: latestRun.started_at, completed: latestRun.completed_at,
