@@ -221,38 +221,44 @@ def _scan_item_inner(
             except Exception as exc:
                 print(f"[scan] warning: could not insert running row for {source}: {exc}")
 
+    def _persist_scanner_row(row: dict, *, completed: bool = False) -> None:
+        """Upsert one scan_run_scanners row (supports mid-group Tessl progress)."""
+        now = datetime.now(UTC).isoformat()
+        payload = {**row, "scan_run_id": scan_run_id}
+        if completed:
+            payload["completed_at"] = now
+        try:
+            resp = (
+                supabase.table("scan_run_scanners")
+                .update(payload)
+                .eq("scan_run_id", scan_run_id)
+                .eq("scanner_source", row["scanner_source"])
+                .execute()
+            )
+            if not resp.data:
+                _safe_insert(
+                    supabase,
+                    "scan_run_scanners",
+                    payload,
+                    "scan_run_scanners insert",
+                )
+        except Exception:
+            try:
+                _safe_insert(
+                    supabase,
+                    "scan_run_scanners",
+                    payload,
+                    "scan_run_scanners insert (update-fallback)",
+                )
+            except Exception as exc:
+                print(
+                    f"[scan] warning: scanner row write failed for {row.get('scanner_source')}: {exc}"
+                )
+
     def _on_scanner_done(findings, scanner_rows, quality_score=None):
         """Write results — update existing running row or insert fresh."""
-        now = datetime.now(UTC).isoformat()
         for row in scanner_rows:
-            payload = {**row, "scan_run_id": scan_run_id, "completed_at": now}
-            try:
-                resp = (
-                    supabase.table("scan_run_scanners")
-                    .update(payload)
-                    .eq("scan_run_id", scan_run_id)
-                    .eq("scanner_source", row["scanner_source"])
-                    .execute()
-                )
-                if not resp.data:
-                    _safe_insert(
-                        supabase,
-                        "scan_run_scanners",
-                        payload,
-                        "scan_run_scanners insert",
-                    )
-            except Exception:
-                try:
-                    _safe_insert(
-                        supabase,
-                        "scan_run_scanners",
-                        payload,
-                        "scan_run_scanners insert (update-fallback)",
-                    )
-                except Exception as exc:
-                    print(
-                        f"[scan] warning: scanner row write failed for {row.get('scanner_source')}: {exc}"
-                    )
+            _persist_scanner_row(row, completed=True)
         for finding in findings:
             _safe_insert(
                 supabase,
@@ -270,6 +276,25 @@ def _scan_item_inner(
                 "update quality_score",
             )
 
+    def _on_scanner_progress(row: dict) -> None:
+        """Persist Tessl Scenario Generation checkpoints before Modal timeout."""
+        _persist_scanner_row(row, completed=False)
+
+    tessl_scenario_resume = None
+    try:
+        resume_resp = (
+            supabase.table("scan_run_scanners")
+            .select("resume_checkpoint")
+            .eq("scan_run_id", scan_run_id)
+            .eq("scanner_source", "Tessl: Scenario Generation")
+            .limit(1)
+            .execute()
+        )
+        if resume_resp.data:
+            tessl_scenario_resume = resume_resp.data[0].get("resume_checkpoint")
+    except Exception as exc:
+        print(f"[scan] warning: could not load Tessl scenario resume_checkpoint: {exc}")
+
     try:
         results = run_all_scanners(
             workdir=workdir,
@@ -277,6 +302,8 @@ def _scan_item_inner(
             target=target,
             on_scanner_done=_on_scanner_done,
             on_scanner_start=_on_scanner_start,
+            on_scanner_progress=_on_scanner_progress,
+            tessl_scenario_resume=tessl_scenario_resume,
         )
     except Exception:
         _mark_failed()
@@ -364,10 +391,28 @@ def _maybe_pack_local_target(target: str) -> bytes | None:
     return _pack_local_dir(target)
 
 
+def _is_tessl_plugin_root(src: str) -> bool:
+    """True when the directory is a Tessl plugin (omit host evals/ on upload)."""
+    root = Path(src)
+    return (root / "tessl.json").is_file() or (root / ".tessl-plugin").exists()
+
+
+def _is_root_evals_tar_member(name: str) -> bool:
+    rel = name.lstrip("./")
+    return rel == "evals" or rel.startswith("evals/")
+
+
 def _pack_local_dir(src: str) -> bytes:
+    skip_evals = _is_tessl_plugin_root(src)
+
+    def _filter(tarinfo: tarfile.TarInfo) -> tarfile.TarInfo | None:
+        if skip_evals and _is_root_evals_tar_member(tarinfo.name):
+            return None
+        return tarinfo
+
     buf = io.BytesIO()
     with tarfile.open(fileobj=buf, mode="w:gz") as tar:
-        tar.add(src, arcname=".")
+        tar.add(src, arcname=".", filter=_filter)
     return buf.getvalue()
 
 
@@ -433,4 +478,11 @@ def _clone_repo(url: str, workdir: str):
 
 
 def _copy_local(src: str, workdir: str):
-    shutil.copytree(src, workdir, dirs_exist_ok=True)
+    def _ignore(directory: str, contents: list[str]) -> list[str]:
+        if not _is_tessl_plugin_root(src):
+            return []
+        if Path(directory).resolve() == Path(src).resolve() and "evals" in contents:
+            return ["evals"]
+        return []
+
+    shutil.copytree(src, workdir, dirs_exist_ok=True, ignore=_ignore)

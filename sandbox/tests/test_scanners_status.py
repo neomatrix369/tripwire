@@ -7,11 +7,13 @@ Created: 2026-08-01
 Scope: run_all_scanners overall_status; _unreachable detail truncation;
        _build_console / _truncate_console; on_scanner_done callback relay;
        _completed console_output passthrough;
-       Tessl ID context seed after Review Quality (GWT-47.5)
+       Tessl ID context seed after Review Quality (GWT-47.5);
+       Tessl Scenario Generation + resume_checkpoint (GWT-49.*)
 """
 
 from __future__ import annotations
 
+import os
 from unittest.mock import patch
 
 import scanners
@@ -459,12 +461,14 @@ def test_run_tessl_logs_diagnostic_when_score_is_none(capsys) -> None:
 
     ### Then
     assert score is None
-    assert len(rows) == 2
-    lint_row, review_row = rows
+    assert len(rows) == 3
+    lint_row, review_row, scenario_row = rows
     assert lint_row["scanner_source"] == "Tessl: Lint"
     assert lint_row["status"] == "completed"
     assert review_row["scanner_source"] == "Tessl: Review (Quality)"
     assert review_row["status"] == "unreachable"
+    assert scenario_row["scanner_source"] == "Tessl: Scenario Generation"
+    assert scenario_row["status"] == "failed"
     captured = capsys.readouterr()
     assert "[tessl]" in captured.out
     assert "quality_score extraction failed" in captured.out
@@ -497,8 +501,8 @@ def test_run_tessl_without_token_emits_lint_completed_and_review_needs_setup() -
 
     ### Then
     assert score is None
-    assert len(rows) == 2
-    lint_row, review_row = rows
+    assert len(rows) == 3
+    lint_row, review_row, scenario_row = rows
     assert lint_row["scanner_source"] == "Tessl: Lint"
     assert lint_row["status"] == "completed"
     assert lint_row["checks_run"] == 12
@@ -506,6 +510,8 @@ def test_run_tessl_without_token_emits_lint_completed_and_review_needs_setup() -
     assert lint_row.get("tessl_run_id") is None
     assert review_row["scanner_source"] == "Tessl: Review (Quality)"
     assert review_row["status"] == "needs_setup"
+    assert scenario_row["scanner_source"] == "Tessl: Scenario Generation"
+    assert scenario_row["status"] == "needs_setup"
 
 
 def test_run_tessl_with_token_emits_lint_and_review_rows() -> None:
@@ -541,8 +547,8 @@ def test_run_tessl_with_token_emits_lint_and_review_rows() -> None:
 
     ### Then
     assert score == 75
-    assert len(rows) == 2
-    lint_row, review_row = rows
+    assert len(rows) == 3
+    lint_row, review_row, scenario_row = rows
     assert lint_row["scanner_source"] == "Tessl: Lint"
     assert lint_row["status"] == "completed"
     assert lint_row.get("tessl_run_id") is None
@@ -550,8 +556,9 @@ def test_run_tessl_with_token_emits_lint_and_review_rows() -> None:
     assert review_row["status"] == "completed"
     assert review_row["tessl_run_id"] == "rev_abc123"
     assert review_row["tessl_run_id_at"]
+    assert scenario_row["scanner_source"] == "Tessl: Scenario Generation"
+    assert scenario_row["status"] == "failed"
     sources = {row["scanner_source"] for row in rows}
-    assert "Tessl: Scenario Generation" not in sources
     assert "Tessl: Eval" not in sources
     assert "Tessl: Review (Security)" not in sources
 
@@ -576,11 +583,13 @@ def test_run_tessl_lint_failure_emits_failed_row() -> None:
 
     ### Then
     assert score is None
-    lint_row, review_row = rows
+    lint_row, review_row, scenario_row = rows
     assert lint_row["scanner_source"] == "Tessl: Lint"
     assert lint_row["status"] == "failed"
     assert review_row["scanner_source"] == "Tessl: Review (Quality)"
     assert review_row["status"] == "needs_setup"
+    assert scenario_row["scanner_source"] == "Tessl: Scenario Generation"
+    assert scenario_row["status"] == "needs_setup"
 
 
 def test_run_tessl_no_npx_emits_lint_unreachable() -> None:
@@ -602,12 +611,14 @@ def test_run_tessl_no_npx_emits_lint_unreachable() -> None:
 
     ### Then
     assert score is None
-    assert len(rows) == 2
-    lint_row, review_row = rows
+    assert len(rows) == 3
+    lint_row, review_row, scenario_row = rows
     assert lint_row["scanner_source"] == "Tessl: Lint"
     assert lint_row["status"] == "unreachable"
     assert review_row["scanner_source"] == "Tessl: Review (Quality)"
     assert review_row["status"] == "needs_setup"
+    assert scenario_row["scanner_source"] == "Tessl: Scenario Generation"
+    assert scenario_row["status"] == "needs_setup"
 
 
 def test_parse_tessl_lint_detail_extracts_count_from_text() -> None:
@@ -842,7 +853,9 @@ def test_given_quality_review_completes_when_run_tessl_then_ctx_review_quality_i
     assert actual_ctx_quality == expected_run_id, (
         f"ctx['review_quality'] should carry the stamped Quality run ID; got {actual_ctx_quality!r}"
     )
-    assert ctx["scenario_gen"] is None, "scenario_gen must stay None until slice 49 stamps it"
+    assert ctx["scenario_gen"] is None, (
+        "scenario_gen stays None without a successful Scenario Generation stamp"
+    )
     lint_row = rows[0]
     assert lint_row["scanner_source"] == "Tessl: Lint"
     assert lint_row.get("tessl_run_id") is None, (
@@ -875,7 +888,9 @@ def test_given_review_needs_setup_when_run_tessl_then_ctx_review_quality_stays_n
     assert ctx["review_quality"] is None, (
         "Quality run ID must not be invented when Review is needs_setup"
     )
-    assert ctx["scenario_gen"] is None, "scenario_gen must stay None in slice 47"
+    assert ctx["scenario_gen"] is None, (
+        "scenario_gen stays None when Scenario Generation is needs_setup"
+    )
     assert rows[0].get("tessl_run_id") is None, (
         "Lint remains outside the ID chain when Review is skipped"
     )
@@ -898,3 +913,564 @@ def test_given_empty_state_when_new_tessl_id_context_then_quality_and_scenario_k
     ### Then
     expected_ctx = {"review_quality": None, "scenario_gen": None}
     assert actual_ctx == expected_ctx, f"Seed ctx must be {expected_ctx!r}, got {actual_ctx!r}"
+
+
+# --- slice-49: Tessl Scenario Generation + Resume Checkpoint (Row 3) ---
+
+
+def _make_tessl_plugin(tmp_path) -> str:
+    plugin_dir = tmp_path / "plugin"
+    plugin_dir.mkdir()
+    manifest_dir = plugin_dir / ".tessl-plugin"
+    manifest_dir.mkdir()
+    (manifest_dir / "plugin.json").write_text('{"name":"demo","version":"0.0.1"}')
+    return str(plugin_dir)
+
+
+def _lint_and_quality_ok(cmd, timeout=None):
+    if cmd[3:5] == ["skill", "lint"]:
+        return 0, "1 check", ""
+    if cmd[3:6] == ["review", "run", "quality"]:
+        return 0, '{"score": 80, "id": "rev_from_run"}', ""
+    if cmd[3:6] == ["review", "view", "--last"]:
+        return 0, '{"id": "rev_abc123", "score": 80}', ""
+    raise AssertionError(f"unexpected cmd before scenario: {cmd}")
+
+
+def test_given_plugin_when_scenario_gen_succeeds_then_download_stamps_and_clears_checkpoint(
+    tmp_path,
+) -> None:
+    """
+    Scenario: Successful generate + download stamps tessl_run_id and clears checkpoint.
+    Slice: 49 — GWT-49.1
+
+    Given Quality Review completed and a Tessl plugin directory,
+    When Scenario Generation runs,
+    Then generate --count 3, view/download use gen_id, row completes with checks_run,
+    And resume_checkpoint is cleared to null.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    ctx = scanners._new_tessl_id_context()
+    progress: list[dict] = []
+    captured: list[list[str]] = []
+
+    def _run(cmd, timeout=None):
+        captured.append(cmd)
+        if (
+            cmd[3:5] in (["skill", "lint"],)
+            or cmd[3:5] == ["review", "run"]
+            or (len(cmd) > 5 and cmd[3:5] == ["review", "view"])
+        ):
+            return _lint_and_quality_ok(cmd, timeout)
+        if cmd[3:5] == ["scenario", "generate"]:
+            assert "--count" in cmd and "3" in cmd
+            assert workdir in cmd
+            assert "--workspace" not in cmd
+            return 0, '{"id": "gen_abc123", "status": "completed", "scenarioCount": 3}', ""
+        if cmd[3:5] == ["scenario", "view"]:
+            return 0, '{"id": "gen_abc123", "status": "completed", "scenarioCount": 3}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            assert "gen_abc123" in cmd
+            assert "-o" in cmd
+            out_dir = cmd[cmd.index("-o") + 1]
+            assert out_dir.endswith("evals")
+            os.makedirs(os.path.join(out_dir, "s1"), exist_ok=True)
+            os.makedirs(os.path.join(out_dir, "s2"), exist_ok=True)
+            os.makedirs(os.path.join(out_dir, "s3"), exist_ok=True)
+            return 0, "downloaded 3", ""
+        raise AssertionError(f"unexpected cmd: {cmd}")
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        score, rows = scanners.run_tessl(workdir, id_context=ctx, on_row_progress=progress.append)
+
+    ### Then
+    assert score == 80
+    scenario_row = rows[2]
+    assert scenario_row["scanner_source"] == "Tessl: Scenario Generation"
+    assert scenario_row["status"] == "completed"
+    assert scenario_row["tessl_run_id"] == "gen_abc123"
+    assert scenario_row["tessl_run_id_at"]
+    assert scenario_row["checks_run"] == 3
+    assert scenario_row["resume_checkpoint"] is None
+    assert scenario_row["upstream_run_ids"] == {"review_quality": "rev_abc123"}
+    assert ctx["scenario_gen"] == "gen_abc123"
+    assert any(p.get("resume_checkpoint", {}).get("stage") == "generated" for p in progress)
+    generate_cmds = [c for c in captured if c[3:5] == ["scenario", "generate"]]
+    download_cmds = [c for c in captured if c[3:5] == ["scenario", "download"]]
+    assert len(generate_cmds) == 1
+    assert len(download_cmds) == 1
+
+
+def test_given_resume_generated_when_run_tessl_then_skips_generate_and_downloads(
+    tmp_path,
+) -> None:
+    """
+    Scenario: Resume after generate skips generate and retries download only.
+    Slice: 49 — GWT-49.2
+
+    Given resume_checkpoint.stage is generated with a gen_id,
+    When Scenario Generation resumes,
+    Then generate is not invoked and download uses the checkpoint gen_id.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    captured: list[list[str]] = []
+
+    def _run(cmd, timeout=None):
+        captured.append(cmd)
+        if (
+            cmd[3:5] in (["skill", "lint"],)
+            or cmd[3:5] == ["review", "run"]
+            or (len(cmd) > 5 and cmd[3:5] == ["review", "view"])
+        ):
+            return _lint_and_quality_ok(cmd, timeout)
+        if cmd[3:5] == ["scenario", "view"]:
+            return 0, '{"id": "gen_resume", "status": "completed", "scenarioCount": 2}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            assert "gen_resume" in cmd
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "a"), exist_ok=True)
+            os.makedirs(os.path.join(out_dir, "b"), exist_ok=True)
+            return 0, "ok", ""
+        raise AssertionError(f"unexpected cmd: {cmd}")
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+        patch.object(scanners, "_TESSL_SCENARIO_POLL_SLEEP_S", 0),
+    ):
+        _score, rows = scanners.run_tessl(
+            workdir,
+            resume_checkpoint={"stage": "generated", "gen_id": "gen_resume"},
+        )
+
+    ### Then
+    assert all(c[3:5] != ["scenario", "generate"] for c in captured)
+    assert rows[2]["status"] == "completed"
+    assert rows[2]["tessl_run_id"] == "gen_resume"
+    assert rows[2]["checks_run"] == 2
+    assert rows[2]["resume_checkpoint"] is None
+
+
+def test_given_in_progress_checkpoint_when_resumed_then_polls_before_download(
+    tmp_path,
+) -> None:
+    """
+    Scenario: Detached in-progress generation is polled until completed before download.
+    Slice: 49 — GWT-49.2b
+
+    Given resume_checkpoint has gen_id while server status is still in_progress,
+    When the runner resumes,
+    Then view is polled until completed and download is not called early.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    views = [
+        (0, '{"id": "gen_poll", "status": "in_progress"}', ""),
+        (0, '{"id": "gen_poll", "status": "completed", "scenarioCount": 1}', ""),
+    ]
+    captured: list[list[str]] = []
+
+    def _run(cmd, timeout=None):
+        captured.append(cmd)
+        if (
+            cmd[3:5] in (["skill", "lint"],)
+            or cmd[3:5] == ["review", "run"]
+            or (len(cmd) > 5 and cmd[3:5] == ["review", "view"])
+        ):
+            return _lint_and_quality_ok(cmd, timeout)
+        if cmd[3:5] == ["scenario", "view"]:
+            return views.pop(0)
+        if cmd[3:5] == ["scenario", "download"]:
+            assert not views, "download must wait until view reports completed"
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "only"), exist_ok=True)
+            return 0, "ok", ""
+        raise AssertionError(f"unexpected cmd: {cmd}")
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+        patch.object(scanners, "_TESSL_SCENARIO_POLL_SLEEP_S", 0),
+    ):
+        _score, rows = scanners.run_tessl(
+            workdir,
+            resume_checkpoint={"stage": "generated", "gen_id": "gen_poll"},
+        )
+
+    ### Then
+    assert rows[2]["status"] == "completed"
+    assert sum(1 for c in captured if c[3:5] == ["scenario", "view"]) >= 2
+    assert sum(1 for c in captured if c[3:5] == ["scenario", "download"]) == 1
+
+
+def test_given_quality_id_in_ctx_when_scenario_starts_then_upstream_run_ids_attached(
+    tmp_path,
+) -> None:
+    """
+    Scenario: upstream_run_ids.review_quality is written before scenario generate.
+    Slice: 49 — GWT-49.3
+
+    Given ctx review_quality is rev_abc123,
+    When Scenario Generation starts,
+    Then upstream_run_ids is attached before generate is invoked.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    ctx = {"review_quality": "rev_abc123", "scenario_gen": None}
+    progress: list[dict] = []
+
+    def _run(cmd, timeout=None):
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 0, '{"id": "gen_x", "status": "completed", "scenarioCount": 1}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "s"), exist_ok=True)
+            return 0, "ok", ""
+        return _lint_and_quality_ok(cmd, timeout)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(workdir, id_context=ctx, on_row_progress=progress.append)
+
+    ### Then
+    assert progress[0]["upstream_run_ids"] == {"review_quality": "rev_abc123"}
+    assert rows[2]["upstream_run_ids"] == {"review_quality": "rev_abc123"}
+    assert ctx["scenario_gen"] == "gen_x"
+
+
+def test_given_null_quality_id_when_scenario_starts_then_upstream_key_is_null(
+    tmp_path,
+) -> None:
+    """
+    Scenario: Missing Quality ID still proceeds with null upstream key.
+    Slice: 49 — GWT-49.3b
+
+    Given Quality Review did not produce a tessl_run_id,
+    When Scenario Generation starts,
+    Then upstream_run_ids.review_quality is null and generate still runs.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    captured: list[list[str]] = []
+
+    def _run(cmd, timeout=None):
+        captured.append(cmd)
+        if cmd[3:5] == ["skill", "lint"]:
+            return 0, "1 check", ""
+        if cmd[3:6] == ["review", "run", "quality"]:
+            return 0, '{"score": 70}', ""
+        if cmd[3:6] == ["review", "view", "--last"]:
+            return 1, "", "no runs"
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 0, '{"id": "gen_null_up", "status": "completed", "scenarioCount": 1}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "s"), exist_ok=True)
+            return 0, "ok", ""
+        raise AssertionError(f"unexpected cmd: {cmd}")
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(workdir)
+
+    ### Then
+    assert rows[2]["upstream_run_ids"] == {"review_quality": None}
+    assert any(c[3:5] == ["scenario", "generate"] for c in captured)
+    assert rows[2]["status"] == "completed"
+
+
+def test_given_scenario_generate_fails_when_run_tessl_then_row_is_failed(tmp_path) -> None:
+    """
+    Scenario: Non-zero scenario generate marks Scenario Generation failed.
+    Slice: 49 — GWT-49.4
+
+    Given tessl scenario generate exits non-zero,
+    When Scenario Generation completes,
+    Then the row status is failed and no download is attempted.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    captured: list[list[str]] = []
+
+    def _run(cmd, timeout=None):
+        captured.append(cmd)
+        if (
+            cmd[3:5] in (["skill", "lint"],)
+            or cmd[3:5] == ["review", "run"]
+            or (len(cmd) > 5 and cmd[3:5] == ["review", "view"])
+        ):
+            return _lint_and_quality_ok(cmd, timeout)
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 1, "", "generation exploded"
+        raise AssertionError(f"unexpected cmd: {cmd}")
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(workdir)
+
+    ### Then
+    assert rows[2]["status"] == "failed"
+    assert "generation exploded" in rows[2]["detail"]
+    assert all(c[3:5] != ["scenario", "download"] for c in captured)
+
+
+def test_given_missing_token_when_scenario_would_run_then_needs_setup() -> None:
+    """
+    Scenario: Missing TESSL_TOKEN yields needs_setup for Scenario Generation.
+    Slice: 49 — GWT-49.5
+
+    Given TESSL_TOKEN is absent,
+    When Scenario Generation would run,
+    Then the row status is needs_setup.
+    """
+    ### Given / When
+    with (
+        patch.dict("os.environ", {}, clear=True),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", return_value=(0, "1 check", "")),
+    ):
+        _score, rows = scanners.run_tessl("/tmp/fake-skill")
+
+    ### Then
+    assert rows[2]["scanner_source"] == "Tessl: Scenario Generation"
+    assert rows[2]["status"] == "needs_setup"
+    assert rows[2]["upstream_run_ids"] == {"review_quality": None}
+
+
+def test_given_missing_plugin_manifest_when_scenario_runs_then_failed(tmp_path) -> None:
+    """
+    Scenario: Missing plugin manifest fails Scenario Generation with actionable detail.
+    Slice: 49 — GWT-49.5
+
+    Given TESSL_TOKEN is set but .tessl-plugin/plugin.json is absent,
+    When Scenario Generation runs,
+    Then status is failed and detail mentions the missing plugin manifest.
+    """
+    ### Given
+    workdir = str(tmp_path / "no-plugin")
+    os.makedirs(workdir)
+
+    def _run(cmd, timeout=None):
+        return _lint_and_quality_ok(cmd, timeout)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(workdir)
+
+    ### Then
+    assert rows[2]["status"] == "failed"
+    assert "plugin.json" in rows[2]["detail"]
+
+
+def test_attach_upstream_run_ids_copies_selected_keys_with_nulls() -> None:
+    """
+    Scenario: _attach_upstream_run_ids copies ctx keys including explicit nulls.
+    Slice: 49 — ID carry-forward helper
+
+    Given a Tessl ID context with review_quality set and scenario_gen None,
+    When _attach_upstream_run_ids selects both keys,
+    Then the row upstream_run_ids map matches exactly.
+    """
+    ### Given
+    row: dict = {}
+    ctx = {"review_quality": "rev_1", "scenario_gen": None}
+
+    ### When
+    scanners._attach_upstream_run_ids(row, ctx, "review_quality", "scenario_gen")
+
+    ### Then
+    assert row["upstream_run_ids"] == {"review_quality": "rev_1", "scenario_gen": None}
+
+
+def test_parse_scenario_gen_id_and_status_from_json_shapes() -> None:
+    """
+    Scenario: Scenario JSON helpers read id/status/count from common shapes.
+    Slice: 49 — GWT-49.1 parse helpers
+
+    Given generate/view JSON variants,
+    When parsers run,
+    Then id, status, and count are extracted.
+    """
+    ### Given / When / Then
+    assert scanners._parse_scenario_gen_id({"id": "gen_1"}) == "gen_1"
+    assert scanners._parse_scenario_gen_id({"generation": {"id": "gen_2"}}) == "gen_2"
+    assert scanners._parse_scenario_status({"status": "COMPLETED"}) == "completed"
+    assert scanners._parse_scenario_status({"generation": {"state": "Failed"}}) == "failed"
+    assert scanners._parse_scenario_count({"scenarioCount": 4}) == 4
+    assert scanners._parse_scenario_count({"scenarios": [{}, {}]}) == 2
+    assert scanners._parse_scenario_count({"generation": {"count": 7}}) == 7
+    assert scanners._parse_scenario_gen_id({"score": 1}) is None
+    assert scanners._parse_scenario_status(None) is None
+    assert scanners._parse_scenario_count("nope") is None
+    assert scanners._tessl_scenario_view_argv(None)[-3:] == ["--last", "--mine", "--json"]
+
+
+def test_given_generate_timeout_when_scenario_runs_then_interrupted_with_checkpoint(
+    tmp_path,
+) -> None:
+    """
+    Scenario: Modal/CLI timeout on generate persists resume_checkpoint.
+    Slice: 49 — GWT-49.2b interrupt path
+
+    Given scenario generate times out,
+    When Scenario Generation finishes,
+    Then status is interrupted and resume_checkpoint holds gen_id from view --last.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+
+    def _run(cmd, timeout=None):
+        if cmd[3:5] == ["scenario", "generate"]:
+            return None, "", "timeout after 240s"
+        if cmd[3:5] == ["scenario", "view"]:
+            return 0, '{"id": "gen_detached", "status": "in_progress"}', ""
+        return _lint_and_quality_ok(cmd, timeout)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(workdir)
+
+    ### Then
+    assert rows[2]["status"] == "interrupted"
+    assert rows[2]["resume_checkpoint"] == {
+        "stage": "generated",
+        "gen_id": "gen_detached",
+    }
+    assert rows[2]["tessl_run_id"] == "gen_detached"
+
+
+def test_given_resume_failed_status_when_polled_then_download_is_skipped(tmp_path) -> None:
+    """
+    Scenario: Resume poll that reports failed does not call download.
+    Slice: 49 — GWT-49.2b failed terminal
+
+    Given resume_checkpoint gen_id whose view status is failed,
+    When Scenario Generation resumes,
+    Then row is failed and download is not invoked.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    captured: list[list[str]] = []
+
+    def _run(cmd, timeout=None):
+        captured.append(cmd)
+        if cmd[3:5] == ["scenario", "view"]:
+            return 0, '{"id": "gen_fail", "status": "failed"}', "server failed"
+        return _lint_and_quality_ok(cmd, timeout)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+        patch.object(scanners, "_TESSL_SCENARIO_POLL_SLEEP_S", 0),
+    ):
+        _score, rows = scanners.run_tessl(
+            workdir, resume_checkpoint={"stage": "generated", "gen_id": "gen_fail"}
+        )
+
+    ### Then
+    assert rows[2]["status"] == "failed"
+    assert all(c[3:5] != ["scenario", "download"] for c in captured)
+
+
+def test_given_download_fails_when_scenario_completes_then_checkpoint_retained(
+    tmp_path,
+) -> None:
+    """
+    Scenario: Failed download retains generated checkpoint for retry.
+    Slice: 49 — GWT-49.1 download failure
+
+    Given generate succeeds and download exits non-zero,
+    When Scenario Generation finishes,
+    Then status is failed and resume_checkpoint.stage remains generated.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+
+    def _run(cmd, timeout=None):
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 0, '{"id": "gen_dl", "status": "completed"}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            return 1, "", "still in_progress"
+        return _lint_and_quality_ok(cmd, timeout)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(workdir)
+
+    ### Then
+    assert rows[2]["status"] == "failed"
+    assert rows[2]["resume_checkpoint"] == {"stage": "generated", "gen_id": "gen_dl"}
+
+
+def test_given_empty_evals_when_download_succeeds_then_count_comes_from_view(
+    tmp_path,
+) -> None:
+    """
+    Scenario: Empty evals/ after download falls back to scenario view count.
+    Slice: 49 — GWT-49.1 checks_run from view
+
+    Given download succeeds but creates no scenario directories,
+    When Scenario Generation finishes,
+    Then checks_run is taken from scenario view JSON.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+
+    def _run(cmd, timeout=None):
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 0, '{"id": "gen_view_count"}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            return 0, "ok", ""
+        if cmd[3:5] == ["scenario", "view"]:
+            return 0, '{"id": "gen_view_count", "scenarioCount": 5}', "view ok"
+        return _lint_and_quality_ok(cmd, timeout)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(workdir)
+
+    ### Then
+    assert rows[2]["status"] == "completed"
+    assert rows[2]["checks_run"] == 5
+    assert rows[2]["resume_checkpoint"] is None

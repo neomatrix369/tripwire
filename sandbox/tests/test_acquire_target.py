@@ -220,6 +220,104 @@ def test_pack_and_extract_roundtrip_preserves_skill_md(tmp_path):
     assert os.path.isfile(os.path.join(workdir, "notes", "extra.txt")), "nested file missing"
 
 
+def _normalized_tar_names(archive: bytes) -> set[str]:
+    names: set[str] = set()
+    with tarfile.open(fileobj=BytesIO(archive), mode="r:gz") as tar:
+        for member in tar.getmembers():
+            rel = member.name.lstrip("./")
+            if rel:
+                names.add(rel)
+    return names
+
+
+def _write_evals_tree(root) -> None:
+    evals = root / "evals" / "scenario-1"
+    evals.mkdir(parents=True)
+    (evals / "task.md").write_text("# corpus")
+    nested = root / "notes" / "evals"
+    nested.mkdir(parents=True)
+    (nested / "keep.txt").write_text("not tessl corpus")
+    (root / "SKILL.md").write_text("# skill")
+
+
+@pytest.mark.parametrize(
+    "marker",
+    ["tessl.json", ".tessl-plugin"],
+)
+def test_given_tessl_plugin_when_packed_then_root_evals_is_omitted(tmp_path, marker):
+    """
+    Scenario: Host Tessl evals corpus is not a vuln-scan input.
+    Slice: slice-48 GWT-48.5
+
+    Given a local Tessl plugin with host evals/ and a nested notes/evals/,
+    When it is packed for Modal,
+    Then root evals/ is absent and other skill files remain.
+    """
+    ### Given
+    src = tmp_path / "tessl-skill"
+    src.mkdir()
+    _write_evals_tree(src)
+    if marker == "tessl.json":
+        (src / "tessl.json").write_text("{}")
+    else:
+        (src / ".tessl-plugin").mkdir()
+
+    ### When
+    names = _normalized_tar_names(_pack_local_dir(str(src)))
+
+    ### Then
+    assert "SKILL.md" in names
+    assert "notes/evals/keep.txt" in names
+    assert not any(n == "evals" or n.startswith("evals/") for n in names)
+
+
+def test_given_tessl_plugin_when_copied_locally_then_root_evals_is_omitted(tmp_path):
+    """
+    Scenario: Same-machine acquire matches the Modal pack exclude.
+    Slice: slice-48 GWT-48.5
+
+    Given a Tessl plugin directory on disk,
+    When _acquire_target copies it without an archive,
+    Then root evals/ is absent from the workdir.
+    """
+    ### Given
+    src = tmp_path / "tessl-skill"
+    src.mkdir()
+    _write_evals_tree(src)
+    (src / "tessl.json").write_text("{}")
+    workdir = str(tmp_path / "scan-target")
+
+    ### When
+    _acquire_target(str(src), "skill", workdir)
+
+    ### Then
+    assert os.path.isfile(os.path.join(workdir, "SKILL.md"))
+    assert os.path.isfile(os.path.join(workdir, "notes", "evals", "keep.txt"))
+    assert not os.path.exists(os.path.join(workdir, "evals"))
+
+
+def test_given_non_tessl_skill_when_packed_then_evals_is_kept(tmp_path):
+    """
+    Scenario: Non-Tessl trees are not stripped of an evals/ folder.
+    Slice: slice-48 GWT-48.6
+
+    Given a local skill with no Tessl root marker and an evals/ folder,
+    When it is packed,
+    Then evals/ is present in the archive.
+    """
+    ### Given
+    src = tmp_path / "plain-skill"
+    src.mkdir()
+    _write_evals_tree(src)
+
+    ### When
+    names = _normalized_tar_names(_pack_local_dir(str(src)))
+
+    ### Then
+    assert "evals/scenario-1/task.md" in names
+    assert "SKILL.md" in names
+
+
 def test_given_path_traversal_archive_when_extracting_then_it_is_rejected_without_writing_outside(
     tmp_path,
 ):
