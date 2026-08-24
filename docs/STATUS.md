@@ -85,6 +85,11 @@ Reachable through production entry points / config:
   VERIFIED(unit) + VERIFIED(live persist scan_run `a36cad9f`, 2026-08-24) —
   `sandbox/scanners.py`, `prototypes/dc-dashboard/` (slice 46 🔀,
   [PR #105](https://github.com/neomatrix369/tripwire/pull/105))
+- Live dashboard latest-state read path — `dashboard_latest_runs` view (one row per
+  item) + batched child-table fetches in `tripwire-live.js`; replaces global
+  `scan_runs?limit=2000` page that could miss per-item newest runs and PostgREST
+  single-response truncation on large fleets. IMPLEMENTED (unit); operator applies
+  view via `tripwire setup --force`. Partial slice 21 — 🔀 `fix/dashboard-latest-runs`
 - `risk_score` weighted finding density from `tripwire_rollup_item`; cards show
   compact `R N.NN` badges with density-formula portal tips (list header **Risk density**);
   card colour remains worst-of `heatmap_status`, not density (slice 42 A11/A13)

@@ -1208,6 +1208,10 @@ class Component extends DCLogic {
     }
   }
 
+  compareScannerSource(a, b) {
+    return String(a.source ?? '').localeCompare(String(b.source ?? ''), undefined, { sensitivity: 'base' });
+  }
+
   durationLabel(started, completed) {
     if (!started || !completed) return '—';
     const secs = (new Date(completed) - new Date(started)) / 1000;
@@ -1669,7 +1673,9 @@ class Component extends DCLogic {
       scanStartedAtLabel: selected.scanStartedAt ? this.fmtTime(selected.scanStartedAt) : null,
       scannersViewLabel: selected.status === 'running' && selected.scanners.length === 0
         ? 'scanning…' : String(selected.scanners.length),
-      scannersView: selected.scanners.map((sc, idx) => {
+      scannersView: [...selected.scanners]
+        .sort((a, b) => this.compareScannerSource(a, b))
+        .map((sc, idx) => {
         const key = selected.id + ':' + idx;
         const expanded = !!s.expandedScanners[key];
         const out = sc.output || {};

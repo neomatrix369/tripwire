@@ -44,6 +44,12 @@ create table if not exists scan_runs (
 );
 create index if not exists scan_runs_item_idx on scan_runs (item_id, started_at desc);
 
+-- Dashboard read model: one latest scan_run row per item (deterministic tie-break on id).
+create or replace view dashboard_latest_runs with (security_invoker = true) as
+select distinct on (item_id) *
+from scan_runs
+order by item_id, started_at desc, id desc;
+
 create table if not exists scan_run_scanners (
   id             uuid primary key default gen_random_uuid(),
   scan_run_id    uuid not null references scan_runs(id),
@@ -153,6 +159,7 @@ end $$;
 -- raw SQL as postgres do not always inherit default API grants).
 grant usage on schema public to anon, authenticated;
 grant select on table items, scan_runs, scan_run_scanners, findings to anon, authenticated;
+grant select on dashboard_latest_runs to anon, authenticated;
 
 -- Rollup function: recompute an item's heatmap_status/risk_score from its latest scan_run.
 -- heatmap_status = worst-of actionable findings (any red → red; else any amber → amber;

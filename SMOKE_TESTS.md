@@ -16,11 +16,19 @@ fetch-window miss.
 ### Steps
 
 1. Open the Tripwire dashboard in Live mode (requires `SUPABASE_URL` + `SUPABASE_ANON_KEY`).
-2. Open the browser Network tab. Confirm the `scan_runs` request uses `limit=2000`
-   (not `limit=200`).
+2. Open the browser Network tab. Confirm the dashboard requests
+   `dashboard_latest_runs` (not a paginated `/scan_runs?limit=…` global fetch).
 3. Confirm the `findings` and `scan_run_scanners` requests include a
-   `scan_run_id=in.(...)` filter (not `select=*` alone).
-4. Count RED/AMBER cards that show **last-scan date** and **≥1 finding** (or a
+   `scan_run_id=in.(...)` filter (not `select=*` alone). With large fleets,
+   expect **multiple** batched scanner/findings requests (~40 run IDs each).
+4. If scanner rows are still missing for a freshly scanned item after deploy,
+   check Supabase **Data API → Max rows** (default 1000) — see
+   [supabase-setup § Data API max rows](docs/user-guide/supabase-setup.md#6-data-api-max-rows-live-dashboard-fleet-size).
+   Batching reduces but may not eliminate the need for a higher cap on very
+   large fleets.
+5. Open an item detail drawer: **Scanner outputs** pills must appear **A–Z by
+   scanner name** (e.g. Cisco before Snyk before Tessl: Lint), not DB insert order.
+6. Count RED/AMBER cards that show **last-scan date** and **≥1 finding** (or a
    justified 0 with a scanner explanation). A card showing "never scanned" with a
    non-NULL `heatmap_status='red'` in Supabase is a regression.
 
