@@ -36,6 +36,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   avoids delayed native `title=` attributes.
 
 ### Added
+- Dashboard Tessl "Not Available Yet" placeholders (slice 48): Scanner Outputs
+  merges a static list of five Tessl capabilities and renders missing
+  Scenario Generation / Eval / Review (Security) as muted UI sentinels
+  (no chevron, no DB insert). Header count includes the placeholders.
+  MCP scans without Tessl rows are unchanged.
 - Tessl Review (Quality) run-ID capture (slice 47): `_run_tessl_review(judge_type="quality")`
   runs `tessl review run quality --json --workspace` (replaces deprecated
   `tessl skill review`) then `tessl review view --last --json` to persist

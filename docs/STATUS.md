@@ -93,6 +93,15 @@ Reachable through production entry points / config:
   in-process (GWT-47.5). Missing `TESSL_WORKSPACE` → `needs_setup`. IMPLEMENTED (unit)
   — `sandbox/scanners.py` (slice 47 ✅,
   [PR #109](https://github.com/neomatrix369/tripwire/pull/109); GWT-47.1–47.5)
+- Dashboard Tessl "Not Available Yet" placeholders — Scanner Outputs always shows
+  five Tessl capability rows when any Tessl DB row exists; missing
+  Scenario Generation / Eval / Review (Security) are UI-only sentinels
+  (`status: not_available_yet`), never written to `scan_run_scanners`, and
+  counted in the header. MCP scans are unchanged. IMPLEMENTED (unit) +
+  VERIFIED (Mock UI 2026-08-24: `safe-changelog-writer` Scanner Outputs (7),
+  five Tessl rows, three NAY pills, no chevron; MCP `SCANNER OUTPUTS (3)`
+  unpadded) — `tripwire-status.js` `mergeTesslCapabilityRows`, `Tripwire.dc.html`
+  (slice 48 🔨)
 - Live dashboard latest-state read path — `dashboard_latest_runs` view (one row per
   item) + batched child-table fetches in `tripwire-live.js`; replaces global
   `scan_runs?limit=2000` page that could miss per-item newest runs and PostgREST
@@ -116,7 +125,8 @@ Reachable through production entry points / config:
 - `pytest sandbox/tests/test_acquire_target.py` — acquire-target dispatch
 - `cd prototypes/dc-dashboard && npm test` — Live gating, Realtime wiring,
   SCANNING/console/unreachable mapping; Tessl Lint vs Review (Quality) inner
-  quality scope (GWT-46.4) — 90 pass / 0 skip (2026-08-24); live-smoke reads
+  quality scope (GWT-46.4); Tessl NAY sentinels (GWT-48.1–48.4) — 100 pass /
+  0 skip excluding optional live-smoke (2026-08-24); live-smoke reads
   repo `.env`
 
 ---
@@ -226,7 +236,9 @@ records the new production entry.
 → `eval run <plugin> --runs 3 -y` (filesystem only; no scenario-gen ID on eval).
 Eval auto-chains from `blocked` when generation completes and `evals/` is
 populated. Coverage Gap B (`scenario view <id>`) resolved; Gap C (agent-assisted
-generation) open. Spec:
+generation) open. **DECIDED (not IMPLEMENTED):** host `evals/` is not a vuln-scan
+input — omit it from the Modal tar when the skill root has `tessl.json` or
+`.tessl-plugin/`; current `_pack_local_dir` still uploads the whole tree. Spec:
 [design/tessl-5-row-expansion.md](./design/tessl-5-row-expansion.md),
 [slices 49–50](./plan/slices/12-L-tessl-5-row-expansion/).
 

@@ -52,10 +52,107 @@ When real rows replace sentinels (slices 49–51), the dashboard may surface `te
 
 ## Files to touch
 
-- `prototypes/dc-dashboard/Tripwire.dc.html` — add `TESSL_CAPABILITY_SOURCES` constant (ordered list of 5 strings); extend `scannersView` map to merge DB rows with sentinel objects for missing Tessl sources; add `status === 'not_available_yet'` style branch
+- `prototypes/dc-dashboard/tripwire-status.js` — `TESSL_CAPABILITY_SOURCES`, `mergeTesslCapabilityRows`, `SCANNER_EXEC_META.not_available_yet`
+- `prototypes/dc-dashboard/Tripwire.dc.html` — call merge in `scannersView`; muted `not_available_yet` style branch (no chevron/expand)
+- `prototypes/dc-dashboard/test/tripwire-status.test.js` — GWT-48.1–48.4 + MCP guard
+- `sandbox/tests/test_scanners_status.py` — runner never writes placeholder sources
+
+## Before-Checks
+
+- [x] Slice 47 ✅ (#109) on main; stub + branch `slice/48-not-available-yet-ui`
+- [x] Design § (d) count formula DECIDED (include NAY; MCP unpadded)
+
+## After-Checks
+
+- [x] GWT-48.1 — five Tessl sources in design order; rows 3–5 `not_available_yet`, no checks/duration
+- [x] GWT-48.2 — Scanner Outputs count includes placeholders
+- [x] GWT-48.3 — runner does not emit Scenario Generation / Eval / Review (Security)
+- [x] GWT-48.4 — DB Eval row replaces sentinel; Security stays NAY
+- [x] MCP-only scanners are not padded
+- [x] Mock UI: `safe-changelog-writer` Scanner Outputs (7), three NAY pills, no chevron; MCP (3) unpadded
+- [x] `/nw-review` APPROVED (2026-08-24, iteration 1)
+- [x] `./scripts/quality-gates.sh` passes locally
+- [x] Doc audit: design § (d), STATUS, ARCHITECTURE, CHANGELOG, DECISIONS
 
 ## Gate evidence fields
 
-`coverage_pct`: N/A (dashboard JS; no Python tests)
-`complexity_tool`: N/A
+`coverage_pct`: dashboard JS statements/lines ≥ 95% (`prototypes/dc-dashboard`); Python N/A for UI sentinels
+`complexity_tool`: N/A (dashboard JS; xenon still runs on sandbox in quality-gates)
 `doc_audit`: design doc § (d) count formula and "Not Available Yet" rules — mark as implemented
+
+---
+
+## 🔍 Review (nw-software-crafter-reviewer)
+
+**Verdict**: **APPROVED** (Iteration 1, 2026-08-24T23:42Z)
+
+### Summary
+
+Slice 48 ships a clean, well-tested UI feature for placeholder Tessl rows (3–5, "Not Available Yet"). Implementation is minimal and correct: static constant + merge function + metadata entry. All 5 GWT acceptance criteria are satisfied by 9 JS tests + 1 Python guard. No test modifications, no testing theater, no over-engineering. Dashboard HTML integration verified via regex gate. Forward-compatible with slices 49–51 (DB rows win over sentinels).
+
+### Quantitative Validation
+
+| Metric | Target | Actual | Status |
+|--------|--------|--------|--------|
+| Test Budget (2 × behaviors) | ≤10 | 9 | ✓ PASS |
+| Quality Gates (G1–G9) | All PASS | All PASS | ✓ PASS |
+| AC Coverage | 5 GWT + MCP | 6/6 | ✓ PASS |
+| Port-Boundary Compliance | No internal tests | 0 internal | ✓ PASS |
+| Testing Theater (Blocker patterns) | 0 | 0 | ✓ PASS |
+
+### Test Quality Findings
+
+**Port-to-Port Discipline**: All tests invoke `mergeTesslCapabilityRows()` (driving port), inspect observable state (source order, status, checks_run nullity). No mocking. No internal class testing.
+
+**Oracle Soundness**: Assertions trace to design:
+- Order verified against `TESSL_CAPABILITY_SOURCES` constant
+- Sentinel status hardcoded to `"not_available_yet"` per AC
+- Checks_run/duration_ms verified as `null` per AC line 25
+- DB rows verified to replace sentinels via direct `.find()` + property inspection
+
+**External Validity Gate**: Integration test confirms `mergeTesslCapabilityRows(selected.scanners)` is wired into `Tripwire.dc.html` template. Feature is reachable from production entry point.
+
+### Adversarial Refutation (Falsification Posture)
+
+**Attempted refutation 1 — Call-site missing**: Delete `mergeTesslCapabilityRows` from HTML. Result: Integration test regex match fails. Survive. ✓
+
+**Attempted refutation 2 — MCP false-positive**: Pass MCP-only input. Result: Test verifies no Tessl rows injected; output length === input length. Guard is necessary and tested. Survive. ✓
+
+**Attempted refutation 3 — DB priority broken**: Flip the merge logic to prefer sentinels over DB. Result: GWT-48.4 fails (expects `evalMerged.status === 'blocked'`, gets `'not_available_yet'`). Survive. ✓
+
+### Code Smell Cascade (L1–L3)
+
+**L1 Readability**: No dead code, no how-comments, variables explicit. ✓ Clean.
+
+**L2 Complexity**: Functions ≤11 lines, no nested depth >2, no duplication. ✓ Clean.
+
+**L3 Responsibilities**: Single-purpose functions (sentinel factory, row collector, insert position). ✓ Clean.
+
+Cascade stopped at L1 (no issues escalating to L2/L3).
+
+### Implementation Bias
+
+- ✓ No YAGNI violations (only design-specified features shipped)
+- ✓ No premature abstraction (utilities are the right grain)
+- ✓ No assumed problems (all code traces to AC)
+- ✓ No multi-concern mixing (sentinel creation ≠ merge logic ≠ insert position)
+
+### Conventional Comments
+
+**Praise**:
+- Clear GWT story structure; each test reads as an acceptance scenario
+- Lean utilities (placeholder factory, row collector, insert logic) are appropriately granular
+- Sentinel design is sound: DB rows win over sentinels (correct priority for forward-compat)
+- Integration gate catches wiring bugs at the dashboard template level
+
+**Suggestions (non-blocking)**:
+- Test constants are well-grouped; no change needed
+- Order metadata on `TESSL_CAPABILITY_SOURCES` not required; array constant is simpler
+
+### Blocking Issues
+
+None.
+
+### Recommended Action
+
+✅ **APPROVED** — Ready for PR merge. All quality gates pass. No defects found.

@@ -27,7 +27,7 @@
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
 | 0 (docs) | K | **44** | **Docs UX plain language + compaction** | Must | 🔀 ON BRANCH · [#99](https://github.com/neomatrix369/tripwire/pull/99) · GWT-44.1–44.8 · documentarist APPROVED WITH FOLLOW-ON (DIVIO targets pending) · `slice/44-docs-ux-plain-language` |
-| 0 (active) | L | **48** | **"Not Available Yet" Placeholder Rows (Rows 3–5)** | Must | 🔨 IN PROGRESS · `slice/48-not-available-yet-ui` |
+| 0 (active) | L | **48** | **"Not Available Yet" Placeholder Rows (Rows 3–5)** | Must | 🔨 IN PROGRESS · after-checks green · awaiting commit/PR · `slice/48-not-available-yet-ui` |
 | 0 (delta) | J | 42 | Dashboard Data Quality — Tessl quality UX + tooltips + plain labels (A9–A13) | Must | ✅ PASSED · [#98](https://github.com/neomatrix369/tripwire/pull/98) |
 | 1 | G | 18 | CLI Operator Evidence Contracts | Must | 📋 PLANNED |
 | 2 | G | 19 | Sandbox Persistence State Contract | Must | 📋 PLANNED |
@@ -63,7 +63,7 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 | — | L | 45 | DB Schema Migration (14-state enum + 4 columns) | Must | ✅ PASSED · [#103](https://github.com/neomatrix369/tripwire/pull/103) |
 | — | L | 46 | Tessl: Lint Adapter (Row 1) | Must | ✅ PASSED · [#105](https://github.com/neomatrix369/tripwire/pull/105) |
 | — | L | 47 | Tessl: Review (Quality) Split (Row 2) | Must | ✅ PASSED · [#109](https://github.com/neomatrix369/tripwire/pull/109) |
-| — | L | 48 | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | 🔨 IN PROGRESS · `slice/48-not-available-yet-ui` |
+| — | L | 48 | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | 🔨 IN PROGRESS · after-checks green · awaiting commit/PR · `slice/48-not-available-yet-ui` |
 | — | L | 49 | Tessl: Scenario Generation + Resume Checkpoint (Row 3) | Should | 📋 PLANNED |
 | — | L | 50 | Tessl: Eval + Auto-Chain (Row 4) | Should | 📋 PLANNED |
 | — | L | 51 | Tessl: Review (Security) (Row 5) | Could | 📋 PLANNED |

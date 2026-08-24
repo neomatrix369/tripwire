@@ -1,6 +1,6 @@
 # Design: Tessl 5-Row Expansion
 
-**Status**: Schema IMPLEMENTED (slice 45 ✅). Lint adapter IMPLEMENTED (slice 46 ✅ #105). Review Quality run-ID + `_TesslIdContext` seed IMPLEMENTED unit (slice 47 ✅ #109). Rows 3–5 remain DECIDED / not implemented.
+**Status**: Schema IMPLEMENTED (slice 45 ✅). Lint adapter IMPLEMENTED (slice 46 ✅ #105). Review Quality run-ID + `_TesslIdContext` seed IMPLEMENTED unit (slice 47 ✅ #109). Rows 3–5 UI sentinels IMPLEMENTED (slice 48). Runners for 3–5 remain DECIDED / not implemented.
 **Date**: 2026-08-24
 **Scope**: Design contract for replacing the single Tessl scanner row with 5 flat capability rows. Current-truth notes below mark what has shipped; remaining rows stay future-state.
 
@@ -17,7 +17,7 @@ The task prompt lists 6 Coverage Gaps to "flag, do not infer." Each is resolved 
 | 3 | Can the current orchestration dispatch multiple distinct Tessl subcommands within one scan_run? | **Verified — Yes, no orchestration changes needed.** `run_all_scanners()` iterates whatever row-list the group runner returns. The Cisco Skill Scanner (3 rows) and Cisco MCP Scanner (4 rows) already prove this pattern. Slice 46 uses this for Lint + Review. | `sandbox/scanners.py` `TESSL_SOURCES` / `SCANNER_GROUPS` |
 | 4 | Does `scan_run_scanners` already support multiple rows per scan_run for the same logical scanner? | **Verified — Yes.** `scanner_source` is a plain `text` column with no uniqueness constraint. Rows are matched for update by `(scan_run_id, scanner_source)` pair. Cisco writes 3 distinct rows per scan_run today. | `db/schema.sql`, `sandbox/scan_app.py` |
 | 5 | Is there a per-feature Tessl run-ID column today? | **IMPLEMENTED (slice 45).** `tessl_run_id`, `tessl_run_id_at`, `resume_checkpoint`, `upstream_run_ids` exist. Lint sets no run ID (local/sync). Review Quality capture **IMPLEMENTED (unit, slice 47)** via `tessl review view --last --json` after `tessl review run quality`. | `db/schema.sql`; `sandbox/scanners.py` `_capture_review_run_id` |
-| 6 | Does the dashboard UI need a new component for 5 Tessl rows? | **Verified — No.** The `<sc-for list="{{ selectedView.scannersView }}">` loop renders N rows independently. `tesslInnerQuality` is scoped to `scanner_source === "Tessl: Review (Quality)"` (slice 46). Live maps `quality_score` onto that source only. Rows 3–5 placeholders remain slice 48. | `tripwire-status.js` `tesslInnerQuality`; `tripwire-live.js` `shapeScannerRow` |
+| 6 | Does the dashboard UI need a new component for 5 Tessl rows? | **Verified — No.** The `<sc-for list="{{ selectedView.scannersView }}">` loop renders N rows independently. `tesslInnerQuality` is scoped to `scanner_source === "Tessl: Review (Quality)"` (slice 46). Live maps `quality_score` onto that source only. Rows 3–5 UI sentinels **IMPLEMENTED** (slice 48). | `tripwire-status.js` `tesslInnerQuality` + `mergeTesslCapabilityRows`; `tripwire-live.js` `shapeScannerRow` |
 
 **Still Open** (not resolvable by reading the repo — require CLI experimentation or Tessl docs):
 
@@ -235,6 +235,8 @@ THEN eval.status → 'queued' → 'running'    -- auto-transition within same Ru
   AND tessl eval run <plugin> --runs 3 -y   -- reads evals/ from disk; no scenario-gen ID
 ```
 
+Host `evals/` at acquire time is **not** this gate. The sandbox populates `evals/` after `scenario download` (slices 49–50). Omitting host `evals/` from the upload tar is **DECIDED** (open question E) and **not IMPLEMENTED**.
+
 - If `scenario_gen` ends `failed` or `timed_out` → `eval` stays `blocked`.
 - If `scenario_gen` is **re-run** after `eval` already `completed` → `eval.status` transitions to `stale`. This is **not** an auto-cascade to `queued`: the adapter detects `eval.status == 'completed'` and `scenario_gen.tessl_run_id` changed (or `scenario_gen.tessl_run_id_at` is newer than `eval.completed_at`), then sets `eval.status = 'stale'`. No new eval run fires automatically.
 
@@ -355,9 +357,9 @@ The single existing `"Tessl"` row is replaced by 5 flat sibling rows, in this ex
 |---|---|---|---|
 | 1 | `Tessl: Lint` | live status (`completed` / `failed` / `unreachable`) | **IMPLEMENTED** (slice 46) — new row; auth-free `tessl skill lint` |
 | 2 | `Tessl: Review (Quality)` | live status (`completed` / `needs_setup` / …) | **IMPLEMENTED** source string (slice 46); `tessl_run_id` + `_TesslIdContext["review_quality"]` **IMPLEMENTED unit** (slice 47 ✅ #109) via `review view --last --json` |
-| 3 | `Tessl: Scenario Generation` | `Not Available Yet` | UI placeholder only — not yet implemented |
-| 4 | `Tessl: Eval` | `Not Available Yet` | UI placeholder only — not yet implemented |
-| 5 | `Tessl: Review (Security)` | `Not Available Yet` | UI placeholder only — not yet implemented |
+| 3 | `Tessl: Scenario Generation` | `Not Available Yet` | **IMPLEMENTED (UI sentinel, slice 48)** — not written to DB |
+| 4 | `Tessl: Eval` | `Not Available Yet` | **IMPLEMENTED (UI sentinel, slice 48)** — not written to DB |
+| 5 | `Tessl: Review (Security)` | `Not Available Yet` | **IMPLEMENTED (UI sentinel, slice 48)** — not written to DB |
 
 The 5 rows appear as a contiguous block where the single `"Tessl"` row used to be.
 
@@ -368,9 +370,9 @@ The header label (`Scanner Outputs (N)`) updates as follows:
 - **Before expansion**: the current count reflects 1 Tessl row among the total.
 - **After expansion (day 1)**: all 5 Tessl rows are counted — including the 3 "Not Available Yet" placeholders — so the count increases by 4 (e.g. `(6) → (10)`). This matches the Cisco precedent: Cisco's rows appear regardless of credential availability (they show `skipped_missing_credential`, not absent).
 
-The dashboard derives the count from the **static constant list** of all 5 expected `scanner_source` strings plus actual DB rows for other scanners, not from the DB row count alone (since "Not Available Yet" rows are never inserted).
+The dashboard derives the count from the **static constant list** of all 5 expected `scanner_source` strings plus actual DB rows for other scanners, not from the DB row count alone (since "Not Available Yet" rows are never inserted). **IMPLEMENTED (slice 48):** placeholders are included in `scannersViewLabel`. MCP scans with no Tessl rows do not receive Tessl sentinels.
 
-> **Open**: whether to include "Not Available Yet" rows in the count is a product/UX decision. The recommendation above (include them, consistent with Cisco) is the default, but is flagged in Open Questions for explicit sign-off.
+> **DECIDED (slice 48):** include "Not Available Yet" rows in the Scanner Outputs count (consistent with Cisco credential-absent rows).
 
 ### "Not Available Yet" Rendering Rules (3 Unbuilt Rows)
 
@@ -386,7 +388,7 @@ Rendering:
 
 These rows are **never inserted** into `scan_run_scanners` by the runner. The dashboard synthesises them client-side from the static list.
 
-Implementation touch point: extend the `scannersView` map in `Tripwire.dc.html:1672–1698` to merge the static Tessl list with actual DB rows, emitting sentinel objects for the gaps. The existing `<sc-for>` loop renders them without changes; a conditional style branch on `scv.status === 'not_available_yet'` applies the muted styling.
+Implementation touch point: `mergeTesslCapabilityRows` in `tripwire-status.js` (SSOT) is called from the `scannersView` map in `Tripwire.dc.html`. The existing `<sc-for>` loop renders sentinels; `status === 'not_available_yet'` applies muted styling, hides chevron/expand, and omits checks/duration. **IMPLEMENTED (slice 48).**
 
 ### Pill Style Map
 
@@ -409,7 +411,7 @@ Extends `scannerStatusColor` and `scannerStatusLabel` in the dashboard JS:
 
 ### `tesslQuality` Binding Scope Fix
 
-The existing `tesslQuality` logic is implemented in `tesslInnerQuality` (`tripwire-status.js`) and is scoped to `scanner_source === "Tessl: Review (Quality)"`. Live attaches `output.quality_score` only for that source (`tripwire-live.js`). The quality score badge does not appear on Lint (slice 46 VERIFIED(unit)). Scenario Generation, Eval, and Security Review rows remain unbuilt (slice 48+).
+The existing `tesslQuality` logic is implemented in `tesslInnerQuality` (`tripwire-status.js`) and is scoped to `scanner_source === "Tessl: Review (Quality)"`. Live attaches `output.quality_score` only for that source (`tripwire-live.js`). The quality score badge does not appear on Lint (slice 46 VERIFIED(unit)). Scenario Generation, Eval, and Security Review rows are UI sentinels until slices 49–51 write real DB rows (slice 48 VERIFIED(unit)).
 
 ---
 
@@ -432,4 +434,5 @@ Both paths are compatible with the schema above. The retry control (UI affordanc
 | A | Does `tessl review run` / `tessl scenario generate` print a run ID to stdout at trigger time, or only via `view --last --json`? | **Partially resolved (2026-08-24).** `scenario generate` blocks/polls until complete — capture via `scenario view <id> --json`. `eval run --json` returns IDs immediately without polling. Review Quality (slice 47) captures via `review view --last --json` after `review run quality`, with fallback to run JSON `id`. Prefer explicit IDs over `--last` when the run payload includes one. |
 | B | Is `tessl scenario view <id>` (explicit ID form) supported, or only `--last`? | **Resolved (2026-08-24).** Use explicit IDs for scenario view/download and eval/review view. |
 | C | Is the agent-assisted scenario generation path usable from Tripwire's headless Modal sandbox? | If not, Quality Review findings cannot be threaded into scenario generation programmatically in v1. The fallback is UI-level display of Quality findings alongside the scenario generation row for human reference. |
-| D | Should "Not Available Yet" rows be included in the Scanner Outputs count? | Minor UX decision. Recommendation: include (consistent with Cisco credential-absent rows). Requires explicit product sign-off. |
+| D | Should "Not Available Yet" rows be included in the Scanner Outputs count? | **DECIDED (slice 48).** Include them. MCP scans with no Tessl rows are not padded. |
+| E | Should host `evals/` be uploaded for vuln scanning? | **DECIDED (2026-08-24).** No. `evals/` is Tessl’s quality-eval corpus, not the skill the agent loads. Omit it from the Modal tar when the skill root has `tessl.json` or `.tessl-plugin/`. Keep `evals/` on non-Tessl trees. Slice 49–50 populate `evals/` in the sandbox after `scenario download`. **Not IMPLEMENTED** — `_pack_local_dir` still tars the whole directory. |
