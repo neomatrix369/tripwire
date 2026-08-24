@@ -1,9 +1,9 @@
 # Slice 52 — ID Lineage Cross-Reads + UI Side-by-Side Findings
 
-**Wave**: 12-L  
-**MoSCoW**: Could  
-**Depends on**: 49, 50, 51  
-**Status**: 📋 PLANNED  
+**Wave**: 12-L
+**MoSCoW**: Could
+**Depends on**: 49, 50, 51
+**Status**: 📋 PLANNED
 **Read time**: ~4 min
 
 ## Context
@@ -20,23 +20,23 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (c) ID Lineage Cross-
 
 ### Scenario 1 — Security Review fetches Quality findings via run ID
 
-**Given** Security Review's `upstream_run_ids.review_quality = "rev_abc123"`  
-**When** the dashboard renders the Security Review expanded section  
-**Then** Quality findings fetched via `tessl review view rev_abc123 --json` are shown alongside Security findings  
+**Given** Security Review's `upstream_run_ids.review_quality = "rev_abc123"`
+**When** the dashboard renders the Security Review expanded section
+**Then** Quality findings fetched via `tessl review view rev_abc123 --json` are shown alongside Security findings
 **And** the fetch result is cached in the expanded view (not re-fetched on every render)
 
 ### Scenario 2 — Scenario Generation cross-read documented when CLI injection unavailable
 
-**Given** the agent-assisted scenario generation path (Coverage Gap C) is not usable in Modal sandbox  
-**When** the Scenario Generation row is expanded in the dashboard  
-**Then** the Quality findings are shown as a "context for review" panel (UI-level only)  
+**Given** the agent-assisted scenario generation path (Coverage Gap C) is not usable in Modal sandbox
+**When** the Scenario Generation row is expanded in the dashboard
+**Then** the Quality findings are shown as a "context for review" panel (UI-level only)
 **And** the `upstream_run_ids.review_quality` link is visible so a human can inspect Quality findings before reviewing generated scenarios
 
 ### Scenario 3 — Null upstream_run_ids handled gracefully
 
-**Given** a feature has `upstream_run_ids = null` or `upstream_run_ids.review_quality = null`  
-**When** the dashboard renders the expanded section  
-**Then** no cross-linked findings panel appears  
+**Given** a feature has `upstream_run_ids = null` or `upstream_run_ids.review_quality = null`
+**When** the dashboard renders the expanded section
+**Then** no cross-linked findings panel appears
 **And** no error is thrown
 
 ## Files to touch
@@ -50,6 +50,6 @@ If storing cross-read findings in `detail` at scan time (server side, in the ada
 
 ## Gate evidence fields
 
-`coverage_pct`: target ≥ 75% for any new Python fetch code  
-`complexity_tool`: ruff/radon  
+`coverage_pct`: target ≥ 75% for any new Python fetch code
+`complexity_tool`: ruff/radon
 `doc_audit`: design doc § (c) — mark 7(a) and 7(b) as implemented; update 7(c) notes

@@ -1,9 +1,9 @@
 # Slice 47 — Tessl: Review (Quality) Split + `tesslQuality` Scope Fix (Row 2)
 
-**Wave**: 12-L  
-**MoSCoW**: Must  
-**Depends on**: 45, 46  
-**Status**: 📋 PLANNED  
+**Wave**: 12-L
+**MoSCoW**: Must
+**Depends on**: 45, 46
+**Status**: 📋 PLANNED
 **Read time**: ~4 min
 
 ## Context
@@ -18,30 +18,30 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a), (d), § Shared R
 
 ### Scenario 1 — Existing quality review row renamed
 
-**Given** a scan_run triggers the Tessl group runner  
-**When** the quality review (`tessl review run`) completes  
-**Then** the `scan_run_scanners` row has `scanner_source = "Tessl: Review (Quality)"`  
-**And** `tessl_run_id` is populated with the Tessl-side run ID (from `tessl review view --last --json`)  
+**Given** a scan_run triggers the Tessl group runner
+**When** the quality review (`tessl review run`) completes
+**Then** the `scan_run_scanners` row has `scanner_source = "Tessl: Review (Quality)"`
+**And** `tessl_run_id` is populated with the Tessl-side run ID (from `tessl review view --last --json`)
 **And** `tessl_run_id_at` is set to the time of capture
 
 ### Scenario 2 — `tesslQuality` badge scoped correctly
 
-**Given** a scan_run has both a `Tessl: Lint` row and a `Tessl: Review (Quality)` row  
-**When** the dashboard renders the scanner outputs list  
-**Then** the quality score badge (`Q 59` style) appears only on the `Tessl: Review (Quality)` row  
+**Given** a scan_run has both a `Tessl: Lint` row and a `Tessl: Review (Quality)` row
+**When** the dashboard renders the scanner outputs list
+**Then** the quality score badge (`Q 59` style) appears only on the `Tessl: Review (Quality)` row
 **And** the Lint row shows no quality badge
 
 ### Scenario 3 — `needs_setup` when TESSL_TOKEN absent
 
-**Given** TESSL_TOKEN is absent from the Modal sandbox  
-**When** the Tessl runner executes  
+**Given** TESSL_TOKEN is absent from the Modal sandbox
+**When** the Tessl runner executes
 **Then** the `Tessl: Review (Quality)` row has `status = "needs_setup"`
 
 ### Scenario 4 — Shared review mechanic parameterised
 
-**Given** both Quality and Security review share the same underlying adapter function  
-**When** the Quality variant is invoked  
-**Then** the parameterised function is called with `judge_type="quality"`  
+**Given** both Quality and Security review share the same underlying adapter function
+**When** the Quality variant is invoked
+**Then** the parameterised function is called with `judge_type="quality"`
 **And** the result is written to the `"Tessl: Review (Quality)"` row only
 
 ## Files to touch
@@ -52,6 +52,6 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a), (d), § Shared R
 
 ## Gate evidence fields
 
-`coverage_pct`: target ≥ existing Tessl test coverage  
-`complexity_tool`: ruff/radon on `sandbox/scanners.py`  
+`coverage_pct`: target ≥ existing Tessl test coverage
+`complexity_tool`: ruff/radon on `sandbox/scanners.py`
 `doc_audit`: update design doc + user-guide if scanner name appears in user-visible docs

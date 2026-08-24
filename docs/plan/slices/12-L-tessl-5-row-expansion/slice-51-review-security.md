@@ -1,9 +1,9 @@
 # Slice 51 — Tessl: Review (Security) Adapter (Row 5)
 
-**Wave**: 12-L  
-**MoSCoW**: Could  
-**Depends on**: 47  
-**Status**: 📋 PLANNED  
+**Wave**: 12-L
+**MoSCoW**: Could
+**Depends on**: 47
+**Status**: 📋 PLANNED
 **Read time**: ~3 min
 
 ## Context
@@ -16,30 +16,30 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a) Shared Review Mec
 
 ### Scenario 1 — Security review row written separately from Quality
 
-**Given** a scan_run has a completed `Tessl: Review (Quality)` row  
-**When** the Tessl runner executes the Security Review step  
-**Then** a separate `scan_run_scanners` row with `scanner_source = "Tessl: Review (Security)"` is written  
+**Given** a scan_run has a completed `Tessl: Review (Quality)` row
+**When** the Tessl runner executes the Security Review step
+**Then** a separate `scan_run_scanners` row with `scanner_source = "Tessl: Review (Security)"` is written
 **And** the Quality Review row is unchanged
 
 ### Scenario 2 — Shared adapter parameterised correctly
 
-**Given** `_run_tessl_review(judge_type="security", ...)` is called  
-**When** the underlying CLI invocation runs  
-**Then** the command is `tessl review run security <path> --workspace <ws>`  
+**Given** `_run_tessl_review(judge_type="security", ...)` is called
+**When** the underlying CLI invocation runs
+**Then** the command is `tessl review run security <path> --workspace <ws>`
 **And** the result is written to the Security row only
 
 ### Scenario 3 — upstream_run_ids links to Quality Review
 
-**Given** Quality Review's `tessl_run_id = "rev_abc123"`  
-**When** Security Review starts  
-**Then** `upstream_run_ids = {"review_quality": "rev_abc123"}` is written to the Security row  
+**Given** Quality Review's `tessl_run_id = "rev_abc123"`
+**When** Security Review starts
+**Then** `upstream_run_ids = {"review_quality": "rev_abc123"}` is written to the Security row
 **And** the dashboard can display Quality findings alongside Security findings for human prioritisation
 
 ### Scenario 4 — Security review proceeds without prior Quality Review
 
-**Given** Quality Review has not yet completed (no `tessl_run_id`)  
-**When** Security Review runs  
-**Then** Security Review proceeds without the cross-read  
+**Given** Quality Review has not yet completed (no `tessl_run_id`)
+**When** Security Review runs
+**Then** Security Review proceeds without the cross-read
 **And** `upstream_run_ids = {"review_quality": null}` is written
 
 ## Files to touch
@@ -49,6 +49,6 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a) Shared Review Mec
 
 ## Gate evidence fields
 
-`coverage_pct`: target ≥ 80% for security review adapter code  
-`complexity_tool`: ruff/radon on `sandbox/scanners.py`  
+`coverage_pct`: target ≥ 80% for security review adapter code
+`complexity_tool`: ruff/radon on `sandbox/scanners.py`
 `doc_audit`: design doc § (c) 7(a) — mark as implemented

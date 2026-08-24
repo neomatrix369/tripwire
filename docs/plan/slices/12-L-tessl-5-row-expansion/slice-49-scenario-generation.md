@@ -1,9 +1,9 @@
 # Slice 49 — Tessl: Scenario Generation Adapter + Resume Checkpoint (Row 3)
 
-**Wave**: 12-L  
-**MoSCoW**: Should  
-**Depends on**: 47, 48  
-**Status**: 📋 PLANNED  
+**Wave**: 12-L
+**MoSCoW**: Should
+**Depends on**: 47, 48
+**Status**: 📋 PLANNED
 **Read time**: ~5 min
 
 ## Context
@@ -18,30 +18,30 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a) resume_checkpoint
 
 ### Scenario 1 — Successful generation, move, and row update
 
-**Given** Quality Review has completed and `tessl_run_id` is populated  
-**When** Scenario Generation runs  
-**Then** `tessl scenario generate` is invoked; scenarios are downloaded and moved to `<plugin>/evals/`  
-**And** `resume_checkpoint` transitions through `{"stage": "generated"}` → `{"stage": "moved"}` as each step completes  
+**Given** Quality Review has completed and `tessl_run_id` is populated
+**When** Scenario Generation runs
+**Then** `tessl scenario generate` is invoked; scenarios are downloaded and moved to `<plugin>/evals/`
+**And** `resume_checkpoint` transitions through `{"stage": "generated"}` → `{"stage": "moved"}` as each step completes
 **And** final row status is `completed` and `resume_checkpoint` is cleared to `null`
 
 ### Scenario 2 — Interrupted after generate, before move
 
-**Given** the runner is interrupted after `generate` succeeds but before the move  
-**When** the runner resumes  
-**Then** `resume_checkpoint.stage == "generated"` is detected  
+**Given** the runner is interrupted after `generate` succeeds but before the move
+**When** the runner resumes
+**Then** `resume_checkpoint.stage == "generated"` is detected
 **And** the generate step is skipped; only the move is retried
 
 ### Scenario 3 — upstream_run_ids populated from Quality Review
 
-**Given** Quality Review's `tessl_run_id` is `"rev_abc123"`  
-**When** Scenario Generation starts  
+**Given** Quality Review's `tessl_run_id` is `"rev_abc123"`
+**When** Scenario Generation starts
 **Then** `upstream_run_ids = {"review_quality": "rev_abc123"}` is written to the Scenario Generation row before invocation
 
 ### Scenario 4 — Scenario generation failure blocks Eval
 
-**Given** `tessl scenario generate` exits non-zero  
-**When** the runner completes the Scenario Generation step  
-**Then** Scenario Generation row `status = "failed"`  
+**Given** `tessl scenario generate` exits non-zero
+**When** the runner completes the Scenario Generation step
+**Then** Scenario Generation row `status = "failed"`
 **And** Eval row `status` remains `"blocked"` (no auto-chain)
 
 ## Files to touch
@@ -55,6 +55,6 @@ Coverage Gaps A and B must be resolved before implementing the `tessl_run_id` ca
 
 ## Gate evidence fields
 
-`coverage_pct`: target ≥ 80% for new scenario generation code path  
-`complexity_tool`: ruff/radon on `sandbox/scanners.py`  
+`coverage_pct`: target ≥ 80% for new scenario generation code path
+`complexity_tool`: ruff/radon on `sandbox/scanners.py`
 `doc_audit`: design doc § (b) Scenario Generation resume path — mark as implemented

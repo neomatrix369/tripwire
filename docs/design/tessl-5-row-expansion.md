@@ -1,7 +1,7 @@
 # Design: Tessl 5-Row Expansion
 
-**Status**: Draft  
-**Date**: 2026-08-24  
+**Status**: Draft
+**Date**: 2026-08-24
 **Scope**: Design document only — no implementation code. Covers schema extension, resume logic, ID lineage, and UI contract for replacing the single Tessl scanner row with 5 flat capability rows.
 
 ---

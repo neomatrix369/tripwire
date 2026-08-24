@@ -262,7 +262,7 @@ prerequisites capability bullets DECIDED, targets pending on this branch.
 
 ## Wave 12-L — Tessl 5-Row Expansion
 
-Design source: [`docs/design/tessl-5-row-expansion.md`](../design/tessl-5-row-expansion.md)  
+Design source: [`docs/design/tessl-5-row-expansion.md`](../design/tessl-5-row-expansion.md)
 Replaces the single `"Tessl"` scanner row with 5 flat sibling rows following the Cisco 3-row precedent. Slices 45–48 are Must (ship together as a self-contained rollout unit); 49–50 are Should; 51–52 are Could.
 
 **Coverage Gaps that block certain slices**: A (run-ID stdout timing), B (`tessl scenario view <id>` support), C (agent-assisted generation in Modal) — must be resolved before slices 49–52 begin. See `docs/design/tessl-5-row-expansion.md § Open Questions`.

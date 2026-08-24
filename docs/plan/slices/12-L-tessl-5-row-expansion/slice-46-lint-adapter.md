@@ -1,9 +1,9 @@
 # Slice 46 — Tessl: Lint Adapter (Row 1)
 
-**Wave**: 12-L  
-**MoSCoW**: Must  
-**Depends on**: 45  
-**Status**: 📋 PLANNED  
+**Wave**: 12-L
+**MoSCoW**: Must
+**Depends on**: 45
+**Status**: 📋 PLANNED
 **Read time**: ~4 min
 
 ## Context
@@ -18,31 +18,31 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a), (b), (d)`
 
 ### Scenario 1 — Lint row appears in scanner outputs
 
-**Given** a scan_run is triggered for a skill item  
-**When** TESSL_TOKEN is present (or absent — lint is auth-free)  
-**Then** a `scan_run_scanners` row with `scanner_source = "Tessl: Lint"` is written  
+**Given** a scan_run is triggered for a skill item
+**When** TESSL_TOKEN is present (or absent — lint is auth-free)
+**Then** a `scan_run_scanners` row with `scanner_source = "Tessl: Lint"` is written
 **And** `status` is `completed` or `failed` (lint is synchronous; no queued/running states for the row)
 
 ### Scenario 2 — Lint runs without TESSL_TOKEN
 
-**Given** TESSL_TOKEN is absent from the Modal sandbox environment  
-**When** the Tessl group runner executes  
-**Then** the Lint row is still attempted (lint has no auth requirement)  
+**Given** TESSL_TOKEN is absent from the Modal sandbox environment
+**When** the Tessl group runner executes
+**Then** the Lint row is still attempted (lint has no auth requirement)
 **And** Review (Quality) row transitions to `needs_setup` (TESSL_TOKEN absent)
 
 ### Scenario 3 — Lint findings persisted
 
-**Given** lint completes with findings  
-**When** the row is written  
-**Then** `checks_run` reflects the number of lint checks run  
-**And** `detail` contains a human-readable summary  
+**Given** lint completes with findings
+**When** the row is written
+**Then** `checks_run` reflects the number of lint checks run
+**And** `detail` contains a human-readable summary
 **And** `tessl_run_id` is `null` (lint is local/synchronous; no server-side run ID)
 
 ### Scenario 4 — Dashboard renders Lint row
 
-**Given** a scan_run has a `Tessl: Lint` row in the DB  
-**When** the dashboard loads  
-**Then** the Lint row appears at position 1 in the Tessl block  
+**Given** a scan_run has a `Tessl: Lint` row in the DB
+**When** the dashboard loads
+**Then** the Lint row appears at position 1 in the Tessl block
 **And** no `tesslQuality` quality-score badge is shown on the Lint row
 
 ## Files to touch
@@ -52,6 +52,6 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a), (b), (d)`
 
 ## Gate evidence fields
 
-`coverage_pct`: target matching existing Tessl adapter test coverage  
-`complexity_tool`: ruff/radon on `sandbox/scanners.py`  
+`coverage_pct`: target matching existing Tessl adapter test coverage
+`complexity_tool`: ruff/radon on `sandbox/scanners.py`
 `doc_audit`: `docs/design/tessl-5-row-expansion.md` — verify Lint row status reflects implemented
