@@ -6,6 +6,17 @@
 **Status**: 📋 PLANNED
 **Read time**: ~4 min
 
+## Pre-conditions (operator gate — before first live scan)
+
+> **Live Supabase migration required.** Slice 45 CI verified the schema change against `db/schema.sql` only — no live DB was in CI. Before any scan data from this slice reaches the production Supabase instance, the operator must apply the migration manually:
+>
+> ```sql
+> -- Run against the live Supabase instance (SQL editor or psql)
+> -- Full idempotent block is in db/schema.sql § scan_run_scanners_status_check
+> ```
+>
+> Without this step, any insert with a new status value (`needs_setup`, `queued`, `running`, etc.) will fail with a Supabase constraint violation. Record the run date in gate evidence under `live_migration_applied`.
+
 ## Context
 
 Add `Tessl: Lint` as the first of the 5 new Tessl rows. `tessl skill lint <path>` is deterministic, fast, auth-free, and synchronous — the simplest Tessl capability to implement first.

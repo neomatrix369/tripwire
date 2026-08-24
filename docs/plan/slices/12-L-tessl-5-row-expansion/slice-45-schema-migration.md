@@ -3,7 +3,7 @@
 **Wave**: 12-L
 **MoSCoW**: Must
 **Depends on**: 44 (docs current)
-**Status**: 🔀 ON BRANCH (`slice/45-schema-migration`)
+**Status**: ✅ PASSED ([#103](https://github.com/neomatrix369/tripwire/pull/103))
 **Read time**: ~3 min
 
 ## Context

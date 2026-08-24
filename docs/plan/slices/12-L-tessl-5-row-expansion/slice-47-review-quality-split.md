@@ -6,6 +6,8 @@
 **Status**: 📋 PLANNED
 **Read time**: ~4 min
 
+> **Pre-condition**: live Supabase migration (14-state constraint) must be applied before scan data lands. See slice 46 Pre-conditions — the gate is shared across 46–47.
+
 ## Context
 
 The current single `"Tessl"` row is renamed to `"Tessl: Review (Quality)"`. The `tesslQuality` badge binding in the dashboard, currently matching any row with `scanner_source == "Tessl"`, is scoped to `"Tessl: Review (Quality)"` only.
