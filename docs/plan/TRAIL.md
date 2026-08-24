@@ -260,6 +260,26 @@ prerequisites capability bullets DECIDED, targets pending on this branch.
 |---|------|------|--------|--------|------------|-------|-----------|
 | 44 | [slice-44-docs-ux-plain-language](slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md) | Docs UX Plain Language + Compaction (+ Setup/Configure + services diagrams) | Must | 🔀 | 17 | — | ~5 min |
 
+## Wave 12-L — Tessl 5-Row Expansion
+
+Design source: [`docs/design/tessl-5-row-expansion.md`](../design/tessl-5-row-expansion.md)  
+Replaces the single `"Tessl"` scanner row with 5 flat sibling rows following the Cisco 3-row precedent. Slices 45–48 are Must (ship together as a self-contained rollout unit); 49–50 are Should; 51–52 are Could.
+
+**Coverage Gaps that block certain slices**: A (run-ID stdout timing), B (`tessl scenario view <id>` support), C (agent-assisted generation in Modal) — must be resolved before slices 49–52 begin. See `docs/design/tessl-5-row-expansion.md § Open Questions`.
+
+**PARKED**: retry invocation mechanism (single-row vs. full-scan) — schema is designed to support either; product decision deferred.
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| 45 | [slice-45-schema-migration](slices/12-L-tessl-5-row-expansion/slice-45-schema-migration.md) | DB Schema Migration (12-state enum + 4 new columns) | Must | 📋 | 44 | — | ~3 min |
+| 46 | [slice-46-lint-adapter](slices/12-L-tessl-5-row-expansion/slice-46-lint-adapter.md) | Tessl: Lint Adapter (Row 1) | Must | 📋 | 45 | — | ~4 min |
+| 47 | [slice-47-review-quality-split](slices/12-L-tessl-5-row-expansion/slice-47-review-quality-split.md) | Tessl: Review (Quality) Split + `tesslQuality` Scope Fix (Row 2) | Must | 📋 | 45, 46 | — | ~4 min |
+| 48 | [slice-48-not-available-yet-ui](slices/12-L-tessl-5-row-expansion/slice-48-not-available-yet-ui.md) | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | 📋 | 47 | — | ~3 min |
+| 49 | [slice-49-scenario-generation](slices/12-L-tessl-5-row-expansion/slice-49-scenario-generation.md) | Tessl: Scenario Generation + Resume Checkpoint (Row 3) | Should | 📋 | 47, 48; Gaps A+B | — | ~5 min |
+| 50 | [slice-50-eval-auto-chain](slices/12-L-tessl-5-row-expansion/slice-50-eval-auto-chain.md) | Tessl: Eval + Scenario→Eval Auto-Chain (Row 4) | Should | 📋 | 49 | — | ~4 min |
+| 51 | [slice-51-review-security](slices/12-L-tessl-5-row-expansion/slice-51-review-security.md) | Tessl: Review (Security) Adapter (Row 5) | Could | 📋 | 47 | — | ~3 min |
+| 52 | [slice-52-id-lineage-wiring](slices/12-L-tessl-5-row-expansion/slice-52-id-lineage-wiring.md) | ID Lineage Cross-Reads + UI Side-by-Side Findings | Could | 📋 | 49, 50, 51; Gaps A+B+C | — | ~4 min |
+
 ## Supporting Artifacts
 | File | Status |
 |------|--------|
