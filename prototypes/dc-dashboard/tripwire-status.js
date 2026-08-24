@@ -182,6 +182,10 @@ export const SCANNER_EXEC_META = {
   unreachable: { color: STATUS_META.error.color, label: "✗ Unreachable" },
   not_applicable: { color: STATUS_META.grey.color, label: "— N/A" },
   failed: { color: STATUS_META.error.color, label: "✗ Failed" },
+  not_available_yet: {
+    color: STATUS_META.grey.color,
+    label: "Not Available Yet",
+  },
 };
 
 /**
@@ -348,6 +352,69 @@ export function operatorAvailLabel(v) {
 }
 
 /**
+ * Ordered Tessl scanner_source values shown as a contiguous Scanner Outputs block.
+ */
+export const TESSL_CAPABILITY_SOURCES = Object.freeze([
+  "Tessl: Lint",
+  "Tessl: Review (Quality)",
+  "Tessl: Scenario Generation",
+  "Tessl: Eval",
+  "Tessl: Review (Security)",
+]);
+
+function tesslPlaceholderRow(source) {
+  return {
+    source,
+    status: "not_available_yet",
+    checks_run: null,
+    duration_ms: null,
+    output: {},
+  };
+}
+
+function tesslRowsFrom(bySource) {
+  return TESSL_CAPABILITY_SOURCES.map(
+    (source) => bySource.get(source) ?? tesslPlaceholderRow(source)
+  );
+}
+
+function insertTesslBlock(others, tesslRows) {
+  const insertAt = others.findIndex(
+    (row) =>
+      String(row.source ?? "").localeCompare("Tessl", undefined, {
+        sensitivity: "base",
+      }) > 0
+  );
+  const idx = insertAt === -1 ? others.length : insertAt;
+  return [...others.slice(0, idx), ...tesslRows, ...others.slice(idx)];
+}
+
+/**
+ * Pad missing Tessl capabilities with UI-only sentinels. DB rows win.
+ * MCP / non-Tessl scans are returned unchanged.
+ * @param {Array<{source?: string}>|null|undefined} rows
+ * @returns {Array<{source?: string, status?: string}>}
+ */
+export function mergeTesslCapabilityRows(rows) {
+  const list = Array.isArray(rows) ? rows : [];
+  const bySource = new Map(
+    list
+      .filter((row) => TESSL_CAPABILITY_SOURCES.includes(row.source))
+      .map((row) => [row.source, row])
+  );
+  if (bySource.size === 0) return list.slice();
+  const others = list.filter(
+    (row) => !TESSL_CAPABILITY_SOURCES.includes(row.source)
+  );
+  others.sort((a, b) =>
+    String(a.source ?? "").localeCompare(String(b.source ?? ""), undefined, {
+      sensitivity: "base",
+    })
+  );
+  return insertTesslBlock(others, tesslRowsFrom(bySource));
+}
+
+/**
  * Tessl inner-card quality line when score may be missing (GWT-42.7 / 42.9).
  * @param {{ source?: string, status?: string, output?: { quality_score?: number|null } }|null|undefined} scanner
  * @param {{ identifier?: string, name?: string }|null|undefined} item
@@ -406,4 +473,6 @@ export default {
   operatorLocusLabel,
   operatorAvailLabel,
   tesslInnerQuality,
+  TESSL_CAPABILITY_SOURCES,
+  mergeTesslCapabilityRows,
 };

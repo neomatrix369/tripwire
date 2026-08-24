@@ -5,10 +5,13 @@
  * Created: 2026-08-01
  * Scope: statusFromRisk density fallback, resolveItemStatus priority (worst-of),
  *   severity normalize, finding-count chip labels; slice-42 A9–A13 quality/risk
- *   tooltips and operator labels
+ *   tooltips and operator labels; slice-48 Tessl Not Available Yet sentinels
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   statusFromRisk,
   resolveItemStatus,
@@ -27,7 +30,11 @@ import {
   operatorLocusLabel,
   operatorAvailLabel,
   tesslInnerQuality,
+  TESSL_CAPABILITY_SOURCES,
+  mergeTesslCapabilityRows,
 } from '../tripwire-status.js';
+
+const HTML_PATH = join(dirname(fileURLToPath(import.meta.url)), '..', 'Tripwire.dc.html');
 
 test('given risk scores when statusFromRisk then matches density buckets', () => {
   // -- Given / When / Then --
@@ -363,4 +370,228 @@ test('given non-Tessl scanner when tesslInnerQuality then null', () => {
 test('given needs_setup when scannerExecMeta then Needs Setup label', () => {
   const actual = scannerExecMeta('needs_setup');
   assert.equal(actual.label, 'Needs Setup');
+});
+
+const TESSL_LINT = { source: 'Tessl: Lint', status: 'completed', checks_run: 12 };
+const TESSL_QUALITY = {
+  source: 'Tessl: Review (Quality)',
+  status: 'completed',
+  checks_run: 1,
+};
+const SNYK_ROW = { source: 'Snyk', status: 'completed', checks_run: 5 };
+const CISCO_ROW = {
+  source: 'Cisco Skill Scanner: static/bytecode/pipeline',
+  status: 'completed',
+  checks_run: 3,
+};
+
+test('given Lint and Quality when mergeTesslCapabilityRows then five Tessl sources in design order', () => {
+  /**
+   * Scenario: All 5 Tessl rows visible immediately.
+   * Slice: 48 — GWT-48.1
+   *
+   * Given a scan_run has only Tessl: Lint and Tessl: Review (Quality),
+   * When the dashboard merges capability rows,
+   * Then five Tessl rows appear in Lint → Quality → Scenario → Eval → Security order.
+   */
+  // ### Given
+  const dbRows = [TESSL_LINT, TESSL_QUALITY];
+
+  // ### When
+  const actual = mergeTesslCapabilityRows(dbRows);
+  const tesslSources = actual.map((row) => row.source);
+
+  // ### Then
+  assert.deepEqual(tesslSources, [...TESSL_CAPABILITY_SOURCES]);
+});
+
+test('given missing Tessl capabilities when mergeTesslCapabilityRows then sentinels are Not Available Yet', () => {
+  /**
+   * Scenario: Rows 3–5 render as muted placeholders with no checks or duration.
+   * Slice: 48 — GWT-48.1
+   *
+   * Given Lint and Quality exist and rows 3–5 are absent from the DB,
+   * When capability rows are merged,
+   * Then the three missing sources are sentinels with status not_available_yet
+   * and no checks_run or duration_ms.
+   */
+  // ### Given
+  const dbRows = [TESSL_LINT, TESSL_QUALITY];
+
+  // ### When
+  const actual = mergeTesslCapabilityRows(dbRows);
+  const sentinels = actual.filter((row) => row.status === 'not_available_yet');
+
+  // ### Then
+  assert.deepEqual(
+    sentinels.map((row) => row.source),
+    [
+      'Tessl: Scenario Generation',
+      'Tessl: Eval',
+      'Tessl: Review (Security)',
+    ]
+  );
+  assert.equal(sentinels[0].checks_run, null);
+  assert.equal(sentinels[0].duration_ms, null);
+  assert.equal(sentinels[1].checks_run, null);
+  assert.equal(sentinels[1].duration_ms, null);
+  assert.equal(sentinels[2].checks_run, null);
+  assert.equal(sentinels[2].duration_ms, null);
+});
+
+test('given other scanners plus two Tessl rows when mergeTesslCapabilityRows then count includes placeholders', () => {
+  /**
+   * Scenario: Scanner Outputs count includes placeholder rows.
+   * Slice: 48 — GWT-48.2
+   *
+   * Given Cisco, Snyk, Lint, and Quality (4 DB rows),
+   * When capability rows are merged,
+   * Then the view length is 7 (4 real + 3 sentinels).
+   */
+  // ### Given
+  const dbRows = [CISCO_ROW, SNYK_ROW, TESSL_LINT, TESSL_QUALITY];
+
+  // ### When
+  const actual = mergeTesslCapabilityRows(dbRows);
+
+  // ### Then
+  assert.equal(actual.length, 7);
+});
+
+test('given Eval DB row when mergeTesslCapabilityRows then Eval sentinel is replaced', () => {
+  /**
+   * Scenario: Sentinel rows disappear when a capability ships.
+   * Slice: 48 — GWT-48.4
+   *
+   * Given a future Eval row exists alongside Lint and Quality,
+   * When capability rows are merged,
+   * Then Eval keeps its DB status and only Security remains a sentinel.
+   */
+  // ### Given
+  const evalRow = { source: 'Tessl: Eval', status: 'blocked', checks_run: 0 };
+  const dbRows = [TESSL_LINT, TESSL_QUALITY, evalRow];
+
+  // ### When
+  const actual = mergeTesslCapabilityRows(dbRows);
+  const evalMerged = actual.find((row) => row.source === 'Tessl: Eval');
+  const security = actual.find((row) => row.source === 'Tessl: Review (Security)');
+  const scenario = actual.find(
+    (row) => row.source === 'Tessl: Scenario Generation'
+  );
+
+  // ### Then
+  assert.equal(evalMerged.status, 'blocked');
+  assert.equal(evalMerged.checks_run, 0);
+  assert.equal(security.status, 'not_available_yet');
+  assert.equal(scenario.status, 'not_available_yet');
+});
+
+test('given MCP-only scanners when mergeTesslCapabilityRows then no Tessl sentinels', () => {
+  /**
+   * Scenario: MCP scans do not grow fake Tessl placeholder rows.
+   * Slice: 48 — GWT-48.1 guard
+   *
+   * Given a scan_run with only Cisco MCP and Snyk rows,
+   * When capability rows are merged,
+   * Then the list is unchanged — Tessl sentinels are not injected.
+   */
+  // ### Given
+  const dbRows = [
+    { source: 'Cisco MCP Scanner: YARA', status: 'completed', checks_run: 22 },
+    SNYK_ROW,
+  ];
+
+  // ### When
+  const actual = mergeTesslCapabilityRows(dbRows);
+
+  // ### Then
+  assert.equal(actual.length, 2);
+  assert.equal(
+    actual.some((row) => String(row.source).startsWith('Tessl:')),
+    false
+  );
+});
+
+test('given Tessl and later-alphabet scanner when mergeTesslCapabilityRows then Tessl block stays contiguous', () => {
+  /**
+   * Scenario: Tessl rows stay a contiguous block where Tessl sorts.
+   * Slice: 48 — GWT-48.1
+   *
+   * Given Snyk, Tessl Lint/Quality, and Tripwire Sandbox rows,
+   * When capability rows are merged,
+   * Then the five Tessl sources sit between Snyk and Tripwire Sandbox.
+   */
+  // ### Given
+  const dbRows = [
+    SNYK_ROW,
+    TESSL_LINT,
+    TESSL_QUALITY,
+    { source: 'Tripwire Sandbox (egress log)', status: 'completed', checks_run: 1 },
+  ];
+
+  // ### When
+  const actual = mergeTesslCapabilityRows(dbRows);
+  const sources = actual.map((row) => row.source);
+
+  // ### Then
+  assert.deepEqual(sources.slice(0, 1), ['Snyk']);
+  assert.deepEqual(sources.slice(1, 6), [...TESSL_CAPABILITY_SOURCES]);
+  assert.equal(sources[6], 'Tripwire Sandbox (egress log)');
+});
+
+test('given null scanner list when mergeTesslCapabilityRows then empty list', () => {
+  /**
+   * Scenario: Merge is safe on missing scanner arrays.
+   * Slice: 48
+   *
+   * Given a null scanner list,
+   * When capability rows are merged,
+   * Then the result is an empty array.
+   */
+  // ### Given
+  const dbRows = null;
+
+  // ### When
+  const actual = mergeTesslCapabilityRows(dbRows);
+
+  // ### Then
+  assert.deepEqual(actual, []);
+});
+
+test('given not_available_yet when scannerExecMeta then muted Not Available Yet label', () => {
+  /**
+   * Scenario: Placeholder pill uses muted copy, not an action status.
+   * Slice: 48 — GWT-48.1
+   *
+   * Given scanner status not_available_yet,
+   * When scannerExecMeta is resolved,
+   * Then the label is Not Available Yet and the colour is muted grey.
+   */
+  // ### Given
+  const status = 'not_available_yet';
+
+  // ### When
+  const actual = scannerExecMeta(status);
+
+  // ### Then
+  assert.equal(actual.label, 'Not Available Yet');
+  assert.equal(actual.color, STATUS_META.grey.color);
+});
+
+test('given dashboard html when inspecting scannersView then Tessl sentinels are merged', () => {
+  /**
+   * Scenario: Production dashboard view wires mergeTesslCapabilityRows.
+   * Slice: 48 — GWT-48.1 integration
+   *
+   * Given Tripwire.dc.html,
+   * When the scannersView construction is inspected,
+   * Then it calls mergeTesslCapabilityRows and styles not_available_yet rows.
+   */
+  // ### Given
+  const html = readFileSync(HTML_PATH, 'utf8');
+
+  // ### When / Then
+  assert.match(html, /mergeTesslCapabilityRows\(selected\.scanners\)/);
+  assert.match(html, /isPlaceholder = sc\.status === 'not_available_yet'/);
+  assert.match(html, /Not Available Yet/);
 });

@@ -3,7 +3,7 @@
 **Wave**: 12-L
 **MoSCoW**: Must
 **Depends on**: 45, 46
-**Status**: 🔨 IN PROGRESS · `slice/47-review-quality-split`
+**Status**: ✅ PASSED · [#109](https://github.com/neomatrix369/tripwire/pull/109)
 **Read time**: ~4 min
 
 > **Pre-condition**: live Supabase 14-state constraint applied 2026-08-24 (shared with slice 46). Re-apply only on an environment that still has the old 6-state constraint.
@@ -90,8 +90,8 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a), (d), § Shared R
 - [x] `./scripts/quality-gates.sh` passes locally
 - [x] Complexity evidence: xenon/radon on `sandbox/scanners.py` (`reporting` unless CI fail-under applies)
 - [x] Doc audit: env-vars, STATUS, ARCHITECTURE, CHANGELOG, design Gap 5 / Gap A
-- [ ] `/nw-review` APPROVED (mandatory before 🔀 close / ✅)
-- [ ] Live persist of `tessl_run_id` (optional operator scan; unit is the gate)
+- [x] `/nw-review` APPROVED (mandatory before 🔀 close / ✅) — nw-software-crafter-reviewer 2026-08-24
+- [x] Live persist of `tessl_run_id` (optional operator scan; unit is the gate)
 
 ## Gate evidence fields
 

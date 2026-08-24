@@ -850,10 +850,10 @@
           </sc-if>
           <sc-for list="{{ selectedView.scannersView }}" as="scv" hint-placeholder-count="2">
             <div class="score-tip-host" style="background:var(--bg-base);border:1px solid var(--border-subtle);border-left:3px solid {{ scv.statusColor }};border-radius:6px;margin-bottom:6px;overflow:visible">
-              <div onClick="{{ scv.onToggle }}" style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;cursor:pointer;gap:8px;user-select:none;transition:background 150ms">
+              <div onClick="{{ scv.onToggle }}" style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;cursor:{{ scv.rowCursor }};gap:8px;user-select:none;transition:background 150ms">
                 <div style="display:flex;align-items:center;gap:8px;min-width:0">
                   <span style="font-size:10px;color:var(--text-secondary);flex-shrink:0;width:12px;text-align:center">{{ scv.chevron }}</span>
-                  <span style="font-size:12px;color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ scv.source }}</span>
+                  <span style="font-size:12px;color:{{ scv.sourceColor }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ scv.source }}</span>
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
                   <sc-if value="{{ scv.tesslQuality }}">
@@ -1472,6 +1472,7 @@ class Component extends DCLogic {
       running: { color: '#0E7490', label: '◌ Running' },
       completed: { color: '#0F766E', label: '✓ Completed' },
       skipped_missing_credential: { color: '#6B645A', label: '⊘ Skipped' },
+      not_available_yet: { color: '#6B645A', label: 'Not Available Yet' },
       unreachable: { color: '#6D28D9', label: '✗ Unreachable' },
       not_applicable: { color: '#6B645A', label: '— N/A' },
       failed: { color: '#6D28D9', label: '✗ Failed' }
@@ -1654,6 +1655,9 @@ class Component extends DCLogic {
     const selectedView = selected ? (() => {
       const decorated = this.decorateItemStatus(selected);
       const kit = this._statusKit;
+      const mergedScanners = kit?.mergeTesslCapabilityRows
+        ? kit.mergeTesslCapabilityRows(selected.scanners)
+        : [...selected.scanners].sort((a, b) => this.compareScannerSource(a, b));
       return {
       ...decorated,
       typeLabel: selected.type === 'skill' ? 'Skill' : 'MCP Server',
@@ -1672,24 +1676,24 @@ class Component extends DCLogic {
       scanningPlaceholder: selected.status === 'running' && selected.scanners.length === 0,
       scanStartedAtLabel: selected.scanStartedAt ? this.fmtTime(selected.scanStartedAt) : null,
       scannersViewLabel: selected.status === 'running' && selected.scanners.length === 0
-        ? 'scanning…' : String(selected.scanners.length),
-      scannersView: [...selected.scanners]
-        .sort((a, b) => this.compareScannerSource(a, b))
+        ? 'scanning…' : String(mergedScanners.length),
+      scannersView: mergedScanners
         .map((sc, idx) => {
         const key = selected.id + ':' + idx;
-        const expanded = !!s.expandedScanners[key];
+        const isPlaceholder = sc.status === 'not_available_yet';
+        const expanded = !isPlaceholder && !!s.expandedScanners[key];
         const out = sc.output || {};
         const findingsForScanner = selected.findings
           .filter(f => f.scanner === sc.source)
           .map(f => ({ ...f, sevColor: this.severityColor(f.severity) }));
-        const durationMs = out.duration_ms;
-        const tesslQuality = kit?.tesslInnerQuality
+        const durationMs = isPlaceholder ? null : out.duration_ms;
+        const tesslQuality = !isPlaceholder && kit?.tesslInnerQuality
           ? kit.tesslInnerQuality({ ...sc, output: out }, selected)
           : null;
         return {
           ...sc,
           expanded,
-          chevron: expanded ? '▾' : '▸',
+          chevron: isPlaceholder ? '' : (expanded ? '▾' : '▸'),
           isRunning: sc.status === 'running',
           statusColor: scannerStatusColor(sc.status),
           statusLabel: scannerStatusLabel(sc.status),
@@ -1697,9 +1701,11 @@ class Component extends DCLogic {
           output: out,
           findingsForScanner,
           tesslQuality,
-          hasDetailJson: !!(out.findings_detail || out.issues_detail || out.scan_results_summary || out.analyzers_run),
+          hasDetailJson: !isPlaceholder && !!(out.findings_detail || out.issues_detail || out.scan_results_summary || out.analyzers_run),
           outputJson: JSON.stringify(out.findings_detail || out.issues_detail || out.scan_results_summary || out, null, 2),
-          onToggle: () => this.toggleScanner(selected.id, idx)
+          sourceColor: isPlaceholder ? 'var(--text-muted)' : 'var(--text-primary)',
+          rowCursor: isPlaceholder ? 'default' : 'pointer',
+          onToggle: isPlaceholder ? () => {} : () => this.toggleScanner(selected.id, idx)
         };
       })
     };

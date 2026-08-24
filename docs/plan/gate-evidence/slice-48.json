@@ -1,0 +1,52 @@
+{
+  "slice": 48,
+  "name": "not-available-yet-ui",
+  "gate_status": "ON_BRANCH",
+  "verdict": "PASS",
+  "date": "2026-08-24",
+  "branch": "slice/48-not-available-yet-ui",
+  "moscow": "Must",
+  "before_checks": "slice 47 ✅ #109; design § (d) count formula DECIDED (include NAY; MCP unpadded)",
+  "after_checks": [
+    "GWT-48.1 — five Tessl sources in design order; rows 3–5 not_available_yet, no checks/duration (unit + Mock UI)",
+    "GWT-48.2 — Scanner Outputs count includes placeholders (unit + Mock UI: SCANNER OUTPUTS (7))",
+    "GWT-48.3 — runner never emits Scenario Generation / Eval / Review (Security) (pytest)",
+    "GWT-48.4 — Eval DB row replaces sentinel; Security stays NAY (unit)",
+    "MCP-only scanners are not padded (unit + Mock UI: SCANNER OUTPUTS (3))",
+    "nw-review APPROVED — nw-software-crafter-reviewer 2026-08-24 iteration 1; zero blockers"
+  ],
+  "commands": [
+    {
+      "cmd": "npm --prefix prototypes/dc-dashboard test",
+      "result": "PASS — 102 tests (102 pass, 0 skip); live-smoke reads repo .env"
+    },
+    {
+      "cmd": "npm --prefix prototypes/dc-dashboard run test:coverage",
+      "result": "PASS — statements/lines 98.88%, branches 87.27%, functions 97.72% (gates 95/80/85/95)"
+    },
+    {
+      "cmd": "uv run pytest sandbox/tests/test_scanners_status.py::test_run_tessl_with_token_emits_lint_and_review_rows -q",
+      "result": "PASS — 1 test"
+    },
+    {
+      "cmd": "./scripts/quality-gates.sh",
+      "result": "PASS — 248 pytest (sandbox 96.8%, scanners.py 98.3%), 138 CLI tests, ruff/mypy/xenon/bandit/pip-audit/gitleaks green"
+    },
+    {
+      "cmd": "/nw-review @nw-software-crafter implementation slice-48-not-available-yet-ui.md step_id=48",
+      "result": "APPROVED — appended to slice stub; zero blocking issues"
+    }
+  ],
+  "coverage_pct": "dashboard JS 98.88% statements/lines (fail-under 95); sandbox 96.8% / scanners.py 98.3%",
+  "complexity_tool": "N/A for dashboard JS; xenon scanners.py max-absolute D (exit 0) via quality-gates",
+  "doc_audit": "design § (d) NAY rules + count formula IMPLEMENTED; STATUS Mock UI VERIFIED; ARCHITECTURE/CHANGELOG/DECISIONS",
+  "mock_ui": {
+    "date_utc": "2026-08-24",
+    "item": "safe-changelog-writer",
+    "gwt_48_1": "five Tessl rows Lint → Quality → Scenario Generation → Eval → Review (Security); three muted Not Available Yet pills; no chevron/checks/duration",
+    "gwt_48_2": "SCANNER OUTPUTS (7) = Cisco + Snyk + 5 Tessl",
+    "mcp_guard": "MCP item SCANNER OUTPUTS (3); zero Tessl rows"
+  },
+  "review": "nw-review APPROVED 2026-08-24 (nw-software-crafter-reviewer, iteration 1)",
+  "pr": null
+}

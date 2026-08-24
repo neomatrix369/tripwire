@@ -1,8 +1,8 @@
 {
   "slice": 47,
   "name": "tessl-review-quality-split",
-  "gate_status": "ON_BRANCH",
-  "verdict": "ON_BRANCH",
+  "gate_status": "PASSED",
+  "verdict": "PASS",
   "date": "2026-08-24",
   "branch": "slice/47-review-quality-split",
   "moscow": "Must",
@@ -12,7 +12,9 @@
     "GWT-47.2 — tesslInnerQuality still null on Lint (slice 46 regression, dashboard tests)",
     "GWT-47.3 — missing TESSL_TOKEN or TESSL_WORKSPACE → Review needs_setup (unit)",
     "GWT-47.4 — _run_tessl_review(judge_type=quality) argv is tessl review run quality --json --workspace",
-    "GWT-47.5 — _TesslIdContext seeded; ctx[review_quality] set after Quality stamp (unit)"
+    "GWT-47.5 — _TesslIdContext seeded; ctx[review_quality] set after Quality stamp (unit)",
+    "nw-review APPROVED — nw-software-crafter-reviewer 2026-08-24",
+    "live persist of tessl_run_id — optional; unit is the gate"
   ],
   "commands": [
     {
@@ -30,12 +32,12 @@
   ],
   "coverage_pct": "sandbox 96.8% / scanners.py 98.3% (fail-under 95)",
   "complexity_tool": "xenon scanners.py max-absolute D (exit 0); radon via scripts/complexity-report.sh",
-  "doc_audit": "env-vars TESSL_WORKSPACE required for --json; STATUS/ARCHITECTURE/CHANGELOG/design Gap 5+A; tooltip source tessl review run quality",
+  "doc_audit": "env-vars TESSL_WORKSPACE required for --json; STATUS/ARCHITECTURE/CHANGELOG/design Gap 5+A; tooltip source tessl review run quality; GWT-47.5 ID context",
   "live_cli": {
     "date_utc": "2026-08-24",
     "command": "npx tessl@latest review run quality --help; review view --help",
-    "boundary": "help text only; live Modal persist of tessl_run_id not yet observed"
+    "boundary": "help text only; live Modal persist of tessl_run_id optional (unit is the gate)"
   },
-  "review": null,
-  "pr": null
+  "review": "APPROVED — nw-software-crafter-reviewer 2026-08-24; GWT-47.5 ctx seed; no blockers",
+  "pr": 109
 }

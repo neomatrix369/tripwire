@@ -285,14 +285,16 @@ card colour must not be inferred from this number alone.
 by `run_tessl` / `_tessl_quality_score` and mapped into Live as `item.quality`
 on the `"Tessl: Review (Quality)"` scanner row only. `"Tessl: Lint"` is a
 separate `scan_run_scanners` row (slice 46 ✅ persist scan_run `a36cad9f`):
-`tessl skill lint`, auth-free, no `tessl_run_id`. Review Quality (slice 47 🔨)
+`tessl skill lint`, auth-free, no `tessl_run_id`. Review Quality (slice 47 ✅
+[#109](https://github.com/neomatrix369/tripwire/pull/109))
 uses `tessl review run quality --json --workspace` and stamps `tessl_run_id`
 from `tessl review view --last --json`, then seeds in-process
-`_TesslIdContext["review_quality"]` for slices 49–51 (GWT-47.5). It is orthogonal to findings and to `risk_score`. **DECIDED (not implemented):** rows 3–5
-(Scenario Generation, Eval, Security Review) — see
+`_TesslIdContext["review_quality"]` for slices 49–51 (GWT-47.5). It is orthogonal to findings and to `risk_score`. **IMPLEMENTED (UI):** slice 48 synthesises "Not Available Yet" sentinel rows for Scenario Generation, Eval, and Security Review when those sources are absent from the scan_run (never stored in `scan_run_scanners`). **DECIDED (runner not implemented):** slices 49–51 write those rows for real — see
 [design/tessl-5-row-expansion.md](./design/tessl-5-row-expansion.md) and slices
 49–51; scenario→eval pipeline is generate → download → `eval run` on disk
-`evals/`. Dashboard skill cards surface
+`evals/` (sandbox-populated; host `evals/` is not a vuln-scan input — packing
+exclude **DECIDED**, not IMPLEMENTED; `_pack_local_dir` still tars the whole
+tree). Dashboard skill cards surface
 compact `Q N` / `Q —` / `Q ?` badges with a fixed `#score-tip-portal` (not delayed
 native `title=`, not in-card absolute bubbles that clip under `overflow-y: auto`);
 risk uses compact `R N.NN` badges (list header **Risk density**) with the same

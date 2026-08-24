@@ -49,6 +49,13 @@ Rejected: breaks isolation and is not how Modal remote functions see paths.
 
 Rejected: fixture and local skill scans are the primary operator path.
 
+## Later decisions
+
+Host `evals/` on Tessl plugins is **DECIDED** as omitted from the upload tar
+(`tessl.json` or `.tessl-plugin/` at the skill root). That exclude is **not**
+in `_pack_local_dir` yet — current behaviour is still a whole-tree gzipped tar.
+See [plan/DECISIONS.md](../plan/DECISIONS.md) (2026-08-24 packing).
+
 ## References
 
 - `sandbox/scan_app.py` `_acquire_target`, `cli/src/modalClient.js`
