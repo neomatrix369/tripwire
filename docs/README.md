@@ -33,7 +33,7 @@ Start here: [QUICKSTART](../QUICKSTART.md) · Repo entry: [README](../README.md)
 | [user-guide/prerequisites.md](./user-guide/prerequisites.md) | Required tools, technical fit, capability prerequisites |
 | [user-guide/setup-commands.md](./user-guide/setup-commands.md) | Command SSOT: bootstrap, flags, fails, maintenance |
 | [user-guide/env-vars.md](./user-guide/env-vars.md) | Configure (keys): procurement SSOT for `.env` |
-| [user-guide/supabase-setup.md](./user-guide/supabase-setup.md) | Supabase project, API keys, schema bootstrap |
+| [user-guide/supabase-setup.md](./user-guide/supabase-setup.md) | Supabase project, API keys, schema bootstrap, Data API max rows |
 | [user-guide/modal-setup.md](./user-guide/modal-setup.md) | Modal auth, secrets sync, scan app deploy |
 | [user-guide/tiered-router-setup.md](./user-guide/tiered-router-setup.md) | Optional SIE + Model Studio routing |
 | [user-guide/reading-router-results.md](./user-guide/reading-router-results.md) | Pathway strips, Escalated / SIE-only filters, glossary |

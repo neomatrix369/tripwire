@@ -208,11 +208,13 @@ async function withRouterEnv(fn) {
     SIE_API_KEY: process.env.SIE_API_KEY,
     ALIBABA_OPENAI_BASE_URL: process.env.ALIBABA_OPENAI_BASE_URL,
     DASHSCOPE_API_KEY: process.env.DASHSCOPE_API_KEY,
+    MODEL_STUDIO_MODEL: process.env.MODEL_STUDIO_MODEL,
   };
   process.env.SIE_ENDPOINT = 'https://sie.example';
   process.env.SIE_API_KEY = 'sk-sie-test';
   process.env.ALIBABA_OPENAI_BASE_URL = 'https://ms.example/v1';
   process.env.DASHSCOPE_API_KEY = 'sk-ms-test';
+  delete process.env.MODEL_STUDIO_MODEL;
   try {
     return await fn();
   } finally {
@@ -220,6 +222,11 @@ async function withRouterEnv(fn) {
     process.env.SIE_API_KEY = prev.SIE_API_KEY;
     process.env.ALIBABA_OPENAI_BASE_URL = prev.ALIBABA_OPENAI_BASE_URL;
     process.env.DASHSCOPE_API_KEY = prev.DASHSCOPE_API_KEY;
+    if (prev.MODEL_STUDIO_MODEL === undefined) {
+      delete process.env.MODEL_STUDIO_MODEL;
+    } else {
+      process.env.MODEL_STUDIO_MODEL = prev.MODEL_STUDIO_MODEL;
+    }
   }
 }
 

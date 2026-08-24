@@ -29,6 +29,7 @@ Full help: `tripwire --help` · `tripwire scan --help`.
 | Symptom | What to try |
 |---|---|
 | Live dashboard blank or stale | Switch Mock ↔ Live in Guard; keep `serve-dashboard.mjs` running; run `./scripts/check-supabase.sh` |
+| Scanner outputs (0) with recent last-scan | PostgREST **Max rows** default 1000 — raise on [Data API settings](./supabase-setup.md#6-data-api-max-rows-live-dashboard-fleet-size) |
 | Missing scanner output | Confirm vendor keys in [env-vars](./env-vars.md); absent keys → `skipped_missing_credential` |
 | `dry-discover` / `tripwire` not found | Finish [CLI bootstrap](#repository-and-cli-bootstrap) (`npm link`) |
 | Port / bind errors on dashboard | Another process may hold `8765`; stop it or note the printed port |
