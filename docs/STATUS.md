@@ -91,7 +91,8 @@ Reachable through production entry points / config:
   replaced) then `tessl review view --last --json` to persist `tessl_run_id` +
   `tessl_run_id_at`. `_update_tessl_id_context` seeds `ctx["review_quality"]`
   in-process (GWT-47.5). Missing `TESSL_WORKSPACE` → `needs_setup`. IMPLEMENTED (unit)
-  — `sandbox/scanners.py` (slice 47 🔨, `slice/47-review-quality-split`)
+  — `sandbox/scanners.py` (slice 47 ✅,
+  [PR #109](https://github.com/neomatrix369/tripwire/pull/109); GWT-47.1–47.5)
 - Live dashboard latest-state read path — `dashboard_latest_runs` view (one row per
   item) + batched child-table fetches in `tripwire-live.js`; replaces global
   `scan_runs?limit=2000` page that could miss per-item newest runs and PostgREST

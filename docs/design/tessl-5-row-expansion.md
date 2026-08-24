@@ -1,6 +1,6 @@
 # Design: Tessl 5-Row Expansion
 
-**Status**: Schema IMPLEMENTED (slice 45 ✅). Lint adapter IMPLEMENTED (slice 46 ✅ #105). Review Quality run-ID capture IMPLEMENTED unit (slice 47 🔨). Rows 3–5 remain DECIDED / not implemented.
+**Status**: Schema IMPLEMENTED (slice 45 ✅). Lint adapter IMPLEMENTED (slice 46 ✅ #105). Review Quality run-ID + `_TesslIdContext` seed IMPLEMENTED unit (slice 47 ✅ #109). Rows 3–5 remain DECIDED / not implemented.
 **Date**: 2026-08-24
 **Scope**: Design contract for replacing the single Tessl scanner row with 5 flat capability rows. Current-truth notes below mark what has shipped; remaining rows stay future-state.
 
@@ -354,7 +354,7 @@ The single existing `"Tessl"` row is replaced by 5 flat sibling rows, in this ex
 | Position | `scanner_source` | Day-1 pill | Notes |
 |---|---|---|---|
 | 1 | `Tessl: Lint` | live status (`completed` / `failed` / `unreachable`) | **IMPLEMENTED** (slice 46) — new row; auth-free `tessl skill lint` |
-| 2 | `Tessl: Review (Quality)` | live status (`completed` / `needs_setup` / …) | **IMPLEMENTED** source string (slice 46); `tessl_run_id` capture **IMPLEMENTED unit** (slice 47) via `review view --last --json` |
+| 2 | `Tessl: Review (Quality)` | live status (`completed` / `needs_setup` / …) | **IMPLEMENTED** source string (slice 46); `tessl_run_id` + `_TesslIdContext["review_quality"]` **IMPLEMENTED unit** (slice 47 ✅ #109) via `review view --last --json` |
 | 3 | `Tessl: Scenario Generation` | `Not Available Yet` | UI placeholder only — not yet implemented |
 | 4 | `Tessl: Eval` | `Not Available Yet` | UI placeholder only — not yet implemented |
 | 5 | `Tessl: Review (Security)` | `Not Available Yet` | UI placeholder only — not yet implemented |

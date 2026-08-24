@@ -3,7 +3,7 @@
 **Wave**: 12-L
 **MoSCoW**: Must
 **Depends on**: 47
-**Status**: 📋 PLANNED
+**Status**: 🔨 IN PROGRESS · `slice/48-not-available-yet-ui`
 **Read time**: ~3 min
 
 ## Context
