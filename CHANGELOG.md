@@ -36,11 +36,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   avoids delayed native `title=` attributes.
 
 ### Added
+- Tessl Scenario Generation scanner row (slice 49): after Review (Quality),
+  `run_tessl()` runs plugin-path `tessl scenario generate --count 3`, downloads
+  into `<plugin>/evals/`, stamps `tessl_run_id` / `upstream_run_ids`, and persists
+  `resume_checkpoint` mid-scan for Modal detach/resume.
 - Dashboard Tessl "Not Available Yet" placeholders (slice 48): Scanner Outputs
   merges a static list of five Tessl capabilities and renders missing
   Scenario Generation / Eval / Review (Security) as muted UI sentinels
   (no chevron, no DB insert). Header count includes the placeholders.
-  MCP scans without Tessl rows are unchanged.
+  MCP scans without Tessl rows are unchanged. Tessl plugin pack/copy omits
+  host root `evals/` (`tessl.json` or `.tessl-plugin/` marker); non-Tessl
+  trees keep `evals/`.
 - Tessl Review (Quality) run-ID capture (slice 47): `_run_tessl_review(judge_type="quality")`
   runs `tessl review run quality --json --workspace` (replaces deprecated
   `tessl skill review`) then `tessl review view --last --json` to persist

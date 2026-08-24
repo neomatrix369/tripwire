@@ -44,6 +44,22 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (d) — "Not Availabl
 **Then** the sentinel placeholder for that capability is replaced by the real DB row (with its actual status pill, e.g. Eval `blocked`, `running`, or `completed`)
 **And** only `"Tessl: Review (Security)"` remains a sentinel until slice 51 ships
 
+### Scenario 5 — Tessl plugin upload omits host `evals/`
+
+**Given** a local skill directory with a Tessl root marker (`tessl.json` or `.tessl-plugin/`) and a host `evals/` corpus
+**When** the host packs the directory for Modal (`_pack_local_dir`) or copies it on the same machine (`_copy_local`)
+**Then** root `evals/` is absent from the sandbox workdir
+**And** other skill files (e.g. `SKILL.md`) are present
+**And** a nested path that is not the plugin-root `evals/` directory is kept
+
+### Scenario 6 — Non-Tessl trees keep `evals/`
+
+**Given** a local skill directory with no Tessl root marker and an `evals/` folder
+**When** `_pack_local_dir` acquires the target
+**Then** `evals/` is present in the archive
+
+Git clone and `hashLocalPath` still walk on-disk `evals/` (identity hash / URL clone). This slice only changes host → sandbox file transfer.
+
 ## Forward compatibility (slices 49–50)
 
 Slice 48 ships with rows 3–5 as UI-only sentinels. When slice 49 lands, `"Tessl: Scenario Generation"` is written by the runner; when slice 50 lands, `"Tessl: Eval"` is written (initially `blocked`, then auto-chained). The `TESSL_CAPABILITY_SOURCES` merge logic in this slice must continue to prefer DB rows over sentinels — no dashboard rewrite required.
@@ -56,6 +72,8 @@ When real rows replace sentinels (slices 49–51), the dashboard may surface `te
 - `prototypes/dc-dashboard/Tripwire.dc.html` — call merge in `scannersView`; muted `not_available_yet` style branch (no chevron/expand)
 - `prototypes/dc-dashboard/test/tripwire-status.test.js` — GWT-48.1–48.4 + MCP guard
 - `sandbox/tests/test_scanners_status.py` — runner never writes placeholder sources
+- `sandbox/scan_app.py` — omit root `evals/` from Tessl plugin pack/copy
+- `sandbox/tests/test_acquire_target.py` — GWT-48.5 / GWT-48.6
 
 ## Before-Checks
 
@@ -73,12 +91,15 @@ When real rows replace sentinels (slices 49–51), the dashboard may surface `te
 - [x] `/nw-review` APPROVED (2026-08-24, iteration 1)
 - [x] `./scripts/quality-gates.sh` passes locally
 - [x] Doc audit: design § (d), STATUS, ARCHITECTURE, CHANGELOG, DECISIONS
+- [x] GWT-48.5 — Tessl pack/copy omits root `evals/`; nested non-root paths kept
+- [x] GWT-48.6 — non-Tessl pack keeps `evals/`
+- [ ] `/nw-review` packing addendum (iteration 2) — UI review remains APPROVED; packing landed after
 
 ## Gate evidence fields
 
-`coverage_pct`: dashboard JS statements/lines ≥ 95% (`prototypes/dc-dashboard`); Python N/A for UI sentinels
+`coverage_pct`: dashboard JS statements/lines ≥ 95% (`prototypes/dc-dashboard`); sandbox packing covered by `test_acquire_target.py` GWT-48.5/48.6
 `complexity_tool`: N/A (dashboard JS; xenon still runs on sandbox in quality-gates)
-`doc_audit`: design doc § (d) count formula and "Not Available Yet" rules — mark as implemented
+`doc_audit`: design doc § (d) NAY rules + open question E packing exclude — mark as implemented
 
 ---
 
