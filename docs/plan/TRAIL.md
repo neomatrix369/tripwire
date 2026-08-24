@@ -273,6 +273,8 @@ Replaces the single `"Tessl"` scanner row with 5 flat sibling rows following the
 
 Slices 49–50 may proceed on Gap A/B resolution; slice 52 cross-read for scenario_gen uses Gap B. Gap C limits UI-only Quality context panel (slice 52 Scenario 3).
 
+**ID carry-forward (MUST — slices 47–51)**: `run_tessl()` maintains in-process `_TesslIdContext`; each downstream row stamps `upstream_run_ids` from ctx before invoke and `tessl_run_id` after success. Lint excluded. Full contract: design doc § ID carry-forward contract.
+
 See `docs/design/tessl-5-row-expansion.md § Open Questions`.
 
 **PARKED**: retry invocation mechanism (single-row vs. full-scan) — schema is designed to support either; product decision deferred.

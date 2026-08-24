@@ -15,11 +15,12 @@ Slice 46 already renamed the quality row to `"Tessl: Review (Quality)"` and scop
 remaining Row 2 contract:
 
 1. Capture `tessl_run_id` + `tessl_run_id_at` after Quality Review completes.
-2. Extract `_run_tessl_review(judge_type=…)` so Security Review (slice 51) can share it.
-3. Switch the invocation from deprecated `tessl skill review` to
+2. Seed `_TesslIdContext["review_quality"]` in `run_tessl()` so slices 49–51 can populate `upstream_run_ids` without mid-scan DB reads.
+3. Extract `_run_tessl_review(judge_type=…)` so Security Review (slice 51) can share it.
+4. Switch the invocation from deprecated `tessl skill review` to
    `tessl review run quality --json --workspace` (live CLI 2026-08-24).
 
-Design reference: `docs/design/tessl-5-row-expansion.md § (a), (d), § Shared Review Mechanic`
+Design reference: `docs/design/tessl-5-row-expansion.md § (a), (d), § Shared Review Mechanic, § ID carry-forward contract`
 
 ## Acceptance Criteria (GWT)
 
@@ -55,9 +56,17 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a), (d), § Shared R
 **And** the CLI is `tessl review run quality --json --workspace <ws> <path>`
 **And** the result is written to the `"Tessl: Review (Quality)"` row only
 
+### Scenario 5 — Quality run ID seeds in-process Tessl ID context
+
+**Given** `run_tessl()` initialises `_TesslIdContext = {"review_quality": null, "scenario_gen": null}` at the start of the Tessl group
+**When** Quality Review completes and `_stamp_tessl_run_id` writes the row's `tessl_run_id`
+**Then** `_update_tessl_id_context(ctx, "review_quality", run_id)` sets `ctx["review_quality"]` for downstream steps in the same invocation
+**And** slices 49–51 read from `ctx` (not a mid-scan Supabase re-query) when populating `upstream_run_ids`
+**And** Lint row remains outside the ID chain (`tessl_run_id` null; no ctx update)
+
 ## Files to touch
 
-- `sandbox/scanners.py` — `_run_tessl_review(judge_type, …)`; capture `tessl_run_id` from `tessl review view --last --json`
+- `sandbox/scanners.py` — `_run_tessl_review(judge_type, …)`; capture `tessl_run_id` from `tessl review view --last --json`; init `_TesslIdContext` in `run_tessl()`; `_update_tessl_id_context` after Quality stamp
 - `prototypes/dc-dashboard/tripwire-status.js` — quality tooltip source line (`review run quality`, not `skill review`)
 - Existing tests referencing `TESSL_TOKEN`-only Review completion — add `TESSL_WORKSPACE` + view `--last` mock
 - `docs/user-guide/env-vars.md` — workspace required for `--json`
@@ -75,6 +84,7 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a), (d), § Shared R
 - [x] GWT-47.2 — `tesslInnerQuality` still null on Lint (slice 46 regression)
 - [x] GWT-47.3 — missing token **or** workspace → Review `needs_setup`
 - [x] GWT-47.4 — `_run_tessl_review("quality", …)` argv is `review run quality`
+- [ ] GWT-47.5 — `_TesslIdContext` seeded; `ctx["review_quality"]` set after Quality stamp
 - [x] `pytest sandbox/tests/test_scanners_status.py sandbox/tests/test_ship_path_coverage.py` exit 0
 - [x] Specification coverage: every GWT clause has ≥1 test
 - [x] `./scripts/quality-gates.sh` passes locally

@@ -36,6 +36,15 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a)`
 **When** the existing Cisco/Snyk/DepShield scanner adapter code writes a row with no new columns
 **Then** the insert/update succeeds (new columns default to NULL)
 
+### Scenario 4 — upstream_run_ids enables cross-step lineage (contract)
+
+**Given** slices 47–51 populate `upstream_run_ids` at step start from in-process `_TesslIdContext`
+**When** slice 52 reads persisted rows from Supabase
+**Then** each downstream row's `upstream_run_ids` JSON contains the snapshot keys `review_quality` and/or `scenario_gen` (nullable per key)
+**And** slice 52 can call `tessl <cmd> view <id> --json` without re-deriving IDs from sibling row queries
+
+Design reference for carry-forward: `docs/design/tessl-5-row-expansion.md § ID carry-forward contract`
+
 ## Files to touch
 
 - `db/schema.sql` — add ALTER TABLE statements (or integrate into initial CREATE TABLE if schema is always applied fresh)

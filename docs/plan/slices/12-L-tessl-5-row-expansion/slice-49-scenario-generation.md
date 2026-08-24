@@ -27,7 +27,7 @@ Tessl docs ([evaluate-skill-quality-using-scenarios](https://docs.tessl.io/impro
 
 The manual move step in v0 stubs exists because download defaults to `evals/` relative to **cwd**; the adapter either runs download with `-o <plugin>/evals` from a known cwd, or downloads to a temp dir and moves. The `resume_checkpoint` jsonb column covers interruption between generate-complete and files-in-evals.
 
-Design reference: `docs/design/tessl-5-row-expansion.md § (a) resume_checkpoint, § (b) Scenario Generation resume path, § (c) 7(b)`
+Design reference: `docs/design/tessl-5-row-expansion.md § (a) resume_checkpoint, § (b) Scenario Generation resume path, § (c) 7(b), § ID carry-forward contract`
 
 **Coverage Gap status (2026-08-24, Tessl CLI + docs)**:
 
@@ -62,11 +62,19 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a) resume_checkpoint
 **Then** the adapter polls `tessl scenario view <gen_id> --json` (from checkpoint or `--last --mine`) until `completed` or `failed`
 **And** does **not** call `scenario download` until status is `completed` (download exits early otherwise)
 
-### Scenario 3 — upstream_run_ids populated from Quality Review
+### Scenario 3 — upstream_run_ids populated from Quality Review (via in-process ctx)
 
-**Given** Quality Review's `tessl_run_id` is `"rev_abc123"`
+**Given** Quality Review completed in the same `run_tessl()` invocation and `ctx["review_quality"] = "rev_abc123"`
 **When** Scenario Generation starts
-**Then** `upstream_run_ids = {"review_quality": "rev_abc123"}` is written to the Scenario Generation row before invocation
+**Then** `_attach_upstream_run_ids(row, ctx, "review_quality")` writes `upstream_run_ids = {"review_quality": "rev_abc123"}` **before** `scenario generate` is invoked
+**And** after generation completes, `_stamp_tessl_run_id(row, gen_id)` and `_update_tessl_id_context(ctx, "scenario_gen", gen_id)` run so slice 50 can read `ctx["scenario_gen"]`
+
+### Scenario 3b — Missing Quality ID still proceeds with null upstream key
+
+**Given** Quality Review did not produce a `tessl_run_id` (e.g. `needs_setup`)
+**When** Scenario Generation starts
+**Then** `upstream_run_ids = {"review_quality": null}` is written before invocation
+**And** scenario generation still attempts if other prerequisites pass (token + plugin manifest)
 
 ### Scenario 4 — Scenario generation failure blocks Eval
 
@@ -84,7 +92,7 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a) resume_checkpoint
 
 ## Files to touch
 
-- `sandbox/scanners.py` — add scenario generation step to `run_tessl()` after Review (Quality); implement `_run_tessl_scenario_gen()` helper; `resume_checkpoint` write/read; `upstream_run_ids` population; extend `TESSL_SOURCES` with `"Tessl: Scenario Generation"`
+- `sandbox/scanners.py` — add scenario generation step to `run_tessl()` after Review (Quality); implement `_run_tessl_scenario_gen()` helper; `resume_checkpoint` write/read; `_attach_upstream_run_ids(row, ctx, "review_quality")` before invoke; `_stamp_tessl_run_id` + `_update_tessl_id_context(ctx, "scenario_gen", …)` after success; extend `TESSL_SOURCES` with `"Tessl: Scenario Generation"`
 - `sandbox/scan_app.py` — persist `resume_checkpoint` and partial row updates between Modal invocations when generate/download spans timeout budget
 
 ## Prerequisites (Tessl docs)

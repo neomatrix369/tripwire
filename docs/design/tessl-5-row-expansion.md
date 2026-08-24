@@ -243,19 +243,62 @@ THEN eval.status → 'queued' → 'running'    -- auto-transition within same Ru
 Verified against [Tessl CLI reference](https://docs.tessl.io/reference/cli-commands) and [evaluate-skill-quality-using-scenarios](https://docs.tessl.io/improving-your-skills/evaluate-skill-quality-using-scenarios) (2026-08-24):
 
 ```
-1. run_tessl() emits Eval row status=blocked
-2. tessl scenario generate <plugin-path> --count 3     # CLI polls until completed/failed
-3. gen_id ← scenario view --json (after generate; store as tessl_run_id)
-4. tessl scenario download <gen_id> -o <plugin>/evals  # fails fast if still in_progress
-5. scenario_gen row → completed; resume_checkpoint cleared
-6. IF evals/ non-empty AND eval.status IN (blocked, not_started):
-     tessl project repair (if needed)
-     tessl eval run <plugin-path> --runs 3 -y          # reads evals/ from disk
-7. eval_id ← eval view --json (or eval run --json on detach)
-8. eval row → completed; upstream_run_ids.scenario_gen = gen_id (lineage only)
+1. run_tessl() init ctx={review_quality: null, scenario_gen: null}
+2. Lint → no tessl_run_id
+3. Quality → stamp tessl_run_id; ctx.review_quality = id
+4. Eval row emitted status=blocked (no tessl_run_id yet)
+5. Scenario Gen → upstream_run_ids={review_quality}; generate; stamp tessl_run_id; ctx.scenario_gen = gen_id; download
+6. IF evals/ non-empty AND eval blocked:
+     upstream_run_ids={review_quality, scenario_gen}; eval run; stamp tessl_run_id
+7. Security (slice 51) → upstream_run_ids={review_quality}; review run security; stamp tessl_run_id
 ```
 
 **Not supported by Tessl CLI**: passing `gen_id` to `eval run`. Eval always consumes on-disk scenarios. **`--workspace`** on `scenario generate` is for repo mode (`org/repo --commits …`), not plugin-path generation.
+
+### ID carry-forward contract (MUST — slices 47–51)
+
+Every Tessl row that produces a server-side run ID **must** persist it on that row **and** feed downstream linked steps within the same `run_tessl()` invocation. Without this, Scenario Gen, Eval, Security cross-reads, and slice 52 UI cannot work.
+
+**Two persisted fields (per row):**
+
+| Field | When written | Purpose |
+|---|---|---|
+| `tessl_run_id` + `tessl_run_id_at` | After this step’s Tessl command completes (or resume via `view <id>`) | This row’s own run ID |
+| `upstream_run_ids` | **Before** this step’s Tessl command starts (downstream rows only) | Snapshot of prior steps’ IDs for cross-read / traceability |
+
+**In-process context** — `run_tessl()` maintains a dict (implementation name: `_TesslIdContext`) updated after each step that emits an ID:
+
+```python
+# Keys match upstream_run_ids JSON keys exactly
+ctx: dict[str, str | None] = {
+    "review_quality": None,
+    "scenario_gen": None,
+}
+```
+
+| Step | Row | Stamp `tessl_run_id`? | Write `upstream_run_ids` before run? | Update `ctx` after success |
+|---|---|---|---|---|
+| 1 Lint | `Tessl: Lint` | No (sync; always null) | No | No |
+| 2 Quality | `Tessl: Review (Quality)` | Yes (`review view --last --json`) | No (no upstream) | `ctx["review_quality"] = id` |
+| 3 Scenario Gen | `Tessl: Scenario Generation` | Yes (`scenario view <id> --json`) | `{"review_quality": ctx[…]}` | `ctx["scenario_gen"] = id` |
+| 4 Eval | `Tessl: Eval` | Yes (`eval view <id> --json`) | `{"review_quality", "scenario_gen"}` | (eval id not consumed downstream in v1) |
+| 5 Security | `Tessl: Review (Security)` | Yes (same as Quality) | `{"review_quality": ctx[…]}` | — |
+
+**Helper seam (implement once in `sandbox/scanners.py`):**
+
+- `_stamp_tessl_run_id(row, run_id)` — slice 47 ✅
+- `_attach_upstream_run_ids(row, ctx, *keys)` — copies selected keys from `ctx` onto row (null for missing keys); slices 49–51
+- `_update_tessl_id_context(ctx, key, run_id)` — sets ctx after stamp; slices 47, 49, 51
+
+**Rules:**
+
+1. Downstream steps read IDs from **`ctx` in-process**, not by re-querying Supabase mid-scan (same Modal invocation).
+2. `upstream_run_ids` is written on the row **before** invocation so partial persist / dashboard poll mid-run still shows lineage.
+3. Missing upstream ID → store JSON `null` for that key; step proceeds unless the slice explicitly blocks (Eval blocked until scenario gen completes).
+4. Resume across Modal timeout: rehydrate `ctx` from persisted sibling rows or `resume_checkpoint.gen_id` before continuing.
+5. Lint is **outside** the ID chain — no `tessl_run_id`, no `upstream_run_ids`.
+
+Slice ownership: **47** seeds ctx from Quality · **49** consumes `review_quality`, stamps `scenario_gen` · **50** consumes both, stamps eval id · **51** consumes `review_quality`, stamps security id · **52** reads persisted `upstream_run_ids` for UI cross-reads.
 
 > **⚠ OPEN — Retry Invocation Mechanism**
 >
@@ -266,8 +309,8 @@ Verified against [Tessl CLI reference](https://docs.tessl.io/reference/cli-comma
 ## (c) ID Lineage Cross-Reads
 
 Each feature that reads from a prior feature's persisted state does so by:
-1. Looking up the prior feature's `tessl_run_id` from its own row's `upstream_run_ids` column (populated at start of the reading feature's run).
-2. Calling `tessl <cmd> view <id> --json` to retrieve full detail.
+1. Reading `upstream_run_ids` on **this** row (populated at step start from in-process `ctx` — see § ID carry-forward contract).
+2. Calling `tessl <cmd> view <id> --json` with the ID from `upstream_run_ids` (or this row's own `tessl_run_id` for self-view).
 
 ### 7(a) — Review (Security) ← Review (Quality)
 

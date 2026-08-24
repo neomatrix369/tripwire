@@ -18,6 +18,8 @@ Add `Tessl: Lint` as the first of the 5 new Tessl rows. `tessl skill lint <path>
 
 Design reference: `docs/design/tessl-5-row-expansion.md § (a), (b), (d)`
 
+**Lineage (ID carry-forward)**: Lint is **outside** the Tessl ID chain — no `tessl_run_id`, no `upstream_run_ids`, no `_TesslIdContext` update. Quality (slice 47) is the first row that seeds `ctx["review_quality"]` for downstream rows 3–5.
+
 ## Acceptance Criteria (GWT)
 
 ### Scenario 1 — Lint row appears in scanner outputs

@@ -257,5 +257,6 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-22 | slice/44-docs-ux-plain-language | sync-docs | 44 | APPLIED | PR #99 linked in STATUS/PROGRESS; gate-evidence SHA `0362d36`. |
 | 2026-08-24 | slice/46-tessl-lint-adapter | verify-slice repair | 46 | 🔀 ON BRANCH | Dashboard name contract + design Coverage Gap 1 + trackers; live `tessl skill lint --help` probed. |
 | 2026-08-24 | slice/46-tessl-lint-adapter | sync-docs | 46 | 🔀 ON BRANCH | Live persist VERIFIED(scan_run a36cad9f); TRAIL/gate-evidence PR #105. Still 🔀 until merge. |
-| 2026-08-24 | plan | Tessl scenario/eval slice contract | 49–52 | 📋 PLANNED | Tessl CLI+docs probe: Gap B resolved; slices 49–50 aligned to generate→download→eval run pipeline; slice 52 lineage; TRAIL+design updated. |
+| 2026-08-24 | plan | Tessl scenario/eval slice contract | 49–50 | 📋 PLANNED | Tessl CLI+docs probe: Gap B resolved; slices 49–50 aligned to generate→download→eval run pipeline; slice 52 lineage; TRAIL+design updated. |
+| 2026-08-24 | plan | Tessl ID carry-forward contract | 47–52 | 📋 PLANNED | Design § ID carry-forward + slices 45–52: `_TesslIdContext`, `_attach_upstream_run_ids`, per-row stamp rules; slice 52 depends on 47/49/50/51 populating persisted JSON. |
 | 2026-08-24 | slice/47-review-quality-split | slice-workflow | 47 | 🔨 IN PROGRESS | `_run_tessl_review(quality)` + tessl_run_id via view --last; slice 46 closed ✅ #105 |
