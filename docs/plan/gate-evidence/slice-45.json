@@ -1,0 +1,29 @@
+{
+  "slice": 45,
+  "date": "2026-08-24",
+  "branch": "slice/45-schema-migration",
+  "verdict": "PASS",
+  "before_checks": "PASS — design doc finalised on docs/tessl-5-row-design; slice stub present; dependency on slice 44 is docs-currency only (44 ON BRANCH, design stable).",
+  "after_checks": [
+    "db/schema.sql CREATE TABLE constraint updated to 14-state list (11 new + 3 legacy)",
+    "Idempotent do-$$ migration block updated to same 14-state list",
+    "4 new nullable columns added via 'add column if not exists': tessl_run_id, tessl_run_id_at, resume_checkpoint, upstream_run_ids",
+    "Legacy adapter values (skipped_missing_credential, unreachable, not_applicable) preserved — scanner code writes these and they are NOT in the 11-state Tessl design list",
+    "not_available_yet is NOT in the constraint (UI-only sentinel, per design § a)",
+    "All 138 tests pass (quality-gates.sh green)",
+    "pip-audit: no known vulnerabilities"
+  ],
+  "commands": [
+    {
+      "cmd": "./scripts/quality-gates.sh",
+      "result": "PASS\n138 tests pass, 0 fail\npip-audit: no known vulnerabilities\n✅ quality-gates passed"
+    },
+    {
+      "cmd": "grep -c 'not_available_yet' db/schema.sql",
+      "result": "PASS — exit 1 (not found, as required by design)"
+    }
+  ],
+  "design_gap_resolved": "Slice-45 GWT scenario 1 claimed 'old values are a subset of new' — FALSE. Three legacy status values (skipped_missing_credential, unreachable, not_applicable) are still written by live adapter code. Decision: keep legacy values in the 14-state constraint (recorded in DECISIONS.md).",
+  "coverage_pct": "N/A — migration only, no new Python code",
+  "complexity_tool": "N/A"
+}

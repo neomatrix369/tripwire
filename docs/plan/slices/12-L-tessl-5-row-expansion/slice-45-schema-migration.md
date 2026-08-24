@@ -3,7 +3,7 @@
 **Wave**: 12-L
 **MoSCoW**: Must
 **Depends on**: 44 (docs current)
-**Status**: 📋 PLANNED
+**Status**: 🔀 ON BRANCH (`slice/45-schema-migration`)
 **Read time**: ~3 min
 
 ## Context
