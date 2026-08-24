@@ -110,3 +110,30 @@ Coverage Gap C (agent-assisted scenario generation via `tessl install tessl-labs
 `coverage_pct`: target ≥ 80% for new scenario generation code path
 `complexity_tool`: ruff/radon on `sandbox/scanners.py`
 `doc_audit`: design doc § (b) Scenario Generation resume path — mark as implemented
+
+## Review
+
+**Date**: 2026-08-25  
+**Reviewer**: nw-software-crafter-reviewer (ATDD-pure, C_REVIEWER_AUDIT)  
+**Review ID**: crafter-review-slice49-20260825  
+**Verdict**: APPROVED  
+**Iteration**: 1
+
+### Findings summary
+
+| Severity | Count |
+|----------|------:|
+| issue (blocking) | 0 |
+| suggestion (non-blocking) | 2 |
+| nitpick (non-blocking) | 2 |
+| question (non-blocking) | 2 |
+
+**AT coverage**: 7/7 GWT scenarios covered (15 related tests). Quality gates G1–G9 PASS. Security PASS. Docs aligned.
+
+**Blocking**: none.
+
+**Non-blocking suggestions**: checkpoint age/timestamp for multi-day resume; document `_TESSL_SCENARIO_POLL_MAX` rationale.
+
+**Non-blocking nitpicks**: consider splitting Tessl scenario tests into a dedicated file later; note flat-evals count assumption on `_count_evals_scenarios()`.
+
+Full Conventional Comments live in the review transcript for this session (agent [slice-49 review](97183df4-9002-423a-a244-94c774569263)).
