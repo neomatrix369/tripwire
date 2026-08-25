@@ -106,3 +106,6 @@ matrix and flags.
 - Architecture flow: [ARCHITECTURE.md](../ARCHITECTURE.md#tiered-routing)
 - Sample CLIs (iterate without a full scan): [prototypes/sie-studio](../../prototypes/sie-studio/README.md),
   [prototypes/model-studio](../../prototypes/model-studio/README.md)
+- **Future (DECIDED plan-only):** LLM usage / cost metering and a dashboard Usage
+  tab — [llm-usage-tracking.md](../design/llm-usage-tracking.md). Not shipped yet;
+  router still discards provider `usage`.

@@ -211,6 +211,13 @@ clock before Modal's 300s kill — operators reconcile stranded `running` rows w
   hooks + `tripwire setup-agent-hooks` + `/tw-*` skills —
   [plan/TRAIL.md](./plan/TRAIL.md) Wave H. Code stub may exist; it is **not** a
   shipped production entry point yet. See [STATUS.md](./STATUS.md).
+- **Wave M (LLM usage / cost observability, DECIDED plan-only):** slice 53
+  intends append-only `llm_usage_events`, a dashboard Usage tab with a
+  collapsible historic transaction log, cost tips on router chrome, and
+  `tripwire usage`. Design:
+  [design/llm-usage-tracking.md](./design/llm-usage-tracking.md) ·
+  [plan/TRAIL.md](./plan/TRAIL.md) Wave 13-M. **Not IMPLEMENTED** — router still
+  discards provider `usage`; no Usage tab. See [STATUS.md](./STATUS.md).
 
 ---
 

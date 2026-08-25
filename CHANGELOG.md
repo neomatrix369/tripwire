@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Docs: Wave **13-M** LLM usage / cost observability plan (slice 53) —
+  [design/llm-usage-tracking.md](docs/design/llm-usage-tracking.md), slice stub,
+  TRAIL/PROGRESS/STATUS DECIDED (not IMPLEMENTED). Historic collapsible Usage
+  log + router metering — build only when slice execution starts.
+
 ### Changed
 - README restored to the fuller pre–slice-44 entry shape and brought current:
   providers/scanners table (Modal, Supabase, Cisco, Snyk, Tessl five-row,
