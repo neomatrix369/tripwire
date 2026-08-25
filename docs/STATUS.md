@@ -297,7 +297,7 @@ Dedicated usage table — does **not** resurrect deferred `tripwire.audit`.
 
 Claude Code agent-hooks integration layer — **Phase 1 SUPERSEDED by shipping on
 `main`** under [agent-hooks](../agent-hooks/README.md). Slice 28 Quality/`N/100`
-+ Sources attribution is **IMPLEMENTED** on `slice/28-tw-verify-quality` (see
+and Sources attribution is **IMPLEMENTED** on `slice/28-tw-verify-quality` (see
 [DECIDED](#decided) Wave H). Formal Wave H Must gate closures (23–27, 29–32) and
 the ADR-0017 Phase-1 regression matrix remain open.
 
