@@ -1,13 +1,14 @@
 # Environment variables
 
 > **Configure (keys) SSOT** for every key in [`.env.example`](../../.env.example).
-> Create accounts first (**Setup**): [prerequisites five-vendor map](./prerequisites.md#five-vendor-setup-map),
+> Create accounts first (**Setup**): [prerequisites vendor map](./prerequisites.md#vendor-setup-map),
 > [Supabase](./supabase-setup.md), [Modal](./modal-setup.md), then paste values here.
 
 Start here: [QUICKSTART](../../QUICKSTART.md) · Hub: [docs/README](../README.md)
 
 > **Minimum Viable Live:** Supabase + Modal keys only. Add Snyk / Tessl / Cisco
-> when you want full scanner coverage. Missing Snyk/Cisco keys report
+> when you want full scanner coverage; DepShield needs no keys; Ossprey needs
+> `OSSPREY_API_KEY` when access is available. Missing Snyk/Cisco/Ossprey keys report
 > `skipped_missing_credential`. Missing `TESSL_TOKEN` still runs Lint (auth-free)
 > and marks Review (Quality) / Scenario Generation / Review (Security) `needs_setup`. `TESSL_WORKSPACE`
 > is optional — when unset (or set to a name not in `tessl workspace list`),
@@ -16,7 +17,7 @@ Start here: [QUICKSTART](../../QUICKSTART.md) · Hub: [docs/README](../README.md
 > Scenario Gen completes (then `needs_setup` if token or workspace/project link
 > cannot be established) — not a complete “all clear.”
 >
-> For full Live coverage, provision all five vendors before `cp .env.example .env`.
+> For full Live coverage, provision credentialed scanner vendors before `cp .env.example .env`.
 >
 > **Cost and billing:** creating accounts, provisioning resources, deploying
 > Modal apps, and running Live scans can incur charges or consume provider
@@ -48,7 +49,7 @@ Router how-to: [tiered-router-setup.md](./tiered-router-setup.md).
 
 This is the sole reference for **Configure** — credential procurement, every
 `.env` key, and key-to-capability mapping. Account creation (**Setup**) is owned
-by vendor setup pages and the [prerequisites map](./prerequisites.md#five-vendor-setup-map).
+by vendor setup pages and the [prerequisites map](./prerequisites.md#vendor-setup-map).
 Do not duplicate key explanations in the Modal secret reference.
 [OPTIONAL_SCANNER_KEYS.md](../../fixtures/OPTIONAL_SCANNER_KEYS.md)
 only projects a selected subset of these already-defined keys into

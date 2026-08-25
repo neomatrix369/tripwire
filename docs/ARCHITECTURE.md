@@ -15,6 +15,8 @@ Start here: [QUICKSTART](../QUICKSTART.md) · Hub: [docs/README](./README.md) ·
 [![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
 [![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
 [![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
+[![DepShield](https://img.shields.io/badge/DepShield-2F6F4E?style=flat)](https://www.npmjs.com/package/depshield-mcp)
+[![Ossprey](https://img.shields.io/badge/Ossprey-1A1A2E?style=flat)](https://ossprey.com)
 [![Superlinked SIE](https://img.shields.io/badge/Superlinked%20SIE-0B1F3A?style=flat)](https://superlinked.com)
 [![Alibaba Cloud Model Studio](https://img.shields.io/badge/Alibaba%20Cloud%20Model%20Studio-FF6A00?style=flat)](https://www.alibabacloud.com/product/modelstudio)
 
@@ -36,6 +38,7 @@ services — see [prerequisites](./user-guide/prerequisites.md).
 | **Superlinked SIE** | Cheap post-scan triage | Optional tiered router | [tiered-router-setup](./user-guide/tiered-router-setup.md) |
 | **Alibaba Cloud Model Studio** | Escalation arbitration / triage | Optional tiered router | [tiered-router-setup](./user-guide/tiered-router-setup.md) |
 | **DepShield** (`depshield-mcp`) | Local dependency-audit adapter over MCP stdio | Optional / local | No cloud account — npm package; see [STATUS](./STATUS.md) |
+| **Ossprey** (`ossprey-cli`) | Malware / malicious-package scan (after DepShield in `SCANNER_GROUPS`) | Full scanner coverage (when keyed) | `OSSPREY_API_KEY` via [env-vars](./user-guide/env-vars.md) · [OPTIONAL_SCANNER_KEYS](../fixtures/OPTIONAL_SCANNER_KEYS.md); absent → `skipped_missing_credential`. IMPLEMENTED adapter; access provisioning OPEN — not VERIFIED live |
 | **GitHub Actions** | CI / Nightly / complexity workflows | Contributors | Repo secrets as needed — not operator Live |
 | **Cursor / Claude Code** | Dev tooling; Wave H agent hooks (plan) | Contributors / future hooks | [agent-hooks](../agent-hooks/README.md) · Wave H in [TRAIL](./plan/TRAIL.md) |
 
@@ -56,7 +59,7 @@ flowchart TD
   fit --> setupA[A. Create accounts — Setup]
   setupA --> mvp{MVP or full scanners?}
   mvp -->|MVP| acct2[Supabase + Modal only]
-  mvp -->|Full| acct5[Supabase + Modal + Snyk Tessl Cisco]
+  mvp -->|Full| acct5[Supabase + Modal + Snyk Tessl Cisco + optional Ossprey]
   acct2 --> keys[B. Configure keys — .env]
   acct5 --> keys
   keys --> boot[C. Bootstrap — setup + setup-modal]
@@ -93,9 +96,13 @@ flowchart LR
     SK[Snyk]
     TS[Tessl]
     CS[Cisco AI Defense]
+    DS[DepShield]
+    OS[Ossprey]
     SK --> liveScan
     TS --> liveScan
     CS --> liveScan
+    DS --> liveScan
+    OS --> liveScan
   end
 
   subgraph router [Post-scan — optional]
