@@ -39,6 +39,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   avoids delayed native `title=` attributes.
 
 ### Added
+- Tessl Review (Security) scanner row (slice 51): `run_tessl()` emits
+  `"Tessl: Review (Security)"` after Eval via `_run_tessl_review(judge_type="security")`
+  (`tessl review run security --json --workspace`); `upstream_run_ids.review_quality`
+  is attached before invoke; Security `tessl_run_id` via `review view --last --json`.
+  Expanded Security row shows linked Quality findings when that ID is populated
+  (UI-level; live Tessl fetch is slice 52).
 - Tessl Eval auto-chain scanner row (slice 50): `run_tessl()` emits
   `"Tessl: Eval"` as `blocked`, then auto-chains after Scenario Generation when
   `<plugin>/evals/` has scenarios — `tessl eval run --runs 3 -y --json` +

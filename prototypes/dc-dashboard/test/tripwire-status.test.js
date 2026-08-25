@@ -32,6 +32,8 @@ import {
   tesslInnerQuality,
   TESSL_CAPABILITY_SOURCES,
   mergeTesslCapabilityRows,
+  securityQualityLink,
+  linkedQualityFindingsForSecurity,
 } from '../tripwire-status.js';
 
 const HTML_PATH = join(dirname(fileURLToPath(import.meta.url)), '..', 'Tripwire.dc.html');
@@ -594,4 +596,95 @@ test('given dashboard html when inspecting scannersView then Tessl sentinels are
   assert.match(html, /mergeTesslCapabilityRows\(selected\.scanners\)/);
   assert.match(html, /isPlaceholder = sc\.status === 'not_available_yet'/);
   assert.match(html, /Not Available Yet/);
+});
+
+test('given security row with quality id when securityQualityLink then returns quality run id', () => {
+  /**
+   * Scenario: Security row with a Quality run ID exposes a UI link.
+   * Slice: 51 — GWT-51.3 UI
+   *
+   * Given a Security scanner row whose upstream_run_ids.review_quality is set,
+   * When securityQualityLink is called,
+   * Then the Quality run ID is returned for the expanded Security section.
+   */
+  // ### Given
+  const scanner = {
+    source: 'Tessl: Review (Security)',
+    upstream_run_ids: { review_quality: 'rev_abc123' },
+  };
+
+  // ### When
+  const actual = securityQualityLink(scanner);
+
+  // ### Then
+  assert.deepEqual(actual, {
+    qualityId: 'rev_abc123',
+    source: 'Tessl: Review (Quality)',
+  });
+});
+
+test('given security row without quality id when securityQualityLink then no panel', () => {
+  /**
+   * Scenario: Null Quality ID hides the linked findings panel.
+   * Slice: 51 — GWT-51.4 UI
+   *
+   * Given a Security row with upstream_run_ids.review_quality null,
+   * When securityQualityLink is called,
+   * Then the result is null so the dashboard shows no linked findings.
+   */
+  // ### Given
+  const scanner = {
+    source: 'Tessl: Review (Security)',
+    upstream_run_ids: { review_quality: null },
+  };
+
+  // ### When / Then
+  assert.equal(securityQualityLink(scanner), null);
+  assert.deepEqual(linkedQualityFindingsForSecurity(scanner, [{ scanner: 'Tessl: Review (Quality)' }]), []);
+});
+
+test('given quality findings when linkedQualityFindingsForSecurity then only quality rows', () => {
+  /**
+   * Scenario: Quality findings appear alongside Security when the link is populated.
+   * Slice: 51 — GWT-51.3 UI findings
+   *
+   * Given Security links to Quality run rev_abc123 and mixed findings,
+   * When linkedQualityFindingsForSecurity is called,
+   * Then only Tessl: Review (Quality) findings are returned.
+   */
+  // ### Given
+  const scanner = {
+    source: 'Tessl: Review (Security)',
+    upstream_run_ids: { review_quality: 'rev_abc123' },
+  };
+  const findings = [
+    { scanner: 'Snyk', message: 'dep' },
+    { scanner: 'Tessl: Review (Quality)', message: 'clarity' },
+    { scanner: 'Tessl: Review (Security)', message: 'injection' },
+  ];
+
+  // ### When
+  const actual = linkedQualityFindingsForSecurity(scanner, findings);
+
+  // ### Then
+  assert.equal(actual.length, 1);
+  assert.equal(actual[0].message, 'clarity');
+});
+
+test('given dashboard html when inspecting security expand then quality findings are wired', () => {
+  /**
+   * Scenario: Expanded Security row renders linked Quality findings.
+   * Slice: 51 — GWT-51.3 HTML
+   *
+   * Given Tripwire.dc.html,
+   * When the Security expand template is inspected,
+   * Then it renders the Linked Quality Review panel from securityQualityLink.
+   */
+  // ### Given
+  const html = readFileSync(HTML_PATH, 'utf8');
+
+  // ### When / Then
+  assert.match(html, /securityQualityLink/);
+  assert.match(html, /Linked Quality Review/);
+  assert.match(html, /linkedQualityFindings/);
 });

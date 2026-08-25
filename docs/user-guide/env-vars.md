@@ -9,7 +9,7 @@ Start here: [QUICKSTART](../../QUICKSTART.md) · Hub: [docs/README](../README.md
 > **Minimum Viable Live:** Supabase + Modal keys only. Add Snyk / Tessl / Cisco
 > when you want full scanner coverage. Missing Snyk/Cisco keys report
 > `skipped_missing_credential`. Missing `TESSL_TOKEN` still runs Lint (auth-free)
-> and marks Review (Quality) / Scenario Generation `needs_setup`. `TESSL_WORKSPACE`
+> and marks Review (Quality) / Scenario Generation / Review (Security) `needs_setup`. `TESSL_WORKSPACE`
 > is optional — when unset (or set to a name not in `tessl workspace list`),
 > Tripwire resolves workspace via `tessl whoami` + `tessl workspace list`
 > (usually the Tessl username). Eval stays `blocked` until
@@ -80,7 +80,7 @@ not a second environment-variable schema.
 | `MCP_SCANNER_LLM_MODEL` | MCP LLM routing | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 | `MCP_SCANNER_LLM_BASE_URL` | Custom MCP LLM endpoint | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 | `MCP_SCANNER_LLM_API_VERSION` | Azure-style APIs | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
-| `TESSL_TOKEN` | Tessl Review / Scenario Gen / Eval on Modal/CI (Lint is auth-free) | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
+| `TESSL_TOKEN` | Tessl Review (Quality + Security) / Scenario Gen / Eval on Modal/CI (Lint is auth-free) | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 | `TESSL_WORKSPACE` | Optional override for Tessl `--workspace` (Review / Scenario Gen / project create). Must match a workspace from `tessl workspace list` (name or id); invalid values are ignored and auto-resolved (usually the username) | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 
 ## Tier C — Full depth (paid Cisco AI Defense)
@@ -163,7 +163,7 @@ vendor to the keys you need in `.env` and where to get them.
 | **Supabase** (platform — MVP) | `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL` | [supabase-setup](./supabase-setup.md) |
 | **Modal** (platform — MVP) | `MODAL_TOKEN_ID`, `MODAL_TOKEN_SECRET` (blank if interactive only) | [modal-setup](./modal-setup.md) |
 | **Snyk** (scanner) | `SNYK_TOKEN` | [app.snyk.io](https://app.snyk.io) → Settings → API Tokens |
-| **Tessl** (scanner) | `TESSL_TOKEN` (required); `TESSL_WORKSPACE` (optional override) | [tessl.io](https://tessl.io) → API key. Lint (`tessl skill lint`) is auth-free. Token gates Review / Scenario / Eval. Workspace for `--workspace` comes from `TESSL_WORKSPACE` or `tessl whoami` + `workspace list` (personal workspace ≈ username). Scenario Gen also needs `.tessl-plugin/plugin.json`. Eval auto-chains after Scenario Gen when `evals/` is populated; needs a linked Tessl project (`tessl.json` — adapter runs `project create` / `repair`) — see [tessl-5-row-expansion](../design/tessl-5-row-expansion.md). |
+| **Tessl** (scanner) | `TESSL_TOKEN` (required); `TESSL_WORKSPACE` (optional override) | [tessl.io](https://tessl.io) → API key. Lint (`tessl skill lint`) is auth-free. Token gates Review (Quality + Security) / Scenario / Eval. Workspace for `--workspace` comes from `TESSL_WORKSPACE` or `tessl whoami` + `workspace list` (personal workspace ≈ username). Scenario Gen also needs `.tessl-plugin/plugin.json`. Eval auto-chains after Scenario Gen when `evals/` is populated; needs a linked Tessl project (`tessl.json` — adapter runs `project create` / `repair`). Security Review runs after Eval and links `upstream_run_ids.review_quality` — see [tessl-5-row-expansion](../design/tessl-5-row-expansion.md). |
 | **Cisco Skill / MCP LLM** (scanner Tier B) | `SKILL_SCANNER_LLM_API_KEY`, `SKILL_SCANNER_LLM_MODEL`, `SKILL_SCANNER_LLM_PROVIDER`, `SKILL_SCANNER_LLM_BASE_URL`; `MCP_SCANNER_LLM_API_KEY`, `MCP_SCANNER_LLM_MODEL`, `MCP_SCANNER_LLM_BASE_URL` | Any OpenAI-compatible or Azure LLM — not the same as AI Defense cloud keys below |
 | **Cisco AI Defense** (scanner Tier C) | `AI_DEFENSE_API_KEY`, `MCP_SCANNER_API_KEY`; optional `AI_DEFENSE_API_URL`, `MCP_SCANNER_ENDPOINT` | [developer.cisco.com](https://developer.cisco.com) → AI Defense |
 | **Ossprey** (malware — access OPEN/pending) | `OSSPREY_API_KEY` (`ospy_…`) | Access not yet available — leave blank; adapter reports `skipped_missing_credential` |

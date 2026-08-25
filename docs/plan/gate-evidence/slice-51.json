@@ -1,0 +1,41 @@
+{
+  "slice": 51,
+  "name": "tessl-review-security",
+  "gate_status": "ON_BRANCH",
+  "verdict": "PASS",
+  "date": "2026-08-25",
+  "branch": "slice/51-review-security",
+  "moscow": "Could",
+  "before_checks": "slice 47 ✅ #109; slice 50 ✅ #113; branch slice/51-review-security from main",
+  "after_checks": [
+    "GWT-51.1 — separate Tessl: Review (Security) row; Quality unchanged (unit)",
+    "GWT-51.2 — _run_tessl_review(security) argv is review run security (unit)",
+    "GWT-51.3 — upstream_run_ids.review_quality attached before invoke; Security tessl_run_id stamped (unit + dashboard)",
+    "GWT-51.4 — Security proceeds when Quality ID is null; explicit null in upstream_run_ids (unit)",
+    "Dashboard: Quality findings shown alongside Security when Quality ID is populated (unit + HTML wiring)",
+    "nw-review APPROVED — nw-software-crafter-reviewer 2026-08-25"
+  ],
+  "commands": [
+    {
+      "cmd": "uv run pytest sandbox/tests/test_scanners_status.py sandbox/tests/test_ship_path_coverage.py sandbox/tests/test_scanner_registry.py -q",
+      "result": "PASS — 142 tests"
+    },
+    {
+      "cmd": "node --test prototypes/dc-dashboard/test/tripwire-status.test.js",
+      "result": "PASS — 41 tests"
+    },
+    {
+      "cmd": "./scripts/quality-gates.sh",
+      "result": "PASS — 303 pytest (sandbox 95.6%, scanners.py 96.0%), 138 CLI tests, ruff/mypy/xenon/bandit/pip-audit/gitleaks green"
+    },
+    {
+      "cmd": "/nw-review @nw-software-crafter implementation slice-51-review-security.md step_id=slice-51",
+      "result": "APPROVED — nw-software-crafter-reviewer 2026-08-25; zero blocking issues"
+    }
+  ],
+  "coverage_pct": "sandbox 95.6% / scanners.py 96.0% (fail-under 95)",
+  "complexity_tool": "xenon scanners.py max-absolute D (exit 0); radon via scripts/complexity-report.sh",
+  "doc_audit": "design § (c) 7(a) IMPLEMENTED unit UI-level (live tessl review view fetch is slice 52); STATUS/ARCHITECTURE/CHANGELOG/env-vars/adapters",
+  "review": "APPROVED 2026-08-25 — nw-software-crafter-reviewer",
+  "pr": null
+}

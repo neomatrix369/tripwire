@@ -80,6 +80,16 @@ export function countActionableFindings(findings) {
 }
 
 /**
+ * When both red and amber are present, return counts for split chips; else null.
+ * @param {Array<{severity?: string, scanner?: string, scanner_source?: string}>|null|undefined} findings
+ * @returns {{ red: number, amber: number }|null}
+ */
+export function findingCountParts(findings) {
+  const { red, amber } = countActionableFindings(findings);
+  return red > 0 && amber > 0 ? { red, amber } : null;
+}
+
+/**
  * Card chip label: "1 finding" / "3 findings" / "2● 1▲" when mixed.
  * Empty string when no actionable findings.
  * @param {Array<{severity?: string, scanner?: string, scanner_source?: string}>|null|undefined} findings
@@ -91,6 +101,19 @@ export function formatFindingCountLabel(findings) {
   if (red > 0 && amber > 0) return `${red}● ${amber}▲`;
   if (total === 1) return "1 finding";
   return `${total} findings`;
+}
+
+/**
+ * Drawer Findings heading — same actionable total / split as card chips.
+ * @param {Array<{severity?: string, scanner?: string, scanner_source?: string}>|null|undefined} findings
+ * @param {string|null|undefined} errorMessage
+ * @returns {string}
+ */
+export function formatFindingsHeadingLabel(findings, errorMessage) {
+  const { red, amber, total } = countActionableFindings(findings);
+  if (errorMessage && total === 0) return String(errorMessage);
+  if (red > 0 && amber > 0) return `Findings (${red}● ${amber}▲)`;
+  return `Findings (${total})`;
 }
 
 const SEVERITY_RED = new Set(["red", "critical", "high"]);
@@ -449,6 +472,37 @@ export function tesslInnerQuality(scanner, item) {
   };
 }
 
+const TESSL_QUALITY_SOURCE = "Tessl: Review (Quality)";
+
+function tesslUpstreamIds(scanner) {
+  return scanner?.upstream_run_ids || scanner?.output?.upstream_run_ids || {};
+}
+
+/**
+ * UI-level Quality↔Security traceability (GWT-51.3). No live Tessl CLI fetch.
+ * @param {{ source?: string, upstream_run_ids?: { review_quality?: string|null }, output?: { upstream_run_ids?: { review_quality?: string|null } } }|null|undefined} scanner
+ * @returns {{ qualityId: string, source: string }|null}
+ */
+export function securityQualityLink(scanner) {
+  if (String(scanner?.source || "") !== "Tessl: Review (Security)") return null;
+  const qualityId = tesslUpstreamIds(scanner).review_quality;
+  if (!qualityId) return null;
+  return { qualityId, source: TESSL_QUALITY_SOURCE };
+}
+
+/**
+ * Quality findings shown beside Security when the Quality run ID is linked.
+ * @param {object|null|undefined} scanner
+ * @param {Array<{scanner?: string, scanner_source?: string}>|null|undefined} findings
+ * @returns {Array<object>}
+ */
+export function linkedQualityFindingsForSecurity(scanner, findings) {
+  if (!securityQualityLink(scanner)) return [];
+  return (findings || []).filter(
+    (f) => (f.scanner || f.scanner_source) === TESSL_QUALITY_SOURCE
+  );
+}
+
 export default {
   STATUS_META,
   RESULT_STATUSES,
@@ -456,7 +510,9 @@ export default {
   statusFromRisk,
   maxFindingStatus,
   countActionableFindings,
+  findingCountParts,
   formatFindingCountLabel,
+  formatFindingsHeadingLabel,
   normalizeSeverity,
   resolveItemStatus,
   severityColor,
@@ -473,6 +529,8 @@ export default {
   operatorLocusLabel,
   operatorAvailLabel,
   tesslInnerQuality,
+  securityQualityLink,
+  linkedQualityFindingsForSecurity,
   TESSL_CAPABILITY_SOURCES,
   mergeTesslCapabilityRows,
 };

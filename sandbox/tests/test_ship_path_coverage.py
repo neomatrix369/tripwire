@@ -809,7 +809,7 @@ def test_given_tessl_token_when_run_ok_then_quality_score() -> None:
     with (
         patch.dict(
             "os.environ",
-            {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"},
+            {"TESSL_TOKEN": "t"},
             clear=False,
         ),
         patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
@@ -821,6 +821,8 @@ def test_given_tessl_token_when_run_ok_then_quality_score() -> None:
                 (0, "1 check", ""),
                 (0, payload, ""),
                 (0, '{"id": "rev_ship", "score": 91}', ""),
+                (0, '{"id": "sec_from_run"}', ""),
+                (0, '{"id": "sec_rev_def456"}', ""),
             ],
         ),
     ):
@@ -849,7 +851,7 @@ def test_given_no_tessl_token_when_run_then_skipped() -> None:
 
     ### Then
     assert score is None
-    assert len(rows) == 4
+    assert len(rows) == 5
     assert rows[0]["scanner_source"] == "Tessl: Lint"
     assert rows[0]["status"] == "completed"
     assert rows[1]["scanner_source"] == "Tessl: Review (Quality)"
@@ -858,6 +860,8 @@ def test_given_no_tessl_token_when_run_then_skipped() -> None:
     assert rows[2]["status"] == "needs_setup"
     assert rows[3]["scanner_source"] == "Tessl: Eval"
     assert rows[3]["status"] == "blocked"
+    assert rows[4]["scanner_source"] == "Tessl: Review (Security)"
+    assert rows[4]["status"] == "needs_setup"
 
 
 def test_given_tessl_npx_missing_when_run_then_unreachable() -> None:
@@ -869,7 +873,7 @@ def test_given_tessl_npx_missing_when_run_then_unreachable() -> None:
     with (
         patch.dict(
             "os.environ",
-            {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"},
+            {"TESSL_TOKEN": "t"},
             clear=False,
         ),
         patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
@@ -891,13 +895,20 @@ def test_given_tessl_nonzero_when_run_then_unreachable() -> None:
     with (
         patch.dict(
             "os.environ",
-            {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"},
+            {"TESSL_TOKEN": "t"},
             clear=False,
         ),
         patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value=True),
         patch.object(
-            scanners, "_run", side_effect=[(0, "0 checks — 0 findings", ""), (1, "", "fail")]
+            scanners,
+            "_run",
+            side_effect=[
+                (0, "0 checks — 0 findings", ""),
+                (1, "", "fail"),
+                (0, '{"id": "sec_from_run"}', ""),
+                (0, '{"id": "sec_rev_def456"}', ""),
+            ],
         ),
     ):
         score, rows = scanners.run_tessl("/tmp")
@@ -1345,7 +1356,7 @@ def test_given_tessl_no_console_when_completed_then_no_console_key() -> None:
     with (
         patch.dict(
             "os.environ",
-            {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"},
+            {"TESSL_TOKEN": "t"},
             clear=False,
         ),
         patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
@@ -1375,13 +1386,20 @@ def test_given_tessl_empty_success_output_when_run_then_not_reported_completed()
     with (
         patch.dict(
             "os.environ",
-            {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"},
+            {"TESSL_TOKEN": "t"},
             clear=False,
         ),
         patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value=True),
         patch.object(
-            scanners, "_run", side_effect=[(0, "0 checks — 0 findings", ""), (0, "{}", "")]
+            scanners,
+            "_run",
+            side_effect=[
+                (0, "0 checks — 0 findings", ""),
+                (0, "{}", ""),
+                (0, '{"id": "sec_from_run"}', ""),
+                (0, '{"id": "sec_rev_def456"}', ""),
+            ],
         ),
     ):
         score, rows = scanners.run_tessl("/tmp")

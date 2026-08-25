@@ -935,6 +935,19 @@
                       </div>
                     </sc-for>
                   </sc-if>
+                  <sc-if value="{{ scv.securityQualityLink }}">
+                    <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 4px">Linked Quality Review ({{ scv.securityQualityLink.qualityId }})</div>
+                    <sc-if value="{{ scv.linkedQualityFindings.length }}">
+                      <sc-for list="{{ scv.linkedQualityFindings }}" as="qf" hint-placeholder-count="0">
+                        <div style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-left:2px solid {{ qf.sevColor }};border-radius:4px;padding:6px 8px;margin-bottom:4px">
+                          <div style="font-size:11px;color:var(--text-primary);margin-bottom:2px">{{ qf.message }}</div>
+                          <sc-if value="{{ qf.file_path }}">
+                            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted)">{{ qf.file_path }}:{{ qf.location }}</div>
+                          </sc-if>
+                        </div>
+                      </sc-for>
+                    </sc-if>
+                  </sc-if>
                   <sc-if value="{{ scv.hasDetailJson }}">
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 0 4px">Raw output</div>
                     <div style="font-family:var(--font-mono);font-size:10px;background:var(--bg-deep);padding:6px 8px;border-radius:4px;color:var(--text-secondary);overflow-x:auto;white-space:pre-wrap;max-height:180px;overflow-y:auto">{{ scv.outputJson }}</div>
@@ -1369,7 +1382,9 @@ class Component extends DCLogic {
     const findingCountLabel = kit?.formatFindingCountLabel
       ? kit.formatFindingCountLabel(it.findings)
       : this.fallbackFindingCountLabel(it.findings);
-    const findingCountParts = this.fallbackFindingCountParts(it.findings);
+    const findingCountParts = kit?.findingCountParts
+      ? kit.findingCountParts(it.findings)
+      : this.fallbackFindingCountParts(it.findings);
     const SCANNER_FAIL_STATUSES = new Set(['failed', 'unreachable', 'skipped_missing_credential']);
     const scannerOk   = (it.scanners || []).filter(s => s.status === 'completed').length;
     const scannerFail = (it.scanners || []).filter(s => SCANNER_FAIL_STATUSES.has(s.status)).length;
@@ -1464,8 +1479,8 @@ class Component extends DCLogic {
     for (const f of findings) {
       if (f.scanner === 'tiered_router') continue;
       const sev = (f.severity || '').toLowerCase();
-      if (sev === 'red') red += 1;
-      else if (sev === 'amber') amber += 1;
+      if (sev === 'red' || sev === 'critical' || sev === 'high') red += 1;
+      else if (sev === 'amber' || sev === 'medium' || sev === 'low' || sev === 'warn' || sev === 'warning') amber += 1;
     }
     return (red > 0 && amber > 0) ? { red, amber } : null;
   }
@@ -1476,14 +1491,28 @@ class Component extends DCLogic {
     for (const f of findings) {
       if (f.scanner === 'tiered_router') continue;
       const sev = (f.severity || '').toLowerCase();
-      if (sev === 'red') red += 1;
-      else if (sev === 'amber') amber += 1;
+      if (sev === 'red' || sev === 'critical' || sev === 'high') red += 1;
+      else if (sev === 'amber' || sev === 'medium' || sev === 'low' || sev === 'warn' || sev === 'warning') amber += 1;
     }
     const total = red + amber;
     if (total === 0) return '';
     if (red > 0 && amber > 0) return `${red}● ${amber}▲`;
     if (total === 1) return '1 finding';
     return `${total} findings`;
+  }
+
+  fallbackFindingsHeadingLabel(findings, errorMessage) {
+    let red = 0, amber = 0;
+    for (const f of findings || []) {
+      if (f.scanner === 'tiered_router') continue;
+      const sev = (f.severity || '').toLowerCase();
+      if (sev === 'red' || sev === 'critical' || sev === 'high') red += 1;
+      else if (sev === 'amber' || sev === 'medium' || sev === 'low' || sev === 'warn' || sev === 'warning') amber += 1;
+    }
+    const total = red + amber;
+    if (errorMessage && total === 0) return String(errorMessage);
+    if (red > 0 && amber > 0) return `Findings (${red}● ${amber}▲)`;
+    return `Findings (${total})`;
   }
 
   severityColor(severity) {
@@ -1702,10 +1731,10 @@ class Component extends DCLogic {
       findingsChevronDeg: s.findingsExpanded ? '90deg' : '0deg',
       toggleFindings: this.toggleFindings,
       findingsHeadingLabel: (() => {
-        const fv = selected.findings.filter(f => f.scanner !== 'tiered_router');
-        return selected.errorMessage && fv.length === 0
-          ? selected.errorMessage
-          : `Findings (${fv.length})`;
+        if (kit?.formatFindingsHeadingLabel) {
+          return kit.formatFindingsHeadingLabel(selected.findings, selected.errorMessage);
+        }
+        return this.fallbackFindingsHeadingLabel(selected.findings, selected.errorMessage);
       })(),
       scanningPlaceholder: selected.status === 'running' && selected.scanners.length === 0,
       scanStartedAtLabel: selected.scanStartedAt ? this.fmtTime(selected.scanStartedAt) : null,
@@ -1724,6 +1753,15 @@ class Component extends DCLogic {
         const tesslQuality = !isPlaceholder && kit?.tesslInnerQuality
           ? kit.tesslInnerQuality({ ...sc, output: out }, selected)
           : null;
+        const securityQualityLink = !isPlaceholder && kit?.securityQualityLink
+          ? kit.securityQualityLink(sc)
+          : null;
+        const linkedQualityFindings = kit?.linkedQualityFindingsForSecurity
+          ? kit.linkedQualityFindingsForSecurity(sc, selected.findings).map((f) => ({
+              ...f,
+              sevColor: this.severityColor(f.severity),
+            }))
+          : [];
         return {
           ...sc,
           expanded,
@@ -1735,6 +1773,8 @@ class Component extends DCLogic {
           output: out,
           findingsForScanner,
           tesslQuality,
+          securityQualityLink,
+          linkedQualityFindings,
           hasDetailJson: !isPlaceholder && !!(out.findings_detail || out.issues_detail || out.scan_results_summary || out.analyzers_run),
           outputJson: JSON.stringify(out.findings_detail || out.issues_detail || out.scan_results_summary || out, null, 2),
           sourceColor: isPlaceholder ? 'var(--text-muted)' : 'var(--text-primary)',
