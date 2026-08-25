@@ -1801,14 +1801,21 @@ def run_tessl(
     ctx = id_context if id_context is not None else _new_tessl_id_context()
 
     # --- Tessl: Lint (auth-free, synchronous) ---
+    lint_source = "Tessl: Lint"
     if not _which("npx"):
-        rows.append(_unreachable("Tessl: Lint", "npx not available (node/npm missing from image)"))
+        lint_row = _unreachable(lint_source, "npx not available (node/npm missing from image)")
+        rows.append(lint_row)
+        _emit_tessl_row_progress(on_row_progress, lint_row)
     else:
+        _emit_tessl_row_progress(
+            on_row_progress,
+            {"scanner_source": lint_source, "status": "running", "checks_run": 0},
+        )
         code, out, err = _run(["npx", "--yes", "tessl@latest", "skill", "lint", workdir])
         console = _build_console(out, err)
         if code != 0:
             lint_row = {
-                "scanner_source": "Tessl: Lint",
+                "scanner_source": lint_source,
                 "status": "failed",
                 "checks_run": 0,
                 "detail": (err or out or "lint subprocess exited non-zero").strip()[:4000],
@@ -1818,7 +1825,7 @@ def run_tessl(
         else:
             checks_run, detail = _parse_tessl_lint_detail(out)
             lint_row = {
-                "scanner_source": "Tessl: Lint",
+                "scanner_source": lint_source,
                 "status": "completed",
                 "checks_run": checks_run,
                 "detail": detail,
@@ -1826,29 +1833,38 @@ def run_tessl(
             if console:
                 lint_row["console_output"] = console
         rows.append(lint_row)
+        _emit_tessl_row_progress(on_row_progress, lint_row)
 
     # --- Tessl: Review (Quality) (TESSL_TOKEN + resolved workspace) ---
     score = None
     workspace: str | None = None
     workspace_detail = ""
+    review_source = "Tessl: Review (Quality)"
     if not os.environ.get("TESSL_TOKEN"):
-        rows.append(_skipped("Tessl: Review (Quality)", reason="needs_setup"))
+        review_row = _skipped(review_source, reason="needs_setup")
+        rows.append(review_row)
+        _emit_tessl_row_progress(on_row_progress, review_row)
         _update_tessl_id_context(ctx, "review_quality", None)
     else:
         workspace, workspace_detail = _resolve_tessl_workspace()
         if not workspace:
-            rows.append(
-                _skipped(
-                    "Tessl: Review (Quality)",
-                    reason="needs_setup",
-                    detail=workspace_detail
-                    or "Tessl workspace unresolved — set TESSL_WORKSPACE or ensure tessl login",
-                )
+            review_row = _skipped(
+                review_source,
+                reason="needs_setup",
+                detail=workspace_detail
+                or "Tessl workspace unresolved — set TESSL_WORKSPACE or ensure tessl login",
             )
+            rows.append(review_row)
+            _emit_tessl_row_progress(on_row_progress, review_row)
             _update_tessl_id_context(ctx, "review_quality", None)
         else:
+            _emit_tessl_row_progress(
+                on_row_progress,
+                {"scanner_source": review_source, "status": "running", "checks_run": 0},
+            )
             score, review_row = _run_tessl_review("quality", workdir, workspace)
             rows.append(review_row)
+            _emit_tessl_row_progress(on_row_progress, review_row)
             _update_tessl_id_context(ctx, "review_quality", review_row.get("tessl_run_id"))
 
     # --- Tessl: Eval (blocked until Scenario Generation completes) ---

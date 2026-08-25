@@ -122,6 +122,11 @@ Reachable through production entry points / config:
   stamp, `resume_checkpoint` + mid-scan persist via `on_scanner_progress`.
   Missing token → `needs_setup`; missing `.tessl-plugin/plugin.json` → `failed`.
   IMPLEMENTED (unit) — `sandbox/scanners.py` / `sandbox/scan_app.py` (slice 49 ✅ #112)
+- Tessl dashboard mid-scan progress — `on_scanner_start` no longer bulk-inserts
+  all five Tessl sources as `running`; `run_tessl()` emits per-step progress for
+  Lint and Review (Quality) via `on_scanner_progress` (Scenario/Eval/Security
+  already did). Fixes frozen-all-Running appearance during Modal scans.
+  IMPLEMENTED — `sandbox/scanners.py` / `sandbox/scan_app.py` / `tripwire-status.js`
 - Tessl Eval auto-chain — `run_tessl()` emits `"Tessl: Eval"` as `blocked` before
   Scenario Generation, then auto-chains to `queued`→`running` when generation
   completes and `<plugin>/evals/` has scenarios; `tessl eval run --runs 3 -y

@@ -28,7 +28,7 @@ _SANDBOX_DIR = Path(__file__).resolve().parent
 if str(_SANDBOX_DIR) not in sys.path:
     sys.path.insert(0, str(_SANDBOX_DIR))
 
-from scanners import run_all_scanners  # noqa: E402
+from scanners import TESSL_SOURCES, run_all_scanners  # noqa: E402
 
 app = modal.App("tripwire-scan")
 
@@ -84,6 +84,10 @@ _PGRST_COLUMN_RE = re.compile(
 )
 
 _LEGACY_SCANNER_KEYS = frozenset({"scan_run_id", "scanner_source", "status", "checks_run"})
+
+# Tessl rows are inserted/updated step-by-step via on_scanner_progress — not bulk
+# "running" placeholders (which made all five look frozen for the whole group).
+_TESSL_SOURCE_SET = frozenset(TESSL_SOURCES)
 
 
 def _is_column_error(exc: Exception) -> bool:
@@ -209,6 +213,8 @@ def _scan_item_inner(
         """Insert running placeholder rows so the dashboard shows progress."""
         now = datetime.now(UTC).isoformat()
         for source in sources:
+            if source in _TESSL_SOURCE_SET:
+                continue
             try:
                 supabase.table("scan_run_scanners").insert(
                     {
