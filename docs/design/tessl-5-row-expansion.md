@@ -255,7 +255,7 @@ Verified against [Tessl CLI reference](https://docs.tessl.io/reference/cli-comma
 7. Security (slice 51) → upstream_run_ids={review_quality}; review run security; stamp tessl_run_id
 ```
 
-**Not supported by Tessl CLI**: passing `gen_id` to `eval run`. Eval always consumes on-disk scenarios. **`--workspace`** on `scenario generate` is for repo mode (`org/repo --commits …`), not plugin-path generation.
+**Not supported by Tessl CLI**: passing `gen_id` to `eval run`. Eval always consumes on-disk scenarios. **`--workspace`** is **required** on plugin-path `scenario generate` (live CLI: `tessl scenario generate ./my-plugin --workspace acme`); Tripwire passes `TESSL_WORKSPACE`.
 
 ### ID carry-forward contract (MUST — slices 47–51)
 
@@ -328,7 +328,7 @@ Each feature that reads from a prior feature's persisted state does so by:
 
 **What is read**: Same Quality Review `tessl_run_id` lookup; `tessl review view <id> --json` to retrieve Quality findings.
 
-**Threading findings into scenario generation**: The **plain CLI form** (`tessl scenario generate <plugin-path> [--count N]`) has no context-injection flag. `--workspace` applies to **repo** generation (`org/repo --commits …`), not plugin-path generation. To thread Quality findings into scenario generation, the **agent-assisted path** (`tessl install tessl-labs/tessl-skill-eval-scenarios`) is the only documented channel.
+**Threading findings into scenario generation**: The **plain CLI form** (`tessl scenario generate <plugin-path> --workspace <ws> [--count N]`) has no context-injection flag for Quality findings. To thread Quality findings into scenario generation, the **agent-assisted path** (`tessl install tessl-labs/tessl-skill-eval-scenarios`) is the only documented channel.
 
 **Caveat — agent-assisted path in headless sandbox**: This path is designed around an interactive agent prompt. Whether it can be scripted from Tripwire's headless Modal sandbox orchestration is **unverified** (Coverage Gap C). Until verified, the plain CLI form is used for scenario generation, and the Quality findings are surfaced in the UI as context for human review of the generated scenarios rather than injected into the CLI call.
 

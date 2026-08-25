@@ -755,7 +755,12 @@ def _parse_scenario_gen_id(parsed) -> str | None:
     return _parse_tessl_run_id(parsed)
 
 
-def _tessl_scenario_generate_argv(workdir: str, count: int = _TESSL_SCENARIO_COUNT) -> list[str]:
+def _tessl_scenario_generate_argv(
+    workdir: str,
+    workspace: str,
+    count: int = _TESSL_SCENARIO_COUNT,
+) -> list[str]:
+    """Build ``tessl scenario generate`` argv (plugin path requires ``--workspace``)."""
     return [
         "npx",
         "--yes",
@@ -763,6 +768,8 @@ def _tessl_scenario_generate_argv(workdir: str, count: int = _TESSL_SCENARIO_COU
         "scenario",
         "generate",
         workdir,
+        "--workspace",
+        workspace,
         "--count",
         str(count),
     ]
@@ -869,10 +876,18 @@ def _scenario_checkpoint_row(
 
 
 def _scenario_gen_preflight(workdir: str, upstream_run_ids: dict) -> dict | None:
-    """Return an early terminal row when token/plugin prerequisites fail."""
+    """Return an early terminal row when token/workspace/plugin prerequisites fail."""
     if not os.environ.get("TESSL_TOKEN"):
         skipped: dict = _skipped(
             _TESSL_SCENARIO_SOURCE, reason="needs_setup", detail="TESSL_TOKEN required"
+        )
+        skipped["upstream_run_ids"] = upstream_run_ids
+        return skipped
+    if not (os.environ.get("TESSL_WORKSPACE") or "").strip():
+        skipped = _skipped(
+            _TESSL_SCENARIO_SOURCE,
+            reason="needs_setup",
+            detail="TESSL_WORKSPACE required for scenario generate --workspace",
         )
         skipped["upstream_run_ids"] = upstream_run_ids
         return skipped
@@ -918,7 +933,8 @@ def _ensure_scenario_generated(
             row["checks_run"] = count_hint
         return gen_id, None
 
-    code, out, err = _run(_tessl_scenario_generate_argv(workdir))
+    workspace = (os.environ.get("TESSL_WORKSPACE") or "").strip()
+    code, out, err = _run(_tessl_scenario_generate_argv(workdir, workspace))
     console = _build_console(out, err)
     if console:
         consoles.append(console)
@@ -1509,9 +1525,10 @@ def run_tessl(
     Lint is synchronous and never requires TESSL_TOKEN; it always runs when npx
     is available.  Review Quality requires TESSL_TOKEN and TESSL_WORKSPACE; its
     row transitions to needs_setup when either is absent. Scenario Generation
-    requires TESSL_TOKEN and ``.tessl-plugin/plugin.json``. Eval starts ``blocked``
-    and auto-chains after Scenario Generation completes with scenarios in
-    ``evals/`` (first run only; re-runs mark prior completed Eval as ``stale``).
+    requires TESSL_TOKEN, TESSL_WORKSPACE (``--workspace`` on generate), and
+    ``.tessl-plugin/plugin.json``. Eval starts ``blocked`` and auto-chains after
+    Scenario Generation completes with scenarios in ``evals/`` (first run only;
+    re-runs mark prior completed Eval as ``stale``).
 
     Returns (quality_score, [lint_row, review_row, scenario_row, eval_row]).
     quality_score is None when Review Quality did not complete successfully.

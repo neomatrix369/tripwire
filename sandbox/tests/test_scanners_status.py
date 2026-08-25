@@ -802,12 +802,13 @@ def test_run_tessl_falls_back_to_run_json_id_when_view_last_fails() -> None:
 
 def test_run_tessl_without_workspace_emits_review_needs_setup() -> None:
     """
-    Scenario: TESSL_WORKSPACE absent — Review (Quality) is needs_setup.
+    Scenario: TESSL_WORKSPACE absent — Review (Quality) and Scenario Gen are needs_setup.
     Slice: 47 — GWT-47.3 needs_setup for missing review config
+    Slice: 49/50 — scenario generate also requires --workspace
 
     Given TESSL_TOKEN is set and TESSL_WORKSPACE is absent,
     When run_tessl is called,
-    Then Review (Quality) status is needs_setup and no review subprocess runs.
+    Then Review (Quality) and Scenario Generation are needs_setup and no review/generate runs.
     """
     ### Given
     ran: list[list[str]] = []
@@ -828,7 +829,10 @@ def test_run_tessl_without_workspace_emits_review_needs_setup() -> None:
     assert score is None
     assert rows[1]["scanner_source"] == "Tessl: Review (Quality)"
     assert rows[1]["status"] == "needs_setup"
+    assert rows[2]["scanner_source"] == "Tessl: Scenario Generation"
+    assert rows[2]["status"] == "needs_setup"
     assert all(c[3:5] != ["review", "run"] for c in ran)
+    assert all(c[3:5] != ["scenario", "generate"] for c in ran)
 
 
 def test_given_quality_review_completes_when_run_tessl_then_ctx_review_quality_is_stamped_id() -> (
@@ -1005,7 +1009,8 @@ def test_given_plugin_when_scenario_gen_succeeds_then_download_stamps_and_clears
         if cmd[3:5] == ["scenario", "generate"]:
             assert "--count" in cmd and "3" in cmd
             assert workdir in cmd
-            assert "--workspace" not in cmd
+            assert "--workspace" in cmd
+            assert cmd[cmd.index("--workspace") + 1] == "engteam"
             return 0, '{"id": "gen_abc123", "status": "completed", "scenarioCount": 3}', ""
         if cmd[3:5] == ["scenario", "view"]:
             return 0, '{"id": "gen_abc123", "status": "completed", "scenarioCount": 3}', ""
@@ -1390,6 +1395,10 @@ def test_parse_scenario_gen_id_and_status_from_json_shapes() -> None:
     assert scanners._parse_scenario_status(None) is None
     assert scanners._parse_scenario_count("nope") is None
     assert scanners._tessl_scenario_view_argv(None)[-3:] == ["--last", "--mine", "--json"]
+    gen_argv = scanners._tessl_scenario_generate_argv("/plugin", "acme", count=3)
+    assert gen_argv[3:6] == ["scenario", "generate", "/plugin"]
+    assert gen_argv[gen_argv.index("--workspace") + 1] == "acme"
+    assert gen_argv[gen_argv.index("--count") + 1] == "3"
 
 
 def test_given_generate_timeout_when_scenario_runs_then_interrupted_with_checkpoint(
