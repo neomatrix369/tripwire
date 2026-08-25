@@ -88,6 +88,10 @@ Reachable through production entry points / config:
   `tripwire-status.js`, `Tripwire.dc.html` (slice 42 A9–A13 ✅,
   [PR #98](https://github.com/neomatrix369/tripwire/pull/98); quality binding
   scoped off `"Tessl: Lint"` in slice 46)
+- Dashboard quality triage tabs — **Quality ≥ 80**, **Quality < 80**, and
+  **No quality score** skill-only filters on Tessl `item.quality` (80 threshold),
+  tab counts, empty-state copy, and clear-filters reset — `tripwire-status.js`,
+  `Tripwire.dc.html` (slice 42 A14–A15 IMPLEMENTED)
 - `"Tessl: Lint"` scanner row — `run_tessl()` invokes `npx tessl@latest skill lint`
   first (auth-free, no `tessl_run_id`); Review row is `"Tessl: Review (Quality)"`
   and Review `needs_setup` when `TESSL_TOKEN` or `TESSL_WORKSPACE` is absent
@@ -251,6 +255,10 @@ on `main` yet (side-branch only); it is omitted from the catalog until accepted.
 **IMPLEMENTED** on `main` via [PR #98](https://github.com/neomatrix369/tripwire/pull/98)
 (nw-review APPROVED). Spec:
 [plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md](./plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md).
+
+**Wave J delta — quality triage tabs (2026-08-25):** A14–A15 **IMPLEMENTED**
+on `slice/42-quality-score-tabs` — three skill-only toolbar tabs filter by Tessl
+`item.quality` (≥80 / <80 / unscored). Awaiting PR + nw-review before ✅ PASSED.
 
 **Wave K — docs UX (2026-08-20/21):** Slice 44 compaction, Setup/Configure framing,
 and services/diagrams pile-ons are **IMPLEMENTED** on branch (public docs);

@@ -179,7 +179,7 @@ C4Container
 - `sandbox/` — Modal app + scanner adapters (`scanners.py`); unit tests in `sandbox/tests/`
 - `db/schema.sql` — Postgres/Supabase DDL + rollup + `dashboard_latest_runs` view
   (Live dashboard: one latest `scan_run` per item); anon SELECT + Realtime
-- `prototypes/dc-dashboard/` — Live/Mock dashboard (Horizon A ship UI; prototype path). Shows router pathway strips (`Scan → ■` / `Scan → SIE → ■` / `Scan → SIE → Model Studio`) and Escalated / SIE-only filters — [reading-router-results.md](./user-guide/reading-router-results.md)
+- `prototypes/dc-dashboard/` — Live/Mock dashboard (Horizon A ship UI; prototype path). Shows router pathway strips (`Scan → ■` / `Scan → SIE → ■` / `Scan → SIE → Model Studio`), Escalated / SIE-only filters, and skill quality triage tabs (**Quality ≥ 80** / **Quality < 80** / **No quality score** — slice 42 A14–A15 ON BRANCH) — [reading-router-results.md](./user-guide/reading-router-results.md)
 - `prototypes/sie-studio/` / `prototypes/model-studio/` — sample CLIs for router backends
 - `scripts/` — setup (Supabase/Modal), `serve-dashboard.mjs`, hygiene gates, router fixtures
 - `fixtures/` — smoke targets — [fixtures/README.md](../fixtures/README.md)

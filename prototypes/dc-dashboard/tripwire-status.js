@@ -305,6 +305,87 @@ export function formatRiskDensityLabel(riskLabel) {
  *   scheduleCue: string|null,
  * }|null}
  */
+/** Tessl Review (Quality) triage threshold — slice 42 A14–A15. */
+export const QUALITY_TAB_FLOOR = 80;
+
+/**
+ * @param {{ type?: string }|null|undefined} item
+ * @returns {boolean}
+ */
+export function isSkillItem(item) {
+  return item?.type === "skill";
+}
+
+/**
+ * @param {{ type?: string, quality?: number|null }|null|undefined} item
+ * @returns {boolean}
+ */
+export function hasKnownQualityScore(item) {
+  if (!isSkillItem(item)) return false;
+  const q = item.quality;
+  return typeof q === "number" && !Number.isNaN(q);
+}
+
+/**
+ * @param {{ type?: string, quality?: number|null }|null|undefined} item
+ * @param {number} [floor=QUALITY_TAB_FLOOR]
+ * @returns {boolean}
+ */
+export function qualityMeetsThreshold(item, floor = QUALITY_TAB_FLOOR) {
+  if (!hasKnownQualityScore(item)) return false;
+  return item.quality >= floor;
+}
+
+/**
+ * @param {{ type?: string, quality?: number|null }|null|undefined} item
+ * @param {number} [floor=QUALITY_TAB_FLOOR]
+ * @returns {'high'|'low'|'unscored'|null}
+ */
+export function qualityTabBucket(item, floor = QUALITY_TAB_FLOOR) {
+  if (!isSkillItem(item)) return null;
+  if (qualityMeetsThreshold(item, floor)) return "high";
+  if (hasKnownQualityScore(item)) return "low";
+  return "unscored";
+}
+
+/**
+ * @param {{ type?: string, quality?: number|null }|null|undefined} item
+ * @param {'high'|'low'|'unscored'} tab
+ * @param {number} [floor=QUALITY_TAB_FLOOR]
+ * @returns {boolean}
+ */
+export function matchesQualityTab(item, tab, floor = QUALITY_TAB_FLOOR) {
+  return qualityTabBucket(item, floor) === tab;
+}
+
+/**
+ * @param {Array<{ type?: string, quality?: number|null }>|null|undefined} items
+ * @param {'high'|'low'|'unscored'} tab
+ * @param {number} [floor=QUALITY_TAB_FLOOR]
+ * @returns {Array<object>}
+ */
+export function filterItemsByQualityTab(items, tab, floor = QUALITY_TAB_FLOOR) {
+  return (items || []).filter((it) => matchesQualityTab(it, tab, floor));
+}
+
+/**
+ * @param {Array<{ type?: string, quality?: number|null }>|null|undefined} items
+ * @param {number} [floor=QUALITY_TAB_FLOOR]
+ * @returns {{ high: number, low: number, unscored: number }}
+ */
+export function countSkillsByQualityTab(items, floor = QUALITY_TAB_FLOOR) {
+  let high = 0;
+  let low = 0;
+  let unscored = 0;
+  for (const it of items || []) {
+    const bucket = qualityTabBucket(it, floor);
+    if (bucket === "high") high += 1;
+    else if (bucket === "low") low += 1;
+    else if (bucket === "unscored") unscored += 1;
+  }
+  return { high, low, unscored };
+}
+
 export function qualitySurfacing(item) {
   if (!item || item.type !== "skill") return null;
 
@@ -528,6 +609,14 @@ export default {
   riskTooltip,
   formatRiskBadge,
   formatRiskDensityLabel,
+  QUALITY_TAB_FLOOR,
+  isSkillItem,
+  hasKnownQualityScore,
+  qualityMeetsThreshold,
+  qualityTabBucket,
+  matchesQualityTab,
+  filterItemsByQualityTab,
+  countSkillsByQualityTab,
   qualitySurfacing,
   qualityTooltip,
   operatorLocusLabel,
