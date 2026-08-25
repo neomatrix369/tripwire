@@ -290,11 +290,33 @@ See `docs/design/tessl-5-row-expansion.md § Open Questions`.
 | 51 | [slice-51-review-security](slices/12-L-tessl-5-row-expansion/slice-51-review-security.md) | Tessl: Review (Security) Adapter (Row 5) | Could | 🔀 | 47 | — | ~3 min |
 | 52 | [slice-52-id-lineage-wiring](slices/12-L-tessl-5-row-expansion/slice-52-id-lineage-wiring.md) | ID Lineage Cross-Reads + UI Side-by-Side Findings | Could | 📋 | 49, 50, 51; Gap C UI-only | — | ~5 min |
 
+## Wave 13-M — LLM usage / cost observability
+
+**Group letter M** (next after L). Folder: [`slices/13-M-llm-usage-tracking/`](slices/13-M-llm-usage-tracking/).  
+Design: [`docs/design/llm-usage-tracking.md`](../design/llm-usage-tracking.md).  
+**Follow-on to ADR-0016** (tiered router) — not a Tessl (L), dashboard-quality (J), or ATDD (G) pile-on.
+
+| Candidate home | Fit | Why rejected / accepted |
+|----------------|-----|-------------------------|
+| **M (this wave)** | ✅ | New cross-stack capability: schema + router metering + Usage tab + cost tips (+ Phase 2 sandbox) |
+| J — Dashboard data quality | ❌ | J is closed ✅ on A1–A13 *correctness*; usage/cost is new behaviour, not fixing wrong card data |
+| L — Tessl 5-row | ❌ | Only Phase 2 emits Tessl opaque events; core is SIE/Model Studio router |
+| G — ATDD closure | ❌ | Parked contract gaps (18–22); not a feature wave |
+| K — Docs UX | ❌ | Docs are a side effect of the feature PR, not the slice purpose |
+
+Meter router (SIE + Model Studio) accurately; Phase 2 best-effort Cisco LLM + Tessl SaaS events; Usage tab + cost tips. **Plan captured + EFP-processed 2026-08-25 — build only when slice 53 is explicitly started.**
+
+**Model / harness:** inherits TRAIL Original Material (`gpt-5.6-sol` planning / `gpt-5.6-terra` execution) + existing `<!-- harness-scout` embed. Profile: ambiguity=low · blast_radius=high · time_box=Phase1 ≤2h · interactive.
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| 53 | [slice-53-llm-usage-tracking](slices/13-M-llm-usage-tracking/slice-53-llm-usage-tracking.md) | LLM Usage Tracking + UI Cost Surfacing | Should | 📋 | — (ADR-0016 complements) | — | ~6 min |
+
 ## Supporting Artifacts
 | File | Status |
 |------|--------|
-| [README.md](README.md) | ✅ wave folder map (`01-A-…` … `08-H-frontline-agent-hooks/`) |
-| `01-A-…` … `08-H-…/` | ✅ slice stubs by execution wave |
+| [README.md](README.md) | ✅ wave folder map (`01-A-…` … `13-M-llm-usage-tracking/`) |
+| `01-A-…` … `13-M-…/` | ✅ slice stubs by execution wave |
 | interview_summary.md | ✅ written |
 | PROGRESS.md | ✅ written |
 | DECISIONS.md | ✅ in progress |

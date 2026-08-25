@@ -16,6 +16,7 @@ Horizon A trackers and slice stubs. **Slice files live in wave folders** (execut
 | 10 | [slices/10-J-dashboard-data-quality/](slices/10-J-dashboard-data-quality/) | Dashboard data quality fixes (42) — ✅ |
 | 11 | [slices/11-K-docs-ux-plain-language/](slices/11-K-docs-ux-plain-language/) | Docs UX plain language + compaction (44) — 🔀 |
 | 12 | [slices/12-L-tessl-5-row-expansion/](slices/12-L-tessl-5-row-expansion/) | Tessl 5-row expansion (45–52) — 45–50 ✅ · 51 🔀 · 52 📋 · design: [tessl-5-row-expansion.md](../design/tessl-5-row-expansion.md) |
+| 13 | [slices/13-M-llm-usage-tracking/](slices/13-M-llm-usage-tracking/) | **M — LLM usage / cost observability** (53) — 📋 plan-only · ADR-0016 follow-on · **not** J/L/G · design: [llm-usage-tracking.md](../design/llm-usage-tracking.md) |
 
 | Tracker | Role |
 |---------|------|
