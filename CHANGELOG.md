@@ -114,6 +114,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   avoids delayed native `title=` attributes.
 
 ### Fixed
+- Tessl dashboard progress during Modal scans: skip bulk `running` placeholders for
+  all five Tessl rows at group start; Lint and Review (Quality) now persist
+  `running`→terminal via `on_scanner_progress` so only the active step shows
+  Running. Dashboard adds status pills for `blocked`, `stale`, `interrupted`, and
+  `timed_out` (`tripwire-status.js`).
 - Live dashboard latest-state accuracy (partial slice 21): `db/schema.sql` adds
   `dashboard_latest_runs` view (`DISTINCT ON (item_id)`); `tripwire-live.js` queries
   it instead of a global `scan_runs?limit=2000` page and batches

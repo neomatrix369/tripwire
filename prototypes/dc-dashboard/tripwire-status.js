@@ -205,6 +205,10 @@ export const SCANNER_EXEC_META = {
   unreachable: { color: STATUS_META.error.color, label: "✗ Unreachable" },
   not_applicable: { color: STATUS_META.grey.color, label: "— N/A" },
   failed: { color: STATUS_META.error.color, label: "✗ Failed" },
+  blocked: { color: STATUS_META.grey.color, label: "⊘ Blocked" },
+  stale: { color: STATUS_META.amber.color, label: "Stale" },
+  interrupted: { color: STATUS_META.amber.color, label: "Interrupted" },
+  timed_out: { color: STATUS_META.amber.color, label: "Timed Out" },
   not_available_yet: {
     color: STATUS_META.grey.color,
     label: "Not Available Yet",
