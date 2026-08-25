@@ -124,7 +124,7 @@ Reachable through production entry points / config:
   Security `tessl_run_id` via `review view --last --json`. Dashboard expanded
   Security row shows linked Quality findings when that ID is populated (UI-level,
   no live Tessl fetch — slice 52). IMPLEMENTED (unit) —
-  `sandbox/scanners.py` / `tripwire-status.js` (slice 51 🔨)
+  `sandbox/scanners.py` / `tripwire-status.js` (slice 51 🔀)
 - Live dashboard latest-state read path — `dashboard_latest_runs` view (one row per
   item) + batched child-table fetches in `tripwire-live.js`; replaces global
   `scan_runs?limit=2000` page that could miss per-item newest runs and PostgREST

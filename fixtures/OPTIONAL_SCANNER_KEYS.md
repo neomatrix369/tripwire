@@ -25,7 +25,7 @@ placeholder token, but this is a degraded diagnostic path.
 | Scanner capability | Keys synced to `tripwire-scan-secrets` |
 |---|---|
 | Snyk scanning | `SNYK_TOKEN` |
-| Tessl quality score | `TESSL_TOKEN`, `TESSL_WORKSPACE` |
+| Tessl Review (Quality + Security), Scenario Gen, Eval | `TESSL_TOKEN`, `TESSL_WORKSPACE` |
 | Cisco Skill Scanner LLM | `SKILL_SCANNER_LLM_API_KEY`, `SKILL_SCANNER_LLM_MODEL`, `SKILL_SCANNER_LLM_PROVIDER`, `SKILL_SCANNER_LLM_BASE_URL`, `SKILL_SCANNER_LLM_API_VERSION` |
 | Cisco MCP Scanner LLM | `MCP_SCANNER_LLM_API_KEY`, `MCP_SCANNER_LLM_MODEL`, `MCP_SCANNER_LLM_BASE_URL`, `MCP_SCANNER_LLM_API_VERSION` |
 | Cisco AI Defense | `AI_DEFENSE_API_KEY`, `AI_DEFENSE_API_URL`, `MCP_SCANNER_API_KEY`, `MCP_SCANNER_ENDPOINT` |
