@@ -733,13 +733,9 @@ def _pick_tessl_workspace(workspaces: list[dict], username: str | None) -> str |
         for ws in named:
             actions = ws.get("allowedActions") or []
             if isinstance(actions, list) and action in actions:
-                name = ws.get("name")
-                if isinstance(name, str) and name.strip():
-                    return name.strip()
-    first = named[0].get("name")
-    if isinstance(first, str) and first.strip():
-        return first.strip()
-    return None
+                # named entries always carry a non-empty str name (filtered above).
+                return str(ws["name"]).strip()
+    return str(named[0]["name"]).strip()
 
 
 def _match_tessl_workspace(workspaces: list[dict], needle: str) -> str | None:

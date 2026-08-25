@@ -2518,6 +2518,12 @@ def test_annotate_tessl_cli_detail_adds_user_and_workspace() -> None:
     assert scanners._annotate_tessl_cli_detail("generation exploded", workspace="engteam") == (
         "generation exploded"
     )
+    assert scanners._annotate_tessl_cli_detail("") == ""
+    scanners._tessl_last_username = None
+    scanners._tessl_last_workspace = None
+    assert scanners._annotate_tessl_cli_detail("Workspace not found") == "Workspace not found"
+    assert scanners._match_tessl_workspace([{"name": "a"}], "  ") is None
+    assert scanners._match_tessl_workspace([{"id": "id-1"}], "id-1") == "id-1"
 
 
 def test_ensure_tessl_project_create_timeout_returns_false(tmp_path) -> None:
