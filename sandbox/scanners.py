@@ -1382,9 +1382,7 @@ def _run_tessl_eval(
         return row
     if not workspace:
         row["status"] = "needs_setup"
-        row["detail"] = (
-            "Tessl workspace unresolved — set TESSL_WORKSPACE or ensure tessl login"
-        )
+        row["detail"] = "Tessl workspace unresolved — set TESSL_WORKSPACE or ensure tessl login"
         _emit_tessl_row_progress(on_progress, row)
         return row
 
@@ -1536,9 +1534,7 @@ def _resolve_tessl_eval_row(
     scenario_ok = scenario_row.get("status") == "completed"
     has_scenarios = _count_evals_scenarios(workdir) > 0
     if scenario_ok and has_scenarios and eval_row.get("status") in {"blocked", "not_started"}:
-        return _run_tessl_eval(
-            workdir, ctx, eval_row, workspace=workspace, on_progress=on_progress
-        )
+        return _run_tessl_eval(workdir, ctx, eval_row, workspace=workspace, on_progress=on_progress)
 
     _emit_tessl_row_progress(on_progress, eval_row)
     return eval_row

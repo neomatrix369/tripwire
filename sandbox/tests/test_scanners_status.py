@@ -2316,9 +2316,7 @@ def test_resolve_tessl_workspace_helpers_cover_fallback_paths() -> None:
     assert scanners._parse_tessl_whoami_username({"username": "top"}) == "top"
     assert scanners._parse_tessl_whoami_username({"user": {"username": "  "}}) is None
     assert scanners._parse_tessl_workspace_list([{"name": "a"}, "skip"]) == [{"name": "a"}]
-    assert scanners._parse_tessl_workspace_list({"workspaces": [{"name": "b"}]}) == [
-        {"name": "b"}
-    ]
+    assert scanners._parse_tessl_workspace_list({"workspaces": [{"name": "b"}]}) == [{"name": "b"}]
     assert scanners._parse_tessl_workspace_list({"workspaces": "bad"}) == []
     assert scanners._parse_tessl_workspace_list("nope") == []
     assert scanners._pick_tessl_workspace([], None) is None
