@@ -621,6 +621,154 @@ def test_given_snyk_valid_envelope_with_no_issues_when_run_then_completed() -> N
     assert rows[0]["checks_run"] >= 1
 
 
+def test_given_snyk_v06_clean_scan_path_responses_when_run_then_completed() -> None:
+    """
+    Scenario: Agent Scan v0.6 clean envelope is completed, not unreachable.
+    Slice: slice-11 — run_snyk v0.6 clean
+
+    Given SNYK_TOKEN and a scan_path_responses payload with skill_risks but empty risk_indexes,
+    When run_snyk maps it,
+    Then status is completed with zero findings.
+    """
+    ### Given
+    payload = {
+        "scan_path_responses": [
+            {
+                "client": "/tmp/scan-target",
+                "path": "/tmp",
+                "server_risks": [],
+                "skill_risks": [
+                    {
+                        "name": "content-distiller",
+                        "files": [{"name": "SKILL.md", "type": "instruction"}],
+                        "risk_indexes": {},
+                    }
+                ],
+            }
+        ]
+    }
+
+    ### When
+    with (
+        patch.dict("os.environ", {"SNYK_TOKEN": "t"}, clear=False),
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", return_value=(0, json.dumps(payload), "")),
+    ):
+        findings, rows = scanners.run_snyk("/tmp", "skill")
+
+    ### Then
+    assert findings == []
+    assert rows[0]["status"] == "completed"
+    assert rows[0]["checks_run"] >= 1
+
+
+def test_given_snyk_v06_risk_indexes_when_run_then_red_and_amber_findings() -> None:
+    """
+    Scenario: v0.6 risk_indexes map to Tripwire findings by score band.
+    Slice: slice-11 — run_snyk v0.6 risks
+
+    Given skill risk score 1000 and server risk score 300,
+    When run_snyk maps them,
+    Then one red and one amber finding are emitted and status is completed.
+    """
+    ### Given
+    payload = {
+        "scan_path_responses": [
+            {
+                "path": "/tmp",
+                "server_risks": [
+                    {
+                        "name": "github",
+                        "entities": [{"name": "search", "type": "tool"}],
+                        "risk_indexes": {
+                            "dangerous_words": {
+                                "score": 300,
+                                "evidence": "Manipulative language in tool desc.",
+                                "affected_tools": [0],
+                            }
+                        },
+                    }
+                ],
+                "skill_risks": [
+                    {
+                        "name": "release-helper",
+                        "files": [{"name": "SKILL.md", "type": "instruction"}],
+                        "risk_indexes": {
+                            "prompt_injection_skill_instructions": {
+                                "score": 1000,
+                                "evidence": "Hidden directives in SKILL.md.",
+                            }
+                        },
+                    }
+                ],
+            }
+        ]
+    }
+
+    ### When
+    with (
+        patch.dict("os.environ", {"SNYK_TOKEN": "t"}, clear=False),
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", return_value=(0, json.dumps(payload), "")),
+    ):
+        findings, rows = scanners.run_snyk("/tmp", "skill")
+
+    ### Then
+    assert rows[0]["status"] == "completed"
+    assert len(findings) == 2
+    by_cat = {f["category"]: f for f in findings}
+    assert by_cat["prompt_injection_skill_instructions"]["severity"] == "red"
+    assert "Hidden directives" in by_cat["prompt_injection_skill_instructions"]["message"]
+    assert by_cat["dangerous_words"]["severity"] == "amber"
+
+
+def test_given_snyk_v06_skill_unauthorized_when_run_then_skipped_credential() -> None:
+    """
+    Scenario: v0.6 skill-level Unauthorized is a credential skip.
+    Slice: slice-11 — run_snyk v0.6 auth
+
+    Given skill_risks[].error Unauthorized 401 and no risk findings,
+    When run_snyk maps it,
+    Then status is skipped_missing_credential.
+    """
+    ### Given
+    payload = {
+        "scan_path_responses": [
+            {
+                "path": "/tmp",
+                "server_risks": [],
+                "skill_risks": [
+                    {
+                        "name": "scan-target",
+                        "error": {
+                            "message": (
+                                "Unauthorized. Please check your SNYK_TOKEN "
+                                "environment variable or your push key."
+                            ),
+                            "exception": "401, message='Unauthorized'",
+                            "is_failure": True,
+                            "category": "analysis_error",
+                        },
+                    }
+                ],
+            }
+        ]
+    }
+
+    ### When
+    with (
+        patch.dict("os.environ", {"SNYK_TOKEN": "t"}, clear=False),
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", return_value=(1, json.dumps(payload), "")),
+    ):
+        findings, rows = scanners.run_snyk("/tmp", "skill")
+
+    ### Then
+    assert findings == []
+    assert rows[0]["status"] == "skipped_missing_credential"
+    assert "Unauthorized" in rows[0].get("detail", "")
+
+
 def test_given_no_snyk_binaries_when_cmd_then_none() -> None:
     """
     Scenario: Neither snyk-agent-scan nor uvx → no command.
@@ -664,6 +812,7 @@ def test_given_tessl_token_when_run_ok_then_quality_score() -> None:
             {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"},
             clear=False,
         ),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value=True),
         patch.object(
             scanners,
@@ -700,13 +849,15 @@ def test_given_no_tessl_token_when_run_then_skipped() -> None:
 
     ### Then
     assert score is None
-    assert len(rows) == 3
+    assert len(rows) == 4
     assert rows[0]["scanner_source"] == "Tessl: Lint"
     assert rows[0]["status"] == "completed"
     assert rows[1]["scanner_source"] == "Tessl: Review (Quality)"
     assert rows[1]["status"] == "needs_setup"
     assert rows[2]["scanner_source"] == "Tessl: Scenario Generation"
     assert rows[2]["status"] == "needs_setup"
+    assert rows[3]["scanner_source"] == "Tessl: Eval"
+    assert rows[3]["status"] == "blocked"
 
 
 def test_given_tessl_npx_missing_when_run_then_unreachable() -> None:
@@ -721,6 +872,7 @@ def test_given_tessl_npx_missing_when_run_then_unreachable() -> None:
             {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"},
             clear=False,
         ),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value=False),
     ):
         score, rows = scanners.run_tessl("/tmp")
@@ -742,6 +894,7 @@ def test_given_tessl_nonzero_when_run_then_unreachable() -> None:
             {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"},
             clear=False,
         ),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value=True),
         patch.object(
             scanners, "_run", side_effect=[(0, "0 checks — 0 findings", ""), (1, "", "fail")]
@@ -815,34 +968,55 @@ def test_given_scanners_complete_when_scan_item_inner_then_completed_status() ->
 
 def test_given_scenario_checkpoint_when_scan_item_inner_then_resume_and_progress_wired() -> None:
     """
-    Scenario: scan_item_inner loads Tessl resume_checkpoint and persists progress rows.
-    Slice: 49 — scan_app mid-scan persist
+    Scenario: scan_item_inner loads Tessl resume_checkpoint and Eval prior row.
+    Slice: 49/50 — scan_app mid-scan persist
 
-    Given an existing Scenario Generation resume_checkpoint in Supabase,
+    Given an existing Scenario Generation resume_checkpoint and Eval row in Supabase,
     When _scan_item_inner runs,
-    Then run_all_scanners receives tessl_scenario_resume and on_scanner_progress writes.
+    Then run_all_scanners receives tessl_scenario_resume, tessl_prior_eval,
+    and on_scanner_progress writes.
     """
     ### Given
     checkpoint = {"stage": "generated", "gen_id": "gen_persisted"}
+    prior_eval = {
+        "status": "interrupted",
+        "tessl_run_id": "eval_resume",
+        "tessl_run_id_at": "2026-08-25T00:00:00+00:00",
+        "completed_at": None,
+        "upstream_run_ids": {"review_quality": "rev_1", "scenario_gen": "gen_1"},
+        "detail": "detached",
+        "checks_run": 0,
+    }
     sb = _supabase_chain(data=[{"id": "1"}])
-    select_chain = MagicMock()
-    select_chain.eq.return_value.eq.return_value.limit.return_value.execute.return_value = (
-        MagicMock(data=[{"resume_checkpoint": checkpoint}])
+    select_results = iter(
+        [
+            MagicMock(data=[{"resume_checkpoint": checkpoint}]),
+            MagicMock(data=[prior_eval]),
+        ]
     )
-    sb.table.return_value.select.return_value = select_chain
+
+    def _select_side_effect(*_args, **_kwargs):
+        chain = MagicMock()
+        chain.eq.return_value.eq.return_value.limit.return_value.execute.side_effect = lambda: next(
+            select_results
+        )
+        return chain
+
+    sb.table.return_value.select.side_effect = _select_side_effect
     captured: dict = {}
 
     def _fake_all(**kwargs):
         captured["resume"] = kwargs.get("tessl_scenario_resume")
+        captured["prior_eval"] = kwargs.get("tessl_prior_eval")
         assert kwargs["on_scanner_progress"] is not None
         kwargs["on_scanner_progress"](
             {
-                "scanner_source": "Tessl: Scenario Generation",
-                "status": "interrupted",
-                "resume_checkpoint": checkpoint,
+                "scanner_source": "Tessl: Eval",
+                "status": "blocked",
+                "checks_run": 0,
             }
         )
-        kwargs["on_scanner_start"](["Tessl: Scenario Generation"])
+        kwargs["on_scanner_start"](["Tessl: Scenario Generation", "Tessl: Eval"])
         kwargs["on_scanner_done"]([], [], None)
         return {
             "overall_status": "complete",
@@ -860,7 +1034,44 @@ def test_given_scenario_checkpoint_when_scan_item_inner_then_resume_and_progress
 
     ### Then
     assert captured["resume"] == checkpoint
+    assert captured["prior_eval"] == prior_eval
     assert sb.table.called
+
+
+def test_given_resume_select_errors_when_scan_item_inner_then_continues() -> None:
+    """
+    Scenario: Tessl resume/prior select failures are non-fatal warnings.
+    Slice: 50 — scan_app load resilience
+
+    Given Supabase select for Scenario/Eval resume rows raises,
+    When _scan_item_inner runs,
+    Then run_all_scanners is still invoked with None resume/prior values.
+    """
+    ### Given
+    sb = _supabase_chain(data=[{"id": "1"}])
+    sb.table.return_value.select.side_effect = RuntimeError("db down")
+    captured: dict = {}
+
+    def _fake_all(**kwargs):
+        captured["resume"] = kwargs.get("tessl_scenario_resume")
+        captured["prior_eval"] = kwargs.get("tessl_prior_eval")
+        return {
+            "overall_status": "complete",
+            "findings": [],
+            "scanner_rows": [],
+            "quality_score": None,
+        }
+
+    ### When
+    with (
+        patch.object(scan_app, "_acquire_target"),
+        patch.object(scan_app, "run_all_scanners", side_effect=_fake_all),
+    ):
+        scan_app._scan_item_inner(sb, "t", "skill", "run-1", "item-1", None)
+
+    ### Then
+    assert captured["resume"] is None
+    assert captured["prior_eval"] is None
 
 
 def test_given_acquire_fails_when_scan_item_inner_then_mark_failed() -> None:
@@ -1137,6 +1348,7 @@ def test_given_tessl_no_console_when_completed_then_no_console_key() -> None:
             {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"},
             clear=False,
         ),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value=True),
         patch.object(
             scanners, "_run", return_value=(0, json.dumps({"score": 1, "id": "rev_c"}), "")
@@ -1166,6 +1378,7 @@ def test_given_tessl_empty_success_output_when_run_then_not_reported_completed()
             {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"},
             clear=False,
         ),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value=True),
         patch.object(
             scanners, "_run", side_effect=[(0, "0 checks — 0 findings", ""), (0, "{}", "")]

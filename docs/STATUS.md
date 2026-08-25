@@ -58,7 +58,8 @@ Reachable through production entry points / config:
 - `_acquire_target` dispatch (git clone, local copy, host→sandbox tar upload via
   `local_entrypoint`, MCP introspection-only empty workdir) — `sandbox/`
 - Dashboard Live/Mock with Supabase Realtime (~1s) + 8s poll fallback, SCANNING
-  in-flight UI, scanner console in drawer, partial-failed “n out of m scanners
+  in-flight UI, scanner console in drawer, collapsible Findings heading (rotating
+  chevron; expanded by default), partial-failed “n out of m scanners
   unreachable” copy — `prototypes/dc-dashboard/`;
   `scripts/serve-dashboard.mjs` / `scripts/sync-dashboard-config.sh`
 - Dashboard visual identity v2 (FolderGate cream/tan × Tripwire HUD): paper
@@ -94,10 +95,12 @@ Reachable through production entry points / config:
   — `sandbox/scanners.py` (slice 47 ✅,
   [PR #109](https://github.com/neomatrix369/tripwire/pull/109); GWT-47.1–47.5)
 - Dashboard Tessl "Not Available Yet" placeholders — Scanner Outputs always shows
-  five Tessl capability rows when any Tessl DB row exists; missing
-  Eval / Review (Security) (and Scenario Generation until a DB row exists) are
-  UI-only sentinels (`status: not_available_yet`), never written as placeholders,
-  and counted in the header. MCP scans are unchanged. IMPLEMENTED (unit) +
+  five Tessl capability rows when any Tessl DB row exists; missing sources among
+  Scenario Generation / Eval / Review (Security) are UI-only sentinels
+  (`status: not_available_yet`) when absent from the scan_run (never stored as
+  placeholders) and counted in the header. Runners 49–50 write Scenario Gen +
+  Eval rows when they run; Security remains sentinel until slice 51. MCP scans
+  unchanged. IMPLEMENTED (unit) +
   VERIFIED (Mock UI 2026-08-24: `safe-changelog-writer` Scanner Outputs (7),
   five Tessl rows, three NAY pills, no chevron; MCP `SCANNER OUTPUTS (3)`
   unpadded) — `tripwire-status.js` `mergeTesslCapabilityRows`, `Tripwire.dc.html`
@@ -107,7 +110,13 @@ Reachable through production entry points / config:
   `<plugin>/evals/`, `upstream_run_ids.review_quality` from ctx, `tessl_run_id`
   stamp, `resume_checkpoint` + mid-scan persist via `on_scanner_progress`.
   Missing token → `needs_setup`; missing `.tessl-plugin/plugin.json` → `failed`.
-  IMPLEMENTED (unit) — `sandbox/scanners.py` / `sandbox/scan_app.py` (slice 49 🔄)
+  IMPLEMENTED (unit) — `sandbox/scanners.py` / `sandbox/scan_app.py` (slice 49 ✅ #112)
+- Tessl Eval auto-chain — `run_tessl()` emits `"Tessl: Eval"` as `blocked` before
+  Scenario Generation, then auto-chains to `queued`→`running` when generation
+  completes and `<plugin>/evals/` has scenarios; `tessl eval run --runs 3 -y
+  --json` + `eval view` poll; `upstream_run_ids` from ctx; project create/repair
+  preflight; scenario re-run marks prior completed Eval `stale` (no cascade).
+  IMPLEMENTED (unit) — `sandbox/scanners.py` / `sandbox/scan_app.py` (slice 50 🔨)
 - Live dashboard latest-state read path — `dashboard_latest_runs` view (one row per
   item) + batched child-table fetches in `tripwire-live.js`; replaces global
   `scan_runs?limit=2000` page that could miss per-item newest runs and PostgREST
@@ -235,17 +244,17 @@ Not IMPLEMENTED — no production hook install path or `/tw-*` skills yet. ADR-0
 Horizon A exclusion remains in force until Wave H lands and a superseding ADR
 records the new production entry.
 
-**Wave L — Tessl scenario generation + eval (2026-08-24):** Row 3
-(`"Tessl: Scenario Generation"`) is **IMPLEMENTED (unit, slice 49)** —
+**Wave L — Tessl scenario generation + eval (2026-08-25):** Row 3
+(`"Tessl: Scenario Generation"`) is **IMPLEMENTED (unit, slice 49 ✅ #112)** —
 `scenario generate <plugin-path> --count 3` → `scenario download <gen_id> -o
 <plugin>/evals/` with `resume_checkpoint` + mid-scan persist. Row 4
-(`"Tessl: Eval"`) remains **DECIDED** in slice 50 — not IMPLEMENTED. Eval
-auto-chains from `blocked` when generation completes and `evals/` is
-populated. Coverage Gap B (`scenario view <id>`) resolved; Gap C (agent-assisted
-generation) open. **IMPLEMENTED (slice 48):** host `evals/` is not a vuln-scan
-input — `_pack_local_dir` / `_copy_local` omit root `evals/` when the skill
-root has `tessl.json` or `.tessl-plugin/`. Git clone and identity hash still
-see on-disk `evals/`. Spec:
+(`"Tessl: Eval"`) is **IMPLEMENTED (unit, slice 50)** — starts `blocked`,
+auto-chains when generation completes and `evals/` is populated; stale on
+scenario re-run; resume via `eval view`. Coverage Gap B (`scenario view <id>`)
+resolved; Gap C (agent-assisted generation) open. **IMPLEMENTED (slice 48):**
+host `evals/` is not a vuln-scan input — `_pack_local_dir` / `_copy_local` omit
+root `evals/` when the skill root has `tessl.json` or `.tessl-plugin/`. Git
+clone and identity hash still see on-disk `evals/`. Spec:
 [design/tessl-5-row-expansion.md](./design/tessl-5-row-expansion.md),
 [slices 49–50](./plan/slices/12-L-tessl-5-row-expansion/).
 

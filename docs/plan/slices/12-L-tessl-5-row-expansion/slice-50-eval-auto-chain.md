@@ -3,7 +3,7 @@
 **Wave**: 12-L
 **MoSCoW**: Should
 **Depends on**: 49
-**Status**: 📋 PLANNED
+**Status**: 🔨 IN PROGRESS
 **Read time**: ~5 min
 
 ## Context
@@ -112,3 +112,12 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (b) auto-chain, § (b
 `coverage_pct`: target ≥ 80% for new eval + auto-chain code path
 `complexity_tool`: ruff/radon on `sandbox/scanners.py`
 `doc_audit`: design doc § (b) auto-chain and Stale — mark as implemented
+
+## Implementation notes (2026-08-25)
+
+- `_run_tessl_eval` + `_resolve_tessl_eval_row` in `sandbox/scanners.py`
+- `TESSL_SOURCES` includes `"Tessl: Eval"`; `run_tessl` returns 4 rows
+- `scan_app` loads prior Eval row for stale/resume; progress persists blocked→queued→running
+- Unit tests: GWT-50.0–50.6 in `test_scanners_status.py`
+- `./scripts/quality-gates.sh` passed (coverage 95.4%)
+- **nw-review**: APPROVED ([reviewer](65f6574d-325d-4809-910a-473ec52e6b6a)) — no blockers

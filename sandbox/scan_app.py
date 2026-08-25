@@ -277,10 +277,11 @@ def _scan_item_inner(
             )
 
     def _on_scanner_progress(row: dict) -> None:
-        """Persist Tessl Scenario Generation checkpoints before Modal timeout."""
+        """Persist Tessl mid-group rows (scenario checkpoint, Eval blocked→running)."""
         _persist_scanner_row(row, completed=False)
 
     tessl_scenario_resume = None
+    tessl_prior_eval = None
     try:
         resume_resp = (
             supabase.table("scan_run_scanners")
@@ -296,6 +297,23 @@ def _scan_item_inner(
         print(f"[scan] warning: could not load Tessl scenario resume_checkpoint: {exc}")
 
     try:
+        eval_resp = (
+            supabase.table("scan_run_scanners")
+            .select(
+                "status,tessl_run_id,tessl_run_id_at,completed_at,"
+                "upstream_run_ids,detail,checks_run"
+            )
+            .eq("scan_run_id", scan_run_id)
+            .eq("scanner_source", "Tessl: Eval")
+            .limit(1)
+            .execute()
+        )
+        if eval_resp.data:
+            tessl_prior_eval = eval_resp.data[0]
+    except Exception as exc:
+        print(f"[scan] warning: could not load Tessl Eval prior row: {exc}")
+
+    try:
         results = run_all_scanners(
             workdir=workdir,
             item_type=item_type,
@@ -304,6 +322,7 @@ def _scan_item_inner(
             on_scanner_start=_on_scanner_start,
             on_scanner_progress=_on_scanner_progress,
             tessl_scenario_resume=tessl_scenario_resume,
+            tessl_prior_eval=tessl_prior_eval,
         )
     except Exception:
         _mark_failed()

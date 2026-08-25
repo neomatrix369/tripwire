@@ -73,6 +73,26 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0.4; }
   }
+  .findings-chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--cta-ink);
+    transition: transform 180ms ease, color 150ms ease;
+    transform-origin: 50% 55%;
+  }
+  .findings-toggle:hover .findings-chevron {
+    color: var(--text-primary);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .findings-chevron { transition: none; }
+  }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
@@ -808,24 +828,33 @@
             </div>
           </sc-if>
 
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">{{ selectedView.findingsHeadingLabel }}</div>
-          <sc-for list="{{ selectedView.findingsView }}" as="f" hint-placeholder-count="1">
-            <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-left:3px solid {{ f.sevColor }};border-radius:6px;padding:10px 12px;margin-bottom:8px">
-              <div style="display:flex;justify-content:space-between;gap:8px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:4px">
-                <span>{{ f.category }}</span><span>{{ f.scanner }}</span>
-              </div>
-              <div style="font-size:12px;color:var(--text-primary);margin-bottom:4px">{{ f.message }}</div>
-              <sc-if value="{{ f.entity_name }}">
-                <div style="font-family:var(--font-mono);font-size:11px;color:var(--cta-ink)">tool: {{ f.entity_name }}</div>
-              </sc-if>
-              <sc-if value="{{ f.file_path }}">
-                <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">{{ f.file_path }}:{{ f.location }}</div>
-              </sc-if>
-              <sc-if value="{{ f.snippet }}">
-                <div style="font-family:var(--font-mono);font-size:11px;background:var(--bg-deep);padding:6px 8px;border-radius:4px;margin-top:6px;color:var(--red-ink);overflow-x:auto">{{ f.snippet }}</div>
-              </sc-if>
+          <div style="margin-bottom:8px">
+            <div class="findings-toggle" onClick="{{ selectedView.toggleFindings }}" role="button" tabindex="0" aria-expanded="{{ selectedView.findingsExpanded }}" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:6px 0">
+              <span class="findings-chevron" aria-hidden="true" style="transform:rotate({{ selectedView.findingsChevronDeg }})">▸</span>
+              <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em">{{ selectedView.findingsHeadingLabel }}</div>
             </div>
-          </sc-for>
+            <sc-if value="{{ selectedView.findingsExpanded }}">
+              <div style="margin-top:8px">
+                <sc-for list="{{ selectedView.findingsView }}" as="f" hint-placeholder-count="1">
+                  <div style="background:var(--bg-base);border:1px solid var(--border-subtle);border-left:3px solid {{ f.sevColor }};border-radius:6px;padding:10px 12px;margin-bottom:8px">
+                    <div style="display:flex;justify-content:space-between;gap:8px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:4px">
+                      <span>{{ f.category }}</span><span>{{ f.scanner }}</span>
+                    </div>
+                    <div style="font-size:12px;color:var(--text-primary);margin-bottom:4px">{{ f.message }}</div>
+                    <sc-if value="{{ f.entity_name }}">
+                      <div style="font-family:var(--font-mono);font-size:11px;color:var(--cta-ink)">tool: {{ f.entity_name }}</div>
+                    </sc-if>
+                    <sc-if value="{{ f.file_path }}">
+                      <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-muted)">{{ f.file_path }}:{{ f.location }}</div>
+                    </sc-if>
+                    <sc-if value="{{ f.snippet }}">
+                      <div style="font-family:var(--font-mono);font-size:11px;background:var(--bg-deep);padding:6px 8px;border-radius:4px;margin-top:6px;color:var(--red-ink);overflow-x:auto">{{ f.snippet }}</div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
 
           <sc-if value="{{ selectedView.sandbox }}">
             <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:16px 0 8px">Sandbox evidence</div>
@@ -1004,6 +1033,7 @@ class Component extends DCLogic {
     sortKey: 'name',
     sortDir: 'asc',
     expandedScanners: {},
+    findingsExpanded: true,
     realtimeConnected: false,
     showIntro: !sessionStorage.getItem('tripwire-intro-dismissed')
   };
@@ -1100,7 +1130,7 @@ class Component extends DCLogic {
   setDataSourceMode = (e) => {
     const mode = e.target.value;
     sessionStorage.setItem('tripwire-data-source-mode', mode);
-    this.setState({ dataSourceMode: mode, selectedId: null, expandedScanners: {} });
+    this.setState({ dataSourceMode: mode, selectedId: null, expandedScanners: {}, findingsExpanded: true });
     this._loadDataForMode(mode);
   };
 
@@ -1131,7 +1161,7 @@ class Component extends DCLogic {
   setTypeFilter = (v) => this.setState({ typeFilter: v });
   setStatusFilter = (v) => this.setState({ statusFilter: v });
   clearFilters = () => this.setState({ statusFilter: 'all', typeFilter: 'all', searchQuery: '' });
-  selectItem = (id) => this.setState({ selectedId: id, expandedScanners: {} });
+  selectItem = (id) => this.setState({ selectedId: id, expandedScanners: {}, findingsExpanded: true });
   closeDrawer = () => this.setState({ selectedId: null });
   toggleMonitoring = () => this.setState(s => ({ monitoringEnabled: !s.monitoringEnabled, guardResults: {} }));
   setThreshold = (v) => this.setState({ threshold: v, guardResults: {} });
@@ -1142,6 +1172,7 @@ class Component extends DCLogic {
     const key = itemId + ':' + idx;
     return { expandedScanners: { ...s.expandedScanners, [key]: !s.expandedScanners[key] } };
   });
+  toggleFindings = () => this.setState(s => ({ findingsExpanded: !s.findingsExpanded }));
 
   simulateGuardCall = (id) => {
     this.setState(s => {
@@ -1667,6 +1698,9 @@ class Component extends DCLogic {
       trendPoints: this.trendPath(selected.trend),
       routerStrip: this.routerStripForItem(selected),
       findingsView: selected.findings.filter(f => f.scanner !== 'tiered_router').map(f => ({ ...f, sevColor: this.severityColor(f.severity) })),
+      findingsExpanded: s.findingsExpanded,
+      findingsChevronDeg: s.findingsExpanded ? '90deg' : '0deg',
+      toggleFindings: this.toggleFindings,
       findingsHeadingLabel: (() => {
         const fv = selected.findings.filter(f => f.scanner !== 'tiered_router');
         return selected.errorMessage && fv.length === 0

@@ -1,6 +1,6 @@
 # Design: Tessl 5-Row Expansion
 
-**Status**: Schema IMPLEMENTED (slice 45 ✅). Lint adapter IMPLEMENTED (slice 46 ✅ #105). Review Quality run-ID + `_TesslIdContext` seed IMPLEMENTED unit (slice 47 ✅ #109). Rows 3–5 UI sentinels IMPLEMENTED (slice 48). Scenario Generation runner IMPLEMENTED unit (slice 49). Eval + Security runners remain DECIDED / not implemented.
+**Status**: Schema IMPLEMENTED (slice 45 ✅). Lint adapter IMPLEMENTED (slice 46 ✅ #105). Review Quality run-ID + `_TesslIdContext` seed IMPLEMENTED unit (slice 47 ✅ #109). Rows 3–5 UI sentinels IMPLEMENTED (slice 48). Scenario Generation runner IMPLEMENTED unit (slice 49 ✅ #112). Eval auto-chain IMPLEMENTED unit (slice 50). Security runner remains DECIDED / not implemented.
 **Date**: 2026-08-24
 **Scope**: Design contract for replacing the single Tessl scanner row with 5 flat capability rows. Current-truth notes below mark what has shipped; remaining rows stay future-state.
 
@@ -255,7 +255,7 @@ Verified against [Tessl CLI reference](https://docs.tessl.io/reference/cli-comma
 7. Security (slice 51) → upstream_run_ids={review_quality}; review run security; stamp tessl_run_id
 ```
 
-**Not supported by Tessl CLI**: passing `gen_id` to `eval run`. Eval always consumes on-disk scenarios. **`--workspace`** on `scenario generate` is for repo mode (`org/repo --commits …`), not plugin-path generation.
+**Not supported by Tessl CLI**: passing `gen_id` to `eval run`. Eval always consumes on-disk scenarios. **`--workspace`** is **required** outside interactive mode for plugin-path `scenario generate` (live CLI). Tripwire resolves it via optional `TESSL_WORKSPACE` or `tessl whoami` + `tessl workspace list` (personal workspace is usually the username).
 
 ### ID carry-forward contract (MUST — slices 47–51)
 
@@ -328,7 +328,7 @@ Each feature that reads from a prior feature's persisted state does so by:
 
 **What is read**: Same Quality Review `tessl_run_id` lookup; `tessl review view <id> --json` to retrieve Quality findings.
 
-**Threading findings into scenario generation**: The **plain CLI form** (`tessl scenario generate <plugin-path> [--count N]`) has no context-injection flag. `--workspace` applies to **repo** generation (`org/repo --commits …`), not plugin-path generation. To thread Quality findings into scenario generation, the **agent-assisted path** (`tessl install tessl-labs/tessl-skill-eval-scenarios`) is the only documented channel.
+**Threading findings into scenario generation**: The **plain CLI form** (`tessl scenario generate <plugin-path> --workspace <ws> [--count N]`) has no context-injection flag for Quality findings. To thread Quality findings into scenario generation, the **agent-assisted path** (`tessl install tessl-labs/tessl-skill-eval-scenarios`) is the only documented channel.
 
 **Caveat — agent-assisted path in headless sandbox**: This path is designed around an interactive agent prompt. Whether it can be scripted from Tripwire's headless Modal sandbox orchestration is **unverified** (Coverage Gap C). Until verified, the plain CLI form is used for scenario generation, and the Quality findings are surfaced in the UI as context for human review of the generated scenarios rather than injected into the CLI call.
 
@@ -358,7 +358,7 @@ The single existing `"Tessl"` row is replaced by 5 flat sibling rows, in this ex
 | 1 | `Tessl: Lint` | live status (`completed` / `failed` / `unreachable`) | **IMPLEMENTED** (slice 46) — new row; auth-free `tessl skill lint` |
 | 2 | `Tessl: Review (Quality)` | live status (`completed` / `needs_setup` / …) | **IMPLEMENTED** source string (slice 46); `tessl_run_id` + `_TesslIdContext["review_quality"]` **IMPLEMENTED unit** (slice 47 ✅ #109) via `review view --last --json` |
 | 3 | `Tessl: Scenario Generation` | live status (`completed` / `failed` / `needs_setup` / `interrupted` / …) | **IMPLEMENTED unit (slice 49)** — `scenario generate` → download into `<plugin>/evals/`; `resume_checkpoint`; DB row replaces NAY sentinel |
-| 4 | `Tessl: Eval` | `Not Available Yet` | **IMPLEMENTED (UI sentinel, slice 48)** — not written to DB |
+| 4 | `Tessl: Eval` | live status (`blocked` / `queued` / `running` / `completed` / `stale` / …) | **IMPLEMENTED unit (slice 50)** — auto-chain after Scenario Gen + `evals/`; `upstream_run_ids`; project create/repair preflight; DB row replaces NAY sentinel |
 | 5 | `Tessl: Review (Security)` | `Not Available Yet` | **IMPLEMENTED (UI sentinel, slice 48)** — not written to DB |
 
 The 5 rows appear as a contiguous block where the single `"Tessl"` row used to be.
@@ -374,9 +374,9 @@ The dashboard derives the count from the **static constant list** of all 5 expec
 
 > **DECIDED (slice 48):** include "Not Available Yet" rows in the Scanner Outputs count (consistent with Cisco credential-absent rows).
 
-### "Not Available Yet" Rendering Rules (Eval + Security until slices 50–51)
+### "Not Available Yet" Rendering Rules (Security until slice 51; Scenario Gen / Eval when absent)
 
-The dashboard holds a **static ordered list** of all 5 Tessl `scanner_source` values. For each value absent from the DB rows for the current `scan_run_id`, the `scannersView` map emits a sentinel object with `status: 'not_available_yet'`.
+The dashboard holds a **static ordered list** of all 5 Tessl `scanner_source` values. For each value absent from the DB rows for the current `scan_run_id`, the `scannersView` map emits a sentinel object with `status: 'not_available_yet'`. After slices 49–50, Scenario Generation and Eval normally write real rows (including `blocked` Eval before auto-chain); Security Review remains NAY until slice 51.
 
 Rendering:
 - Left accent bar: neutral/muted colour (not the status colours used for active rows).
@@ -411,7 +411,7 @@ Extends `scannerStatusColor` and `scannerStatusLabel` in the dashboard JS:
 
 ### `tesslQuality` Binding Scope Fix
 
-The existing `tesslQuality` logic is implemented in `tesslInnerQuality` (`tripwire-status.js`) and is scoped to `scanner_source === "Tessl: Review (Quality)"`. Live attaches `output.quality_score` only for that source (`tripwire-live.js`). The quality score badge does not appear on Lint (slice 46 VERIFIED(unit)). Scenario Generation is written by the runner (slice 49); Eval and Security Review rows remain UI sentinels until slices 50–51 write real DB rows (slice 48 VERIFIED(unit)).
+The existing `tesslQuality` logic is implemented in `tesslInnerQuality` (`tripwire-status.js`) and is scoped to `scanner_source === "Tessl: Review (Quality)"`. Live attaches `output.quality_score` only for that source (`tripwire-live.js`). The quality score badge does not appear on Lint (slice 46 VERIFIED(unit)). Scenario Generation (slice 49) and Eval (slice 50) are written by the runner; Security Review remains a UI sentinel until slice 51 writes a real DB row (slice 48 VERIFIED(unit) for the merge/sentinel path).
 
 ---
 

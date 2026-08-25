@@ -8,15 +8,38 @@ Scope: run_all_scanners overall_status; _unreachable detail truncation;
        _build_console / _truncate_console; on_scanner_done callback relay;
        _completed console_output passthrough;
        Tessl ID context seed after Review Quality (GWT-47.5);
-       Tessl Scenario Generation + resume_checkpoint (GWT-49.*)
+       Tessl Scenario Generation + resume_checkpoint (GWT-49.*);
+       Tessl Eval auto-chain + stale + resume (GWT-50.*)
 """
 
 from __future__ import annotations
 
+import json
 import os
 from unittest.mock import patch
 
 import scanners
+
+# Satisfies whoami + workspace list when tests set TESSL_WORKSPACE=engteam.
+_TESSL_WS_RESOLVE_OK = [
+    (0, '{"authenticated": true, "user": {"username": "engteam"}}', ""),
+    (
+        0,
+        '{"workspaces": [{"name": "engteam", "id": "ws_eng", '
+        '"allowedActions": ["generate_eval_scenarios", "run_review"]}]}',
+        "",
+    ),
+]
+
+
+def _tessl_workspace_cli_ok(cmd, timeout=None, cwd=None):
+    """Satisfy whoami + workspace list for tests that set TESSL_WORKSPACE=engteam."""
+    del timeout, cwd
+    if len(cmd) > 3 and cmd[3] == "whoami":
+        return _TESSL_WS_RESOLVE_OK[0]
+    if cmd[3:5] == ["workspace", "list"]:
+        return _TESSL_WS_RESOLVE_OK[1]
+    return None
 
 
 def test_given_unreachable_stderr_when_building_row_then_detail_is_capped() -> None:
@@ -450,6 +473,7 @@ def test_run_tessl_logs_diagnostic_when_score_is_none(capsys) -> None:
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "fake-token", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(
             scanners,
@@ -461,14 +485,16 @@ def test_run_tessl_logs_diagnostic_when_score_is_none(capsys) -> None:
 
     ### Then
     assert score is None
-    assert len(rows) == 3
-    lint_row, review_row, scenario_row = rows
+    assert len(rows) == 4
+    lint_row, review_row, scenario_row, eval_row = rows
     assert lint_row["scanner_source"] == "Tessl: Lint"
     assert lint_row["status"] == "completed"
     assert review_row["scanner_source"] == "Tessl: Review (Quality)"
     assert review_row["status"] == "unreachable"
     assert scenario_row["scanner_source"] == "Tessl: Scenario Generation"
     assert scenario_row["status"] == "failed"
+    assert eval_row["scanner_source"] == "Tessl: Eval"
+    assert eval_row["status"] == "blocked"
     captured = capsys.readouterr()
     assert "[tessl]" in captured.out
     assert "quality_score extraction failed" in captured.out
@@ -501,8 +527,8 @@ def test_run_tessl_without_token_emits_lint_completed_and_review_needs_setup() -
 
     ### Then
     assert score is None
-    assert len(rows) == 3
-    lint_row, review_row, scenario_row = rows
+    assert len(rows) == 4
+    lint_row, review_row, scenario_row, eval_row = rows
     assert lint_row["scanner_source"] == "Tessl: Lint"
     assert lint_row["status"] == "completed"
     assert lint_row["checks_run"] == 12
@@ -512,6 +538,8 @@ def test_run_tessl_without_token_emits_lint_completed_and_review_needs_setup() -
     assert review_row["status"] == "needs_setup"
     assert scenario_row["scanner_source"] == "Tessl: Scenario Generation"
     assert scenario_row["status"] == "needs_setup"
+    assert eval_row["scanner_source"] == "Tessl: Eval"
+    assert eval_row["status"] == "blocked"
 
 
 def test_run_tessl_with_token_emits_lint_and_review_rows() -> None:
@@ -532,6 +560,7 @@ def test_run_tessl_with_token_emits_lint_and_review_rows() -> None:
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "tok-abc", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(
             scanners,
@@ -547,8 +576,8 @@ def test_run_tessl_with_token_emits_lint_and_review_rows() -> None:
 
     ### Then
     assert score == 75
-    assert len(rows) == 3
-    lint_row, review_row, scenario_row = rows
+    assert len(rows) == 4
+    lint_row, review_row, scenario_row, eval_row = rows
     assert lint_row["scanner_source"] == "Tessl: Lint"
     assert lint_row["status"] == "completed"
     assert lint_row.get("tessl_run_id") is None
@@ -558,8 +587,10 @@ def test_run_tessl_with_token_emits_lint_and_review_rows() -> None:
     assert review_row["tessl_run_id_at"]
     assert scenario_row["scanner_source"] == "Tessl: Scenario Generation"
     assert scenario_row["status"] == "failed"
+    assert eval_row["scanner_source"] == "Tessl: Eval"
+    assert eval_row["status"] == "blocked"
     sources = {row["scanner_source"] for row in rows}
-    assert "Tessl: Eval" not in sources
+    assert "Tessl: Eval" in sources
     assert "Tessl: Review (Security)" not in sources
 
 
@@ -583,13 +614,15 @@ def test_run_tessl_lint_failure_emits_failed_row() -> None:
 
     ### Then
     assert score is None
-    lint_row, review_row, scenario_row = rows
+    lint_row, review_row, scenario_row, eval_row = rows
     assert lint_row["scanner_source"] == "Tessl: Lint"
     assert lint_row["status"] == "failed"
     assert review_row["scanner_source"] == "Tessl: Review (Quality)"
     assert review_row["status"] == "needs_setup"
     assert scenario_row["scanner_source"] == "Tessl: Scenario Generation"
     assert scenario_row["status"] == "needs_setup"
+    assert eval_row["scanner_source"] == "Tessl: Eval"
+    assert eval_row["status"] == "blocked"
 
 
 def test_run_tessl_no_npx_emits_lint_unreachable() -> None:
@@ -611,14 +644,16 @@ def test_run_tessl_no_npx_emits_lint_unreachable() -> None:
 
     ### Then
     assert score is None
-    assert len(rows) == 3
-    lint_row, review_row, scenario_row = rows
+    assert len(rows) == 4
+    lint_row, review_row, scenario_row, eval_row = rows
     assert lint_row["scanner_source"] == "Tessl: Lint"
     assert lint_row["status"] == "unreachable"
     assert review_row["scanner_source"] == "Tessl: Review (Quality)"
     assert review_row["status"] == "needs_setup"
     assert scenario_row["scanner_source"] == "Tessl: Scenario Generation"
     assert scenario_row["status"] == "needs_setup"
+    assert eval_row["scanner_source"] == "Tessl: Eval"
+    assert eval_row["status"] == "blocked"
 
 
 def test_parse_tessl_lint_detail_extracts_count_from_text() -> None:
@@ -694,7 +729,10 @@ def test_run_tessl_review_quality_invokes_review_run_quality() -> None:
     ### Given
     captured: list[list[str]] = []
 
-    def _capture_run(cmd, timeout=None):
+    def _capture_run(cmd, timeout=None, cwd=None):
+        resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+        if resolved is not None:
+            return resolved
         captured.append(cmd)
         if cmd[3:5] == ["skill", "lint"]:
             return 0, "1 check", ""
@@ -702,11 +740,15 @@ def test_run_tessl_review_quality_invokes_review_run_quality() -> None:
             return 0, '{"score": 80, "id": "rev_from_run"}', ""
         if cmd[3:6] == ["review", "view", "--last"]:
             return 0, '{"id": "rev_from_view", "score": 80}', ""
+        eval_handled = _eval_ok(cmd, timeout, cwd)
+        if eval_handled is not None:
+            return eval_handled
         raise AssertionError(f"unexpected cmd: {cmd}")
 
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_capture_run),
     ):
@@ -740,6 +782,7 @@ def test_run_tessl_captures_run_id_from_view_last_json() -> None:
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(
             scanners,
@@ -769,6 +812,7 @@ def test_run_tessl_falls_back_to_run_json_id_when_view_last_fails() -> None:
     ### Given / When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(
             scanners,
@@ -788,18 +832,21 @@ def test_run_tessl_falls_back_to_run_json_id_when_view_last_fails() -> None:
 
 def test_run_tessl_without_workspace_emits_review_needs_setup() -> None:
     """
-    Scenario: TESSL_WORKSPACE absent — Review (Quality) is needs_setup.
-    Slice: 47 — GWT-47.3 needs_setup for missing review config
+    Scenario: Workspace unresolved — Review (Quality) and Scenario Gen are needs_setup.
+    Slice: 47 — GWT-47.3 needs_setup when workspace cannot be resolved
+    Slice: 49/50 — scenario generate also needs a resolved --workspace
 
-    Given TESSL_TOKEN is set and TESSL_WORKSPACE is absent,
+    Given TESSL_TOKEN is set, TESSL_WORKSPACE is absent, and workspace list fails,
     When run_tessl is called,
-    Then Review (Quality) status is needs_setup and no review subprocess runs.
+    Then Review (Quality) and Scenario Generation are needs_setup and no review/generate runs.
     """
     ### Given
     ran: list[list[str]] = []
 
-    def _record(cmd, timeout=None):
+    def _record(cmd, timeout=None, cwd=None):
         ran.append(cmd)
+        if cmd[3] == "whoami" or cmd[3:5] == ["workspace", "list"]:
+            return 1, "", "not authenticated"
         return 0, "1 check", ""
 
     ### When
@@ -814,7 +861,76 @@ def test_run_tessl_without_workspace_emits_review_needs_setup() -> None:
     assert score is None
     assert rows[1]["scanner_source"] == "Tessl: Review (Quality)"
     assert rows[1]["status"] == "needs_setup"
+    assert rows[2]["scanner_source"] == "Tessl: Scenario Generation"
+    assert rows[2]["status"] == "needs_setup"
     assert all(c[3:5] != ["review", "run"] for c in ran)
+    assert all(c[3:5] != ["scenario", "generate"] for c in ran)
+
+
+def test_run_tessl_resolves_workspace_from_whoami_when_env_unset(tmp_path) -> None:
+    """
+    Scenario: No TESSL_WORKSPACE — resolve personal workspace via whoami + list.
+    Given TESSL_TOKEN only and CLI returns username-matching workspace,
+    When run_tessl runs Review,
+    Then --workspace uses the username from whoami (not an env var).
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    captured: list[list[str]] = []
+
+    def _run(cmd, timeout=None, cwd=None):
+        captured.append(cmd)
+        if cmd[3] == "whoami":
+            return 0, '{"authenticated": true, "user": {"username": "neomatrix369"}}', ""
+        if cmd[3:5] == ["workspace", "list"]:
+            return (
+                0,
+                json.dumps(
+                    {
+                        "workspaces": [
+                            {"name": "other", "allowedActions": ["view"]},
+                            {
+                                "name": "neomatrix369",
+                                "allowedActions": [
+                                    "generate_eval_scenarios",
+                                    "run_review",
+                                ],
+                            },
+                        ]
+                    }
+                ),
+                "",
+            )
+        if cmd[3:5] in (["skill", "lint"],) or cmd[3:5] == ["review", "run"]:
+            return _lint_and_quality_ok(cmd, timeout)
+        if len(cmd) > 5 and cmd[3:5] == ["review", "view"]:
+            return _lint_and_quality_ok(cmd, timeout)
+        if cmd[3:5] == ["scenario", "generate"]:
+            assert cmd[cmd.index("--workspace") + 1] == "neomatrix369"
+            return 0, '{"id": "gen_ws", "status": "completed", "scenarioCount": 1}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "s1"), exist_ok=True)
+            return 0, "ok", ""
+        eval_handled = _eval_ok(cmd, timeout, cwd)
+        if eval_handled is not None:
+            return eval_handled
+        raise AssertionError(f"unexpected cmd: {cmd}")
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t"}, clear=True),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        score, rows = scanners.run_tessl(workdir)
+
+    ### Then
+    assert score == 80
+    review_cmds = [c for c in captured if c[3:5] == ["review", "run"]]
+    assert review_cmds
+    assert review_cmds[0][review_cmds[0].index("--workspace") + 1] == "neomatrix369"
+    assert rows[2]["status"] == "completed"
 
 
 def test_given_quality_review_completes_when_run_tessl_then_ctx_review_quality_is_stamped_id() -> (
@@ -838,6 +954,7 @@ def test_given_quality_review_completes_when_run_tessl_then_ctx_review_quality_i
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(
             scanners,
@@ -924,10 +1041,15 @@ def _make_tessl_plugin(tmp_path) -> str:
     manifest_dir = plugin_dir / ".tessl-plugin"
     manifest_dir.mkdir()
     (manifest_dir / "plugin.json").write_text('{"name":"demo","version":"0.0.1"}')
+    (plugin_dir / "tessl.json").write_text('{"project":"demo"}')
     return str(plugin_dir)
 
 
-def _lint_and_quality_ok(cmd, timeout=None):
+def _lint_and_quality_ok(cmd, timeout=None, cwd=None):
+    resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+    if resolved is not None:
+        return resolved
+    del timeout, cwd
     if cmd[3:5] == ["skill", "lint"]:
         return 0, "1 check", ""
     if cmd[3:6] == ["review", "run", "quality"]:
@@ -935,6 +1057,29 @@ def _lint_and_quality_ok(cmd, timeout=None):
     if cmd[3:6] == ["review", "view", "--last"]:
         return 0, '{"id": "rev_abc123", "score": 80}', ""
     raise AssertionError(f"unexpected cmd before scenario: {cmd}")
+
+
+def _eval_ok(cmd, timeout=None, cwd=None):
+    """Handle Tessl project repair + eval run/view for auto-chain tests."""
+    del timeout, cwd
+    if cmd[3:5] == ["project", "repair"]:
+        return 0, '{"ok": true}', ""
+    if cmd[3:5] == ["project", "create"]:
+        return 0, '{"ok": true}', ""
+    if cmd[3:5] == ["eval", "run"]:
+        assert "--runs" in cmd and "3" in cmd
+        assert "-y" in cmd
+        return 0, '{"id": "eval_xyz789", "status": "pending"}', ""
+    if cmd[3:5] == ["eval", "view"]:
+        return (
+            0,
+            (
+                '{"id": "eval_xyz789", "status": "completed", "scenarioCount": 3, '
+                '"baselineAvg": 0.4, "withContextAvg": 0.7, "delta": 0.3, "runs": 3}'
+            ),
+            "",
+        )
+    return None
 
 
 def test_given_plugin_when_scenario_gen_succeeds_then_download_stamps_and_clears_checkpoint(
@@ -955,7 +1100,10 @@ def test_given_plugin_when_scenario_gen_succeeds_then_download_stamps_and_clears
     progress: list[dict] = []
     captured: list[list[str]] = []
 
-    def _run(cmd, timeout=None):
+    def _run(cmd, timeout=None, cwd=None):
+        resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+        if resolved is not None:
+            return resolved
         captured.append(cmd)
         if (
             cmd[3:5] in (["skill", "lint"],)
@@ -966,7 +1114,8 @@ def test_given_plugin_when_scenario_gen_succeeds_then_download_stamps_and_clears
         if cmd[3:5] == ["scenario", "generate"]:
             assert "--count" in cmd and "3" in cmd
             assert workdir in cmd
-            assert "--workspace" not in cmd
+            assert "--workspace" in cmd
+            assert cmd[cmd.index("--workspace") + 1] == "engteam"
             return 0, '{"id": "gen_abc123", "status": "completed", "scenarioCount": 3}', ""
         if cmd[3:5] == ["scenario", "view"]:
             return 0, '{"id": "gen_abc123", "status": "completed", "scenarioCount": 3}', ""
@@ -979,11 +1128,15 @@ def test_given_plugin_when_scenario_gen_succeeds_then_download_stamps_and_clears
             os.makedirs(os.path.join(out_dir, "s2"), exist_ok=True)
             os.makedirs(os.path.join(out_dir, "s3"), exist_ok=True)
             return 0, "downloaded 3", ""
+        eval_handled = _eval_ok(cmd, timeout, cwd)
+        if eval_handled is not None:
+            return eval_handled
         raise AssertionError(f"unexpected cmd: {cmd}")
 
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1022,7 +1175,10 @@ def test_given_resume_generated_when_run_tessl_then_skips_generate_and_downloads
     workdir = _make_tessl_plugin(tmp_path)
     captured: list[list[str]] = []
 
-    def _run(cmd, timeout=None):
+    def _run(cmd, timeout=None, cwd=None):
+        resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+        if resolved is not None:
+            return resolved
         captured.append(cmd)
         if (
             cmd[3:5] in (["skill", "lint"],)
@@ -1038,11 +1194,15 @@ def test_given_resume_generated_when_run_tessl_then_skips_generate_and_downloads
             os.makedirs(os.path.join(out_dir, "a"), exist_ok=True)
             os.makedirs(os.path.join(out_dir, "b"), exist_ok=True)
             return 0, "ok", ""
+        eval_handled = _eval_ok(cmd, timeout, cwd)
+        if eval_handled is not None:
+            return eval_handled
         raise AssertionError(f"unexpected cmd: {cmd}")
 
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
         patch.object(scanners, "_TESSL_SCENARIO_POLL_SLEEP_S", 0),
@@ -1079,7 +1239,10 @@ def test_given_in_progress_checkpoint_when_resumed_then_polls_before_download(
     ]
     captured: list[list[str]] = []
 
-    def _run(cmd, timeout=None):
+    def _run(cmd, timeout=None, cwd=None):
+        resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+        if resolved is not None:
+            return resolved
         captured.append(cmd)
         if (
             cmd[3:5] in (["skill", "lint"],)
@@ -1094,11 +1257,15 @@ def test_given_in_progress_checkpoint_when_resumed_then_polls_before_download(
             out_dir = cmd[cmd.index("-o") + 1]
             os.makedirs(os.path.join(out_dir, "only"), exist_ok=True)
             return 0, "ok", ""
+        eval_handled = _eval_ok(cmd, timeout, cwd)
+        if eval_handled is not None:
+            return eval_handled
         raise AssertionError(f"unexpected cmd: {cmd}")
 
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
         patch.object(scanners, "_TESSL_SCENARIO_POLL_SLEEP_S", 0),
@@ -1130,25 +1297,35 @@ def test_given_quality_id_in_ctx_when_scenario_starts_then_upstream_run_ids_atta
     ctx = {"review_quality": "rev_abc123", "scenario_gen": None}
     progress: list[dict] = []
 
-    def _run(cmd, timeout=None):
+    def _run(cmd, timeout=None, cwd=None):
+        resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+        if resolved is not None:
+            return resolved
         if cmd[3:5] == ["scenario", "generate"]:
             return 0, '{"id": "gen_x", "status": "completed", "scenarioCount": 1}', ""
         if cmd[3:5] == ["scenario", "download"]:
             out_dir = cmd[cmd.index("-o") + 1]
             os.makedirs(os.path.join(out_dir, "s"), exist_ok=True)
             return 0, "ok", ""
-        return _lint_and_quality_ok(cmd, timeout)
+        eval_handled = _eval_ok(cmd, timeout, cwd)
+        if eval_handled is not None:
+            return eval_handled
+        return _lint_and_quality_ok(cmd, timeout, cwd)
 
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
         _score, rows = scanners.run_tessl(workdir, id_context=ctx, on_row_progress=progress.append)
 
     ### Then
-    assert progress[0]["upstream_run_ids"] == {"review_quality": "rev_abc123"}
+    scenario_progress = [
+        p for p in progress if p.get("scanner_source") == "Tessl: Scenario Generation"
+    ]
+    assert scenario_progress[0]["upstream_run_ids"] == {"review_quality": "rev_abc123"}
     assert rows[2]["upstream_run_ids"] == {"review_quality": "rev_abc123"}
     assert ctx["scenario_gen"] == "gen_x"
 
@@ -1168,7 +1345,7 @@ def test_given_null_quality_id_when_scenario_starts_then_upstream_key_is_null(
     workdir = _make_tessl_plugin(tmp_path)
     captured: list[list[str]] = []
 
-    def _run(cmd, timeout=None):
+    def _run(cmd, timeout=None, cwd=None):
         captured.append(cmd)
         if cmd[3:5] == ["skill", "lint"]:
             return 0, "1 check", ""
@@ -1182,11 +1359,15 @@ def test_given_null_quality_id_when_scenario_starts_then_upstream_key_is_null(
             out_dir = cmd[cmd.index("-o") + 1]
             os.makedirs(os.path.join(out_dir, "s"), exist_ok=True)
             return 0, "ok", ""
+        eval_handled = _eval_ok(cmd, timeout, cwd)
+        if eval_handled is not None:
+            return eval_handled
         raise AssertionError(f"unexpected cmd: {cmd}")
 
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1211,7 +1392,10 @@ def test_given_scenario_generate_fails_when_run_tessl_then_row_is_failed(tmp_pat
     workdir = _make_tessl_plugin(tmp_path)
     captured: list[list[str]] = []
 
-    def _run(cmd, timeout=None):
+    def _run(cmd, timeout=None, cwd=None):
+        resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+        if resolved is not None:
+            return resolved
         captured.append(cmd)
         if (
             cmd[3:5] in (["skill", "lint"],)
@@ -1220,12 +1404,16 @@ def test_given_scenario_generate_fails_when_run_tessl_then_row_is_failed(tmp_pat
         ):
             return _lint_and_quality_ok(cmd, timeout)
         if cmd[3:5] == ["scenario", "generate"]:
-            return 1, "", "generation exploded"
+            return 1, "", "Failed to generate scenarios\nWorkspace not found"
+        eval_handled = _eval_ok(cmd, timeout, cwd)
+        if eval_handled is not None:
+            return eval_handled
         raise AssertionError(f"unexpected cmd: {cmd}")
 
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1233,7 +1421,8 @@ def test_given_scenario_generate_fails_when_run_tessl_then_row_is_failed(tmp_pat
 
     ### Then
     assert rows[2]["status"] == "failed"
-    assert "generation exploded" in rows[2]["detail"]
+    assert "Workspace not found" in rows[2]["detail"]
+    assert "workspace=engteam" in rows[2]["detail"]
     assert all(c[3:5] != ["scenario", "download"] for c in captured)
 
 
@@ -1273,12 +1462,16 @@ def test_given_missing_plugin_manifest_when_scenario_runs_then_failed(tmp_path) 
     workdir = str(tmp_path / "no-plugin")
     os.makedirs(workdir)
 
-    def _run(cmd, timeout=None):
+    def _run(cmd, timeout=None, cwd=None):
+        resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+        if resolved is not None:
+            return resolved
         return _lint_and_quality_ok(cmd, timeout)
 
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1330,6 +1523,18 @@ def test_parse_scenario_gen_id_and_status_from_json_shapes() -> None:
     assert scanners._parse_scenario_status(None) is None
     assert scanners._parse_scenario_count("nope") is None
     assert scanners._tessl_scenario_view_argv(None)[-3:] == ["--last", "--mine", "--json"]
+    gen_argv = scanners._tessl_scenario_generate_argv("/plugin", "acme", count=3)
+    assert gen_argv[3:6] == ["scenario", "generate", "/plugin"]
+    assert gen_argv[gen_argv.index("--workspace") + 1] == "acme"
+    assert gen_argv[gen_argv.index("--count") + 1] == "3"
+    assert (
+        scanners._pick_tessl_workspace(
+            [{"name": "other"}, {"name": "neomatrix369"}],
+            "neomatrix369",
+        )
+        == "neomatrix369"
+    )
+    assert scanners._parse_tessl_whoami_username({"user": {"username": "alice"}}) == "alice"
 
 
 def test_given_generate_timeout_when_scenario_runs_then_interrupted_with_checkpoint(
@@ -1346,7 +1551,7 @@ def test_given_generate_timeout_when_scenario_runs_then_interrupted_with_checkpo
     ### Given
     workdir = _make_tessl_plugin(tmp_path)
 
-    def _run(cmd, timeout=None):
+    def _run(cmd, timeout=None, cwd=None):
         if cmd[3:5] == ["scenario", "generate"]:
             return None, "", "timeout after 240s"
         if cmd[3:5] == ["scenario", "view"]:
@@ -1356,6 +1561,7 @@ def test_given_generate_timeout_when_scenario_runs_then_interrupted_with_checkpo
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1383,7 +1589,7 @@ def test_given_resume_failed_status_when_polled_then_download_is_skipped(tmp_pat
     workdir = _make_tessl_plugin(tmp_path)
     captured: list[list[str]] = []
 
-    def _run(cmd, timeout=None):
+    def _run(cmd, timeout=None, cwd=None):
         captured.append(cmd)
         if cmd[3:5] == ["scenario", "view"]:
             return 0, '{"id": "gen_fail", "status": "failed"}', "server failed"
@@ -1392,6 +1598,7 @@ def test_given_resume_failed_status_when_polled_then_download_is_skipped(tmp_pat
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
         patch.object(scanners, "_TESSL_SCENARIO_POLL_SLEEP_S", 0),
@@ -1419,7 +1626,7 @@ def test_given_download_fails_when_scenario_completes_then_checkpoint_retained(
     ### Given
     workdir = _make_tessl_plugin(tmp_path)
 
-    def _run(cmd, timeout=None):
+    def _run(cmd, timeout=None, cwd=None):
         if cmd[3:5] == ["scenario", "generate"]:
             return 0, '{"id": "gen_dl", "status": "completed"}', ""
         if cmd[3:5] == ["scenario", "download"]:
@@ -1429,6 +1636,7 @@ def test_given_download_fails_when_scenario_completes_then_checkpoint_retained(
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1453,7 +1661,7 @@ def test_given_empty_evals_when_download_succeeds_then_count_comes_from_view(
     ### Given
     workdir = _make_tessl_plugin(tmp_path)
 
-    def _run(cmd, timeout=None):
+    def _run(cmd, timeout=None, cwd=None):
         if cmd[3:5] == ["scenario", "generate"]:
             return 0, '{"id": "gen_view_count"}', ""
         if cmd[3:5] == ["scenario", "download"]:
@@ -1465,6 +1673,7 @@ def test_given_empty_evals_when_download_succeeds_then_count_comes_from_view(
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1474,3 +1683,938 @@ def test_given_empty_evals_when_download_succeeds_then_count_comes_from_view(
     assert rows[2]["status"] == "completed"
     assert rows[2]["checks_run"] == 5
     assert rows[2]["resume_checkpoint"] is None
+    assert rows[3]["scanner_source"] == "Tessl: Eval"
+    assert rows[3]["status"] == "blocked"
+
+
+# --- slice-50: Tessl Eval + Scenario→Eval Auto-Chain (Row 4) ---
+
+
+def test_given_lint_review_when_run_tessl_then_eval_emitted_blocked_before_scenario(
+    tmp_path,
+) -> None:
+    """
+    Scenario: Eval row is emitted blocked before Scenario Generation starts.
+    Slice: 50 — GWT-50.0
+
+    Given Tessl group runner begins for a skill scan,
+    When Lint and Review rows are emitted,
+    Then an Eval row is inserted with status blocked and no tessl_run_id,
+    And Eval stays blocked while Scenario Generation is still running.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    progress: list[dict] = []
+
+    def _run(cmd, timeout=None, cwd=None):
+        if cmd[3:5] == ["scenario", "generate"]:
+            eval_snapshots = [p for p in progress if p.get("scanner_source") == "Tessl: Eval"]
+            assert eval_snapshots, "Eval blocked row must be emitted before generate"
+            assert eval_snapshots[0]["status"] == "blocked"
+            assert eval_snapshots[0].get("tessl_run_id") is None
+            return 1, "", "scenario failed intentionally"
+        return _lint_and_quality_ok(cmd, timeout, cwd)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(workdir, on_row_progress=progress.append)
+
+    ### Then
+    assert rows[3]["scanner_source"] == "Tessl: Eval"
+    assert rows[3]["status"] == "blocked"
+    assert rows[3].get("tessl_run_id") is None
+
+
+def test_given_scenario_completed_with_evals_when_run_tessl_then_eval_auto_chains(
+    tmp_path,
+) -> None:
+    """
+    Scenario: First-run auto-chain from Scenario Generation into Eval.
+    Slice: 50 — GWT-50.1 / GWT-50.2 / GWT-50.4 / GWT-50.5
+
+    Given Scenario Generation completed and evals/ has scenarios,
+    When the auto-chain check runs,
+    Then Eval transitions queued→running, invokes eval run --runs 3 -y,
+    stamps tessl_run_id, upstream_run_ids, and score detail without failing on variance.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    ctx = scanners._new_tessl_id_context()
+    progress: list[dict] = []
+    captured: list[list[str]] = []
+
+    def _run(cmd, timeout=None, cwd=None):
+        captured.append(cmd)
+        if (
+            cmd[3:5] in (["skill", "lint"],)
+            or cmd[3:5] == ["review", "run"]
+            or (len(cmd) > 5 and cmd[3:5] == ["review", "view"])
+        ):
+            return _lint_and_quality_ok(cmd, timeout, cwd)
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 0, '{"id": "gen_for_eval", "status": "completed", "scenarioCount": 2}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "s1"), exist_ok=True)
+            os.makedirs(os.path.join(out_dir, "s2"), exist_ok=True)
+            return 0, "ok", ""
+        eval_handled = _eval_ok(cmd, timeout, cwd)
+        if eval_handled is not None:
+            return eval_handled
+        raise AssertionError(f"unexpected cmd: {cmd}")
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+        patch.object(scanners, "_TESSL_EVAL_POLL_SLEEP_S", 0),
+    ):
+        score, rows = scanners.run_tessl(workdir, id_context=ctx, on_row_progress=progress.append)
+
+    ### Then
+    assert score == 80
+    eval_row = rows[3]
+    assert eval_row["scanner_source"] == "Tessl: Eval"
+    assert eval_row["status"] == "completed"
+    assert eval_row["tessl_run_id"] == "eval_xyz789"
+    assert eval_row["tessl_run_id_at"]
+    assert eval_row["checks_run"] == 3
+    assert eval_row["upstream_run_ids"] == {
+        "review_quality": "rev_abc123",
+        "scenario_gen": "gen_for_eval",
+    }
+    assert "baseline avg" in eval_row["detail"]
+    assert "with-context avg" in eval_row["detail"]
+    assert "delta=" in eval_row["detail"]
+    eval_statuses = [p["status"] for p in progress if p.get("scanner_source") == "Tessl: Eval"]
+    assert "blocked" in eval_statuses
+    assert "queued" in eval_statuses
+    assert "running" in eval_statuses
+    eval_cmds = [c for c in captured if c[3:5] == ["eval", "run"]]
+    assert len(eval_cmds) == 1
+    assert "--runs" in eval_cmds[0] and "3" in eval_cmds[0]
+    assert "-y" in eval_cmds[0]
+
+
+def test_given_scenario_failed_when_run_tessl_then_eval_stays_blocked(tmp_path) -> None:
+    """
+    Scenario: Failed Scenario Generation leaves Eval blocked (partial ctx).
+    Slice: 50 — GWT-50.4b
+
+    Given Scenario Generation failed and ctx scenario_gen is still null,
+    When Eval auto-chain gate runs,
+    Then Eval remains blocked with no eval invocation.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    ctx = scanners._new_tessl_id_context()
+    captured: list[list[str]] = []
+
+    def _run(cmd, timeout=None, cwd=None):
+        captured.append(cmd)
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 1, "", "boom"
+        return _lint_and_quality_ok(cmd, timeout, cwd)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(workdir, id_context=ctx)
+
+    ### Then
+    assert rows[3]["status"] == "blocked"
+    assert ctx["scenario_gen"] is None
+    assert not any(c[3:5] == ["eval", "run"] for c in captured)
+
+
+def test_given_prior_completed_eval_when_scenario_rerun_then_eval_is_stale(
+    tmp_path,
+) -> None:
+    """
+    Scenario: Scenario Generation re-run marks prior completed Eval as stale.
+    Slice: 50 — GWT-50.3
+
+    Given Eval previously completed with a tessl_run_id,
+    When Scenario Generation is re-run with a new gen id,
+    Then Eval status becomes stale and no new eval run is triggered.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    prior_eval = {
+        "scanner_source": "Tessl: Eval",
+        "status": "completed",
+        "tessl_run_id": "eval_old",
+        "tessl_run_id_at": "2026-08-24T10:00:00+00:00",
+        "completed_at": "2026-08-24T10:05:00+00:00",
+        "checks_run": 2,
+        "detail": "baseline avg=0.5",
+        "upstream_run_ids": {
+            "review_quality": "rev_abc123",
+            "scenario_gen": "gen_old",
+        },
+    }
+    captured: list[list[str]] = []
+
+    def _run(cmd, timeout=None, cwd=None):
+        captured.append(cmd)
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 0, '{"id": "gen_new", "status": "completed", "scenarioCount": 1}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "s"), exist_ok=True)
+            return 0, "ok", ""
+        return _lint_and_quality_ok(cmd, timeout, cwd)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(workdir, prior_eval=prior_eval)
+
+    ### Then
+    assert rows[3]["status"] == "stale"
+    assert rows[3]["tessl_run_id"] == "eval_old"
+    assert not any(c[3:5] == ["eval", "run"] for c in captured)
+
+
+def test_given_interrupted_eval_when_resumed_then_polls_view_without_resubmit(
+    tmp_path,
+) -> None:
+    """
+    Scenario: Modal timeout resume polls eval view without re-submitting eval run.
+    Slice: 50 — GWT-50.2b
+
+    Given eval run was detached with an eval_id while pending,
+    When the runner resumes,
+    Then it polls eval view until completed and does not call eval run again.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    prior_eval = {
+        "scanner_source": "Tessl: Eval",
+        "status": "interrupted",
+        "tessl_run_id": "eval_resume_me",
+        "upstream_run_ids": {
+            "review_quality": "rev_abc123",
+            "scenario_gen": "gen_x",
+        },
+    }
+    # Pre-populate evals so auto-chain gate would otherwise fire a new run.
+    os.makedirs(os.path.join(workdir, "evals", "s1"), exist_ok=True)
+    captured: list[list[str]] = []
+
+    def _run(cmd, timeout=None, cwd=None):
+        captured.append(cmd)
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 0, '{"id": "gen_x", "status": "completed"}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            return 0, "ok", ""
+        if cmd[3:5] == ["project", "repair"]:
+            return 0, "{}", ""
+        if cmd[3:5] == ["eval", "run"]:
+            raise AssertionError("must not re-submit eval run while prior pending")
+        if cmd[3:5] == ["eval", "view"]:
+            assert "eval_resume_me" in cmd
+            return (
+                0,
+                '{"id": "eval_resume_me", "status": "completed", "scenarioCount": 1, '
+                '"baselineAvg": 0.2, "withContextAvg": 0.5, "delta": 0.3}',
+                "",
+            )
+        return _lint_and_quality_ok(cmd, timeout, cwd)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+        patch.object(scanners, "_TESSL_EVAL_POLL_SLEEP_S", 0),
+    ):
+        _score, rows = scanners.run_tessl(workdir, prior_eval=prior_eval)
+
+    ### Then
+    assert rows[3]["status"] == "completed"
+    assert rows[3]["tessl_run_id"] == "eval_resume_me"
+    assert not any(c[3:5] == ["eval", "run"] for c in captured)
+    assert any(c[3:5] == ["eval", "view"] for c in captured)
+
+
+def test_given_missing_tessl_json_when_eval_chains_then_project_create_or_needs_setup(
+    tmp_path,
+) -> None:
+    """
+    Scenario: Eval preflight creates Tessl project or reports needs_setup.
+    Slice: 50 — GWT-50.6
+
+    Given plugin directory has no tessl.json,
+    When Eval auto-chain attempts to run,
+    Then project create is invoked; on failure Eval is needs_setup with actionable detail.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    os.remove(os.path.join(workdir, "tessl.json"))
+    captured: list[list[str]] = []
+
+    def _run(cmd, timeout=None, cwd=None):
+        captured.append(cmd)
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 0, '{"id": "gen_proj", "status": "completed"}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "s"), exist_ok=True)
+            return 0, "ok", ""
+        if cmd[3:5] == ["project", "create"]:
+            assert cwd == workdir
+            return 1, "", "cannot create project headlessly"
+        return _lint_and_quality_ok(cmd, timeout, cwd)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(workdir)
+
+    ### Then
+    assert rows[3]["status"] == "needs_setup"
+    assert "project" in rows[3]["detail"].lower()
+    assert any(c[3:5] == ["project", "create"] for c in captured)
+    assert not any(c[3:5] == ["eval", "run"] for c in captured)
+
+
+def test_parse_eval_id_and_detail_from_json_shapes() -> None:
+    """
+    Scenario: Eval JSON parsers accept nested id/score shapes.
+    Slice: 50 — parser helpers
+
+    Given common Tessl eval --json envelopes,
+    When parsers extract id/status/checks/detail,
+    Then nested and list forms resolve correctly.
+    """
+    ### Given / When / Then
+    assert scanners._parse_eval_id({"id": "e1"}) == "e1"
+    assert scanners._parse_eval_id({"eval": {"runId": "e2"}}) == "e2"
+    assert scanners._parse_eval_id({"evals": [{"id": "e3"}]}) == "e3"
+    assert scanners._parse_eval_id({"evals": ["skip"]}) is None
+    assert scanners._parse_eval_id("bad") is None
+    assert scanners._parse_eval_status({"status": "Completed"}) == "completed"
+    assert scanners._parse_eval_status("bad") is None
+    assert scanners._parse_eval_status({"eval": {}}) is None
+    assert scanners._parse_eval_checks_run({"scenarioCount": 4}) == 4
+    assert scanners._parse_eval_checks_run("bad") is None
+    detail = scanners._format_eval_detail(
+        {"baselineAvg": 0.1, "withContextAvg": 0.4, "delta": 0.3, "runs": 3}
+    )
+    assert "baseline avg=0.1" in detail
+    assert "with-context avg=0.4" in detail
+    assert "delta=0.3" in detail
+    assert "runs=3" in detail
+    assert scanners._eval_should_mark_stale({"status": "running"}, {"status": "completed"}) is False
+    assert scanners._eval_should_mark_stale({"status": "completed"}, {"status": "failed"}) is False
+
+
+def test_eval_should_mark_stale_by_timestamp_when_gen_id_unchanged() -> None:
+    """
+    Scenario: Stale when scenario tessl_run_id_at is newer than eval completed_at.
+    Slice: 50 — stale timestamp path
+
+    Given prior Eval completed with same scenario_gen id,
+    When scenario_gen tessl_run_id_at is newer than eval completed_at,
+    Then _eval_should_mark_stale is True.
+    """
+    ### Given
+    prior = {
+        "status": "completed",
+        "completed_at": "2026-08-24T10:00:00+00:00",
+        "upstream_run_ids": {"scenario_gen": "gen_same"},
+    }
+    scenario = {
+        "status": "completed",
+        "tessl_run_id": "gen_same",
+        "tessl_run_id_at": "2026-08-24T12:00:00+00:00",
+    }
+
+    ### When / Then
+    assert scanners._eval_should_mark_stale(prior, scenario) is True
+    assert (
+        scanners._eval_should_mark_stale(
+            prior,
+            {
+                "status": "completed",
+                "tessl_run_id": "gen_same",
+                "tessl_run_id_at": "2026-08-24T09:00:00+00:00",
+            },
+        )
+        is False
+    )
+
+
+def test_given_prior_completed_unchanged_when_run_tessl_then_eval_kept(
+    tmp_path,
+) -> None:
+    """
+    Scenario: Unchanged Scenario Gen keeps prior completed Eval (no stale, no re-run).
+    Slice: 50 — keep completed
+
+    Given prior Eval completed for the same scenario_gen id,
+    When Scenario Generation completes again with the same id,
+    Then Eval stays completed and eval run is not invoked.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    prior_eval = {
+        "scanner_source": "Tessl: Eval",
+        "status": "completed",
+        "tessl_run_id": "eval_keep",
+        "checks_run": 2,
+        "detail": "kept",
+        "upstream_run_ids": {
+            "review_quality": "rev_abc123",
+            "scenario_gen": "gen_same",
+        },
+    }
+    captured: list[list[str]] = []
+
+    def _run(cmd, timeout=None, cwd=None):
+        captured.append(cmd)
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 0, '{"id": "gen_same", "status": "completed"}', ""
+        if cmd[3:5] == ["scenario", "view"]:
+            return 0, '{"id": "gen_same", "status": "completed", "scenarioCount": 1}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "s"), exist_ok=True)
+            return 0, "ok", ""
+        return _lint_and_quality_ok(cmd, timeout, cwd)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(
+            workdir,
+            prior_eval=prior_eval,
+            resume_checkpoint={"stage": "generated", "gen_id": "gen_same"},
+        )
+
+    ### Then
+    assert rows[3]["status"] == "completed"
+    assert rows[3]["tessl_run_id"] == "eval_keep"
+    assert not any(c[3:5] == ["eval", "run"] for c in captured)
+
+
+def test_given_eval_run_timeout_with_id_when_chained_then_interrupted(tmp_path) -> None:
+    """
+    Scenario: Eval run timeout with captured id marks interrupted.
+    Slice: 50 — detach with id
+
+    Given eval run --json times out after emitting an id,
+    When auto-chain finishes,
+    Then status is interrupted and tessl_run_id is stamped.
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+
+    def _run(cmd, timeout=None, cwd=None):
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 0, '{"id": "gen_to", "status": "completed"}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "s"), exist_ok=True)
+            return 0, "ok", ""
+        if cmd[3:5] == ["project", "repair"]:
+            return 0, "{}", ""
+        if cmd[3:5] == ["eval", "run"]:
+            return None, '{"id": "eval_detached"}', "timeout after 240s"
+        return _lint_and_quality_ok(cmd, timeout, cwd)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(workdir)
+
+    ### Then
+    assert rows[3]["status"] == "interrupted"
+    assert rows[3]["tessl_run_id"] == "eval_detached"
+
+
+def test_given_eval_run_timeout_without_id_when_chained_then_timed_out(tmp_path) -> None:
+    """
+    Scenario: Eval run timeout without id marks timed_out.
+    Slice: 50 — detach without id
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+
+    def _run(cmd, timeout=None, cwd=None):
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 0, '{"id": "gen_to2", "status": "completed"}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "s"), exist_ok=True)
+            return 0, "ok", ""
+        if cmd[3:5] == ["project", "repair"]:
+            return 0, "{}", ""
+        if cmd[3:5] == ["eval", "run"]:
+            return None, "still starting", "timeout after 240s"
+        return _lint_and_quality_ok(cmd, timeout, cwd)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(workdir)
+
+    ### Then
+    assert rows[3]["status"] == "timed_out"
+
+
+def test_given_eval_run_nonzero_when_chained_then_failed(tmp_path) -> None:
+    """
+    Scenario: Non-zero eval run without id marks failed.
+    Slice: 50 — eval CLI failure
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+
+    def _run(cmd, timeout=None, cwd=None):
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 0, '{"id": "gen_fail", "status": "completed"}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "s"), exist_ok=True)
+            return 0, "ok", ""
+        if cmd[3:5] == ["project", "repair"]:
+            return 0, "{}", ""
+        if cmd[3:5] == ["eval", "run"]:
+            return 1, "", "eval exploded"
+        return _lint_and_quality_ok(cmd, timeout, cwd)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(workdir)
+
+    ### Then
+    assert rows[3]["status"] == "failed"
+    assert "exploded" in rows[3]["detail"]
+
+
+def test_given_eval_view_failed_when_chained_then_row_failed(tmp_path) -> None:
+    """
+    Scenario: eval view status failed marks Eval failed (not score variance).
+    Slice: 50 — GWT-50.5 failure path
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+
+    def _run(cmd, timeout=None, cwd=None):
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 0, '{"id": "gen_vf", "status": "completed"}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "s"), exist_ok=True)
+            return 0, "ok", ""
+        if cmd[3:5] == ["project", "repair"]:
+            return 0, "{}", ""
+        if cmd[3:5] == ["eval", "run"]:
+            return 0, '{"id": "eval_fail_view"}', ""
+        if cmd[3:5] == ["eval", "view"]:
+            return 0, '{"id": "eval_fail_view", "status": "failed"}', ""
+        return _lint_and_quality_ok(cmd, timeout, cwd)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+        patch.object(scanners, "_TESSL_EVAL_POLL_SLEEP_S", 0),
+    ):
+        _score, rows = scanners.run_tessl(workdir)
+
+    ### Then
+    assert rows[3]["status"] == "failed"
+    assert rows[3]["tessl_run_id"] == "eval_fail_view"
+
+
+def test_given_eval_run_ok_without_id_when_chained_then_completed(tmp_path) -> None:
+    """
+    Scenario: Eval run exits 0 without parseable id still completes.
+    Slice: 50 — no-id success path
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+
+    def _run(cmd, timeout=None, cwd=None):
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 0, '{"id": "gen_noid", "status": "completed"}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "s"), exist_ok=True)
+            return 0, "ok", ""
+        if cmd[3:5] == ["project", "repair"]:
+            return 0, "{}", ""
+        if cmd[3:5] == ["eval", "run"]:
+            return 0, "eval finished without json id", ""
+        return _lint_and_quality_ok(cmd, timeout, cwd)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        _score, rows = scanners.run_tessl(workdir)
+
+    ### Then
+    assert rows[3]["status"] == "completed"
+    assert rows[3].get("tessl_run_id") is None
+
+
+def test_ensure_tessl_project_create_writes_link(tmp_path) -> None:
+    """
+    Scenario: Missing tessl.json — project create success returns ok.
+    Slice: 50 — project create happy path
+    """
+    ### Given
+    workdir = str(tmp_path / "plugin")
+    os.makedirs(workdir)
+
+    def _run(cmd, timeout=None, cwd=None):
+        assert cmd[3:5] == ["project", "create"]
+        assert cwd == workdir
+        (tmp_path / "plugin" / "tessl.json").write_text("{}")
+        return 0, "created", ""
+
+    ### When
+    with patch.object(scanners, "_run", side_effect=_run):
+        ok, detail = scanners._ensure_tessl_project(workdir, "engteam")
+
+    ### Then
+    assert ok is True
+    assert detail == ""
+
+
+def test_poll_eval_until_terminal_fails_on_nonzero_without_status() -> None:
+    """
+    Scenario: eval view non-zero exit without status maps to failed.
+    Slice: 50 — poll failure path
+    """
+    ### Given / When
+    with (
+        patch.object(scanners, "_run", return_value=(1, "not json", "boom")),
+        patch.object(scanners, "_TESSL_EVAL_POLL_SLEEP_S", 0),
+    ):
+        status, _parsed, console = scanners._poll_eval_until_terminal("eval_x")
+
+    ### Then
+    assert status == "failed"
+    assert "boom" in console or "not json" in console
+
+
+def test_run_tessl_eval_without_token_returns_needs_setup(tmp_path) -> None:
+    """
+    Scenario: Direct _run_tessl_eval without credentials is needs_setup.
+    Slice: 50 — credential gate on eval helper
+    """
+    ### Given
+    row = scanners._new_blocked_eval_row()
+    ctx = {"review_quality": None, "scenario_gen": "gen_1"}
+
+    ### When
+    with patch.dict("os.environ", {}, clear=True):
+        result = scanners._run_tessl_eval(str(tmp_path), ctx, row)
+
+    ### Then
+    assert result["status"] == "needs_setup"
+    assert "TESSL_TOKEN" in result["detail"]
+
+
+def test_run_tessl_eval_without_workspace_returns_needs_setup(tmp_path) -> None:
+    """
+    Scenario: Eval with token but unresolved workspace is needs_setup.
+    Slice: 50 — workspace gate on eval helper
+    """
+    ### Given
+    row = scanners._new_blocked_eval_row()
+    ctx = {"review_quality": "rev_1", "scenario_gen": "gen_1"}
+
+    ### When
+    with patch.dict("os.environ", {"TESSL_TOKEN": "t"}, clear=True):
+        result = scanners._run_tessl_eval(str(tmp_path), ctx, row, workspace=None)
+
+    ### Then
+    assert result["status"] == "needs_setup"
+    assert "workspace" in result["detail"].lower()
+
+
+def test_resolve_tessl_workspace_helpers_cover_fallback_paths() -> None:
+    """
+    Scenario: Workspace resolve helpers handle list shapes and action fallback.
+    Slice: 50 — whoami/list parsing coverage
+    """
+    ### Given / When / Then
+    assert scanners._parse_tessl_whoami_username(None) is None
+    assert scanners._parse_tessl_whoami_username({"username": "top"}) == "top"
+    assert scanners._parse_tessl_whoami_username({"user": {"username": "  "}}) is None
+    assert scanners._parse_tessl_workspace_list([{"name": "a"}, "skip"]) == [{"name": "a"}]
+    assert scanners._parse_tessl_workspace_list({"workspaces": [{"name": "b"}]}) == [{"name": "b"}]
+    assert scanners._parse_tessl_workspace_list({"workspaces": "bad"}) == []
+    assert scanners._parse_tessl_workspace_list("nope") == []
+    assert scanners._pick_tessl_workspace([], None) is None
+    assert (
+        scanners._pick_tessl_workspace(
+            [{"name": "team", "allowedActions": ["run_review"]}],
+            "missing",
+        )
+        == "team"
+    )
+    assert (
+        scanners._pick_tessl_workspace(
+            [{"name": "first"}, {"name": "second"}],
+            None,
+        )
+        == "first"
+    )
+    assert scanners._pick_tessl_workspace([{"name": "  "}, {}], "x") is None
+
+    with patch.dict("os.environ", {"TESSL_WORKSPACE": "from-env"}, clear=True):
+        # Env-only short-circuit removed — resolve always lists; mock list membership.
+        def _run_env_ok(cmd, timeout=None, cwd=None):
+            if cmd[3] == "whoami":
+                return 0, '{"user": {"username": "from-env"}}', ""
+            return 0, '{"workspaces": [{"name": "from-env"}]}', ""
+
+        with patch.object(scanners, "_run", side_effect=_run_env_ok):
+            assert scanners._resolve_tessl_workspace() == ("from-env", "")
+
+    def _run_empty(cmd, timeout=None, cwd=None):
+        if cmd[3] == "whoami":
+            return 0, '{"authenticated": true}', ""
+        return 0, '{"workspaces": []}', ""
+
+    with (
+        patch.dict("os.environ", {}, clear=True),
+        patch.object(scanners, "_run", side_effect=_run_empty),
+    ):
+        ws, detail = scanners._resolve_tessl_workspace()
+    assert ws is None
+    assert "no Tessl workspaces" in detail
+
+    def _run_action_pick(cmd, timeout=None, cwd=None):
+        if cmd[3] == "whoami":
+            return 1, "", "whoami failed"
+        return (
+            0,
+            json.dumps(
+                {
+                    "workspaces": [
+                        {"name": "view-only", "allowedActions": ["view"]},
+                        {
+                            "name": "publisher",
+                            "allowedActions": ["generate_eval_scenarios"],
+                        },
+                    ]
+                }
+            ),
+            "",
+        )
+
+    with (
+        patch.dict("os.environ", {}, clear=True),
+        patch.object(scanners, "_run", side_effect=_run_action_pick),
+    ):
+        ws, detail = scanners._resolve_tessl_workspace()
+    assert ws == "publisher"
+    assert detail == ""
+
+    def _run_ignore_bad_env(cmd, timeout=None, cwd=None):
+        if cmd[3] == "whoami":
+            return 0, '{"user": {"username": "neomatrix369"}}', ""
+        return (
+            0,
+            json.dumps(
+                {
+                    "workspaces": [
+                        {
+                            "name": "neomatrix369",
+                            "id": "019c-ws",
+                            "allowedActions": ["generate_eval_scenarios"],
+                        }
+                    ]
+                }
+            ),
+            "",
+        )
+
+    with (
+        patch.dict("os.environ", {"TESSL_WORKSPACE": "engteam"}, clear=True),
+        patch.object(scanners, "_run", side_effect=_run_ignore_bad_env),
+    ):
+        ws, detail = scanners._resolve_tessl_workspace()
+    assert ws == "neomatrix369"
+    assert detail == ""
+    assert (
+        scanners._match_tessl_workspace([{"name": "neomatrix369", "id": "019c-ws"}], "019c-ws")
+        == "neomatrix369"
+    )
+
+
+def test_annotate_tessl_cli_detail_adds_user_and_workspace() -> None:
+    """
+    Scenario: Tessl identity errors include attempted user/workspace in detail.
+    Slice: 50 — workspace/user not found diagnostics
+    """
+    assert (
+        scanners._annotate_tessl_cli_detail(
+            "Failed to generate scenarios\nWorkspace not found",
+            workspace="engteam",
+            username="neomatrix369",
+        )
+        == "Failed to generate scenarios\nWorkspace not found "
+        "(user=neomatrix369, workspace=engteam)"
+    )
+    assert (
+        scanners._annotate_tessl_cli_detail(
+            "User not found",
+            workspace="acme",
+            username="alice",
+        )
+        == "User not found (user=alice, workspace=acme)"
+    )
+    assert scanners._annotate_tessl_cli_detail("generation exploded", workspace="engteam") == (
+        "generation exploded"
+    )
+    assert scanners._annotate_tessl_cli_detail("") == ""
+    scanners._tessl_last_username = None
+    scanners._tessl_last_workspace = None
+    assert scanners._annotate_tessl_cli_detail("Workspace not found") == "Workspace not found"
+    assert scanners._match_tessl_workspace([{"name": "a"}], "  ") is None
+    assert scanners._match_tessl_workspace([{"id": "id-1"}], "id-1") == "id-1"
+
+
+def test_ensure_tessl_project_create_timeout_returns_false(tmp_path) -> None:
+    """
+    Scenario: project create timeout yields actionable failure detail.
+    Slice: 50 — project create timeout
+    """
+    ### Given
+    workdir = str(tmp_path / "bare")
+    os.makedirs(workdir)
+
+    ### When
+    with patch.object(scanners, "_run", return_value=(None, "", "timeout after 240s")):
+        ok, detail = scanners._ensure_tessl_project(workdir, "engteam")
+
+    ### Then
+    assert ok is False
+    assert "timed out" in detail.lower() or "timeout" in detail.lower()
+
+
+def test_format_eval_detail_uses_run_count_and_fallback() -> None:
+    """
+    Scenario: Detail formatter uses runCount and falls back when empty.
+    Slice: 50 — detail edge paths
+    """
+    ### Given / When / Then
+    assert "runs=5" in scanners._format_eval_detail({"runCount": 5})
+    assert scanners._format_eval_detail({}) == "eval completed"
+    assert scanners._parse_eval_score_field({"scores": {"delta": 0.2}}, "delta") == 0.2
+    assert scanners._parse_eval_checks_run({"results": [1, 2]}) == 2
+    assert scanners._parse_eval_status({"evaluation": {"state": "Failed"}}) == "failed"
+
+
+def test_poll_eval_until_terminal_returns_pending_after_max_attempts() -> None:
+    """
+    Scenario: Exhausted eval poll returns last non-terminal status.
+    Slice: 50 — poll max attempts
+    """
+    ### Given / When
+    with (
+        patch.object(
+            scanners,
+            "_run",
+            return_value=(0, '{"id": "e", "status": "pending"}', ""),
+        ),
+        patch.object(scanners, "_TESSL_EVAL_POLL_SLEEP_S", 0),
+        patch.object(scanners, "_TESSL_EVAL_POLL_MAX", 2),
+    ):
+        status, parsed, _console = scanners._poll_eval_until_terminal("e")
+
+    ### Then
+    assert status == "pending"
+    assert parsed is not None
+
+
+def test_given_eval_view_pending_exhausted_when_chained_then_interrupted(
+    tmp_path,
+) -> None:
+    """
+    Scenario: Eval view never reaches terminal → interrupted for resume.
+    Slice: 50 — poll interrupted
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+
+    def _run(cmd, timeout=None, cwd=None):
+        if cmd[3:5] == ["scenario", "generate"]:
+            return 0, '{"id": "gen_pend", "status": "completed"}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "s"), exist_ok=True)
+            return 0, "ok", ""
+        if cmd[3:5] == ["project", "repair"]:
+            return 0, "{}", ""
+        if cmd[3:5] == ["eval", "run"]:
+            return 0, '{"id": "eval_pend"}', ""
+        if cmd[3:5] == ["eval", "view"]:
+            return 0, '{"id": "eval_pend", "status": "pending"}', ""
+        return _lint_and_quality_ok(cmd, timeout, cwd)
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+        patch.object(scanners, "_TESSL_EVAL_POLL_SLEEP_S", 0),
+        patch.object(scanners, "_TESSL_EVAL_POLL_MAX", 2),
+    ):
+        _score, rows = scanners.run_tessl(workdir)
+
+    ### Then
+    assert rows[3]["status"] == "interrupted"
+    assert rows[3]["tessl_run_id"] == "eval_pend"

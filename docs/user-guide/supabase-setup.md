@@ -87,8 +87,8 @@ truncate responses. Symptoms:
   that scan run
 - Card shows a recent **Last scan** time but no scanner list
 - New Tessl rows (`Tessl: Lint`, `Tessl: Review (Quality)`,
-  `Tessl: Scenario Generation`) missing while older `"Tessl"` rows still appear
-  on other items
+  `Tessl: Scenario Generation`, `Tessl: Eval`) missing while older `"Tessl"` rows
+  still appear on other items
 
 This limit is **not** in `.env` or repo config — it is a **project setting** on
 Supabase.

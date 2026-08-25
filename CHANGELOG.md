@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Dashboard detail drawer **Findings** section is collapsible: clickable heading with
+  a rotating ▸ chevron (expanded by default on item select). Same expand pattern as
+  Scanner outputs rows — `prototypes/dc-dashboard/Tripwire.dc.html` (IMPLEMENTED).
 - Public docs UX + compaction (slice 44): README/QUICKSTART lead with plain language,
   demo-first (Recommended) then Live (Advanced); badges behind disclosure; path map
   absorbed into QUICKSTART. Merged `sie-setup` + `model-studio-setup` into
@@ -36,6 +39,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   avoids delayed native `title=` attributes.
 
 ### Added
+- Tessl Eval auto-chain scanner row (slice 50): `run_tessl()` emits
+  `"Tessl: Eval"` as `blocked`, then auto-chains after Scenario Generation when
+  `<plugin>/evals/` has scenarios — `tessl eval run --runs 3 -y --json` +
+  `eval view` poll, `upstream_run_ids`, project create/repair preflight; scenario
+  re-run marks prior completed Eval `stale` (no cascade).
 - Tessl Scenario Generation scanner row (slice 49): after Review (Quality),
   `run_tessl()` runs plugin-path `tessl scenario generate --count 3`, downloads
   into `<plugin>/evals/`, stamps `tessl_run_id` / `upstream_run_ids`, and persists
