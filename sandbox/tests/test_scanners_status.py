@@ -2288,6 +2288,100 @@ def test_run_tessl_eval_without_token_returns_needs_setup(tmp_path) -> None:
     assert "TESSL_TOKEN" in result["detail"]
 
 
+def test_run_tessl_eval_without_workspace_returns_needs_setup(tmp_path) -> None:
+    """
+    Scenario: Eval with token but unresolved workspace is needs_setup.
+    Slice: 50 — workspace gate on eval helper
+    """
+    ### Given
+    row = scanners._new_blocked_eval_row()
+    ctx = {"review_quality": "rev_1", "scenario_gen": "gen_1"}
+
+    ### When
+    with patch.dict("os.environ", {"TESSL_TOKEN": "t"}, clear=True):
+        result = scanners._run_tessl_eval(str(tmp_path), ctx, row, workspace=None)
+
+    ### Then
+    assert result["status"] == "needs_setup"
+    assert "workspace" in result["detail"].lower()
+
+
+def test_resolve_tessl_workspace_helpers_cover_fallback_paths() -> None:
+    """
+    Scenario: Workspace resolve helpers handle list shapes and action fallback.
+    Slice: 50 — whoami/list parsing coverage
+    """
+    ### Given / When / Then
+    assert scanners._parse_tessl_whoami_username(None) is None
+    assert scanners._parse_tessl_whoami_username({"username": "top"}) == "top"
+    assert scanners._parse_tessl_whoami_username({"user": {"username": "  "}}) is None
+    assert scanners._parse_tessl_workspace_list([{"name": "a"}, "skip"]) == [{"name": "a"}]
+    assert scanners._parse_tessl_workspace_list({"workspaces": [{"name": "b"}]}) == [
+        {"name": "b"}
+    ]
+    assert scanners._parse_tessl_workspace_list({"workspaces": "bad"}) == []
+    assert scanners._parse_tessl_workspace_list("nope") == []
+    assert scanners._pick_tessl_workspace([], None) is None
+    assert (
+        scanners._pick_tessl_workspace(
+            [{"name": "team", "allowedActions": ["run_review"]}],
+            "missing",
+        )
+        == "team"
+    )
+    assert (
+        scanners._pick_tessl_workspace(
+            [{"name": "first"}, {"name": "second"}],
+            None,
+        )
+        == "first"
+    )
+    assert scanners._pick_tessl_workspace([{"name": "  "}, {}], "x") is None
+
+    with patch.dict("os.environ", {"TESSL_WORKSPACE": "from-env"}, clear=True):
+        assert scanners._resolve_tessl_workspace() == ("from-env", "")
+
+    def _run_empty(cmd, timeout=None, cwd=None):
+        if cmd[3] == "whoami":
+            return 0, '{"authenticated": true}', ""
+        return 0, '{"workspaces": []}', ""
+
+    with (
+        patch.dict("os.environ", {}, clear=True),
+        patch.object(scanners, "_run", side_effect=_run_empty),
+    ):
+        ws, detail = scanners._resolve_tessl_workspace()
+    assert ws is None
+    assert "no Tessl workspaces" in detail
+
+    def _run_action_pick(cmd, timeout=None, cwd=None):
+        if cmd[3] == "whoami":
+            return 1, "", "whoami failed"
+        return (
+            0,
+            json.dumps(
+                {
+                    "workspaces": [
+                        {"name": "view-only", "allowedActions": ["view"]},
+                        {
+                            "name": "publisher",
+                            "allowedActions": ["generate_eval_scenarios"],
+                        },
+                    ]
+                }
+            ),
+            "",
+        )
+
+    with (
+        patch.dict("os.environ", {}, clear=True),
+        patch.object(scanners, "_run", side_effect=_run_action_pick),
+    ):
+        ws, detail = scanners._resolve_tessl_workspace()
+    assert ws == "publisher"
+    assert detail == ""
+
+
 def test_ensure_tessl_project_create_timeout_returns_false(tmp_path) -> None:
     """
     Scenario: project create timeout yields actionable failure detail.
