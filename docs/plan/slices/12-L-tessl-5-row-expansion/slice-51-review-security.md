@@ -76,8 +76,8 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a) Shared Review Mec
 
 ## Review & Approval
 
-**Date**: 2026-08-25  
-**Reviewer**: nw-software-crafter-reviewer  
+**Date**: 2026-08-25
+**Reviewer**: nw-software-crafter-reviewer
 **Verdict**: ✅ APPROVED
 
 ### Findings
@@ -111,14 +111,14 @@ Design reference: `docs/design/tessl-5-row-expansion.md § (a) Shared Review Mec
 
 ### No Blocking Issues
 
-✅ All four GWT scenarios implemented and tested  
-✅ All acceptance criteria met  
-✅ No test modifications (G9 clean)  
-✅ No testing theater (zero-assertion, tautological, mock-dominated, circular patterns: NONE)  
-✅ Port-to-port entry via `run_tessl()`  
-✅ External validity confirmed (feature is reachable and wired)  
-✅ Test budget respected (8/8)  
-✅ Coverage above threshold (96.0% vs 95%)  
-✅ Design spec implemented (§(c) 7(a))  
+✅ All four GWT scenarios implemented and tested
+✅ All acceptance criteria met
+✅ No test modifications (G9 clean)
+✅ No testing theater (zero-assertion, tautological, mock-dominated, circular patterns: NONE)
+✅ Port-to-port entry via `run_tessl()`
+✅ External validity confirmed (feature is reachable and wired)
+✅ Test budget respected (8/8)
+✅ Coverage above threshold (96.0% vs 95%)
+✅ Design spec implemented (§(c) 7(a))
 
 ---
