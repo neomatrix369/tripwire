@@ -666,9 +666,7 @@ _TESSL_IDENTITY_ERROR_RE = re.compile(
 )
 
 
-def _remember_tessl_identity(
-    *, username: str | None = None, workspace: str | None = None
-) -> None:
+def _remember_tessl_identity(*, username: str | None = None, workspace: str | None = None) -> None:
     """Cache Tessl whoami/workspace for identity-error annotations."""
     global _tessl_last_username, _tessl_last_workspace
     if username is not None:
@@ -815,9 +813,7 @@ def _resolve_tessl_workspace() -> tuple[str | None, str]:
                 f"TESSL_WORKSPACE={env_ws!r} not found and no fallback workspace "
                 f"(available: {', '.join(available) or 'none'})"
             )
-        return None, _annotate_tessl_cli_detail(
-            detail, workspace=env_ws or None, username=username
-        )
+        return None, _annotate_tessl_cli_detail(detail, workspace=env_ws or None, username=username)
     _remember_tessl_identity(workspace=picked)
     return picked, ""
 
