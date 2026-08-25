@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- Dashboard detail drawer **Findings** section is collapsible: clickable heading with
+  a rotating ▸ chevron (expanded by default on item select). Same expand pattern as
+  Scanner outputs rows — `prototypes/dc-dashboard/Tripwire.dc.html` (IMPLEMENTED).
 - Public docs UX + compaction (slice 44): README/QUICKSTART lead with plain language,
   demo-first (Recommended) then Live (Advanced); badges behind disclosure; path map
   absorbed into QUICKSTART. Merged `sie-setup` + `model-studio-setup` into

@@ -58,7 +58,8 @@ Reachable through production entry points / config:
 - `_acquire_target` dispatch (git clone, local copy, host→sandbox tar upload via
   `local_entrypoint`, MCP introspection-only empty workdir) — `sandbox/`
 - Dashboard Live/Mock with Supabase Realtime (~1s) + 8s poll fallback, SCANNING
-  in-flight UI, scanner console in drawer, partial-failed “n out of m scanners
+  in-flight UI, scanner console in drawer, collapsible Findings heading (rotating
+  chevron; expanded by default), partial-failed “n out of m scanners
   unreachable” copy — `prototypes/dc-dashboard/`;
   `scripts/serve-dashboard.mjs` / `scripts/sync-dashboard-config.sh`
 - Dashboard visual identity v2 (FolderGate cream/tan × Tripwire HUD): paper
