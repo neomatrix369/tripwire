@@ -12,46 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   [design/llm-usage-tracking.md](docs/design/llm-usage-tracking.md), slice stub,
   TRAIL/PROGRESS/STATUS DECIDED (not IMPLEMENTED). Historic collapsible Usage
   log + router metering — build only when slice execution starts.
-
-### Changed
-- README restored to the fuller pre–slice-44 entry shape and brought current:
-  providers/scanners table (Modal, Supabase, Cisco, Snyk, Tessl five-row,
-  DepShield, Ossprey, SIE, Model Studio), hosted demo link, Live setup, guide
-  map, screenshot grid. Trust-strip gate superseded for Ossprey on README
-  (`ossprey-readme`); Overmind still forbidden. Sync-docs also aligned
-  ARCHITECTURE inventory + diagrams, STATUS, QUICKSTART, prerequisites,
-  CONTRIBUTING, setup-commands.
-- Dashboard detail drawer **Findings** section is collapsible: clickable heading with
-  a rotating ▸ chevron (expanded by default on item select). Same expand pattern as
-  Scanner outputs rows — `prototypes/dc-dashboard/Tripwire.dc.html` (IMPLEMENTED).
-- Public docs UX + compaction (slice 44): README/QUICKSTART lead with plain language,
-  demo-first (Recommended) then Live (Advanced); badges behind disclosure; path map
-  absorbed into QUICKSTART. Merged `sie-setup` + `model-studio-setup` into
-  `docs/user-guide/tiered-router-setup.md`. Removed thin aliases
-  `onboarding-cheatsheet.md` and `path-commands.md`. Glossary / CLI flags / fail hints
-  absorbed into reading-router-results and setup-commands; docs hub links agent-hooks.
-  Pile-on: Setup (accounts) vs Configure (keys) beats; loud Minimum Viable Live
-  (Supabase + Modal); Maintain hub row; Daily maintenance cheat lines; screenshots
-  note `R`/`Q` colour ≠ density. ARCHITECTURE adds External services inventory plus
-  operator-journey and dependency-order Mermaid diagrams.
-- Dashboard visual identity v2 (slice 43): warm cream paper field (`#F5F2EA`), tan
-  primary CTA (`#C4A574`), Fraunces serif on intro `h1`/`h2`; cyan `#00D9FF` kept as
-  live **signal** only (SENSOR dots, wire pulse, scanning fills). Status labels, links,
-  and muted chrome use AA **ink** tokens on paper (`--red-ink` `#B42318`, `--cta-ink`
-  `#7A5C2E`, `--text-muted` `#6B645A`, and peers). Modal console and finding snippets
-  on `--bg-deep` use readable ink/secondary text (not HUD terminal neon). Partial-scan /
-  disagreement callouts and Guard result banners use `--violet-ink` / status ink (not
-  dark-theme pastels like `#d4bcff`). Tripwire HUD brackets, grid overlay,
-  and RAG fill colours retained. Supersedes slice 41 dark-cyan fill.
-- Dashboard operator chrome (slice 42 A9–A13): skill cards show Tessl `Q N` / `Q —` /
-  `Q ?` with hover explaining 0–100 skill-review quality; risk uses compact `R N.NN`
-  badge (parity with Q) plus density tooltip; list column stays **Risk density**;
-  locus/availability chips use plain language (`On disk`, `No local source`, …).
-  Risk/quality hints use a fixed `#score-tip-portal` (viewport-clamped) fed by
-  `.score-tip` / `.score-tip-bubble` text — escapes grid `overflow` clipping and
-  avoids delayed native `title=` attributes.
-
-### Added
 - Tessl Review (Security) scanner row (slice 51): `run_tessl()` emits
   `"Tessl: Review (Security)"` after Eval via `_run_tessl_review(judge_type="security")`
   (`tessl review run security --json --workspace`); `upstream_run_ids.review_quality`
@@ -106,6 +66,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `tripwire scan --type <skill|mcp>` — restricts machine-wide discovery to a single artifact
   category without changing any other scan behaviour; composes with `--dry-discover`,
   `--force`, `--concurrency`, and explicit path arguments
+
+### Changed
+- README restored to the fuller pre–slice-44 entry shape and brought current:
+  providers/scanners table (Modal, Supabase, Cisco, Snyk, Tessl five-row,
+  DepShield, Ossprey, SIE, Model Studio), hosted demo link, Live setup, guide
+  map, screenshot grid. Trust-strip gate superseded for Ossprey on README
+  (`ossprey-readme`); Overmind still forbidden. Sync-docs also aligned
+  ARCHITECTURE inventory + diagrams, STATUS, QUICKSTART, prerequisites,
+  CONTRIBUTING, setup-commands.
+- Dashboard detail drawer **Findings** section is collapsible: clickable heading with
+  a rotating ▸ chevron (expanded by default on item select). Same expand pattern as
+  Scanner outputs rows — `prototypes/dc-dashboard/Tripwire.dc.html` (IMPLEMENTED).
+- Public docs UX + compaction (slice 44): README/QUICKSTART lead with plain language,
+  demo-first (Recommended) then Live (Advanced); badges behind disclosure; path map
+  absorbed into QUICKSTART. Merged `sie-setup` + `model-studio-setup` into
+  `docs/user-guide/tiered-router-setup.md`. Removed thin aliases
+  `onboarding-cheatsheet.md` and `path-commands.md`. Glossary / CLI flags / fail hints
+  absorbed into reading-router-results and setup-commands; docs hub links agent-hooks.
+  Pile-on: Setup (accounts) vs Configure (keys) beats; loud Minimum Viable Live
+  (Supabase + Modal); Maintain hub row; Daily maintenance cheat lines; screenshots
+  note `R`/`Q` colour ≠ density. ARCHITECTURE adds External services inventory plus
+  operator-journey and dependency-order Mermaid diagrams.
+- Dashboard visual identity v2 (slice 43): warm cream paper field (`#F5F2EA`), tan
+  primary CTA (`#C4A574`), Fraunces serif on intro `h1`/`h2`; cyan `#00D9FF` kept as
+  live **signal** only (SENSOR dots, wire pulse, scanning fills). Status labels, links,
+  and muted chrome use AA **ink** tokens on paper (`--red-ink` `#B42318`, `--cta-ink`
+  `#7A5C2E`, `--text-muted` `#6B645A`, and peers). Modal console and finding snippets
+  on `--bg-deep` use readable ink/secondary text (not HUD terminal neon). Partial-scan /
+  disagreement callouts and Guard result banners use `--violet-ink` / status ink (not
+  dark-theme pastels like `#d4bcff`). Tripwire HUD brackets, grid overlay,
+  and RAG fill colours retained. Supersedes slice 41 dark-cyan fill.
+- Dashboard operator chrome (slice 42 A9–A13): skill cards show Tessl `Q N` / `Q —` /
+  `Q ?` with hover explaining 0–100 skill-review quality; risk uses compact `R N.NN`
+  badge (parity with Q) plus density tooltip; list column stays **Risk density**;
+  locus/availability chips use plain language (`On disk`, `No local source`, …).
+  Risk/quality hints use a fixed `#score-tip-portal` (viewport-clamped) fed by
+  `.score-tip` / `.score-tip-bubble` text — escapes grid `overflow` clipping and
+  avoids delayed native `title=` attributes.
 
 ### Fixed
 - Live dashboard latest-state accuracy (partial slice 21): `db/schema.sql` adds
