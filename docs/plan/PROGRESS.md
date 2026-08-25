@@ -45,7 +45,7 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 | 3 | H1 | 25 | Live Enforce Smoke | Must | 📋 PLANNED |
 | 4 | H2 | 26 | API Introspect + Dual Output Contract (delta: Quality column) | Must | 📋 PLANNED |
 | 5 | H2 | 27 | `/tw-enable` + `/tw-disable` | Must | 📋 PLANNED |
-| 6 | H2 | 28 | `/tw-verify` (delta: Quality `N/100` + blocked footer) | Must | 📋 PLANNED |
+| 6 | H2 | 28 | `/tw-verify` (delta: Quality `N/100` + blocked footer) | Must | 🔀 ON BRANCH |
 | 7 | H2 | 29 | `/tw-scan` | Must | 📋 PLANNED |
 | 8 | H2 | 30 | `/tw-self-check` | Must | 📋 PLANNED |
 | 9 | H3 | 31 | Demo Artifacts | Must | 📋 PLANNED |

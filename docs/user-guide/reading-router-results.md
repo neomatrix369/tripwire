@@ -16,7 +16,7 @@ Start here: [QUICKSTART](../../QUICKSTART.md) · Setup:
 | **Live** | Real scan results stored in Supabase |
 | **Heatmap / card colour** | Worst scanner severity (red / amber / green) — not the same as risk density |
 | **Risk density** | Sort/trend number from finding counts; not the card colour |
-| **Tessl quality** | Tessl quality review score (0–100) from `tessl review run quality`, shown as `Q` — not risk |
+| **Tessl quality** | Tessl quality review score (0–100) from `tessl review run quality`, shown as `Q` on Live cards — not risk. Same axis as `/tw-verify` **Quality** (`N/100` from `items.quality_score`; see [frontline-output-contract.md](./frontline-output-contract.md)) |
 | **Pathway strip** | Short path drawn on a card: Scan → SIE → Model Studio |
 | **Escalated** | Model Studio actually ran (arbitration or triage) |
 | **SIE-only** | SIE reviewed; Model Studio did **not** run |

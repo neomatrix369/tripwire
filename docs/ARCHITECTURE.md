@@ -40,7 +40,7 @@ services — see [prerequisites](./user-guide/prerequisites.md).
 | **DepShield** (`depshield-mcp`) | Local dependency-audit adapter over MCP stdio | Optional / local | No cloud account — npm package; see [STATUS](./STATUS.md) |
 | **Ossprey** (`ossprey-cli`) | Malware / malicious-package scan (after DepShield in `SCANNER_GROUPS`) | Full scanner coverage (when keyed) | `OSSPREY_API_KEY` via [env-vars](./user-guide/env-vars.md) · [OPTIONAL_SCANNER_KEYS](../fixtures/OPTIONAL_SCANNER_KEYS.md); absent → `skipped_missing_credential`. IMPLEMENTED adapter; access provisioning OPEN — not VERIFIED live |
 | **GitHub Actions** | CI / Nightly / complexity workflows | Contributors | Repo secrets as needed — not operator Live |
-| **Cursor / Claude Code** | Dev tooling; Wave H agent hooks (plan) | Contributors / future hooks | [agent-hooks](../agent-hooks/README.md) · Wave H in [TRAIL](./plan/TRAIL.md) |
+| **Cursor / Claude Code** | Dev tooling; Wave H agent hooks (Phase 1 on `main`) | Contributors / operators | [agent-hooks](../agent-hooks/README.md) · [frontline-output-contract](./user-guide/frontline-output-contract.md) · Wave H in [TRAIL](./plan/TRAIL.md) |
 
 Demo / Mock path needs **no** rows above. Capability honesty: [STATUS.md](./STATUS.md).
 
@@ -207,10 +207,13 @@ clock before Modal's 300s kill — operators reconcile stranded `running` rows w
 
 - `guard/` — PreToolUse-style Agent Guard hook. **Horizon A:** Won't / not a
   shipped production entry ([ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md)).
-  **Wave H (Frontline, DECIDED plan-only):** slices 23–39 intend Claude Code
-  hooks + `tripwire setup-agent-hooks` + `/tw-*` skills —
-  [plan/TRAIL.md](./plan/TRAIL.md) Wave H. Code stub may exist; it is **not** a
-  shipped production entry point yet. See [STATUS.md](./STATUS.md).
+  **Wave H (Frontline):** Phase 1 hooks + `tripwire setup-agent-hooks` + `/tw-*`
+  skills live under [agent-hooks](../agent-hooks/README.md) on `main`. Slice 28
+  (`/tw-verify` Quality `N/100` + blocked footer) is **IMPLEMENTED** on
+  `slice/28-tw-verify-quality` — dual-output SSOT
+  [frontline-output-contract.md](./user-guide/frontline-output-contract.md).
+  Formal Wave H gate trackers (23–27, 29–32) still lag — see [STATUS.md](./STATUS.md)
+  and [plan/TRAIL.md](./plan/TRAIL.md) Wave H.
 - **Wave M (LLM usage / cost observability, DECIDED plan-only):** slice 53
   intends append-only `llm_usage_events`, a dashboard Usage tab with a
   collapsible historic transaction log, cost tips on router chrome, and
