@@ -292,8 +292,8 @@ See `docs/design/tessl-5-row-expansion.md § Open Questions`.
 
 ## Wave 13-M — LLM usage / cost observability
 
-**Group letter M** (next after L). Folder: [`slices/13-M-llm-usage-tracking/`](slices/13-M-llm-usage-tracking/).  
-Design: [`docs/design/llm-usage-tracking.md`](../design/llm-usage-tracking.md).  
+**Group letter M** (next after L). Folder: [`slices/13-M-llm-usage-tracking/`](slices/13-M-llm-usage-tracking/).
+Design: [`docs/design/llm-usage-tracking.md`](../design/llm-usage-tracking.md).
 **Follow-on to ADR-0016** (tiered router) — not a Tessl (L), dashboard-quality (J), or ATDD (G) pile-on.
 
 | Candidate home | Fit | Why rejected / accepted |

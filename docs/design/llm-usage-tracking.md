@@ -205,11 +205,11 @@ Ship with the behaviour PR (not this plan-only PR unless desired):
 
 ## Implementation order (slice 53)
 
-1. Schema + RLS + grants + Realtime  
-2. `llmUsage` helpers + router instrumentation + tests  
-3. Sandbox Cisco + Tessl writers + parser tests  
-4. Dashboard Usage tab + live/mock + tip chrome  
-5. CLI listing + ADR + operator docs  
+1. Schema + RLS + grants + Realtime
+2. `llmUsage` helpers + router instrumentation + tests
+3. Sandbox Cisco + Tessl writers + parser tests
+4. Dashboard Usage tab + live/mock + tip chrome
+5. CLI listing + ADR + operator docs
 
 **Gate:** unit tests green; Mock Usage tab shows fixtures; Live smoke optional (VERIFIED only with dated probe).
 
@@ -217,10 +217,10 @@ Ship with the behaviour PR (not this plan-only PR unless desired):
 
 ## Out of scope
 
-- Billing / provider account sync  
-- UI rate-limits that stop LLM calls  
-- Wave H FE/BE rearchitecture (slice 39)  
-- Guaranteeing Cisco/Tessl dollar accuracy when vendors omit usage  
+- Billing / provider account sync
+- UI rate-limits that stop LLM calls
+- Wave H FE/BE rearchitecture (slice 39)
+- Guaranteeing Cisco/Tessl dollar accuracy when vendors omit usage
 
 ---
 
