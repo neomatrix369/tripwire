@@ -4,7 +4,7 @@
 
 ## Outcome
 
-`/tw-self-check` reuses `/tw-verify` status/staleness/tabular logic scoped only to the five `/tw-*` skills, with optional `--force` / `force` to drive rescan behaviour where applicable.
+`/tw-self-check` reuses `/tw-verify` status/staleness/tabular logic scoped only to the five `/tw-*` skills, with optional `--force` / `force` to drive rescan behaviour where applicable. Table columns follow the amended slice-26/28 contract: **Name | Type | Status | Quality | Note** (Quality as `N/100` or `—`; blocked message as table footer).
 
 ## GWT acceptance specification
 
@@ -13,7 +13,7 @@ Thin scaffolds — full DISTILL ATs deferred per DECISIONS; design ATs before ma
 1. **Scoped to five /tw-* skills**
    - Given installed Tripwire control skills, when `/tw-self-check` runs without names, then only the five `/tw-*` skills appear in the table (not arbitrary demos/other skills).
 2. **Same verify logic**
-   - Given known states among those five, when self-check runs, then states/notes match `/tw-verify` contract behaviour (fresh/stale/unscanned/scanning/red handling).
+   - Given known states among those five, when self-check runs, then states/notes/Quality/footer match `/tw-verify` contract behaviour (fresh/stale/unscanned/scanning/red handling + Quality `N/100` + blocked footer).
 3. **Optional force**
    - Given `--force` or bare `force`, when self-check runs, then force semantics align with rescan/verify-adjacent behaviour defined at AT design (documented in evidence).
 
