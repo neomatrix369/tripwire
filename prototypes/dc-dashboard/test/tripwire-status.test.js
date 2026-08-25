@@ -34,6 +34,12 @@ import {
   mergeTesslCapabilityRows,
   securityQualityLink,
   linkedQualityFindingsForSecurity,
+  QUALITY_TAB_FLOOR,
+  isSkillItem,
+  qualityTabBucket,
+  matchesQualityTab,
+  filterItemsByQualityTab,
+  countSkillsByQualityTab,
 } from '../tripwire-status.js';
 
 const HTML_PATH = join(dirname(fileURLToPath(import.meta.url)), '..', 'Tripwire.dc.html');
@@ -277,6 +283,68 @@ test('given mcp server when qualitySurfacing then omit badge', () => {
     null,
     'MCP cards must not invent Tessl quality'
   );
+});
+
+// ── GWT-42.12–42.13, GWT-42.17 — quality tab buckets (A14) ───────────────
+
+const mixedQualityFixtures = [
+  { id: 's92', type: 'skill', name: 'high-92', quality: 92 },
+  { id: 's88', type: 'skill', name: 'high-88', quality: 88 },
+  { id: 's80', type: 'skill', name: 'boundary-80', quality: 80 },
+  { id: 's79', type: 'skill', name: 'boundary-79', quality: 79 },
+  { id: 's61', type: 'skill', name: 'low-61', quality: 61 },
+  { id: 'snull', type: 'skill', name: 'unscored', quality: null },
+  { id: 'snan', type: 'skill', name: 'nan-score', quality: Number.NaN },
+  { id: 'mcp1', type: 'mcp_server', name: 'ignored-mcp', quality: 95 },
+];
+
+test('given mixed quality skills when high tab filter then only skills with quality >= 80', () => {
+  const high = filterItemsByQualityTab(mixedQualityFixtures, 'high');
+  assert.deepEqual(
+    high.map((it) => it.id).sort(),
+    ['s80', 's88', 's92'],
+    'high tab must include 80 boundary and exclude 79/null'
+  );
+});
+
+test('given mixed quality skills when low tab filter then only below-threshold scored skills', () => {
+  const low = filterItemsByQualityTab(mixedQualityFixtures, 'low');
+  assert.deepEqual(
+    low.map((it) => it.id).sort(),
+    ['s61', 's79'],
+    'low tab must include sub-80 numeric scores only'
+  );
+});
+
+test('given mixed quality skills when unscored tab filter then null and NaN skills only', () => {
+  const unscored = filterItemsByQualityTab(mixedQualityFixtures, 'unscored');
+  assert.deepEqual(
+    unscored.map((it) => it.id).sort(),
+    ['snan', 'snull'],
+    'unscored tab must include null/NaN and exclude numeric scores'
+  );
+});
+
+test('given quality helpers when boundary and type checks then skills-only buckets', () => {
+  assert.equal(QUALITY_TAB_FLOOR, 80);
+  assert.equal(qualityTabBucket({ type: 'skill', quality: 80 }), 'high');
+  assert.equal(qualityTabBucket({ type: 'skill', quality: 79 }), 'low');
+  assert.equal(qualityTabBucket({ type: 'skill', quality: null }), 'unscored');
+  assert.equal(qualityTabBucket({ type: 'skill', quality: Number.NaN }), 'unscored');
+  assert.equal(qualityTabBucket({ type: 'mcp_server', quality: 99 }), null);
+  assert.equal(matchesQualityTab({ type: 'mcp_server', quality: 99 }, 'high'), false);
+  assert.equal(matchesQualityTab({ type: 'mcp_server', quality: 99 }, 'low'), false);
+  assert.equal(matchesQualityTab({ type: 'mcp_server', quality: 99 }, 'unscored'), false);
+  assert.equal(isSkillItem({ type: 'skill' }), true);
+  assert.equal(isSkillItem({ type: 'mcp_server' }), false);
+});
+
+test('given mixed skills when countSkillsByQualityTab then tallies high low and unscored', () => {
+  assert.deepEqual(countSkillsByQualityTab(mixedQualityFixtures), {
+    high: 3,
+    low: 2,
+    unscored: 2,
+  });
 });
 
 // ── GWT-42.8 — risk tooltip ───────────────────────────────────────────────

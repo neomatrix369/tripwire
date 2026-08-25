@@ -112,6 +112,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Risk/quality hints use a fixed `#score-tip-portal` (viewport-clamped) fed by
   `.score-tip` / `.score-tip-bubble` text — escapes grid `overflow` clipping and
   avoids delayed native `title=` attributes.
+- Dashboard quality triage tabs (slice 42 A14–A15): toolbar **Quality ≥ 80**,
+  **Quality < 80**, and **No quality score** tabs filter skills by Tessl
+  `item.quality` (threshold 80); tab labels include skill counts; empty-state
+  copy names the active tab; **Clear filters** resets quality tab to default.
+  MCP servers are excluded from quality buckets. Helpers in `tripwire-status.js`;
+  wired in `Tripwire.dc.html`.
 
 ### Fixed
 - Tessl dashboard progress during Modal scans: skip bulk `running` placeholders for

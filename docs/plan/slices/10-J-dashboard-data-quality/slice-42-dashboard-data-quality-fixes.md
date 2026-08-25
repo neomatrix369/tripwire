@@ -26,7 +26,7 @@ review” from the card face or the detail panel header. **Pile-on:** `risk 0.75
 explaining that risk is weighted finding density `(3×red+1×amber)/checks`, not card colour.
 
 **Delta (2026-08-25):** After A9–A13, operators still scroll the full skills grid to triage by Tessl
-quality. Embed **Quality ≥ 80** / **Rest (below / unscored)** filter tabs in the dashboard toolbar
+quality. Embed **Quality ≥ 80** / **Quality < 80** / **No quality score** filter tabs in the dashboard toolbar
 (skills only; threshold **80/100** on Tessl Review Quality axis). **Augment slice 42 in place** —
 standalone slice 54 stub superseded (see DECISIONS 2026-08-25).
 
@@ -53,7 +53,7 @@ scratchpad investigation reports (2026-08-19). Delta request: enhanced-flow-plan
 | A11 | **FE/UX** | Medium | `risk N.NN` label has no hover explanation — operators cannot tell formula, range, or that card colour ≠ risk density | All cards showing risk |
 | A12 | **FE/UX** | Medium | Even after A9, quality badge has no hover explaining Tessl 0–100 meaning / provenance (parity gap vs A11 risk tooltip) | Skills showing `Q …` |
 | A13 | **FE/UX** | Medium | Operator-facing copy uses schema jargon (`risk_score`, ambiguous list “Score”, some locus/avail phrasing) | All dashboard surfaces |
-| A14 | **FE/UX** | Medium | No quick filter to separate high Tessl quality skills (≥80) from below-threshold or unscored | Skills (Tessl-eligible) |
+| A14 | **FE/UX** | Medium | No quick filter to separate high Tessl quality skills (≥80) from below-threshold and unscored | Skills (Tessl-eligible) |
 | A15 | **FE/UX** | Low | Quality tab counts and empty-state copy not wired when filters yield zero skills | Dashboard toolbar |
 
 > **Note**: A7 count is inflated by A1 (FE can't see the findings for out-of-window runs).
@@ -235,11 +235,11 @@ Schema / API field names may stay snake_case in code and tooltips’ technical l
 
 **Out of scope:** renaming DB columns, API fields, or developer console/`outputJson` dumps.
 
-### GWT-42.11 — Two quality tabs render on the dashboard (A14) — **delta open**
+### GWT-42.11 — Three quality tabs render on the dashboard (A14) — **delta open**
 
 **Given** the operator is on the Tripwire dashboard (past intro)
 **When** the dashboard toolbar renders
-**Then** two quality triage tabs are visible: **Quality ≥ 80** and **Rest (below / unscored)**
+**Then** three quality triage tabs are visible: **Quality ≥ 80**, **Quality < 80**, and **No quality score**
 **And** exactly one tab is active at a time (default: **Quality ≥ 80**)
 
 ### GWT-42.12 — High tab lists only skills with quality ≥ 80 (A14)
@@ -249,12 +249,20 @@ Schema / API field names may stay snake_case in code and tooltips’ technical l
 **Then** the grid/list shows only **skill** items where `typeof quality === 'number' && quality >= 80`
 **And** MCP servers are excluded regardless of other filters
 
-### GWT-42.13 — Rest tab lists below-threshold and unscored skills (A14)
+### GWT-42.13 — Low tab lists only below-threshold scored skills (A14)
 
 **Given** the same mixed dataset
-**When** the operator selects **Rest (below / unscored)**
-**Then** the grid/list shows only **skill** items where quality is `null`/missing **or** `< 80`
-**And** items with quality exactly 79 appear in Rest, not High
+**When** the operator selects **Quality < 80**
+**Then** the grid/list shows only **skill** items where `typeof quality === 'number' && quality < 80`
+**And** items with quality exactly 79 appear here, not in High or No quality score
+**And** null/missing/NaN quality skills are excluded
+
+### GWT-42.17 — No quality score tab lists unscored skills only (A14) — **delta open**
+
+**Given** the same mixed dataset
+**When** the operator selects **No quality score**
+**Then** the grid/list shows only **skill** items where quality is `null`, missing, or `NaN`
+**And** items with any numeric score (including 0–79) are excluded
 
 ### GWT-42.14 — Quality tabs compose with search and type filters (A14)
 
@@ -601,11 +609,11 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 
 **Files**:
 - `prototypes/dc-dashboard/tripwire-status.js` — pure helpers: `qualityMeetsThreshold(item, floor)`, `qualityTabBucket(item)`, `filterItemsByQualityTab(items, tab)`
-- `prototypes/dc-dashboard/Tripwire.dc.html` — state `qualityTab` (`high` | `rest`); toolbar tab buttons; wire into `filtered` pipeline after type/search/status filters; extend `filterEmptyCopy` / `clearFilters`
-- `prototypes/dc-dashboard/test/tripwire-status.test.js` — GWT-42.12–42.13 unit tests (79 vs 80 boundary, null, NaN)
+- `prototypes/dc-dashboard/Tripwire.dc.html` — state `qualityTab` (`high` | `low` | `unscored`); toolbar tab buttons; wire into `filtered` pipeline after type/search/status filters; extend `filterEmptyCopy` / `clearFilters`
+- `prototypes/dc-dashboard/test/tripwire-status.test.js` — GWT-42.12–42.13, GWT-42.17 unit tests (79 vs 80 boundary, null, NaN)
 
 **Behaviour**:
-1. Two tabs: **Quality ≥ 80** (default) and **Rest (below / unscored)** — skills-only filter (`item.type === 'skill'`).
+1. Three tabs: **Quality ≥ 80** (default), **Quality < 80**, and **No quality score** — skills-only filter (`item.type === 'skill'`).
 2. Threshold **80** on `item.quality` (already mapped from `items.quality_score` in `tripwire-live.js`).
 3. Tab labels include skill counts (GWT-42.16); empty state names active tab (GWT-42.15).
 4. Reuse A11/A12 tooltip helpers — do not duplicate quality explanation strings.
@@ -613,7 +621,7 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 **Out of scope:** Supabase schema; Tessl scanner; `/tw-verify` output; canvas artifact removal.
 
 **Tests**:
-- Unit: high bucket excludes 79 and null; rest includes 61 and null; boundary 80/79
+- Unit: high bucket excludes 79 and null; low includes 79/61 not null; unscored includes null/NaN only; boundary 80/79
 - Unit or manual: search + type + quality intersection (GWT-42.14)
 - Manual smoke: tab chrome + counts on `http://127.0.0.1:8765/`
 
@@ -651,9 +659,10 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 
 ### Delta (A14–A15) — second reopen gate
 
-- [ ] GWT-42.11: Quality ≥ 80 / Rest tabs visible; default High
+- [ ] GWT-42.11: Quality ≥ 80 / Quality < 80 / No quality score tabs visible; default High
 - [ ] GWT-42.12: unit — high bucket excludes 79, null
-- [ ] GWT-42.13: unit — rest bucket includes null and scores < 80
+- [ ] GWT-42.13: unit — low bucket includes 79/61, excludes null
+- [ ] GWT-42.17: unit — unscored bucket includes null/NaN, excludes numeric scores
 - [ ] GWT-42.14: search + type + quality intersection (unit or manual)
 - [ ] GWT-42.15: empty state copy names active quality tab (manual smoke)
 - [ ] GWT-42.16: tab labels show skill counts (manual smoke)
@@ -742,6 +751,7 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 3. **Scope**: skills only; MCP servers never appear in quality tab filters.
 4. **Default tab**: Quality ≥ 80 (operators see the “good” set first).
 5. **Branch**: `slice/42-quality-score-tabs` from current `main`.
+6. **Three tabs (2026-08-25 amend)**: split former **Rest** into **Quality < 80** (numeric score below threshold) and **No quality score** (null/missing/NaN).
 
 ---
 

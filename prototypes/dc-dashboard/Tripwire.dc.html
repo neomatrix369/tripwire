@@ -624,6 +624,10 @@
               <button onClick="{{ tt.onClick }}" style="{{ tt.style }}">{{ tt.label }}</button>
             </sc-for>
             <div style="width:1px;height:20px;background:var(--border-subtle);flex-shrink:0"></div>
+            <sc-for list="{{ qualityTabs }}" as="qt" hint-placeholder-count="3">
+              <button onClick="{{ qt.onClick }}" style="{{ qt.style }}">{{ qt.label }}</button>
+            </sc-for>
+            <div style="width:1px;height:20px;background:var(--border-subtle);flex-shrink:0"></div>
           </div>
           <div style="display:flex;align-items:center;gap:12px;flex:0 0 auto;margin-left:auto">
             <input type="text" placeholder="Search by name…" value="{{ searchQuery }}" onChange="{{ onSearchChange }}" style="background:var(--bg-input);border:1px solid var(--border-subtle);color:var(--text-primary);font-family:var(--font-sans);font-size:12px;padding:7px 12px;border-radius:6px;width:180px;outline:none;transition:border-color 200ms" />
@@ -1036,6 +1040,7 @@ class Component extends DCLogic {
     dataSource: 'loading',
     dataSourceMode: sessionStorage.getItem('tripwire-data-source-mode') || 'live',
     typeFilter: 'all',
+    qualityTab: 'high',
     statusFilter: 'all',
     selectedId: null,
     guardResults: {},
@@ -1172,8 +1177,9 @@ class Component extends DCLogic {
 
   setTab = (t) => this.setState({ activeTab: t });
   setTypeFilter = (v) => this.setState({ typeFilter: v });
+  setQualityTab = (v) => this.setState({ qualityTab: v });
   setStatusFilter = (v) => this.setState({ statusFilter: v });
-  clearFilters = () => this.setState({ statusFilter: 'all', typeFilter: 'all', searchQuery: '' });
+  clearFilters = () => this.setState({ statusFilter: 'all', typeFilter: 'all', qualityTab: 'high', searchQuery: '' });
   selectItem = (id) => this.setState({ selectedId: id, expandedScanners: {}, findingsExpanded: true });
   closeDrawer = () => this.setState({ selectedId: null });
   toggleMonitoring = () => this.setState(s => ({ monitoringEnabled: !s.monitoringEnabled, guardResults: {} }));
@@ -1266,7 +1272,7 @@ class Component extends DCLogic {
     try { return typeof message === 'string' ? JSON.parse(message) : null; } catch { return null; }
   }
 
-  filterEmptyCopy(statusFilter, typeFilter, searchQuery, totalItems) {
+  filterEmptyCopy(statusFilter, typeFilter, qualityTab, searchQuery, totalItems) {
     if (totalItems === 0) {
       return {
         title: 'No items yet',
@@ -1286,6 +1292,9 @@ class Component extends DCLogic {
       };
     }
     const bits = [];
+    if (qualityTab === 'high') bits.push('Quality ≥ 80');
+    else if (qualityTab === 'low') bits.push('Quality < 80');
+    else if (qualityTab === 'unscored') bits.push('No quality score');
     if (typeFilter !== 'all') bits.push(typeFilter === 'skill' ? 'Skills' : 'MCP Servers');
     if (statusFilter !== 'all') bits.push(statusFilter);
     if (searchQuery.trim()) bits.push('“' + searchQuery.trim() + '”');
@@ -1543,7 +1552,8 @@ class Component extends DCLogic {
   renderVals() {
     const s = this.state;
     const data = s.data;
-    const statusMeta = this._statusKit?.STATUS_META || {
+    const kit = this._statusKit;
+    const statusMeta = kit?.STATUS_META || {
       red: { color: '#B42318', label: 'RED', glyph: '●' },
       amber: { color: '#8B5A00', label: 'AMBER', glyph: '▲' },
       green: { color: '#0F766E', label: 'GREEN', glyph: '✓' },
@@ -1622,7 +1632,7 @@ class Component extends DCLogic {
     if (!data) {
       return {
         ...base,
-        gridItems: [], typeTabs: [], statusChips: [], overviewStats: [],
+        gridItems: [], typeTabs: [], qualityTabs: [], statusChips: [], overviewStats: [],
         selectedView: null,
         guardRows: [], footerLastScan: '—',
         listRows: [], historyRows: [],
@@ -1639,6 +1649,16 @@ class Component extends DCLogic {
       { key: 'skill', label: 'Skills' },
       { key: 'mcp_server', label: 'MCP Servers' }
     ].map(t => ({ ...t, onClick: () => this.setTypeFilter(t.key), style: this.btnStyle(s.typeFilter === t.key, { activeBg: 'rgba(196,165,116,0.18)', activeBorder: '#C4A574', activeColor: '#1C1915' }) }));
+
+    const qCounts = kit?.countSkillsByQualityTab
+      ? kit.countSkillsByQualityTab(data.items)
+      : { high: 0, low: 0, unscored: 0 };
+    const qFloor = kit?.QUALITY_TAB_FLOOR ?? 80;
+    const qualityTabs = [
+      { key: 'high', label: `Quality ≥ ${qFloor} (${qCounts.high})` },
+      { key: 'low', label: `Quality < ${qFloor} (${qCounts.low})` },
+      { key: 'unscored', label: `No quality score (${qCounts.unscored})` }
+    ].map(t => ({ ...t, onClick: () => this.setQualityTab(t.key), style: this.btnStyle(s.qualityTab === t.key, { activeBg: 'rgba(196,165,116,0.18)', activeBorder: '#C4A574', activeColor: '#1C1915' }) }));
 
     const routerChipMeta = {
       escalated: { color: '#6D28D9', activeColor: '#5B21B6' },
@@ -1657,7 +1677,11 @@ class Component extends DCLogic {
     });
 
     const q = s.searchQuery.trim().toLowerCase();
+    const matchQuality = kit?.matchesQualityTab
+      ? (it) => kit.matchesQualityTab(it, s.qualityTab)
+      : () => true;
     const filtered = data.items.filter(it => {
+      if (!matchQuality(it)) return false;
       if (s.typeFilter !== 'all' && it.type !== s.typeFilter) return false;
       if (q && !it.name.toLowerCase().includes(q)) return false;
       if (s.statusFilter === 'all') return true;
@@ -1682,7 +1706,7 @@ class Component extends DCLogic {
 
     const showFilterEmpty = filtered.length === 0;
     const showItemResults = filtered.length > 0;
-    const emptyCopy = this.filterEmptyCopy(s.statusFilter, s.typeFilter, s.searchQuery, data.items.length);
+    const emptyCopy = this.filterEmptyCopy(s.statusFilter, s.typeFilter, s.qualityTab, s.searchQuery, data.items.length);
 
     const counts = { red: 0, amber: 0, green: 0, grey: 0, running: 0, error: 0 };
     data.items.forEach(it => { counts[it.status] = (counts[it.status] || 0) + 1; });
@@ -1714,7 +1738,6 @@ class Component extends DCLogic {
     const selected = s.selectedId ? data.items.find(i => i.id === s.selectedId) : null;
     const selectedView = selected ? (() => {
       const decorated = this.decorateItemStatus(selected);
-      const kit = this._statusKit;
       const mergedScanners = kit?.mergeTesslCapabilityRows
         ? kit.mergeTesslCapabilityRows(selected.scanners)
         : [...selected.scanners].sort((a, b) => this.compareScannerSource(a, b));
@@ -1834,7 +1857,7 @@ class Component extends DCLogic {
     });
 
     return {
-      ...base, typeTabs, statusChips, gridItems, overviewStats, selectedView,
+      ...base, typeTabs, qualityTabs, statusChips, gridItems, overviewStats, selectedView,
       closeDrawer: this.closeDrawer,
       guardRows, toggleMonitoring: this.toggleMonitoring,
       footerLastScan, listRows, historyRows,
