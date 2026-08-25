@@ -8,6 +8,8 @@
   "after_checks": [],
   "planned_commands": [
     "test -f docs/plan/slices/08-H-frontline-agent-hooks/slice-26-api-output-contract.md",
+    "rg -n \"Name \\| Type \\| Status \\| Quality \\| Note\" docs/plan/slices/08-H-frontline-agent-hooks/slice-26-api-output-contract.md",
+    "rg -n \"quality_score|footer|Will be blocked\" docs/plan/slices/08-H-frontline-agent-hooks/slice-26-api-output-contract.md",
     "rg -n \"fresh|stale|unscanned|scanning|not-found|will_be_blocked\" internal-docs/04_frontline/main_prompt.md",
     "rg -n \"heatmap_status\" guard/",
     "tripwire scan --help || true"
@@ -20,5 +22,6 @@
   "coverage_target": "TBD at AT design before IN PROGRESS",
   "complexity_policy": "enforcing for product-code; N/A for docs-only with reason in evidence",
   "phase": "H2",
-  "moscow": "Must"
+  "moscow": "Must",
+  "delta_2026_08_25": "Quality column + quality_score + blocked footer (DECIDED)"
 }
