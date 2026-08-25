@@ -279,6 +279,15 @@ clone and identity hash still see on-disk `evals/`. Spec:
 [design/tessl-5-row-expansion.md](./design/tessl-5-row-expansion.md),
 [slices 49–51](./plan/slices/12-L-tessl-5-row-expansion/).
 
+**Wave M — LLM usage / cost observability (2026-08-25):** Group **13-M** (letter after L).
+Meter router (SIE + Model Studio) accurately; Phase 2 best-effort Cisco/Tessl events;
+dashboard Usage tab + cost tips. **DECIDED** as plan-only slice 53 — design and stub
+captured; **not IMPLEMENTED**. **Not** filed under J (dashboard quality A1–A13 ✅),
+L (Tessl rows), or G (ATDD parked). Spec:
+[design/llm-usage-tracking.md](./design/llm-usage-tracking.md),
+[slice 53](./plan/slices/13-M-llm-usage-tracking/slice-53-llm-usage-tracking.md).
+Dedicated usage table — does **not** resurrect deferred `tripwire.audit`.
+
 ---
 
 ## PROPOSED
@@ -336,4 +345,5 @@ Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 `08-H-frontline-agent-hooks/`). Wave G (slices 18–22) is planned ATDD closure
 (parked while Wave H Musts run). Wave H (23–39) is Frontline plan-only. Claim
 audit (slice 15) and slice 16 remediations are deferred; retain their artifacts
-for a future live/demo release.
+for a future live/demo release. Wave M (slice 53) LLM usage log / cost tips is
+**DECIDED** plan-only — see DECIDED above; not current dashboard behaviour.

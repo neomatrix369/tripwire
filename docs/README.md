@@ -52,6 +52,7 @@ Start here: [QUICKSTART](../QUICKSTART.md) · Repo entry: [README](../README.md)
 | Run the documentation smoke path | [SMOKE_TESTS.md](./plan/SMOKE_TESTS.md) |
 | Review CI and Nightly workflows | [CI workflows](#ci-workflows) |
 | Inspect project planning | [plan README](./plan/README.md) · [progress](./plan/PROGRESS.md) |
+| LLM usage metering (DECIDED plan — not shipped) | [design/llm-usage-tracking.md](./design/llm-usage-tracking.md) · Wave M in [STATUS](./STATUS.md) |
 | Check scanner adapter research | [scanner output adapters](./research/adapters/scanner-output-adapters.md) |
 
 ## CI workflows
