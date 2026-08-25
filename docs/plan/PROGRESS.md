@@ -8,7 +8,7 @@
 | 12 | [`12-L-…`](slices/12-L-tessl-5-row-expansion/) | **L — Tessl 5-row expansion** | 45 ✅ · 46 ✅ · 47 ✅ · 48 ✅ · 49 ✅ · 50 ✅ · **51** 🔀 · 52 📋 | 45–50 ✅ · **51** 🔀 |
 | 13 | [`13-M-…`](slices/13-M-llm-usage-tracking/) | **M — LLM usage / cost observability** | **53** | 📋 plan-only (ADR-0016 follow-on; not J/L/G) |
 | 11 | [`11-K-…`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** | 🔀 |
-| 10 | [`10-J-…`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 | A1–A13 ✅ |
+| 10 | [`10-J-…`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 (A14–A15 📋) | A1–A13 ✅ · quality tabs delta |
 | 9 | [`09-I-…`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 ✅ · 43 | 41 ✅ · 43 ✅ |
 | 1 | [`01-A-…`](slices/01-A-live-path-gwt/) | **A — Live path + GWT** | 1 → 2 → 3 · 4 | ✅ · 4 📦 |
 | 2 | [`02-B-…`](slices/02-B-characterization-evidence/) | **B — Characterization + evidence sync** | 6 → 5 | ✅ |
@@ -161,7 +161,7 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 ### J — Dashboard Data Quality Fixes
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| 42 | [slice-42-dashboard-data-quality-fixes](slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md) | Must | ✅ PASSED (A9–A13 · [#98](https://github.com/neomatrix369/tripwire/pull/98); A1–A8 #95) | 2026-08-19 | — | ~75 min delta |
+| 42 | [slice-42-dashboard-data-quality-fixes](slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md) | Must | 📋 PLANNED (A14–A15 delta reopen) | — | — | ~45 min delta |
 
 ### K — Docs UX plain language + compaction
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
@@ -198,6 +198,7 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 4 (historical) | Remotion sibling + VO assets missing | 📦 closed with demo/hackathon deferral — reinstate slice 4 if film day returns |
 
 ## Forward Roadmap
+- Wave **J** (slice **42** A14–A15) dashboard quality tabs — **📋 plan-only** — embed ≥80 vs Rest triage in `prototypes/dc-dashboard/`; execute when explicitly started (`slice/42-quality-score-tabs`).
 - Wave **M** (slice 53) LLM usage / cost observability is **📋 plan-only** — ADR-0016 follow-on; execute when explicitly started (`slice/53-llm-usage-tracking`).
 - Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Slice 15 is retained as a deferred claim-audit artifact, not active work.
 - **Wave H (Frontline):** plan-only stubs 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. Execute Musts 23→32 with human tests after H1/H2 and HARD GATE at 32 before Should work.
@@ -274,3 +275,5 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-25 | slice/51-review-security | nw-review | 51 | APPROVED | software-crafter-reviewer; After-Checks ticked; still 🔨 until commit/PR |
 | 2026-08-25 | slice/51-review-security | clean-commit | 51 | 🔀 ON BRANCH | `6cbded7` feat + `c96c459` style; pushed; awaiting `/create-pr` |
 | 2026-08-25 | slice/51-review-security | sync-docs | 51 | APPLIED | Trackers 🔨→🔀; prerequisites + OPTIONAL_SCANNER_KEYS name Security; adapters heading; README/AGENTS NO_CHANGE |
+| 2026-08-25 | main / plan | enhanced-flow-planner Path B | 54 | 📋 PLANNED | Dashboard quality tabs ≥80 vs Rest; Wave J; depends 42+47 |
+| 2026-08-25 | planning | Blended slice 54 → 42 A14–A15 | 42 | 📋 delta reopen | Quality tabs augment slice 42 in place; slice 54 stub removed; branch `slice/42-quality-score-tabs`. DECIDED |

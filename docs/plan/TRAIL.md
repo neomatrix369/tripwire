@@ -91,7 +91,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 8 | `slices/08-H-agent-guard-integration/` (stubs pending) | **H — Claude Code Agent Guard integration** | H0 governance → H1–H7 (hackathon plan §9 steps 0–7) | 🔨 |
 | 8 | [`slices/08-H-frontline-agent-hooks/`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | 23→32 Must · 33–38 Should · 39 Could | 📋 plan-only |
 | 9 | [`slices/09-I-landing-intro-restyle/`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 ✅ · **43** ✅ | [#96](https://github.com/neomatrix369/tripwire/pull/96) |
-| 10 | [`slices/10-J-dashboard-data-quality/`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 ✅ A1–A13 ([#98](https://github.com/neomatrix369/tripwire/pull/98)) · A1–A8 [#95](https://github.com/neomatrix369/tripwire/pull/95) | — |
+| 10 | [`slices/10-J-dashboard-data-quality/`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 ✅ A1–A13 ([#98](https://github.com/neomatrix369/tripwire/pull/98)) · **A14–A15** 📋 quality tabs | — |
 | 11 | [`slices/11-K-docs-ux-plain-language/`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** 🔀 | — |
 
 **Status legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 CLOSED — DEFERRED/WON'T`
@@ -246,7 +246,7 @@ Audit report: `~/.claude/plans/iterate-through-all-of-lovely-stearns.md`
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
-| 42 | [slice-42-dashboard-data-quality-fixes](slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md) | Dashboard Data Quality Fixes (A1–A13 Tessl quality + tooltips + labels) | Must | ✅ | none | [#95](https://github.com/neomatrix369/tripwire/pull/95) · [#98](https://github.com/neomatrix369/tripwire/pull/98) | ~3 min |
+| 42 | [slice-42-dashboard-data-quality-fixes](slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md) | Dashboard Data Quality Fixes (A1–A13 ✅ + **A14–A15** quality tabs) | Must | 📋 (A14–A15 delta) | none | [#95](https://github.com/neomatrix369/tripwire/pull/95) · [#98](https://github.com/neomatrix369/tripwire/pull/98) | ~3 min + ~45 min delta |
 
 ### K — Docs UX plain language + compaction (opened 2026-08-20)
 

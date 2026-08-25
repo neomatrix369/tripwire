@@ -1,9 +1,9 @@
 # Slice 42 — Dashboard Data Quality Fixes
 
-> Wave J | MoSCoW: **Must** | Status: 🔀 ON BRANCH (A9–A13 delta) | Est: ~120 min + ~60 min delta
-> Depends on: none (independent; complements slices 21 and 22)
-> Prior merge: [#95](https://github.com/neomatrix369/tripwire/pull/95) shipped A1–A8 ✅ — this reopen adds **A9–A13** only
-> Branch: `slice/42-tessl-quality-card-surfacing`
+> Wave J | MoSCoW: **Must** | Status: 📋 PLANNED (A14–A15 delta reopen) | Est: ~120 min + ~60 min (A9–A13) + ~45 min (A14–A15)
+> Depends on: none (independent; complements slices 21 and 22). **A14–A15** requires A9–A13 ✅ ([#98](https://github.com/neomatrix369/tripwire/pull/98)) + slice 47 ✅ on `main`.
+> Prior merge: [#95](https://github.com/neomatrix369/tripwire/pull/95) shipped A1–A8 ✅ · [#98](https://github.com/neomatrix369/tripwire/pull/98) shipped A9–A13 ✅ — this reopen adds **A14–A15** only
+> Branch (when building A14–A15): `slice/42-quality-score-tabs`
 
 ---
 
@@ -24,6 +24,11 @@ row when the value is truthy. Grid cards show `risk` but not quality; null / nev
 Tessl-unreachable states have no explicit indicator — operators cannot triage “schedule a Tessl
 review” from the card face or the detail panel header. **Pile-on:** `risk 0.75` has no hover
 explaining that risk is weighted finding density `(3×red+1×amber)/checks`, not card colour.
+
+**Delta (2026-08-25):** After A9–A13, operators still scroll the full skills grid to triage by Tessl
+quality. Embed **Quality ≥ 80** / **Rest (below / unscored)** filter tabs in the dashboard toolbar
+(skills only; threshold **80/100** on Tessl Review Quality axis). **Augment slice 42 in place** —
+standalone slice 54 stub superseded (see DECISIONS 2026-08-25).
 
 **Source**: Anomaly audit in `~/.claude/plans/iterate-through-all-of-lovely-stearns.md` and
 scratchpad investigation reports (2026-08-19). Delta request: enhanced-flow-planner continuation
@@ -48,11 +53,13 @@ scratchpad investigation reports (2026-08-19). Delta request: enhanced-flow-plan
 | A11 | **FE/UX** | Medium | `risk N.NN` label has no hover explanation — operators cannot tell formula, range, or that card colour ≠ risk density | All cards showing risk |
 | A12 | **FE/UX** | Medium | Even after A9, quality badge has no hover explaining Tessl 0–100 meaning / provenance (parity gap vs A11 risk tooltip) | Skills showing `Q …` |
 | A13 | **FE/UX** | Medium | Operator-facing copy uses schema jargon (`risk_score`, ambiguous list “Score”, some locus/avail phrasing) | All dashboard surfaces |
+| A14 | **FE/UX** | Medium | No quick filter to separate high Tessl quality skills (≥80) from below-threshold or unscored | Skills (Tessl-eligible) |
+| A15 | **FE/UX** | Low | Quality tab counts and empty-state copy not wired when filters yield zero skills | Dashboard toolbar |
 
 > **Note**: A7 count is inflated by A1 (FE can't see the findings for out-of-window runs).
 > Re-audit after A1 fix to get the true DB-only count.
 >
-> **Shipped (PR #95):** A1–A8. **Open delta:** A9–A13 (quality on top + tooltips + operator-friendly labels).
+> **Shipped (PR #95):** A1–A8. **Shipped (PR #98):** A9–A13. **Open delta:** A14–A15 (quality score tabs).
 >
 > **Propagation check (2026-08-20):** Live adapter already maps `items.quality_score` → `item.quality` and into Tessl `output.quality_score` (`tripwire-live.js`). **UI top-of-card does not render it yet** — only the expanded Tessl row, and only when truthy. A9/A10/A12 close that gap.
 
@@ -228,6 +235,48 @@ Schema / API field names may stay snake_case in code and tooltips’ technical l
 
 **Out of scope:** renaming DB columns, API fields, or developer console/`outputJson` dumps.
 
+### GWT-42.11 — Two quality tabs render on the dashboard (A14) — **delta open**
+
+**Given** the operator is on the Tripwire dashboard (past intro)
+**When** the dashboard toolbar renders
+**Then** two quality triage tabs are visible: **Quality ≥ 80** and **Rest (below / unscored)**
+**And** exactly one tab is active at a time (default: **Quality ≥ 80**)
+
+### GWT-42.12 — High tab lists only skills with quality ≥ 80 (A14)
+
+**Given** live or mock data includes skills with mixed quality scores (e.g. 92, 88, 75, 61, null)
+**When** the operator selects **Quality ≥ 80**
+**Then** the grid/list shows only **skill** items where `typeof quality === 'number' && quality >= 80`
+**And** MCP servers are excluded regardless of other filters
+
+### GWT-42.13 — Rest tab lists below-threshold and unscored skills (A14)
+
+**Given** the same mixed dataset
+**When** the operator selects **Rest (below / unscored)**
+**Then** the grid/list shows only **skill** items where quality is `null`/missing **or** `< 80`
+**And** items with quality exactly 79 appear in Rest, not High
+
+### GWT-42.14 — Quality tabs compose with search and type filters (A14)
+
+**Given** the operator has typed a search query and/or selected **Skills** in the existing type tabs
+**When** they switch between quality tabs
+**Then** results are the intersection of search + type filter + active quality tab
+**And** clearing filters resets quality tab to default, search, and type filter
+
+### GWT-42.15 — Empty state when a quality tab has no matches (A15)
+
+**Given** filters yield zero skills for the active quality tab
+**When** the dashboard renders
+**Then** the existing filter-empty panel appears with copy naming the active quality tab
+**And** **Clear filters** resets quality tab to default, search, and type filter
+
+### GWT-42.16 — Tab counts reflect filtered skills (A15)
+
+**Given** the dashboard has loaded item data
+**When** quality tabs render
+**Then** each tab label includes a count of matching **skills** (e.g. `≥ 80 (12)`)
+**And** counts update when Live realtime refresh replaces item data
+
 ---
 
 ## Before-Checks
@@ -248,6 +297,14 @@ Schema / API field names may stay snake_case in code and tooltips’ technical l
 - [x] Identify ≥1 skill with numeric quality and ≥1 with null quality after scan (or mock fixtures covering both)
 - [x] `quality-gates.sh` passes on the delta branch base before starting
 - [x] Coordinate with slice 43: both touch `Tripwire.dc.html` — prefer execute after #96 merges, or rebase onto 43 tip
+
+### Delta (A14–A15) — second reopen
+
+- [ ] On current `main` (post-#98): confirm A9–A13 quality badges render; no quality triage tabs yet
+- [ ] Confirm slice 47 ✅ on `main` (`items.quality_score` scoped to Tessl Review Quality)
+- [ ] Branch `slice/42-quality-score-tabs` created from current `main`
+- [ ] No concurrent edit on `Tripwire.dc.html` (check slices 48/51 if ON BRANCH — rebase if needed)
+- [ ] `quality-gates.sh` passes on the delta branch base before starting
 
 ---
 
@@ -540,6 +597,28 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 
 ---
 
+### Sub-task 13 — Fix A14–A15: quality score triage tabs (FE/UX) — **delta**
+
+**Files**:
+- `prototypes/dc-dashboard/tripwire-status.js` — pure helpers: `qualityMeetsThreshold(item, floor)`, `qualityTabBucket(item)`, `filterItemsByQualityTab(items, tab)`
+- `prototypes/dc-dashboard/Tripwire.dc.html` — state `qualityTab` (`high` | `rest`); toolbar tab buttons; wire into `filtered` pipeline after type/search/status filters; extend `filterEmptyCopy` / `clearFilters`
+- `prototypes/dc-dashboard/test/tripwire-status.test.js` — GWT-42.12–42.13 unit tests (79 vs 80 boundary, null, NaN)
+
+**Behaviour**:
+1. Two tabs: **Quality ≥ 80** (default) and **Rest (below / unscored)** — skills-only filter (`item.type === 'skill'`).
+2. Threshold **80** on `item.quality` (already mapped from `items.quality_score` in `tripwire-live.js`).
+3. Tab labels include skill counts (GWT-42.16); empty state names active tab (GWT-42.15).
+4. Reuse A11/A12 tooltip helpers — do not duplicate quality explanation strings.
+
+**Out of scope:** Supabase schema; Tessl scanner; `/tw-verify` output; canvas artifact removal.
+
+**Tests**:
+- Unit: high bucket excludes 79 and null; rest includes 61 and null; boundary 80/79
+- Unit or manual: search + type + quality intersection (GWT-42.14)
+- Manual smoke: tab chrome + counts on `http://127.0.0.1:8765/`
+
+---
+
 ## After-Checks
 
 ### Shipped (A1–A8) — historical, PR #95
@@ -569,6 +648,21 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 - [x] `docs/plan/gate-evidence/slice-42.json` updated for delta (`gate_status` / commands / review) — prior A1–A8 PASS retained as `prior_pass: "#95"`
 - [x] Doc audit below complete for delta
 - [x] code review passed (nw-review — APPROVED 2026-08-20)
+
+### Delta (A14–A15) — second reopen gate
+
+- [ ] GWT-42.11: Quality ≥ 80 / Rest tabs visible; default High
+- [ ] GWT-42.12: unit — high bucket excludes 79, null
+- [ ] GWT-42.13: unit — rest bucket includes null and scores < 80
+- [ ] GWT-42.14: search + type + quality intersection (unit or manual)
+- [ ] GWT-42.15: empty state copy names active quality tab (manual smoke)
+- [ ] GWT-42.16: tab labels show skill counts (manual smoke)
+- [ ] `(cd prototypes/dc-dashboard && npm test && npm run lint)` passes
+- [ ] `./scripts/quality-gates.sh` passes
+- [ ] Complexity evidence: prototype dashboard **reporting** only — same policy as A9–A13 delta
+- [ ] `docs/plan/gate-evidence/slice-42.json` updated for A14–A15 delta (`prior_pass` retains #98)
+- [ ] Doc audit below complete for A14–A15
+- [ ] `/nw-review` APPROVED before ✅ PASSED
 
 ---
 
@@ -616,6 +710,12 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 - [x] `CHANGELOG.md`: entry for Tessl quality card/panel surfacing + risk/quality tooltips + label polish
 - [x] Screenshot or smoke note: quality badge + risk hover + plain labels visible on grid + detail (optional if mock fixtures cover tests)
 
+### Delta (A14–A15)
+
+- [ ] `docs/plan/DECISIONS.md`: log A14–A15 reopen; note slice 54 superseded
+- [ ] `CHANGELOG.md`: entry for dashboard quality score triage tabs (≥80 vs Rest)
+- [ ] `docs/STATUS.md`: IMPLEMENTED note when merged
+
 ---
 
 ## Open Questions (for discussion before 🔨)
@@ -635,20 +735,30 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 5. **Quality tooltip**: required with A9 — Tessl 0–100 skill-review explanation; parity with risk hover; not optional.
 6. **Operator labels**: use GWT-42.10 glossary (`Risk density`, `Tessl quality`, plain locus/avail); no snake_case in chrome.
 
+### Resolved (A14–A15) — USER-CONFIRMED reopen 2026-08-25
+
+1. **Blend, not new slice**: quality tabs are A14–A15 delta on slice 42; slice 54 stub removed.
+2. **Threshold**: 80/100 fixed (Tessl Review Quality axis); not configurable in v1.
+3. **Scope**: skills only; MCP servers never appear in quality tab filters.
+4. **Default tab**: Quality ≥ 80 (operators see the “good” set first).
+5. **Branch**: `slice/42-quality-score-tabs` from current `main`.
+
 ---
 
 ## Gate Status
 
-🔀 ON BRANCH — A9–A13 implemented on `slice/42-tessl-quality-card-surfacing`. nw-review **APPROVED** 2026-08-20 — ready for ✅ PASSED + merge of PR #98.
+✅ PASSED — A1–A13 merged ([#95](https://github.com/neomatrix369/tripwire/pull/95) + [#98](https://github.com/neomatrix369/tripwire/pull/98)).
+
+📋 PLANNED — A14–A15 quality score tabs (second delta reopen on slice 42).
 
 ```json
 {
   "slice": 42,
-  "gate_status": "ON_BRANCH",
-  "delta": "A9-A13-quality-risk-tooltips-labels",
-  "prior_pass": "#95",
-  "branch": "slice/42-tessl-quality-card-surfacing",
+  "gate_status": "PLANNED",
+  "delta": "A14-A15-quality-score-tabs",
+  "prior_pass": "#95 + #98",
+  "branch": "slice/42-quality-score-tabs",
   "open_questions": [],
-  "reopen_confirmed": "2026-08-20"
+  "reopen_confirmed": "2026-08-25"
 }
 ```
