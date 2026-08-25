@@ -257,8 +257,9 @@ documentarist pile-on **APPROVED WITH FOLLOW-ON**; DIVIO purity rewrites
 **Wave H — Frontline agent hooks (2026-08-15):** Claude Code PreToolUse handlers,
 `tripwire setup-agent-hooks`, and five `/tw-*` skills landed on `main` via Phase 1
 agent-hooks (see `agent-hooks/`). Formal Wave H gate trackers (slices 23–39) still
-lag; **slice 28** (`/tw-verify` Quality `N/100` + blocked footer) is **IMPLEMENTED**
-on `slice/28-tw-verify-quality` — contract SSOT
+lag; **slice 28** (`/tw-verify` Quality `N/100` + blocked footer + Sources:
+Tessl Quality / Cisco+Snyk Status) is **IMPLEMENTED** on
+`slice/28-tw-verify-quality` — contract SSOT
 [frontline-output-contract.md](./user-guide/frontline-output-contract.md).
 Remaining Musts 23–27 / 29–32 stay plan-tracked. ADR-0015
 Horizon A exclusion remains in force until Wave H lands and a superseding ADR
@@ -296,7 +297,7 @@ Dedicated usage table — does **not** resurrect deferred `tripwire.audit`.
 
 Claude Code agent-hooks integration layer — **Phase 1 SUPERSEDED by shipping on
 `main`** under [agent-hooks](../agent-hooks/README.md). Slice 28 Quality/`N/100`
-dual-output is **IMPLEMENTED** on `slice/28-tw-verify-quality` (see
++ Sources attribution is **IMPLEMENTED** on `slice/28-tw-verify-quality` (see
 [DECIDED](#decided) Wave H). Formal Wave H Must gate closures (23–27, 29–32) and
 the ADR-0017 Phase-1 regression matrix remain open.
 

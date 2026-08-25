@@ -4,9 +4,9 @@
 
 ## Outcome
 
-`/tw-verify` resolves multiple names, reports every artifact in one pass via the shared human table + machine JSON, covers all six states, surfaces Tessl **Quality** as **`N/100`** when `items.quality_score` is present, de-duplicates the shared blocked message into a **table footer**, offers `/tw-scan` for unscanned, and returns a useful human message for not-found.
+`/tw-verify` resolves multiple names, reports every artifact in one pass via the shared human table + machine JSON, covers all six states, surfaces Tessl **Quality** as **`N/100`** when `items.quality_score` is present, de-duplicates the shared blocked message into a **table footer**, attributes vendors via a **Sources** line (Quality = Tessl; Status = Cisco AI Defense + Snyk), offers `/tw-scan` for unscanned, and returns a useful human message for not-found.
 
-**Delta (2026-08-25):** Quality column + blocked-note footer de-dupe (Quality-only metrics; amend-in-place — no new slice). Evidence state: **IMPLEMENTED** on `slice/28-tw-verify-quality`.
+**Delta (2026-08-25):** Quality column + blocked-note footer de-dupe + Sources attribution (Quality-only metrics; amend-in-place — no new slice). Evidence state: **IMPLEMENTED** on `slice/28-tw-verify-quality`.
 
 ## GWT acceptance specification
 
@@ -70,7 +70,7 @@ RED→GREEN→REFACTOR complete for Quality + footer delta (restored Frontline v
 
 | # | Check |
 |---|--------|
-| 1 | `/tw-verify` multi-name + one-pass + Quality `N/100` + blocked footer documented in skill SSOT |
+| 1 | `/tw-verify` multi-name + one-pass + Quality `N/100` + blocked footer + Sources attribution documented in skill SSOT |
 | 2 | Link to `docs/user-guide/frontline-output-contract.md` |
 | 3 | sync-docs: `tw-verify` + `tw-self-check` + `tw-disable` + `agent-hooks/README` + CHANGELOG |
 | 4 | Cross-link gate-evidence ↔ TRAIL/PROGRESS |

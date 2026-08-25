@@ -18,6 +18,7 @@
     "PASS — coverage 100% lines on guard/verify.py (target ≥95%)",
     "PASS — xenon exit 0; ./scripts/quality-gates.sh PASS",
     "PASS — review acceptance+implementation APPROVED (nw-software-crafter-reviewer)",
+    "PASS — Sources attribution (Tessl Quality; Cisco/Snyk Status) in to_markdown + skill",
     "PENDING merge — PROGRESS/TRAIL ✅ after merge to main"
   ],
   "commands": [
@@ -52,7 +53,7 @@
   },
   "coverage": {
     "target": "≥95% lines on guard/verify.py",
-    "measured": "100.0% lines (106 stmts)",
+    "measured": "100.0% lines (109 stmts)",
     "date": "2026-08-25"
   },
   "complexity_policy": "enforcing for product-code — xenon exit 0 via quality-gates",
@@ -67,5 +68,5 @@
   "coverage_target": "≥95% lines on guard/verify.py",
   "phase": "H2",
   "moscow": "Must",
-  "delta_2026_08_25": "Quality column N/100 + blocked footer de-dupe (IMPLEMENTED)"
+  "delta_2026_08_25": "Quality column N/100 + blocked footer + Sources Tessl/Cisco+Snyk (IMPLEMENTED)"
 }

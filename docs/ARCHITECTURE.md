@@ -209,9 +209,10 @@ clock before Modal's 300s kill — operators reconcile stranded `running` rows w
   shipped production entry ([ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md)).
   **Wave H (Frontline):** Phase 1 hooks + `tripwire setup-agent-hooks` + `/tw-*`
   skills live under [agent-hooks](../agent-hooks/README.md) on `main`. Slice 28
-  (`/tw-verify` Quality `N/100` + blocked footer) is **IMPLEMENTED** on
-  `slice/28-tw-verify-quality` — dual-output SSOT
-  [frontline-output-contract.md](./user-guide/frontline-output-contract.md).
+  (`/tw-verify` Quality `N/100` + blocked footer + Sources attribution) is
+  **IMPLEMENTED** on `slice/28-tw-verify-quality` — dual-output SSOT
+  [frontline-output-contract.md](./user-guide/frontline-output-contract.md)
+  (Quality = Tessl; Status = Cisco AI Defense + Snyk).
   Formal Wave H gate trackers (23–27, 29–32) still lag — see [STATUS.md](./STATUS.md)
   and [plan/TRAIL.md](./plan/TRAIL.md) Wave H.
 - **Wave M (LLM usage / cost observability, DECIDED plan-only):** slice 53
