@@ -260,3 +260,24 @@ def test_given_supabase_error_when_safe_rpc_then_raises_runtime_error() -> None:
     ### When / Then
     with pytest.raises(RuntimeError, match="rollup"):
         scan_app._safe_rpc(mock_sb, "tripwire_rollup_item", {"p_item_id": "item-1"}, "rollup")
+
+
+@pytest.mark.parametrize(
+    "target",
+    [
+        "http://github.com/org/repo.git",
+        "repo.git",
+        "path/to/repo.git/",
+    ],
+)
+def test_given_git_like_target_when_classified_then_is_git_url(target: str) -> None:
+    """
+    Scenario: http://…git and bare .git suffixes count as git URLs.
+    Slice: 50 — scan_app git URL detection edge paths
+
+    Given an http .git URL or a path ending in .git,
+    When _is_git_url classifies it,
+    Then it returns True.
+    """
+    ### Given / When / Then
+    assert scan_app._is_git_url(target) is True

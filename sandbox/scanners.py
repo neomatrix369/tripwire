@@ -37,11 +37,11 @@ def _which(binary):
     return shutil.which(binary) is not None
 
 
-def _run(cmd, timeout=SCAN_TIMEOUT):
+def _run(cmd, timeout=SCAN_TIMEOUT, cwd=None):
     """Never raises on nonzero exit or timeout — callers map that to a
     scan_run_scanners status (unreachable) rather than a crash."""
     try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, cwd=cwd)
         return proc.returncode, proc.stdout, proc.stderr
     except subprocess.TimeoutExpired as exc:
         return None, exc.stdout or "", f"timeout after {timeout}s"
@@ -59,7 +59,10 @@ def _skipped(source, reason="skipped_missing_credential", detail=None, console_o
 
 
 def _snyk_collect_errors(path_result):
-    """Gather path-level and per-server errors from a Snyk path envelope."""
+    """Gather path-level and per-component errors from a Snyk path envelope.
+
+    Supports v0.5 (`servers`) and v0.6 (`server_risks` / `skill_risks`).
+    """
     errors = []
     path_err = path_result.get("error")
     if path_err:
@@ -67,7 +70,77 @@ def _snyk_collect_errors(path_result):
     for server in path_result.get("servers") or []:
         if isinstance(server, dict) and server.get("error"):
             errors.append(server["error"])
+    for component in (path_result.get("server_risks") or []) + (
+        path_result.get("skill_risks") or []
+    ):
+        if isinstance(component, dict) and component.get("error"):
+            errors.append(component["error"])
     return errors
+
+
+def _snyk_iter_path_results(root):
+    """Yield path-result dicts from v0.5 path-keyed maps or v0.6 envelopes."""
+    responses = root.get("scan_path_responses")
+    if isinstance(responses, list):
+        for item in responses:
+            if isinstance(item, dict):
+                yield item
+        return
+    for _abs_path, path_result in root.items():
+        if isinstance(path_result, dict):
+            yield path_result
+
+
+def _snyk_severity_from_score(score):
+    """Map Agent Scan v0.6 risk score (0–1000) to Tripwire red/amber."""
+    try:
+        numeric = int(score)
+    except (TypeError, ValueError):
+        return "amber"
+    return "red" if numeric >= 600 else "amber"
+
+
+def _snyk_findings_from_path(path_result, source):
+    """Extract findings + check count from one path result (v0.5 issues or v0.6 risks)."""
+    findings = []
+    checks = 0
+    for issue in path_result.get("issues") or []:
+        if not isinstance(issue, dict):
+            continue
+        checks += 1
+        code_ = issue.get("code", "")
+        severity = "red" if code_.startswith("E") else ("amber" if code_.startswith("W") else None)
+        if severity is None:
+            continue
+        findings.append(
+            {
+                "severity": severity,
+                "category": _SNYK_CODE_CATEGORY.get(code_, "unknown"),
+                "message": issue.get("message"),
+                "scanner_source": source,
+            }
+        )
+    for component in (path_result.get("server_risks") or []) + (
+        path_result.get("skill_risks") or []
+    ):
+        if not isinstance(component, dict):
+            continue
+        risk_indexes = component.get("risk_indexes") or {}
+        if not isinstance(risk_indexes, dict):
+            continue
+        for risk_name, risk in risk_indexes.items():
+            if not isinstance(risk, dict):
+                continue
+            checks += 1
+            findings.append(
+                {
+                    "severity": _snyk_severity_from_score(risk.get("score")),
+                    "category": str(risk_name),
+                    "message": risk.get("evidence") or str(risk_name),
+                    "scanner_source": source,
+                }
+            )
+    return findings, checks
 
 
 def _snyk_error_is_auth(err):
@@ -458,6 +531,8 @@ def run_cisco_mcp_scanner(workdir, target):
 # ---- Snyk Agent Scan ---------------------------------------------------------
 # docs/research/adapters/scanner-output-adapters.md §2
 # Prefer image-preinstalled `snyk-agent-scan` (uv tool install); fall back to uvx.
+# JSON: Agent Scan v0.6+ uses scan_path_responses / risk_indexes; v0.5 path-keyed
+# issues[] remains supported (see docs/research/adapters/scanner-output-adapters.md §2).
 
 
 def _snyk_cmd(workdir, item_type):
@@ -492,29 +567,14 @@ def run_snyk(workdir, item_type="mcp_server"):
     findings, checks = [], 0
     collected_errors = []
     paths_seen = 0
-    for _abs_path, path_result in root.items():
-        if not isinstance(path_result, dict):
-            continue
+    for path_result in _snyk_iter_path_results(root):
         paths_seen += 1
         path_errs = _snyk_collect_errors(path_result)
         if path_errs:
             collected_errors.extend(path_errs)
-        for issue in path_result.get("issues", []) or []:
-            checks += 1
-            code_ = issue.get("code", "")
-            severity = (
-                "red" if code_.startswith("E") else ("amber" if code_.startswith("W") else None)
-            )
-            if severity is None:
-                continue
-            findings.append(
-                {
-                    "severity": severity,
-                    "category": _SNYK_CODE_CATEGORY.get(code_, "unknown"),
-                    "message": issue.get("message"),
-                    "scanner_source": source,
-                }
-            )
+        path_findings, path_checks = _snyk_findings_from_path(path_result, source)
+        findings.extend(path_findings)
+        checks += path_checks
 
     if collected_errors:
         detail = "; ".join(_snyk_error_message(e) for e in collected_errors)
@@ -970,6 +1030,407 @@ def _run_tessl_scenario_gen(
     return _scenario_download_and_finish(workdir, ctx, row, gen_id, consoles, on_progress)
 
 
+_TESSL_EVAL_SOURCE = "Tessl: Eval"
+_TESSL_EVAL_RUNS = 3
+_TESSL_EVAL_POLL_SLEEP_S = 2
+_TESSL_EVAL_POLL_MAX = 90
+
+
+def _new_blocked_eval_row() -> dict:
+    return {
+        "scanner_source": _TESSL_EVAL_SOURCE,
+        "status": "blocked",
+        "checks_run": 0,
+        "detail": "waiting for Scenario Generation to complete and populate evals/",
+    }
+
+
+def _has_tessl_project_link(workdir: str) -> bool:
+    return os.path.isfile(os.path.join(workdir, "tessl.json"))
+
+
+def _tessl_project_create_argv(workspace: str, project_name: str) -> list[str]:
+    return [
+        "npx",
+        "--yes",
+        "tessl@latest",
+        "project",
+        "create",
+        "--workspace",
+        workspace,
+        project_name,
+    ]
+
+
+def _tessl_project_repair_argv() -> list[str]:
+    return ["npx", "--yes", "tessl@latest", "project", "repair", "--yes"]
+
+
+def _tessl_eval_run_argv(workdir: str, *, as_json: bool = False) -> list[str]:
+    argv = [
+        "npx",
+        "--yes",
+        "tessl@latest",
+        "eval",
+        "run",
+        workdir,
+        "--runs",
+        str(_TESSL_EVAL_RUNS),
+        "-y",
+    ]
+    if as_json:
+        argv.append("--json")
+    return argv
+
+
+def _tessl_eval_view_argv(eval_id: str) -> list[str]:
+    return ["npx", "--yes", "tessl@latest", "eval", "view", eval_id, "--json"]
+
+
+def _parse_eval_status(parsed) -> str | None:
+    if not isinstance(parsed, dict):
+        return None
+    for key in ("status", "state"):
+        value = parsed.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip().lower()
+    nested = parsed.get("eval") or parsed.get("evaluation")
+    if isinstance(nested, dict):
+        return _parse_eval_status(nested)
+    return None
+
+
+def _parse_eval_id(parsed) -> str | None:
+    if not isinstance(parsed, dict):
+        return None
+    for key in ("id", "runId", "run_id", "evalId", "eval_id"):
+        value = parsed.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    for list_key in ("evals", "runs", "evalRuns", "eval_runs"):
+        items = parsed.get(list_key)
+        if isinstance(items, list) and items:
+            first = _parse_eval_id(items[0]) if isinstance(items[0], dict) else None
+            if first:
+                return first
+    nested = parsed.get("eval") or parsed.get("evaluation")
+    if isinstance(nested, dict):
+        return _parse_eval_id(nested)
+    return _parse_tessl_run_id(parsed)
+
+
+def _parse_eval_checks_run(parsed) -> int | None:
+    if not isinstance(parsed, dict):
+        return None
+    for key in ("scenarioCount", "scenario_count", "checks_run", "count"):
+        value = parsed.get(key)
+        if isinstance(value, int) and value >= 0:
+            return value
+    scenarios = parsed.get("scenarios")
+    if isinstance(scenarios, list):
+        return len(scenarios)
+    results = parsed.get("results")
+    if isinstance(results, list):
+        return len(results)
+    nested = parsed.get("eval") or parsed.get("evaluation")
+    if isinstance(nested, dict):
+        return _parse_eval_checks_run(nested)
+    return None
+
+
+def _parse_eval_score_field(parsed, *keys: str) -> float | None:
+    if not isinstance(parsed, dict):
+        return None
+    for key in keys:
+        value = parsed.get(key)
+        if isinstance(value, int | float):
+            return float(value)
+    nested = parsed.get("eval") or parsed.get("evaluation") or parsed.get("scores")
+    if isinstance(nested, dict):
+        return _parse_eval_score_field(nested, *keys)
+    return None
+
+
+def _format_eval_detail(parsed, fallback: str = "eval completed") -> str:
+    baseline = _parse_eval_score_field(
+        parsed, "baselineAvg", "baseline_avg", "baseline", "withoutContextAvg"
+    )
+    with_ctx = _parse_eval_score_field(
+        parsed, "withContextAvg", "with_context_avg", "withContext", "contextAvg"
+    )
+    delta = _parse_eval_score_field(parsed, "delta", "deltaAvg", "delta_avg")
+    parts: list[str] = []
+    if baseline is not None:
+        parts.append(f"baseline avg={baseline:g}")
+    if with_ctx is not None:
+        parts.append(f"with-context avg={with_ctx:g}")
+    if delta is not None:
+        parts.append(f"delta={delta:g}")
+    runs = parsed.get("runs") if isinstance(parsed, dict) else None
+    if isinstance(runs, int):
+        parts.append(f"runs={runs}")
+    elif isinstance(parsed, dict) and isinstance(parsed.get("runCount"), int):
+        parts.append(f"runs={parsed['runCount']}")
+    if not parts:
+        return fallback
+    return "; ".join(parts)
+
+
+def _ensure_tessl_project(workdir: str, workspace: str) -> tuple[bool, str]:
+    """Ensure tessl.json project link exists. Returns (ok, detail_on_failure)."""
+    if _has_tessl_project_link(workdir):
+        code, out, err = _run(_tessl_project_repair_argv(), cwd=workdir)
+        if code not in (0, None) and not _has_tessl_project_link(workdir):
+            return False, (err or out or "tessl project repair failed").strip()
+        return True, ""
+
+    project_name = os.path.basename(os.path.abspath(workdir)) or "tripwire-scan"
+    code, out, err = _run(_tessl_project_create_argv(workspace, project_name), cwd=workdir)
+    if code == 0 and _has_tessl_project_link(workdir):
+        return True, ""
+    if code is None:
+        return False, (err or out or "tessl project create timed out").strip()
+    detail = (err or out or "tessl project create failed").strip()
+    return False, detail or "tessl.json missing — project create/repair required before eval"
+
+
+def _eval_should_mark_stale(prior_eval: dict, scenario_row: dict) -> bool:
+    # Stale when upstream gen id changed, or gen stamp is newer than eval completion.
+    if prior_eval.get("status") != "completed":
+        return False
+    if scenario_row.get("status") != "completed":
+        return False
+    upstream = prior_eval.get("upstream_run_ids") or {}
+    old_gen = upstream.get("scenario_gen") if isinstance(upstream, dict) else None
+    new_gen = scenario_row.get("tessl_run_id")
+    if old_gen and new_gen and old_gen != new_gen:
+        return True
+    scenario_at = scenario_row.get("tessl_run_id_at")
+    eval_done = prior_eval.get("completed_at")
+    if scenario_at and eval_done and str(scenario_at) > str(eval_done):
+        return True
+    return False
+
+
+def _poll_eval_until_terminal(
+    eval_id: str,
+    *,
+    max_attempts: int | None = None,
+    sleep_s: float | None = None,
+) -> tuple[str | None, dict | None, str]:
+    attempts = _TESSL_EVAL_POLL_MAX if max_attempts is None else max_attempts
+    pause = _TESSL_EVAL_POLL_SLEEP_S if sleep_s is None else sleep_s
+    last_console = ""
+    last_parsed = None
+    for _ in range(attempts):
+        code, out, err = _run(_tessl_eval_view_argv(eval_id))
+        last_console = _build_console(out, err) or last_console
+        parsed = _safe_json(out)
+        last_parsed = parsed if isinstance(parsed, dict) else last_parsed
+        status = _parse_eval_status(parsed)
+        if status in {"completed", "failed"}:
+            return status, last_parsed, last_console
+        if code not in (0, None) and status is None:
+            return "failed", last_parsed, last_console
+        if pause > 0:
+            time.sleep(pause)
+    return _parse_eval_status(last_parsed), last_parsed, last_console
+
+
+def _finish_eval_row(
+    row: dict,
+    *,
+    status: str,
+    eval_id: str | None,
+    parsed: dict | None,
+    consoles: list[str],
+    detail: str | None = None,
+    on_progress=None,
+) -> dict:
+    row["status"] = status
+    if detail:
+        row["detail"] = detail[:4000]
+    elif parsed is not None:
+        row["detail"] = _format_eval_detail(parsed)[:4000]
+    checks = _parse_eval_checks_run(parsed) if parsed else None
+    if checks is not None:
+        row["checks_run"] = checks
+    if eval_id:
+        _stamp_tessl_run_id(row, eval_id)
+    if consoles:
+        row["console_output"] = "\n".join(consoles)[:MAX_CONSOLE_CHARS]
+    _emit_tessl_row_progress(on_progress, row)
+    return row
+
+
+def _run_tessl_eval(
+    workdir: str,
+    ctx: dict[str, str | None],
+    row: dict,
+    *,
+    resume_eval_id: str | None = None,
+    on_progress=None,
+) -> dict:
+    """Auto-chain Eval: project preflight → eval run → stamp tessl_run_id."""
+    _attach_upstream_run_ids(row, ctx, "review_quality", "scenario_gen")
+    row["status"] = "queued"
+    _emit_tessl_row_progress(on_progress, row)
+
+    workspace = (os.environ.get("TESSL_WORKSPACE") or "").strip()
+    if not os.environ.get("TESSL_TOKEN") or not workspace:
+        row["status"] = "needs_setup"
+        row["detail"] = "TESSL_TOKEN and TESSL_WORKSPACE required for eval"
+        _emit_tessl_row_progress(on_progress, row)
+        return row
+
+    ok, project_detail = _ensure_tessl_project(workdir, workspace)
+    if not ok:
+        row["status"] = "needs_setup"
+        row["detail"] = project_detail[:4000]
+        _emit_tessl_row_progress(on_progress, row)
+        return row
+
+    row["status"] = "running"
+    _emit_tessl_row_progress(on_progress, row)
+    consoles: list[str] = []
+    eval_id = resume_eval_id
+
+    if not eval_id:
+        # --json returns IDs immediately (Modal-friendly); then poll via eval view.
+        code, out, err = _run(_tessl_eval_run_argv(workdir, as_json=True))
+        console = _build_console(out, err)
+        if console:
+            consoles.append(console)
+        parsed_run = _safe_json(out)
+        eval_id = _parse_eval_id(parsed_run) if isinstance(parsed_run, dict) else None
+        if code is None:
+            return _finish_eval_row(
+                row,
+                status="interrupted" if eval_id else "timed_out",
+                eval_id=eval_id,
+                parsed=parsed_run if isinstance(parsed_run, dict) else None,
+                consoles=consoles,
+                detail=(err or out or "eval run timed out").strip(),
+                on_progress=on_progress,
+            )
+        if code != 0 and not eval_id:
+            return _finish_eval_row(
+                row,
+                status="failed",
+                eval_id=None,
+                parsed=None,
+                consoles=consoles,
+                detail=(err or out or "eval run exited non-zero").strip(),
+                on_progress=on_progress,
+            )
+        if not eval_id:
+            return _finish_eval_row(
+                row,
+                status="completed",
+                eval_id=None,
+                parsed=parsed_run if isinstance(parsed_run, dict) else None,
+                consoles=consoles,
+                detail=_format_eval_detail(
+                    parsed_run if isinstance(parsed_run, dict) else {},
+                    fallback="eval completed (no run id captured)",
+                ),
+                on_progress=on_progress,
+            )
+        _stamp_tessl_run_id(row, eval_id)
+        _emit_tessl_row_progress(on_progress, row)
+
+    status, view_parsed, view_console = _poll_eval_until_terminal(eval_id)
+    if view_console:
+        consoles.append(view_console)
+    if status == "completed":
+        return _finish_eval_row(
+            row,
+            status="completed",
+            eval_id=eval_id,
+            parsed=view_parsed,
+            consoles=consoles,
+            on_progress=on_progress,
+        )
+    if status == "failed":
+        return _finish_eval_row(
+            row,
+            status="failed",
+            eval_id=eval_id,
+            parsed=view_parsed,
+            consoles=consoles,
+            detail=_format_eval_detail(view_parsed or {}, fallback="eval failed"),
+            on_progress=on_progress,
+        )
+    return _finish_eval_row(
+        row,
+        status="interrupted",
+        eval_id=eval_id,
+        parsed=view_parsed,
+        consoles=consoles,
+        detail=f"eval status={status or 'unknown'} — resume via eval view",
+        on_progress=on_progress,
+    )
+
+
+def _resolve_tessl_eval_row(
+    workdir: str,
+    ctx: dict[str, str | None],
+    eval_row: dict,
+    scenario_row: dict,
+    *,
+    prior_eval: dict | None = None,
+    on_progress=None,
+) -> dict:
+    """Apply stale / resume / auto-chain rules after Scenario Generation."""
+    prior = dict(prior_eval) if isinstance(prior_eval, dict) else None
+
+    if prior and prior.get("status") == "completed":
+        if _eval_should_mark_stale(prior, scenario_row):
+            stale = {
+                **prior,
+                "scanner_source": _TESSL_EVAL_SOURCE,
+                "status": "stale",
+                "detail": (
+                    prior.get("detail") or "Scenario Generation re-run — eval result is stale"
+                ),
+            }
+            _emit_tessl_row_progress(on_progress, stale)
+            return stale
+        kept = {**prior, "scanner_source": _TESSL_EVAL_SOURCE}
+        _emit_tessl_row_progress(on_progress, kept)
+        return kept
+
+    resume_id = None
+    if prior and isinstance(prior.get("tessl_run_id"), str):
+        if prior.get("status") in {"interrupted", "running", "queued", "timed_out"}:
+            resume_id = prior["tessl_run_id"]
+            eval_row = {
+                **eval_row,
+                **{
+                    k: prior[k]
+                    for k in (
+                        "upstream_run_ids",
+                        "tessl_run_id",
+                        "tessl_run_id_at",
+                    )
+                    if k in prior
+                },
+            }
+
+    if resume_id:
+        return _run_tessl_eval(
+            workdir, ctx, eval_row, resume_eval_id=resume_id, on_progress=on_progress
+        )
+
+    scenario_ok = scenario_row.get("status") == "completed"
+    has_scenarios = _count_evals_scenarios(workdir) > 0
+    if scenario_ok and has_scenarios and eval_row.get("status") in {"blocked", "not_started"}:
+        return _run_tessl_eval(workdir, ctx, eval_row, on_progress=on_progress)
+
+    _emit_tessl_row_progress(on_progress, eval_row)
+    return eval_row
+
+
 def _finish_tessl_review(
     judge_type: str, source: str, workspace: str, code, out: str, err: str
 ) -> tuple[float | None, dict]:
@@ -1040,22 +1501,26 @@ def run_tessl(
     id_context: dict[str, str | None] | None = None,
     *,
     resume_checkpoint: dict | None = None,
+    prior_eval: dict | None = None,
     on_row_progress=None,
 ):
-    """Run Tessl Lint, Review Quality, then Scenario Generation.
+    """Run Tessl Lint, Review Quality, Scenario Generation, then Eval auto-chain.
 
     Lint is synchronous and never requires TESSL_TOKEN; it always runs when npx
     is available.  Review Quality requires TESSL_TOKEN and TESSL_WORKSPACE; its
     row transitions to needs_setup when either is absent. Scenario Generation
-    requires TESSL_TOKEN and ``.tessl-plugin/plugin.json``.
+    requires TESSL_TOKEN and ``.tessl-plugin/plugin.json``. Eval starts ``blocked``
+    and auto-chains after Scenario Generation completes with scenarios in
+    ``evals/`` (first run only; re-runs mark prior completed Eval as ``stale``).
 
-    Returns (quality_score, [lint_row, review_row, scenario_row]). quality_score
-    is None when Review Quality did not complete successfully.
+    Returns (quality_score, [lint_row, review_row, scenario_row, eval_row]).
+    quality_score is None when Review Quality did not complete successfully.
 
     id_context is the in-process Tessl ID bag for this invocation (GWT-47.5).
     Tests inject it to observe carry-forward; production seeds a fresh dict.
     resume_checkpoint resumes Scenario Generation after Modal detach/timeout.
-    on_row_progress receives partial Scenario Generation rows for mid-scan persist.
+    prior_eval rehydrates Eval for stale detection or eval-view resume.
+    on_row_progress receives partial Tessl rows for mid-scan persist.
     """
     rows: list[dict] = []
     ctx = id_context if id_context is not None else _new_tessl_id_context()
@@ -1098,6 +1563,10 @@ def run_tessl(
         rows.append(review_row)
         _update_tessl_id_context(ctx, "review_quality", review_row.get("tessl_run_id"))
 
+    # --- Tessl: Eval (blocked until Scenario Generation completes) ---
+    eval_row = _new_blocked_eval_row()
+    _emit_tessl_row_progress(on_row_progress, eval_row)
+
     # --- Tessl: Scenario Generation (token + plugin manifest) ---
     scenario_row = _run_tessl_scenario_gen(
         workdir,
@@ -1106,6 +1575,16 @@ def run_tessl(
         on_progress=on_row_progress,
     )
     rows.append(scenario_row)
+
+    eval_row = _resolve_tessl_eval_row(
+        workdir,
+        ctx,
+        eval_row,
+        scenario_row,
+        prior_eval=prior_eval,
+        on_progress=on_row_progress,
+    )
+    rows.append(eval_row)
     return score, rows
 
 
@@ -1645,7 +2124,12 @@ SKILL_SCANNER_SOURCES = [
 
 MCP_SCANNER_SOURCES = list(_MCP_ANALYZER_LABEL.values())
 
-TESSL_SOURCES = ["Tessl: Lint", "Tessl: Review (Quality)", "Tessl: Scenario Generation"]
+TESSL_SOURCES = [
+    "Tessl: Lint",
+    "Tessl: Review (Quality)",
+    "Tessl: Scenario Generation",
+    "Tessl: Eval",
+]
 SNYK_SOURCES = ["Snyk"]
 DEPSHIELD_SOURCES = ["DepShield"]
 OSSPREY_SOURCES = ["Ossprey"]
@@ -1672,12 +2156,14 @@ def _run_tessl_group(
     target,
     *,
     resume_checkpoint: dict | None = None,
+    prior_eval: dict | None = None,
     on_row_progress=None,
 ):
     """Tessl group — quality axis only: (quality_score, rows), never findings."""
     quality_score, rows = run_tessl(
         workdir,
         resume_checkpoint=resume_checkpoint,
+        prior_eval=prior_eval,
         on_row_progress=on_row_progress,
     )
     return [], rows, quality_score
@@ -1742,6 +2228,7 @@ def run_all_scanners(
     on_scanner_start=None,
     on_scanner_progress=None,
     tessl_scenario_resume=None,
+    tessl_prior_eval=None,
 ):
     """Run every applicable SCANNER_GROUPS entry, optionally relaying results.
 
@@ -1756,8 +2243,10 @@ def run_all_scanners(
     dashboard shows progress scanner-by-scanner.
 
     When *on_scanner_progress* is provided it receives mid-group Tessl row
-    updates (e.g. Scenario Generation ``resume_checkpoint``) for partial persist.
+    updates (e.g. Scenario Generation ``resume_checkpoint``, Eval
+    ``blocked``→``queued``→``running``) for partial persist.
     *tessl_scenario_resume* rehydrates Scenario Generation after Modal timeout.
+    *tessl_prior_eval* rehydrates Eval for stale detection or eval-view resume.
     """
     findings, scanner_rows = [], []
     quality_score = None
@@ -1773,6 +2262,7 @@ def run_all_scanners(
                 item_type,
                 target,
                 resume_checkpoint=tessl_scenario_resume,
+                prior_eval=tessl_prior_eval,
                 on_row_progress=on_scanner_progress,
             )
         else:
