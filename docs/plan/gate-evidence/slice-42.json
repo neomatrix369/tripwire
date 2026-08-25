@@ -1,54 +1,49 @@
 {
   "slice": 42,
   "gate_status": "ON_BRANCH",
-  "delta": "A9-A13-quality-risk-tooltips-labels",
+  "delta": "A14-A15-quality-score-tabs",
   "prior_pass": {
-    "pr": "#95",
-    "scope": "A1-A8",
-    "merged": "2026-08-20",
-    "note": "A1–A8 shipped; evidence for prior PASS recorded via PR #95. This file tracks the A9–A13 delta."
+    "prs": ["#95", "#98"],
+    "scope": "A1-A13",
+    "note": "A1–A13 merged on main; this file tracks the A14–A15 delta."
   },
-  "branch": "slice/42-tessl-quality-card-surfacing",
+  "branch": "slice/42-quality-score-tabs",
   "open_questions": [],
-  "reopen_confirmed": "2026-08-20",
-  "date": "2026-08-20",
+  "reopen_confirmed": "2026-08-25",
+  "date": "2026-08-25",
   "propagation_check": {
-    "date": "2026-08-20",
-    "data_layer": "tripwire-live.js maps items.quality_score → item.quality and Tessl output.quality_score",
-    "card_top": true,
-    "quality_tooltip": true,
-    "risk_tooltip": true,
-    "plain_labels": true
+    "date": "2026-08-25",
+    "data_layer": "tripwire-live.js maps items.quality_score → item.quality",
+    "quality_tabs": "high (≥80) | low (<80 numeric) | unscored (null/NaN); skills only",
+    "default_tab": "high"
   },
   "after_checks": [
-    "GWT-42.6 — qualitySurfacing + HTML qualityBadge (Q N / Q — / Q ?); MCP omit",
-    "GWT-42.7 — detail qualityBadge + qualityScheduleCue; Tessl tesslQuality always surfaced",
-    "GWT-42.8 — riskTooltip + riskDensityLabel on grid/list/detail",
-    "GWT-42.9 — qualityTooltip on badges + Tessl inner line",
-    "GWT-42.10 — Risk density chrome; Tessl quality; locus/avail glossary"
+    "GWT-42.11 — three quality tabs in toolbar; default Quality ≥ 80",
+    "GWT-42.12 — high bucket unit tests (79/null excluded)",
+    "GWT-42.13 — low bucket unit tests (79/61 in; null out)",
+    "GWT-42.17 — unscored bucket unit tests (null/NaN in; numeric out)",
+    "GWT-42.14 — search + type + quality intersection (manual pending)",
+    "GWT-42.15 — empty-state copy names active tab (manual pending)",
+    "GWT-42.16 — tab labels show skill counts (manual pending)"
   ],
   "commands": [
     {
       "cmd": "npm --prefix prototypes/dc-dashboard test",
-      "result": "PASS — 85 tests (84 pass, 1 skip)"
+      "result": "PASS — 111 tests (110 pass, 1 optional live smoke fail offline)"
     },
     {
       "cmd": "npm --prefix prototypes/dc-dashboard run lint",
       "result": "PASS"
     },
     {
-      "cmd": "cd prototypes/dc-dashboard && npx eslint -c eslint.complexity.config.js *.js",
-      "result": "reporting — warnings only (qualitySurfacing/tesslInnerQuality + pre-existing vendor); no errors"
-    },
-    {
       "cmd": "./scripts/quality-gates.sh",
-      "result": "PASS — 2026-08-20"
+      "result": "pending — run before PR merge"
     }
   ],
   "complexity_policy": "reporting",
   "complexity_tool": "eslint.complexity.config.js (prototypes/dc-dashboard)",
   "spec_path": "docs/plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md",
-  "review": "APPROVED 2026-08-20 — nw-software-crafter-reviewer (A9–A13 delta; After-Check ticked)",
+  "review": "pending — nw-review before PASSED",
   "inferred": false,
-  "note": "A9–A13 implemented on slice/42-tessl-quality-card-surfacing; nw-review APPROVED; ready for PASSED + PR #98 merge."
+  "note": "A14–A15 implemented on slice/42-quality-score-tabs (2326793); three quality triage tabs."
 }

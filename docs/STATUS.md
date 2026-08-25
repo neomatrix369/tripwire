@@ -256,6 +256,10 @@ on `main` yet (side-branch only); it is omitted from the catalog until accepted.
 (nw-review APPROVED). Spec:
 [plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md](./plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md).
 
+**Wave J delta — quality triage tabs (2026-08-25):** A14–A15 **IMPLEMENTED**
+on `slice/42-quality-score-tabs` — three skill-only toolbar tabs filter by Tessl
+`item.quality` (≥80 / <80 / unscored). Awaiting PR + nw-review before ✅ PASSED.
+
 **Wave K — docs UX (2026-08-20/21):** Slice 44 compaction, Setup/Configure framing,
 and services/diagrams pile-ons are **IMPLEMENTED** on branch (public docs);
 documentarist pile-on **APPROVED WITH FOLLOW-ON**; DIVIO purity rewrites

@@ -150,6 +150,10 @@ node scripts/serve-dashboard.mjs
 
 Open [http://127.0.0.1:8765/](http://127.0.0.1:8765/).
 
+On the dashboard toolbar, **Skills** can be triaged by Tessl quality score using
+**Quality ≥ 80**, **Quality < 80**, and **No quality score** tabs (skills only;
+MCP servers are excluded from quality buckets).
+
 The first visit shows a landing intro screen (threat statistics, architecture overview,
 shipped skills, and roadmap). Click **Open Dashboard →** to proceed to the scan results
 view. The "About" nav button toggles the intro back on at any time; the choice is

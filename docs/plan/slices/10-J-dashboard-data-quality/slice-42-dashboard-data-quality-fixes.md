@@ -1,6 +1,6 @@
 # Slice 42 — Dashboard Data Quality Fixes
 
-> Wave J | MoSCoW: **Must** | Status: 📋 PLANNED (A14–A15 delta reopen) | Est: ~120 min + ~60 min (A9–A13) + ~45 min (A14–A15)
+> Wave J | MoSCoW: **Must** | Status: 🔀 ON BRANCH (A14–A15 delta) | Est: ~120 min + ~60 min (A9–A13) + ~45 min (A14–A15)
 > Depends on: none (independent; complements slices 21 and 22). **A14–A15** requires A9–A13 ✅ ([#98](https://github.com/neomatrix369/tripwire/pull/98)) + slice 47 ✅ on `main`.
 > Prior merge: [#95](https://github.com/neomatrix369/tripwire/pull/95) shipped A1–A8 ✅ · [#98](https://github.com/neomatrix369/tripwire/pull/98) shipped A9–A13 ✅ — this reopen adds **A14–A15** only
 > Branch (when building A14–A15): `slice/42-quality-score-tabs`
@@ -59,7 +59,7 @@ scratchpad investigation reports (2026-08-19). Delta request: enhanced-flow-plan
 > **Note**: A7 count is inflated by A1 (FE can't see the findings for out-of-window runs).
 > Re-audit after A1 fix to get the true DB-only count.
 >
-> **Shipped (PR #95):** A1–A8. **Shipped (PR #98):** A9–A13. **Open delta:** A14–A15 (quality score tabs).
+> **Shipped (PR #95):** A1–A8. **Shipped (PR #98):** A9–A13. **Open delta:** A14–A15 quality score tabs — **IMPLEMENTED** on `slice/42-quality-score-tabs` (awaiting PR).
 >
 > **Propagation check (2026-08-20):** Live adapter already maps `items.quality_score` → `item.quality` and into Tessl `output.quality_score` (`tripwire-live.js`). **UI top-of-card does not render it yet** — only the expanded Tessl row, and only when truthy. A9/A10/A12 close that gap.
 
@@ -659,17 +659,17 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 
 ### Delta (A14–A15) — second reopen gate
 
-- [ ] GWT-42.11: Quality ≥ 80 / Quality < 80 / No quality score tabs visible; default High
-- [ ] GWT-42.12: unit — high bucket excludes 79, null
-- [ ] GWT-42.13: unit — low bucket includes 79/61, excludes null
-- [ ] GWT-42.17: unit — unscored bucket includes null/NaN, excludes numeric scores
+- [x] GWT-42.11: Quality ≥ 80 / Quality < 80 / No quality score tabs visible; default High
+- [x] GWT-42.12: unit — high bucket excludes 79, null
+- [x] GWT-42.13: unit — low bucket includes 79/61, excludes null
+- [x] GWT-42.17: unit — unscored bucket includes null/NaN, excludes numeric scores
 - [ ] GWT-42.14: search + type + quality intersection (unit or manual)
 - [ ] GWT-42.15: empty state copy names active quality tab (manual smoke)
 - [ ] GWT-42.16: tab labels show skill counts (manual smoke)
-- [ ] `(cd prototypes/dc-dashboard && npm test && npm run lint)` passes
+- [x] `(cd prototypes/dc-dashboard && npm test && npm run lint)` passes
 - [ ] `./scripts/quality-gates.sh` passes
 - [ ] Complexity evidence: prototype dashboard **reporting** only — same policy as A9–A13 delta
-- [ ] `docs/plan/gate-evidence/slice-42.json` updated for A14–A15 delta (`prior_pass` retains #98)
+- [x] `docs/plan/gate-evidence/slice-42.json` updated for A14–A15 delta (`prior_pass` retains #98)
 - [ ] Doc audit below complete for A14–A15
 - [ ] `/nw-review` APPROVED before ✅ PASSED
 
@@ -721,9 +721,9 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 
 ### Delta (A14–A15)
 
-- [ ] `docs/plan/DECISIONS.md`: log A14–A15 reopen; note slice 54 superseded
-- [ ] `CHANGELOG.md`: entry for dashboard quality score triage tabs (≥80 vs Rest)
-- [ ] `docs/STATUS.md`: IMPLEMENTED note when merged
+- [x] `docs/plan/DECISIONS.md`: log A14–A15 reopen; note slice 54 superseded
+- [x] `CHANGELOG.md`: entry for dashboard quality score triage tabs (≥80 / <80 / unscored)
+- [x] `docs/STATUS.md`: IMPLEMENTED note on branch
 
 ---
 
@@ -761,10 +761,12 @@ Q — = never scanned / no score yet. Q ? = scanned but Tessl did not yield a sc
 
 📋 PLANNED — A14–A15 quality score tabs (second delta reopen on slice 42).
 
+🔀 ON BRANCH — A14–A15 implemented on `slice/42-quality-score-tabs` (`2326793`); awaiting PR + nw-review before ✅ PASSED.
+
 ```json
 {
   "slice": 42,
-  "gate_status": "PLANNED",
+  "gate_status": "ON_BRANCH",
   "delta": "A14-A15-quality-score-tabs",
   "prior_pass": "#95 + #98",
   "branch": "slice/42-quality-score-tabs",
