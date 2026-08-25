@@ -43,7 +43,7 @@
   "complexity_policy": "reporting",
   "complexity_tool": "eslint.complexity.config.js (prototypes/dc-dashboard)",
   "spec_path": "docs/plan/slices/10-J-dashboard-data-quality/slice-42-dashboard-data-quality-fixes.md",
-  "review": "pending — nw-review before PASSED",
+  "review": "APPROVED 2026-08-25 — nw-software-crafter-reviewer (A14–A15 delta; GWT-42.11–42.17)",
   "inferred": false,
   "note": "A14–A15 implemented on slice/42-quality-score-tabs (2326793); three quality triage tabs."
 }
