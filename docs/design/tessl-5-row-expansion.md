@@ -1,6 +1,6 @@
 # Design: Tessl 5-Row Expansion
 
-**Status**: Schema IMPLEMENTED (slice 45 ✅). Lint adapter IMPLEMENTED (slice 46 ✅ #105). Review Quality run-ID + `_TesslIdContext` seed IMPLEMENTED unit (slice 47 ✅ #109). Rows 3–5 UI sentinels IMPLEMENTED (slice 48). Scenario Generation runner IMPLEMENTED unit (slice 49 ✅ #112). Eval auto-chain IMPLEMENTED unit (slice 50). Security runner remains DECIDED / not implemented.
+**Status**: Schema IMPLEMENTED (slice 45 ✅). Lint adapter IMPLEMENTED (slice 46 ✅ #105). Review Quality run-ID + `_TesslIdContext` seed IMPLEMENTED unit (slice 47 ✅ #109). Rows 3–5 UI sentinels IMPLEMENTED (slice 48). Scenario Generation runner IMPLEMENTED unit (slice 49 ✅ #112). Eval auto-chain IMPLEMENTED unit (slice 50 ✅ #113). Security Review runner IMPLEMENTED unit (slice 51).
 **Date**: 2026-08-24
 **Scope**: Design contract for replacing the single Tessl scanner row with 5 flat capability rows. Current-truth notes below mark what has shipped; remaining rows stay future-state.
 
@@ -316,7 +316,9 @@ Each feature that reads from a prior feature's persisted state does so by:
 
 ### 7(a) — Review (Security) ← Review (Quality)
 
-**What is read**: Quality Review's `tessl_run_id` (`rev_abc123`), then `tessl review view rev_abc123 --json` to fetch Quality findings in full.
+**Status**: **IMPLEMENTED unit (slice 51, UI-level)** — Security persists `upstream_run_ids.review_quality`; the expanded Security row shows Quality findings already on the item. Live `tessl review view <id>` fetch is slice 52.
+
+**What is read**: Quality Review's `tessl_run_id` (`rev_abc123`). Slice 51 surfaces Quality findings already stored on the scan item when that ID is populated. Slice 52 may fetch `tessl review view rev_abc123 --json` for the full Tessl payload.
 
 **Purpose**: UI-level traceability — show Quality findings alongside Security findings so a human reviewer can prioritise which Security issues are most critical. This is **not** a CLI-level behavior change on the security scan itself: `tessl review run security` has no documented flag to alter its scan behavior based on prior findings.
 
@@ -359,7 +361,7 @@ The single existing `"Tessl"` row is replaced by 5 flat sibling rows, in this ex
 | 2 | `Tessl: Review (Quality)` | live status (`completed` / `needs_setup` / …) | **IMPLEMENTED** source string (slice 46); `tessl_run_id` + `_TesslIdContext["review_quality"]` **IMPLEMENTED unit** (slice 47 ✅ #109) via `review view --last --json` |
 | 3 | `Tessl: Scenario Generation` | live status (`completed` / `failed` / `needs_setup` / `interrupted` / …) | **IMPLEMENTED unit (slice 49)** — `scenario generate` → download into `<plugin>/evals/`; `resume_checkpoint`; DB row replaces NAY sentinel |
 | 4 | `Tessl: Eval` | live status (`blocked` / `queued` / `running` / `completed` / `stale` / …) | **IMPLEMENTED unit (slice 50)** — auto-chain after Scenario Gen + `evals/`; `upstream_run_ids`; project create/repair preflight; DB row replaces NAY sentinel |
-| 5 | `Tessl: Review (Security)` | `Not Available Yet` | **IMPLEMENTED (UI sentinel, slice 48)** — not written to DB |
+| 5 | `Tessl: Review (Security)` | live status (`completed` / `needs_setup` / …) | **IMPLEMENTED unit (slice 51)** — `review run security`; `upstream_run_ids.review_quality`; DB row replaces NAY sentinel |
 
 The 5 rows appear as a contiguous block where the single `"Tessl"` row used to be.
 
@@ -374,9 +376,9 @@ The dashboard derives the count from the **static constant list** of all 5 expec
 
 > **DECIDED (slice 48):** include "Not Available Yet" rows in the Scanner Outputs count (consistent with Cisco credential-absent rows).
 
-### "Not Available Yet" Rendering Rules (Security until slice 51; Scenario Gen / Eval when absent)
+### "Not Available Yet" Rendering Rules (any Tessl capability absent from the scan_run)
 
-The dashboard holds a **static ordered list** of all 5 Tessl `scanner_source` values. For each value absent from the DB rows for the current `scan_run_id`, the `scannersView` map emits a sentinel object with `status: 'not_available_yet'`. After slices 49–50, Scenario Generation and Eval normally write real rows (including `blocked` Eval before auto-chain); Security Review remains NAY until slice 51.
+The dashboard holds a **static ordered list** of all 5 Tessl `scanner_source` values. For each value absent from the DB rows for the current `scan_run_id`, the `scannersView` map emits a sentinel object with `status: 'not_available_yet'`. After slices 49–51, Scenario Generation, Eval, and Security Review normally write real rows (including `blocked` Eval before auto-chain); NAY remains only when a source is still absent.
 
 Rendering:
 - Left accent bar: neutral/muted colour (not the status colours used for active rows).
@@ -411,7 +413,7 @@ Extends `scannerStatusColor` and `scannerStatusLabel` in the dashboard JS:
 
 ### `tesslQuality` Binding Scope Fix
 
-The existing `tesslQuality` logic is implemented in `tesslInnerQuality` (`tripwire-status.js`) and is scoped to `scanner_source === "Tessl: Review (Quality)"`. Live attaches `output.quality_score` only for that source (`tripwire-live.js`). The quality score badge does not appear on Lint (slice 46 VERIFIED(unit)). Scenario Generation (slice 49) and Eval (slice 50) are written by the runner; Security Review remains a UI sentinel until slice 51 writes a real DB row (slice 48 VERIFIED(unit) for the merge/sentinel path).
+The existing `tesslQuality` logic is implemented in `tesslInnerQuality` (`tripwire-status.js`) and is scoped to `scanner_source === "Tessl: Review (Quality)"`. Live attaches `output.quality_score` only for that source (`tripwire-live.js`). The quality score badge does not appear on Lint (slice 46 VERIFIED(unit)). Scenario Generation (slice 49), Eval (slice 50), and Security Review (slice 51) are written by the runner; Security has no quality-score badge. Slice 51 shows linked Quality findings on the expanded Security row when `upstream_run_ids.review_quality` is populated (slice 48 VERIFIED(unit) for the merge/sentinel path).
 
 ---
 

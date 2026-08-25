@@ -200,14 +200,15 @@ Product note that file `--output` was flaky on a tested build: re-test on pin; p
 
 ---
 
-## 5. Tessl (quality only)
+## 5. Tessl
 
 | Item | Status |
 |---|---|
-| Target | DECIDED — `items.quality_score` only (Review Quality row; Lint / Scenario Generation / Eval do not write this axis) |
+| Target | DECIDED — `items.quality_score` only (Review Quality row; Lint / Scenario Generation / Eval / Review Security do not write this axis) |
 | Capture | IMPLEMENTED (slice 47) — `tessl review run quality --json --workspace`; run ID via `review view --last --json` (fallback: run JSON `id`/`runId`/`run_id`). Requires `TESSL_TOKEN` + `TESSL_WORKSPACE`. |
 | Scenario Generation | IMPLEMENTED unit (slice 49) — separate `scan_run_scanners` row; plugin-path `scenario generate` / `download` into `<plugin>/evals/`; no `quality_score` write |
 | Eval | IMPLEMENTED unit (slice 50) — `"Tessl: Eval"` row starts `blocked`, auto-chains after Scenario Gen when `evals/` is non-empty; `eval run --runs 3 -y --json` + `eval view`; `upstream_run_ids`; project create/repair; stale on scenario re-run; no `quality_score` write |
+| Review (Security) | IMPLEMENTED unit (slice 51) — `"Tessl: Review (Security)"` after Eval via `_run_tessl_review("security")`; `upstream_run_ids.review_quality` before invoke; Security `tessl_run_id` via `review view --last`; no `quality_score` write |
 | Raw | Store JSON in Storage for audit |
 
 ### References

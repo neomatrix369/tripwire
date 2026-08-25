@@ -98,13 +98,14 @@ Reachable through production entry points / config:
   five Tessl capability rows when any Tessl DB row exists; missing sources among
   Scenario Generation / Eval / Review (Security) are UI-only sentinels
   (`status: not_available_yet`) when absent from the scan_run (never stored as
-  placeholders) and counted in the header. Runners 49–50 write Scenario Gen +
-  Eval rows when they run; Security remains sentinel until slice 51. MCP scans
+  placeholders) and counted in the header. Runners 49–51 write Scenario Gen,
+  Eval, and Security rows when they run; missing Tessl sources stay NAY. MCP scans
   unchanged. IMPLEMENTED (unit) +
   VERIFIED (Mock UI 2026-08-24: `safe-changelog-writer` Scanner Outputs (7),
   five Tessl rows, three NAY pills, no chevron; MCP `SCANNER OUTPUTS (3)`
   unpadded) — `tripwire-status.js` `mergeTesslCapabilityRows`, `Tripwire.dc.html`
-  (slice 48 ✅)
+  (slice 48 ✅). Security Review writes a real DB row from slice 51 (NAY only when
+  that source is still absent).
 - Tessl Scenario Generation — `run_tessl()` emits `"Tessl: Scenario Generation"`
   after Review (Quality): plugin-path `scenario generate --count 3`, download to
   `<plugin>/evals/`, `upstream_run_ids.review_quality` from ctx, `tessl_run_id`
@@ -116,7 +117,14 @@ Reachable through production entry points / config:
   completes and `<plugin>/evals/` has scenarios; `tessl eval run --runs 3 -y
   --json` + `eval view` poll; `upstream_run_ids` from ctx; project create/repair
   preflight; scenario re-run marks prior completed Eval `stale` (no cascade).
-  IMPLEMENTED (unit) — `sandbox/scanners.py` / `sandbox/scan_app.py` (slice 50 🔨)
+  IMPLEMENTED (unit) — `sandbox/scanners.py` / `sandbox/scan_app.py` (slice 50 ✅ #113)
+- Tessl Review (Security) — `run_tessl()` emits `"Tessl: Review (Security)"` after
+  Eval using `_run_tessl_review(judge_type="security")` (`tessl review run security
+  --json --workspace`); `upstream_run_ids.review_quality` from ctx before invoke;
+  Security `tessl_run_id` via `review view --last --json`. Dashboard expanded
+  Security row shows linked Quality findings when that ID is populated (UI-level,
+  no live Tessl fetch — slice 52). IMPLEMENTED (unit) —
+  `sandbox/scanners.py` / `tripwire-status.js` (slice 51 🔀)
 - Live dashboard latest-state read path — `dashboard_latest_runs` view (one row per
   item) + batched child-table fetches in `tripwire-live.js`; replaces global
   `scan_runs?limit=2000` page that could miss per-item newest runs and PostgREST
@@ -244,19 +252,22 @@ Not IMPLEMENTED — no production hook install path or `/tw-*` skills yet. ADR-0
 Horizon A exclusion remains in force until Wave H lands and a superseding ADR
 records the new production entry.
 
-**Wave L — Tessl scenario generation + eval (2026-08-25):** Row 3
+**Wave L — Tessl 5-row expansion (2026-08-25):** Row 3
 (`"Tessl: Scenario Generation"`) is **IMPLEMENTED (unit, slice 49 ✅ #112)** —
 `scenario generate <plugin-path> --count 3` → `scenario download <gen_id> -o
 <plugin>/evals/` with `resume_checkpoint` + mid-scan persist. Row 4
-(`"Tessl: Eval"`) is **IMPLEMENTED (unit, slice 50)** — starts `blocked`,
+(`"Tessl: Eval"`) is **IMPLEMENTED (unit, slice 50 ✅ #113)** — starts `blocked`,
 auto-chains when generation completes and `evals/` is populated; stale on
-scenario re-run; resume via `eval view`. Coverage Gap B (`scenario view <id>`)
+scenario re-run; resume via `eval view`. Row 5 (`"Tessl: Review (Security)"`)
+is **IMPLEMENTED (unit, slice 51)** — `review run security` after Eval;
+`upstream_run_ids.review_quality` from ctx; dashboard shows linked Quality
+findings on the expanded Security row. Coverage Gap B (`scenario view <id>`)
 resolved; Gap C (agent-assisted generation) open. **IMPLEMENTED (slice 48):**
 host `evals/` is not a vuln-scan input — `_pack_local_dir` / `_copy_local` omit
 root `evals/` when the skill root has `tessl.json` or `.tessl-plugin/`. Git
 clone and identity hash still see on-disk `evals/`. Spec:
 [design/tessl-5-row-expansion.md](./design/tessl-5-row-expansion.md),
-[slices 49–50](./plan/slices/12-L-tessl-5-row-expansion/).
+[slices 49–51](./plan/slices/12-L-tessl-5-row-expansion/).
 
 ---
 

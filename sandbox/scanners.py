@@ -1714,6 +1714,42 @@ def _run_tessl_review(
     return _finish_tessl_review(judge_type, source, workspace, code, out, err)
 
 
+def _security_review_preflight(source: str, workspace: str | None, upstream: dict) -> dict | None:
+    """needs_setup when token or workspace is missing; keep upstream snapshot."""
+    if os.environ.get("TESSL_TOKEN") and workspace:
+        return None
+    detail = None
+    if os.environ.get("TESSL_TOKEN"):
+        detail = "Tessl workspace unresolved — set TESSL_WORKSPACE or ensure tessl login"
+    skipped: dict = _skipped(source, reason="needs_setup", detail=detail)
+    skipped["upstream_run_ids"] = upstream
+    return skipped
+
+
+def _run_tessl_security_review(
+    workdir: str,
+    ctx: dict[str, str | None],
+    workspace: str | None,
+    *,
+    on_progress=None,
+) -> dict:
+    """Security review: attach Quality ID, then reuse _run_tessl_review."""
+    source = _TESSL_REVIEW_SOURCES["security"]
+    pending: dict = {"scanner_source": source, "status": "running", "checks_run": 0}
+    _attach_upstream_run_ids(pending, ctx, "review_quality")
+    _emit_tessl_row_progress(on_progress, pending)
+    upstream = pending["upstream_run_ids"]
+    gated = _security_review_preflight(source, workspace, upstream)
+    if gated is not None:
+        _emit_tessl_row_progress(on_progress, gated)
+        return gated
+    assert workspace is not None
+    _score, finished = _run_tessl_review("security", workdir, workspace)
+    finished["upstream_run_ids"] = upstream
+    _emit_tessl_row_progress(on_progress, finished)
+    return finished
+
+
 def _parse_tessl_lint_detail(output: str) -> tuple[int | None, str]:
     """Extract check count and summary from tessl skill lint text output.
 
@@ -1739,18 +1775,20 @@ def run_tessl(
     prior_eval: dict | None = None,
     on_row_progress=None,
 ):
-    """Run Tessl Lint, Review Quality, Scenario Generation, then Eval auto-chain.
+    """Run Tessl Lint, Review Quality, Scenario Generation, Eval, then Security.
 
     Lint is synchronous and never requires TESSL_TOKEN; it always runs when npx
-    is available.  Review Quality, Scenario Generation, and Eval need
+    is available.  Review Quality, Scenario Generation, Eval, and Security need
     ``TESSL_TOKEN``. Workspace for ``--workspace`` comes from optional
     ``TESSL_WORKSPACE`` or is resolved via ``tessl whoami`` + ``workspace list``
     (personal workspace is usually the authenticated username). Scenario
     Generation also needs ``.tessl-plugin/plugin.json``. Eval starts ``blocked``
     and auto-chains after Scenario Generation completes with scenarios in
     ``evals/`` (first run only; re-runs mark prior completed Eval as ``stale``).
+    Security Review shares ``_run_tessl_review(judge_type="security")`` and
+    snapshots ``upstream_run_ids.review_quality`` before invoke.
 
-    Returns (quality_score, [lint_row, review_row, scenario_row, eval_row]).
+    Returns (quality_score, [lint_row, review_row, scenario_row, eval_row, security_row]).
     quality_score is None when Review Quality did not complete successfully.
 
     id_context is the in-process Tessl ID bag for this invocation (GWT-47.5).
@@ -1837,6 +1875,8 @@ def run_tessl(
         on_progress=on_row_progress,
     )
     rows.append(eval_row)
+
+    rows.append(_run_tessl_security_review(workdir, ctx, workspace, on_progress=on_row_progress))
     return score, rows
 
 
@@ -2381,6 +2421,7 @@ TESSL_SOURCES = [
     "Tessl: Review (Quality)",
     "Tessl: Scenario Generation",
     "Tessl: Eval",
+    "Tessl: Review (Security)",
 ]
 SNYK_SOURCES = ["Snyk"]
 DEPSHIELD_SOURCES = ["DepShield"]

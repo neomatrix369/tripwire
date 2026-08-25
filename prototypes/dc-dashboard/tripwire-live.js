@@ -69,6 +69,8 @@ function shapeScannerRow(s, mappedFindings, itemQualityScore) {
     detail: s.detail || null,
     started_at: s.started_at || null,
     completed_at: s.completed_at || null,
+    tessl_run_id: s.tessl_run_id || null,
+    upstream_run_ids: s.upstream_run_ids || null,
     output,
   };
 }
