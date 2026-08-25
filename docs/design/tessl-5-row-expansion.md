@@ -1,6 +1,6 @@
 # Design: Tessl 5-Row Expansion
 
-**Status**: Schema IMPLEMENTED (slice 45 ✅). Lint adapter IMPLEMENTED (slice 46 ✅ #105). Review Quality run-ID + `_TesslIdContext` seed IMPLEMENTED unit (slice 47 ✅ #109). Rows 3–5 UI sentinels IMPLEMENTED (slice 48). Scenario Generation runner IMPLEMENTED unit (slice 49). Eval + Security runners remain DECIDED / not implemented.
+**Status**: Schema IMPLEMENTED (slice 45 ✅). Lint adapter IMPLEMENTED (slice 46 ✅ #105). Review Quality run-ID + `_TesslIdContext` seed IMPLEMENTED unit (slice 47 ✅ #109). Rows 3–5 UI sentinels IMPLEMENTED (slice 48). Scenario Generation runner IMPLEMENTED unit (slice 49 ✅ #112). Eval auto-chain IMPLEMENTED unit (slice 50). Security runner remains DECIDED / not implemented.
 **Date**: 2026-08-24
 **Scope**: Design contract for replacing the single Tessl scanner row with 5 flat capability rows. Current-truth notes below mark what has shipped; remaining rows stay future-state.
 
@@ -358,7 +358,7 @@ The single existing `"Tessl"` row is replaced by 5 flat sibling rows, in this ex
 | 1 | `Tessl: Lint` | live status (`completed` / `failed` / `unreachable`) | **IMPLEMENTED** (slice 46) — new row; auth-free `tessl skill lint` |
 | 2 | `Tessl: Review (Quality)` | live status (`completed` / `needs_setup` / …) | **IMPLEMENTED** source string (slice 46); `tessl_run_id` + `_TesslIdContext["review_quality"]` **IMPLEMENTED unit** (slice 47 ✅ #109) via `review view --last --json` |
 | 3 | `Tessl: Scenario Generation` | live status (`completed` / `failed` / `needs_setup` / `interrupted` / …) | **IMPLEMENTED unit (slice 49)** — `scenario generate` → download into `<plugin>/evals/`; `resume_checkpoint`; DB row replaces NAY sentinel |
-| 4 | `Tessl: Eval` | `Not Available Yet` | **IMPLEMENTED (UI sentinel, slice 48)** — not written to DB |
+| 4 | `Tessl: Eval` | live status (`blocked` / `queued` / `running` / `completed` / `stale` / …) | **IMPLEMENTED unit (slice 50)** — auto-chain after Scenario Gen + `evals/`; `upstream_run_ids`; project create/repair preflight; DB row replaces NAY sentinel |
 | 5 | `Tessl: Review (Security)` | `Not Available Yet` | **IMPLEMENTED (UI sentinel, slice 48)** — not written to DB |
 
 The 5 rows appear as a contiguous block where the single `"Tessl"` row used to be.
@@ -374,9 +374,9 @@ The dashboard derives the count from the **static constant list** of all 5 expec
 
 > **DECIDED (slice 48):** include "Not Available Yet" rows in the Scanner Outputs count (consistent with Cisco credential-absent rows).
 
-### "Not Available Yet" Rendering Rules (Eval + Security until slices 50–51)
+### "Not Available Yet" Rendering Rules (Security until slice 51; Scenario Gen / Eval when absent)
 
-The dashboard holds a **static ordered list** of all 5 Tessl `scanner_source` values. For each value absent from the DB rows for the current `scan_run_id`, the `scannersView` map emits a sentinel object with `status: 'not_available_yet'`.
+The dashboard holds a **static ordered list** of all 5 Tessl `scanner_source` values. For each value absent from the DB rows for the current `scan_run_id`, the `scannersView` map emits a sentinel object with `status: 'not_available_yet'`. After slices 49–50, Scenario Generation and Eval normally write real rows (including `blocked` Eval before auto-chain); Security Review remains NAY until slice 51.
 
 Rendering:
 - Left accent bar: neutral/muted colour (not the status colours used for active rows).
@@ -411,7 +411,7 @@ Extends `scannerStatusColor` and `scannerStatusLabel` in the dashboard JS:
 
 ### `tesslQuality` Binding Scope Fix
 
-The existing `tesslQuality` logic is implemented in `tesslInnerQuality` (`tripwire-status.js`) and is scoped to `scanner_source === "Tessl: Review (Quality)"`. Live attaches `output.quality_score` only for that source (`tripwire-live.js`). The quality score badge does not appear on Lint (slice 46 VERIFIED(unit)). Scenario Generation is written by the runner (slice 49); Eval and Security Review rows remain UI sentinels until slices 50–51 write real DB rows (slice 48 VERIFIED(unit)).
+The existing `tesslQuality` logic is implemented in `tesslInnerQuality` (`tripwire-status.js`) and is scoped to `scanner_source === "Tessl: Review (Quality)"`. Live attaches `output.quality_score` only for that source (`tripwire-live.js`). The quality score badge does not appear on Lint (slice 46 VERIFIED(unit)). Scenario Generation (slice 49) and Eval (slice 50) are written by the runner; Security Review remains a UI sentinel until slice 51 writes a real DB row (slice 48 VERIFIED(unit) for the merge/sentinel path).
 
 ---
 

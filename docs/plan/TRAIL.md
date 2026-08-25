@@ -131,7 +131,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 8 | [slice-8-scanner-skill-parse-fixtures](slices/05-E-ship-path-coverage/slice-8-scanner-skill-parse-fixtures.md) | Scanner Skill Parse Fixtures (Delta) | Must | ✅ | 7 | — | ~4 min |
 | 9 | [slice-9-scanner-snyk-tessl-parse-fixtures](slices/05-E-ship-path-coverage/slice-9-scanner-snyk-tessl-parse-fixtures.md) | Snyk / Tessl Parse Fixtures (Delta) | Should | 📦 closed (subsumed) | 11 | SUBSUMED by 11 | ~4 min |
 | 10 | [slice-10-scan-item-inner-characterization](slices/05-E-ship-path-coverage/slice-10-scan-item-inner-characterization.md) | scan_item_inner Characterization (Delta) | Should | 📦 closed (subsumed) | 11 | SUBSUMED by 11 | ~4 min |
-| 11 | [slice-11-python-ship-path-coverage-95](slices/05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Python Ship-Path Coverage ≥95% | Must | ✅ | 8 (9,10 Should) | — | ~5 min |
+| 11 | [slice-11-python-ship-path-coverage-95](slices/05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md) | Python Ship-Path Coverage ≥95% (+ Snyk v0.6 delta) | Must | 🔀 delta | 8 (9,10 Should) | — | ~5 min |
 | 12 | [slice-12-cli-coverage-gate-95](slices/05-E-ship-path-coverage/slice-12-cli-coverage-gate-95.md) | CLI Coverage Gate ≥95% (Delta) | Must | ✅ | 6 | — | ~4 min |
 | 13 | [slice-13-live-acl-coverage-gate-95](slices/05-E-ship-path-coverage/slice-13-live-acl-coverage-gate-95.md) | Live ACL Coverage Gate ≥95% (Delta) | Must | ✅ | 2,3 | — | ~4 min |
 | 14 | [slice-14-coverage-status-docs-sync](slices/05-E-ship-path-coverage/slice-14-coverage-status-docs-sync.md) | Coverage Status + Docs Sync (Delta) | Must | ✅ | 11,12,13 | #39 | ~3 min |
@@ -285,8 +285,8 @@ See `docs/design/tessl-5-row-expansion.md § Open Questions`.
 | 46 | [slice-46-lint-adapter](slices/12-L-tessl-5-row-expansion/slice-46-lint-adapter.md) | Tessl: Lint Adapter (Row 1) | Must | ✅ | 45 | [#105](https://github.com/neomatrix369/tripwire/pull/105) | ~4 min |
 | 47 | [slice-47-review-quality-split](slices/12-L-tessl-5-row-expansion/slice-47-review-quality-split.md) | Tessl: Review (Quality) Split + `tesslQuality` Scope Fix (Row 2) | Must | ✅ | 45, 46 | [#109](https://github.com/neomatrix369/tripwire/pull/109) | ~4 min |
 | 48 | [slice-48-not-available-yet-ui](slices/12-L-tessl-5-row-expansion/slice-48-not-available-yet-ui.md) | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | 🔨 | 47 | — | ~3 min |
-| 49 | [slice-49-scenario-generation](slices/12-L-tessl-5-row-expansion/slice-49-scenario-generation.md) | Tessl: Scenario Generation + Resume Checkpoint (Row 3) | Should | 🔄 | 47, 48 | — | ~6 min |
-| 50 | [slice-50-eval-auto-chain](slices/12-L-tessl-5-row-expansion/slice-50-eval-auto-chain.md) | Tessl: Eval + Scenario→Eval Auto-Chain (Row 4) | Should | 📋 | 49 | — | ~5 min |
+| 49 | [slice-49-scenario-generation](slices/12-L-tessl-5-row-expansion/slice-49-scenario-generation.md) | Tessl: Scenario Generation + Resume Checkpoint (Row 3) | Should | ✅ | 47, 48 | [#112](https://github.com/neomatrix369/tripwire/pull/112) | ~6 min |
+| 50 | [slice-50-eval-auto-chain](slices/12-L-tessl-5-row-expansion/slice-50-eval-auto-chain.md) | Tessl: Eval + Scenario→Eval Auto-Chain (Row 4) | Should | 🔨 | 49 | — | ~5 min |
 | 51 | [slice-51-review-security](slices/12-L-tessl-5-row-expansion/slice-51-review-security.md) | Tessl: Review (Security) Adapter (Row 5) | Could | 📋 | 47 | — | ~3 min |
 | 52 | [slice-52-id-lineage-wiring](slices/12-L-tessl-5-row-expansion/slice-52-id-lineage-wiring.md) | ID Lineage Cross-Reads + UI Side-by-Side Findings | Could | 📋 | 49, 50, 51; Gap C UI-only | — | ~5 min |
 
