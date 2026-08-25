@@ -58,15 +58,19 @@ for ident in sys.argv[1:]:
         blocked = not (rag == "green" or (rag == "amber" and threshold == "red"))
     else:
         blocked = True
+    item = s.get("item") or {}
+    q = item.get("quality_score")
+    quality_score = float(q) if isinstance(q, (int, float)) else None
     rows.append({
         "identifier": ident,
         "state": state,
         "rag": rag,
         "scanned_at": s.get("scanned_at"),
         "stale": state == "stale",
-        "errored": (s.get("item") or {}).get("heatmap_status") == "error",
+        "errored": item.get("heatmap_status") == "error",
         "changed": changed,
         "will_be_blocked": blocked,
+        "quality_score": quality_score,
     })
 print(json.dumps({
     "config": {
@@ -82,16 +86,18 @@ print(json.dumps({
 
 ## Step 4 — Report (Scan Status table only)
 
-Render exactly the tw-verify human table — same states, emoji, and labels (see `~/.claude/skills/tw-verify/SKILL.md` §Step 5). Parse the driver's JSON privately; do **not** dump a fenced `{config, artifacts}` block to the user. Summary of the row rules (N = `scan_validity_days`):
+Render exactly the tw-verify human table — same columns **Name | Type | Status | Quality | Note**, emoji/labels, Quality as **`N/100`** or `—`, and blocked-message **footer** (see `~/.claude/skills/tw-verify/SKILL.md` §Step 5 and [frontline-output-contract.md](../../../docs/user-guide/frontline-output-contract.md)). Parse the driver's JSON privately; do **not** dump a fenced `{config, artifacts}` block to the user. Summary of the row rules (N = `scan_validity_days`):
 
 - `fresh` + green → `🟢 GREEN (fresh)`, note `—`.
-- `fresh` + amber → `🟠 AMBER`; `Reported but not blocked at current threshold` when threshold is `red`, else bold **Will be blocked when Tripwire is enabled**.
-- `fresh` + red → `🔴 RED`; note ALWAYS bold **Will be blocked when Tripwire is enabled** — never omitted.
+- `fresh` + amber → `🟠 AMBER`; `Reported but not blocked at current threshold` when threshold is `red`, else distinct amber note + footer when blocked.
+- `fresh` + red → `🔴 RED`; note `rated red — at/above threshold` (blocked sentence is footer-only).
 - `stale` → `⚠️ STALE`; `Last scanned >N days ago — blocked until rescanned (run /tw-scan <name>)`.
 - `scanning` → `⏳ SCANNING`; `Scan in progress — check back shortly` (+ prior verdict if rag non-null).
-- `unscanned` → `🚫 UNSCANNED`; `Never scanned — blocked when Tripwire is enabled` (or `Last scan errored — resubmit (run /tw-scan <name>)` when errored).
-- `changed=true` → `✏️ CHANGED`; bold **content changed since last scan — run /tw-scan <name>** — takes precedence over every state-based row (the hook's tamper deny fires regardless of a green verdict), `will_be_blocked` true.
-- missing install dir → `❓ NOT FOUND`; bold **Will be blocked when Tripwire is enabled** — `Not installed under ~/.claude/skills — run tripwire setup-agent-hooks`.
+- `unscanned` → `🚫 UNSCANNED`; `Never scanned — offer /tw-scan <name>` (or `Last scan errored — resubmit (run /tw-scan <name>)` when errored).
+- `changed=true` → `✏️ CHANGED`; bold **content changed since last scan — run /tw-scan <name>** — takes precedence over every state-based row, `will_be_blocked` true.
+- missing install dir → `❓ NOT FOUND`; note `Not installed under ~/.claude/skills — run tripwire setup-agent-hooks` (footer covers blocked).
+
+If any `will_be_blocked`, print **Will be blocked when Tripwire is enabled** once under the table.
 
 If local `enable` is false, add the "currently bypassed" note; if `monitoring_enabled` is false, add the platform-switch warning.
 

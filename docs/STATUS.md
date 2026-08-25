@@ -255,10 +255,12 @@ documentarist pile-on **APPROVED WITH FOLLOW-ON**; DIVIO purity rewrites
 [plan/slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md](./plan/slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md).
 
 **Wave H — Frontline agent hooks (2026-08-15):** Claude Code PreToolUse handlers,
-`tripwire setup-agent-hooks`, and five `/tw-*` skills are **DECIDED** as plan-only
-slices 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. See
-[plan/TRAIL.md](./plan/TRAIL.md) Wave H and [plan/DECISIONS.md](./plan/DECISIONS.md).
-Not IMPLEMENTED — no production hook install path or `/tw-*` skills yet. ADR-0015
+`tripwire setup-agent-hooks`, and five `/tw-*` skills landed on `main` via Phase 1
+agent-hooks (see `agent-hooks/`). Formal Wave H gate trackers (slices 23–39) still
+lag; **slice 28** (`/tw-verify` Quality `N/100` + blocked footer) is **IMPLEMENTED**
+on `slice/28-tw-verify-quality` — contract SSOT
+[frontline-output-contract.md](./user-guide/frontline-output-contract.md).
+Remaining Musts 23–27 / 29–32 stay plan-tracked. ADR-0015
 Horizon A exclusion remains in force until Wave H lands and a superseding ADR
 records the new production entry.
 

@@ -1,26 +1,71 @@
 {
   "slice": 28,
-  "gate_status": "PLANNED",
+  "gate_status": "ON_BRANCH",
   "inferred": false,
-  "branch": null,
-  "date": null,
-  "before_checks": [],
-  "after_checks": [],
+  "branch": "slice/28-tw-verify-quality",
+  "date": "2026-08-25",
+  "spec_path": "docs/plan/slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md",
+  "output_ssot": "docs/user-guide/frontline-output-contract.md",
+  "skill_layout": ["agent-hooks/skills/tw-verify/SKILL.md"],
+  "before_checks": "waived 26+27 PASS on main (DECISIONS 2026-08-25); branch from main; SSOT frontline-output-contract.md; coverage ≥95% on guard/verify.py; complexity enforcing",
+  "after_checks": [
+    "PASS — multi-name one-pass + six-state GWTs",
+    "PASS — Quality N/100 / — asserted",
+    "PASS — blocked footer once; Notes lack repeated blocked sentence",
+    "PASS — unscanned→/tw-scan offer asserted",
+    "PASS — not-found human message asserted",
+    "PASS — .venv/bin/pytest guard/tests/test_tw_verify.py -q (15 passed in file; 25 with units)",
+    "PASS — coverage 100% lines on guard/verify.py (target ≥95%)",
+    "PASS — xenon exit 0; ./scripts/quality-gates.sh PASS",
+    "PASS — review acceptance+implementation APPROVED (nw-software-crafter-reviewer)",
+    "PENDING merge — PROGRESS/TRAIL ✅ after merge to main"
+  ],
+  "commands": [
+    {
+      "cmd": ".venv/bin/pytest guard/tests/test_tw_verify.py guard/tests/test_verify_units.py -q --tb=short",
+      "result": "PASS exit 0 — 25 passed"
+    },
+    {
+      "cmd": ".venv/bin/pytest guard/tests/test_tw_verify.py guard/tests/test_verify_units.py --cov=guard.verify --cov-report=term-missing -q",
+      "result": "PASS — 25 passed; TOTAL 100% lines on guard/verify.py"
+    },
+    {
+      "cmd": "./scripts/quality-gates.sh",
+      "result": "PASS — quality-gates passed"
+    },
+    {
+      "cmd": "test -f agent-hooks/skills/tw-verify/SKILL.md && rg -n \"Name \\| Type \\| Status \\| Quality \\| Note|quality_score|N/100|Will be blocked when Tripwire is enabled\" agent-hooks/skills/tw-verify/SKILL.md",
+      "result": "PASS — skill SSOT documents Quality column + footer"
+    }
+  ],
   "planned_commands": [
     "test -f docs/plan/slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md",
     "rg -n \"Quality|N/100|quality_score|Will be blocked when Tripwire is enabled\" docs/plan/slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md agent-hooks/skills/tw-verify/",
-    "rg -n \"Name \\| Type \\| Status \\| Quality \\| Note\" docs/plan/slices/08-H-frontline-agent-hooks/",
-    "rg -n \"heatmap_status\" guard/",
+    "rg -n \"Name \\| Type \\| Status \\| Quality \\| Note\" docs/user-guide/frontline-output-contract.md",
+    ".venv/bin/pytest guard/tests/test_tw_verify.py -q --tb=short",
     "./scripts/quality-gates.sh"
   ],
-  "commands": [],
-  "test_budget": {"acceptance_tests_max": 7, "parametrized_case_counts_as_one": true},
-  "reviewers": [],
-  "review": {"acceptance": "PENDING", "implementation": "PENDING"},
-  "verdict": "NOT_RUN",
-  "coverage_target": "TBD at AT design before IN PROGRESS",
-  "complexity_policy": "enforcing for product-code; N/A for docs-only / skill-markdown-only with reason in evidence",
+  "test_budget": {
+    "acceptance_tests_max": 7,
+    "acceptance_tests_designed": 7,
+    "parametrized_case_counts_as_one": true
+  },
+  "coverage": {
+    "target": "≥95% lines on guard/verify.py",
+    "measured": "100.0% lines (106 stmts)",
+    "date": "2026-08-25"
+  },
+  "complexity_policy": "enforcing for product-code — xenon exit 0 via quality-gates",
+  "reviewers": ["nw-software-crafter-reviewer"],
+  "review": {
+    "acceptance": "APPROVED",
+    "implementation": "APPROVED",
+    "agent_id": "0ad0f49f-f5ef-457e-95c6-4719901c3dfa",
+    "date": "2026-08-25"
+  },
+  "verdict": "ON_BRANCH",
+  "coverage_target": "≥95% lines on guard/verify.py",
   "phase": "H2",
   "moscow": "Must",
-  "delta_2026_08_25": "Quality column N/100 + blocked footer de-dupe (DECIDED)"
+  "delta_2026_08_25": "Quality column N/100 + blocked footer de-dupe (IMPLEMENTED)"
 }

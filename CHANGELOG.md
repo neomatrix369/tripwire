@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `/tw-verify` Quality column + blocked footer (slice 28): Scan Status table is
+  **Name | Type | Status | Quality | Note**; Quality shows Tessl
+  `items.quality_score` as **`N/100`** (else `—`); shared
+  **Will be blocked when Tripwire is enabled** appears once under the table.
+  Shared helpers in `guard/verify.py`; contract SSOT
+  [frontline-output-contract.md](docs/user-guide/frontline-output-contract.md).
+  Re-run `tripwire setup-agent-hooks` to refresh installed skills.
 - Docs: Wave **13-M** LLM usage / cost observability plan (slice 53) —
   [design/llm-usage-tracking.md](docs/design/llm-usage-tracking.md), slice stub,
   TRAIL/PROGRESS/STATUS DECIDED (not IMPLEMENTED). Historic collapsible Usage
