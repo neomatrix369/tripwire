@@ -255,7 +255,7 @@ Verified against [Tessl CLI reference](https://docs.tessl.io/reference/cli-comma
 7. Security (slice 51) → upstream_run_ids={review_quality}; review run security; stamp tessl_run_id
 ```
 
-**Not supported by Tessl CLI**: passing `gen_id` to `eval run`. Eval always consumes on-disk scenarios. **`--workspace`** is **required** on plugin-path `scenario generate` (live CLI: `tessl scenario generate ./my-plugin --workspace acme`); Tripwire passes `TESSL_WORKSPACE`.
+**Not supported by Tessl CLI**: passing `gen_id` to `eval run`. Eval always consumes on-disk scenarios. **`--workspace`** is **required** outside interactive mode for plugin-path `scenario generate` (live CLI). Tripwire resolves it via optional `TESSL_WORKSPACE` or `tessl whoami` + `tessl workspace list` (personal workspace is usually the username).
 
 ### ID carry-forward contract (MUST — slices 47–51)
 

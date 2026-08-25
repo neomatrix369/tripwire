@@ -14,6 +14,7 @@ Scope: run_all_scanners overall_status; _unreachable detail truncation;
 
 from __future__ import annotations
 
+import json
 import os
 from unittest.mock import patch
 
@@ -802,19 +803,21 @@ def test_run_tessl_falls_back_to_run_json_id_when_view_last_fails() -> None:
 
 def test_run_tessl_without_workspace_emits_review_needs_setup() -> None:
     """
-    Scenario: TESSL_WORKSPACE absent — Review (Quality) and Scenario Gen are needs_setup.
-    Slice: 47 — GWT-47.3 needs_setup for missing review config
-    Slice: 49/50 — scenario generate also requires --workspace
+    Scenario: Workspace unresolved — Review (Quality) and Scenario Gen are needs_setup.
+    Slice: 47 — GWT-47.3 needs_setup when workspace cannot be resolved
+    Slice: 49/50 — scenario generate also needs a resolved --workspace
 
-    Given TESSL_TOKEN is set and TESSL_WORKSPACE is absent,
+    Given TESSL_TOKEN is set, TESSL_WORKSPACE is absent, and workspace list fails,
     When run_tessl is called,
     Then Review (Quality) and Scenario Generation are needs_setup and no review/generate runs.
     """
     ### Given
     ran: list[list[str]] = []
 
-    def _record(cmd, timeout=None):
+    def _record(cmd, timeout=None, cwd=None):
         ran.append(cmd)
+        if cmd[3:5] == ["whoami"] or cmd[3:5] == ["workspace", "list"]:
+            return 1, "", "not authenticated"
         return 0, "1 check", ""
 
     ### When
@@ -833,6 +836,72 @@ def test_run_tessl_without_workspace_emits_review_needs_setup() -> None:
     assert rows[2]["status"] == "needs_setup"
     assert all(c[3:5] != ["review", "run"] for c in ran)
     assert all(c[3:5] != ["scenario", "generate"] for c in ran)
+
+
+def test_run_tessl_resolves_workspace_from_whoami_when_env_unset(tmp_path) -> None:
+    """
+    Scenario: No TESSL_WORKSPACE — resolve personal workspace via whoami + list.
+    Given TESSL_TOKEN only and CLI returns username-matching workspace,
+    When run_tessl runs Review,
+    Then --workspace uses the username from whoami (not an env var).
+    """
+    ### Given
+    workdir = _make_tessl_plugin(tmp_path)
+    captured: list[list[str]] = []
+
+    def _run(cmd, timeout=None, cwd=None):
+        captured.append(cmd)
+        if cmd[3] == "whoami":
+            return 0, '{"authenticated": true, "user": {"username": "neomatrix369"}}', ""
+        if cmd[3:5] == ["workspace", "list"]:
+            return (
+                0,
+                json.dumps(
+                    {
+                        "workspaces": [
+                            {"name": "other", "allowedActions": ["view"]},
+                            {
+                                "name": "neomatrix369",
+                                "allowedActions": [
+                                    "generate_eval_scenarios",
+                                    "run_review",
+                                ],
+                            },
+                        ]
+                    }
+                ),
+                "",
+            )
+        if cmd[3:5] in (["skill", "lint"],) or cmd[3:5] == ["review", "run"]:
+            return _lint_and_quality_ok(cmd, timeout)
+        if len(cmd) > 5 and cmd[3:5] == ["review", "view"]:
+            return _lint_and_quality_ok(cmd, timeout)
+        if cmd[3:5] == ["scenario", "generate"]:
+            assert cmd[cmd.index("--workspace") + 1] == "neomatrix369"
+            return 0, '{"id": "gen_ws", "status": "completed", "scenarioCount": 1}', ""
+        if cmd[3:5] == ["scenario", "download"]:
+            out_dir = cmd[cmd.index("-o") + 1]
+            os.makedirs(os.path.join(out_dir, "s1"), exist_ok=True)
+            return 0, "ok", ""
+        eval_handled = _eval_ok(cmd, timeout, cwd)
+        if eval_handled is not None:
+            return eval_handled
+        raise AssertionError(f"unexpected cmd: {cmd}")
+
+    ### When
+    with (
+        patch.dict("os.environ", {"TESSL_TOKEN": "t"}, clear=True),
+        patch.object(scanners, "_which", return_value="/usr/bin/npx"),
+        patch.object(scanners, "_run", side_effect=_run),
+    ):
+        score, rows = scanners.run_tessl(workdir)
+
+    ### Then
+    assert score == 80
+    review_cmds = [c for c in captured if c[3:5] == ["review", "run"]]
+    assert review_cmds
+    assert review_cmds[0][review_cmds[0].index("--workspace") + 1] == "neomatrix369"
+    assert rows[2]["status"] == "completed"
 
 
 def test_given_quality_review_completes_when_run_tessl_then_ctx_review_quality_is_stamped_id() -> (
@@ -1399,6 +1468,14 @@ def test_parse_scenario_gen_id_and_status_from_json_shapes() -> None:
     assert gen_argv[3:6] == ["scenario", "generate", "/plugin"]
     assert gen_argv[gen_argv.index("--workspace") + 1] == "acme"
     assert gen_argv[gen_argv.index("--count") + 1] == "3"
+    assert (
+        scanners._pick_tessl_workspace(
+            [{"name": "other"}, {"name": "neomatrix369"}],
+            "neomatrix369",
+        )
+        == "neomatrix369"
+    )
+    assert scanners._parse_tessl_whoami_username({"user": {"username": "alice"}}) == "alice"
 
 
 def test_given_generate_timeout_when_scenario_runs_then_interrupted_with_checkpoint(

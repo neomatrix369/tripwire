@@ -641,6 +641,83 @@ def _parse_tessl_run_id(parsed) -> str | None:
     return None
 
 
+def _parse_tessl_whoami_username(parsed) -> str | None:
+    """Extract username from ``tessl whoami --json`` (usually the personal workspace)."""
+    if not isinstance(parsed, dict):
+        return None
+    user = parsed.get("user")
+    if isinstance(user, dict):
+        username = user.get("username")
+        if isinstance(username, str) and username.strip():
+            return username.strip()
+    username = parsed.get("username")
+    if isinstance(username, str) and username.strip():
+        return username.strip()
+    return None
+
+
+def _parse_tessl_workspace_list(parsed) -> list[dict]:
+    """Normalize ``tessl workspace list --json`` to a list of workspace dicts."""
+    if isinstance(parsed, list):
+        return [ws for ws in parsed if isinstance(ws, dict)]
+    if isinstance(parsed, dict):
+        workspaces = parsed.get("workspaces")
+        if isinstance(workspaces, list):
+            return [ws for ws in workspaces if isinstance(ws, dict)]
+    return []
+
+
+def _pick_tessl_workspace(workspaces: list[dict], username: str | None) -> str | None:
+    """Prefer username-named workspace, then one with scenario/review actions, else first."""
+    named: list[dict] = []
+    for ws in workspaces:
+        name = ws.get("name")
+        if isinstance(name, str) and name.strip():
+            named.append(ws)
+    if not named:
+        return None
+    if username:
+        for ws in named:
+            if ws["name"].strip() == username:
+                return username
+    for action in ("generate_eval_scenarios", "run_review"):
+        for ws in named:
+            actions = ws.get("allowedActions") or []
+            if isinstance(actions, list) and action in actions:
+                return ws["name"].strip()
+    return named[0]["name"].strip()
+
+
+def _resolve_tessl_workspace() -> tuple[str | None, str]:
+    """Resolve Tessl workspace for ``--workspace``.
+
+    Prefer optional ``TESSL_WORKSPACE`` override; otherwise query
+    ``tessl whoami --json`` + ``tessl workspace list --json`` (personal workspace
+    is usually the authenticated username).
+    """
+    env_ws = (os.environ.get("TESSL_WORKSPACE") or "").strip()
+    if env_ws:
+        return env_ws, ""
+
+    username = None
+    who_code, who_out, who_err = _run(["npx", "--yes", "tessl@latest", "whoami", "--json"])
+    if who_code == 0:
+        username = _parse_tessl_whoami_username(_safe_json(who_out))
+
+    list_code, list_out, list_err = _run(
+        ["npx", "--yes", "tessl@latest", "workspace", "list", "--json"]
+    )
+    if list_code != 0:
+        detail = (list_err or list_out or who_err or who_out or "workspace list failed").strip()
+        return None, detail[:4000]
+
+    workspaces = _parse_tessl_workspace_list(_safe_json(list_out))
+    picked = _pick_tessl_workspace(workspaces, username)
+    if not picked:
+        return None, "no Tessl workspaces available for this account"
+    return picked, ""
+
+
 def _tessl_review_run_argv(judge_type: str, workdir: str, workspace: str, force: bool) -> list[str]:
     argv = [
         "npx",
@@ -875,7 +952,9 @@ def _scenario_checkpoint_row(
     return row
 
 
-def _scenario_gen_preflight(workdir: str, upstream_run_ids: dict) -> dict | None:
+def _scenario_gen_preflight(
+    workdir: str, upstream_run_ids: dict, workspace: str | None
+) -> dict | None:
     """Return an early terminal row when token/workspace/plugin prerequisites fail."""
     if not os.environ.get("TESSL_TOKEN"):
         skipped: dict = _skipped(
@@ -883,11 +962,11 @@ def _scenario_gen_preflight(workdir: str, upstream_run_ids: dict) -> dict | None
         )
         skipped["upstream_run_ids"] = upstream_run_ids
         return skipped
-    if not (os.environ.get("TESSL_WORKSPACE") or "").strip():
+    if not workspace:
         skipped = _skipped(
             _TESSL_SCENARIO_SOURCE,
             reason="needs_setup",
-            detail="TESSL_WORKSPACE required for scenario generate --workspace",
+            detail="Tessl workspace unresolved — set TESSL_WORKSPACE or ensure tessl login",
         )
         skipped["upstream_run_ids"] = upstream_run_ids
         return skipped
@@ -912,6 +991,7 @@ def _ensure_scenario_generated(
     stage: str | None,
     consoles: list[str],
     on_progress,
+    workspace: str,
 ) -> tuple[str | None, dict | None]:
     """Ensure generation completed. Returns (gen_id, early_row_or_None)."""
     if stage == "generated" and gen_id:
@@ -933,7 +1013,6 @@ def _ensure_scenario_generated(
             row["checks_run"] = count_hint
         return gen_id, None
 
-    workspace = (os.environ.get("TESSL_WORKSPACE") or "").strip()
     code, out, err = _run(_tessl_scenario_generate_argv(workdir, workspace))
     console = _build_console(out, err)
     if console:
@@ -1015,6 +1094,7 @@ def _run_tessl_scenario_gen(
     workdir: str,
     ctx: dict[str, str | None],
     *,
+    workspace: str | None = None,
     resume_checkpoint: dict | None = None,
     on_progress=None,
 ) -> dict:
@@ -1027,7 +1107,7 @@ def _run_tessl_scenario_gen(
     _attach_upstream_run_ids(row, ctx, "review_quality")
     _emit_tessl_row_progress(on_progress, row)
 
-    gated = _scenario_gen_preflight(workdir, row["upstream_run_ids"])
+    gated = _scenario_gen_preflight(workdir, row["upstream_run_ids"], workspace)
     if gated is not None:
         return gated
 
@@ -1036,7 +1116,9 @@ def _run_tessl_scenario_gen(
     stage = checkpoint.get("stage") if isinstance(checkpoint.get("stage"), str) else None
     consoles: list[str] = []
 
-    gen_id, early = _ensure_scenario_generated(workdir, row, gen_id, stage, consoles, on_progress)
+    gen_id, early = _ensure_scenario_generated(
+        workdir, row, gen_id, stage, consoles, on_progress, workspace or ""
+    )
     if early is not None:
         return early
     if not gen_id:
@@ -1284,6 +1366,7 @@ def _run_tessl_eval(
     ctx: dict[str, str | None],
     row: dict,
     *,
+    workspace: str | None = None,
     resume_eval_id: str | None = None,
     on_progress=None,
 ) -> dict:
@@ -1292,10 +1375,16 @@ def _run_tessl_eval(
     row["status"] = "queued"
     _emit_tessl_row_progress(on_progress, row)
 
-    workspace = (os.environ.get("TESSL_WORKSPACE") or "").strip()
-    if not os.environ.get("TESSL_TOKEN") or not workspace:
+    if not os.environ.get("TESSL_TOKEN"):
         row["status"] = "needs_setup"
-        row["detail"] = "TESSL_TOKEN and TESSL_WORKSPACE required for eval"
+        row["detail"] = "TESSL_TOKEN required for eval"
+        _emit_tessl_row_progress(on_progress, row)
+        return row
+    if not workspace:
+        row["status"] = "needs_setup"
+        row["detail"] = (
+            "Tessl workspace unresolved — set TESSL_WORKSPACE or ensure tessl login"
+        )
         _emit_tessl_row_progress(on_progress, row)
         return row
 
@@ -1394,6 +1483,7 @@ def _resolve_tessl_eval_row(
     eval_row: dict,
     scenario_row: dict,
     *,
+    workspace: str | None = None,
     prior_eval: dict | None = None,
     on_progress=None,
 ) -> dict:
@@ -1435,13 +1525,20 @@ def _resolve_tessl_eval_row(
 
     if resume_id:
         return _run_tessl_eval(
-            workdir, ctx, eval_row, resume_eval_id=resume_id, on_progress=on_progress
+            workdir,
+            ctx,
+            eval_row,
+            workspace=workspace,
+            resume_eval_id=resume_id,
+            on_progress=on_progress,
         )
 
     scenario_ok = scenario_row.get("status") == "completed"
     has_scenarios = _count_evals_scenarios(workdir) > 0
     if scenario_ok and has_scenarios and eval_row.get("status") in {"blocked", "not_started"}:
-        return _run_tessl_eval(workdir, ctx, eval_row, on_progress=on_progress)
+        return _run_tessl_eval(
+            workdir, ctx, eval_row, workspace=workspace, on_progress=on_progress
+        )
 
     _emit_tessl_row_progress(on_progress, eval_row)
     return eval_row
@@ -1523,12 +1620,13 @@ def run_tessl(
     """Run Tessl Lint, Review Quality, Scenario Generation, then Eval auto-chain.
 
     Lint is synchronous and never requires TESSL_TOKEN; it always runs when npx
-    is available.  Review Quality requires TESSL_TOKEN and TESSL_WORKSPACE; its
-    row transitions to needs_setup when either is absent. Scenario Generation
-    requires TESSL_TOKEN, TESSL_WORKSPACE (``--workspace`` on generate), and
-    ``.tessl-plugin/plugin.json``. Eval starts ``blocked`` and auto-chains after
-    Scenario Generation completes with scenarios in ``evals/`` (first run only;
-    re-runs mark prior completed Eval as ``stale``).
+    is available.  Review Quality, Scenario Generation, and Eval need
+    ``TESSL_TOKEN``. Workspace for ``--workspace`` comes from optional
+    ``TESSL_WORKSPACE`` or is resolved via ``tessl whoami`` + ``workspace list``
+    (personal workspace is usually the authenticated username). Scenario
+    Generation also needs ``.tessl-plugin/plugin.json``. Eval starts ``blocked``
+    and auto-chains after Scenario Generation completes with scenarios in
+    ``evals/`` (first run only; re-runs mark prior completed Eval as ``stale``).
 
     Returns (quality_score, [lint_row, review_row, scenario_row, eval_row]).
     quality_score is None when Review Quality did not complete successfully.
@@ -1569,25 +1667,39 @@ def run_tessl(
                 lint_row["console_output"] = console
         rows.append(lint_row)
 
-    # --- Tessl: Review (Quality) (TESSL_TOKEN + TESSL_WORKSPACE required) ---
+    # --- Tessl: Review (Quality) (TESSL_TOKEN + resolved workspace) ---
     score = None
-    if not os.environ.get("TESSL_TOKEN") or not (os.environ.get("TESSL_WORKSPACE") or "").strip():
+    workspace: str | None = None
+    workspace_detail = ""
+    if not os.environ.get("TESSL_TOKEN"):
         rows.append(_skipped("Tessl: Review (Quality)", reason="needs_setup"))
         _update_tessl_id_context(ctx, "review_quality", None)
     else:
-        workspace = os.environ["TESSL_WORKSPACE"].strip()
-        score, review_row = _run_tessl_review("quality", workdir, workspace)
-        rows.append(review_row)
-        _update_tessl_id_context(ctx, "review_quality", review_row.get("tessl_run_id"))
+        workspace, workspace_detail = _resolve_tessl_workspace()
+        if not workspace:
+            rows.append(
+                _skipped(
+                    "Tessl: Review (Quality)",
+                    reason="needs_setup",
+                    detail=workspace_detail
+                    or "Tessl workspace unresolved — set TESSL_WORKSPACE or ensure tessl login",
+                )
+            )
+            _update_tessl_id_context(ctx, "review_quality", None)
+        else:
+            score, review_row = _run_tessl_review("quality", workdir, workspace)
+            rows.append(review_row)
+            _update_tessl_id_context(ctx, "review_quality", review_row.get("tessl_run_id"))
 
     # --- Tessl: Eval (blocked until Scenario Generation completes) ---
     eval_row = _new_blocked_eval_row()
     _emit_tessl_row_progress(on_row_progress, eval_row)
 
-    # --- Tessl: Scenario Generation (token + plugin manifest) ---
+    # --- Tessl: Scenario Generation (token + plugin manifest + workspace) ---
     scenario_row = _run_tessl_scenario_gen(
         workdir,
         ctx,
+        workspace=workspace,
         resume_checkpoint=resume_checkpoint,
         on_progress=on_row_progress,
     )
@@ -1598,6 +1710,7 @@ def run_tessl(
         ctx,
         eval_row,
         scenario_row,
+        workspace=workspace,
         prior_eval=prior_eval,
         on_progress=on_row_progress,
     )
