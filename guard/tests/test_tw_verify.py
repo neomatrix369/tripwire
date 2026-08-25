@@ -252,12 +252,16 @@ def test_given_blocked_rows_when_verify_then_footer_once_not_in_notes() -> None:
     )
 
     ### Then
+    from guard.verify import SOURCES_FOOTER
+
     markdown = actual.to_markdown()
     assert markdown.count(BLOCKED_FOOTER) == 1
     for row in actual.artifacts:
         assert row.will_be_blocked is True
         assert BLOCKED_FOOTER not in row.note
-    assert markdown.strip().endswith(f"**{BLOCKED_FOOTER}**")
+    assert f"**{BLOCKED_FOOTER}**" in markdown
+    assert SOURCES_FOOTER in markdown
+    assert markdown.strip().endswith(f"*{SOURCES_FOOTER}*")
 
 
 def test_given_unscanned_when_verify_then_offers_tw_scan() -> None:
@@ -359,3 +363,6 @@ def test_given_repo_when_skill_looked_up_then_agent_hooks_skill_md_exists() -> N
     assert "N/100" in text or "/100" in text
     assert BLOCKED_FOOTER in text
     assert "footer" in text.lower() or "under the table" in text.lower()
+    assert "Tessl" in text
+    assert "Cisco" in text and "Snyk" in text
+    assert "Sources:" in text

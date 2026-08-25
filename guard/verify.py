@@ -19,6 +19,10 @@ from typing import Any, Literal
 UiState = Literal["fresh", "stale", "unscanned", "scanning", "not-found", "red"]
 
 BLOCKED_FOOTER = "Will be blocked when Tripwire is enabled"
+SOURCES_FOOTER = (
+    "Sources: Quality is from Tessl (Review Quality). "
+    "Security-related Status (GREEN/AMBER/RED) is from Cisco AI Defense and Snyk."
+)
 NOT_FOUND_NOTE = (
     "No match in ~/.claude/skills, .claude/skills, .mcp.json, ~/.claude.json, "
     "~/.tripwire/demo-mcp.json, fixtures manifest"
@@ -109,6 +113,8 @@ class VerifyResult:
         if any(row.will_be_blocked for row in self.artifacts):
             lines.append("")
             lines.append(f"**{BLOCKED_FOOTER}**")
+        lines.append("")
+        lines.append(f"*{SOURCES_FOOTER}*")
         return "\n".join(lines)
 
 

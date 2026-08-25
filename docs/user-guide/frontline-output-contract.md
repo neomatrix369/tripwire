@@ -26,8 +26,8 @@ Fixed columns (order matters):
 |--------|---------|
 | **Name** | Resolved artifact name (or the unresolved query for `not-found`) |
 | **Type** | `skill` / `mcp` / `tool` / `—` when unknown |
-| **Status** | Display string for the six UI states (below) |
-| **Quality** | Tessl skill-review score as **`N/100`** (0–100, higher better) from `items.quality_score`; `—` for MCP, unscanned, scanning, not-found, or null |
+| **Status** | Display string for the six UI states (below); security-related RAG from **Cisco AI Defense** and **Snyk** |
+| **Quality** | **Tessl** skill-review score as **`N/100`** (0–100, higher better) from `items.quality_score`; `—` for MCP, unscanned, scanning, not-found, or null |
 | **Note** | Distinct operator hint only — do **not** repeat the shared blocked sentence here |
 
 ### Blocked footer (de-dupe)
@@ -37,6 +37,12 @@ When **any** artifact has `will_be_blocked=true`, print **once** under the table
 **Will be blocked when Tripwire is enabled**
 
 Do not repeat that phrase in every Note. RED / STALE / UNSCANNED / NOT FOUND / CHANGED keep distinct Note copy (threshold, remedy, locus, scan offer).
+
+### Sources attribution
+
+Print **once** under the table (after the blocked footer when present):
+
+*Sources: Quality is from Tessl (Review Quality). Security-related Status (GREEN/AMBER/RED) is from Cisco AI Defense and Snyk.*
 
 ## Six UI states
 

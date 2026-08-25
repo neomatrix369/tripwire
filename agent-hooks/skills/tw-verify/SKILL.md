@@ -128,6 +128,10 @@ One Markdown table, one row per REQUESTED name (selection rows count individuall
 
 Do **not** repeat that phrase in every Note. Row Notes keep *distinct* copy only.
 
+**Sources attribution:** Always print **once** under the table (after the blocked footer when present):
+
+*Sources: Quality is from Tessl (Review Quality). Security-related Status (GREEN/AMBER/RED) is from Cisco AI Defense and Snyk.*
+
 Row rules (map driver output → row):
 
 - `changed=true` → `✏️ CHANGED` — this row takes precedence over every state-based row (the hook's tamper deny fires regardless of a green verdict); note is the bold **content changed since last scan — run /tw-scan <name>**, and `will_be_blocked` is `true`.

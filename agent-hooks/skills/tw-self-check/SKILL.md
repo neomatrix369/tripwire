@@ -86,7 +86,7 @@ print(json.dumps({
 
 ## Step 4 — Report (Scan Status table only)
 
-Render exactly the tw-verify human table — same columns **Name | Type | Status | Quality | Note**, emoji/labels, Quality as **`N/100`** or `—`, and blocked-message **footer** (see `~/.claude/skills/tw-verify/SKILL.md` §Step 5 and [frontline-output-contract.md](../../../docs/user-guide/frontline-output-contract.md)). Parse the driver's JSON privately; do **not** dump a fenced `{config, artifacts}` block to the user. Summary of the row rules (N = `scan_validity_days`):
+Render exactly the tw-verify human table — same columns **Name | Type | Status | Quality | Note**, emoji/labels, Quality as **`N/100`** or `—`, blocked-message **footer**, and **Sources** line (Tessl Quality; Cisco/Snyk Status) (see `~/.claude/skills/tw-verify/SKILL.md` §Step 5 and [frontline-output-contract.md](../../../docs/user-guide/frontline-output-contract.md)). Parse the driver's JSON privately; do **not** dump a fenced `{config, artifacts}` block to the user. Summary of the row rules (N = `scan_validity_days`):
 
 - `fresh` + green → `🟢 GREEN (fresh)`, note `—`.
 - `fresh` + amber → `🟠 AMBER`; `Reported but not blocked at current threshold` when threshold is `red`, else distinct amber note + footer when blocked.
