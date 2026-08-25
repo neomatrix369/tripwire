@@ -255,10 +255,13 @@ documentarist pile-on **APPROVED WITH FOLLOW-ON**; DIVIO purity rewrites
 [plan/slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md](./plan/slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md).
 
 **Wave H — Frontline agent hooks (2026-08-15):** Claude Code PreToolUse handlers,
-`tripwire setup-agent-hooks`, and five `/tw-*` skills are **DECIDED** as plan-only
-slices 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. See
-[plan/TRAIL.md](./plan/TRAIL.md) Wave H and [plan/DECISIONS.md](./plan/DECISIONS.md).
-Not IMPLEMENTED — no production hook install path or `/tw-*` skills yet. ADR-0015
+`tripwire setup-agent-hooks`, and five `/tw-*` skills landed on `main` via Phase 1
+agent-hooks (see `agent-hooks/`). Formal Wave H gate trackers (slices 23–39) still
+lag; **slice 28** (`/tw-verify` Quality `N/100` + blocked footer + Sources:
+Tessl Quality / Cisco+Snyk Status) is **IMPLEMENTED** on
+`slice/28-tw-verify-quality` — contract SSOT
+[frontline-output-contract.md](./user-guide/frontline-output-contract.md).
+Remaining Musts 23–27 / 29–32 stay plan-tracked. ADR-0015
 Horizon A exclusion remains in force until Wave H lands and a superseding ADR
 records the new production entry.
 
@@ -292,26 +295,31 @@ Dedicated usage table — does **not** resurrect deferred `tripwire.audit`.
 
 ## PROPOSED
 
-Claude Code agent-hooks integration layer
-([ADR-0017](./adr/0017-claude-code-agent-guard-integration.md), which amends
-[ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md); this section is
-the STATUS evidence its reopening rule requires — the Future note below
-predates it, and Drift/trend remains Won't (A)):
+Claude Code agent-hooks integration layer — **Phase 1 SUPERSEDED by shipping on
+`main`** under [agent-hooks](../agent-hooks/README.md). Slice 28 Quality/`N/100`
+and Sources attribution is **IMPLEMENTED** on `slice/28-tw-verify-quality` (see
+[DECIDED](#decided) Wave H). Formal Wave H Must gate closures (23–27, 29–32) and
+the ADR-0017 Phase-1 regression matrix remain open.
+
+ADR context ([ADR-0017](./adr/0017-claude-code-agent-guard-integration.md)
+amends [ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md); Drift/trend
+remains Won't (A)):
 
 - PreToolUse enforcement handler at `~/.tripwire/hooks/` (`pre-tool-use.sh` +
   `_guard_entry.py`; repo source `agent-hooks/hooks/`) — fail-closed decision
   JSON with internal timeout budget, identifier lookup + CLI-compatible hash
-  comparison, 14-day staleness window — PROPOSED
+  comparison, 14-day staleness window — **SUPERSEDED → on `main`** (live
+  regression matrix still open)
 - Five `/tw-*` skills (`tw-verify`, `tw-scan`, `tw-enable`, `tw-disable`,
   `tw-self-check`; repo source `agent-hooks/skills/`, installed to
-  `~/.claude/skills/`) — PROPOSED
+  `~/.claude/skills/`) — **SUPERSEDED → on `main`** (Quality column: slice 28)
 - `tripwire setup-agent-hooks` installer (preflight, `~/.tripwire/config.json`
   init, handler install, env pre-warm, `~/.claude/settings.json` JSON-merge,
-  skill copy, bootstrap scan sweep) — PROPOSED
+  skill copy, bootstrap scan sweep) — **SUPERSEDED → on `main`**
 - Local `enable` kill switch AND-ed with Supabase `monitoring_enabled`;
-  missing/corrupt local config denies (tamper signal) — PROPOSED
+  missing/corrupt local config denies (tamper signal) — **SUPERSEDED → on `main`**
 
-These entries flip to IMPLEMENTED/VERIFIED only with the Phase-1
+Full IMPLEMENTED/VERIFIED for Horizon A still requires the Phase-1
 regression-gate evidence (live block/allow matrix, tamper case, fail-closed
 refusal+hang pair, settings diff) — see ADR-0017 Consequences.
 
@@ -337,13 +345,15 @@ Known fixture gaps (not urgent) are listed under
 as shipped capabilities. Guard PreToolUse and Drift/trend remain Future /
 Won't (A) for the Horizon A ship path — see
 [ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md). Frontline Guard
-integration is **DECIDED** as Wave H (plan-only; not shipped) — see DECIDED
-above.
+Phase 1 (hooks + `/tw-*` skills) is on `main` under `agent-hooks/`; slice 28
+Quality dual-output is **IMPLEMENTED** on branch — see DECIDED above. Formal
+Wave H Must gate closures (23–27, 29–32) remain open.
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 (slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` …
 `08-H-frontline-agent-hooks/`). Wave G (slices 18–22) is planned ATDD closure
-(parked while Wave H Musts run). Wave H (23–39) is Frontline plan-only. Claim
+(parked while Wave H Musts run). Wave H (23–39) trackers: Phase 1 code on
+`main`; formal ✅ closures still mostly open (slice 28 🔀). Claim
 audit (slice 15) and slice 16 remediations are deferred; retain their artifacts
 for a future live/demo release. Wave M (slice 53) LLM usage log / cost tips is
 **DECIDED** plan-only — see DECIDED above; not current dashboard behaviour.

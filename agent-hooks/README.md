@@ -19,7 +19,9 @@ from the repo directly — `tripwire setup-agent-hooks` installs copies:
   stdout; every failure mode is an explicit deny (fail closed).
 - **`hooks/_guard_entry.py`** — installed shim delegating to
   `guard.entry.main()` (run via `uv run --project <repo_root> --extra guard`).
-- **`skills/tw-verify`** — report scan status of named skills/MCP servers.
+- **`skills/tw-verify`** — report scan status of named skills/MCP servers
+  (RAG + Tessl Quality as `N/100` when present; blocked message as table footer;
+  **Sources** line: Quality = Tessl, Status = Cisco AI Defense + Snyk).
 - **`skills/tw-scan`** — submit named skills/MCP servers for scanning
   (`--force` or bare `force` to rescan valid artifacts).
 - **`skills/tw-enable` / `skills/tw-disable`** — flip the local `enable` key in

@@ -21,7 +21,7 @@ Start here: [QUICKSTART](../QUICKSTART.md) · Repo entry: [README](../README.md)
 | Maintain Live / re-run | [Setup commands — re-run](./user-guide/setup-commands.md#re-run-and-maintenance-commands) | [When it fails](./user-guide/setup-commands.md#when-it-fails) |
 | Enable optional tiered routing | [Tiered router setup](./user-guide/tiered-router-setup.md) | [`tripwire route`](./user-guide/setup-commands.md#tiered-router-optional) → [read router results](./user-guide/reading-router-results.md) |
 | Understand results, services, and system shape | [Architecture](./ARCHITECTURE.md) | [Capability status](./STATUS.md) · [ADRs](./adr/README.md) · [router UI](./user-guide/reading-router-results.md) |
-| Claude Code agent hooks | [agent-hooks README](../agent-hooks/README.md) | [CONTRIBUTING](../CONTRIBUTING.md) |
+| Claude Code agent hooks | [agent-hooks README](../agent-hooks/README.md) | [frontline output contract](./user-guide/frontline-output-contract.md) · [CONTRIBUTING](../CONTRIBUTING.md) |
 | Contribute | [Contributing](../CONTRIBUTING.md) | [Setup and maintenance commands](./user-guide/setup-commands.md) |
 | Report a vulnerability | [SECURITY](../SECURITY.md) | — |
 
@@ -37,6 +37,7 @@ Start here: [QUICKSTART](../QUICKSTART.md) · Repo entry: [README](../README.md)
 | [user-guide/modal-setup.md](./user-guide/modal-setup.md) | Modal auth, secrets sync, scan app deploy |
 | [user-guide/tiered-router-setup.md](./user-guide/tiered-router-setup.md) | Optional SIE + Model Studio routing |
 | [user-guide/reading-router-results.md](./user-guide/reading-router-results.md) | Pathway strips, Escalated / SIE-only filters, glossary |
+| [user-guide/frontline-output-contract.md](./user-guide/frontline-output-contract.md) | `/tw-verify` dual-output table (Quality `N/100` + blocked footer + Sources: Tessl / Cisco+Snyk) |
 | [STATUS.md](./STATUS.md) | Evidence-labelled capability claims |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Services inventory, C4, operator journey + dependency diagrams, key flows |
 | [adr/README.md](./adr/README.md) | Formal architecture decision records |

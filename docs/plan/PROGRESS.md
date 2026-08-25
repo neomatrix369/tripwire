@@ -45,7 +45,7 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 | 3 | H1 | 25 | Live Enforce Smoke | Must | 📋 PLANNED |
 | 4 | H2 | 26 | API Introspect + Dual Output Contract (delta: Quality column) | Must | 📋 PLANNED |
 | 5 | H2 | 27 | `/tw-enable` + `/tw-disable` | Must | 📋 PLANNED |
-| 6 | H2 | 28 | `/tw-verify` (delta: Quality `N/100` + blocked footer) | Must | 📋 PLANNED |
+| 6 | H2 | 28 | `/tw-verify` (delta: Quality `N/100` + blocked footer) | Must | 🔀 ON BRANCH |
 | 7 | H2 | 29 | `/tw-scan` | Must | 📋 PLANNED |
 | 8 | H2 | 30 | `/tw-self-check` | Must | 📋 PLANNED |
 | 9 | H3 | 31 | Demo Artifacts | Must | 📋 PLANNED |
@@ -129,7 +129,7 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 | 25 | [slice-25-live-enforce-smoke](slices/08-H-frontline-agent-hooks/slice-25-live-enforce-smoke.md) | Must | 📋 PLANNED | — | — | ~30 min |
 | 26 | [slice-26-api-output-contract](slices/08-H-frontline-agent-hooks/slice-26-api-output-contract.md) | Must | 📋 PLANNED | — | — | ~40 min |
 | 27 | [slice-27-tw-enable-disable](slices/08-H-frontline-agent-hooks/slice-27-tw-enable-disable.md) | Must | 📋 PLANNED | — | — | ~25 min |
-| 28 | [slice-28-tw-verify](slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md) | Must | 📋 PLANNED | — | — | ~50 min (delta: Quality + footer) |
+| 28 | [slice-28-tw-verify](slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md) | Must | 🔀 ON BRANCH | 2026-08-25 | — | ~50 min (delta: Quality + footer) |
 | 29 | [slice-29-tw-scan](slices/08-H-frontline-agent-hooks/slice-29-tw-scan.md) | Must | 📋 PLANNED | — | — | ~40 min |
 | 30 | [slice-30-tw-self-check](slices/08-H-frontline-agent-hooks/slice-30-tw-self-check.md) | Must | 📋 PLANNED | — | — | ~30 min |
 | 31 | [slice-31-demo-artifacts](slices/08-H-frontline-agent-hooks/slice-31-demo-artifacts.md) | Must | 📋 PLANNED | — | — | ~40 min |

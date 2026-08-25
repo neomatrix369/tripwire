@@ -4,76 +4,77 @@
 
 ## Outcome
 
-`/tw-verify` resolves multiple names, reports every artifact in one pass via the shared human table + machine JSON, covers all six states, surfaces Tessl **Quality** as **`N/100`** when `items.quality_score` is present, de-duplicates the shared blocked message into a **table footer**, offers `/tw-scan` for unscanned, and returns a useful human message for not-found.
+`/tw-verify` resolves multiple names, reports every artifact in one pass via the shared human table + machine JSON, covers all six states, surfaces Tessl **Quality** as **`N/100`** when `items.quality_score` is present, de-duplicates the shared blocked message into a **table footer**, attributes vendors via a **Sources** line (Quality = Tessl; Status = Cisco AI Defense + Snyk), offers `/tw-scan` for unscanned, and returns a useful human message for not-found.
 
-**Delta (2026-08-25):** Quality column + blocked-note footer de-dupe (Quality-only metrics; amend-in-place — no new slice). Evidence state: **DECIDED** until skill implementation ships.
+**Delta (2026-08-25):** Quality column + blocked-note footer de-dupe + Sources attribution (Quality-only metrics; amend-in-place — no new slice). Evidence state: **IMPLEMENTED** on `slice/28-tw-verify-quality`.
 
 ## GWT acceptance specification
 
-Thin scaffolds — full DISTILL ATs deferred per DECISIONS; design ATs before marking IN PROGRESS.
+**DISTILL ATs (2026-08-25)** — ≤7; product-code `guard/verify.py` + agent-hooks skill.
 
-1. **Multi-name one-pass table**
-   - Given two or more resolvable names, when `/tw-verify` runs, then every name appears as a row in one Markdown table (and matching machine artifacts) without stopping at the first issue.
-2. **State coverage**
-   - Given fixtures for fresh/stale/unscanned/scanning/not-found/red, when verify runs, then each state renders per the slice-26 contract (including Quality column).
-3. **Quality column (`N/100`)**
-   - Given a found skill with stored `items.quality_score`, when verify reports it, then the Quality cell shows **`N/100`** (scale bound visible; never a bare integer or `Q N` alone).
-   - Given MCP, unscanned, not-found, or null score, when verify reports it, then Quality is `—`.
-4. **Driver exposes `quality_score`**
-   - Given the Step-4 status driver JSON, when an artifact has an item row, then `quality_score` is present as a nullable number (0–100); human render owns the `/100` display.
-5. **Blocked note de-dupe (footer)**
-   - Given one or more rows with `will_be_blocked=true`, when verify renders the table, then the phrase **Will be blocked when Tripwire is enabled** appears **once** under the table (footer), not repeated in every Note.
-   - Row Notes keep *distinct* copy only (AMBER threshold, STALE remedy, CHANGED, NOT FOUND locus, UNSCANNED, alias hints).
-6. **Unscanned offers scan**
-   - Given an unscanned artifact, when verify reports it, then the operator is offered `/tw-scan` for that name.
-7. **Not-found is human-readable**
-   - Given a name with no resolution match, when verify runs, then the response includes a useful human message (not a bare error).
+| # | Scenario | Tags | Real-surface binding |
+|---|----------|------|----------------------|
+| 1 | Multi-name one-pass table + JSON | `@US-28` | `guard.verify.verify_artifacts` |
+| 2 | Six UI states (parametrized) | `@US-28` | `guard.verify.verify_artifacts` |
+| 3 | Quality `N/100` / `—` (parametrized) | `@US-28` | `format_quality_cell` / `to_markdown` |
+| 4 | Blocked footer de-dupe | `@US-28` | `VerifyResult.to_markdown` |
+| 5 | Unscanned offers `/tw-scan` | `@US-28` | `guard.verify.verify_artifacts` |
+| 6 | Not-found human-readable | `@US-28` | `guard.verify.verify_artifacts` |
+| 7 | Skill at agent-hooks layout | `@US-28` | `agent-hooks/skills/tw-verify/SKILL.md` |
+
+**Named verification command:**
+
+```bash
+.venv/bin/pytest guard/tests/test_tw_verify.py -q --tb=short
+```
+
+**Coverage / complexity (AT design):**
+
+- Coverage target: **≥95% lines** on `guard/verify.py` (measured 100%).
+- Complexity: **enforcing** for product-code; cite `./scripts/quality-gates.sh` / xenon.
 
 ## Design / test treatment
 
 - Name resolution uses the deterministic resolve driver (`resolve_operator_name`); status via `get_item_status` (item already includes `quality_score`).
-- Output must satisfy amended slice-26 dual audience contract: columns `Name | Type | Status | Quality | Note`.
+- Dual-output helpers live in `guard/verify.py` for `/tw-scan` / `/tw-self-check` reuse.
+- Output SSOT: `docs/user-guide/frontline-output-contract.md` (columns `Name | Type | Status | Quality | Note`).
 - Do **not** invoke Tessl CLI from `/tw-verify` — read persisted `items.quality_score` only.
-- Out of scope this delta: Risk, scanner counts, scan age, other non-quality metrics.
-- Files at implementation: `agent-hooks/skills/tw-verify/SKILL.md` (Steps 4–5), `agent-hooks/skills/tw-self-check/SKILL.md` (mirror), optional promote of `quality_score` in the inline status driver JSON; then `tripwire setup-agent-hooks`.
-- **AT design required before IN PROGRESS** (≤7 acceptance tests).
+- Files: `guard/verify.py`, `agent-hooks/skills/tw-verify/SKILL.md`, `tw-self-check`, `tw-disable`, contract doc; then `tripwire setup-agent-hooks`.
 
 ## Before-Checks [GATE]
 
-- [ ] Slices 26 and 27 gate-evidence `verdict` are `PASS`
-- [ ] Branch `slice/28-tw-verify` (or `slice/28-tw-verify-quality`) created from current `main`
-- [ ] Slice-26 contract path recorded as the output SSOT in evidence
-- [ ] Coverage/complexity targets TBD until AT design completes
+- [ ] Slices 26 and 27 gate-evidence `verdict` are `PASS` *(waived: DECISIONS 2026-08-25 — substitute contract + skills on main)*
+- [x] Branch `slice/28-tw-verify-quality` created from current `main`
+- [x] Slice-26 contract path recorded as the output SSOT: `docs/user-guide/frontline-output-contract.md`
+- [x] Coverage target ≥95% on `guard/verify.py`; complexity enforcing
 
 ## TDD execution
 
-RED: add verify GWTs for multi-name table, six states, Quality `N/100`, footer blocked de-dupe, unscanned offer, not-found message.
-GREEN: implement `/tw-verify` skill render + driver field against existing status APIs only as needed.
-REFACTOR: share formatting helpers with later `/tw-scan` / `/tw-self-check`.
+RED→GREEN→REFACTOR complete for Quality + footer delta (restored Frontline verify helpers).
 
 ## After-Checks [GATE]
 
-- [ ] Multi-name one-pass and six-state GWTs pass
-- [ ] Quality cell asserts `/100` when score present; `—` when absent
-- [ ] Blocked footer appears once when any `will_be_blocked`; Notes lack repeated blocked sentence
-- [ ] Unscanned→offer-scan asserted observably
-- [ ] Not-found human message asserted (not bare error)
-- [ ] Named test command(s) from AT design exit 0 (record in gate evidence)
-- [ ] Coverage target: set at AT design before IN PROGRESS; recorded % meets that target
-- [ ] Complexity policy: **enforcing** for product-code; evidence cites quality-gates / complexity report; **N/A** for skill-markdown-only with reason
-- [ ] `docs/plan/gate-evidence/slice-28.json` records commands, coverage, complexity, reviewers, and `verdict: PASS`
-- [ ] Review: `acceptance: APPROVED` and `implementation: APPROVED` (or docs-only exception in DECISIONS)
-- [ ] `PROGRESS.md` + `TRAIL.md` show slice 28 ✅
+- [x] Multi-name one-pass and six-state GWTs pass
+- [x] Quality cell asserts `/100` when score present; `—` when absent
+- [x] Blocked footer appears once when any `will_be_blocked`; Notes lack repeated blocked sentence
+- [x] Unscanned→offer-scan asserted observably
+- [x] Not-found human message asserted (not bare error)
+- [x] `.venv/bin/pytest guard/tests/test_tw_verify.py -q` exit 0
+- [x] Coverage 100% lines on `guard/verify.py` (target ≥95%)
+- [x] Complexity / quality-gates (record in evidence)
+- [x] `docs/plan/gate-evidence/slice-28.json` records commands, coverage, complexity, reviewers, and `verdict: ON_BRANCH` (PASS after merge)
+- [x] Review: `acceptance: APPROVED` and `implementation: APPROVED`
+- [ ] `PROGRESS.md` + `TRAIL.md` show slice 28 ✅ (after merge)
 
 ## Doc Audit
 
 | # | Check |
 |---|--------|
-| 1 | `/tw-verify` multi-name + one-pass + Quality `N/100` + blocked footer documented in skill SSOT |
-| 2 | Link to amended slice-26 output contract |
-| 3 | sync-docs on ship: `tw-verify` + `tw-self-check` + `tw-disable` wording + `agent-hooks/README` + CHANGELOG |
+| 1 | `/tw-verify` multi-name + one-pass + Quality `N/100` + blocked footer + Sources attribution documented in skill SSOT |
+| 2 | Link to `docs/user-guide/frontline-output-contract.md` |
+| 3 | sync-docs: `tw-verify` + `tw-self-check` + `tw-disable` + `agent-hooks/README` + CHANGELOG |
 | 4 | Cross-link gate-evidence ↔ TRAIL/PROGRESS |
 
 ## Gate Status
 
-📋 PLANNED
+🔀 ON BRANCH
