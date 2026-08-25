@@ -11,6 +11,8 @@ before following these development instructions.
 [![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
 [![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
 [![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
+[![DepShield](https://img.shields.io/badge/DepShield-2F6F4E?style=flat)](https://www.npmjs.com/package/depshield-mcp)
+[![Ossprey](https://img.shields.io/badge/Ossprey-1A1A2E?style=flat)](https://ossprey.com)
 
 [![Test coverage](https://img.shields.io/badge/Test_coverage-enforced-2ea44f)](#dev-hygiene)
 [![Static analysis](https://img.shields.io/badge/Static_analysis-enforced-0969da)](#dev-hygiene)
@@ -22,12 +24,13 @@ before following these development instructions.
 
 0. Tools + versions: [docs/user-guide/prerequisites.md](docs/user-guide/prerequisites.md)
    (Node 22 / npm / Python 3.12). Live capabilities require provisioning and
-   setting up all five vendors before copying `.env`:
+   setting up platform vendors before copying `.env` (scanners optional):
    [supabase-setup](docs/user-guide/supabase-setup.md) →
    [modal-setup](docs/user-guide/modal-setup.md) →
    [Snyk procurement](docs/user-guide/env-vars.md#vendor-procurement-quick-steps) →
    [Tessl procurement](docs/user-guide/env-vars.md#vendor-procurement-quick-steps) →
-   [Cisco AI Defense procurement](docs/user-guide/env-vars.md#vendor-procurement-quick-steps).
+   [Cisco AI Defense procurement](docs/user-guide/env-vars.md#vendor-procurement-quick-steps)
+   (DepShield: no keys; Ossprey: `OSSPREY_API_KEY` when access available).
    Use [env-vars](docs/user-guide/env-vars.md) to collect the resulting values,
    then copy and populate `.env`.
 

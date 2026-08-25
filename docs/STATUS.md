@@ -25,6 +25,8 @@ RESEARCH · PROPOSED · DECIDED · IMPLEMENTED · VERIFIED · SUPERSEDED.
 [![Cisco](https://img.shields.io/badge/Cisco-1BA0D7?style=flat)](https://developer.cisco.com)
 [![Snyk](https://img.shields.io/badge/Snyk-4C4A73?style=flat&logo=snyk&logoColor=white)](https://snyk.io)
 [![Tessl](https://img.shields.io/badge/Tessl-111111?style=flat)](https://tessl.io)
+[![DepShield](https://img.shields.io/badge/DepShield-2F6F4E?style=flat)](https://www.npmjs.com/package/depshield-mcp)
+[![Ossprey](https://img.shields.io/badge/Ossprey-1A1A2E?style=flat)](https://ossprey.com)
 [![Superlinked SIE](https://img.shields.io/badge/Superlinked%20SIE-0B1F3A?style=flat)](https://superlinked.com)
 [![Alibaba Cloud Model Studio](https://img.shields.io/badge/Alibaba%20Cloud%20Model%20Studio-FF6A00?style=flat)](https://www.alibabacloud.com/product/modelstudio)
 
@@ -49,11 +51,19 @@ Reachable through production entry points / config:
   `sandbox/scanners.py`
 - DepShield dependency-audit adapter (`depshield-mcp` over MCP stdio;
   npm + PyPI via OSV.dev; zero credentials — nothing synced to
-  `tripwire-scan-secrets`; runs for both item types, appended last in the
+  `tripwire-scan-secrets`; runs for both item types, before Ossprey in the
   `SCANNER_GROUPS` registry) — `sandbox/scanners.py`, unit-tested in
   `sandbox/tests/`. IMPLEMENTED only: no live-Modal run recorded yet, so no
   VERIFIED (operator) claim — see
   [scanner-output-adapters.md](./research/adapters/scanner-output-adapters.md) §7
+- Ossprey malware / malicious-package adapter (`ossprey-cli`, [ossprey.com](https://ossprey.com);
+  credential-gated `OSSPREY_API_KEY`; registered **after** DepShield in
+  `SCANNER_GROUPS`; both item types). Absent key → `skipped_missing_credential`.
+  IMPLEMENTED (adapter reachable) + RESEARCH (vendor-docs parsing, not live-probed);
+  access provisioning still OPEN (slice 35 🔴) — no VERIFIED live claim.
+  Public README listing allowed per DECISIONS `ossprey-readme` (2026-08-25).
+  See [scanner-output-adapters.md](./research/adapters/scanner-output-adapters.md) §8 ·
+  [OPTIONAL_SCANNER_KEYS](../fixtures/OPTIONAL_SCANNER_KEYS.md)
 - Fixture set under `fixtures/` — see [fixtures/README.md](../fixtures/README.md)
 - `_acquire_target` dispatch (git clone, local copy, host→sandbox tar upload via
   `local_entrypoint`, MCP introspection-only empty workdir) — `sandbox/`
@@ -304,6 +314,10 @@ Exact JSON field names in `sandbox/scanners.py` — cross-check against the pinn
 CLI version's `--help`/output before this blocks a merge. See
 [scanner-output-adapters.md](./research/adapters/scanner-output-adapters.md).
 Adapter fixture tests (slices 8–9) are planned to tighten this.
+
+Ossprey OSSBOM / exit-code malware signal mapping remains RESEARCH until a live
+`ossprey-cli` probe reconciles the adapter against the pinned CLI (see IMPLEMENTED
+bullet + adapters doc §8).
 
 ---
 

@@ -35,7 +35,7 @@ Every Before/After item must be **binary and observable**. Prefer one of:
 |------|---------|
 | Command + outcome | `` `pytest sandbox/tests/ -q --tb=short` exit 0 `` |
 | Threshold | `` Ship-path coverage ≥95% (record % in evidence) `` |
-| Path / grep | `` `rg -i 'overmind\|ossprey' README.md` empty `` |
+| Path / grep | `` `rg -i 'overmind' README.md` empty `` |
 | File presence | `` `docs/user-guide/env-vars.md` exists `` |
 | Tracker sync | `` PROGRESS + TRAIL show this slice ✅ `` |
 

@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- README restored to the fuller pre–slice-44 entry shape and brought current:
+  providers/scanners table (Modal, Supabase, Cisco, Snyk, Tessl five-row,
+  DepShield, Ossprey, SIE, Model Studio), hosted demo link, Live setup, guide
+  map, screenshot grid. Trust-strip gate superseded for Ossprey on README
+  (`ossprey-readme`); Overmind still forbidden. Sync-docs also aligned
+  ARCHITECTURE inventory + diagrams, STATUS, QUICKSTART, prerequisites,
+  CONTRIBUTING, setup-commands.
 - Dashboard detail drawer **Findings** section is collapsible: clickable heading with
   a rotating ▸ chevron (expanded by default on item select). Same expand pattern as
   Scanner outputs rows — `prototypes/dc-dashboard/Tripwire.dc.html` (IMPLEMENTED).

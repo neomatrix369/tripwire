@@ -45,7 +45,7 @@ Contributors: complete [Dev hygiene](CONTRIBUTING.md#dev-hygiene) before your fi
 
 Do these in order. Do not expect Live findings until accounts, `.env`, schema, and Modal are ready.
 
-> **Minimum Viable Live:** start with **Supabase + Modal only** (store + sandbox). Add Snyk / Tessl / Cisco accounts and keys when you want full scanner coverage. Missing scanner keys soft-skip that engine — they do not block platform Live.
+> **Minimum Viable Live:** start with **Supabase + Modal only** (store + sandbox). Add Snyk / Tessl / Cisco accounts and keys when you want full scanner coverage; DepShield needs no keys; Ossprey needs `OSSPREY_API_KEY` when access is available. Missing scanner keys soft-skip that engine — they do not block platform Live.
 
 ### Stages (Setup → Configure → run → maintain)
 
@@ -83,7 +83,7 @@ Read strips and filters: [reading-router-results.md](docs/user-guide/reading-rou
 ### Required Live keys (summary)
 
 - **MVP Live:** `SUPABASE_*`, `MODAL_TOKEN_*`
-- Full scanner coverage: `SNYK_TOKEN`, `TESSL_*`, Cisco Skill/MCP / AI Defense keys — see [env-vars](docs/user-guide/env-vars.md)
+- Full scanner coverage: `SNYK_TOKEN`, `TESSL_*`, Cisco Skill/MCP / AI Defense keys; optional `OSSPREY_API_KEY` — see [env-vars](docs/user-guide/env-vars.md). DepShield: no keys.
 - Optional router: `SIE_*`, then Model Studio `DASHSCOPE_*` / `ALIBABA_OPENAI_BASE_URL`
 
 ### Daily maintenance
