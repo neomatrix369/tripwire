@@ -812,6 +812,7 @@ def test_given_tessl_token_when_run_ok_then_quality_score() -> None:
             {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"},
             clear=False,
         ),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value=True),
         patch.object(
             scanners,
@@ -871,6 +872,7 @@ def test_given_tessl_npx_missing_when_run_then_unreachable() -> None:
             {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"},
             clear=False,
         ),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value=False),
     ):
         score, rows = scanners.run_tessl("/tmp")
@@ -892,6 +894,7 @@ def test_given_tessl_nonzero_when_run_then_unreachable() -> None:
             {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"},
             clear=False,
         ),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value=True),
         patch.object(
             scanners, "_run", side_effect=[(0, "0 checks — 0 findings", ""), (1, "", "fail")]
@@ -1345,6 +1348,7 @@ def test_given_tessl_no_console_when_completed_then_no_console_key() -> None:
             {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"},
             clear=False,
         ),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value=True),
         patch.object(
             scanners, "_run", return_value=(0, json.dumps({"score": 1, "id": "rev_c"}), "")
@@ -1374,6 +1378,7 @@ def test_given_tessl_empty_success_output_when_run_then_not_reported_completed()
             {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"},
             clear=False,
         ),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value=True),
         patch.object(
             scanners, "_run", side_effect=[(0, "0 checks — 0 findings", ""), (0, "{}", "")]

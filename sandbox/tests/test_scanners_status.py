@@ -20,6 +20,27 @@ from unittest.mock import patch
 
 import scanners
 
+# Satisfies whoami + workspace list when tests set TESSL_WORKSPACE=engteam.
+_TESSL_WS_RESOLVE_OK = [
+    (0, '{"authenticated": true, "user": {"username": "engteam"}}', ""),
+    (
+        0,
+        '{"workspaces": [{"name": "engteam", "id": "ws_eng", '
+        '"allowedActions": ["generate_eval_scenarios", "run_review"]}]}',
+        "",
+    ),
+]
+
+
+def _tessl_workspace_cli_ok(cmd, timeout=None, cwd=None):
+    """Satisfy whoami + workspace list for tests that set TESSL_WORKSPACE=engteam."""
+    del timeout, cwd
+    if len(cmd) > 3 and cmd[3] == "whoami":
+        return _TESSL_WS_RESOLVE_OK[0]
+    if cmd[3:5] == ["workspace", "list"]:
+        return _TESSL_WS_RESOLVE_OK[1]
+    return None
+
 
 def test_given_unreachable_stderr_when_building_row_then_detail_is_capped() -> None:
     """
@@ -452,6 +473,7 @@ def test_run_tessl_logs_diagnostic_when_score_is_none(capsys) -> None:
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "fake-token", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(
             scanners,
@@ -538,6 +560,7 @@ def test_run_tessl_with_token_emits_lint_and_review_rows() -> None:
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "tok-abc", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(
             scanners,
@@ -707,6 +730,9 @@ def test_run_tessl_review_quality_invokes_review_run_quality() -> None:
     captured: list[list[str]] = []
 
     def _capture_run(cmd, timeout=None, cwd=None):
+        resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+        if resolved is not None:
+            return resolved
         captured.append(cmd)
         if cmd[3:5] == ["skill", "lint"]:
             return 0, "1 check", ""
@@ -722,6 +748,7 @@ def test_run_tessl_review_quality_invokes_review_run_quality() -> None:
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_capture_run),
     ):
@@ -755,6 +782,7 @@ def test_run_tessl_captures_run_id_from_view_last_json() -> None:
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(
             scanners,
@@ -784,6 +812,7 @@ def test_run_tessl_falls_back_to_run_json_id_when_view_last_fails() -> None:
     ### Given / When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(
             scanners,
@@ -816,7 +845,7 @@ def test_run_tessl_without_workspace_emits_review_needs_setup() -> None:
 
     def _record(cmd, timeout=None, cwd=None):
         ran.append(cmd)
-        if cmd[3:5] == ["whoami"] or cmd[3:5] == ["workspace", "list"]:
+        if cmd[3] == "whoami" or cmd[3:5] == ["workspace", "list"]:
             return 1, "", "not authenticated"
         return 0, "1 check", ""
 
@@ -925,6 +954,7 @@ def test_given_quality_review_completes_when_run_tessl_then_ctx_review_quality_i
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(
             scanners,
@@ -1016,6 +1046,9 @@ def _make_tessl_plugin(tmp_path) -> str:
 
 
 def _lint_and_quality_ok(cmd, timeout=None, cwd=None):
+    resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+    if resolved is not None:
+        return resolved
     del timeout, cwd
     if cmd[3:5] == ["skill", "lint"]:
         return 0, "1 check", ""
@@ -1068,6 +1101,9 @@ def test_given_plugin_when_scenario_gen_succeeds_then_download_stamps_and_clears
     captured: list[list[str]] = []
 
     def _run(cmd, timeout=None, cwd=None):
+        resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+        if resolved is not None:
+            return resolved
         captured.append(cmd)
         if (
             cmd[3:5] in (["skill", "lint"],)
@@ -1100,6 +1136,7 @@ def test_given_plugin_when_scenario_gen_succeeds_then_download_stamps_and_clears
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1139,6 +1176,9 @@ def test_given_resume_generated_when_run_tessl_then_skips_generate_and_downloads
     captured: list[list[str]] = []
 
     def _run(cmd, timeout=None, cwd=None):
+        resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+        if resolved is not None:
+            return resolved
         captured.append(cmd)
         if (
             cmd[3:5] in (["skill", "lint"],)
@@ -1162,6 +1202,7 @@ def test_given_resume_generated_when_run_tessl_then_skips_generate_and_downloads
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
         patch.object(scanners, "_TESSL_SCENARIO_POLL_SLEEP_S", 0),
@@ -1199,6 +1240,9 @@ def test_given_in_progress_checkpoint_when_resumed_then_polls_before_download(
     captured: list[list[str]] = []
 
     def _run(cmd, timeout=None, cwd=None):
+        resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+        if resolved is not None:
+            return resolved
         captured.append(cmd)
         if (
             cmd[3:5] in (["skill", "lint"],)
@@ -1221,6 +1265,7 @@ def test_given_in_progress_checkpoint_when_resumed_then_polls_before_download(
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
         patch.object(scanners, "_TESSL_SCENARIO_POLL_SLEEP_S", 0),
@@ -1253,6 +1298,9 @@ def test_given_quality_id_in_ctx_when_scenario_starts_then_upstream_run_ids_atta
     progress: list[dict] = []
 
     def _run(cmd, timeout=None, cwd=None):
+        resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+        if resolved is not None:
+            return resolved
         if cmd[3:5] == ["scenario", "generate"]:
             return 0, '{"id": "gen_x", "status": "completed", "scenarioCount": 1}', ""
         if cmd[3:5] == ["scenario", "download"]:
@@ -1267,6 +1315,7 @@ def test_given_quality_id_in_ctx_when_scenario_starts_then_upstream_run_ids_atta
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1318,6 +1367,7 @@ def test_given_null_quality_id_when_scenario_starts_then_upstream_key_is_null(
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1343,6 +1393,9 @@ def test_given_scenario_generate_fails_when_run_tessl_then_row_is_failed(tmp_pat
     captured: list[list[str]] = []
 
     def _run(cmd, timeout=None, cwd=None):
+        resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+        if resolved is not None:
+            return resolved
         captured.append(cmd)
         if (
             cmd[3:5] in (["skill", "lint"],)
@@ -1351,7 +1404,7 @@ def test_given_scenario_generate_fails_when_run_tessl_then_row_is_failed(tmp_pat
         ):
             return _lint_and_quality_ok(cmd, timeout)
         if cmd[3:5] == ["scenario", "generate"]:
-            return 1, "", "generation exploded"
+            return 1, "", "Failed to generate scenarios\nWorkspace not found"
         eval_handled = _eval_ok(cmd, timeout, cwd)
         if eval_handled is not None:
             return eval_handled
@@ -1360,6 +1413,7 @@ def test_given_scenario_generate_fails_when_run_tessl_then_row_is_failed(tmp_pat
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1367,7 +1421,8 @@ def test_given_scenario_generate_fails_when_run_tessl_then_row_is_failed(tmp_pat
 
     ### Then
     assert rows[2]["status"] == "failed"
-    assert "generation exploded" in rows[2]["detail"]
+    assert "Workspace not found" in rows[2]["detail"]
+    assert "workspace=engteam" in rows[2]["detail"]
     assert all(c[3:5] != ["scenario", "download"] for c in captured)
 
 
@@ -1408,11 +1463,15 @@ def test_given_missing_plugin_manifest_when_scenario_runs_then_failed(tmp_path) 
     os.makedirs(workdir)
 
     def _run(cmd, timeout=None, cwd=None):
+        resolved = _tessl_workspace_cli_ok(cmd, timeout, cwd)
+        if resolved is not None:
+            return resolved
         return _lint_and_quality_ok(cmd, timeout)
 
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1502,6 +1561,7 @@ def test_given_generate_timeout_when_scenario_runs_then_interrupted_with_checkpo
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1538,6 +1598,7 @@ def test_given_resume_failed_status_when_polled_then_download_is_skipped(tmp_pat
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
         patch.object(scanners, "_TESSL_SCENARIO_POLL_SLEEP_S", 0),
@@ -1575,6 +1636,7 @@ def test_given_download_fails_when_scenario_completes_then_checkpoint_retained(
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1611,6 +1673,7 @@ def test_given_empty_evals_when_download_succeeds_then_count_comes_from_view(
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1655,6 +1718,7 @@ def test_given_lint_review_when_run_tessl_then_eval_emitted_blocked_before_scena
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1707,6 +1771,7 @@ def test_given_scenario_completed_with_evals_when_run_tessl_then_eval_auto_chain
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
         patch.object(scanners, "_TESSL_EVAL_POLL_SLEEP_S", 0),
@@ -1761,6 +1826,7 @@ def test_given_scenario_failed_when_run_tessl_then_eval_stays_blocked(tmp_path) 
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1813,6 +1879,7 @@ def test_given_prior_completed_eval_when_scenario_rerun_then_eval_is_stale(
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -1873,6 +1940,7 @@ def test_given_interrupted_eval_when_resumed_then_polls_view_without_resubmit(
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
         patch.object(scanners, "_TESSL_EVAL_POLL_SLEEP_S", 0),
@@ -1918,6 +1986,7 @@ def test_given_missing_tessl_json_when_eval_chains_then_project_create_or_needs_
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -2038,6 +2107,7 @@ def test_given_prior_completed_unchanged_when_run_tessl_then_eval_kept(
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -2081,6 +2151,7 @@ def test_given_eval_run_timeout_with_id_when_chained_then_interrupted(tmp_path) 
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -2115,6 +2186,7 @@ def test_given_eval_run_timeout_without_id_when_chained_then_timed_out(tmp_path)
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -2148,6 +2220,7 @@ def test_given_eval_run_nonzero_when_chained_then_failed(tmp_path) -> None:
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -2184,6 +2257,7 @@ def test_given_eval_view_failed_when_chained_then_row_failed(tmp_path) -> None:
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
         patch.object(scanners, "_TESSL_EVAL_POLL_SLEEP_S", 0),
@@ -2219,6 +2293,7 @@ def test_given_eval_run_ok_without_id_when_chained_then_completed(tmp_path) -> N
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
     ):
@@ -2337,7 +2412,14 @@ def test_resolve_tessl_workspace_helpers_cover_fallback_paths() -> None:
     assert scanners._pick_tessl_workspace([{"name": "  "}, {}], "x") is None
 
     with patch.dict("os.environ", {"TESSL_WORKSPACE": "from-env"}, clear=True):
-        assert scanners._resolve_tessl_workspace() == ("from-env", "")
+        # Env-only short-circuit removed — resolve always lists; mock list membership.
+        def _run_env_ok(cmd, timeout=None, cwd=None):
+            if cmd[3] == "whoami":
+                return 0, '{"user": {"username": "from-env"}}', ""
+            return 0, '{"workspaces": [{"name": "from-env"}]}', ""
+
+        with patch.object(scanners, "_run", side_effect=_run_env_ok):
+            assert scanners._resolve_tessl_workspace() == ("from-env", "")
 
     def _run_empty(cmd, timeout=None, cwd=None):
         if cmd[3] == "whoami":
@@ -2378,6 +2460,64 @@ def test_resolve_tessl_workspace_helpers_cover_fallback_paths() -> None:
         ws, detail = scanners._resolve_tessl_workspace()
     assert ws == "publisher"
     assert detail == ""
+
+    def _run_ignore_bad_env(cmd, timeout=None, cwd=None):
+        if cmd[3] == "whoami":
+            return 0, '{"user": {"username": "neomatrix369"}}', ""
+        return (
+            0,
+            json.dumps(
+                {
+                    "workspaces": [
+                        {
+                            "name": "neomatrix369",
+                            "id": "019c-ws",
+                            "allowedActions": ["generate_eval_scenarios"],
+                        }
+                    ]
+                }
+            ),
+            "",
+        )
+
+    with (
+        patch.dict("os.environ", {"TESSL_WORKSPACE": "engteam"}, clear=True),
+        patch.object(scanners, "_run", side_effect=_run_ignore_bad_env),
+    ):
+        ws, detail = scanners._resolve_tessl_workspace()
+    assert ws == "neomatrix369"
+    assert detail == ""
+    assert (
+        scanners._match_tessl_workspace([{"name": "neomatrix369", "id": "019c-ws"}], "019c-ws")
+        == "neomatrix369"
+    )
+
+
+def test_annotate_tessl_cli_detail_adds_user_and_workspace() -> None:
+    """
+    Scenario: Tessl identity errors include attempted user/workspace in detail.
+    Slice: 50 — workspace/user not found diagnostics
+    """
+    assert (
+        scanners._annotate_tessl_cli_detail(
+            "Failed to generate scenarios\nWorkspace not found",
+            workspace="engteam",
+            username="neomatrix369",
+        )
+        == "Failed to generate scenarios\nWorkspace not found "
+        "(user=neomatrix369, workspace=engteam)"
+    )
+    assert (
+        scanners._annotate_tessl_cli_detail(
+            "User not found",
+            workspace="acme",
+            username="alice",
+        )
+        == "User not found (user=alice, workspace=acme)"
+    )
+    assert scanners._annotate_tessl_cli_detail("generation exploded", workspace="engteam") == (
+        "generation exploded"
+    )
 
 
 def test_ensure_tessl_project_create_timeout_returns_false(tmp_path) -> None:
@@ -2461,6 +2601,7 @@ def test_given_eval_view_pending_exhausted_when_chained_then_interrupted(
     ### When
     with (
         patch.dict("os.environ", {"TESSL_TOKEN": "t", "TESSL_WORKSPACE": "engteam"}),
+        patch.object(scanners, "_resolve_tessl_workspace", return_value=("engteam", "")),
         patch.object(scanners, "_which", return_value="/usr/bin/npx"),
         patch.object(scanners, "_run", side_effect=_run),
         patch.object(scanners, "_TESSL_EVAL_POLL_SLEEP_S", 0),

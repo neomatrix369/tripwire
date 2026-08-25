@@ -656,6 +656,57 @@ def _parse_tessl_whoami_username(parsed) -> str | None:
     return None
 
 
+# Last identity seen by ``_resolve_tessl_workspace`` — used to annotate CLI errors.
+_tessl_last_username: str | None = None
+_tessl_last_workspace: str | None = None
+
+_TESSL_IDENTITY_ERROR_RE = re.compile(
+    r"(?:workspace|user)\s+not\s+found",
+    re.IGNORECASE,
+)
+
+
+def _remember_tessl_identity(
+    *, username: str | None = None, workspace: str | None = None
+) -> None:
+    """Cache Tessl whoami/workspace for identity-error annotations."""
+    global _tessl_last_username, _tessl_last_workspace
+    if username is not None:
+        _tessl_last_username = username or None
+    if workspace is not None:
+        _tessl_last_workspace = workspace or None
+
+
+def _annotate_tessl_cli_detail(
+    detail: str,
+    *,
+    workspace: str | None = None,
+    username: str | None = None,
+) -> str:
+    """Append user=/workspace= when Tessl reports user/workspace not found.
+
+    Also prints the annotated line so Modal/container logs show which identity
+    was attempted (raw Tessl stderr often omits the name).
+    """
+    text = (detail or "").strip()
+    if not text:
+        return ""
+    if not _TESSL_IDENTITY_ERROR_RE.search(text):
+        return text[:4000]
+    user = (username if username is not None else _tessl_last_username) or None
+    ws = (workspace if workspace is not None else _tessl_last_workspace) or None
+    bits: list[str] = []
+    if user:
+        bits.append(f"user={user}")
+    if ws:
+        bits.append(f"workspace={ws}")
+    if not bits:
+        return text[:4000]
+    annotated = f"{text} ({', '.join(bits)})"
+    print(f"[tessl] {annotated}", flush=True)
+    return annotated[:4000]
+
+
 def _parse_tessl_workspace_list(parsed) -> list[dict]:
     """Normalize ``tessl workspace list --json`` to a list of workspace dicts."""
     if isinstance(parsed, list):
@@ -688,33 +739,86 @@ def _pick_tessl_workspace(workspaces: list[dict], username: str | None) -> str |
     return named[0]["name"].strip()
 
 
+def _match_tessl_workspace(workspaces: list[dict], needle: str) -> str | None:
+    """Return canonical workspace name (or id) if *needle* matches a list entry name or id."""
+    want = needle.strip()
+    if not want:
+        return None
+    for ws in workspaces:
+        name = ws.get("name")
+        wid = ws.get("id")
+        name_ok = isinstance(name, str) and name.strip() == want
+        id_ok = isinstance(wid, str) and wid.strip() == want
+        if name_ok or id_ok:
+            if isinstance(name, str) and name.strip():
+                return name.strip()
+            if isinstance(wid, str) and wid.strip():
+                return wid.strip()
+    return None
+
+
 def _resolve_tessl_workspace() -> tuple[str | None, str]:
     """Resolve Tessl workspace for ``--workspace``.
 
-    Prefer optional ``TESSL_WORKSPACE`` override; otherwise query
-    ``tessl whoami --json`` + ``tessl workspace list --json`` (personal workspace
-    is usually the authenticated username).
+    Optional ``TESSL_WORKSPACE`` is an override only when it matches a workspace
+    the authenticated account can see (name or id). Invalid overrides are ignored
+    so Modal secrets with stale example values (e.g. ``engteam``) do not produce
+    ``Workspace not found``. Otherwise resolve via ``tessl whoami`` +
+    ``tessl workspace list`` (personal workspace is usually the username).
     """
+    global _tessl_last_username, _tessl_last_workspace
+    _tessl_last_username = None
+    _tessl_last_workspace = None
+
     env_ws = (os.environ.get("TESSL_WORKSPACE") or "").strip()
-    if env_ws:
-        return env_ws, ""
 
     username = None
     who_code, who_out, who_err = _run(["npx", "--yes", "tessl@latest", "whoami", "--json"])
     if who_code == 0:
         username = _parse_tessl_whoami_username(_safe_json(who_out))
+    _remember_tessl_identity(username=username)
 
     list_code, list_out, list_err = _run(
         ["npx", "--yes", "tessl@latest", "workspace", "list", "--json"]
     )
     if list_code != 0:
+        # Cannot validate membership — honour env override if present.
+        if env_ws:
+            _remember_tessl_identity(workspace=env_ws)
+            return env_ws, ""
         detail = (list_err or list_out or who_err or who_out or "workspace list failed").strip()
-        return None, detail[:4000]
+        return None, _annotate_tessl_cli_detail(detail[:4000], username=username)
 
     workspaces = _parse_tessl_workspace_list(_safe_json(list_out))
+    available = [
+        ws["name"].strip()
+        for ws in workspaces
+        if isinstance(ws.get("name"), str) and ws["name"].strip()
+    ]
+
+    if env_ws:
+        matched = _match_tessl_workspace(workspaces, env_ws)
+        if matched:
+            _remember_tessl_identity(workspace=matched)
+            return matched, ""
+        print(
+            f"[tessl] ignoring TESSL_WORKSPACE={env_ws!r} — not in workspace list "
+            f"(available: {', '.join(available) or 'none'}); falling back to auto-resolve",
+            flush=True,
+        )
+
     picked = _pick_tessl_workspace(workspaces, username)
     if not picked:
-        return None, "no Tessl workspaces available for this account"
+        detail = "no Tessl workspaces available for this account"
+        if env_ws:
+            detail = (
+                f"TESSL_WORKSPACE={env_ws!r} not found and no fallback workspace "
+                f"(available: {', '.join(available) or 'none'})"
+            )
+        return None, _annotate_tessl_cli_detail(
+            detail, workspace=env_ws or None, username=username
+        )
+    _remember_tessl_identity(workspace=picked)
     return picked, ""
 
 
@@ -1022,7 +1126,10 @@ def _ensure_scenario_generated(
         early = _scenario_checkpoint_row(
             row,
             status="interrupted",
-            detail=(err or out or "scenario generate timed out").strip(),
+            detail=_annotate_tessl_cli_detail(
+                (err or out or "scenario generate timed out").strip(),
+                workspace=workspace,
+            ),
             gen_id=timed_out_id,
             consoles=consoles,
             on_progress=on_progress,
@@ -1030,7 +1137,10 @@ def _ensure_scenario_generated(
         return timed_out_id, early
     if code != 0:
         row["status"] = "failed"
-        row["detail"] = (err or out or "scenario generate exited non-zero").strip()[:4000]
+        row["detail"] = _annotate_tessl_cli_detail(
+            (err or out or "scenario generate exited non-zero").strip(),
+            workspace=workspace,
+        )[:4000]
         return None, _scenario_row_with_console(row, consoles)
     captured_id = _capture_scenario_gen_id(out, gen_id)
     if not captured_id:
@@ -1279,7 +1389,10 @@ def _ensure_tessl_project(workdir: str, workspace: str) -> tuple[bool, str]:
     if _has_tessl_project_link(workdir):
         code, out, err = _run(_tessl_project_repair_argv(), cwd=workdir)
         if code not in (0, None) and not _has_tessl_project_link(workdir):
-            return False, (err or out or "tessl project repair failed").strip()
+            return False, _annotate_tessl_cli_detail(
+                (err or out or "tessl project repair failed").strip(),
+                workspace=workspace,
+            )
         return True, ""
 
     project_name = os.path.basename(os.path.abspath(workdir)) or "tripwire-scan"
@@ -1287,9 +1400,15 @@ def _ensure_tessl_project(workdir: str, workspace: str) -> tuple[bool, str]:
     if code == 0 and _has_tessl_project_link(workdir):
         return True, ""
     if code is None:
-        return False, (err or out or "tessl project create timed out").strip()
+        return False, _annotate_tessl_cli_detail(
+            (err or out or "tessl project create timed out").strip(),
+            workspace=workspace,
+        )
     detail = (err or out or "tessl project create failed").strip()
-    return False, detail or "tessl.json missing — project create/repair required before eval"
+    return False, _annotate_tessl_cli_detail(
+        detail or "tessl.json missing — project create/repair required before eval",
+        workspace=workspace,
+    )
 
 
 def _eval_should_mark_stale(prior_eval: dict, scenario_row: dict) -> bool:
@@ -1413,7 +1532,10 @@ def _run_tessl_eval(
                 eval_id=eval_id,
                 parsed=parsed_run if isinstance(parsed_run, dict) else None,
                 consoles=consoles,
-                detail=(err or out or "eval run timed out").strip(),
+                detail=_annotate_tessl_cli_detail(
+                    (err or out or "eval run timed out").strip(),
+                    workspace=workspace,
+                ),
                 on_progress=on_progress,
             )
         if code != 0 and not eval_id:
@@ -1423,7 +1545,10 @@ def _run_tessl_eval(
                 eval_id=None,
                 parsed=None,
                 consoles=consoles,
-                detail=(err or out or "eval run exited non-zero").strip(),
+                detail=_annotate_tessl_cli_detail(
+                    (err or out or "eval run exited non-zero").strip(),
+                    workspace=workspace,
+                ),
                 on_progress=on_progress,
             )
         if not eval_id:
@@ -1545,7 +1670,11 @@ def _finish_tessl_review(
 ) -> tuple[float | None, dict]:
     console = _build_console(out, err)
     if code != 0:
-        return None, _unreachable(source, err or out, console_output=console)
+        return None, _unreachable(
+            source,
+            _annotate_tessl_cli_detail(err or out, workspace=workspace),
+            console_output=console,
+        )
     parsed = _safe_json(out)
     score = _tessl_quality_score(parsed) if judge_type == "quality" else None
     if judge_type == "quality" and score is None:

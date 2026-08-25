@@ -10,8 +10,9 @@ Start here: [QUICKSTART](../../QUICKSTART.md) · Hub: [docs/README](../README.md
 > when you want full scanner coverage. Missing Snyk/Cisco keys report
 > `skipped_missing_credential`. Missing `TESSL_TOKEN` still runs Lint (auth-free)
 > and marks Review (Quality) / Scenario Generation `needs_setup`. `TESSL_WORKSPACE`
-> is optional — when unset, Tripwire resolves workspace via `tessl whoami` +
-> `tessl workspace list` (usually the Tessl username). Eval stays `blocked` until
+> is optional — when unset (or set to a name not in `tessl workspace list`),
+> Tripwire resolves workspace via `tessl whoami` + `tessl workspace list`
+> (usually the Tessl username). Eval stays `blocked` until
 > Scenario Gen completes (then `needs_setup` if token or workspace/project link
 > cannot be established) — not a complete “all clear.”
 >
@@ -80,7 +81,7 @@ not a second environment-variable schema.
 | `MCP_SCANNER_LLM_BASE_URL` | Custom MCP LLM endpoint | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 | `MCP_SCANNER_LLM_API_VERSION` | Azure-style APIs | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 | `TESSL_TOKEN` | Tessl Review / Scenario Gen / Eval on Modal/CI (Lint is auth-free) | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
-| `TESSL_WORKSPACE` | Optional override for Tessl `--workspace` (Review / Scenario Gen / project create). When unset, resolved via `tessl whoami` + `workspace list` (usually the username) | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
+| `TESSL_WORKSPACE` | Optional override for Tessl `--workspace` (Review / Scenario Gen / project create). Must match a workspace from `tessl workspace list` (name or id); invalid values are ignored and auto-resolved (usually the username) | [Vendor procurement quick-steps](#vendor-procurement-quick-steps) in this file |
 
 ## Tier C — Full depth (paid Cisco AI Defense)
 
