@@ -23,6 +23,8 @@ Came from [QUICKSTART](../QUICKSTART.md)? Use the **Normal users** path, then re
 
 ## Viewing the dashboard
 
+**No clone:** browse the [hosted dashboard on GitHub Pages](https://neomatrix369.github.io/demos/tripwire-dashboard/) (Mock-only public deploy). **Walkthrough:** [demo video on YouTube](https://youtu.be/omGOw9ruN3Y).
+
 Item detail shows a **router strip** for scanned items:
 - `Scan → SIE → Model Studio` when escalated
 - `Scan → SIE → ■` when SIE ran and did not escalate (`routing_review`)

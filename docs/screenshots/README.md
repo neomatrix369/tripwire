@@ -6,6 +6,8 @@ Product UI and CLI captures, grouped by surface. Paths are relative to this fold
 and Escalated / SIE-only examples stay stable. **CLI shots are live terminal
 captures** from the current CLI.
 
+**Try the UI without cloning:** [hosted dashboard](https://neomatrix369.github.io/demos/tripwire-dashboard/) (Mock on GitHub Pages) · [demo walkthrough video](https://youtu.be/omGOw9ruN3Y).
+
 Skill cards show compact **`R`** (risk density) and **`Q`** (Tessl quality)
 badges; card colour is worst-of finding status — **colour ≠ density**.
 
@@ -41,7 +43,7 @@ Help output (including `route`) and discovery / live scan feedback.
 
 Heatmap grid, severity filters, tiered-router filters, type views, and list
 layout (Mock demo). Card colour is worst-of actionable finding severity; chips
-show finding counts.
+show finding counts. Compare with the live [hosted dashboard](https://neomatrix369.github.io/demos/tripwire-dashboard/) or the [YouTube walkthrough](https://youtu.be/omGOw9ruN3Y).
 
 ### Overview grid
 

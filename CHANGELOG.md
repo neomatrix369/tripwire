@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Docs: socialise hosted dashboard
+  ([neomatrix369.github.io/demos/tripwire-dashboard/](https://neomatrix369.github.io/demos/tripwire-dashboard/))
+  and demo walkthrough video
+  ([YouTube](https://youtu.be/omGOw9ruN3Y)) across README, QUICKSTART, docs hub,
+  architecture, prototypes, screenshots, setup commands, and prerequisites.
+
 ### Added
 - `/tw-verify` Quality column + blocked footer (slice 28): Scan Status table is
   **Name | Type | Status | Quality | Note**; Quality shows Tessl

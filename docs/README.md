@@ -12,6 +12,8 @@ Start here: [QUICKSTART](../QUICKSTART.md) · Repo entry: [README](../README.md)
 
 | Your task | Start here | Then |
 |---|---|---|
+| Browse hosted dashboard (no clone) | [GitHub Pages demo](https://neomatrix369.github.io/demos/tripwire-dashboard/) | [Demo video](https://youtu.be/omGOw9ruN3Y) · [QUICKSTART](../QUICKSTART.md) |
+| Watch demo walkthrough (no clone) | [YouTube tour](https://youtu.be/omGOw9ruN3Y) | [Hosted dashboard](https://neomatrix369.github.io/demos/tripwire-dashboard/) · [screenshots](./screenshots/README.md) |
 | Try demo (no accounts) | [QUICKSTART — demo](../QUICKSTART.md#try-the-demo-recommended) | [Setup commands](./user-guide/setup-commands.md) · [screenshots](./screenshots/README.md) |
 | Check tools and fit | [Prerequisites](./user-guide/prerequisites.md) | [QUICKSTART](../QUICKSTART.md) |
 | Create accounts (Setup) | [Supabase setup](./user-guide/supabase-setup.md) | [Modal setup](./user-guide/modal-setup.md) → optional scanners via [env-vars](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
@@ -29,7 +31,7 @@ Start here: [QUICKSTART](../QUICKSTART.md) · Repo entry: [README](../README.md)
 
 | Guide | What it covers |
 |---|---|
-| [QUICKSTART.md](../QUICKSTART.md) | Demo (Recommended) then Live (Advanced) |
+| [QUICKSTART.md](../QUICKSTART.md) | Demo (Recommended) then Live (Advanced); [hosted dashboard](https://neomatrix369.github.io/demos/tripwire-dashboard/) · [demo video](https://youtu.be/omGOw9ruN3Y) |
 | [user-guide/prerequisites.md](./user-guide/prerequisites.md) | Required tools, technical fit, capability prerequisites |
 | [user-guide/setup-commands.md](./user-guide/setup-commands.md) | Command SSOT: bootstrap, flags, fails, maintenance |
 | [user-guide/env-vars.md](./user-guide/env-vars.md) | Configure (keys): procurement SSOT for `.env` |
