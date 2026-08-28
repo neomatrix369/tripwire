@@ -4,6 +4,8 @@
 
 Start here: [QUICKSTART](../../QUICKSTART.md) · Hub: [docs/README](../README.md)
 
+**No clone:** [hosted dashboard](https://neomatrix369.github.io/demos/tripwire-dashboard/) (Mock on GitHub Pages) · [demo walkthrough video](https://youtu.be/omGOw9ruN3Y).
+
 Pins: Node **22** (`.nvmrc`) · Python **3.12** (`.python-version`).
 
 Use this page to determine what must be ready before running any command sequence.

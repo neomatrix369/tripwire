@@ -3,6 +3,7 @@
 
 # Local agent / MCP config (project rules under .cursor/rules are tracked)
 .claude/
+.codex/
 .cursor/*
 !.cursor/rules/
 !.cursor/rules/**

@@ -6,7 +6,8 @@
 
 | Path | Effort | What you get |
 |---|---|---|
-| [Hosted dashboard](https://neomatrix369.github.io/demos/tripwire-dashboard/) | **No clone** — browse in browser | Live/Mock UI preview on GitHub Pages |
+| [Hosted dashboard](https://neomatrix369.github.io/demos/tripwire-dashboard/) | **No clone** — browse in browser | Mock UI preview on GitHub Pages |
+| [Demo walkthrough (video)](https://youtu.be/omGOw9ruN3Y) | **No clone** — watch first | End-to-end tour of the dashboard |
 | [Try the demo](#try-the-demo-recommended) | **Recommended** — no cloud accounts | Local discovery + Mock dashboard |
 | [Live scan](#live-advanced) | **Advanced** — five vendors + `.env` | Real scans stored online |
 
@@ -99,6 +100,8 @@ Cheat lines (full catalog linked):
 
 ## Next
 
+- Hosted UI (no clone): [neomatrix369.github.io/demos/tripwire-dashboard/](https://neomatrix369.github.io/demos/tripwire-dashboard/)
+- Demo video: [YouTube walkthrough](https://youtu.be/omGOw9ruN3Y)
 - Docs map: [docs/README.md](docs/README.md)
 - Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - Status: [docs/STATUS.md](docs/STATUS.md)

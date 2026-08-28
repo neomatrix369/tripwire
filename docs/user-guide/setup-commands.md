@@ -7,6 +7,8 @@ Start here: [QUICKSTART](../../QUICKSTART.md) · Hub: [docs/README](../README.md
 Use this page as the single source for shared setup, validation, scan, and
 maintenance commands.
 
+**No clone:** [hosted dashboard](https://neomatrix369.github.io/demos/tripwire-dashboard/) (Mock on GitHub Pages) · [demo walkthrough video](https://youtu.be/omGOw9ruN3Y).
+
 ## CLI flags (reference)
 
 | Command / flag | What it does |

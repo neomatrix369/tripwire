@@ -43,6 +43,7 @@ CI / Nightly / Complexity badges reflect GitHub Actions on `main`.
 | If you want to… | Go here |
 |---|---|
 | **Try a hosted dashboard** (no clone) | [Live demo on neomatrix369.github.io](https://neomatrix369.github.io/demos/tripwire-dashboard/) |
+| **Watch the demo walkthrough** | [YouTube — Tripwire dashboard tour](https://youtu.be/omGOw9ruN3Y) |
 | **Try a safe demo** (no cloud accounts) — Recommended | [QUICKSTART — Try the demo](QUICKSTART.md#try-the-demo-recommended) |
 | **Run a real Live scan** — Advanced | [QUICKSTART — Live](QUICKSTART.md#live-advanced) |
 | **Change the code** | [CONTRIBUTING](CONTRIBUTING.md) |
@@ -140,7 +141,8 @@ logs a warning and skips. With SIE but without Model Studio, SIE-only reviews st
 Use Mock demo data only when you want a no-account look at the UI; it does not replace
 the Live setup above or produce a scan result. Prefer the
 [hosted demo](https://neomatrix369.github.io/demos/tripwire-dashboard/) when you
-do not need a local clone.
+do not need a local clone, or watch the
+[demo walkthrough on YouTube](https://youtu.be/omGOw9ruN3Y).
 
 ```bash
 git clone https://github.com/neomatrix369/tripwire.git
