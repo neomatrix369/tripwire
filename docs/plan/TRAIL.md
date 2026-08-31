@@ -312,11 +312,33 @@ Meter router (SIE + Model Studio) accurately; Phase 2 best-effort Cisco LLM + Te
 |---|------|------|--------|--------|------------|-------|-----------|
 | 53 | [slice-53-llm-usage-tracking](slices/13-M-llm-usage-tracking/slice-53-llm-usage-tracking.md) | LLM Usage Tracking + UI Cost Surfacing | Should | 📋 | — (ADR-0016 complements) | — | ~6 min |
 
+## Wave 14-N — Docs & Internals Gap-Bridge Audit
+
+**Group letter N** (next after M). Folder: [`slices/14-N-docs-gap-bridge-audit/`](slices/14-N-docs-gap-bridge-audit/).
+Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
+**EFP-processed 2026-08-28 — planning only; execution in a later session against `main`.**
+
+**Prerequisite:** Slice 44 (Wave K) must be merged to `main` first — Wave N execution verifies that GWT-44.8 (operator journey + dependency-order Mermaid) and GWT-44.9 (runtime data/provider flow diagram, pile-on) have landed.
+
+**Note — no-duplicate policy applied:** Diagram A (operator/user journey) and Diagram B (runtime data/provider flow) are absorbed as GWT-44.9 pile-on to slice 44, since GWT-44.8 already owns ARCHITECTURE diagram additions. Wave N slices cover only work that has no home in existing slices.
+
+**Method:** Diagram-driven checkpoint walk. North star: a complete newcomer can navigate entry-level docs without help. Reorganise before writing; write new content only when a gap is confirmed real.
+
+**Model / harness:** inherits TRAIL Original Material + harness-scout embed. Profile: ambiguity=low · blast_radius=low (docs-only) · time_box=≤3h total · interactive. Complexity gates not applicable (docs slices).
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| 44+GWT-44.9 | [slice-44 pile-on](slices/11-K-docs-ux-plain-language/slice-44-docs-ux-plain-language.md) | Diagram B — Input→Process→Output runtime data flow (pile-on) | Must | 🔀 (on slice/44 branch) | — | PR #99 | ~1 min delta |
+| 55 | [slice-55-disclaimer-placements](slices/14-N-docs-gap-bridge-audit/slice-55-disclaimer-placements.md) | Disclaimer Placements (docs + UI, D1–D8) | Must | 📋 | 44 ✅ | — | ~3 min |
+| 56 | [slice-56-gap-repairs](slices/14-N-docs-gap-bridge-audit/slice-56-gap-repairs.md) | Confirmed Gap Repairs (input types, proxy, gate-evidence, Guard mode, cross-link, scanner×input matrix) — 6 sub-items (56-a through 56-f; 56-f added post-review 2026-08-31) | Should | 📋 | 44 ✅ | — | ~5 min |
+| 57 | [slice-57-sync-docs-skill-update](slices/14-N-docs-gap-bridge-audit/slice-57-sync-docs-skill-update.md) | sync-docs Skill Update + module-theme-map | Should | 📋 | 56 | — | ~2 min |
+
 ## Supporting Artifacts
 | File | Status |
 |------|--------|
-| [README.md](README.md) | ✅ wave folder map (`01-A-…` … `13-M-llm-usage-tracking/`) |
-| `01-A-…` … `13-M-…/` | ✅ slice stubs by execution wave |
+| [README.md](README.md) | ✅ wave folder map (`01-A-…` … `14-N-docs-gap-bridge-audit/`) |
+| `01-A-…` … `14-N-…/` | ✅ slice stubs by execution wave |
+| [docs-gap-bridge-audit.md](docs-gap-bridge-audit.md) | ✅ Wave N audit report — diagrams, checkpoints, backlog, disclaimers (D1–D8) |
 | interview_summary.md | ✅ written |
 | PROGRESS.md | ✅ written |
 | DECISIONS.md | ✅ in progress |

@@ -74,6 +74,16 @@ troubleshooting into existing SSOTs. No new glossary/cli/troubleshooting files.
 **And** a Mermaid **dependency order** shows what must be ready before what (tools → MVP Live → scanners → optional router)
 **And** docs hub links Architecture for “system shape / services / flows”
 
+### GWT-44.9 — Data / provider flow diagram (pile-on: Wave N docs audit)
+**Given** a reader opens ARCHITECTURE.md
+**When** they want to understand how data moves at runtime (not just setup order)
+**Then** a Mermaid **input→process→output** diagram shows: input types (skill dir / MCP entrypoint / Git URL / local path) → CLI hashing → Modal sandbox dispatch → per-scanner adapter nodes (Cisco · Snyk · Tessl × 5 · DepShield · Ossprey) → Supabase tables (scan_runs / scan_run_scanners / findings / coverage) → dashboard Realtime + poll
+**And** the optional tiered router (Superlinked SIE → Alibaba Model Studio) is shown as a post-scan branch to Supabase findings
+**And** the Snyk node carries an inline ⚠ annotation: “v0.5 schema — see STATUS §doc-accuracy”
+**And** the diagram is titled “Input → Process → Output (runtime data flow)” to distinguish it from the setup dependency-order diagram
+
+> Pile-on source: docs-gap-bridge-audit.md checkpoint B.1–B.10 (2026-08-28).
+
 ## Before-Checks [GATE]
 - [x] Branch `slice/44-docs-ux-plain-language`
 - [x] Stub + TRAIL/PROGRESS/DECISIONS rows (plan contract saved)
@@ -98,7 +108,9 @@ troubleshooting into existing SSOTs. No new glossary/cli/troubleshooting files.
 - [x] screenshots README mentions `R`/`Q` + colour ≠ density
 - [x] ARCHITECTURE: External services table + operator journey + dependency-order Mermaid
 - [x] docs hub links Architecture for services / flows
+- [ ] ARCHITECTURE: Input→Process→Output runtime data flow diagram (GWT-44.9 pile-on)
 - [x] `docs/plan/gate-evidence/slice-44.json` updated for pile-on checks (GWT-44.5–44.8)
+- [ ] gate-evidence updated for GWT-44.9 pile-on (Wave N audit 2026-08-28)
 - [x] Documentarist / UX re-review recorded for pile-on — APPROVED WITH FOLLOW-ON (2026-08-21; DIVIO targets pending, see below)
 - [ ] Mark TRAIL ✅ PASSED only after merge to main
 
