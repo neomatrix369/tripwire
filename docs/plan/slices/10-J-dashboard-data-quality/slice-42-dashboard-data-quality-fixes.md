@@ -247,7 +247,7 @@ Schema / API field names may stay snake_case in code and tooltips’ technical l
 **Given** live or mock data includes skills with mixed quality scores (e.g. 92, 88, 75, 61, null) and MCP servers
 **When** the operator selects **Quality ≥ 80**
 **Then** the grid/list shows only **skill** items where `typeof quality === 'number' && quality >= 80`
-**And** non-skill items (e.g. MCP servers) always pass through the quality filter and appear on all quality tabs (quality is a skill-only concept; non-skills are never hidden by the quality tab)
+**And** MCP servers are excluded from quality buckets (no Tessl score) but pass through the quality filter and remain visible in the grid on all quality tabs
 
 ### GWT-42.13 — Low tab lists only below-threshold scored skills (A14)
 
@@ -256,7 +256,7 @@ Schema / API field names may stay snake_case in code and tooltips’ technical l
 **Then** the grid/list shows only **skill** items where `typeof quality === 'number' && quality < 80`
 **And** items with quality exactly 79 appear here, not in High or No quality score
 **And** null/missing/NaN quality skills are excluded
-**And** non-skill items (e.g. MCP servers) pass through unchanged and remain visible
+**And** MCP servers are excluded from quality buckets but pass through the quality filter and remain visible in the grid
 
 ### GWT-42.17 — No quality score tab lists unscored skills only (A14)
 
@@ -264,7 +264,7 @@ Schema / API field names may stay snake_case in code and tooltips’ technical l
 **When** the operator selects **No quality score**
 **Then** the grid/list shows only **skill** items where quality is `null`, missing, or `NaN`
 **And** items with any numeric score (including 0–79) are excluded
-**And** non-skill items (e.g. MCP servers) pass through unchanged and remain visible
+**And** MCP servers are excluded from quality buckets but pass through the quality filter and remain visible in the grid
 
 ### GWT-42.14 — Quality tabs compose with search and type filters (A14)
 
