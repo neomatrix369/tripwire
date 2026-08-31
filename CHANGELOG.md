@@ -121,8 +121,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   **Quality < 80**, and **No quality score** tabs filter skills by Tessl
   `item.quality` (threshold 80); tab labels include skill counts; empty-state
   copy names the active tab; **Clear filters** resets quality tab to default.
-  MCP servers are excluded from quality buckets. Helpers in `tripwire-status.js`;
-  wired in `Tripwire.dc.html`.
+  MCP servers are excluded from quality buckets (no score) but remain visible
+  on all quality tabs. Helpers in `tripwire-status.js`; wired in `Tripwire.dc.html`.
 
 ### Fixed
 - Tessl dashboard progress during Modal scans: skip bulk `running` placeholders for

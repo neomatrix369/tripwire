@@ -355,6 +355,7 @@ export function qualityTabBucket(item, floor = QUALITY_TAB_FLOOR) {
  * @returns {boolean}
  */
 export function matchesQualityTab(item, tab, floor = QUALITY_TAB_FLOOR) {
+  if (!isSkillItem(item)) return true;
   return qualityTabBucket(item, floor) === tab;
 }
 

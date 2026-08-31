@@ -277,3 +277,5 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-25 | main / plan | enhanced-flow-planner Path B | 54 | 📋 PLANNED | Dashboard quality tabs ≥80 vs Rest; Wave J; depends 42+47 |
 | 2026-08-25 | planning | Blended slice 54 → 42 A14–A15 | 42 | 📋 delta reopen | Quality tabs augment slice 42 in place; slice 54 stub removed; branch `slice/42-quality-score-tabs`. DECIDED |
 | 2026-08-25 | slice/42-quality-score-tabs | sync-docs | 42 | APPLIED | TRAIL/PROGRESS/gate-evidence/slice-42 + ARCHITECTURE + STATUS Wave J A14–A15 ON BRANCH; three-tab spec (≥80 / <80 / unscored). |
+
+| 2026-08-28 | plan | enhanced-flow-planner Wave N | 44 pile-on GWT-44.9 + 55–57 | 📋 PLANNED | Docs gap-bridge audit: diagram A+B, disclaimer placements (D1–D8), 6 gap repairs (56-a–f; 56-f scanner×input-type matrix added post-review 2026-08-31), sync-docs skill update. Execution in a later session. |
