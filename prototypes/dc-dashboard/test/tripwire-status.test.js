@@ -298,30 +298,30 @@ const mixedQualityFixtures = [
   { id: 'mcp1', type: 'mcp_server', name: 'ignored-mcp', quality: 95 },
 ];
 
-test('given mixed quality skills when high tab filter then only skills with quality >= 80', () => {
+test('given mixed quality skills when high tab filter then only skills with quality >= 80 plus mcp pass-through', () => {
   const high = filterItemsByQualityTab(mixedQualityFixtures, 'high');
   assert.deepEqual(
     high.map((it) => it.id).sort(),
-    ['s80', 's88', 's92'],
-    'high tab must include 80 boundary and exclude 79/null'
+    ['mcp1', 's80', 's88', 's92'],
+    'high tab must include 80-boundary skills and pass MCP servers through (GWT-42.12)'
   );
 });
 
-test('given mixed quality skills when low tab filter then only below-threshold scored skills', () => {
+test('given mixed quality skills when low tab filter then below-threshold scored skills plus mcp pass-through', () => {
   const low = filterItemsByQualityTab(mixedQualityFixtures, 'low');
   assert.deepEqual(
     low.map((it) => it.id).sort(),
-    ['s61', 's79'],
-    'low tab must include sub-80 numeric scores only'
+    ['mcp1', 's61', 's79'],
+    'low tab must include sub-80 numeric skills and pass MCP servers through (GWT-42.13)'
   );
 });
 
-test('given mixed quality skills when unscored tab filter then null and NaN skills only', () => {
+test('given mixed quality skills when unscored tab filter then null and NaN skills plus mcp pass-through', () => {
   const unscored = filterItemsByQualityTab(mixedQualityFixtures, 'unscored');
   assert.deepEqual(
     unscored.map((it) => it.id).sort(),
-    ['snan', 'snull'],
-    'unscored tab must include null/NaN and exclude numeric scores'
+    ['mcp1', 'snan', 'snull'],
+    'unscored tab must include null/NaN skills and pass MCP servers through (GWT-42.17)'
   );
 });
 
@@ -331,10 +331,12 @@ test('given quality helpers when boundary and type checks then skills-only bucke
   assert.equal(qualityTabBucket({ type: 'skill', quality: 79 }), 'low');
   assert.equal(qualityTabBucket({ type: 'skill', quality: null }), 'unscored');
   assert.equal(qualityTabBucket({ type: 'skill', quality: Number.NaN }), 'unscored');
+  // qualityTabBucket still returns null for non-skills (no quality concept applies)
   assert.equal(qualityTabBucket({ type: 'mcp_server', quality: 99 }), null);
-  assert.equal(matchesQualityTab({ type: 'mcp_server', quality: 99 }, 'high'), false);
-  assert.equal(matchesQualityTab({ type: 'mcp_server', quality: 99 }, 'low'), false);
-  assert.equal(matchesQualityTab({ type: 'mcp_server', quality: 99 }, 'unscored'), false);
+  // matchesQualityTab passes non-skill items through on every tab — GWT-42.12/13/17
+  assert.equal(matchesQualityTab({ type: 'mcp_server', quality: 99 }, 'high'), true);
+  assert.equal(matchesQualityTab({ type: 'mcp_server', quality: 99 }, 'low'), true);
+  assert.equal(matchesQualityTab({ type: 'mcp_server', quality: 99 }, 'unscored'), true);
   assert.equal(isSkillItem({ type: 'skill' }), true);
   assert.equal(isSkillItem({ type: 'mcp_server' }), false);
 });

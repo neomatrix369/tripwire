@@ -244,10 +244,10 @@ Schema / API field names may stay snake_case in code and tooltips’ technical l
 
 ### GWT-42.12 — High tab lists only skills with quality ≥ 80 (A14)
 
-**Given** live or mock data includes skills with mixed quality scores (e.g. 92, 88, 75, 61, null)
+**Given** live or mock data includes skills with mixed quality scores (e.g. 92, 88, 75, 61, null) and MCP servers
 **When** the operator selects **Quality ≥ 80**
 **Then** the grid/list shows only **skill** items where `typeof quality === 'number' && quality >= 80`
-**And** MCP servers are excluded regardless of other filters
+**And** non-skill items (e.g. MCP servers) always pass through the quality filter and appear on all quality tabs (quality is a skill-only concept; non-skills are never hidden by the quality tab)
 
 ### GWT-42.13 — Low tab lists only below-threshold scored skills (A14)
 
@@ -256,13 +256,15 @@ Schema / API field names may stay snake_case in code and tooltips’ technical l
 **Then** the grid/list shows only **skill** items where `typeof quality === 'number' && quality < 80`
 **And** items with quality exactly 79 appear here, not in High or No quality score
 **And** null/missing/NaN quality skills are excluded
+**And** non-skill items (e.g. MCP servers) pass through unchanged and remain visible
 
-### GWT-42.17 — No quality score tab lists unscored skills only (A14) — **delta open**
+### GWT-42.17 — No quality score tab lists unscored skills only (A14)
 
 **Given** the same mixed dataset
 **When** the operator selects **No quality score**
 **Then** the grid/list shows only **skill** items where quality is `null`, missing, or `NaN`
 **And** items with any numeric score (including 0–79) are excluded
+**And** non-skill items (e.g. MCP servers) pass through unchanged and remain visible
 
 ### GWT-42.14 — Quality tabs compose with search and type filters (A14)
 
@@ -825,8 +827,8 @@ All five quality-tab unit tests are correctly designed, budget-compliant, and ca
 
 | Decision | Adversarial Test | Survived? | Evidence |
 |----------|------------------|-----------|----------|
-| **MCP exclusion via null bucket** | Remove `if (!isSkillItem(item)) return null;` from `qualityTabBucket()` | ✓ YES | Line 334 test `matchesQualityTab({ type: 'mcp_server', quality: 99 }, 'high')` returns false; would fail if null check omitted (MCP would incorrectly bucket) |
-| **Default tab 'high' hides MCPs** | Omit `qualityTab: 'high'` state initialization | ✓ YES | Line 330 test expects default boundary behavior; if qualityTab is undefined, code crashes on `s.qualityTab` reference in filter pipeline |
+| **MCP pass-through in quality filter** | Non-skill items always pass `matchesQualityTab` regardless of active tab; `qualityTabBucket` still returns null for non-skills but `matchesQualityTab` short-circuits before comparing | ✓ CORRECTED | Bug (PR #120): `matchesQualityTab` returned `false` for MCP servers on all tabs, making them invisible in the default `'high'` view. Fix: `if (!isSkillItem(item)) return true` in `matchesQualityTab` — quality tabs are skills-only; non-skills are never filtered out |
+| **Default tab 'high' scope** | Omit `qualityTab: 'high'` state initialization | ✓ YES | If qualityTab is undefined, code crashes on `s.qualityTab` reference in filter pipeline; state must be initialised |
 | **Empty-state names quality tab** | Remove quality-tab prefix from `filterEmptyCopy()` | ✓ YES | Hypothetical test: filter yields zero items with `qualityTab='low'`; without the prefix, empty copy would not signal "Quality < 80" filtering to user |
 
 ### External Validity
