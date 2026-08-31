@@ -138,14 +138,14 @@ flowchart LR
 |---|---|---|---|---|---|
 | B.1 | Input types | `QUICKSTART.md`, `ARCHITECTURE.md` | ⚠ User sees `./fixtures/skills/safe-csv-cleaner` path as example; accepted types not explicitly listed | **Confirmed gap**: add input-type taxonomy (skill dir, MCP entrypoint, git URL, local copy) to prerequisites or ARCHITECTURE | P1/M |
 | B.2 | CLI hashing/dedup | `ARCHITECTURE.md §ADR-0010` | Fine for deep-layer readers; not needed at entry layer | No change needed at user layer | — |
-| B.3 | Modal sandbox | `ARCHITECTURE.md`, `ADR-0003`, `modal-setup.md` | ✅ "Isolated sandbox" described at entry | ✅ | Clean | — |
+| B.3 | Modal sandbox | `ARCHITECTURE.md`, `ADR-0003`, `modal-setup.md` | ✅ "Isolated sandbox" described at entry | ✅ Clean | — |
 | B.4 | Scanner dispatch | `STATUS.md` (capability honesty) | ⚠ Which scanner handles which input type not in one place | **Confirmed gap**: STATUS.md has per-scanner detail but no scanner×input-type matrix | P1/M |
 | B.5 | Snyk adapter | `STATUS.md`, `scanner-output-adapters.md` | ✅ Adapter documented | ⚠ **doc-accuracy risk**: `run_snyk` parses old v0.5 schema against snyk-agent-scan v0.6+'s list-valued `scan_path_responses` — flagged, not a task for this audit | P0/doc-accuracy |
-| B.6 | Tessl (5 rows) | `ARCHITECTURE.md §0 external services`, `STATUS.md`, slice-49/50 | ✅ All 5 rows described | ⚠ Scenario Gen / Eval rows: IMPLEMENTED (unit), not VERIFIED live — STATUS correctly labels them | Clean if STATUS is read | — |
-| B.7 | Ossprey | `STATUS.md`, `fixtures/OPTIONAL_SCANNER_KEYS.md` | ✅ Disclaimed as access OPEN, no VERIFIED claim | ✅ | Clean | — |
+| B.6 | Tessl (5 rows) | `ARCHITECTURE.md §0 external services`, `STATUS.md`, slice-49/50 | ✅ All 5 rows described | ⚠ Scenario Gen / Eval rows: IMPLEMENTED (unit), not VERIFIED live — STATUS correctly labels them. Clean if STATUS is read | — |
+| B.7 | Ossprey | `STATUS.md`, `fixtures/OPTIONAL_SCANNER_KEYS.md` | ✅ Disclaimed as access OPEN, no VERIFIED claim | ✅ Clean | — |
 | B.8 | Supabase writes | `ADR-0004`, `db/schema.sql`, `supabase-setup.md` | ⚠ Schema tables list (items, scan_runs, scan_run_scanners, findings, coverage) exists in STATUS but not in any user-guide page for new operators | **Suspected gap**: brief schema table in `supabase-setup.md` §4 or ARCHITECTURE would help operators; verify if STATUS reference is sufficient | P2/S |
-| B.9 | Dashboard read-back | `QUICKSTART.md §Try the demo`, `serve-dashboard.mjs` | ✅ Realtime + poll described in STATUS | ⚠ `node scripts/serve-dashboard.mjs` command and its proxy role not explained — users may not understand why it's needed | **Confirmed gap**: one-liner explanation of proxy role in QUICKSTART or dashboard README | P1/S |
-| B.10 | gate-evidence (quality tab) | `STATUS.md` | ✅ Marked as ON_BRANCH / gate_status — slice-44 | ⚠ Gate-evidence UI feature still PLANNED per TRAIL; not surfaced clearly as "not yet available" to end users in docs | **Suspected gap**: needs PLANNED callout in STATUS or dashboard page | P1/S |
+| B.9 | Dashboard read-back | `QUICKSTART.md §Try the demo`, `serve-dashboard.mjs` | ✅ Realtime + poll described in STATUS | ⚠ `node scripts/serve-dashboard.mjs` proxy role not explained — **Confirmed gap**: one-liner explanation in QUICKSTART or dashboard README | P1/S |
+| B.10 | gate-evidence (quality tab) | `STATUS.md` | ✅ Marked as ON_BRANCH / gate_status — slice-44 | ⚠ Gate-evidence UI still PLANNED; not surfaced as "not yet available" — **Suspected gap**: needs PLANNED callout in STATUS or dashboard page | P1/S |
 
 ---
 
@@ -265,7 +265,7 @@ The following should be folded into the `sync-docs` skill definition as a "Tripw
 ## Prioritised Backlog — Ordered Execution Queue
 
 > One item at a time, highest priority first. Apply change → re-check diagram checkpoint → log outcome → proceed.
-
+>
 > **No-duplicate policy (2026-08-28):** Diagram A (operator/user journey) is already owned by slice-44 GWT-44.8 (ON BRANCH). Diagram B (runtime data/provider flow) is added as pile-on GWT-44.9 to slice 44 — no separate slice 54 created. Wave N starts at slice 55.
 
 | Seq | Slice | Item | Priority | Effort | Checkpoint(s) | Acceptance signal |
