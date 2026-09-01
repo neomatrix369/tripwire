@@ -41,6 +41,16 @@ backends are natural **package flavors** rather than forks of the whole project.
 **Package Tripwire as a Monk Kit** and treat Monk as the intended path that takes
 a user from zero to a running Live instance, *once implemented*.
 
+Two motivations carry equal weight. The first is redistribution: pull the repo,
+tell Monk to deploy, get a Live instance. The second is **isolated ephemeral
+environments** — each ephemeral instance is a separate Kit deploy with isolated
+credentials, configured by the Monk agent from the single in-repo template. The
+same template that runs an official hosted instance can therefore spin up
+throwaway instances for development and review, so contributors and agents can
+acceptance-check a live system without sharing one long-lived stack. For a
+project with this much agent-driven workflow, that is a first-class reason to
+package, not a side effect of it.
+
 ### The Live baseline is five vendors
 
 A packaged Live instance is **Supabase, Modal, Snyk, Cisco, and Tessl** — not
@@ -53,9 +63,12 @@ Cisco is one vendor with two credential shapes — the LLM-backed Skill/MCP
 Scanner keys, or the paid AI Defense APIs — and **at least one is required**.
 Cisco is not droppable from the baseline.
 
-Ossprey is **outside** the Kit v1 baseline: the adapter is credential-gated and
-RESEARCH-labeled, and access provisioning is still open, so it cannot be a
-required input yet ([STATUS](../STATUS.md)).
+Ossprey sits just outside that baseline. The Kit **collects `OSSPREY_API_KEY`
+as an optional secret** and passes it through to the sandbox, so a keyed
+operator gets Ossprey coverage on a Kit deploy. It is not a required input:
+the adapter is credential-gated and RESEARCH-labeled, and access provisioning
+is still open, so a deploy must not fail for want of an Ossprey key
+([STATUS](../STATUS.md)).
 
 ### What runs in the cluster, what stays SaaS
 
@@ -64,8 +77,12 @@ required input yet ([STATUS](../STATUS.md)).
 | **In the cluster** | Bootstrap, the dashboard, HTTPS ingress |
 | **Outside (SaaS)** | Supabase (PostgREST), Modal, and the three scanner engines |
 
-Modal remains an external SaaS dependency. It is **not** a cluster workload; the
-Kit deploys a Modal app and holds its tokens as secrets.
+Modal remains an external SaaS dependency. "Not a cluster workload" means no
+Modal container runs inside the cluster — it does **not** mean Modal is
+unconfigured. The Kit holds Modal tokens as secrets and deploys the Modal app
+during bootstrap; at scan time the cluster reaches **out** to Modal, which
+spins up the sandboxes on its own infrastructure. Scanner engines are reached
+the same way.
 
 ### Intended user path (after implementation)
 
@@ -113,9 +130,8 @@ plan itself. Those belong in follow-up slices under `docs/plan`.
   public registry as part of release.
 - Template evolution stays in-repo; new versions are template commits plus image
   publishes from CI.
-- The **same template** can run an official hosted instance and spin up
-  **isolated ephemeral environments** during development, so people and agents
-  can acceptance-check a live system without sharing one long-lived stack.
+- Isolated ephemeral environments for development and review, from the same
+  template as the hosted instance (see the Decision above).
 - Other database backends can later appear as package flavors once the app can
   talk to them.
 
@@ -147,9 +163,42 @@ Maintain cloud-specific Actions or Terraform as the primary deploy story.
 
 **Not the primary path.** The next step after a working Kit is the opposite
 direction: **Monk generates** the CI/CD action that deploys to an existing
-cluster. Secrets remain handled by Monk; the workflow needs cluster coordinates
-and the Kit's manifest and templates. Custom pipelines remain possible for
-advanced operators, but they are not the default we are packaging toward.
+cluster. That generation is an existing Monk capability, not a future one —
+but Tripwire does not use it yet, and adopting it is follow-up work outside
+this ADR. Secrets remain handled by Monk; the workflow needs cluster
+coordinates and the Kit's manifest and templates. Custom pipelines remain
+possible for advanced operators, but they are not the default we are packaging
+toward.
+
+### C. Helm, Kustomize, or Terraform
+
+The obvious alternatives. Each solves part of the problem; none covers the
+whole path from "pull the repo" to "HTTPS Live instance", which is what this
+ADR is choosing.
+
+- **Secrets are first-class in Monk.** It collects, stores, and injects them —
+  including values *generated during provisioning*, such as the Supabase
+  service-role and anon keys, which do not exist until the project is created.
+  Helm and Kustomize template manifests and defer secrets to an external store;
+  wiring a generated credential into the next step is the operator's problem.
+- **Monk provisions the managed SaaS.** The Supabase entity creates the project;
+  it does not merely template a reference to one that already exists. Helm and
+  Kustomize cannot provision off-cluster services at all. Terraform can, but
+  then Terraform provisions and something else deploys and something else holds
+  secrets — three tools where the Kit is one.
+- **Versioned Kit plus a registry.** A manifest with versioned templates and a
+  registry install path is what makes "install Monk, deploy Tripwire" work
+  without assembling the stack by hand. Helm has charts and repositories but no
+  provisioning story; Terraform has modules and a registry but no packaged
+  runtime.
+- **Ephemeral environments from one template.** The Monk agent configures each
+  ephemeral instance as a separate Kit deploy with isolated credentials from the
+  same in-repo template — the motivation named in the Decision. Reproducing that
+  on the alternatives means maintaining a parallel path for dev environments.
+
+**Not rejected as tooling.** Helm or Terraform could sit *under* a future
+deployment if that ever helps; the point is that neither is the packaging and
+distribution unit this ADR needs.
 
 ## References
 
