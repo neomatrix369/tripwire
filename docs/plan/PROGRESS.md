@@ -219,6 +219,16 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 5. Before ✅: confirm Closing rule in GATE_CONTRACT (all checks / waivers, evidence PASS, review, merge)
 6. Then: status ✅, completed date, advance Execution order; never ✅ from 🔀 without merge
 
+## Slice: SliceCheck health endpoint
+Goal: Add GET /health endpoint to the SliceCheck Worker that returns
+the status of all configured secrets and the service version.
+
+Acceptance criteria:
+- [ ] GET /health returns JSON: {"status":"ok","version":"1.0.0","secrets":{"github":"ok","anthropic":"ok","webhook":"ok"}}
+- [ ] Returns {"status":"degraded", "missing":[...]} if any secret is absent
+- [ ] Unit tests cover healthy state and each degraded variant
+- [ ] Endpoint documented in slicecheck/README.md under a Health Check section
+
 ## Skill Execution Log
 | Date | Branch | Skill | Slice | Outcome | Notes |
 |------|--------|-------|-------|---------|-------|
