@@ -199,6 +199,7 @@ async def test_audit_validates_query_and_renders_html(monkeypatch: pytest.Monkey
 
     assert response.status == 200
     assert response.headers["content-type"] == "text/html; charset=utf-8"
+    assert response.headers["cache-control"] == "no-store"
     assert response.body.startswith("<!DOCTYPE html>")
 
 

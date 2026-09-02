@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 from typing import Any
 
+import httpx
 import pytest
 from slicecheck.src import github
 
@@ -41,6 +42,35 @@ class StubClient:
     async def post(self, url: str, **kwargs: object) -> StubResponse:
         self.calls.append({"method": "POST", "url": url, **kwargs})
         return self.responses.pop(0)
+
+
+def test_github_error_reports_message_rate_limit_and_sso_without_response_body() -> None:
+    request = httpx.Request("GET", "https://api.github.com/repos/owner/repo/pulls")
+    response = httpx.Response(
+        403,
+        request=request,
+        headers={
+            "x-ratelimit-remaining": "0",
+            "x-ratelimit-limit": "5000",
+            "x-ratelimit-reset": "1788379200",
+            "x-github-sso": "required; url=https://github.com/orgs/example/sso",
+        },
+        json={
+            "message": "Resource not accessible by personal access token",
+            "documentation_url": "https://docs.github.com/rest/using-the-rest-api",
+            "token": "must-not-appear",
+        },
+    )
+
+    with pytest.raises(RuntimeError) as error:
+        github.raise_for_github_status(response, "listing pull requests")
+
+    rendered = str(error.value)
+    assert "GitHub API 403 while listing pull requests" in rendered
+    assert "Resource not accessible by personal access token" in rendered
+    assert "rate limit remaining: 0 of 5000" in rendered
+    assert "GitHub SSO authorization is required" in rendered
+    assert "must-not-appear" not in rendered
 
 
 @pytest.mark.asyncio

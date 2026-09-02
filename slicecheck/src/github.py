@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import re
+from datetime import UTC, datetime
 from typing import Any
 from urllib.parse import quote
 
@@ -23,6 +24,47 @@ def _headers(token: str, accept: str = "application/vnd.github+json") -> dict[st
         "X-GitHub-Api-Version": "2022-11-28",
         "User-Agent": "slicecheck-worker",
     }
+
+
+def raise_for_github_status(response: httpx.Response, operation: str) -> None:
+    """Raise a safe, actionable error for a failed GitHub API response."""
+    try:
+        response.raise_for_status()
+    except httpx.HTTPStatusError as exc:
+        try:
+            payload = response.json()
+        except Exception:
+            payload = None
+
+        message = payload.get("message") if isinstance(payload, dict) else None
+        details = [f"GitHub API {response.status_code} while {operation}"]
+        if isinstance(message, str) and message:
+            details.append(message)
+
+        remaining = response.headers.get("x-ratelimit-remaining")
+        limit = response.headers.get("x-ratelimit-limit")
+        reset = response.headers.get("x-ratelimit-reset")
+        if remaining is not None:
+            rate_limit = f"rate limit remaining: {remaining}"
+            if limit is not None:
+                rate_limit += f" of {limit}"
+            if reset is not None:
+                try:
+                    reset_at = datetime.fromtimestamp(int(reset), UTC).strftime(
+                        "%Y-%m-%d %H:%M UTC"
+                    )
+                    rate_limit += f"; resets {reset_at}"
+                except (OverflowError, TypeError, ValueError):
+                    rate_limit += f"; reset timestamp {reset}"
+            details.append(rate_limit)
+
+        if response.headers.get("x-github-sso"):
+            details.append("GitHub SSO authorization is required")
+
+        documentation_url = payload.get("documentation_url") if isinstance(payload, dict) else None
+        if isinstance(documentation_url, str) and documentation_url:
+            details.append(documentation_url)
+        raise RuntimeError("; ".join(details)) from exc
 
 
 def _normalize_heading(value: str) -> set[str]:
@@ -77,7 +119,7 @@ async def _fetch_plan_file(repo: str, path: str, token: str) -> str | None:
             response = await client.get(url, headers=_headers(token))
         if response.status_code == 404:
             return None
-        response.raise_for_status()
+        raise_for_github_status(response, f"fetching plan file {path}")
         payload = response.json()
         if payload.get("encoding") != "base64" or not isinstance(payload.get("content"), str):
             raise ValueError(f"GitHub returned unsupported content for {path}")
@@ -109,7 +151,7 @@ async def fetch_pr_diff(repo: str, pr_number: int, github_token: str) -> str:
             response = await client.get(
                 url, headers=_headers(github_token, "application/vnd.github.v3.diff")
             )
-        response.raise_for_status()
+        raise_for_github_status(response, f"fetching pull request #{pr_number} diff")
         return str(response.text)
     except Exception as exc:
         raise RuntimeError(f"Failed to fetch diff for PR #{pr_number}: {exc}") from exc
@@ -122,7 +164,7 @@ async def fetch_slicecheck_history(
     try:
         async with httpx.AsyncClient(timeout=20.0) as client:
             response = await client.get(url, headers=_headers(github_token))
-        response.raise_for_status()
+        raise_for_github_status(response, f"fetching pull request #{pr_number} comments")
         comments = response.json()
         history: list[dict[str, str]] = []
         for comment in comments:
@@ -184,6 +226,6 @@ async def post_verification_comment(
                 headers=_headers(github_token),
                 json={"body": render_verification_comment(result)},
             )
-        response.raise_for_status()
+        raise_for_github_status(response, f"posting pull request #{pr_number} comment")
     except Exception as exc:
         raise RuntimeError(f"Failed to post SliceCheck comment on PR #{pr_number}: {exc}") from exc
