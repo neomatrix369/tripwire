@@ -75,9 +75,11 @@ async def test_verify_uses_prescribed_anthropic_request(monkeypatch: pytest.Monk
     assert isinstance(body, dict)
     assert body["model"] == "claude-haiku-4-5-20251001"
     assert body["max_tokens"] == 500
+    assert body["system"] == verifier.SYSTEM_PROMPT
     assert "PR Title: Ship it" in body["messages"][0]["content"]
-    assert body["tools"] == [verifier.VERDICT_TOOL]
-    assert body["tool_choice"] == {"type": "tool", "name": "record_verdict"}
+    assert body["output_config"] == {
+        "format": {"type": "json_schema", "schema": verifier.VERDICT_SCHEMA}
+    }
 
 
 @pytest.mark.asyncio
