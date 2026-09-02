@@ -78,6 +78,22 @@ async def test_github_get_retains_original_denial_when_anonymous_read_fails() ->
     assert response is denied
 
 
+@pytest.mark.asyncio
+async def test_github_get_can_return_public_not_found_for_plan_fallback() -> None:
+    calls: list[dict[str, Any]] = []
+    public_not_found = StubResponse(status_code=404)
+    client = StubClient([StubResponse(status_code=403), public_not_found], calls)
+
+    response = await github.get_github_response(
+        client,  # type: ignore[arg-type]
+        "https://api.github.com/repos/owner/repo/contents/PROGRESS.md",
+        github._headers("secret"),
+        allow_anonymous_not_found=True,
+    )
+
+    assert response is public_not_found
+
+
 def test_github_error_reports_message_rate_limit_and_sso_without_response_body() -> None:
     request = httpx.Request("GET", "https://api.github.com/repos/owner/repo/pulls")
     response = httpx.Response(

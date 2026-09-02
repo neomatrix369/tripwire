@@ -27,7 +27,11 @@ def _headers(token: str, accept: str = "application/vnd.github+json") -> dict[st
 
 
 async def get_github_response(
-    client: httpx.AsyncClient, url: str, headers: dict[str, str]
+    client: httpx.AsyncClient,
+    url: str,
+    headers: dict[str, str],
+    *,
+    allow_anonymous_not_found: bool = False,
 ) -> httpx.Response:
     """Retry denied reads anonymously when the GitHub resource is public."""
     response = await client.get(url, headers=headers)
@@ -36,7 +40,9 @@ async def get_github_response(
 
     anonymous_headers = {name: value for name, value in headers.items() if name != "Authorization"}
     anonymous = await client.get(url, headers=anonymous_headers)
-    if 200 <= anonymous.status_code < 300:
+    if 200 <= anonymous.status_code < 300 or (
+        allow_anonymous_not_found and anonymous.status_code == 404
+    ):
         return anonymous
     return response
 
@@ -139,7 +145,12 @@ async def _fetch_plan_file(repo: str, path: str, token: str) -> str | None:
     url = f"{GITHUB_API}/repos/{repo}/contents/{encoded_path}"
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await get_github_response(client, url, _headers(token))
+            response = await get_github_response(
+                client,
+                url,
+                _headers(token),
+                allow_anonymous_not_found=True,
+            )
         if response.status_code == 404:
             return None
         raise_for_github_status(response, f"fetching plan file {path}")
