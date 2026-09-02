@@ -85,11 +85,14 @@ async def test_webhook_rejects_invalid_signature_before_fetching(
 
 
 @pytest.mark.asyncio
-async def test_valid_webhook_verifies_and_posts(monkeypatch: pytest.MonkeyPatch) -> None:
+@pytest.mark.parametrize("action", ["opened", "ready_for_review"])
+async def test_valid_webhook_verifies_and_posts(
+    monkeypatch: pytest.MonkeyPatch, action: str
+) -> None:
     payload = {
-        "action": "opened",
+        "action": action,
         "repository": {"full_name": "owner/repo"},
-        "pull_request": {"number": 8, "title": "Build SliceCheck"},
+        "pull_request": {"number": 8, "title": "Build SliceCheck", "draft": False},
     }
     body = json.dumps(payload)
     secret = "long-random-secret-value"
@@ -131,6 +134,49 @@ async def test_valid_webhook_verifies_and_posts(monkeypatch: pytest.MonkeyPatch)
     assert posted == [
         ("owner/repo", 8, {"verdict": "PASS", "gaps": [], "retry_prompt": None}, "token")
     ]
+
+
+@pytest.mark.asyncio
+async def test_webhook_ignores_draft_without_side_effects(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    payload = {
+        "action": "synchronize",
+        "repository": {"full_name": "owner/repo"},
+        "pull_request": {"number": 8, "title": "Draft SliceCheck", "draft": True},
+    }
+    body = json.dumps(payload)
+    secret = "long-random-secret-value"
+    called = False
+
+    async def should_not_run(*_args: object) -> None:
+        nonlocal called
+        called = True
+
+    monkeypatch.setattr(worker, "fetch_plan_section", should_not_run)
+    monkeypatch.setattr(worker, "fetch_pr_diff", should_not_run)
+    monkeypatch.setattr(worker, "verify_with_claude", should_not_run)
+    monkeypatch.setattr(worker, "post_verification_comment", should_not_run)
+    request = FakeRequest(
+        "https://slicecheck.example/webhook",
+        method="POST",
+        headers=signed_headers(body, secret),
+        body=body,
+    )
+    env = {
+        "GITHUB_TOKEN": "token",
+        "ANTHROPIC_API_KEY": "key",
+        "GITHUB_WEBHOOK_SECRET": secret,
+    }
+
+    response = await worker.handle_request(request, env)
+
+    assert response.status == 202
+    assert response_json(response) == {
+        "status": "ignored",
+        "reason": "draft pull request",
+    }
+    assert called is False
 
 
 @pytest.mark.asyncio

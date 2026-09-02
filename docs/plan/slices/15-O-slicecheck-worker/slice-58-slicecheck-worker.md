@@ -24,11 +24,13 @@ environment bindings.
 
 ### GWT-58.1 — Pull-request webhook is authenticated and verified
 
-**Given** GitHub sends an `opened`, `reopened`, or `synchronize` pull-request event
+**Given** GitHub sends an `opened`, `reopened`, `synchronize`, or `ready_for_review`
+pull-request event for a non-draft PR
 **When** `POST /webhook` receives a valid `sha256` signature
 **Then** SliceCheck fetches the plan and diff concurrently, asks Claude for a verdict, and posts a
 single formatted issue comment
 **And** an invalid signature returns 401 before the payload is processed
+**And** a draft PR returns 202 without verification or comment side effects
 
 ### GWT-58.2 — Verification failures become ERROR results
 

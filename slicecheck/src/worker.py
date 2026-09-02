@@ -40,7 +40,7 @@ else:
     from verifier import verify_with_claude  # type: ignore[no-redef]
 
 REPO_PATTERN = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
-SUPPORTED_ACTIONS = {"opened", "reopened", "synchronize"}
+SUPPORTED_ACTIONS = {"opened", "ready_for_review", "reopened", "synchronize"}
 
 
 def _binding(env: object, name: str) -> str:
@@ -96,6 +96,8 @@ async def _handle_webhook(request: object, env: object) -> Response:
         pr_title = str(pull_request["title"])
         if not REPO_PATTERN.fullmatch(repo):
             raise ValueError("Webhook repository name is invalid")
+        if pull_request.get("draft") is True:
+            return _json_response({"status": "ignored", "reason": "draft pull request"}, 202)
     except Exception as exc:
         return _json_response({"error": f"Invalid webhook payload: {exc}"}, 400)
 

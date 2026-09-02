@@ -5,7 +5,7 @@
   "verdict": "ON_BRANCH",
   "before_checks": "all green",
   "after_checks": [
-    "34 SliceCheck tests pass",
+    "36 SliceCheck tests pass",
     "Ruff check and format pass",
     "MyPy and Bandit pass",
     "Pywrangler deploy dry-run packages httpx and all Worker modules",
@@ -15,7 +15,7 @@
   "commands": [
     {
       "cmd": "uv run --project slicecheck pytest slicecheck/tests -q",
-      "result": "PASS: 34 tests"
+      "result": "PASS: 36 tests"
     },
     {
       "cmd": "uv run ruff check slicecheck && uv run ruff format --check slicecheck && uv run mypy slicecheck/src && uv run bandit -r slicecheck/src -q -ll",

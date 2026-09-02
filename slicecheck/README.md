@@ -43,6 +43,10 @@ For each repository, open **Settings → Webhooks → Add webhook** and configur
 - Secret: the value used for `GITHUB_WEBHOOK_SECRET`
 - Events: pull requests only
 
+Draft pull requests are ignored and receive no SliceCheck comment. Moving a draft to ready for
+review triggers verification; subsequent pushes trigger it again. Read-only audits may still show
+drafts when they match the selected scope.
+
 ### 5. Audit past pull requests
 
 Open one of these URLs in a browser:
@@ -72,7 +76,7 @@ Override that order for an audit with `?plan_file=YOUR_FILE.md`.
 
 ## How it works
 
-1. An agent opens or updates a pull request.
+1. An agent opens, updates, reopens, or marks a pull request ready for review.
 2. GitHub sends the signed pull-request webhook.
 3. SliceCheck fetches the plan and pull-request diff concurrently.
 4. Claude compares planned work with the actual diff.
