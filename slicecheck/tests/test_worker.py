@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from slicecheck.src import worker
+from slicecheck.src import github, verifier, worker
 
 
 class FakeRequest:
@@ -64,7 +64,7 @@ async def test_webhook_rejects_invalid_signature_before_fetching(
         called = True
         return ""
 
-    monkeypatch.setattr(worker, "fetch_plan_section", should_not_run)
+    monkeypatch.setattr(worker, "fetch_criteria_context", should_not_run)
     request = FakeRequest(
         "https://slicecheck.example/webhook",
         method="POST",
@@ -92,14 +92,20 @@ async def test_valid_webhook_verifies_and_posts(
     payload = {
         "action": action,
         "repository": {"full_name": "owner/repo"},
-        "pull_request": {"number": 8, "title": "Build SliceCheck", "draft": False},
+        "pull_request": {
+            "number": 8,
+            "title": "Build SliceCheck",
+            "body": "Implements slice 58",
+            "draft": False,
+            "head": {"sha": "head-sha"},
+        },
     }
     body = json.dumps(payload)
     secret = "long-random-secret-value"
     posted: list[tuple[object, ...]] = []
 
-    async def fake_plan(*_args: object) -> str:
-        return "# Plan"
+    async def fake_criteria(*_args: object, **_kwargs: object) -> github.CriteriaContext:
+        return github.CriteriaContext("# Plan", "docs/plan/slices/slice-58.md")
 
     async def fake_diff(*_args: object) -> str:
         return "+code"
@@ -111,7 +117,7 @@ async def test_valid_webhook_verifies_and_posts(
     async def fake_post(*args: object) -> None:
         posted.append(args)
 
-    monkeypatch.setattr(worker, "fetch_plan_section", fake_plan)
+    monkeypatch.setattr(worker, "fetch_criteria_context", fake_criteria)
     monkeypatch.setattr(worker, "fetch_pr_diff", fake_diff)
     monkeypatch.setattr(worker, "verify_with_claude", fake_verify)
     monkeypatch.setattr(worker, "post_verification_comment", fake_post)
@@ -132,7 +138,17 @@ async def test_valid_webhook_verifies_and_posts(
     assert response.status == 200
     assert response_json(response)["verdict"] == "PASS"
     assert posted == [
-        ("owner/repo", 8, {"verdict": "PASS", "gaps": [], "retry_prompt": None}, "token")
+        (
+            "owner/repo",
+            8,
+            {
+                "verdict": "PASS",
+                "gaps": [],
+                "retry_prompt": None,
+                "criteria_source": "docs/plan/slices/slice-58.md",
+            },
+            "token",
+        )
     ]
 
 
@@ -153,7 +169,7 @@ async def test_webhook_ignores_draft_without_side_effects(
         nonlocal called
         called = True
 
-    monkeypatch.setattr(worker, "fetch_plan_section", should_not_run)
+    monkeypatch.setattr(worker, "fetch_criteria_context", should_not_run)
     monkeypatch.setattr(worker, "fetch_pr_diff", should_not_run)
     monkeypatch.setattr(worker, "verify_with_claude", should_not_run)
     monkeypatch.setattr(worker, "post_verification_comment", should_not_run)
@@ -192,7 +208,7 @@ async def test_webhook_posts_error_when_github_fetch_fails(
     secret = "long-random-secret-value"
     posted: list[dict[str, Any]] = []
 
-    async def broken_plan(*_args: object) -> str:
+    async def broken_plan(*_args: object) -> github.CriteriaContext:
         raise RuntimeError("GitHub plan unavailable")
 
     async def fake_diff(*_args: object) -> str:
@@ -201,7 +217,7 @@ async def test_webhook_posts_error_when_github_fetch_fails(
     async def fake_post(_repo: str, _number: int, result: dict[str, Any], _token: str) -> None:
         posted.append(result)
 
-    monkeypatch.setattr(worker, "fetch_plan_section", broken_plan)
+    monkeypatch.setattr(worker, "fetch_criteria_context", broken_plan)
     monkeypatch.setattr(worker, "fetch_pr_diff", fake_diff)
     monkeypatch.setattr(worker, "post_verification_comment", fake_post)
     request = FakeRequest(
@@ -221,6 +237,146 @@ async def test_webhook_posts_error_when_github_fetch_fails(
     assert response.status == 200
     assert posted[0]["verdict"] == "ERROR"
     assert posted[0]["gaps"] == ["GitHub plan unavailable"]
+
+
+@pytest.mark.asyncio
+async def test_webhook_reloads_changed_slice_criteria_from_head(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    payload = {
+        "action": "synchronize",
+        "repository": {"full_name": "owner/repo"},
+        "pull_request": {
+            "number": 79,
+            "title": "Frontline agent hooks",
+            "body": "",
+            "draft": False,
+            "head": {"sha": "frontline-head"},
+        },
+    }
+    body = json.dumps(payload)
+    secret = "long-random-secret-value"
+    criteria_calls: list[dict[str, object]] = []
+    posted: list[dict[str, Any]] = []
+
+    async def fake_criteria(*_args: object, **kwargs: object) -> github.CriteriaContext:
+        criteria_calls.append(kwargs)
+        if "diff" in kwargs:
+            return github.CriteriaContext(
+                "# GWT-23\nImplement the handler", "docs/plan/slices/slice-23.md"
+            )
+        return github.CriteriaContext("# Frontline tracker", "docs/plan/PROGRESS.md")
+
+    async def fake_diff(*_args: object) -> str:
+        return (
+            "diff --git a/docs/plan/slices/08-H/slice-23-handler.md "
+            "b/docs/plan/slices/08-H/slice-23-handler.md\n+code"
+        )
+
+    async def fake_verify(plan: str, *_args: object) -> dict[str, Any]:
+        assert plan.startswith("# GWT-23")
+        return {"verdict": "PASS", "gaps": [], "retry_prompt": None}
+
+    async def fake_post(_repo: str, _number: int, result: dict[str, Any], _token: str) -> None:
+        posted.append(result)
+
+    monkeypatch.setattr(worker, "fetch_criteria_context", fake_criteria)
+    monkeypatch.setattr(worker, "fetch_pr_diff", fake_diff)
+    monkeypatch.setattr(worker, "verify_with_claude", fake_verify)
+    monkeypatch.setattr(worker, "post_verification_comment", fake_post)
+    request = FakeRequest(
+        "https://slicecheck.example/webhook",
+        method="POST",
+        headers=signed_headers(body, secret),
+        body=body,
+    )
+    env = {
+        "GITHUB_TOKEN": "token",
+        "ANTHROPIC_API_KEY": "key",
+        "GITHUB_WEBHOOK_SECRET": secret,
+    }
+
+    response = await worker.handle_request(request, env)
+
+    assert response.status == 200
+    assert len(criteria_calls) == 2
+    assert criteria_calls[1]["head_ref"] == "frontline-head"
+    assert posted[0]["criteria_source"] == "docs/plan/slices/slice-23.md"
+
+
+@pytest.mark.asyncio
+async def test_webhook_evaluates_dependency_with_workflow_evidence_without_claude(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    payload = {
+        "action": "opened",
+        "repository": {"full_name": "owner/repo"},
+        "pull_request": {
+            "number": 128,
+            "title": "chore(deps): bump actions/github-script from 7 to 9",
+            "body": "Dependabot update",
+            "draft": False,
+            "head": {"sha": "dependency-head"},
+        },
+    }
+    body = json.dumps(payload)
+    secret = "long-random-secret-value"
+    posted: list[dict[str, Any]] = []
+    claude_called = False
+
+    async def no_criteria(*_args: object, **_kwargs: object) -> github.CriteriaContext:
+        return github.CriteriaContext("", None)
+
+    async def fake_diff(*_args: object) -> str:
+        path = ".github/workflows/complexity-report.yml"
+        return "\n".join(
+            [
+                f"diff --git a/{path} b/{path}",
+                "-        uses: actions/github-script@v7",
+                "+        uses: actions/github-script@v9",
+            ]
+        )
+
+    async def fake_runs(*_args: object) -> list[dict[str, str]]:
+        return [
+            {
+                "path": ".github/workflows/complexity-report.yml",
+                "status": "completed",
+                "conclusion": "success",
+            }
+        ]
+
+    async def should_not_call_claude(*_args: object) -> dict[str, Any]:
+        nonlocal claude_called
+        claude_called = True
+        return {}
+
+    async def fake_post(_repo: str, _number: int, result: dict[str, Any], _token: str) -> None:
+        posted.append(result)
+
+    monkeypatch.setattr(worker, "fetch_criteria_context", no_criteria)
+    monkeypatch.setattr(worker, "fetch_pr_diff", fake_diff)
+    monkeypatch.setattr(worker, "fetch_workflow_runs", fake_runs)
+    monkeypatch.setattr(worker, "verify_with_claude", should_not_call_claude)
+    monkeypatch.setattr(worker, "post_verification_comment", fake_post)
+    request = FakeRequest(
+        "https://slicecheck.example/webhook",
+        method="POST",
+        headers=signed_headers(body, secret),
+        body=body,
+    )
+    env = {
+        "GITHUB_TOKEN": "token",
+        "ANTHROPIC_API_KEY": "key",
+        "GITHUB_WEBHOOK_SECRET": secret,
+    }
+
+    response = await worker.handle_request(request, env)
+
+    assert response.status == 200
+    assert posted[0]["verdict"] == "PASS"
+    assert posted[0]["criteria_source"] == verifier.DEPENDENCY_CRITERIA_SOURCE
+    assert claude_called is False
 
 
 @pytest.mark.asyncio

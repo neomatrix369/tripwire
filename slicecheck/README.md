@@ -1,8 +1,9 @@
 # SliceCheck
 
-Automatic agent-output verifier. Works with any GitHub repository. Fires on every pull request,
-cross-references a plan file against the diff, and posts a PASS/FAIL result plus a retry prompt.
-It can also audit past pull requests from a URL.
+Automatic agent-output verifier. Works with any GitHub repository. On supported non-draft pull
+request events, it cross-references matched acceptance criteria against the diff and posts a PASS,
+FAIL, UNVERIFIED, or ERROR result plus a retry prompt when applicable. It can also audit past pull
+requests from a URL.
 
 ## Deploy to any project
 
@@ -54,7 +55,7 @@ Open one of these URLs in a browser:
 ```text
 https://slicecheck.<your-account>.workers.dev/audit?repo=owner/reponame
 https://slicecheck.<your-account>.workers.dev/audit?repo=owner/repo&limit=10&state=open
-https://slicecheck.<your-account>.workers.dev/audit?repo=owner/repo&plan_file=STATUS.md
+https://slicecheck.<your-account>.workers.dev/audit?repo=owner/repo&plan_file=docs/STATUS.md
 ```
 
 The generated report contains inline CSS and no external resources, so saving the response as an
@@ -62,25 +63,35 @@ HTML file produces an audit that works offline.
 
 The report header shows the selected PR scope, result limit, and plan source. Each result card
 separately identifies the PR lifecycle (`Open`, `Draft`, `Merged`, or `Closed`) and the current
-SliceCheck verdict (`PASS`, `FAIL`, or `ERROR`).
+SliceCheck verdict (`PASS`, `FAIL`, `UNVERIFIED`, or `ERROR`), and names the matched criteria
+source.
 
-## Plan file
+## Criteria discovery
 
-SliceCheck looks for a plan in this order:
+An explicit `plan_file` query is authoritative. Otherwise SliceCheck uses these curated sources:
 
-```text
-PROGRESS.md → STATUS.md → PLAN.md → CLAUDE.md
-```
+1. Slice specifications under `docs/plan/slices/` changed or referenced by the PR
+2. Slice links in `docs/plan/PROGRESS.md`, `docs/plan/TRAIL.md`, or `docs/plan/README.md`
+3. Matching sections in those trackers, `docs/STATUS.md`, or conventional root plan files
 
-Override that order for an audit with `?plan_file=YOUR_FILE.md`.
+SliceCheck does not treat an unmatched whole document as acceptance criteria. No match produces
+`UNVERIFIED`, not an inferred `PASS`. Override discovery for an audit with
+`?plan_file=YOUR_FILE.md`.
+
+Verdicts have distinct meanings:
+
+- `PASS`: matched criteria are satisfied by the diff
+- `FAIL`: matched criteria have specific implementation gaps
+- `UNVERIFIED`: no matching criteria or insufficient completion evidence
+- `ERROR`: an API, transport, or model response failed
 
 ## How it works
 
 1. An agent opens, updates, reopens, or marks a pull request ready for review.
 2. GitHub sends the signed pull-request webhook.
-3. SliceCheck fetches the plan and pull-request diff concurrently.
-4. Claude compares planned work with the actual diff.
-5. SliceCheck posts PASS, FAIL, or ERROR with specific gaps and an optional retry prompt.
+3. SliceCheck discovers criteria and fetches the pull-request diff concurrently.
+4. Changed slice specifications are loaded from the PR head and Claude compares them with the diff.
+5. SliceCheck posts the verdict, criteria source, specific gaps, and optional retry prompt.
 6. Each new push adds another comment, creating a progressive verification history.
 
 All outbound calls use `httpx.AsyncClient`. The Anthropic Messages API is called directly; the

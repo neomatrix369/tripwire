@@ -36,7 +36,9 @@ single formatted issue comment
 
 **Given** the plan is missing, the diff is empty, or an Anthropic request/response fails
 **When** verification runs
-**Then** it returns `verdict=ERROR`, a specific gap, and `retry_prompt=null`
+**Then** missing matched criteria returns `verdict=UNVERIFIED`, while transport, empty-diff, or
+malformed-response failures return `verdict=ERROR` with a specific reason
+**And** the structured response budget accommodates bounded gaps and a paste-ready retry prompt
 **And** no Anthropic SDK or synchronous HTTP client is imported
 
 ### GWT-58.3 — Retrospective audits run concurrently
@@ -59,8 +61,10 @@ are visible
 
 **Given** a webhook payload or audit query selects a repository and optional plan file
 **When** GitHub helpers run
-**Then** no repository or plan path is hardcoded
-**And** the default plan order is `PROGRESS.md`, `STATUS.md`, `PLAN.md`, `CLAUDE.md`
+**Then** no repository identity or repository-specific plan path is hardcoded
+**And** an explicit plan file wins, otherwise changed or referenced files under
+`docs/plan/slices/` are preferred before matching sections in `docs/plan/PROGRESS.md`,
+`docs/plan/TRAIL.md`, or `docs/STATUS.md`
 
 ### GWT-58.6 — Audit scope and PR lifecycle are visible
 
@@ -70,13 +74,30 @@ are visible
 reader to inspect the URL
 **And** each PR card shows its current `Open`, `Draft`, `Merged`, or `Closed` lifecycle status
 
+### GWT-58.7 — Verdicts identify their criteria source and fail closed
+
+**Given** SliceCheck can or cannot match a PR to acceptance criteria
+**When** it renders an audit result or GitHub comment
+**Then** a matched result names its criteria source
+**And** an unmatched result is `UNVERIFIED`, never an inferred `PASS`
+**And** `ERROR` remains reserved for operational failures
+
+### GWT-58.8 — GitHub Actions dependency bumps require relevant run evidence
+
+**Given** a PR declares a GitHub Actions dependency version bump
+**When** its diff contains the exact old-to-new `uses:` replacement
+**Then** it passes only when every changed workflow has a successful run for the PR head
+**And** a missing relevant workflow run is `UNVERIFIED`, while an unexpected diff or failed
+relevant run is `FAIL`
+
 ## Before-Checks
 
 - [x] Branch `slice/58-slicecheck-worker` exists from `main`
 - [x] `git status --short` confirms the pre-existing untracked `opencode.json` is not part of scope
 - [x] Product boundary is `slicecheck/`; root `README.md` and existing Tripwire packages remain intact
 - [x] Test plan maps GWT-58.1 to `test_worker.py`, GWT-58.2 to `test_verifier.py`,
-  GWT-58.3–58.4 and GWT-58.6 to `test_audit.py`, and GWT-58.5 to `test_github.py`
+  GWT-58.3–58.4 and GWT-58.6–58.7 to `test_audit.py`, and GWT-58.5 to
+  `test_github.py`; GWT-58.8 maps to `test_github.py` and `test_verifier.py`
 
 ## After-Checks
 

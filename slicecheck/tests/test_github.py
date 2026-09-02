@@ -164,13 +164,18 @@ async def test_plan_fallback_order_and_title_section(monkeypatch: pytest.MonkeyP
 
     async def fake_fetch(_repo: str, path: str, _token: str) -> str | None:
         paths.append(path)
-        return plan if path == "STATUS.md" else None
+        return plan if path == "docs/STATUS.md" else None
 
     monkeypatch.setattr(github, "_fetch_plan_file", fake_fetch)
 
     section = await github.fetch_plan_section("owner/repo", "feat: SliceCheck worker", "token")
 
-    assert paths == ["PROGRESS.md", "STATUS.md"]
+    assert paths == [
+        "docs/plan/PROGRESS.md",
+        "docs/plan/TRAIL.md",
+        "docs/plan/README.md",
+        "docs/STATUS.md",
+    ]
     assert section.startswith("# SliceCheck Worker")
     assert "# Other work" not in section
 
@@ -187,6 +192,96 @@ async def test_explicit_plan_file_does_not_fall_back(monkeypatch: pytest.MonkeyP
 
     assert await github.fetch_plan_section("owner/repo", "PR", "token", "docs/work.md") == ""
     assert paths == ["docs/work.md"]
+
+
+@pytest.mark.asyncio
+async def test_criteria_prefers_changed_slice_files_from_pr_head(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[str, str | None]] = []
+    contents = {
+        "docs/plan/slices/08-H-frontline-agent-hooks/slice-23-config-handler-scripts.md": (
+            "# Slice 23\n\n## Spec (GWT)\nFirst criterion."
+        ),
+        "docs/plan/slices/08-H-frontline-agent-hooks/slice-24-setup-agent-hooks.md": (
+            "# Slice 24\n\n## Spec (GWT)\nSecond criterion."
+        ),
+    }
+
+    async def fake_fetch(_repo: str, path: str, _token: str, ref: str | None = None) -> str | None:
+        calls.append((path, ref))
+        return contents.get(path)
+
+    monkeypatch.setattr(github, "_fetch_plan_file", fake_fetch)
+    diff = "\n".join(f"diff --git a/{path} b/{path}" for path in contents)
+
+    criteria = await github.fetch_criteria_context(
+        "owner/repo",
+        "Frontline agent hooks",
+        "",
+        "token",
+        diff=diff,
+        head_ref="head-sha",
+    )
+
+    assert criteria.source == ", ".join(contents)
+    assert "First criterion" in criteria.text and "Second criterion" in criteria.text
+    assert calls == [(path, "head-sha") for path in contents]
+
+
+@pytest.mark.asyncio
+async def test_criteria_resolves_slice_number_through_progress_link(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    slice_path = "docs/plan/slices/15-O-slicecheck-worker/slice-58-slicecheck-worker.md"
+    progress = (
+        "# Progress\n\n[Slice 58](slices/15-O-slicecheck-worker/slice-58-slicecheck-worker.md)"
+    )
+
+    async def fake_fetch(_repo: str, path: str, _token: str, ref: str | None = None) -> str | None:
+        if path == "docs/plan/PROGRESS.md":
+            return progress
+        if path == slice_path and ref == "head-sha":
+            return "# Slice 58\n\n## Spec (GWT)\nShip SliceCheck."
+        return None
+
+    monkeypatch.setattr(github, "_fetch_plan_file", fake_fetch)
+
+    criteria = await github.fetch_criteria_context(
+        "owner/repo",
+        "feat(slice-58): add SliceCheck",
+        "",
+        "token",
+        head_ref="head-sha",
+    )
+
+    assert criteria.source == slice_path
+    assert "Ship SliceCheck" in criteria.text
+
+
+@pytest.mark.asyncio
+async def test_criteria_does_not_use_unmatched_whole_document(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    paths: list[str] = []
+
+    async def fake_fetch(_repo: str, path: str, _token: str) -> str | None:
+        paths.append(path)
+        if path == "docs/plan/PROGRESS.md":
+            return "# Active feature work\n\nNo dependency criteria."
+        return None
+
+    monkeypatch.setattr(github, "_fetch_plan_file", fake_fetch)
+
+    criteria = await github.fetch_criteria_context(
+        "owner/repo",
+        "chore(deps): bump an/action from 1 to 2",
+        "Dependabot update",
+        "token",
+    )
+
+    assert criteria == github.CriteriaContext("", None)
+    assert "CLAUDE.md" not in paths
 
 
 @pytest.mark.asyncio
@@ -208,8 +303,8 @@ async def test_plan_transport_decodes_content_and_falls_back_from_404(
     result = await github.fetch_plan_section("owner/repo", "Build Worker", "token")
 
     assert result == "# Build Worker\nShip it."
-    assert calls[0]["url"].endswith("/repos/owner/repo/contents/PROGRESS.md")
-    assert calls[1]["url"].endswith("/repos/owner/repo/contents/STATUS.md")
+    assert calls[0]["url"].endswith("/repos/owner/repo/contents/docs/plan/PROGRESS.md")
+    assert calls[1]["url"].endswith("/repos/owner/repo/contents/docs/plan/TRAIL.md")
     assert calls[0]["headers"]["Authorization"] == "Bearer token"
 
 
@@ -258,6 +353,43 @@ async def test_fetch_diff_wraps_http_failure(monkeypatch: pytest.MonkeyPatch) ->
 
 
 @pytest.mark.asyncio
+async def test_fetch_workflow_runs_returns_paths_and_outcomes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[dict[str, Any]] = []
+    response = StubResponse(
+        {
+            "workflow_runs": [
+                {
+                    "path": ".github/workflows/ci.yml",
+                    "status": "completed",
+                    "conclusion": "success",
+                    "ignored": "value",
+                }
+            ]
+        }
+    )
+    monkeypatch.setattr(
+        github.httpx,
+        "AsyncClient",
+        lambda **kwargs: StubClient([response], calls, **kwargs),
+    )
+
+    runs = await github.fetch_workflow_runs("owner/repo", "head sha", "token")
+
+    assert runs == [
+        {
+            "path": ".github/workflows/ci.yml",
+            "status": "completed",
+            "conclusion": "success",
+        }
+    ]
+    assert calls[0]["url"].endswith(
+        "/repos/owner/repo/actions/runs?head_sha=head%20sha&per_page=100"
+    )
+
+
+@pytest.mark.asyncio
 async def test_fetch_history_extracts_only_slicecheck_comments(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -273,6 +405,10 @@ async def test_fetch_history_extracts_only_slicecheck_comments(
                 "body": "<!-- slicecheck: fail -->",
                 "created_at": "2026-09-01T12:02:00Z",
             },
+            {
+                "body": "<!-- slicecheck-verdict: UNVERIFIED -->",
+                "created_at": "2026-09-01T12:03:00Z",
+            },
         ]
     )
     monkeypatch.setattr(
@@ -286,19 +422,41 @@ async def test_fetch_history_extracts_only_slicecheck_comments(
     assert history == [
         {"timestamp": "2026-09-01T12:00:00Z", "verdict": "PASS"},
         {"timestamp": "2026-09-01T12:02:00Z", "verdict": "FAIL"},
+        {"timestamp": "2026-09-01T12:03:00Z", "verdict": "UNVERIFIED"},
     ]
     assert calls[0]["url"].endswith("/repos/owner/repo/issues/7/comments?per_page=100")
 
 
 def test_comment_hides_retry_details_when_null() -> None:
     rendered = github.render_verification_comment(
-        {"verdict": "FAIL", "gaps": ["src/a.py is missing"], "retry_prompt": None}
+        {
+            "verdict": "FAIL",
+            "gaps": ["src/a.py is missing"],
+            "retry_prompt": None,
+            "criteria_source": "docs/plan/slices/slice-1.md",
+        }
     )
 
     assert "<!-- slicecheck-verdict: FAIL -->" in rendered
     assert "- src/a.py is missing" in rendered
+    assert "**Criteria:** `docs/plan/slices/slice-1.md`" in rendered
     assert "<details>" not in rendered
     assert rendered.endswith("_SliceCheck · Cloudflare Workers · any repo, any agent_")
+
+
+def test_comment_renders_unverified_as_reasons() -> None:
+    rendered = github.render_verification_comment(
+        {
+            "verdict": "UNVERIFIED",
+            "gaps": ["No matching acceptance criteria were found"],
+            "retry_prompt": None,
+            "criteria_source": None,
+        }
+    )
+
+    assert "<!-- slicecheck-verdict: UNVERIFIED -->" in rendered
+    assert "## ➖ SliceCheck: UNVERIFIED" in rendered
+    assert "### Reasons" in rendered
 
 
 @pytest.mark.asyncio

@@ -28,16 +28,32 @@ except ImportError:  # pragma: no cover - local tests exercise the pure request 
 
 if __package__:
     from .audit import render_audit_html, run_audit
-    from .github import fetch_plan_section, fetch_pr_diff, post_verification_comment
-    from .verifier import verify_with_claude
+    from .github import (
+        changed_slice_paths,
+        fetch_criteria_context,
+        fetch_pr_diff,
+        fetch_workflow_runs,
+        post_verification_comment,
+    )
+    from .verifier import (
+        evaluate_github_actions_dependency_update,
+        is_github_actions_dependency_update,
+        verify_with_claude,
+    )
 else:
     from audit import render_audit_html, run_audit  # type: ignore[no-redef]
     from github import (  # type: ignore[no-redef]
-        fetch_plan_section,
+        changed_slice_paths,
+        fetch_criteria_context,
         fetch_pr_diff,
+        fetch_workflow_runs,
         post_verification_comment,
     )
-    from verifier import verify_with_claude  # type: ignore[no-redef]
+    from verifier import (  # type: ignore[no-redef]
+        evaluate_github_actions_dependency_update,
+        is_github_actions_dependency_update,
+        verify_with_claude,
+    )
 
 REPO_PATTERN = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 SUPPORTED_ACTIONS = {"opened", "ready_for_review", "reopened", "synchronize"}
@@ -94,6 +110,8 @@ async def _handle_webhook(request: object, env: object) -> Response:
         pull_request = payload["pull_request"]
         pr_number = int(pull_request["number"])
         pr_title = str(pull_request["title"])
+        pr_body = str(pull_request.get("body") or "")
+        head_ref = str(pull_request.get("head", {}).get("sha") or "")
         if not REPO_PATTERN.fullmatch(repo):
             raise ValueError("Webhook repository name is invalid")
         if pull_request.get("draft") is True:
@@ -102,7 +120,7 @@ async def _handle_webhook(request: object, env: object) -> Response:
         return _json_response({"error": f"Invalid webhook payload: {exc}"}, 400)
 
     gathered = await asyncio.gather(
-        fetch_plan_section(repo, pr_title, github_token),
+        fetch_criteria_context(repo, pr_title, pr_body, github_token),
         fetch_pr_diff(repo, pr_number, github_token),
         return_exceptions=True,
     )
@@ -112,10 +130,41 @@ async def _handle_webhook(request: object, env: object) -> Response:
             "verdict": "ERROR",
             "gaps": errors,
             "retry_prompt": None,
+            "criteria_source": None,
         }
     else:
-        plan, diff = gathered
-        result = await verify_with_claude(str(plan), str(diff), pr_title, anthropic_key)
+        criteria, diff = gathered
+        assert not isinstance(criteria, BaseException)
+        assert not isinstance(diff, BaseException)
+        try:
+            if changed_slice_paths(str(diff)):
+                criteria = await fetch_criteria_context(
+                    repo,
+                    pr_title,
+                    pr_body,
+                    github_token,
+                    diff=str(diff),
+                    head_ref=head_ref or None,
+                )
+            if not criteria.text and is_github_actions_dependency_update(pr_title, str(diff)):
+                workflow_runs = await fetch_workflow_runs(repo, head_ref, github_token)
+                result = evaluate_github_actions_dependency_update(
+                    pr_title, str(diff), workflow_runs
+                ) or {
+                    "verdict": "UNVERIFIED",
+                    "gaps": ["Dependency criteria could not be evaluated"],
+                    "retry_prompt": None,
+                }
+            else:
+                result = await verify_with_claude(criteria.text, str(diff), pr_title, anthropic_key)
+            result.setdefault("criteria_source", criteria.source)
+        except Exception as exc:
+            result = {
+                "verdict": "ERROR",
+                "gaps": [str(exc)],
+                "retry_prompt": None,
+                "criteria_source": None,
+            }
 
     try:
         await post_verification_comment(repo, pr_number, result, github_token)

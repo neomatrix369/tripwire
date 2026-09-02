@@ -14,25 +14,37 @@ import httpx
 if __package__:
     from .github import (
         GITHUB_API,
-        fetch_plan_section,
+        changed_slice_paths,
+        fetch_criteria_context,
         fetch_pr_diff,
         fetch_slicecheck_history,
+        fetch_workflow_runs,
         get_github_response,
         raise_for_github_status,
     )
-    from .verifier import verify_with_claude
+    from .verifier import (
+        evaluate_github_actions_dependency_update,
+        is_github_actions_dependency_update,
+        verify_with_claude,
+    )
 else:
     from github import (  # type: ignore[no-redef]
         GITHUB_API,
-        fetch_plan_section,
+        changed_slice_paths,
+        fetch_criteria_context,
         fetch_pr_diff,
         fetch_slicecheck_history,
+        fetch_workflow_runs,
         get_github_response,
         raise_for_github_status,
     )
-    from verifier import verify_with_claude  # type: ignore[no-redef]
+    from verifier import (  # type: ignore[no-redef]
+        evaluate_github_actions_dependency_update,
+        is_github_actions_dependency_update,
+        verify_with_claude,
+    )
 
-VERDICTS = ("PASS", "FAIL", "ERROR")
+VERDICTS = ("PASS", "FAIL", "UNVERIFIED", "ERROR")
 PR_STATUSES = ("open", "draft", "merged", "closed")
 
 
@@ -60,6 +72,7 @@ def _error_result(pr: dict[str, Any], errors: list[str]) -> dict[str, Any]:
         "pr_title": str(pr.get("title", "Unknown pull request")),
         "pr_url": str(pr.get("html_url", "")),
         "pr_status": _pr_status(pr),
+        "criteria_source": None,
         "verdict": "ERROR",
         "gaps": errors,
         "retry_prompt": None,
@@ -76,7 +89,13 @@ async def _audit_pr(
 ) -> dict[str, Any]:
     try:
         gathered = await asyncio.gather(
-            fetch_plan_section(repo, str(pr["title"]), github_token, plan_file),
+            fetch_criteria_context(
+                repo,
+                str(pr["title"]),
+                str(pr.get("body") or ""),
+                github_token,
+                plan_file,
+            ),
             fetch_pr_diff(repo, int(pr["number"]), github_token),
             fetch_slicecheck_history(repo, int(pr["number"]), github_token),
             return_exceptions=True,
@@ -84,15 +103,41 @@ async def _audit_pr(
         errors = [str(value) for value in gathered if isinstance(value, BaseException)]
         if errors:
             return _error_result(pr, errors)
-        plan, diff, history = gathered
-        verification = await verify_with_claude(
-            str(plan), str(diff), str(pr["title"]), anthropic_key
-        )
+        criteria, diff, history = gathered
+        assert not isinstance(criteria, BaseException)
+        assert not isinstance(diff, BaseException)
+        assert not isinstance(history, BaseException)
+        if changed_slice_paths(str(diff)) and not plan_file:
+            criteria = await fetch_criteria_context(
+                repo,
+                str(pr["title"]),
+                str(pr.get("body") or ""),
+                github_token,
+                diff=str(diff),
+                head_ref=str(pr.get("head", {}).get("sha") or "") or None,
+            )
+        pr_title = str(pr["title"])
+        if not criteria.text and is_github_actions_dependency_update(pr_title, str(diff)):
+            workflow_runs = await fetch_workflow_runs(
+                repo, str(pr.get("head", {}).get("sha") or ""), github_token
+            )
+            verification = evaluate_github_actions_dependency_update(
+                pr_title, str(diff), workflow_runs
+            ) or {
+                "verdict": "UNVERIFIED",
+                "gaps": ["Dependency criteria could not be evaluated"],
+                "retry_prompt": None,
+            }
+        else:
+            verification = await verify_with_claude(
+                criteria.text, str(diff), pr_title, anthropic_key
+            )
         return {
             "pr_number": int(pr["number"]),
             "pr_title": str(pr["title"]),
             "pr_url": str(pr.get("html_url", "")),
             "pr_status": _pr_status(pr),
+            "criteria_source": verification.get("criteria_source", criteria.source),
             "verdict": verification["verdict"],
             "gaps": verification["gaps"],
             "retry_prompt": verification["retry_prompt"],
@@ -214,7 +259,16 @@ def _render_card(result: dict[str, Any]) -> str:
     gap_html = ""
     if verdict != "PASS" and isinstance(gaps, list) and gaps:
         items = "".join(f"<li>{html.escape(str(gap))}</li>" for gap in gaps)
-        gap_html = f'<section class="gaps"><h3>Gaps</h3><ul>{items}</ul></section>'
+        heading = "Reasons" if verdict == "UNVERIFIED" else "Gaps"
+        gap_html = f'<section class="gaps"><h3>{heading}</h3><ul>{items}</ul></section>'
+
+    criteria_source = result.get("criteria_source")
+    criteria_html = (
+        '<p class="criteria-source"><strong>Criteria</strong> '
+        f"{html.escape(str(criteria_source))}</p>"
+        if criteria_source
+        else '<p class="criteria-source"><strong>Criteria</strong> None matched</p>'
+    )
 
     retry_html = ""
     retry_prompt = result.get("retry_prompt")
@@ -233,6 +287,7 @@ def _render_card(result: dict[str, Any]) -> str:
           <span class="verdict {verdict.lower()}">{verdict}</span>
         </div>
       </div>
+      {criteria_html}
       <div class="timeline">{_timeline(result.get("history"), verdict)}</div>
       {gap_html}
       {retry_html}
@@ -275,7 +330,8 @@ def render_audit_html(
   <title>SliceCheck audit · {escaped_repo}</title>
   <style>
     :root {{ color-scheme: dark; --bg:#0d1117; --panel:#161b22; --line:#30363d;
-      --text:#e6edf3; --muted:#8b949e; --pass:#3fb950; --fail:#f85149; --error:#d29922; }}
+      --text:#e6edf3; --muted:#8b949e; --pass:#3fb950; --fail:#f85149;
+      --unverified:#8b949e; --error:#d29922; }}
     * {{ box-sizing: border-box; }}
     body {{ margin:0; background:var(--bg); color:var(--text);
       font:15px/1.55 system-ui,sans-serif; }}
@@ -290,11 +346,13 @@ def render_audit_html(
     .summary {{ display:flex; flex-wrap:wrap; gap:10px; padding:24px 0; }}
     .badge,.verdict {{ border:1px solid currentColor; border-radius:6px;
       font-weight:700; padding:5px 10px; }}
-    .pass {{ color:var(--pass); }} .fail {{ color:var(--fail); }} .error {{ color:var(--error); }}
+    .pass {{ color:var(--pass); }} .fail {{ color:var(--fail); }}
+    .unverified {{ color:var(--unverified); }} .error {{ color:var(--error); }}
     .pr-card {{ color:var(--text); background:var(--panel); border:1px solid var(--line);
       border-left:4px solid var(--line); border-radius:8px; margin:0 0 16px; padding:20px; }}
     .pr-card.pass {{ border-left-color:var(--pass); }}
     .pr-card.fail {{ border-left-color:var(--fail); }}
+    .pr-card.unverified {{ border-left-color:var(--unverified); }}
     .pr-card.error {{ border-left-color:var(--error); }}
     .card-head {{ display:flex; align-items:flex-start; justify-content:space-between; gap:18px; }}
     .card-statuses {{ display:flex; flex:none; flex-wrap:wrap; justify-content:flex-end; gap:8px; }}
@@ -305,6 +363,9 @@ def render_audit_html(
     .pr-status.merged {{ border-color:#a371f7; color:#a371f7; }}
     h2 {{ color:var(--text); font-size:18px; letter-spacing:0; margin:0; }}
     h2 a {{ color:var(--text); text-decoration:none; }} h2 a:hover {{ text-decoration:underline; }}
+    .criteria-source {{ color:var(--muted); font-size:12px; margin:10px 0 0;
+      overflow-wrap:anywhere; }}
+    .criteria-source strong {{ color:var(--text); margin-right:4px; }}
     .timeline {{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; color:var(--muted);
       border-top:1px solid var(--line); margin-top:16px; padding-top:14px; font-size:12px; }}
     .event {{ display:inline-flex; align-items:center; gap:5px; }}
@@ -341,6 +402,7 @@ def render_audit_html(
     <div class="summary" aria-label="Audit summary">
       <span class="badge pass">PASS {counts["PASS"]}</span>
       <span class="badge fail">FAIL {counts["FAIL"]}</span>
+      <span class="badge unverified">UNVERIFIED {counts["UNVERIFIED"]}</span>
       <span class="badge error">ERROR {counts["ERROR"]}</span>
     </div>
     {cards}

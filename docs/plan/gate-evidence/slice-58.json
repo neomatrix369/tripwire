@@ -5,17 +5,19 @@
   "verdict": "ON_BRANCH",
   "before_checks": "all green",
   "after_checks": [
-    "36 SliceCheck tests pass",
+    "47 SliceCheck tests pass",
     "Ruff check and format pass",
     "MyPy and Bandit pass",
     "Pywrangler deploy dry-run packages httpx and all Worker modules",
+    "Live PR #79 resolver selects the seven changed Slice 23-29 specifications",
+    "Live dependency PR #129 resolver returns no matched criteria for UNVERIFIED handling",
     "forbidden imports and process environment access absent",
     "runtime configuration and deployment documentation present"
   ],
   "commands": [
     {
       "cmd": "uv run --project slicecheck pytest slicecheck/tests -q",
-      "result": "PASS: 36 tests"
+      "result": "PASS: 47 tests"
     },
     {
       "cmd": "uv run ruff check slicecheck && uv run ruff format --check slicecheck && uv run mypy slicecheck/src && uv run bandit -r slicecheck/src -q -ll",
@@ -23,7 +25,15 @@
     },
     {
       "cmd": "uv run --project slicecheck pywrangler deploy --dry-run --outdir /tmp/slicecheck-dist",
-      "result": "PASS: 761.31 KiB bundle, 82 modules including vendored httpx"
+      "result": "PASS: 773.42 KiB modules, 782.77 KiB upload, 82 modules including vendored httpx"
+    },
+    {
+      "cmd": "fetch PR #79 diff and run fetch_criteria_context against its head SHA",
+      "result": "PASS: 7 Slice 23-29 files, 40004 criteria chars, 227142 diff chars"
+    },
+    {
+      "cmd": "fetch dependency PR #129 diff and run fetch_criteria_context",
+      "result": "PASS: criteria source None and 0 criteria chars"
     },
     {
       "cmd": "uv run pytest sandbox/tests/ --cov=sandbox --cov-fail-under=95",

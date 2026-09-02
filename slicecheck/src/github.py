@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import json
+import posixpath
 import re
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, NamedTuple
 from urllib.parse import quote
 
 import httpx
@@ -17,10 +19,31 @@ except ImportError:  # pragma: no cover - the native transport exists only in Wo
     workers_fetch = None  # type: ignore[assignment]
 
 GITHUB_API = "https://api.github.com"
-DEFAULT_PLAN_FILES = ("PROGRESS.md", "STATUS.md", "PLAN.md", "CLAUDE.md")
-SLICECHECK_MARKER = re.compile(
-    r"<!--\s*slicecheck(?:-verdict)?\s*:\s*(PASS|FAIL|ERROR)\s*-->", re.IGNORECASE
+CRITERIA_INDEX_FILES = (
+    "docs/plan/PROGRESS.md",
+    "docs/plan/TRAIL.md",
+    "docs/plan/README.md",
+    "docs/STATUS.md",
+    "PROGRESS.md",
+    "STATUS.md",
+    "PLAN.md",
 )
+MAX_CRITERIA_FILES = 12
+SLICE_PATH_PATTERN = re.compile(r"docs/plan/slices/[A-Za-z0-9._/-]+\.md")
+DIFF_SLICE_PATH_PATTERN = re.compile(
+    r"(?m)^diff --git a/(docs/plan/slices/[A-Za-z0-9._/-]+\.md) b/"
+)
+SLICE_NUMBER_PATTERN = re.compile(r"\bslice[\s_:#-]*(\d+)\b", re.IGNORECASE)
+MARKDOWN_LINK_PATTERN = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+SLICECHECK_MARKER = re.compile(
+    r"<!--\s*slicecheck(?:-verdict)?\s*:\s*(PASS|FAIL|UNVERIFIED|ERROR)\s*-->",
+    re.IGNORECASE,
+)
+
+
+class CriteriaContext(NamedTuple):
+    text: str
+    source: str | None
 
 
 def _headers(token: str, accept: str = "application/vnd.github+json") -> dict[str, str]:
@@ -141,10 +164,15 @@ def _normalize_heading(value: str) -> set[str]:
 
 def _matching_plan_section(plan: str, pr_title: str) -> str:
     """Return the closest Markdown section, or the complete plan when no section matches."""
+    return _find_matching_plan_section(plan, pr_title) or plan
+
+
+def _find_matching_plan_section(plan: str, pr_title: str) -> str | None:
+    """Return the closest Markdown section only when its heading meaningfully matches."""
     headings = list(re.finditer(r"(?m)^(#{1,6})\s+(.+?)\s*$", plan))
     title_tokens = _normalize_heading(pr_title)
     if not headings or not title_tokens:
-        return plan
+        return None
 
     best: tuple[float, int, int] | None = None
     for index, heading in enumerate(headings):
@@ -157,12 +185,12 @@ def _matching_plan_section(plan: str, pr_title: str) -> str:
             best = (score, index, overlap)
 
     if best is None:
-        return plan
+        return None
 
     _, index, overlap = best
     minimum_overlap = 1 if len(title_tokens) <= 2 else 2
     if overlap < minimum_overlap:
-        return plan
+        return None
 
     start = headings[index].start()
     level = len(headings[index].group(1))
@@ -174,9 +202,11 @@ def _matching_plan_section(plan: str, pr_title: str) -> str:
     return plan[start:end].strip()
 
 
-async def _fetch_plan_file(repo: str, path: str, token: str) -> str | None:
+async def _fetch_plan_file(repo: str, path: str, token: str, ref: str | None = None) -> str | None:
     encoded_path = quote(path.strip("/"), safe="/")
     url = f"{GITHUB_API}/repos/{repo}/contents/{encoded_path}"
+    if ref:
+        url += f"?ref={quote(ref, safe='')}"
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
             response = await get_github_response(
@@ -201,15 +231,107 @@ async def _fetch_plan_file(repo: str, path: str, token: str) -> str | None:
 async def fetch_plan_section(
     repo: str, pr_title: str, github_token: str, plan_file: str | None = None
 ) -> str:
-    """Fetch a configured plan file and select the section closest to the PR title."""
-    candidates = (plan_file,) if plan_file else DEFAULT_PLAN_FILES
-    for candidate in candidates:
-        if not candidate:
+    """Compatibility wrapper returning only the matched criteria text."""
+    criteria = await fetch_criteria_context(repo, pr_title, "", github_token, plan_file=plan_file)
+    return criteria.text
+
+
+def changed_slice_paths(diff: str) -> list[str]:
+    """Return unique slice specification paths changed by a unified PR diff."""
+    return list(dict.fromkeys(DIFF_SLICE_PATH_PATTERN.findall(diff)))[:MAX_CRITERIA_FILES]
+
+
+def _referenced_slice_paths(value: str) -> list[str]:
+    return list(dict.fromkeys(SLICE_PATH_PATTERN.findall(value)))[:MAX_CRITERIA_FILES]
+
+
+def _linked_slice_paths(index: str, index_path: str) -> list[str]:
+    paths: list[str] = []
+    parent = posixpath.dirname(index_path)
+    for raw_href in MARKDOWN_LINK_PATTERN.findall(index):
+        href = raw_href.split("#", 1)[0]
+        if not href or "://" in href or href.startswith("/"):
             continue
-        plan = await _fetch_plan_file(repo, candidate, github_token)
-        if plan is not None:
-            return _matching_plan_section(plan, pr_title)
-    return ""
+        resolved = posixpath.normpath(posixpath.join(parent, href))
+        if SLICE_PATH_PATTERN.fullmatch(resolved):
+            paths.append(resolved)
+    return list(dict.fromkeys(paths))
+
+
+def _paths_for_slice_numbers(paths: list[str], value: str) -> list[str]:
+    numbers = set(SLICE_NUMBER_PATTERN.findall(value))
+    if not numbers:
+        return []
+    return [
+        path
+        for path in paths
+        if any(re.search(rf"(?:^|/)slice-{number}(?:-|\.md$)", path) for number in numbers)
+    ]
+
+
+async def _fetch_criteria_paths(
+    repo: str,
+    paths: list[str],
+    token: str,
+    ref: str | None,
+) -> CriteriaContext:
+    unique_paths = list(dict.fromkeys(paths))[:MAX_CRITERIA_FILES]
+
+    async def fetch(path: str) -> str | None:
+        if ref:
+            return await _fetch_plan_file(repo, path, token, ref)
+        return await _fetch_plan_file(repo, path, token)
+
+    contents = await asyncio.gather(*(fetch(path) for path in unique_paths))
+    selected = [
+        (path, content.strip())
+        for path, content in zip(unique_paths, contents, strict=True)
+        if content and content.strip()
+    ]
+    if not selected:
+        return CriteriaContext("", None)
+    text = "\n\n".join(f"# Criteria source: {path}\n\n{content}" for path, content in selected)
+    return CriteriaContext(text, ", ".join(path for path, _content in selected))
+
+
+async def fetch_criteria_context(
+    repo: str,
+    pr_title: str,
+    pr_body: str,
+    github_token: str,
+    plan_file: str | None = None,
+    diff: str = "",
+    head_ref: str | None = None,
+) -> CriteriaContext:
+    """Find PR-specific acceptance criteria from curated plan indexes and slice files."""
+    if plan_file:
+        plan = await _fetch_plan_file(repo, plan_file, github_token)
+        if not plan or not plan.strip():
+            return CriteriaContext("", None)
+        return CriteriaContext(_matching_plan_section(plan, pr_title), plan_file)
+
+    reference_text = f"{pr_title}\n{pr_body}"
+    direct_paths = [
+        *changed_slice_paths(diff),
+        *_referenced_slice_paths(reference_text),
+    ]
+    if direct_paths:
+        return await _fetch_criteria_paths(repo, direct_paths, github_token, head_ref)
+
+    for index_path in CRITERIA_INDEX_FILES:
+        index = await _fetch_plan_file(repo, index_path, github_token)
+        if not index:
+            continue
+        linked_paths = _paths_for_slice_numbers(
+            _linked_slice_paths(index, index_path), reference_text
+        )
+        if linked_paths:
+            return await _fetch_criteria_paths(repo, linked_paths, github_token, head_ref)
+        section = _find_matching_plan_section(index, pr_title)
+        if section:
+            return CriteriaContext(section, index_path)
+
+    return CriteriaContext("", None)
 
 
 async def fetch_pr_diff(repo: str, pr_number: int, github_token: str) -> str:
@@ -225,6 +347,32 @@ async def fetch_pr_diff(repo: str, pr_number: int, github_token: str) -> str:
         return str(response.text)
     except Exception as exc:
         raise RuntimeError(f"Failed to fetch diff for PR #{pr_number}: {exc}") from exc
+
+
+async def fetch_workflow_runs(repo: str, head_sha: str, github_token: str) -> list[dict[str, str]]:
+    """Return workflow paths and outcomes associated with a pull-request head."""
+    if not head_sha:
+        return []
+    url = f"{GITHUB_API}/repos/{repo}/actions/runs?head_sha={quote(head_sha, safe='')}&per_page=100"
+    try:
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            response = await get_github_response(client, url, _headers(github_token))
+        raise_for_github_status(response, f"fetching workflow runs for {head_sha[:12]}")
+        payload = response.json()
+        runs = payload.get("workflow_runs") if isinstance(payload, dict) else None
+        if not isinstance(runs, list):
+            raise ValueError("GitHub workflow-runs response was not a list")
+        return [
+            {
+                "path": str(run.get("path") or ""),
+                "status": str(run.get("status") or ""),
+                "conclusion": str(run.get("conclusion") or ""),
+            }
+            for run in runs
+            if isinstance(run, dict)
+        ]
+    except Exception as exc:
+        raise RuntimeError(f"Failed to fetch workflow runs for {head_sha[:12]}: {exc}") from exc
 
 
 async def fetch_slicecheck_history(
@@ -252,19 +400,25 @@ async def fetch_slicecheck_history(
 
 def render_verification_comment(result: dict[str, Any]) -> str:
     verdict = str(result.get("verdict", "ERROR")).upper()
-    if verdict not in {"PASS", "FAIL", "ERROR"}:
+    if verdict not in {"PASS", "FAIL", "UNVERIFIED", "ERROR"}:
         verdict = "ERROR"
-    icon = {"PASS": "✅", "FAIL": "❌", "ERROR": "⚠️"}[verdict]
+    icon = {"PASS": "✅", "FAIL": "❌", "UNVERIFIED": "➖", "ERROR": "⚠️"}[verdict]
     lines = [
         f"<!-- slicecheck-verdict: {verdict} -->",
         f"## {icon} SliceCheck: {verdict}",
     ]
 
+    criteria_source = result.get("criteria_source")
+    if criteria_source:
+        safe_source = str(criteria_source).replace("`", "")
+        lines.extend(["", f"**Criteria:** `{safe_source}`"])
+
     gaps = result.get("gaps") or []
     if verdict == "PASS":
         lines.extend(["", "The pull request matches the planned work."])
     elif gaps:
-        lines.extend(["", "### Gaps", *[f"- {gap}" for gap in gaps]])
+        heading = "### Reasons" if verdict == "UNVERIFIED" else "### Gaps"
+        lines.extend(["", heading, *[f"- {gap}" for gap in gaps]])
 
     retry_prompt = result.get("retry_prompt")
     if retry_prompt:

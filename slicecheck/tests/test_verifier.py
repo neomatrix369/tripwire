@@ -49,6 +49,20 @@ class NativeResponse:
         return json.dumps(self.payload)
 
 
+def dependency_diff(*paths: str, extra_change: bool = False) -> str:
+    sections = []
+    for path in paths:
+        lines = [
+            f"diff --git a/{path} b/{path}",
+            "-      uses: actions/github-script@v7",
+            "+      uses: actions/github-script@v9",
+        ]
+        if extra_change:
+            lines.extend(["-      timeout-minutes: 5", "+      timeout-minutes: 10"])
+        sections.append("\n".join(lines))
+    return "\n".join(sections)
+
+
 @pytest.mark.asyncio
 async def test_verify_uses_prescribed_anthropic_request(monkeypatch: pytest.MonkeyPatch) -> None:
     calls: list[dict[str, object]] = []
@@ -74,7 +88,7 @@ async def test_verify_uses_prescribed_anthropic_request(monkeypatch: pytest.Monk
     body = request["json"]
     assert isinstance(body, dict)
     assert body["model"] == "claude-haiku-4-5-20251001"
-    assert body["max_tokens"] == 500
+    assert body["max_tokens"] == verifier.MAX_OUTPUT_TOKENS
     assert body["system"] == verifier.SYSTEM_PROMPT
     assert "PR Title: Ship it" in body["messages"][0]["content"]
     assert body["output_config"] == {
@@ -138,17 +152,19 @@ async def test_verify_accepts_fenced_json(monkeypatch: pytest.MonkeyPatch) -> No
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    ("plan", "diff", "gap"),
-    [
-        ("", "+change", "Plan file was not found or was empty"),
-        ("# Plan", "", "Pull request diff was empty"),
-    ],
-)
-async def test_verify_rejects_missing_inputs(plan: str, diff: str, gap: str) -> None:
-    assert await verifier.verify_with_claude(plan, diff, "PR", "key") == {
+async def test_verify_without_matching_criteria_is_unverified() -> None:
+    assert await verifier.verify_with_claude("", "+change", "PR", "key") == {
+        "verdict": "UNVERIFIED",
+        "gaps": ["No matching acceptance criteria were found for this pull request"],
+        "retry_prompt": None,
+    }
+
+
+@pytest.mark.asyncio
+async def test_verify_rejects_empty_diff() -> None:
+    assert await verifier.verify_with_claude("# Plan", "", "PR", "key") == {
         "verdict": "ERROR",
-        "gaps": [gap],
+        "gaps": ["Pull request diff was empty"],
         "retry_prompt": None,
     }
 
@@ -170,6 +186,31 @@ async def test_verify_turns_invalid_response_into_error(monkeypatch: pytest.Monk
 
 
 @pytest.mark.asyncio
+async def test_verify_reports_truncated_structured_response(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    response = StubResponse(
+        {
+            "stop_reason": "max_tokens",
+            "content": [{"type": "text", "text": '{"verdict":"FAIL","gaps":["cut'}],
+        }
+    )
+    monkeypatch.setattr(
+        verifier.httpx,
+        "AsyncClient",
+        lambda **kwargs: StubClient(response, [], **kwargs),
+    )
+
+    result = await verifier.verify_with_claude("plan", "diff", "PR", "key")
+
+    assert result == {
+        "verdict": "ERROR",
+        "gaps": [f"Claude response exceeded the {verifier.MAX_OUTPUT_TOKENS}-token output budget"],
+        "retry_prompt": None,
+    }
+
+
+@pytest.mark.asyncio
 async def test_verify_turns_http_failure_into_error(monkeypatch: pytest.MonkeyPatch) -> None:
     response = StubResponse({}, RuntimeError("upstream unavailable"))
     monkeypatch.setattr(
@@ -185,3 +226,57 @@ async def test_verify_turns_http_failure_into_error(monkeypatch: pytest.MonkeyPa
         "gaps": ["upstream unavailable"],
         "retry_prompt": None,
     }
+
+
+def test_dependency_update_passes_only_when_every_changed_workflow_ran() -> None:
+    title = "chore(deps): bump actions/github-script from 7 to 9"
+    paths = (".github/workflows/ci.yml", ".github/workflows/nightly.yml")
+    runs = [{"path": path, "status": "completed", "conclusion": "success"} for path in paths]
+
+    result = verifier.evaluate_github_actions_dependency_update(
+        title, dependency_diff(*paths), runs
+    )
+
+    assert result == {
+        "verdict": "PASS",
+        "gaps": [],
+        "retry_prompt": None,
+        "criteria_source": verifier.DEPENDENCY_CRITERIA_SOURCE,
+    }
+
+
+def test_dependency_update_is_unverified_when_changed_workflow_did_not_run() -> None:
+    title = "chore(deps): bump actions/github-script from 7 to 9"
+    paths = (".github/workflows/ci.yml", ".github/workflows/nightly.yml")
+    runs = [
+        {
+            "path": ".github/workflows/ci.yml",
+            "status": "completed",
+            "conclusion": "success",
+        }
+    ]
+
+    result = verifier.evaluate_github_actions_dependency_update(
+        title, dependency_diff(*paths), runs
+    )
+
+    assert result is not None
+    assert result["verdict"] == "UNVERIFIED"
+    assert ".github/workflows/nightly.yml" in result["gaps"][0]
+
+
+def test_dependency_update_fails_on_failed_run_or_extra_diff() -> None:
+    title = "chore(deps): bump actions/github-script from 7 to 9"
+    path = ".github/workflows/ci.yml"
+    failed = [{"path": path, "status": "completed", "conclusion": "failure"}]
+
+    failed_run = verifier.evaluate_github_actions_dependency_update(
+        title, dependency_diff(path), failed
+    )
+    unexpected_diff = verifier.evaluate_github_actions_dependency_update(
+        title, dependency_diff(path, extra_change=True), failed
+    )
+
+    assert failed_run is not None and failed_run["verdict"] == "FAIL"
+    assert unexpected_diff is not None and unexpected_diff["verdict"] == "FAIL"
+    assert "beyond the declared" in unexpected_diff["gaps"][0]

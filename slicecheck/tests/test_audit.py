@@ -4,7 +4,7 @@ import asyncio
 from typing import Any
 
 import pytest
-from slicecheck.src import audit
+from slicecheck.src import audit, github
 
 
 class StubResponse:
@@ -62,8 +62,17 @@ async def test_run_audit_fetches_all_pr_inputs_concurrently(
         await asyncio.wait_for(all_started.wait(), timeout=1)
         return result
 
-    async def fake_plan(_repo: str, title: str, _token: str, _path: str | None) -> str:
-        return await rendezvous(f"plan:{title}", f"plan {title}")
+    async def fake_criteria(
+        _repo: str,
+        title: str,
+        _body: str,
+        _token: str,
+        _path: str | None,
+        **_kwargs: object,
+    ) -> github.CriteriaContext:
+        return await rendezvous(
+            f"criteria:{title}", github.CriteriaContext(f"plan {title}", f"slice-{title}.md")
+        )
 
     async def fake_diff(_repo: str, number: int, _token: str) -> str:
         return await rendezvous(f"diff:{number}", f"diff {number}")
@@ -81,7 +90,7 @@ async def test_run_audit_fetches_all_pr_inputs_concurrently(
             "retry_prompt": None,
         }
 
-    monkeypatch.setattr(audit, "fetch_plan_section", fake_plan)
+    monkeypatch.setattr(audit, "fetch_criteria_context", fake_criteria)
     monkeypatch.setattr(audit, "fetch_pr_diff", fake_diff)
     monkeypatch.setattr(audit, "fetch_slicecheck_history", fake_history)
     monkeypatch.setattr(audit, "verify_with_claude", fake_verify)
@@ -91,6 +100,7 @@ async def test_run_audit_fetches_all_pr_inputs_concurrently(
     assert len(started) == 6
     assert [result["verdict"] for result in results] == ["PASS", "FAIL"]
     assert [result["pr_status"] for result in results] == ["open", "merged"]
+    assert results[0]["criteria_source"] == "slice-First.md"
     assert results[0]["history"][0]["verdict"] == "PASS"
 
 
@@ -113,10 +123,17 @@ async def test_run_audit_isolates_per_pr_failure(monkeypatch: pytest.MonkeyPatch
     ]
     monkeypatch.setattr(audit.httpx, "AsyncClient", lambda **kwargs: StubClient(prs, **kwargs))
 
-    async def fake_plan(_repo: str, title: str, _token: str, _path: str | None) -> str:
+    async def fake_criteria(
+        _repo: str,
+        title: str,
+        _body: str,
+        _token: str,
+        _path: str | None,
+        **_kwargs: object,
+    ) -> github.CriteriaContext:
         if title == "Broken":
             raise RuntimeError("plan API failed")
-        return "plan"
+        return github.CriteriaContext("plan", "docs/plan/slice.md")
 
     async def fake_diff(_repo: str, _number: int, _token: str) -> str:
         return "diff"
@@ -127,7 +144,7 @@ async def test_run_audit_isolates_per_pr_failure(monkeypatch: pytest.MonkeyPatch
     async def fake_verify(*_args: object) -> dict[str, Any]:
         return {"verdict": "PASS", "gaps": [], "retry_prompt": None}
 
-    monkeypatch.setattr(audit, "fetch_plan_section", fake_plan)
+    monkeypatch.setattr(audit, "fetch_criteria_context", fake_criteria)
     monkeypatch.setattr(audit, "fetch_pr_diff", fake_diff)
     monkeypatch.setattr(audit, "fetch_slicecheck_history", fake_history)
     monkeypatch.setattr(audit, "verify_with_claude", fake_verify)
@@ -147,6 +164,7 @@ def test_render_audit_html_is_offline_escaped_and_complete() -> None:
             "pr_title": "<script>alert(1)</script>",
             "pr_url": "javascript:alert(1)",
             "pr_status": "draft",
+            "criteria_source": "docs/plan/slices/<slice-1>.md",
             "verdict": "FAIL",
             "gaps": ["Missing <b>tests</b>"],
             "retry_prompt": "Use </code><script>bad()</script>",
@@ -157,8 +175,20 @@ def test_render_audit_html_is_offline_escaped_and_complete() -> None:
             "pr_title": "Second",
             "pr_url": "https://github.com/o/r/pull/2?a=1&b=2",
             "pr_status": "merged",
-            "verdict": "ERROR",
+            "criteria_source": None,
+            "verdict": "UNVERIFIED",
             "gaps": ["Missing <b>tests</b>"],
+            "retry_prompt": None,
+            "history": [],
+        },
+        {
+            "pr_number": 3,
+            "pr_title": "Third",
+            "pr_url": "https://github.com/o/r/pull/3",
+            "pr_status": "closed",
+            "criteria_source": None,
+            "verdict": "ERROR",
+            "gaps": ["GitHub unavailable"],
             "retry_prompt": None,
             "history": [],
         },
@@ -179,7 +209,11 @@ def test_render_audit_html_is_offline_escaped_and_complete() -> None:
     assert "Limit</strong>5 PRs" in rendered
     assert "Plan</strong>docs/&lt;PLAN&gt;.md" in rendered
     assert "PR DRAFT" in rendered and "PR MERGED" in rendered
-    assert "PASS 0" in rendered and "FAIL 1" in rendered and "ERROR 1" in rendered
+    assert "Criteria</strong> docs/plan/slices/&lt;slice-1&gt;.md" in rendered
+    assert "Criteria</strong> None matched" in rendered
+    assert "Current: UNVERIFIED" in rendered
+    assert "PASS 0" in rendered and "FAIL 1" in rendered
+    assert "UNVERIFIED 1" in rendered and "ERROR 1" in rendered
     assert "#0d1117" in rendered and "#3fb950" in rendered and "#f85149" in rendered
     assert "SliceCheck · any repo, any agent · Cloudflare Workers" in rendered
 
