@@ -281,4 +281,4 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-25 | slice/42-quality-score-tabs | sync-docs | 42 | APPLIED | TRAIL/PROGRESS/gate-evidence/slice-42 + ARCHITECTURE + STATUS Wave J A14–A15 ON BRANCH; three-tab spec (≥80 / <80 / unscored). |
 
 | 2026-08-28 | plan | enhanced-flow-planner Wave N | 44 pile-on GWT-44.9 + 55–57 | 📋 PLANNED | Docs gap-bridge audit: diagram A+B, disclaimer placements (D1–D8), 6 gap repairs (56-a–f; 56-f scanner×input-type matrix added post-review 2026-08-31), sync-docs skill update. Execution in a later session. |
-| 2026-09-02 | slice/58-slicecheck-worker | implementation + verification | 58 | 🔀 ON BRANCH | 23 focused tests, Wrangler deploy dry-run, Ruff/MyPy/Bandit green; review and merge pending. |
+| 2026-09-02 | slice/58-slicecheck-worker | implementation + verification | 58 | 🔀 ON BRANCH | 24 focused tests, Wrangler deploy dry-run, Ruff/MyPy/Bandit green; review and merge pending. |

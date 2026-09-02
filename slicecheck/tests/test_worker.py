@@ -3,6 +3,9 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import subprocess
+import sys
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -35,6 +38,20 @@ def signed_headers(body: str, secret: str) -> dict[str, str]:
 
 def response_json(response: worker.Response) -> dict[str, Any]:
     return json.loads(response.body)
+
+
+def test_cloudflare_entrypoint_imports_without_package_context() -> None:
+    source_dir = Path(__file__).parents[1] / "src"
+    command = f"import sys; sys.path.insert(0, {str(source_dir)!r}); import worker"
+
+    completed = subprocess.run(
+        [sys.executable, "-c", command],
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+
+    assert completed.returncode == 0, completed.stderr
 
 
 @pytest.mark.asyncio

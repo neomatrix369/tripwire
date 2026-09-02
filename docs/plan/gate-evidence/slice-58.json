@@ -5,7 +5,7 @@
   "verdict": "ON_BRANCH",
   "before_checks": "all green",
   "after_checks": [
-    "23 SliceCheck tests pass",
+    "24 SliceCheck tests pass",
     "Ruff check and format pass",
     "MyPy and Bandit pass",
     "Wrangler 4.128.0 deploy dry-run packages all modules",
@@ -15,7 +15,7 @@
   "commands": [
     {
       "cmd": "uv run --extra dev --with-requirements slicecheck/requirements.txt pytest slicecheck/tests -q",
-      "result": "PASS: 23 tests"
+      "result": "PASS: 24 tests"
     },
     {
       "cmd": "uv run ruff check slicecheck && uv run ruff format --check slicecheck && uv run mypy slicecheck/src && uv run bandit -r slicecheck/src -q -ll",
@@ -23,7 +23,7 @@
     },
     {
       "cmd": "XDG_CONFIG_HOME=/tmp/slicecheck-xdg WRANGLER_LOG_PATH=/tmp/slicecheck-wrangler.log npx --yes wrangler deploy --dry-run --outdir /tmp/slicecheck-dist",
-      "result": "PASS: 27.59 KiB upload, all Python modules attached"
+      "result": "PASS: 28.18 KiB upload, all Python modules attached"
     },
     {
       "cmd": "uv run pytest sandbox/tests/ --cov=sandbox --cov-fail-under=95",

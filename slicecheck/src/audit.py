@@ -11,13 +11,22 @@ from urllib.parse import quote, urlparse
 
 import httpx
 
-from .github import (
-    GITHUB_API,
-    fetch_plan_section,
-    fetch_pr_diff,
-    fetch_slicecheck_history,
-)
-from .verifier import verify_with_claude
+if __package__:
+    from .github import (
+        GITHUB_API,
+        fetch_plan_section,
+        fetch_pr_diff,
+        fetch_slicecheck_history,
+    )
+    from .verifier import verify_with_claude
+else:
+    from github import (  # type: ignore[no-redef]
+        GITHUB_API,
+        fetch_plan_section,
+        fetch_pr_diff,
+        fetch_slicecheck_history,
+    )
+    from verifier import verify_with_claude  # type: ignore[no-redef]
 
 VERDICTS = ("PASS", "FAIL", "ERROR")
 

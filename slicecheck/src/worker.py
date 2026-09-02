@@ -26,9 +26,18 @@ except ImportError:  # pragma: no cover - local tests exercise the pure request 
             self.headers = headers or {}
 
 
-from .audit import render_audit_html, run_audit
-from .github import fetch_plan_section, fetch_pr_diff, post_verification_comment
-from .verifier import verify_with_claude
+if __package__:
+    from .audit import render_audit_html, run_audit
+    from .github import fetch_plan_section, fetch_pr_diff, post_verification_comment
+    from .verifier import verify_with_claude
+else:
+    from audit import render_audit_html, run_audit  # type: ignore[no-redef]
+    from github import (  # type: ignore[no-redef]
+        fetch_plan_section,
+        fetch_pr_diff,
+        post_verification_comment,
+    )
+    from verifier import verify_with_claude  # type: ignore[no-redef]
 
 REPO_PATTERN = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 SUPPORTED_ACTIONS = {"opened", "reopened", "synchronize"}
