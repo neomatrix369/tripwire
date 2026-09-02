@@ -76,6 +76,31 @@ async def test_verify_uses_prescribed_anthropic_request(monkeypatch: pytest.Monk
     assert body["model"] == "claude-haiku-4-5-20251001"
     assert body["max_tokens"] == 500
     assert "PR Title: Ship it" in body["messages"][0]["content"]
+    assert body["tools"] == [verifier.VERDICT_TOOL]
+    assert body["tool_choice"] == {"type": "tool", "name": "record_verdict"}
+
+
+@pytest.mark.asyncio
+async def test_verify_prefers_structured_tool_result(monkeypatch: pytest.MonkeyPatch) -> None:
+    expected = {"verdict": "FAIL", "gaps": ["missing test"], "retry_prompt": "Add test"}
+    response = StubResponse(
+        {
+            "content": [
+                {
+                    "type": "tool_use",
+                    "name": "record_verdict",
+                    "input": expected,
+                }
+            ]
+        }
+    )
+    monkeypatch.setattr(
+        verifier.httpx,
+        "AsyncClient",
+        lambda **kwargs: StubClient(response, [], **kwargs),
+    )
+
+    assert await verifier.verify_with_claude("plan", "diff", "PR", "key") == expected
 
 
 @pytest.mark.asyncio

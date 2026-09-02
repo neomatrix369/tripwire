@@ -15,6 +15,26 @@ except ImportError:  # pragma: no cover - the native transport exists only in Wo
 
 ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
 MODEL = "claude-haiku-4-5-20251001"
+VERDICT_TOOL_NAME = "record_verdict"
+VERDICT_TOOL = {
+    "name": VERDICT_TOOL_NAME,
+    "description": "Record whether the pull request completed its planned work.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "verdict": {"type": "string", "enum": ["PASS", "FAIL", "ERROR"]},
+            "gaps": {"type": "array", "items": {"type": "string"}},
+            "retry_prompt": {
+                "anyOf": [
+                    {"type": "string"},
+                    {"type": "null"},
+                ]
+            },
+        },
+        "required": ["verdict", "gaps", "retry_prompt"],
+        "additionalProperties": False,
+    },
+}
 
 
 def _error(message: str) -> dict[str, Any]:
@@ -34,15 +54,8 @@ ACTUAL DIFF:
 
 Did the agent complete the planned work?
 
-Respond ONLY in this exact JSON format, no other text:
-{{
-  "verdict": "PASS" or "FAIL",
-  "gaps": ["specific thing missing 1", "specific thing missing 2"],
-  "retry_prompt": "Paste-ready instruction for the agent to fix the gaps, or null if PASS"
-}}
-
 Be specific about gaps. Reference actual file names or functions from the diff.
-If the plan file was not found or the diff is empty, return verdict ERROR.
+Use the {VERDICT_TOOL_NAME} tool to return the verdict, gaps, and retry prompt.
 """
 
 
@@ -74,6 +87,25 @@ def _parse_claude_result(text: str) -> dict[str, Any]:
     except json.JSONDecodeError as exc:
         raise ValueError(f"Claude returned invalid JSON: {exc}") from exc
     return _validated_result(parsed)
+
+
+def _result_from_message(payload: object) -> dict[str, Any]:
+    if not isinstance(payload, dict) or not isinstance(payload.get("content"), list):
+        raise ValueError("Anthropic response did not contain a content list")
+
+    text_blocks: list[str] = []
+    for block in payload["content"]:
+        if not isinstance(block, dict):
+            continue
+        if block.get("type") == "tool_use" and block.get("name") == VERDICT_TOOL_NAME:
+            return _validated_result(block.get("input"))
+        text = block.get("text")
+        if isinstance(text, str):
+            text_blocks.append(text)
+
+    if text_blocks:
+        return _parse_claude_result("\n".join(text_blocks))
+    raise ValueError(f"Claude did not call the required {VERDICT_TOOL_NAME} tool")
 
 
 async def _post_anthropic(
@@ -130,11 +162,12 @@ async def verify_with_claude(plan: str, diff: str, pr_title: str, api_key: str) 
                     "model": MODEL,
                     "max_tokens": 500,
                     "messages": [{"role": "user", "content": _prompt(plan, diff, pr_title)}],
+                    "tools": [VERDICT_TOOL],
+                    "tool_choice": {"type": "tool", "name": VERDICT_TOOL_NAME},
                 },
             )
         _raise_for_anthropic_status(response)
         payload = response.json()
-        text = payload["content"][0]["text"]
-        return _parse_claude_result(text)
+        return _result_from_message(payload)
     except Exception as exc:
         return _error(str(exc))
