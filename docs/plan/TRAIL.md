@@ -340,7 +340,7 @@ not alter Tripwire's existing runtime or replace the root README.
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
-| 58 | [slice-58-slicecheck-worker](slices/15-O-slicecheck-worker/slice-58-slicecheck-worker.md) | SliceCheck Cloudflare Worker | Should | 🔀 | — | — | ~3 min |
+| 58 | [slice-58-slicecheck-worker](slices/15-O-slicecheck-worker/slice-58-slicecheck-worker.md) | SliceCheck Cloudflare Worker | Should | 🔀 | — | [#130](https://github.com/neomatrix369/tripwire/pull/130) | ~3 min |
 
 ## Supporting Artifacts
 | File | Status |

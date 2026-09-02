@@ -28,7 +28,7 @@
 |------:|-----:|---|-------|--------|--------|
 | 0 (docs) | K | **44** | **Docs UX plain language + compaction** | Must | 🔀 ON BRANCH · [#99](https://github.com/neomatrix369/tripwire/pull/99) · GWT-44.1–44.8 · documentarist APPROVED WITH FOLLOW-ON (DIVIO targets pending) · `slice/44-docs-ux-plain-language` |
 | 0 (active) | L | **51** | **Tessl: Review (Security) (Row 5)** | Could | 🔀 ON BRANCH · `slice/51-review-security` · nw-review APPROVED |
-| 0 (active) | O | **58** | **SliceCheck Cloudflare Worker** | Should | 🔀 ON BRANCH · `slice/58-slicecheck-worker` |
+| 0 (active) | O | **58** | **SliceCheck Cloudflare Worker** | Should | 🔀 ON BRANCH · [#130](https://github.com/neomatrix369/tripwire/pull/130) · `slice/58-slicecheck-worker` |
 | 0 (delta) | J | 42 | Dashboard Data Quality — Tessl quality UX + tooltips + plain labels (A9–A13) | Must | ✅ PASSED · [#98](https://github.com/neomatrix369/tripwire/pull/98) |
 | 1 | G | 18 | CLI Operator Evidence Contracts | Must | 📋 PLANNED |
 | 2 | G | 19 | Sandbox Persistence State Contract | Must | 📋 PLANNED |

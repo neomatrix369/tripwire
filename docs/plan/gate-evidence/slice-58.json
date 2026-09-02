@@ -43,6 +43,6 @@
     }
   ],
   "review": "self-review complete; nw-review pending before merge",
-  "pr": null,
+  "pr": 130,
   "notes": "The unmodified full-tree quality-gates wrapper reports two JWT findings in the pre-existing untracked opencode.json at lines 62 and 71. That file remains outside Slice 58 and untracked."
 }
