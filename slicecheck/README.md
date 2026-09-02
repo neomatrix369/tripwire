@@ -56,6 +56,10 @@ https://slicecheck.<your-account>.workers.dev/audit?repo=owner/repo&plan_file=ST
 The generated report contains inline CSS and no external resources, so saving the response as an
 HTML file produces an audit that works offline.
 
+The report header shows the selected PR scope, result limit, and plan source. Each result card
+separately identifies the PR lifecycle (`Open`, `Draft`, `Merged`, or `Closed`) and the current
+SliceCheck verdict (`PASS`, `FAIL`, or `ERROR`).
+
 ## Plan file
 
 SliceCheck looks for a plan in this order:

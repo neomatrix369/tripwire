@@ -37,8 +37,19 @@ async def test_run_audit_fetches_all_pr_inputs_concurrently(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     prs = [
-        {"number": 1, "title": "First", "html_url": "https://github.com/o/r/pull/1"},
-        {"number": 2, "title": "Second", "html_url": "https://github.com/o/r/pull/2"},
+        {
+            "number": 1,
+            "title": "First",
+            "html_url": "https://github.com/o/r/pull/1",
+            "state": "open",
+        },
+        {
+            "number": 2,
+            "title": "Second",
+            "html_url": "https://github.com/o/r/pull/2",
+            "state": "closed",
+            "merged_at": "2026-09-01T12:00:00Z",
+        },
     ]
     monkeypatch.setattr(audit.httpx, "AsyncClient", lambda **kwargs: StubClient(prs, **kwargs))
     started: list[str] = []
@@ -79,14 +90,26 @@ async def test_run_audit_fetches_all_pr_inputs_concurrently(
 
     assert len(started) == 6
     assert [result["verdict"] for result in results] == ["PASS", "FAIL"]
+    assert [result["pr_status"] for result in results] == ["open", "merged"]
     assert results[0]["history"][0]["verdict"] == "PASS"
 
 
 @pytest.mark.asyncio
 async def test_run_audit_isolates_per_pr_failure(monkeypatch: pytest.MonkeyPatch) -> None:
     prs = [
-        {"number": 1, "title": "Broken", "html_url": "https://github.com/o/r/pull/1"},
-        {"number": 2, "title": "Healthy", "html_url": "https://github.com/o/r/pull/2"},
+        {
+            "number": 1,
+            "title": "Broken",
+            "html_url": "https://github.com/o/r/pull/1",
+            "state": "open",
+            "draft": True,
+        },
+        {
+            "number": 2,
+            "title": "Healthy",
+            "html_url": "https://github.com/o/r/pull/2",
+            "state": "closed",
+        },
     ]
     monkeypatch.setattr(audit.httpx, "AsyncClient", lambda **kwargs: StubClient(prs, **kwargs))
 
@@ -112,6 +135,7 @@ async def test_run_audit_isolates_per_pr_failure(monkeypatch: pytest.MonkeyPatch
     results = await audit.run_audit("o/r", 2, "open", None, "token", "key")
 
     assert results[0]["verdict"] == "ERROR"
+    assert results[0]["pr_status"] == "draft"
     assert results[0]["gaps"] == ["plan API failed"]
     assert results[1]["verdict"] == "PASS"
 
@@ -122,6 +146,7 @@ def test_render_audit_html_is_offline_escaped_and_complete() -> None:
             "pr_number": 1,
             "pr_title": "<script>alert(1)</script>",
             "pr_url": "javascript:alert(1)",
+            "pr_status": "draft",
             "verdict": "FAIL",
             "gaps": ["Missing <b>tests</b>"],
             "retry_prompt": "Use </code><script>bad()</script>",
@@ -131,6 +156,7 @@ def test_render_audit_html_is_offline_escaped_and_complete() -> None:
             "pr_number": 2,
             "pr_title": "Second",
             "pr_url": "https://github.com/o/r/pull/2?a=1&b=2",
+            "pr_status": "merged",
             "verdict": "ERROR",
             "gaps": ["Missing <b>tests</b>"],
             "retry_prompt": None,
@@ -138,7 +164,7 @@ def test_render_audit_html_is_offline_escaped_and_complete() -> None:
         },
     ]
 
-    rendered = audit.render_audit_html(results, "o/<repo>")
+    rendered = audit.render_audit_html(results, "o/<repo>", "closed", 5, "docs/<PLAN>.md")
 
     assert rendered.startswith("<!DOCTYPE html>")
     assert "<style>" in rendered
@@ -149,6 +175,10 @@ def test_render_audit_html_is_offline_escaped_and_complete() -> None:
     assert "Missing &lt;b&gt;tests&lt;/b&gt; <span>2 PRs</span>" in rendered
     assert "No webhook history" in rendered
     assert "Current: FAIL" in rendered
+    assert "Scope</strong>Closed PRs" in rendered
+    assert "Limit</strong>5 PRs" in rendered
+    assert "Plan</strong>docs/&lt;PLAN&gt;.md" in rendered
+    assert "PR DRAFT" in rendered and "PR MERGED" in rendered
     assert "PASS 0" in rendered and "FAIL 1" in rendered and "ERROR 1" in rendered
     assert "#0d1117" in rendered and "#3fb950" in rendered and "#f85149" in rendered
     assert "SliceCheck · any repo, any agent · Cloudflare Workers" in rendered

@@ -33,6 +33,7 @@ else:
     from verifier import verify_with_claude  # type: ignore[no-redef]
 
 VERDICTS = ("PASS", "FAIL", "ERROR")
+PR_STATUSES = ("open", "draft", "merged", "closed")
 
 
 def _github_headers(token: str) -> dict[str, str]:
@@ -44,11 +45,21 @@ def _github_headers(token: str) -> dict[str, str]:
     }
 
 
+def _pr_status(pr: dict[str, Any]) -> str:
+    if pr.get("merged_at") or pr.get("merged") is True:
+        return "merged"
+    state = str(pr.get("state", "")).lower()
+    if state == "open" and pr.get("draft") is True:
+        return "draft"
+    return state if state in {"open", "closed"} else "unknown"
+
+
 def _error_result(pr: dict[str, Any], errors: list[str]) -> dict[str, Any]:
     return {
         "pr_number": int(pr.get("number", 0)),
         "pr_title": str(pr.get("title", "Unknown pull request")),
         "pr_url": str(pr.get("html_url", "")),
+        "pr_status": _pr_status(pr),
         "verdict": "ERROR",
         "gaps": errors,
         "retry_prompt": None,
@@ -81,6 +92,7 @@ async def _audit_pr(
             "pr_number": int(pr["number"]),
             "pr_title": str(pr["title"]),
             "pr_url": str(pr.get("html_url", "")),
+            "pr_status": _pr_status(pr),
             "verdict": verification["verdict"],
             "gaps": verification["gaps"],
             "retry_prompt": verification["retry_prompt"],
@@ -192,6 +204,12 @@ def _render_card(result: dict[str, Any]) -> str:
     title = html.escape(str(result.get("pr_title", "Untitled pull request")))
     number = html.escape(str(result.get("pr_number", "?")))
     href = _safe_href(result.get("pr_url", ""))
+    pr_status = str(result.get("pr_status", "")).lower()
+    status_html = (
+        f'<span class="pr-status {pr_status}">PR {pr_status.upper()}</span>'
+        if pr_status in PR_STATUSES
+        else ""
+    )
     gaps = result.get("gaps", [])
     gap_html = ""
     if verdict != "PASS" and isinstance(gaps, list) and gaps:
@@ -210,7 +228,10 @@ def _render_card(result: dict[str, Any]) -> str:
     <div class="pr-card {verdict.lower()}">
       <div class="card-head">
         <h2><a href="{href}">#{number} · {title}</a></h2>
-        <span class="verdict {verdict.lower()}">{verdict}</span>
+        <div class="card-statuses">
+          {status_html}
+          <span class="verdict {verdict.lower()}">{verdict}</span>
+        </div>
       </div>
       <div class="timeline">{_timeline(result.get("history"), verdict)}</div>
       {gap_html}
@@ -218,10 +239,20 @@ def _render_card(result: dict[str, Any]) -> str:
     </div>"""
 
 
-def render_audit_html(results: list[dict[str, Any]], repo: str) -> str:
+def render_audit_html(
+    results: list[dict[str, Any]],
+    repo: str,
+    state: str = "all",
+    limit: int | None = None,
+    plan_file: str | None = None,
+) -> str:
     counts = Counter(_verdict(result.get("verdict")) for result in results)
     generated = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
     escaped_repo = html.escape(repo)
+    normalized_state = state.lower() if state.lower() in {"open", "closed", "all"} else "all"
+    scope = "All pull requests" if normalized_state == "all" else f"{normalized_state.title()} PRs"
+    result_limit = limit if limit is not None else len(results)
+    plan_source = plan_file or "Auto-detect"
     cards = "".join(_render_card(result) for result in results)
     if not cards:
         cards = '<div class="empty">No pull requests matched this audit.</div>'
@@ -252,6 +283,10 @@ def render_audit_html(results: list[dict[str, Any]], repo: str) -> str:
     header {{ border-bottom:1px solid var(--line); padding-bottom:20px; }}
     h1 {{ margin:0; font-size:32px; letter-spacing:0; }}
     header p,.patterns p {{ color:var(--muted); margin:6px 0 0; }}
+    .audit-context {{ display:flex; flex-wrap:wrap; gap:8px 20px; margin-top:14px;
+      color:var(--muted); }}
+    .audit-context strong {{ color:var(--text); font-size:12px; margin-right:5px;
+      text-transform:uppercase; }}
     .summary {{ display:flex; flex-wrap:wrap; gap:10px; padding:24px 0; }}
     .badge,.verdict {{ border:1px solid currentColor; border-radius:6px;
       font-weight:700; padding:5px 10px; }}
@@ -262,6 +297,12 @@ def render_audit_html(results: list[dict[str, Any]], repo: str) -> str:
     .pr-card.fail {{ border-left-color:var(--fail); }}
     .pr-card.error {{ border-left-color:var(--error); }}
     .card-head {{ display:flex; align-items:flex-start; justify-content:space-between; gap:18px; }}
+    .card-statuses {{ display:flex; flex:none; flex-wrap:wrap; justify-content:flex-end; gap:8px; }}
+    .pr-status {{ border:1px solid var(--line); border-radius:4px; color:var(--muted);
+      font-size:12px; font-weight:700; padding:6px 9px; }}
+    .pr-status.open {{ border-color:#58a6ff; color:#58a6ff; }}
+    .pr-status.draft {{ border-color:#bc8cff; color:#bc8cff; }}
+    .pr-status.merged {{ border-color:#a371f7; color:#a371f7; }}
     h2 {{ color:var(--text); font-size:18px; letter-spacing:0; margin:0; }}
     h2 a {{ color:var(--text); text-decoration:none; }} h2 a:hover {{ text-decoration:underline; }}
     .timeline {{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; color:var(--muted);
@@ -288,7 +329,15 @@ def render_audit_html(results: list[dict[str, Any]], repo: str) -> str:
 </head>
 <body>
   <main>
-    <header><h1>SliceCheck</h1><p>{escaped_repo} · generated {generated}</p></header>
+    <header>
+      <h1>SliceCheck</h1>
+      <p>{escaped_repo} · generated {generated}</p>
+      <div class="audit-context" aria-label="Audit parameters">
+        <span><strong>Scope</strong>{html.escape(scope)}</span>
+        <span><strong>Limit</strong>{result_limit} PRs</span>
+        <span><strong>Plan</strong>{html.escape(plan_source)}</span>
+      </div>
+    </header>
     <div class="summary" aria-label="Audit summary">
       <span class="badge pass">PASS {counts["PASS"]}</span>
       <span class="badge fail">FAIL {counts["FAIL"]}</span>

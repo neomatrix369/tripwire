@@ -201,6 +201,9 @@ async def test_audit_validates_query_and_renders_html(monkeypatch: pytest.Monkey
     assert response.headers["content-type"] == "text/html; charset=utf-8"
     assert response.headers["cache-control"] == "no-store"
     assert response.body.startswith("<!DOCTYPE html>")
+    assert "Scope</strong>Closed PRs" in response.body
+    assert "Limit</strong>5 PRs" in response.body
+    assert "Plan</strong>docs/PLAN.md" in response.body
 
 
 @pytest.mark.asyncio

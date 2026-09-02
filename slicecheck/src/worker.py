@@ -151,7 +151,7 @@ async def _handle_audit(request: object, env: object) -> Response:
 
     try:
         results = await run_audit(repo, limit, state, plan_file, github_token, anthropic_key)
-        rendered = render_audit_html(results, repo)
+        rendered = render_audit_html(results, repo, state, limit, plan_file)
         return Response(
             rendered,
             headers={
@@ -172,7 +172,7 @@ async def _handle_audit(request: object, env: object) -> Response:
             }
         ]
         return Response(
-            render_audit_html(error_result, repo),
+            render_audit_html(error_result, repo, state, limit, plan_file),
             status=500,
             headers={
                 "content-type": "text/html; charset=utf-8",

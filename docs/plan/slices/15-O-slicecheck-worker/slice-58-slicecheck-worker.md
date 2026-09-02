@@ -60,13 +60,21 @@ are visible
 **Then** no repository or plan path is hardcoded
 **And** the default plan order is `PROGRESS.md`, `STATUS.md`, `PLAN.md`, `CLAUDE.md`
 
+### GWT-58.6 — Audit scope and PR lifecycle are visible
+
+**Given** an audit query selects a PR state, result limit, and optional plan file
+**When** `render_audit_html` renders the report
+**Then** the report header shows the selected scope, limit, and plan source without requiring the
+reader to inspect the URL
+**And** each PR card shows its current `Open`, `Draft`, `Merged`, or `Closed` lifecycle status
+
 ## Before-Checks
 
 - [x] Branch `slice/58-slicecheck-worker` exists from `main`
 - [x] `git status --short` confirms the pre-existing untracked `opencode.json` is not part of scope
 - [x] Product boundary is `slicecheck/`; root `README.md` and existing Tripwire packages remain intact
 - [x] Test plan maps GWT-58.1 to `test_worker.py`, GWT-58.2 to `test_verifier.py`,
-  GWT-58.3–58.4 to `test_audit.py`, and GWT-58.5 to `test_github.py`
+  GWT-58.3–58.4 and GWT-58.6 to `test_audit.py`, and GWT-58.5 to `test_github.py`
 
 ## After-Checks
 
