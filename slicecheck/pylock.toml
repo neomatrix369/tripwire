@@ -1,0 +1,21 @@
+lock-version = "1.0"
+created-by = "uv"
+requires-python = ">=3.13.2"
+
+[[packages]]
+name = "httpx"
+version = "0.28.1"
+wheels = [
+    { url = "https://cdn.jsdelivr.net/pyodide/v0.28.3/full/httpx-0.28.1-py3-none-any.whl", hashes = { sha256 = "3f2988f46a075b5f926a582464d53783577044cf47def13585519012b614b54f" } },
+    { url = "https://files.pythonhosted.org/packages/2a/39/e50c7c3a983047577ee07d2a9e53faf5a69493943ec3f6a384bdc792deb2/httpx-0.28.1-py3-none-any.whl", hashes = { sha256 = "d909fcccc110f8c7faf814ca82a9a4d816bc5a6dbfea25d6591d6985b8ba59ad" } },
+]
+
+[[packages]]
+name = "idna"
+version = "3.19"
+wheels = [{ url = "https://files.pythonhosted.org/packages/57/b0/0e52c878c53f245edd3a11020f20979b3f490f245af532c7cae3027754b5/idna-3.19-py3-none-any.whl", upload-time = 2026-08-18T05:14:22Z, size = 68550, hashes = { sha256 = "815e7be7a7806d54abb586dc943addc79e8b2ee16915059658cbeff4b1b43bf4" } }]
+
+[[packages]]
+name = "workers-runtime-sdk"
+version = "1.8.2"
+wheels = [{ url = "https://files.pythonhosted.org/packages/51/d9/b7632ded6d27edbaa4c9cad5cc104aba6cfa3bb2d93551d216b170834dbb/workers_runtime_sdk-1.8.2-py3-none-any.whl", upload-time = 2026-08-31T15:01:28Z, size = 35569, hashes = { sha256 = "45a429b71270d58923297fb9ffd34f3636e10bdebfcfa74e570da42d73117d7e" } }]

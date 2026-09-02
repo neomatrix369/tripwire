@@ -5,25 +5,25 @@
   "verdict": "ON_BRANCH",
   "before_checks": "all green",
   "after_checks": [
-    "24 SliceCheck tests pass",
+    "26 SliceCheck tests pass",
     "Ruff check and format pass",
     "MyPy and Bandit pass",
-    "Wrangler 4.128.0 deploy dry-run packages all modules",
+    "Pywrangler deploy dry-run packages httpx and all Worker modules",
     "forbidden imports and process environment access absent",
     "runtime configuration and deployment documentation present"
   ],
   "commands": [
     {
-      "cmd": "uv run --extra dev --with-requirements slicecheck/requirements.txt pytest slicecheck/tests -q",
-      "result": "PASS: 24 tests"
+      "cmd": "uv run --project slicecheck pytest slicecheck/tests -q",
+      "result": "PASS: 26 tests"
     },
     {
       "cmd": "uv run ruff check slicecheck && uv run ruff format --check slicecheck && uv run mypy slicecheck/src && uv run bandit -r slicecheck/src -q -ll",
       "result": "PASS"
     },
     {
-      "cmd": "XDG_CONFIG_HOME=/tmp/slicecheck-xdg WRANGLER_LOG_PATH=/tmp/slicecheck-wrangler.log npx --yes wrangler deploy --dry-run --outdir /tmp/slicecheck-dist",
-      "result": "PASS: 28.18 KiB upload, all Python modules attached"
+      "cmd": "uv run --project slicecheck pywrangler deploy --dry-run --outdir /tmp/slicecheck-dist",
+      "result": "PASS: 758.61 KiB upload, 82 modules including vendored httpx"
     },
     {
       "cmd": "uv run pytest sandbox/tests/ --cov=sandbox --cov-fail-under=95",

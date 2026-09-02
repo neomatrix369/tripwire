@@ -4,7 +4,6 @@ import base64
 from typing import Any
 
 import pytest
-
 from slicecheck.src import github
 
 

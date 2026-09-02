@@ -70,20 +70,20 @@ are visible
 
 ## After-Checks
 
-- [x] `uv run --extra dev --with-requirements slicecheck/requirements.txt pytest slicecheck/tests -q`
+- [x] `uv run --project slicecheck pytest slicecheck/tests -q`
   exits 0
 - [x] `ruff check slicecheck` exits 0
 - [x] `rg -n '(^|[[:space:]])(import|from)[[:space:]]+(requests|anthropic)' slicecheck
   --glob '*.py'` returns no matches
 - [x] `rg -n "os\.environ|os\.getenv" slicecheck --glob '*.py'` returns no matches
-- [x] `slicecheck/wrangler.toml`, `slicecheck/requirements.txt`, and `slicecheck/README.md` exist
+- [x] `slicecheck/wrangler.toml`, `slicecheck/pyproject.toml`, and `slicecheck/README.md` exist
 - [x] `docs/plan/gate-evidence/slice-58.json` records command results and an on-branch verdict
 
 ## Files to Touch
 
 - `slicecheck/src/` — Worker entrypoint, GitHub helpers, verifier, audit renderer
 - `slicecheck/tests/` — focused unit and async behavior tests
-- `slicecheck/wrangler.toml`, `slicecheck/requirements.txt`, `slicecheck/README.md`
+- `slicecheck/wrangler.toml`, `slicecheck/pyproject.toml`, `slicecheck/README.md`
 - `docs/plan/README.md`, `docs/plan/TRAIL.md`, `docs/plan/PROGRESS.md`
 - `docs/plan/gate-evidence/slice-58.json`
 

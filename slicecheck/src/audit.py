@@ -242,17 +242,20 @@ def render_audit_html(results: list[dict[str, Any]], repo: str) -> str:
     :root {{ color-scheme: dark; --bg:#0d1117; --panel:#161b22; --line:#30363d;
       --text:#e6edf3; --muted:#8b949e; --pass:#3fb950; --fail:#f85149; --error:#d29922; }}
     * {{ box-sizing: border-box; }}
-    body {{ margin:0; background:var(--bg); color:var(--text); font:15px/1.55 system-ui,sans-serif; }}
+    body {{ margin:0; background:var(--bg); color:var(--text);
+      font:15px/1.55 system-ui,sans-serif; }}
     main {{ width:min(860px,calc(100% - 32px)); margin:0 auto; padding:48px 0 32px; }}
     header {{ border-bottom:1px solid var(--line); padding-bottom:20px; }}
     h1 {{ margin:0; font-size:32px; letter-spacing:0; }}
     header p,.patterns p {{ color:var(--muted); margin:6px 0 0; }}
     .summary {{ display:flex; flex-wrap:wrap; gap:10px; padding:24px 0; }}
-    .badge,.verdict {{ border:1px solid currentColor; border-radius:6px; font-weight:700; padding:5px 10px; }}
+    .badge,.verdict {{ border:1px solid currentColor; border-radius:6px;
+      font-weight:700; padding:5px 10px; }}
     .pass {{ color:var(--pass); }} .fail {{ color:var(--fail); }} .error {{ color:var(--error); }}
     .pr-card {{ color:var(--text); background:var(--panel); border:1px solid var(--line);
       border-left:4px solid var(--line); border-radius:8px; margin:0 0 16px; padding:20px; }}
-    .pr-card.pass {{ border-left-color:var(--pass); }} .pr-card.fail {{ border-left-color:var(--fail); }}
+    .pr-card.pass {{ border-left-color:var(--pass); }}
+    .pr-card.fail {{ border-left-color:var(--fail); }}
     .pr-card.error {{ border-left-color:var(--error); }}
     .card-head {{ display:flex; align-items:flex-start; justify-content:space-between; gap:18px; }}
     h2 {{ color:var(--text); font-size:18px; letter-spacing:0; margin:0; }}
@@ -272,10 +275,11 @@ def render_audit_html(results: list[dict[str, Any]], repo: str) -> str:
     .patterns {{ border-top:1px solid var(--line); margin-top:32px; padding-top:24px; }}
     .patterns li span {{ color:var(--muted); margin-left:6px; }}
     .empty {{ color:var(--muted); border:1px dashed var(--line); border-radius:8px; padding:24px; }}
-    footer {{ color:var(--muted); border-top:1px solid var(--line); margin-top:32px; padding-top:20px;
-      text-align:center; }}
+    footer {{ color:var(--muted); border-top:1px solid var(--line); margin-top:32px;
+      padding-top:20px; text-align:center; }}
     @media (max-width:600px) {{ main {{ width:min(100% - 20px,860px); padding-top:24px; }}
-      .card-head {{ align-items:stretch; flex-direction:column; }} .verdict {{ align-self:flex-start; }} }}
+      .card-head {{ align-items:stretch; flex-direction:column; }}
+      .verdict {{ align-self:flex-start; }} }}
   </style>
 </head>
 <body>

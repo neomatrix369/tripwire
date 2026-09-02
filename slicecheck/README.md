@@ -12,14 +12,15 @@ It can also audit past pull requests from a URL.
 cd slicecheck
 npm install -g wrangler
 wrangler login
+uv sync --dev
 ```
 
 ### 2. Set secrets
 
 ```bash
-wrangler secret put GITHUB_TOKEN
-wrangler secret put GITHUB_WEBHOOK_SECRET
-wrangler secret put ANTHROPIC_API_KEY
+uv run pywrangler secret put GITHUB_TOKEN
+uv run pywrangler secret put GITHUB_WEBHOOK_SECRET
+uv run pywrangler secret put ANTHROPIC_API_KEY
 ```
 
 `GITHUB_TOKEN` needs access to repository contents, pull requests, and issue comments. Use a random
@@ -28,7 +29,7 @@ webhook secret of at least 20 characters.
 ### 3. Deploy
 
 ```bash
-wrangler deploy
+uv run pywrangler deploy
 ```
 
 Note the deployed URL, such as `https://slicecheck.<your-account>.workers.dev`.
@@ -76,12 +77,13 @@ Override that order for an audit with `?plan_file=YOUR_FILE.md`.
 
 All outbound calls use `httpx.AsyncClient`. The Anthropic Messages API is called directly; the
 Anthropic SDK is not used. Secrets are read only from Cloudflare Worker environment bindings.
+`pywrangler` bundles the packages declared in `pyproject.toml` into the deployed Worker.
 
 ## Test
 
 From the Tripwire repository root:
 
 ```bash
-uv run --extra dev --with-requirements slicecheck/requirements.txt pytest slicecheck/tests -q
-uv run ruff check slicecheck
+uv run --project slicecheck pytest slicecheck/tests -q
+uv run --project slicecheck ruff check slicecheck
 ```
