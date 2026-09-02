@@ -3,7 +3,7 @@
 # What this proves: current in-flight work,
 # including PRs opened during this hackathon session.
 
-WORKER_URL="https://slicecheck.YOUR_ACCOUNT.workers.dev"
+WORKER_URL="https://slicecheck.sadhak001.workers.dev"
 REPO="neomatrix369/tripwire"
 
 AUDIT_URL="$WORKER_URL/audit?repo=$REPO&state=open&limit=10"

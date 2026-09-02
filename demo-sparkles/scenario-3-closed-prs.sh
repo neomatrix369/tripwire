@@ -3,7 +3,7 @@
 # What this proves: SliceCheck learns from history.
 # Any repo, any past PRs, no webhook needed.
 
-WORKER_URL="https://slicecheck.YOUR_ACCOUNT.workers.dev"
+WORKER_URL="https://slicecheck.sadhak001.workers.dev"
 REPO="neomatrix369/tripwire"
 
 AUDIT_URL="$WORKER_URL/audit?repo=$REPO&state=closed&limit=8"

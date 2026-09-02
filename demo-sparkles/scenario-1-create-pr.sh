@@ -6,7 +6,7 @@
 
 set -e
 
-WORKER_URL="https://slicecheck.YOUR_ACCOUNT.workers.dev"
+WORKER_URL="https://slicecheck.sadhak001.workers.dev"
 REPO="neomatrix369/tripwire"
 BRANCH="demo/slicecheck-health-$(date +%s)"
 
