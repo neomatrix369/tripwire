@@ -3,12 +3,18 @@
 from __future__ import annotations
 
 import base64
+import json
 import re
 from datetime import UTC, datetime
 from typing import Any
 from urllib.parse import quote
 
 import httpx
+
+try:
+    from workers import fetch as workers_fetch
+except ImportError:  # pragma: no cover - the native transport exists only in Workers
+    workers_fetch = None  # type: ignore[assignment]
 
 GITHUB_API = "https://api.github.com"
 DEFAULT_PLAN_FILES = ("PROGRESS.md", "STATUS.md", "PLAN.md", "CLAUDE.md")
@@ -34,17 +40,45 @@ async def get_github_response(
     allow_anonymous_not_found: bool = False,
 ) -> httpx.Response:
     """Retry denied reads anonymously when the GitHub resource is public."""
-    response = await client.get(url, headers=headers)
+    response = await _github_request(client, "GET", url, headers)
     if getattr(response, "status_code", 200) not in {401, 403}:
         return response
 
     anonymous_headers = {name: value for name, value in headers.items() if name != "Authorization"}
-    anonymous = await client.get(url, headers=anonymous_headers)
+    anonymous = await _github_request(client, "GET", url, anonymous_headers)
     if 200 <= anonymous.status_code < 300 or (
         allow_anonymous_not_found and anonymous.status_code == 404
     ):
         return anonymous
     return response
+
+
+async def _github_request(
+    client: httpx.AsyncClient,
+    method: str,
+    url: str,
+    headers: dict[str, str],
+    json_body: dict[str, Any] | None = None,
+) -> httpx.Response:
+    """Use Workers' native fetch in production so GitHub receives User-Agent."""
+    if workers_fetch is None:
+        if method == "POST":
+            return await client.post(url, headers=headers, json=json_body)
+        return await client.get(url, headers=headers)
+
+    fetch_headers = dict(headers)
+    options: dict[str, Any] = {"method": method, "headers": fetch_headers}
+    if json_body is not None:
+        fetch_headers["Content-Type"] = "application/json"
+        options["body"] = json.dumps(json_body)
+    native_response = await workers_fetch(url, **options)
+    response_text = await native_response.text()
+    return httpx.Response(
+        int(native_response.status),
+        headers=dict(native_response.headers.items()),
+        text=response_text,
+        request=httpx.Request(method, url),
+    )
 
 
 def raise_for_github_status(response: httpx.Response, operation: str) -> None:
@@ -257,10 +291,12 @@ async def post_verification_comment(
     url = f"{GITHUB_API}/repos/{repo}/issues/{pr_number}/comments"
     try:
         async with httpx.AsyncClient(timeout=20.0) as client:
-            response = await client.post(
+            response = await _github_request(
+                client,
+                "POST",
                 url,
-                headers=_headers(github_token),
-                json={"body": render_verification_comment(result)},
+                _headers(github_token),
+                {"body": render_verification_comment(result)},
             )
         raise_for_github_status(response, f"posting pull request #{pr_number} comment")
     except Exception as exc:

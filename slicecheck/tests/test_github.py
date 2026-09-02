@@ -44,6 +44,40 @@ class StubClient:
         return self.responses.pop(0)
 
 
+class NativeResponse:
+    status = 200
+    headers = {"content-type": "application/json"}
+
+    async def text(self) -> str:
+        return '{"ok": true}'
+
+
+@pytest.mark.asyncio
+async def test_github_request_uses_workers_fetch_with_user_agent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[tuple[str, dict[str, Any]]] = []
+
+    async def fake_workers_fetch(url: str, **options: Any) -> NativeResponse:
+        calls.append((url, options))
+        return NativeResponse()
+
+    monkeypatch.setattr(github, "workers_fetch", fake_workers_fetch)
+    client = StubClient([], [])
+
+    response = await github._github_request(
+        client,  # type: ignore[arg-type]
+        "GET",
+        "https://api.github.com/repos/owner/repo",
+        github._headers("secret"),
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {"ok": True}
+    assert calls[0][1]["headers"]["User-Agent"] == "slicecheck-worker"
+    assert calls[0][1]["headers"]["Authorization"] == "Bearer secret"
+
+
 @pytest.mark.asyncio
 async def test_github_get_retries_denied_public_read_without_authorization() -> None:
     calls: list[dict[str, Any]] = []
