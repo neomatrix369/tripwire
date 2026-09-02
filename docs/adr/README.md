@@ -9,12 +9,13 @@ quality gates.
 
 Status values: **Proposed**, **Accepted**, **Deprecated**, **Superseded**.
 
-Number **0001** is reserved and omitted from this catalog while a Proposed
-**Monk Live packaging / deployment** draft remains under review on a side
-branch (not merged to `main`). Published records start at **0002**.
+**0001** is **Proposed**, not Accepted: it records an intended Monk packaging /
+deployment path that is **not implemented**. The supported Live path remains the
+operator workstation flow. Records **0002** and above are Accepted.
 
 | ADR | Title | Status |
 |-----|-------|--------|
+| [0001](./0001-monk-deployment-and-packaging.md) | Monk Kit for Live deployment and packaging | Proposed |
 | [0002](./0002-node-cli-python-sandbox-split.md) | Node CLI and Python sandbox as separate runtimes | Accepted |
 | [0003](./0003-modal-isolated-scanner-execution.md) | Modal for isolated scanner execution | Accepted |
 | [0004](./0004-supabase-system-of-record.md) | Supabase/Postgres as system of record | Accepted |
@@ -32,5 +33,5 @@ branch (not merged to `main`). Published records start at **0002**.
 | [0016](./0016-tiered-router-sie-model-studio.md) | Tiered post-scan router via SIE and Model Studio | Accepted |
 | [0017](./0017-claude-code-agent-guard-integration.md) | Claude Code Agent Guard integration (amends ADR-0015) | Accepted |
 
-0002–0016 are retrospective Accepted records of decisions already visible in
+0002–0017 are retrospective Accepted records of decisions already visible in
 docs, git history, and production entry points.
