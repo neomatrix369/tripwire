@@ -1,5 +1,5 @@
 # Progress
-> Last updated: 2026-08-25
+> Last updated: 2026-09-02
 
 ## Slice groups (execution sequence)
 
@@ -7,6 +7,7 @@
 |-----:|--------|-------|--------|---------|
 | 12 | [`12-L-…`](slices/12-L-tessl-5-row-expansion/) | **L — Tessl 5-row expansion** | 45 ✅ · 46 ✅ · 47 ✅ · 48 ✅ · 49 ✅ · 50 ✅ · **51** 🔀 · 52 📋 | 45–50 ✅ · **51** 🔀 |
 | 13 | [`13-M-…`](slices/13-M-llm-usage-tracking/) | **M — LLM usage / cost observability** | **53** | 📋 plan-only (ADR-0016 follow-on; not J/L/G) |
+| 15 | [`15-O-…`](slices/15-O-slicecheck-worker/) | **O — Agent output verification** | **58** | 🔀 on branch |
 | 11 | [`11-K-…`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** | 🔀 |
 | 10 | [`10-J-…`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 (A14–A15 🔀) | A1–A13 ✅ · quality tabs ON BRANCH |
 | 9 | [`09-I-…`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 ✅ · 43 | 41 ✅ · 43 ✅ |
@@ -27,6 +28,7 @@
 |------:|-----:|---|-------|--------|--------|
 | 0 (docs) | K | **44** | **Docs UX plain language + compaction** | Must | 🔀 ON BRANCH · [#99](https://github.com/neomatrix369/tripwire/pull/99) · GWT-44.1–44.8 · documentarist APPROVED WITH FOLLOW-ON (DIVIO targets pending) · `slice/44-docs-ux-plain-language` |
 | 0 (active) | L | **51** | **Tessl: Review (Security) (Row 5)** | Could | 🔀 ON BRANCH · `slice/51-review-security` · nw-review APPROVED |
+| 0 (active) | O | **58** | **SliceCheck Cloudflare Worker** | Should | 🔀 ON BRANCH · [#130](https://github.com/neomatrix369/tripwire/pull/130) · `slice/58-slicecheck-worker` |
 | 0 (delta) | J | 42 | Dashboard Data Quality — Tessl quality UX + tooltips + plain labels (A9–A13) | Must | ✅ PASSED · [#98](https://github.com/neomatrix369/tripwire/pull/98) |
 | 1 | G | 18 | CLI Operator Evidence Contracts | Must | 📋 PLANNED |
 | 2 | G | 19 | Sandbox Persistence State Contract | Must | 📋 PLANNED |
@@ -279,3 +281,4 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-25 | slice/42-quality-score-tabs | sync-docs | 42 | APPLIED | TRAIL/PROGRESS/gate-evidence/slice-42 + ARCHITECTURE + STATUS Wave J A14–A15 ON BRANCH; three-tab spec (≥80 / <80 / unscored). |
 
 | 2026-08-28 | plan | enhanced-flow-planner Wave N | 44 pile-on GWT-44.9 + 55–57 | 📋 PLANNED | Docs gap-bridge audit: diagram A+B, disclaimer placements (D1–D8), 6 gap repairs (56-a–f; 56-f scanner×input-type matrix added post-review 2026-08-31), sync-docs skill update. Execution in a later session. |
+| 2026-09-02 | slice/58-slicecheck-worker | implementation + verification | 58 | 🔀 ON BRANCH | 26 focused tests, Pywrangler dependency-aware deploy dry-run, Ruff/MyPy/Bandit green; review and merge pending. |

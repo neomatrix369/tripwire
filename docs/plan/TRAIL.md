@@ -333,6 +333,15 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 | 56 | [slice-56-gap-repairs](slices/14-N-docs-gap-bridge-audit/slice-56-gap-repairs.md) | Confirmed Gap Repairs (input types, proxy, gate-evidence, Guard mode, cross-link, scanner×input matrix) — 6 sub-items (56-a through 56-f; 56-f added post-review 2026-08-31) | Should | 📋 | 44 ✅ | — | ~5 min |
 | 57 | [slice-57-sync-docs-skill-update](slices/14-N-docs-gap-bridge-audit/slice-57-sync-docs-skill-update.md) | sync-docs Skill Update + module-theme-map | Should | 📋 | 56 | — | ~2 min |
 
+## Wave 15-O — Agent output verification
+
+**Group letter O.** SliceCheck is an isolated Python Cloudflare Worker under `slicecheck/`; it does
+not alter Tripwire's existing runtime or replace the root README.
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| 58 | [slice-58-slicecheck-worker](slices/15-O-slicecheck-worker/slice-58-slicecheck-worker.md) | SliceCheck Cloudflare Worker | Should | 🔀 | — | [#130](https://github.com/neomatrix369/tripwire/pull/130) | ~3 min |
+
 ## Supporting Artifacts
 | File | Status |
 |------|--------|
