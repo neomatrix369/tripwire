@@ -38,6 +38,17 @@ class StubClient:
         return self.response
 
 
+class NativeResponse:
+    status = 200
+    headers = {"content-type": "application/json"}
+
+    def __init__(self, payload: object) -> None:
+        self.payload = payload
+
+    async def text(self) -> str:
+        return json.dumps(self.payload)
+
+
 @pytest.mark.asyncio
 async def test_verify_uses_prescribed_anthropic_request(monkeypatch: pytest.MonkeyPatch) -> None:
     calls: list[dict[str, object]] = []
@@ -65,6 +76,38 @@ async def test_verify_uses_prescribed_anthropic_request(monkeypatch: pytest.Monk
     assert body["model"] == "claude-haiku-4-5-20251001"
     assert body["max_tokens"] == 500
     assert "PR Title: Ship it" in body["messages"][0]["content"]
+
+
+@pytest.mark.asyncio
+async def test_verify_uses_workers_fetch_in_production(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[tuple[str, dict[str, object]]] = []
+    result_json = {"verdict": "PASS", "gaps": [], "retry_prompt": None}
+
+    async def fake_workers_fetch(url: str, **options: object) -> NativeResponse:
+        calls.append((url, options))
+        return NativeResponse({"content": [{"text": json.dumps(result_json)}]})
+
+    monkeypatch.setattr(verifier, "workers_fetch", fake_workers_fetch)
+    result = await verifier.verify_with_claude("# Plan", "+implemented", "Ship it", "key")
+
+    assert result == result_json
+    assert calls[0][0] == verifier.ANTHROPIC_URL
+    assert calls[0][1]["method"] == "POST"
+    assert calls[0][1]["headers"]["x-api-key"] == "key"
+
+
+@pytest.mark.asyncio
+async def test_verify_accepts_fenced_json(monkeypatch: pytest.MonkeyPatch) -> None:
+    expected = {"verdict": "FAIL", "gaps": ["missing test"], "retry_prompt": "Add test"}
+    fenced = f"```json\n{json.dumps(expected)}\n```"
+    response = StubResponse({"content": [{"text": fenced}]})
+    monkeypatch.setattr(
+        verifier.httpx,
+        "AsyncClient",
+        lambda **kwargs: StubClient(response, [], **kwargs),
+    )
+
+    assert await verifier.verify_with_claude("plan", "diff", "PR", "key") == expected
 
 
 @pytest.mark.asyncio
@@ -96,7 +139,7 @@ async def test_verify_turns_invalid_response_into_error(monkeypatch: pytest.Monk
 
     assert result["verdict"] == "ERROR"
     assert result["retry_prompt"] is None
-    assert "Expecting value" in result["gaps"][0]
+    assert "Claude returned invalid JSON" in result["gaps"][0]
 
 
 @pytest.mark.asyncio
