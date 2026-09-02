@@ -17,6 +17,7 @@ if __package__:
         fetch_plan_section,
         fetch_pr_diff,
         fetch_slicecheck_history,
+        get_github_response,
         raise_for_github_status,
     )
     from .verifier import verify_with_claude
@@ -26,6 +27,7 @@ else:
         fetch_plan_section,
         fetch_pr_diff,
         fetch_slicecheck_history,
+        get_github_response,
         raise_for_github_status,
     )
     from verifier import verify_with_claude  # type: ignore[no-redef]
@@ -99,7 +101,7 @@ async def run_audit(
     url = f"{GITHUB_API}/repos/{repo}/pulls?state={state}&per_page={limit}"
     try:
         async with httpx.AsyncClient(timeout=20.0) as client:
-            response = await client.get(url, headers=_github_headers(github_token))
+            response = await get_github_response(client, url, _github_headers(github_token))
         raise_for_github_status(response, "listing pull requests")
         prs = response.json()
         if not isinstance(prs, list):

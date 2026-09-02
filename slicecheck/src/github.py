@@ -26,6 +26,21 @@ def _headers(token: str, accept: str = "application/vnd.github+json") -> dict[st
     }
 
 
+async def get_github_response(
+    client: httpx.AsyncClient, url: str, headers: dict[str, str]
+) -> httpx.Response:
+    """Retry denied reads anonymously when the GitHub resource is public."""
+    response = await client.get(url, headers=headers)
+    if getattr(response, "status_code", 200) not in {401, 403}:
+        return response
+
+    anonymous_headers = {name: value for name, value in headers.items() if name != "Authorization"}
+    anonymous = await client.get(url, headers=anonymous_headers)
+    if 200 <= anonymous.status_code < 300:
+        return anonymous
+    return response
+
+
 def raise_for_github_status(response: httpx.Response, operation: str) -> None:
     """Raise a safe, actionable error for a failed GitHub API response."""
     try:
@@ -40,6 +55,14 @@ def raise_for_github_status(response: httpx.Response, operation: str) -> None:
         details = [f"GitHub API {response.status_code} while {operation}"]
         if isinstance(message, str) and message:
             details.append(message)
+        else:
+            try:
+                response_text = response.text.strip()
+            except Exception:
+                response_text = ""
+            if response_text:
+                suffix = "..." if len(response_text) > 500 else ""
+                details.append(response_text[:500] + suffix)
 
         remaining = response.headers.get("x-ratelimit-remaining")
         limit = response.headers.get("x-ratelimit-limit")
@@ -116,7 +139,7 @@ async def _fetch_plan_file(repo: str, path: str, token: str) -> str | None:
     url = f"{GITHUB_API}/repos/{repo}/contents/{encoded_path}"
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
-            response = await client.get(url, headers=_headers(token))
+            response = await get_github_response(client, url, _headers(token))
         if response.status_code == 404:
             return None
         raise_for_github_status(response, f"fetching plan file {path}")
@@ -148,8 +171,10 @@ async def fetch_pr_diff(repo: str, pr_number: int, github_token: str) -> str:
     url = f"{GITHUB_API}/repos/{repo}/pulls/{pr_number}"
     try:
         async with httpx.AsyncClient(timeout=20.0) as client:
-            response = await client.get(
-                url, headers=_headers(github_token, "application/vnd.github.v3.diff")
+            response = await get_github_response(
+                client,
+                url,
+                _headers(github_token, "application/vnd.github.v3.diff"),
             )
         raise_for_github_status(response, f"fetching pull request #{pr_number} diff")
         return str(response.text)
@@ -163,7 +188,7 @@ async def fetch_slicecheck_history(
     url = f"{GITHUB_API}/repos/{repo}/issues/{pr_number}/comments?per_page=100"
     try:
         async with httpx.AsyncClient(timeout=20.0) as client:
-            response = await client.get(url, headers=_headers(github_token))
+            response = await get_github_response(client, url, _headers(github_token))
         raise_for_github_status(response, f"fetching pull request #{pr_number} comments")
         comments = response.json()
         history: list[dict[str, str]] = []

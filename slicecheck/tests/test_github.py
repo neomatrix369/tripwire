@@ -44,6 +44,40 @@ class StubClient:
         return self.responses.pop(0)
 
 
+@pytest.mark.asyncio
+async def test_github_get_retries_denied_public_read_without_authorization() -> None:
+    calls: list[dict[str, Any]] = []
+    client = StubClient(
+        [StubResponse(status_code=403), StubResponse({"public": True})],
+        calls,
+    )
+
+    response = await github.get_github_response(
+        client,  # type: ignore[arg-type]
+        "https://api.github.com/repos/owner/repo",
+        github._headers("secret"),
+    )
+
+    assert response.json() == {"public": True}
+    assert calls[0]["headers"]["Authorization"] == "Bearer secret"
+    assert "Authorization" not in calls[1]["headers"]
+
+
+@pytest.mark.asyncio
+async def test_github_get_retains_original_denial_when_anonymous_read_fails() -> None:
+    calls: list[dict[str, Any]] = []
+    denied = StubResponse(status_code=403)
+    client = StubClient([denied, StubResponse(status_code=404)], calls)
+
+    response = await github.get_github_response(
+        client,  # type: ignore[arg-type]
+        "https://api.github.com/repos/owner/private",
+        github._headers("secret"),
+    )
+
+    assert response is denied
+
+
 def test_github_error_reports_message_rate_limit_and_sso_without_response_body() -> None:
     request = httpx.Request("GET", "https://api.github.com/repos/owner/repo/pulls")
     response = httpx.Response(
