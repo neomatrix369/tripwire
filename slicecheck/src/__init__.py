@@ -1,0 +1,1 @@
+"""SliceCheck Cloudflare Worker package."""

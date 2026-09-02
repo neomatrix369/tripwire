@@ -1,0 +1,1 @@
+"""SliceCheck standalone subproject."""
