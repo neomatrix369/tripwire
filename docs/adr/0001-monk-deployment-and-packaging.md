@@ -1,7 +1,7 @@
 # ADR-0001: Monk kit for Live deployment and packaging
 
 - **Status:** Proposed
-- **Date:** 2026-08-11 (updated 2026-08-30)
+- **Date:** 2026-08-11 (updated 2026-09-08)
 - **Deciders:** Tripwire maintainers
 - **Tags:** deployment, packaging, monk, supabase, modal
 
@@ -51,31 +51,45 @@ acceptance-check a live system without sharing one long-lived stack. For a
 project with this much agent-driven workflow, that is a first-class reason to
 package, not a side effect of it.
 
-### The Live baseline is five vendors
+### The Live vendor baseline is tiered
 
-A packaged Live instance is **Supabase, Modal, Snyk, Cisco, and Tessl** — not
-just a dashboard and a database. Credentials for all five are **required** input
-to a Kit deploy. Scanner credentials for Snyk, Cisco, and Tessl are not
-optional, and a missing scanner key is not an acceptable Live outcome: it makes
-the deploy incomplete.
+A packaged Live instance is more than a dashboard and a database — but not every
+vendor gates a deploy. Three tiers:
 
-Cisco is one vendor with two credential shapes — the LLM-backed Skill/MCP
-Scanner keys, or the paid AI Defense APIs — and **at least one is required**.
-Cisco is not droppable from the baseline.
+| Tier | Vendors | Required for | Kit handling |
+|---|---|---|---|
+| **1** | Supabase, Modal | Any deploy at all | Provisioned and wired by the Kit |
+| **2** | Snyk, Cisco, Tessl | Full scanner coverage | Credentials collected; engines reached as SaaS |
+| **3** | SIE (Superlinked), Alibaba Model Studio, Ossprey | Optional routing and research coverage | Env-var pass-through only, no provisioning |
 
-Ossprey sits just outside that baseline. The Kit **collects `OSSPREY_API_KEY`
-as an optional secret** and passes it through to the sandbox, so a keyed
-operator gets Ossprey coverage on a Kit deploy. It is not a required input:
-the adapter is credential-gated and RESEARCH-labeled, and access provisioning
-is still open, so a deploy must not fail for want of an Ossprey key
+**Tier 1** is the Minimum Viable Live already documented in
+[env-vars](../user-guide/env-vars.md): Supabase plus Modal. Without Tier 1
+credentials there is no deploy.
+
+**Tier 2** turns an MVL instance into a full-coverage one. A Tier-1-only deploy
+is a *valid but partial* Live instance: it runs, and it scans with whatever
+engines are keyed. Cisco is one vendor with two credential shapes — the
+LLM-backed Skill and MCP Scanner keys, or the paid AI Defense APIs — and at
+least one of the two is needed for Cisco coverage.
+
+**Tier 3** vendors are collected as pass-through secrets and nothing more: the
+Kit provisions nothing for them, and a deploy never fails for want of one.
+`SIE_ENDPOINT` and `SIE_API_KEY` enable the tiered router; `DASHSCOPE_API_KEY`
+and `ALIBABA_OPENAI_BASE_URL` enable Model Studio escalation;
+`OSSPREY_API_KEY` enables the credential-gated, RESEARCH-labeled Ossprey
+malware adapter, whose access provisioning is still open
 ([STATUS](../STATUS.md)).
+
+These tier boundaries — and the Kit specifics behind them — are revisitable
+once the actual Monk configuration lands in the repo. This ADR is the intent
+record, not the implementation contract.
 
 ### What runs in the cluster, what stays SaaS
 
 | Location | Components |
 |---|---|
 | **In the cluster** | Bootstrap, the dashboard, HTTPS ingress |
-| **Outside (SaaS)** | Supabase (PostgREST), Modal, and the three scanner engines |
+| **Outside (SaaS)** | Supabase (PostgREST), Modal, the three scanner engines, and the Tier 3 endpoints |
 
 Modal remains an external SaaS dependency. "Not a cluster workload" means no
 Modal container runs inside the cluster — it does **not** mean Modal is
@@ -88,21 +102,30 @@ the same way.
 
 1. Install Monk.
 2. Ask Monk to deploy Tripwire (from this repo; later from the Monk registry).
-3. Monk collects the required secrets for all five vendors.
+3. Monk collects the Tier 1 secrets it needs to deploy at all, plus whichever
+   Tier 2 and Tier 3 secrets the operator holds.
 4. Monk wires providers and provisions the required services and compute.
 5. Monk bootstraps the instance (schema, Modal app, dashboard config).
 6. Monk hands back an HTTPS URL to the running instance.
 
 ### Kit v1 is done when
 
-- Credentials for all five vendors are collected.
+**MVL-complete** — the deploy succeeds and hands back a Live instance:
+
+- Tier 1 credentials (Supabase, Modal) are collected.
 - Supabase is provisioned and wired.
 - The schema is applied.
-- The Modal app is deployed with scanner secrets.
+- The Modal app is deployed with whatever scanner secrets were supplied.
 - The HTTPS Live dashboard can read PostgREST.
 
-If scanner credentials are missing, the deploy is **incomplete** — not a
-successful Live instance.
+**Full-coverage-complete** — MVL-complete, and additionally:
+
+- Tier 2 credentials (Snyk, Cisco, Tessl) are collected and reach their engines.
+- Tier 3 keys, where the operator has them, are passed through to the sandbox.
+
+An MVL-complete deploy is a successful Live instance with **partial scanner
+coverage**; only full-coverage-complete gives an operator every scanner
+Tripwire can run.
 
 ## Coexistence with today's docs
 
@@ -138,10 +161,10 @@ plan itself. Those belong in follow-up slices under `docs/plan`.
 ### Costs and open questions
 
 - Hosted Live depends on Monk for provisioning, secrets, and ingress — by design.
-- Requiring five vendors raises the bar for a successful deploy relative to the
-  Minimum Viable Live (Supabase + Modal) documented in
-  [env-vars](../user-guide/env-vars.md). That is deliberate: a packaged instance
-  should not ship with partial scanner coverage.
+- Tier 1 alone produces a valid Live instance with partial scanner coverage.
+  Open question: how that instance signals its partial coverage to the operator
+  — a deploy summary, a dashboard surface, or both. Live honesty rules today
+  live in [STATUS](../STATUS.md).
 - Bootstrap and image-publish details are implementation work after this ADR is
   accepted; they should stay invisible to the intended user path above.
 - Flavoring non-Supabase databases is deferred until the application boundary
