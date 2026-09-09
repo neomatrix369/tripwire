@@ -1,9 +1,12 @@
 # Coverage audit matrix (slice 7)
 
-> Last updated: 2026-08-14 · Horizon A · Ship-path target ~95% (DECIDED);
+> Last updated: 2026-09-09 · Horizon A · Ship-path target ~95% (DECIDED);
 > CLI enforced floors temporarily 60/60/80/60 while overall CLI coverage climbs
 > back toward ADR-0013 after the router land (`cli/test/router.test.js` exists)
 > Context: private references SoT + public STATUS/ARCHITECTURE
+>
+> Soft-amend 2026-09-09: Nightly T4 workflow is **twice monthly** (1st + 15th
+> 02:00 UTC) + dispatch — see DECISIONS / slice 7 soft-amend (Stryker cost).
 
 ## Altitude / targets
 
@@ -57,7 +60,7 @@ Deferred, future-tracked work: full drift/trend/diff behavior and Guard enforcem
 | Phase 4/5 | Won't for A (PROGRESS/TRAIL) | Badges claimed partners | **Gate A done** — badges removed |
 | Guard | Stub + Phase 4 | Was in C4 L2 | **Gate A done** — Future section |
 | Branch for coverage wave | merged PR #25 | STATUS said `plan/coverage-slices-7-14` | **Gate A done** — per-slice branches |
-| Nightly mutmut/Chalk | `\|\| true` | Listed as Nightly checks | **Gate A done** — non-gating note |
+| Nightly mutmut/Chalk | `\|\| true` / continue-on-error; cron **1st+15th** | Listed as Nightly checks | **Gate A done** — non-gating note; **2026-09-09** schedule soft-amend (slice 7) |
 | Adapter JSON field names | RESEARCH | RESEARCH in STATUS | Slices 8–9 + research sync |
 | Realtime poll timing | 8s + 30s paths | “~1s + 8s” only | Slice 16 📦 / audit 15 |
 | Default UI source | `live` default | Normal users should select Mock for local baseline path | Slice **17** + 16 📦 |

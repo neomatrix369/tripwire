@@ -66,7 +66,7 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 
 ## After-Checks [GATE]
 - [ ] Ship-path coverage claim matches `docs/plan/coverage-audit.md` and evidence for slices 11–13: Python `95.91%` / `fail_under=95`, CLI `99.75%` lines / `85%` branches, and Live ACL `98.48%` lines / `80%` branches
-- [ ] Mutation-test language remains accurately marked non-gating (`Nightly mutmut and Chalk` in `CONTRIBUTING.md` and `coverage-audit.md`)
+- [ ] Mutation-test language remains accurately marked non-gating (`Nightly mutmut and Chalk` / equivalent in `CONTRIBUTING.md` and `coverage-audit.md`); schedule claim must match `nightly.yml` (twice monthly 1st+15th as of 2026-09-09)
 - [ ] Claim inventory file exists (path list in `docs/plan/coverage-audit.md` + `docs/STATUS.md`) and each claim is marked PASS/FAIL/PARTIAL + evidence path in findings artifact
 - [ ] Findings artifact exists (`docs/plan/claim-audit.md` or canvas path) with complete claim matrix and evidence links
 - [ ] Security command + pass/fail recorded **or** blocker recorded as 3C request in `DECISIONS.md`
@@ -182,6 +182,10 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 
 ## Gate Status
 📦 CLOSED — gate evidence is frozen pending an explicit reinstatement decision.
+
+> **Soft-amend (2026-09-09):** Nightly mutation claim still PASS / non-gating; schedule
+> is **twice monthly** (not daily). After-Check mutation language updated; claim-audit.md
+> row annotated. Ownership of schedule honesty: **slice 7**. Does not reinstate slice 15.
 
 ## Session Metrics
 | Metric | Value |

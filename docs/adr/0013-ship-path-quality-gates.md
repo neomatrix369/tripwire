@@ -37,6 +37,9 @@ Govern **ship path only**, with three gate altitudes.
   changes; T3 gitleaks **warn-only**; full SAST/SCA is CI.
 - CI: Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog, coverage jobs.
 - Nightly: mutation (mutmut, Stryker) and extra SCA are **non-gating**.
+  Schedule (soft-amend 2026-09-09, USER-CONFIRMED): **twice monthly**
+  (`0 2 1,15 * *` — 1st + 15th 02:00 UTC) plus `workflow_dispatch`; not daily.
+  Rationale: Stryker dominated ~45 min billable per run.
 - Live Modal/Supabase E2E as CI Must = **Won't** (skip-without-config).
 
 ## Consequences
@@ -46,6 +49,8 @@ Govern **ship path only**, with three gate altitudes.
 - Branch floors are lower than line floors where residual defensive branches
   remain (orchestrator, CDN import).
 - Green Nightly does not mean a high mutation score.
+- Twice-monthly Nightly means mutation/SBOM/Chalk signals arrive slower than
+  daily; ship-path regressions remain on CI + local quality-gates.
 
 ## Alternatives considered
 

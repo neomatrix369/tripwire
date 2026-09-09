@@ -63,7 +63,8 @@ pre-commit run --all-files          # lint, mypy, bandit, xenon, vulture, pylint
   T3 gitleaks commit-range scan (only pushed commits, fast) runs warn-only —
   findings print but do not block the push; full SAST/SCA is CI-only
 - **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog
-- **Nightly** (`.github/workflows/nightly.yml`): full TruffleHog, SBOM, Meterian;
+- **Nightly** (`.github/workflows/nightly.yml`): scheduled **twice monthly** (1st + 15th
+  02:00 UTC) plus `workflow_dispatch`; full TruffleHog, SBOM, Meterian;
   mutmut (Python `sandbox/`,`guard/`) and Stryker (CLI `src/`) run but are **non-gating**
   (`break: 0` threshold — green Nightly does not mean high mutation score; Chalk failures
   surface as ⚠ warnings via `continue-on-error: true`)
@@ -90,5 +91,5 @@ are excluded from secrets scanners.
 ## CI
 
 - [CI](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml) (`.github/workflows/ci.yml`) — secrets scanning, SAST, Trivy, ruff/bandit, CLI tests
-- [Nightly](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml) (`.github/workflows/nightly.yml`) — T4 deep checks
+- [Nightly](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml) (`.github/workflows/nightly.yml`) — T4 deep checks (1st + 15th UTC, or dispatch)
 - Workflow map: [docs/README.md § CI workflows](docs/README.md#ci-workflows)

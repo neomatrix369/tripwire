@@ -101,6 +101,13 @@ Docs-only.
 ## Gate Status
 ✅ PASSED — Gate A+B on `main` (PRs #26/#27). After-Checks re-verified 2026-08-02; evidence `verdict: PASS`.
 
+> **Soft-amend (2026-09-09):** Nightly T4 schedule — `nightly.yml` cron changed from
+> daily `0 2 * * *` to **twice monthly** `0 2 1,15 * *` (1st + 15th 02:00 UTC) plus
+> `workflow_dispatch`. Rationale: Stryker ~45 min dominated daily billable minutes;
+> ship-path still attested by CI + local quality-gates. Non-gating mutmut/Chalk/Stryker
+> honesty in CONTRIBUTING **unchanged**. USER-CONFIRMED (HITL topology frequency);
+> see DECISIONS 2026-09-09. Does not reopen Gate A/B.
+
 ## Session Metrics
 | Metric | Value |
 |--------|-------|

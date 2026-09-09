@@ -31,7 +31,8 @@ connected and items running; Normal users must select Mock (default remains Live
 `prototypes/dc-dashboard` is Horizon A ship UI living under `prototypes/`
 
 ## Out of scope (already exists)
-- Badge / Guard Future / Nightly honesty — **slice 7 Gate A**
+- Badge / Guard Future / Nightly honesty (non-gating + schedule) — **slice 7** Gate A
+  (soft-amend 2026-09-09: twice monthly cron)
 - Coverage floor raise — slices 11–13
 - Slice 4 Remotion
 

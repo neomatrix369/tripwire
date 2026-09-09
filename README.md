@@ -34,7 +34,9 @@
 Meterian **Security** / **Stability** / **Licensing** badges mirror the public
 [Meterian project report](https://www.meterian.com/report/gh/neomatrix369/tripwire)
 (dependency and policy scan for this GitHub repo — not a Tripwire scan adapter).
-CI / Nightly / Complexity badges reflect GitHub Actions on `main`.
+CI / Complexity badges reflect GitHub Actions on `main`. The **Nightly** badge
+is the same workflow name: T4 deep checks run **twice monthly** (1st + 15th
+02:00 UTC) or via `workflow_dispatch` — see [CONTRIBUTING](CONTRIBUTING.md).
 
 ![Tripwire banner](./Tripwire-Banner.png)
 

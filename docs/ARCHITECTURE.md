@@ -39,7 +39,7 @@ services — see [prerequisites](./user-guide/prerequisites.md).
 | **Alibaba Cloud Model Studio** | Escalation arbitration / triage | Optional tiered router | [tiered-router-setup](./user-guide/tiered-router-setup.md) |
 | **DepShield** (`depshield-mcp`) | Local dependency-audit adapter over MCP stdio | Optional / local | No cloud account — npm package; see [STATUS](./STATUS.md) |
 | **Ossprey** (`ossprey-cli`) | Malware / malicious-package scan (after DepShield in `SCANNER_GROUPS`) | Full scanner coverage (when keyed) | `OSSPREY_API_KEY` via [env-vars](./user-guide/env-vars.md) · [OPTIONAL_SCANNER_KEYS](../fixtures/OPTIONAL_SCANNER_KEYS.md); absent → `skipped_missing_credential`. IMPLEMENTED adapter; access provisioning OPEN — not VERIFIED live |
-| **GitHub Actions** | CI / Nightly / complexity workflows | Contributors | Repo secrets as needed — not operator Live |
+| **GitHub Actions** | CI / Nightly (twice monthly T4 + dispatch) / complexity workflows | Contributors | Repo secrets as needed — not operator Live; [ADR-0013](./adr/0013-ship-path-quality-gates.md) |
 | **Cursor / Claude Code** | Dev tooling; Wave H agent hooks (Phase 1 on `main`) | Contributors / operators | [agent-hooks](../agent-hooks/README.md) · [frontline-output-contract](./user-guide/frontline-output-contract.md) · Wave H in [TRAIL](./plan/TRAIL.md) |
 
 Demo / Mock path needs **no** rows above. Capability honesty: [STATUS.md](./STATUS.md).

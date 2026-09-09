@@ -1,6 +1,8 @@
 name: Nightly
 
 # T4 slow/deep checks — Tripwire (Python: mutmut; CLI: Stryker command runner; no Dockerfile yet).
+# Schedule: twice monthly (1st + 15th) — Stryker dominates ~45 min billable; daily was redundant
+# with CI ship-path + local quality-gates. workflow_dispatch still available anytime.
 #
 # Status badge: README + docs/README.md (Nightly).
 # Primary stack (docs): Cursor · Modal · Supabase · Tripwire
@@ -8,7 +10,7 @@ name: Nightly
 
 on:
   schedule:
-    - cron: "0 2 * * *" # 02:00 UTC every night
+    - cron: "0 2 1,15 * *" # 02:00 UTC on the 1st and 15th (twice monthly)
   workflow_dispatch:
 
 jobs:

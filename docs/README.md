@@ -64,6 +64,6 @@ Start here: [QUICKSTART](../QUICKSTART.md) · Repo entry: [README](../README.md)
 | Workflow | Role |
 |---|---|
 | [CI](../.github/workflows/ci.yml) | PR and main checks |
-| [Nightly](../.github/workflows/nightly.yml) | Deep, non-blocking checks |
+| [Nightly](../.github/workflows/nightly.yml) | Deep, non-blocking checks (1st + 15th 02:00 UTC, or dispatch) |
 | [Code Review Graph](../.github/workflows/code-review-graph.yml) | PR knowledge-graph analysis (unprivileged; fork-safe) |
 | [Code Review Graph Comment](../.github/workflows/code-review-graph-comment.yml) | Trusted sticky PR comment from the analysis artifact |
