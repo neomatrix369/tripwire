@@ -125,3 +125,67 @@ test('walkArtifacts: skill with package.json is not also an MCP', async () => {
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test('GWT-62.7: card name is skill identity, not bare GitHub repo name', async () => {
+  const fixture = await mkdtemp(path.join(os.tmpdir(), 'tripwire-name-fixture-'));
+  try {
+    await mkdir(path.join(fixture, '.cursor', 'skills', 'impeccable'), { recursive: true });
+    await mkdir(path.join(fixture, 'skills', 'audit'), { recursive: true });
+    await writeFile(
+      path.join(fixture, '.cursor', 'skills', 'impeccable', 'SKILL.md'),
+      '---\nname: impeccable\ndescription: design skill\n---\n',
+    );
+    await writeFile(
+      path.join(fixture, 'skills', 'audit', 'SKILL.md'),
+      '---\nname: audit\ndescription: audit skill\n---\n',
+    );
+
+    const targets = await discoverTargets({
+      targets: ['https://github.com/org/impeccable'],
+      useDefaults: false,
+      cloneRepoFn: cloneFixtureInto(fixture, []),
+    });
+
+    const byId = Object.fromEntries(targets.map(t => [t.identifier, t]));
+    assert.equal(
+      byId['org/impeccable/skills/audit']?.name,
+      'audit',
+      'distinct skill frontmatter/folder name must be the card title',
+    );
+    assert.equal(
+      byId['org/impeccable/.cursor/skills/impeccable']?.name,
+      '.cursor/skills/impeccable',
+      'when skill leaf equals the GitHub repo name, card title must use the relative path',
+    );
+    assert.notEqual(
+      byId['org/impeccable/.cursor/skills/impeccable']?.name,
+      'impeccable',
+      'card must not be titled with the bare repository name',
+    );
+  } finally {
+    await rm(fixture, { recursive: true, force: true });
+  }
+});
+
+test('GWT-62.5: frontmatter name wins when it differs from folder basename', async () => {
+  const fixture = await mkdtemp(path.join(os.tmpdir(), 'tripwire-fm-fixture-'));
+  try {
+    await mkdir(path.join(fixture, 'skills', 'folder-id'), { recursive: true });
+    await writeFile(
+      path.join(fixture, 'skills', 'folder-id', 'SKILL.md'),
+      '---\nname: real-skill-name\ndescription: x\n---\n',
+    );
+
+    const targets = await discoverTargets({
+      targets: ['https://github.com/org/other-repo'],
+      useDefaults: false,
+      cloneRepoFn: cloneFixtureInto(fixture, []),
+    });
+
+    assert.equal(targets.length, 1);
+    assert.equal(targets[0].name, 'real-skill-name',
+      'SKILL.md frontmatter name is the operator-visible skill name');
+  } finally {
+    await rm(fixture, { recursive: true, force: true });
+  }
+});

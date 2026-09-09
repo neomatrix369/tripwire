@@ -11,8 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub repo discover + fan-out (slice 62, Wave P): `tripwire scan https://github.com/org/repo`
   (and `/tree|/blob/` browse URLs) shallow-clones on the host, walks skills (`SKILL.md`)
   and MCP roots (`server.py`/`server.js`/`run.sh`), emits N typed targets with
-  `identifier=org/repo/<relpath>` and dashboard `org/repo` card signature. Empty
-  repos return `[]` (fail-closed). Soft-amend prerequisites Git URL taxonomy (56-a).
+  `identifier=org/repo/<relpath>` and dashboard cards titled by **skill/MCP name**
+  (SKILL.md frontmatter when set; never bare repo name when leaf equals repo) plus
+  `org/repo` signature. Empty repos return `[]` (fail-closed). Soft-amend prerequisites
+  Git URL taxonomy (56-a).
 - Docs: Wave **16-P** git repo discover + fan-out plan (slice 62) —
   [slice stub](docs/plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md),
   TRAIL/PROGRESS/STATUS. GitHub repo or `/tree|/blob/`

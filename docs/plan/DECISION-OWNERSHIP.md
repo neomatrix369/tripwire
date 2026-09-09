@@ -19,4 +19,4 @@
 
 ## Slice 62 note
 
-Identity shape `org/repo/<relpath>` was **DECIDED** in the slice stub (2026-09-09). Agent may implement that contract; changing the namespace shape later requires HITL + ADR.
+Identity shape `org/repo/<relpath>` was **DECIDED** in the slice stub (2026-09-09). Card `name` prefers skill frontmatter / artifact identity and must not be the bare GitHub repo name when a subpath exists (amended 2026-09-09). Agent may implement that contract; changing the namespace shape later requires HITL + ADR.

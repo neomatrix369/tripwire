@@ -1,5 +1,5 @@
 import { mkdtemp, readFile, readdir, rm, stat } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import os from 'node:os';
@@ -110,6 +110,49 @@ function defaultCloneRepo(cloneUrl, destDir) {
   });
 }
 
+/**
+ * SKILL.md YAML frontmatter `name:` (Agent Skills). Sync read — discovery is local FS.
+ * @param {string} skillMdPath
+ * @returns {string|null}
+ */
+export function readSkillFrontmatterName(skillMdPath) {
+  if (!existsSync(skillMdPath)) return null;
+  let text;
+  try {
+    text = readFileSync(skillMdPath, 'utf8');
+  } catch {
+    return null;
+  }
+  const lines = text.split(/\r?\n/);
+  if (!lines.length || lines[0].trim() !== '---') return null;
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.trim() === '---') break;
+    if (line.startsWith('name:')) {
+      const value = line.slice('name:'.length).trim().replace(/^['"]|['"]$/g, '');
+      return value || null;
+    }
+  }
+  return null;
+}
+
+/**
+ * Card title for a git-fan-out artifact. Prefer skill frontmatter name; never title
+ * the card as the GitHub repository name alone when a repo-relative path exists.
+ * @param {{ type: string, artifactDir: string, relPath: string, repo: string }} args
+ * @returns {string}
+ */
+export function gitFanoutDisplayName({ type, artifactDir, relPath, repo }) {
+  const posixRel = String(relPath || '').split(path.sep).join('/').replace(/^\.\/+/, '');
+  let leaf = path.basename(artifactDir);
+  if (type === 'skill') {
+    const fromFrontmatter = readSkillFrontmatterName(path.join(artifactDir, 'SKILL.md'));
+    if (fromFrontmatter) leaf = fromFrontmatter;
+  }
+  if (posixRel && leaf === repo) return posixRel;
+  return leaf;
+}
+
 async function discoverGitHubRepo(target, cloneRepoFn) {
   const gitHub = parseGitHubBrowseUrl(target);
   if (!gitHub) return null;
@@ -127,7 +170,12 @@ async function discoverGitHubRepo(target, cloneRepoFn) {
         locus: 'local',
         avail: 'source_on_disk',
         identifier: `${gitHub.org}/${gitHub.repo}/${rel}`,
-        name: path.basename(artifact.target),
+        name: gitFanoutDisplayName({
+          type: artifact.type,
+          artifactDir: artifact.target,
+          relPath: rel,
+          repo: gitHub.repo,
+        }),
         gitCloneUrl: gitHub.cloneUrl,
       };
     });

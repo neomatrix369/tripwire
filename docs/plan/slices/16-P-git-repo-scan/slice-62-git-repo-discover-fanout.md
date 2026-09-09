@@ -29,7 +29,7 @@
 - `--dry-discover` on a repo URL lists ≥1 skill and/or mcp_server with `identifier` shape `org/repo/<relpath>`
 - Browse URL `…/tree/<ref>/<path>` normalizes before clone (no `git clone …/tree/…`)
 - Live dispatch: one Modal `scan_item` per discovered artifact; skill scanners only on skills; MCP scanners only on MCPs; shared groups still `both`
-- Dashboard list/detail: card shows artifact `name` (basename) and visible `org/repo` signature (from `identifier` prefix)
+- Dashboard list/detail: card shows artifact **skill/MCP name** (not the GitHub repo name alone) and visible `org/repo` signature (from `identifier` prefix)
 
 ## Slice Workflow Bundle
 - Slice name: `slice-62-git-repo-discover-fanout`
@@ -67,10 +67,10 @@ As an operator, I want `tripwire scan https://github.com/org/repo` (or a `/tree/
 **When** sandbox scanner groups run (unit against `SCANNER_GROUPS` / `_group_applies`)
 **Then** skill-only groups run for the skill; mcp-only groups for the MCP; `both` for each
 
-### GWT-62.5 — Dashboard cards carry org/repo signature
-**Given** an item persisted from a git repo fan-out with `identifier` `org/repo/<relpath>` and `name` = basename
+### GWT-62.5 — Dashboard cards carry org/repo signature and skill/MCP names
+**Given** an item persisted from a git repo fan-out with `identifier` `org/repo/<relpath>`
 **When** the Live/Mock card list renders that item
-**Then** the card shows the artifact name
+**Then** the card title (`name`) is the skill/MCP artifact name — SKILL.md frontmatter `name` when present, else folder basename — **never the GitHub repository name alone** when the artifact lives under a subpath (if leaf name equals the repo, use the repo-relative path as the title)
 **And** the visible `org/repo` signature appears on the card (reuse `identifier` prefix or dedicated subtitle — no new card component type)
 
 ### GWT-62.6 — Empty / no-artifact repo fails closed
@@ -78,10 +78,16 @@ As an operator, I want `tripwire scan https://github.com/org/repo` (or a `/tree/
 **When** discovery completes
 **Then** the operator gets a clear zero-artifact outcome (no fake empty “clean” single scan of the whole tree as a skill)
 
-## Identity contract (DECIDED with this stub)
+### GWT-62.7 — Git fan-out card names are artifact names, not the repo name
+**Given** a GitHub repo named `impeccable` containing skills under `.cursor/skills/impeccable` (frontmatter/folder name also `impeccable`) and another skill `audit`
+**When** dry-discover / upsert builds item rows
+**Then** the `audit` card `name` is `audit`
+**And** the `.cursor/skills/impeccable` card `name` is the repo-relative path (e.g. `.cursor/skills/impeccable`), not bare `impeccable` (the repository name)
+
+## Identity contract (DECIDED with this stub; amended 2026-09-09 card naming)
 | Field | Value |
 |-------|--------|
-| `name` | Artifact basename (folder name) |
+| `name` | **Skill:** SKILL.md frontmatter `name` when set, else folder basename. **MCP:** folder basename. **Never** the GitHub `repo` segment alone when `relpath` is non-empty and the leaf equals `repo` — then `name` = repo-relative path (POSIX). Local non-git targets unchanged. |
 | `identifier` | `org/repo/<relpath>` (POSIX, no leading `/`) |
 | Card signature | `org/repo` derived from identifier (first two path segments) |
 
@@ -130,7 +136,7 @@ Complexity evidence recorded 2026-09-09: `./scripts/quality-gates.sh` exit 0 (xe
 - [x] Browse `/tree|/blob/` URLs never passed verbatim to `git clone`
 - [x] Repo URL → N skill/MCP targets; each scanned separately
 - [x] `item_type` drives scanner groups (`applies_to`)
-- [x] Items use `identifier` = `org/repo/<relpath>`; cards show `org/repo`
+- [x] Items use `identifier` = `org/repo/<relpath>`; cards show skill/MCP **name** (not bare repo) + `org/repo` signature
 - [x] Zero-artifact repos do not produce a misleading single clean scan
 - [x] Quality gates pass; gate-evidence prepared on PASSED
 
