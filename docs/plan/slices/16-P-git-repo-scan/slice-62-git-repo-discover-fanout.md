@@ -85,6 +85,20 @@ As an operator, I want `tripwire scan https://github.com/org/repo` (or a `/tree/
 | `identifier` | `org/repo/<relpath>` (POSIX, no leading `/`) |
 | Card signature | `org/repo` derived from identifier (first two path segments) |
 
+## Marker detection (git walk)
+| Artifact | Marker |
+|----------|--------|
+| Skill | `SKILL.md` in directory (stop descend) |
+| MCP (git fan-out only) | `server.py` **or** `server.js` **or** `run.sh` (`GIT_WALK_MCP_MARKERS`) |
+| MCP (local expand / packPath) | Broader `MCP_SERVER_MARKERS` incl. `package.json` / `index.js` / … (unchanged pre-62) |
+
+Git walk uses stricter markers so monorepo `package.json` trees are not false MCP targets.
+
+## Host vs sandbox boundary
+- **Host discovery is source of truth** for GitHub fan-out: clone → `walkArtifacts` → typed rows with local `target` paths under the temp clone.
+- **Sandbox does not re-discover** skills/MCPs for those rows; it scans the path it is given (`item_type` from the row).
+- **Sandbox `_normalize_github_clone_url`** is defense-in-depth if a browse URL still reaches `_acquire_target` (e.g. non-fan-out path). Keep semantics aligned with `parseGitHubBrowseUrl` clone URL.
+
 ## Before-Checks [GATE]
 - [x] Branch `slice/62-git-repo-discover-fanout` created (not on `main`)
 - [x] This stub opened; ADR-0012 + `discovery.js` `resolveTarget`/`detectType` re-read

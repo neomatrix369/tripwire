@@ -43,6 +43,6 @@
   "coverage_pct": "project quality-gates fail-under (sandbox ship-path)",
   "complexity_tool": "xenon via quality-gates.sh (exit 0)",
   "doc_audit": "prerequisites 56-a Git URL row; ADR-0012/0014 Later notes; STATUS/ARCHITECTURE Wave P; DECISIONS strict git-walk MCP markers",
-  "review": "pending nw-software-crafter-reviewer (queued)",
+  "review": "2026-09-09 nw-review: software-crafter APPROVED; product-owner UX APPROVED; data-engineer NEEDS_REVISION addressed (identity shape assert + host/sandbox boundary docs); solution-architect NEEDS_REVISION addressed (marker + boundary sections in stub)",
   "pr": "https://github.com/neomatrix369/tripwire/pull/138"
 }

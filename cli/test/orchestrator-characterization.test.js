@@ -300,6 +300,12 @@ test('GWT-62.3: multi-artifact runScan spawns once per target with distinct iden
       assert.deepEqual(ids.sort(), ['org/repo/mcp/bar', 'org/repo/skills/foo']);
       assert.ok(ids.every(id => id.startsWith('org/repo/')),
         'identifiers must share the org/repo prefix');
+      // Data-flow review: identity must round-trip in org/repo/<relpath> shape for card signature
+      assert.ok(ids.every(id => /^[^/]+\/[^/]+\/.+$/.test(id)),
+        'persisted identifier must be org/repo/<relpath> for dashboard org/repo signature');
+      const names = supabase.calls.insertedItems.map(item => item.name).sort();
+      assert.deepEqual(names, ['bar', 'foo'],
+        'persisted name must remain artifact basename for card title');
     });
   });
 });
