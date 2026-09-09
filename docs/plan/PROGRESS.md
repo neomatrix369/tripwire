@@ -5,7 +5,7 @@
 
 | Wave | Folder | Group | Slices | Outcome |
 |-----:|--------|-------|--------|---------|
-| 16 | [`16-P-…`](slices/16-P-git-repo-scan/) | **P — Git repo discover + fan-out** | **62** | 📋 plan-only |
+| 16 | [`16-P-…`](slices/16-P-git-repo-scan/) | **P — Git repo discover + fan-out** | **62** | 🔀 ON BRANCH |
 | 12 | [`12-L-…`](slices/12-L-tessl-5-row-expansion/) | **L — Tessl 5-row expansion** | 45 ✅ · 46 ✅ · 47 ✅ · 48 ✅ · 49 ✅ · 50 ✅ · **51** 🔀 · 52 📋 | 45–50 ✅ · **51** 🔀 |
 | 13 | [`13-M-…`](slices/13-M-llm-usage-tracking/) | **M — LLM usage / cost observability** | **53** | 📋 plan-only (ADR-0016 follow-on; not J/L/G) |
 | 11 | [`11-K-…`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** | 🔀 |
@@ -26,7 +26,7 @@
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| 0 (plan) | P | **62** | **Git repo discover + fan-out** | Must | 📋 PLANNED · browse URL normalize · N skill+MCP scans · `org/repo` cards · soft-amends 56-a |
+| 0 (plan) | P | **62** | **Git repo discover + fan-out** | Must | 🔀 ON BRANCH · browse URL normalize · N skill+MCP scans · `org/repo` cards · soft-amends 56-a |
 | 0 (docs) | K | **44** | **Docs UX plain language + compaction** | Must | 🔀 ON BRANCH · [#99](https://github.com/neomatrix369/tripwire/pull/99) · GWT-44.1–44.8 · documentarist APPROVED WITH FOLLOW-ON (DIVIO targets pending) · `slice/44-docs-ux-plain-language` |
 | 0 (active) | L | **51** | **Tessl: Review (Security) (Row 5)** | Could | 🔀 ON BRANCH · `slice/51-review-security` · nw-review APPROVED |
 | 0 (delta) | J | 42 | Dashboard Data Quality — Tessl quality UX + tooltips + plain labels (A9–A13) | Must | ✅ PASSED · [#98](https://github.com/neomatrix369/tripwire/pull/98) |
@@ -202,7 +202,7 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 ### P — Git repo discover + fan-out
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| 62 | [slice-62-git-repo-discover-fanout](slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) | Must | 📋 PLANNED | — | — | ~50 min [Walking Skeleton] |
+| 62 | [slice-62-git-repo-discover-fanout](slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) | Must | 🔀 ON BRANCH | 2026-09-09 | — | ~50 min [Walking Skeleton] |
 
 **Group note:** One repo URL → discover skills + MCPs → separate scans + `org/repo` cards. Docs via reused slice **56-a** (not a new docs slice). Number **62** avoids Wave O monk-kit 58–61.
 
@@ -217,7 +217,7 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 4 (historical) | Remotion sibling + VO assets missing | 📦 closed with demo/hackathon deferral — reinstate slice 4 if film day returns |
 
 ## Forward Roadmap
-- Wave **P** (slice **62**) git repo discover + fan-out is **📋 plan-only** — execute on `slice/62-git-repo-discover-fanout`; soft-amended **56-a** documents browse URL + multi-item taxonomy.
+- Wave **P** (slice **62**) git repo discover + fan-out is **🔀 ON BRANCH** (`slice/62-git-repo-discover-fanout`); soft-amended **56-a** documents browse URL + multi-item taxonomy.
 - Wave **M** (slice 53) LLM usage / cost observability is **📋 plan-only** — ADR-0016 follow-on; execute when explicitly started (`slice/53-llm-usage-tracking`).
 - Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Slice 15 is retained as a deferred claim-audit artifact, not active work.
 - **Wave H (Frontline):** plan-only stubs 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. Execute Musts 23→32 with human tests after H1/H2 and HARD GATE at 32 before Should work.

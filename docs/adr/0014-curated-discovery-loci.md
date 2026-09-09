@@ -54,11 +54,14 @@ via `--no-defaults`.
 
 ## Later decisions
 
-**Wave P / slice 62 (DECIDED, not IMPLEMENTED):** Explicit GitHub repo URLs should
-expand to typed skill and MCP paths after clone (not stay a single
-`cloneable`/`mcp_server` row). Current Decision bullet “git-looking HTTPS →
-cloneable MCP” remains accurate until slice 62 lands. See
-[slice-62](../plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md)
+**Wave P / slice 62 (IN PROGRESS):** Explicit GitHub repo URLs (including
+`/tree/…` and `/blob/…` browse URLs, normalized to repo root) expand to typed
+skill and MCP paths after clone — not a single `cloneable`/`mcp_server` row.
+Each row uses `identifier` `org/repo/<relpath>`. Empty/no-artifact repos fail
+closed (discovery returns no targets). Current Decision bullet “git-looking
+HTTPS → cloneable MCP” remains accurate on `main` until slice 62 merges. See
+[slice-62](../plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md),
+[prerequisites — What can Tripwire scan?](../user-guide/prerequisites.md#what-can-tripwire-scan),
 and [ADR-0012](./0012-sandbox-target-acquisition.md) Later decisions.
 
 ## References

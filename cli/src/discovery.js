@@ -1,5 +1,6 @@
-import { readFile, readdir, stat } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { mkdtemp, readFile, readdir, rm, stat } from 'node:fs/promises';
+import { existsSync, readFileSync } from 'node:fs';
+import { spawn } from 'node:child_process';
 import path from 'node:path';
 import os from 'node:os';
 
@@ -18,13 +19,38 @@ const MCP_SERVER_MARKERS = [
   'server.py', 'server.js', 'index.js', 'index.ts', 'main.py',
   'package.json', 'pyproject.toml', 'run.sh'
 ];
+/** Stricter markers for recursive git-repo walks — package.json alone is too noisy. */
+const GIT_WALK_MCP_MARKERS = ['server.py', 'server.js', 'run.sh'];
 
 async function isDir(p) {
   try { return (await stat(p)).isDirectory(); } catch { return false; }
 }
 
-function looksLikeMcpServer(dirPath) {
-  return MCP_SERVER_MARKERS.some(f => existsSync(path.join(dirPath, f)));
+function looksLikeMcpServer(dirPath, markers = MCP_SERVER_MARKERS) {
+  return markers.some(f => existsSync(path.join(dirPath, f)));
+}
+
+export function parseGitHubBrowseUrl(url) {
+  let parsed;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return null;
+  }
+  if (!['http:', 'https:'].includes(parsed.protocol) || parsed.hostname !== 'github.com') return null;
+  const parts = parsed.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+  if (parts.length < 2) return null;
+
+  const [org, rawRepo, action, ref, ...scope] = parts;
+  const repo = rawRepo.replace(/\.git$/, '');
+  if (action && !['tree', 'blob'].includes(action)) return null;
+  if (action && !ref) return null;
+  return {
+    cloneUrl: `${parsed.protocol}//github.com/${org}/${repo}`,
+    org,
+    repo,
+    scopePath: scope.length ? scope.join('/') : null,
+  };
 }
 
 async function detectType(target) {
@@ -47,6 +73,116 @@ async function expandFolder(folder) {
     else if (looksLikeMcpServer(sub)) found.push(sub);
   }
   return found;
+}
+
+export async function walkArtifacts(rootDir) {
+  const artifacts = [];
+  async function walk(dir, isWalkRoot) {
+    if (path.basename(dir) === '.git') return;
+    const entries = await readdir(dir, { withFileTypes: true });
+    const isSkill = existsSync(path.join(dir, 'SKILL.md'));
+    // Stop at artifact roots so skill package.json / nested tooling is not
+    // misclassified as a separate MCP server.
+    if (isSkill) {
+      artifacts.push({ target: dir, type: 'skill' });
+      return;
+    }
+    // Clone/scope roots often have package.json — descend instead of treating
+    // the whole tree as one MCP. Use strict markers so node packages / fixtures
+    // are not misclassified during git fan-out.
+    if (!isWalkRoot && looksLikeMcpServer(dir, GIT_WALK_MCP_MARKERS)) {
+      artifacts.push({ target: dir, type: 'mcp_server' });
+      return;
+    }
+    await Promise.all(entries
+      .filter(entry => entry.isDirectory() && entry.name !== '.git')
+      .map(entry => walk(path.join(dir, entry.name), false)));
+  }
+  await walk(rootDir, true);
+  return artifacts;
+}
+
+function defaultCloneRepo(cloneUrl, destDir) {
+  return new Promise((resolve, reject) => {
+    const child = spawn('git', ['clone', '--depth', '1', '--single-branch', cloneUrl, destDir]);
+    child.once('error', reject);
+    child.once('exit', code => code === 0 ? resolve() : reject(new Error(`git clone failed (${code})`)));
+  });
+}
+
+/**
+ * SKILL.md YAML frontmatter `name:` (Agent Skills). Sync read — discovery is local FS.
+ * @param {string} skillMdPath
+ * @returns {string|null}
+ */
+export function readSkillFrontmatterName(skillMdPath) {
+  if (!existsSync(skillMdPath)) return null;
+  let text;
+  try {
+    text = readFileSync(skillMdPath, 'utf8');
+  } catch {
+    return null;
+  }
+  const lines = text.split(/\r?\n/);
+  if (!lines.length || lines[0].trim() !== '---') return null;
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.trim() === '---') break;
+    if (line.startsWith('name:')) {
+      const value = line.slice('name:'.length).trim().replace(/^['"]|['"]$/g, '');
+      return value || null;
+    }
+  }
+  return null;
+}
+
+/**
+ * Card title for a git-fan-out artifact. Prefer skill frontmatter name; never title
+ * the card as the GitHub repository name alone when a repo-relative path exists.
+ * @param {{ type: string, artifactDir: string, relPath: string, repo: string }} args
+ * @returns {string}
+ */
+export function gitFanoutDisplayName({ type, artifactDir, relPath, repo }) {
+  const posixRel = String(relPath || '').split(path.sep).join('/').replace(/^\.\/+/, '');
+  let leaf = path.basename(artifactDir);
+  if (type === 'skill') {
+    const fromFrontmatter = readSkillFrontmatterName(path.join(artifactDir, 'SKILL.md'));
+    if (fromFrontmatter) leaf = fromFrontmatter;
+  }
+  if (posixRel && leaf === repo) return posixRel;
+  return leaf;
+}
+
+async function discoverGitHubRepo(target, cloneRepoFn) {
+  const gitHub = parseGitHubBrowseUrl(target);
+  if (!gitHub) return null;
+  const destDir = await mkdtemp(path.join(os.tmpdir(), 'tripwire-git-'));
+  try {
+    await cloneRepoFn(gitHub.cloneUrl, destDir);
+    const scopeDir = path.join(destDir, gitHub.scopePath || '');
+    if (!await isDir(scopeDir)) return [];
+    const artifacts = await walkArtifacts(scopeDir);
+    return artifacts.map(artifact => {
+      const rel = path.relative(destDir, artifact.target).split(path.sep).join('/');
+      return {
+        target: artifact.target,
+        type: artifact.type,
+        locus: 'local',
+        avail: 'source_on_disk',
+        identifier: `${gitHub.org}/${gitHub.repo}/${rel}`,
+        name: gitFanoutDisplayName({
+          type: artifact.type,
+          artifactDir: artifact.target,
+          relPath: rel,
+          repo: gitHub.repo,
+        }),
+        gitCloneUrl: gitHub.cloneUrl,
+      };
+    });
+  } catch (error) {
+    await rm(destDir, { recursive: true, force: true });
+    throw error;
+  }
 }
 
 async function discoverDefaults() {
@@ -131,23 +267,36 @@ async function resolveTarget(t) {
   return [t];
 }
 
+async function metadataFor(target) {
+  if (typeof target === 'string') return detectType(target);
+  if (target.type) return { type: target.type, locus: target.locus, avail: target.avail };
+  if (target.packPath) return detectType(target.packPath);
+  return { type: 'mcp_server', locus: 'local', avail: 'introspection_only' };
+}
+
+async function annotateTarget(target) {
+  if (typeof target === 'string') return { target, ...await metadataFor(target) };
+  const {
+    target: explicitTarget, manifestEntry, packPath, manifest, ...fields
+  } = target;
+  const row = {
+    ...fields,
+    target: explicitTarget || manifestEntry,
+    ...await metadataFor(target),
+  };
+  if (packPath) row.packPath = packPath;
+  if (manifest) row.manifest = manifest;
+  return row;
+}
+
 async function annotateWithTypes(resolved) {
-  const withTypes = [];
-  for (const t of resolved) {
-    const meta = typeof t === 'string'
-      ? await detectType(t)
-      : t.packPath
-        // packPath present → delegate to detectType for proper locus/avail resolution
-        ? await detectType(t.packPath)
-        // Key-only or bare-binary command (e.g. `npx context7`): locally invoked, no source
-        : { type: 'mcp_server', locus: 'local', avail: 'introspection_only' };
-    const target = typeof t === 'string' ? t : t.manifestEntry;
-    const row = { target, ...meta };
-    if (typeof t !== 'string' && t.packPath) row.packPath = t.packPath;
-    if (typeof t !== 'string' && t.manifest) row.manifest = t.manifest;
-    withTypes.push(row);
-  }
-  return withTypes;
+  return Promise.all(resolved.map(annotateTarget));
+}
+
+async function resolveExplicitTarget(target, cloneRepoFn) {
+  const gitHubTargets = await discoverGitHubRepo(target, cloneRepoFn);
+  if (gitHubTargets) return gitHubTargets;
+  return resolveTarget(target);
 }
 
 const VALID_TYPE_FILTERS = ['skill', 'mcp'];
@@ -158,7 +307,9 @@ function _filterByType(items, typeFilter) {
   return items.filter(item => item.type === want);
 }
 
-export async function discoverTargets({ targets, targetsFile, useDefaults, typeFilter = null }) {
+export async function discoverTargets({
+  targets, targetsFile, useDefaults, typeFilter = null, cloneRepoFn = defaultCloneRepo,
+}) {
   let raw = targets && targets.length ? targets : [];
   if (targetsFile) {
     const json = JSON.parse(await readFile(targetsFile, 'utf8'));
@@ -172,10 +323,9 @@ export async function discoverTargets({ targets, targetsFile, useDefaults, typeF
     return _filterByType(annotated, typeFilter);
   }
 
-  const resolved = [];
-  for (const t of raw) {
-    resolved.push(...(await resolveTarget(t)));
-  }
+  const resolved = (await Promise.all(
+    raw.map(target => resolveExplicitTarget(target, cloneRepoFn)),
+  )).flat();
   return _filterByType(await annotateWithTypes(resolved), typeFilter);
 }
 

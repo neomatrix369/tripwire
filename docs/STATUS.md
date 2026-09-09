@@ -306,13 +306,18 @@ Dedicated usage table — does **not** resurrect deferred `tripwire.audit`.
 
 **Wave P — Git repo discover + fan-out (2026-09-09):** Group **16-P** (letter after N;
 **O** reserved for Monk Kit plan on `docs/monk-kit-wave-o`). GitHub repo URL (root or
-`/tree|/blob/…` browse URL) → normalize → discover **skills and MCPs** → **N separate
-scans** with scanners by `item_type`; dashboard cards carry `org/repo` signature
-(`identifier` = `org/repo/<relpath>`, `name` = basename). **DECIDED** as plan-only
-slice 62 — stub + TRAIL/PROGRESS; **not IMPLEMENTED**. Docs taxonomy soft-amended in
-slice **56-a** (still unexecuted). Spec:
+`/tree|/blob/…` browse URL) → normalize to cloneable repo root → discover **skills and
+MCPs** → **N separate scans** with scanners by `item_type`; dashboard cards carry
+skill/MCP **name** (SKILL.md frontmatter when set; repo-relative path when leaf equals
+repo) plus `org/repo` signature (`identifier` = `org/repo/<relpath>`); re-scan refreshes
+`items.name` even on content-hash hits; repos with no skill or MCP artifacts **fail
+closed** (no synthetic clean scan). Slice 62 is
+**🔀 ON BRANCH** (`slice/62-git-repo-discover-fanout`) — IMPLEMENTED pending merge.
+Operator taxonomy soft-amended in slice **56-a**
+([prerequisites — What can Tripwire scan?](./user-guide/prerequisites.md#what-can-tripwire-scan)).
+Spec:
 [slice 62](./plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md),
-[plan/TRAIL.md](./plan/TRAIL.md) Wave 16-P. Current behaviour remains: HTTPS git URL =
+[plan/TRAIL.md](./plan/TRAIL.md) Wave 16-P. **On `main` until merge:** HTTPS git URL =
 single `cloneable` target (typed `mcp_server`); browse `/tree/…` URLs fail at `git clone`.
 
 ---
@@ -381,5 +386,6 @@ Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 audit (slice 15) and slice 16 remediations are deferred; retain their artifacts
 for a future live/demo release. Wave M (slice 53) LLM usage log / cost tips is
 **DECIDED** plan-only — see DECIDED above; not current dashboard behaviour.
-Wave P (slice 62) git repo skill+MCP fan-out + `org/repo` cards is **DECIDED**
-plan-only — see DECIDED above; not current `tripwire scan` behaviour.
+Wave P (slice 62) git repo skill+MCP fan-out, browse-URL normalize, empty-repo
+fail-closed, and `org/repo` cards is **IN PROGRESS** — see DECIDED above; not
+current `tripwire scan` behaviour on `main`.

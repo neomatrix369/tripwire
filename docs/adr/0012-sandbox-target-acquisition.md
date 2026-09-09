@@ -57,13 +57,15 @@ skill root (`_pack_local_dir` filter). Non-Tessl trees keep `evals/`.
 Git clone and `hashLocalPath` still walk on-disk `evals/`.
 See [plan/DECISIONS.md](../plan/DECISIONS.md) (2026-08-24 packing).
 
-**Wave P / slice 62 (DECIDED, not IMPLEMENTED):** GitHub browse URLs
-(`…/tree|<ref>|…`, `…/blob/…`) must normalize before clone; a repo URL should
-fan out to N skill/MCP workdirs rather than one opaque clone target. Identity
-`org/repo/<relpath>`. See
-[slice-62](../plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md)
-and [STATUS.md](../STATUS.md) Wave P. Until then, `_clone_repo` still receives
-the raw URL string.
+**Wave P / slice 62 (IN PROGRESS):** GitHub browse URLs (`…/tree/…`,
+`…/blob/…`) normalize to cloneable repo root before clone; a repo URL fans out
+to N skill/MCP workdirs rather than one opaque clone target. Identity
+`org/repo/<relpath>`. Repos with no discoverable skill or MCP artifact fail
+closed — no empty-workdir “clean” scan. See
+[slice-62](../plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md),
+[prerequisites — What can Tripwire scan?](../user-guide/prerequisites.md#what-can-tripwire-scan),
+and [STATUS.md](../STATUS.md) Wave P. On `main` until merge, `_clone_repo` still
+receives the raw URL string.
 
 ## References
 

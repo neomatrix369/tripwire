@@ -1,6 +1,6 @@
 # Slice 62: Git Repo Discover + Fan-Out
 
-> Scenario: Brownfield | MoSCoW: **Must** | Status: 📋 PLANNED
+> Scenario: Brownfield | MoSCoW: **Must** | Status: 🔀 ON BRANCH
 > Wave: P — Git repo scan (skills + MCPs)
 > Depends on: none (reuses ADR-0012 acquire + `discoverTargets` / `expandFolder` patterns)
 > Trigger: Live fail — `tripwire scan https://github.com/…/tree/…` clones browse URL; git URLs never expand to skills/MCPs
@@ -29,7 +29,7 @@
 - `--dry-discover` on a repo URL lists ≥1 skill and/or mcp_server with `identifier` shape `org/repo/<relpath>`
 - Browse URL `…/tree/<ref>/<path>` normalizes before clone (no `git clone …/tree/…`)
 - Live dispatch: one Modal `scan_item` per discovered artifact; skill scanners only on skills; MCP scanners only on MCPs; shared groups still `both`
-- Dashboard list/detail: card shows artifact `name` (basename) and visible `org/repo` signature (from `identifier` prefix)
+- Dashboard list/detail: card shows artifact **skill/MCP name** (not the GitHub repo name alone) and visible `org/repo` signature (from `identifier` prefix)
 
 ## Slice Workflow Bundle
 - Slice name: `slice-62-git-repo-discover-fanout`
@@ -67,10 +67,10 @@ As an operator, I want `tripwire scan https://github.com/org/repo` (or a `/tree/
 **When** sandbox scanner groups run (unit against `SCANNER_GROUPS` / `_group_applies`)
 **Then** skill-only groups run for the skill; mcp-only groups for the MCP; `both` for each
 
-### GWT-62.5 — Dashboard cards carry org/repo signature
-**Given** an item persisted from a git repo fan-out with `identifier` `org/repo/<relpath>` and `name` = basename
+### GWT-62.5 — Dashboard cards carry org/repo signature and skill/MCP names
+**Given** an item persisted from a git repo fan-out with `identifier` `org/repo/<relpath>`
 **When** the Live/Mock card list renders that item
-**Then** the card shows the artifact name
+**Then** the card title (`name`) is the skill/MCP artifact name — SKILL.md frontmatter `name` when present, else folder basename — **never the GitHub repository name alone** when the artifact lives under a subpath (if leaf name equals the repo, use the repo-relative path as the title)
 **And** the visible `org/repo` signature appears on the card (reuse `identifier` prefix or dedicated subtitle — no new card component type)
 
 ### GWT-62.6 — Empty / no-artifact repo fails closed
@@ -78,18 +78,55 @@ As an operator, I want `tripwire scan https://github.com/org/repo` (or a `/tree/
 **When** discovery completes
 **Then** the operator gets a clear zero-artifact outcome (no fake empty “clean” single scan of the whole tree as a skill)
 
-## Identity contract (DECIDED with this stub)
+### GWT-62.7 — Git fan-out card names are artifact names, not the repo name
+**Given** a GitHub repo named `impeccable` containing skills under `.cursor/skills/impeccable` (frontmatter/folder name also `impeccable`) and another skill `audit`
+**When** dry-discover / upsert builds item rows
+**Then** the `audit` card `name` is `audit`
+**And** the `.cursor/skills/impeccable` card `name` is the repo-relative path (e.g. `.cursor/skills/impeccable`), not bare `impeccable` (the repository name)
+
+## Identity contract (DECIDED with this stub; amended 2026-09-09 card naming)
 | Field | Value |
 |-------|--------|
-| `name` | Artifact basename (folder name) |
+| `name` | **Skill:** SKILL.md frontmatter `name` when set, else folder basename. **MCP:** folder basename. **Never** the GitHub `repo` segment alone when `relpath` is non-empty and the leaf equals `repo` — then `name` = repo-relative path (POSIX). Local non-git targets unchanged. |
 | `identifier` | `org/repo/<relpath>` (POSIX, no leading `/`) |
 | Card signature | `org/repo` derived from identifier (first two path segments) |
 
+## Marker detection (git walk)
+| Artifact | Marker |
+|----------|--------|
+| Skill | `SKILL.md` in directory (stop descend) |
+| MCP (git fan-out only) | `server.py` **or** `server.js` **or** `run.sh` (`GIT_WALK_MCP_MARKERS`) |
+| MCP (local expand / packPath) | Broader `MCP_SERVER_MARKERS` incl. `package.json` / `index.js` / … (unchanged pre-62) |
+
+Git walk uses stricter markers so monorepo `package.json` trees are not false MCP targets.
+
+## Host vs sandbox boundary
+- **Host discovery is source of truth** for GitHub fan-out: clone → `walkArtifacts` → typed rows with local `target` paths under the temp clone.
+- **Sandbox does not re-discover** skills/MCPs for those rows; it scans the path it is given (`item_type` from the row).
+- **Sandbox `_normalize_github_clone_url`** is defense-in-depth if a browse URL still reaches `_acquire_target` (e.g. non-fan-out path). Keep semantics aligned with `parseGitHubBrowseUrl` clone URL.
+
+## Component contracts (Effect Isolation)
+| Component | Shape | Universe | Declared delta |
+|-----------|-------|----------|----------------|
+| `parseGitHubBrowseUrl` / `gitFanoutDisplayName` | Pure | — | Parsed clone URL / card `name` |
+| `discoverTargets` (git path) | Bounded-change | `$TMP/tripwire-git-*` | Typed target rows (+ temp clone for pack) |
+| `upsertItem` | Unbounded-preservation | Supabase `items` | Insert/update item row (`identifier`, `name`, hash); **refresh `name` on hash hit** (spawn may still skip) |
+| `_normalize_github_clone_url` | Pure | — | Clone URL string (sandbox defense-in-depth) |
+| `repoSignatureFromIdentifier` | Pure | — | `org/repo` subtitle string |
+
+## Closing Gates
+Required before `🔀 ON BRANCH → ✅ PASSED` (PASSED also requires merge to `main` per GATE_CONTRACT):
+
+1. `/nw-gate-evidence-validator` on `docs/plan/gate-evidence/slice-62.json`
+2. `/verify-slice` → `COMPLETE`
+3. `/nw-review` APPROVED (or NEEDS_REVISION findings addressed + re-check)
+4. PR merged to `main` → mark TRAIL/PROGRESS ✅
+
 ## Before-Checks [GATE]
-- [ ] Branch `slice/62-git-repo-discover-fanout` created (not on `main`)
-- [ ] This stub opened; ADR-0012 + `discovery.js` `resolveTarget`/`detectType` re-read
-- [ ] Confirm Wave O slices 58–61 (monk kit, other branch) are not edited here
-- [ ] Prior session recovery checked (if resuming)
+- [x] Branch `slice/62-git-repo-discover-fanout` created (not on `main`)
+- [x] This stub opened; ADR-0012 + `discovery.js` `resolveTarget`/`detectType` re-read
+- [x] Confirm Wave O slices 58–61 (monk kit, other branch) are not edited here
+- [x] Prior session recovery checked (if resuming)
 
 ## TDD Execution
 Backend / discovery: outside-in dry-discover GWTs → unit tests for URL parse + walk + upsert identity → acquire_target normalize tests.
@@ -98,25 +135,27 @@ RED → GREEN → REFACTOR PROD → REFACTOR TESTS → VERIFY+COVERAGE
 
 **Complexity evidence (product-code):** enforcing via repo `./scripts/quality-gates.sh`; local report: CLI eslint complexity + Python radon on touched modules; reviewer summary in PR body under `<!-- complexity-summary -->` … `<!-- /complexity-summary -->`.
 
+Complexity evidence recorded 2026-09-09: `./scripts/quality-gates.sh` exit 0 (xenon/ruff/mypy green on touched paths).
+
 ## After-Checks [GATE]
-- [ ] Code committed with `feat(slice-62): …`
-- [ ] Specification coverage: every GWT-62.* has ≥1 test; 90–100% clauses covered
-- [ ] Gate 1 — Coverage: ship-path / touched modules per project gates (`./scripts/quality-gates.sh`)
-- [ ] Gate 2 — Complexity: zero new violations on touched functions; evidence recorded
-- [ ] Complexity evidence: tool/scope/policy/command/summary markers recorded above
-- [ ] `cd cli && npm test` green for discovery + orchestrator characterization
-- [ ] Sandbox acquire tests green for browse-URL normalize
-- [ ] Manual: `--dry-discover` on a public multi-artifact GitHub URL shows N typed rows with `org/repo/…` identifiers
-- [ ] Docs: slice 56-a Git URL row reflects browse URL + multi-item behaviour (amend already planned)
-- [ ] Acceptance criteria met
+- [x] Code committed with `feat(slice-62): …` (this commit)
+- [x] Specification coverage: every GWT-62.* has ≥1 test; 90–100% clauses covered
+- [x] Gate 1 — Coverage: ship-path / touched modules per project gates (`./scripts/quality-gates.sh`)
+- [x] Gate 2 — Complexity: zero new violations on touched functions; evidence recorded
+- [x] Complexity evidence: tool/scope/policy/command/summary markers recorded above
+- [x] `cd cli && npm test` green for discovery + orchestrator characterization (145 pass)
+- [x] Sandbox acquire tests green for browse-URL normalize
+- [x] Manual: `--dry-discover` on `https://github.com/pbakaus/impeccable` → 24 skill rows with `pbakaus/impeccable/…` identifiers
+- [x] Docs: slice 56-a Git URL row reflects browse URL + multi-item behaviour
+- [x] Acceptance criteria met
 
 ## Acceptance criteria (short-form)
-- [ ] Browse `/tree|/blob/` URLs never passed verbatim to `git clone`
-- [ ] Repo URL → N skill/MCP targets; each scanned separately
-- [ ] `item_type` drives scanner groups (`applies_to`)
-- [ ] Items use `identifier` = `org/repo/<relpath>`; cards show `org/repo`
-- [ ] Zero-artifact repos do not produce a misleading single clean scan
-- [ ] Quality gates pass; gate-evidence prepared on PASSED
+- [x] Browse `/tree|/blob/` URLs never passed verbatim to `git clone`
+- [x] Repo URL → N skill/MCP targets; each scanned separately
+- [x] `item_type` drives scanner groups (`applies_to`)
+- [x] Items use `identifier` = `org/repo/<relpath>`; cards show skill/MCP **name** (not bare repo) + `org/repo` signature
+- [x] Zero-artifact repos do not produce a misleading single clean scan
+- [x] Quality gates pass; gate-evidence prepared on PASSED
 
 ## Doc Audit
 | # | Item | Check |
@@ -128,17 +167,25 @@ RED → GREEN → REFACTOR PROD → REFACTOR TESTS → VERIFY+COVERAGE
 | 14 | No orphaned refs | TRAIL/PROGRESS/DECISIONS aligned |
 
 ## Gate Status
-📋 PLANNED
+🔀 ON BRANCH
 
 ## What Changed
 | File | Type | Reason |
 |------|------|--------|
-| — | — | — |
+| `cli/src/discovery.js` | feat | Browse URL parse; host shallow-clone fan-out; strict git-walk MCP markers |
+| `cli/src/orchestrator.js` | feat | Prefer target.identifier / target.name on upsert |
+| `sandbox/scan_app.py` | feat | Normalize GitHub browse URLs before clone |
+| `prototypes/dc-dashboard/tripwire-status.js` | feat | `repoSignatureFromIdentifier` |
+| `prototypes/dc-dashboard/Tripwire.dc.html` | feat | Grid/list org/repo subtitle |
+| `cli/test/discovery-git-fanout.test.js` | test | GWT-62.1/62.2/62.6/62.7 + walk harden + naming |
+| `cli/test/orchestrator-characterization.test.js` | test | GWT-62.3 multi-spawn + identity shape |
+| `docs/user-guide/prerequisites.md` | docs | 56-a Git URL taxonomy + card naming |
+| `docs/plan/gate-evidence/slice-62.json` | docs | Closing evidence |
 
 ## Session Metrics
 | Metric | Value |
 |--------|-------|
 | Estimated Pomos | 2 (~50 min) [Walking Skeleton] |
-| Execution time | — |
-| Blockers encountered | — |
-| Next-session notes | Prefer host shallow-clone + expand then pack subdirs (dry-discover works); keep Modal one-scan-per-artifact |
+| Execution time | ~1 session |
+| Blockers encountered | Missing DECISION-OWNERSHIP/invariants on main (instantiated); package.json MCP false-positives (strict git-walk markers) |
+| Next-session notes | Temp clone dirs retained for pack path (cleanup follow-up); mark ✅ only after PR merge |

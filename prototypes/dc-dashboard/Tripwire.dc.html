@@ -652,7 +652,12 @@
                 <sc-for list="{{ gridItems }}" as="item" hint-placeholder-count="8">
                   <div class="score-tip-host" onClick="{{ item.onSelect }}" style="background:var(--bg-surface);border:1px solid var(--border-subtle);border-left:3px solid {{ item.statusColor }};border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:8px;transition:all 200ms ease;box-shadow:0 1px 2px rgba(0,0,0,0.15);animation:fadeUp 300ms ease both">
                     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
-                      <div style="font-size:13px;font-weight:600;color:var(--text-primary);word-break:break-word">{{ item.name }}</div>
+                      <div style="min-width:0;flex:1">
+                        <div style="font-size:13px;font-weight:600;color:var(--text-primary);word-break:break-word">{{ item.name }}</div>
+                        <sc-if value="{{ item.repoSignature }}">
+                          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:2px;word-break:break-all">{{ item.repoSignature }}</div>
+                        </sc-if>
+                      </div>
                       <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ item.statusColor }};background:{{ item.statusColor }}18;padding:2px 7px;border-radius:4px;white-space:nowrap;border:1px solid {{ item.statusColor }}30">{{ item.statusGlyph }} {{ item.statusLabel }}</div>
                     </div>
                     <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ item.typeLabel }}</div>
@@ -714,7 +719,12 @@
                 </div>
                 <sc-for list="{{ listRows }}" as="row" hint-placeholder-count="8">
                   <div class="score-tip-host" onClick="{{ row.onSelect }}" style="display:grid;grid-template-columns:2fr 0.8fr 1.1fr 0.9fr 0.6fr 1.3fr;border-bottom:1px solid var(--border-subtle);cursor:pointer;align-items:center;transition:background 150ms">
-                    <div style="padding:10px 14px;font-size:12px;color:var(--text-primary);word-break:break-word">{{ row.name }}</div>
+                    <div style="padding:10px 14px;min-width:0">
+                      <div style="font-size:12px;color:var(--text-primary);word-break:break-word">{{ row.name }}</div>
+                      <sc-if value="{{ row.repoSignature }}">
+                        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:2px;word-break:break-all">{{ row.repoSignature }}</div>
+                      </sc-if>
+                    </div>
                     <div style="padding:10px 14px;font-family:var(--font-mono);font-size:11px;color:var(--text-secondary)">{{ row.typeLabel }}</div>
                     <div style="padding:10px 14px;font-size:11px;color:var(--text-secondary)">{{ row.timeLabel }}</div>
                     <div style="padding:10px 14px"><span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ row.statusColor }};background:{{ row.statusColor }}18;padding:2px 7px;border-radius:4px;border:1px solid {{ row.statusColor }}30">{{ row.statusGlyph }} {{ row.statusLabel }}</span></div>
@@ -1693,8 +1703,12 @@ class Component extends DCLogic {
 
     const gridItems = filtered.map(it => {
       const decorated = this.decorateItemStatus(it);
+      const repoSignature = kit?.repoSignatureFromIdentifier
+        ? kit.repoSignatureFromIdentifier(it.identifier)
+        : '';
       return {
         ...decorated,
+        repoSignature,
         typeLabel: it.type === 'skill' ? 'Skill' : 'MCP Server',
         timeLabel: it.scanStartedAt ? 'scanning since ' + this.fmtTime(it.scanStartedAt) : it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
         locusLabel: this.locusLabel(it.locus),
@@ -1836,8 +1850,12 @@ class Component extends DCLogic {
       return 0;
     }).map(it => {
       const decorated = this.decorateItemStatus(it);
+      const repoSignature = kit?.repoSignatureFromIdentifier
+        ? kit.repoSignatureFromIdentifier(it.identifier)
+        : '';
       return {
       ...decorated,
+      repoSignature,
       typeLabel: it.type === 'skill' ? 'Skill' : 'MCP Server',
       timeLabel: it.scanStartedAt ? 'scanning since ' + this.fmtTime(it.scanStartedAt) : it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
       sourceLabel: this.locusLabel(it.locus) + ' · ' + this.availLabel(it.avail),

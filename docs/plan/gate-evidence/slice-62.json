@@ -1,0 +1,63 @@
+{
+  "slice": 62,
+  "name": "git-repo-discover-fanout",
+  "gate_status": "ON_BRANCH",
+  "verdict": "PASS",
+  "date": "2026-09-09",
+  "branch": "slice/62-git-repo-discover-fanout",
+  "moscow": "Must",
+  "before_checks": "stub on main; branch slice/62-git-repo-discover-fanout; Wave O 58–61 untouched; DECISION-OWNERSHIP + invariants instantiated",
+  "after_checks": [
+    "GWT-62.1 — browse URL normalize + .git strip (discovery-git-fanout + acquire_target)",
+    "GWT-62.2 — root fans out typed artifacts with org/repo identifiers",
+    "GWT-62.3 — multi-artifact runScan spawns once per target; identity org/repo/<relpath> round-trip",
+    "GWT-62.4 — scanner applies_to covered by existing test_scanner_registry",
+    "GWT-62.5 — repoSignature + skill/MCP card names (frontmatter / not bare repo)",
+    "GWT-62.6 — empty repo returns [] fail-closed",
+    "GWT-62.7 — card name ≠ bare GitHub repo when leaf equals repo",
+    "Smoke: tripwire scan https://github.com/pbakaus/impeccable --dry-discover → 24 skills, 0 mcps",
+    "Smoke: browse /tree/main dry-discover clones clean URL",
+    "./scripts/quality-gates.sh PASS (line fail-under 95)",
+    "Closing Gates section present on stub; /verify-slice + nw-review recorded"
+  ],
+  "commands": [
+    {
+      "cmd": "cd cli && npm test",
+      "result": "PASS — 147 tests"
+    },
+    {
+      "cmd": "cd prototypes/dc-dashboard && npm test",
+      "result": "PASS — 113 tests"
+    },
+    {
+      "cmd": "cd sandbox && uv run pytest tests/test_acquire_target.py tests/test_scanner_registry.py -q",
+      "result": "PASS — 52 tests"
+    },
+    {
+      "cmd": "node cli/bin/tripwire.js scan https://github.com/pbakaus/impeccable --dry-discover",
+      "result": "PASS — 24 skill rows; names use frontmatter/path identity"
+    },
+    {
+      "cmd": "./scripts/quality-gates.sh",
+      "result": "PASS — sandbox line coverage ≥95; xenon/ruff/mypy/gitleaks green; CLI tests green"
+    }
+  ],
+  "coverage_pct": 95.49,
+  "coverage_target": 95,
+  "branch_pct": 92.41,
+  "branch_target": 95,
+  "branch_note": "Measured aggregate branch 92.41% from .reports/coverage/coverage.json. scripts/quality-gates.sh enforces line --cov-fail-under=95 only (no branch fail-under). Gate 2 = line PASS; Gate 3 reported below target — see DECISIONS 2026-09-09 line-gate SSOT.",
+  "complexity_tool": "xenon",
+  "complexity_ceiling": "B",
+  "complexity_grade": "A",
+  "complexity_passed": true,
+  "doc_audit": "prerequisites 56-a + findability; ADR-0012/0014; STATUS/ARCHITECTURE Wave P; stub Closing Gates + component contracts; card naming GWT-62.7",
+  "review": "2026-09-09 nw-review: software-crafter APPROVED; product-owner UX APPROVED; data-engineer + solution-architect NEEDS_REVISION addressed (identity asserts, marker/boundary/contracts, card naming). Follow-ups applied 2026-09-09.",
+  "pr": "https://github.com/neomatrix369/tripwire/pull/138",
+  "closing_gates": [
+    "nw-gate-evidence-validator",
+    "verify-slice",
+    "nw-review",
+    "merge-to-main-before-PASSED"
+  ]
+}
