@@ -7,12 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-- Nightly T4 workflow schedule: **twice monthly** (1st + 15th 02:00 UTC) instead of
-  every night — Stryker mutation job dominated ~45 min/run; `workflow_dispatch`
-  still available for on-demand runs. Soft-amended plan slices **7 / 14 / 15 / 16**,
-  coverage-audit, claim-audit, ADR-0013, TRAIL/PROGRESS.
-
 ### Added
 - GitHub repo discover + fan-out (slice 62, Wave P): `tripwire scan https://github.com/org/repo`
   (and `/tree|/blob/` browse URLs) shallow-clones on the host, walks skills (`SKILL.md`)
@@ -94,6 +88,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `--force`, `--concurrency`, and explicit path arguments
 
 ### Changed
+- Nightly T4 workflow schedule: **twice monthly** (1st + 15th 02:00 UTC) instead of
+  every night — Stryker mutation job dominated ~45 min/run; `workflow_dispatch`
+  still available for on-demand runs. Soft-amended plan slices **7 / 14 / 15 / 16**,
+  coverage-audit, claim-audit, ADR-0013, TRAIL/PROGRESS.
 - Docs: socialise hosted dashboard
   ([neomatrix369.github.io/demos/tripwire-dashboard/](https://neomatrix369.github.io/demos/tripwire-dashboard/))
   and demo walkthrough video
