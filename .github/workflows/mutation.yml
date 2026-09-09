@@ -1,13 +1,22 @@
 name: Mutation
 
-# C — Mutation: Stryker (CLI) + mutmut (Python, advisory / under-running today).
-# Schedule: twice monthly 1st + 15th 04:00 UTC (+ workflow_dispatch).
-# Non-gating: green does not mean a high mutation score (ADR-0013).
-# Sibling cadences: Nightly = A Light T4 (daily); Supply chain = B (weekly).
+# =============================================================================
+# C — Mutation
+# =============================================================================
+# Cadence:   twice monthly 1st + 15th 04:00 UTC  |  cron: "0 4 1,15 * *"
+#            + workflow_dispatch
+# Jobs:      Stryker (CLI) · advisory mutmut (Python; || true / under-running)
+# Purpose:   deep mutation signal; expensive (Stryker ~45 min dominates billable).
+# Gating:    NON-GATING — green ≠ high mutation score (ADR-0013; break: 0).
+#
+# Sibling T4 cadences:
+#   A — nightly.yml        daily 02:00 UTC     |  Light T4
+#   B — supply-chain.yml   weekly Mon 03:00 UTC |  SBOM · Meterian · Chalk
+# Canonical docs: CONTRIBUTING.md · docs/README.md § CI workflows · ADR-0013
 
 on:
   schedule:
-    - cron: "0 4 1,15 * *" # 04:00 UTC on the 1st and 15th
+    - cron: "0 4 1,15 * *" # C: 1st+15th 04:00 UTC — mutation
   workflow_dispatch:
 
 jobs:

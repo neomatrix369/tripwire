@@ -32,7 +32,7 @@ connected and items running; Normal users must select Mock (default remains Live
 
 ## Out of scope (already exists)
 - Badge / Guard Future / Nightly honesty (non-gating + schedule) — **slice 7** Gate A
-  (soft-amend 2026-09-09: twice monthly cron)
+  (soft-amend 2026-09-09: T4 A/B/C — daily 02:00 / Mon 03:00 / 1st+15th 04:00)
 - Coverage floor raise — slices 11–13
 - Slice 4 Remotion
 

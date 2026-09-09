@@ -88,11 +88,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `--force`, `--concurrency`, and explicit path arguments
 
 ### Changed
-- T4 cloud split into three workflows (**USER-CONFIRMED**): **A** Nightly / Light T4
-  **daily** (coverage snapshots, complexity, TruffleHog full, dep audit);
-  **B** Supply chain **weekly** (SBOM, Meterian strict, Chalk);
-  **C** Mutation **twice monthly** (Stryker + advisory mutmut, non-gating).
-  Supersedes the short-lived “all Nightly jobs twice monthly” monolith.
+- T4 cloud split into three workflows (**USER-CONFIRMED**): **A** `nightly.yml`
+  Light T4 **daily 02:00 UTC** (cov snapshots, complexity, TruffleHog full, dep
+  audit); **B** `supply-chain.yml` **weekly Mon 03:00 UTC** (SBOM, Meterian
+  strict, Chalk); **C** `mutation.yml` **1st+15th 04:00 UTC** (Stryker +
+  advisory mutmut, non-gating). Supersedes the short-lived “all Nightly jobs
+  twice monthly” monolith. CI’s Mon 03:00 cron remains a separate T3 re-run.
 - Docs: socialise hosted dashboard
   ([neomatrix369.github.io/demos/tripwire-dashboard/](https://neomatrix369.github.io/demos/tripwire-dashboard/))
   and demo walkthrough video

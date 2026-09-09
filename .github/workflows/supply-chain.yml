@@ -1,12 +1,24 @@
 name: Supply chain
 
-# B — Supply chain: external SCA / SBOM / provenance (drifts slowly).
-# Schedule: weekly Monday 03:00 UTC (+ workflow_dispatch).
-# Sibling cadences: Nightly = A Light T4 (daily); Mutation = C (1st+15th).
+# =============================================================================
+# B — Supply chain
+# =============================================================================
+# Cadence:   weekly Monday 03:00 UTC  |  cron: "0 3 * * 1"  |  + workflow_dispatch
+# Jobs:      SBOM (+ Trivy license) · Meterian strict (95/95) · Chalk (warn-only)
+# Purpose:   external SCA / SBOM / provenance — drifts slowly vs Light T4.
+#
+# Note: ci.yml also schedules Monday 03:00 UTC for a T3 re-run on main — that is
+# CI (Serious T1–T3), not this workflow. Same clock, different job set.
+#
+# Sibling T4 cadences:
+#   A — nightly.yml   daily 02:00 UTC      |  cov snapshots · complexity ·
+#                     TruffleHog full · dep audit
+#   C — mutation.yml  1st+15th 04:00 UTC   |  Stryker · advisory mutmut
+# Canonical docs: CONTRIBUTING.md · docs/README.md § CI workflows · ADR-0013
 
 on:
   schedule:
-    - cron: "0 3 * * 1" # Monday 03:00 UTC
+    - cron: "0 3 * * 1" # B: weekly Mon 03:00 UTC — supply chain
   workflow_dispatch:
 
 jobs:

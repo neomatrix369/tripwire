@@ -4,6 +4,11 @@ name: CI
 # Ship-path coverage: Python sandbox fail_under=95; CLI c8 ≥95% lines.
 # Fixtures/prototypes excluded from secrets/FS scans (dashboard tests gated separately).
 #
+# Schedule (in addition to push/PR/dispatch): Monday 03:00 UTC — re-run T3 on main.
+# Same clock as B supply-chain.yml; different workflow / jobs (not T4 A/B/C).
+# T4 cadences live in nightly.yml (A daily 02:00) · supply-chain.yml (B Mon 03:00)
+# · mutation.yml (C 1st+15th 04:00) — see CONTRIBUTING / docs/README.md / ADR-0013.
+#
 # Status badge: README + docs/README.md (CI).
 # Primary stack (docs): Cursor · Modal · Supabase · Tripwire
 # Scanners (docs): Cisco Skill/MCP · Snyk · Tessl
@@ -14,7 +19,7 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: "0 3 * * 1" # Monday 03:00 UTC — re-run T3 on main
+    - cron: "0 3 * * 1" # Monday 03:00 UTC — CI T3 re-run on main (≠ supply-chain B)
   workflow_dispatch:
 
 jobs:

@@ -1,16 +1,25 @@
 name: Nightly
 
-# A — Light T4: cheap deep checks that overlap little with PR CI.
-# Schedule: every night 02:00 UTC (+ workflow_dispatch).
-# Bundles: factory coverage snapshots, complexity, TruffleHog full, dep audit.
-# B (supply-chain.yml) and C (mutation.yml) are separate cadences — see CONTRIBUTING.
+# =============================================================================
+# A — Nightly / Light T4
+# =============================================================================
+# Cadence:   daily 02:00 UTC  |  cron: "0 2 * * *"  |  + workflow_dispatch
+# Jobs:      pytest/CLI coverage snapshots · complexity · TruffleHog full ·
+#            lockfile dep audit
+# Purpose:   cheap deep checks that overlap little with PR CI (T1–T3).
+#
+# Sibling T4 cadences (do not fold into this workflow):
+#   B — supply-chain.yml  weekly Mon 03:00 UTC  |  SBOM · Meterian strict · Chalk
+#   C — mutation.yml      1st+15th 04:00 UTC    |  Stryker · advisory mutmut
+# Canonical docs: CONTRIBUTING.md § quality gates · docs/README.md § CI workflows
+#                 · ADR-0013
 #
 # Status badge: README + docs/README.md (Nightly).
 # Primary stack (docs): Cursor · Modal · Supabase · Tripwire
 
 on:
   schedule:
-    - cron: "0 2 * * *" # 02:00 UTC every night — Light T4
+    - cron: "0 2 * * *" # A: daily 02:00 UTC — Light T4
   workflow_dispatch:
 
 jobs:
