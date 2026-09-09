@@ -299,5 +299,5 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-25 | slice/42-quality-score-tabs | sync-docs | 42 | APPLIED | TRAIL/PROGRESS/gate-evidence/slice-42 + ARCHITECTURE + STATUS Wave J A14–A15 ON BRANCH; three-tab spec (≥80 / <80 / unscored). |
 
 | 2026-08-28 | plan | enhanced-flow-planner Wave N | 44 pile-on GWT-44.9 + 55–57 | 📋 PLANNED | Docs gap-bridge audit: diagram A+B, disclaimer placements (D1–D8), 6 gap repairs (56-a–f; 56-f scanner×input-type matrix added post-review 2026-08-31), sync-docs skill update. Execution in a later session. |
-| 2026-09-09 | chore/nightly-twice-monthly | soft-amend | 7, 14, 15, 16 | APPLIED | Nightly cron → twice monthly (1st+15th); ADR-0013 + coverage/claim audit sync; DECISIONS HITL |
-| 2026-09-09 | chore/nightly-twice-monthly | ci T4 A/B/C | 7 | APPLIED | Split: A daily Light T4 · B weekly supply-chain · C mutation 1st+15th |
+| 2026-09-09 | chore/nightly-twice-monthly | soft-amend | 7, 14, 15, 16 | SUPERSEDED | Monolith Nightly → twice monthly; replaced same day by A/B/C split |
+| 2026-09-09 | chore/nightly-twice-monthly | ci T4 A/B/C | 7 | APPLIED | A daily 02:00 Light T4 · B weekly Mon 03:00 supply-chain · C mutation 1st+15th 04:00; docs+YAML matrix |

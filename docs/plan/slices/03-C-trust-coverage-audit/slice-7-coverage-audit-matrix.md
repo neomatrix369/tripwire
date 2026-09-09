@@ -102,8 +102,9 @@ Docs-only.
 ✅ PASSED — Gate A+B on `main` (PRs #26/#27). After-Checks re-verified 2026-08-02; evidence `verdict: PASS`.
 
 > **Soft-amend (2026-09-09):** T4 cloud split (**USER-CONFIRMED**): **A** Nightly /
-> Light T4 **daily** (`nightly.yml` — snapshots, complexity, TruffleHog full, dep
-> audit); **B** `supply-chain.yml` **weekly**; **C** `mutation.yml` **twice monthly**
+> Light T4 **daily 02:00 UTC** (`nightly.yml` — cov snapshots, complexity,
+> TruffleHog full, dep audit); **B** `supply-chain.yml` **weekly Mon 03:00 UTC**
+> (SBOM · Meterian strict · Chalk); **C** `mutation.yml` **1st+15th 04:00 UTC**
 > (Stryker + advisory mutmut, non-gating). Supersedes same-day “all jobs twice
 > monthly” soft-amend. Does not reopen Gate A/B.
 

@@ -62,18 +62,16 @@ pre-commit run --all-files          # lint, mypy, bandit, xenon, vulture, pylint
 - **Push:** full pytest + coverage floor (when Python changed); `cli` unit tests + coverage (c8 ≥95%) when `cli/` changed; conditional `pip-audit --skip-editable` / npm audit;
   T3 gitleaks commit-range scan (only pushed commits, fast) runs warn-only —
   findings print but do not block the push; full SAST/SCA is CI-only
-- **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog
-- **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog
+- **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy,
+  TruffleHog; also **weekly Mon 03:00 UTC** T3 re-run on `main` (same clock as
+  B, different workflow)
 - **T4 cloud cadences** (split 2026-09-09, USER-CONFIRMED):
-  - **A — Nightly / Light T4** (`.github/workflows/nightly.yml`): **every night**
-    02:00 UTC + dispatch — pytest/CLI coverage snapshots, complexity, TruffleHog
-    **full** history, lockfile dep audit
-  - **B — Supply chain** (`.github/workflows/supply-chain.yml`): **weekly** Mon
-    03:00 UTC + dispatch — SBOM + Trivy license, Meterian (strict 95/95), Chalk
-    (continue-on-error ⚠)
-  - **C — Mutation** (`.github/workflows/mutation.yml`): **twice monthly** 1st+15th
-    04:00 UTC + dispatch — mutmut (Python, advisory/`|| true`) and Stryker (CLI);
-    **non-gating** (`break: 0` — green does not mean high mutation score)
+
+  | WF | File | Cadence | Jobs |
+  |---|---|---|---|
+  | **A** | `nightly.yml` | daily **02:00 UTC** (`0 2 * * *`) + dispatch | pytest/CLI cov snapshots · complexity · TruffleHog full · dep audit |
+  | **B** | `supply-chain.yml` | weekly **Mon 03:00 UTC** (`0 3 * * 1`) + dispatch | SBOM + Trivy license · Meterian strict 95/95 · Chalk (warn-only ⚠) |
+  | **C** | `mutation.yml` | **1st+15th 04:00 UTC** (`0 4 1,15 * *`) + dispatch | Stryker (CLI) · advisory mutmut (Python); **non-gating** (`break: 0`) |
 
 **Coverage today (VERIFIED config):** Python `sandbox/` `fail_under=95` via
 `pytest` / `testpaths = ["sandbox/tests"]` (guard omitted); CLI
@@ -96,8 +94,8 @@ are excluded from secrets scanners.
 
 ## CI
 
-- [CI](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml) (`.github/workflows/ci.yml`) — secrets scanning, SAST, Trivy, ruff/bandit, CLI tests
-- [Nightly](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml) — A Light T4 (daily)
-- [Supply chain](https://github.com/neomatrix369/tripwire/actions/workflows/supply-chain.yml) — B (weekly)
-- [Mutation](https://github.com/neomatrix369/tripwire/actions/workflows/mutation.yml) — C (1st+15th; non-gating)
+- [CI](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml) — PR/main T1–T3; weekly Mon 03:00 UTC T3 re-run
+- [Nightly](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml) — **A** Light T4 (daily 02:00 UTC)
+- [Supply chain](https://github.com/neomatrix369/tripwire/actions/workflows/supply-chain.yml) — **B** (weekly Mon 03:00 UTC)
+- [Mutation](https://github.com/neomatrix369/tripwire/actions/workflows/mutation.yml) — **C** (1st+15th 04:00 UTC; non-gating)
 - Workflow map: [docs/README.md § CI workflows](docs/README.md#ci-workflows)

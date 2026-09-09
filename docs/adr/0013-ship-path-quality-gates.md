@@ -37,12 +37,14 @@ Govern **ship path only**, with three gate altitudes.
   changes; T3 gitleaks **warn-only**; full SAST/SCA is CI.
 - CI: Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog, coverage jobs.
 - T4 cloud (split 2026-09-09, USER-CONFIRMED) — three workflows:
-  - **A Nightly / Light T4** (`nightly.yml`): **daily** 02:00 UTC — coverage
-    snapshots, complexity, TruffleHog full, dep audit.
-  - **B Supply chain** (`supply-chain.yml`): **weekly** Mon 03:00 UTC — SBOM,
-    Meterian strict, Chalk (warn-only).
-  - **C Mutation** (`mutation.yml`): **twice monthly** 1st+15th 04:00 UTC —
-    mutmut + Stryker; **non-gating** (green ≠ high mutation score).
+
+  | WF | File | Cadence (UTC) | Cron | Jobs |
+  |---|---|---|---|---|
+  | **A** | `nightly.yml` | daily 02:00 | `0 2 * * *` | cov snapshots · complexity · TruffleHog full · dep audit |
+  | **B** | `supply-chain.yml` | weekly Mon 03:00 | `0 3 * * 1` | SBOM · Meterian strict · Chalk (warn-only) |
+  | **C** | `mutation.yml` | 1st+15th 04:00 | `0 4 1,15 * *` | mutmut + Stryker; **non-gating** (green ≠ high mutation score) |
+
+  CI (`ci.yml`) also uses Mon 03:00 for a T3 re-run on `main` — not part of B.
 - Live Modal/Supabase E2E as CI Must = **Won't** (skip-without-config).
 
 ## Consequences
