@@ -222,6 +222,12 @@ clock before Modal's 300s kill — operators reconcile stranded `running` rows w
   [design/llm-usage-tracking.md](./design/llm-usage-tracking.md) ·
   [plan/TRAIL.md](./plan/TRAIL.md) Wave 13-M. **Not IMPLEMENTED** — router still
   discards provider `usage`; no Usage tab. See [STATUS.md](./STATUS.md).
+- **Wave O (Monk Kit Live packaging, DECIDED plan-only / ADR-0001 Proposed):**
+  intended path is a Monk Kit (in-cluster bootstrap + dashboard + HTTPS ingress;
+  Supabase/Modal/scanners as SaaS). **O0** + slices 58–61 in
+  [plan/TRAIL.md](./plan/TRAIL.md) Wave 15-O. **Not IMPLEMENTED** — no Kit
+  artifacts on `main`; workstation Live remains the supported path. See
+  [ADR-0001](./adr/0001-monk-deployment-and-packaging.md) · [STATUS.md](./STATUS.md).
 
 ---
 

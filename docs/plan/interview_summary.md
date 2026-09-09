@@ -64,3 +64,28 @@
 
 ## Simplest shape (Wave H)
 - Ship Phase 1 Musts (23–32) with human test after each phase; Should dispatch after slice 32 PASS; defer FE/BE unless pulled in.
+
+---
+
+## Interview Summary — Wave O Monk Kit (delta)
+> Generated: 2026-09-09 | Scenario: Brownfield | Path: Add Wave O | Plan-only
+
+## What was provided (Wave O)
+- ADR-0001 Proposed (merged via PR #63): Monk Kit as intended Live packaging/deploy path; 3-tier vendors; MVL vs full-coverage done-definitions; workstation path remains supported until implemented.
+- PoC branch: nooga/tripwire feat/monk-live-supabase-modal-kit (MANIFEST, common/latest/v1.0.0.yaml, bootstrap Dockerfile + in-cluster schema/Modal bootstrap, nginx Live dashboard).
+- Monk.io docs grounding: Package Ecosystem (inherits/compose), First Deployment, Local Dashboard (secrets never in chat), Capsules/CI/CD deferred.
+- Slice may be retrospective and tweaked as PoC is made to work toward ADR goals.
+
+## What was inferred
+- Kit YAML language matches Monk package defs; public docs lack a Kit/MANIFEST page — PoC is syntax SSOT.
+- PoC gaps vs ADR: Tier 3 secrets incomplete; Modal warn-and-continue vs MVL fail-closed; region/cloud not ADR-locked.
+- Capsules map to ADR ephemeral motivation but are Won't for Wave O until MVL VERIFIED.
+
+## Constraints (Wave O)
+- Secrets via Monk local dashboard only — never agent chat, never commit.
+- Do not claim deployable-via-Monk until slice 59 VERIFIED.
+- Additive docs; workstation Live stays primary until then.
+- Plan-only until explicit execute of slice 58.
+
+## Simplest shape (Wave O)
+- 58 land Kit → 59 MVL Walking Skeleton → 60 Tier2/3 honesty → 61 docs coexistence.

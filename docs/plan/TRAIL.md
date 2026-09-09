@@ -89,10 +89,11 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 6 | [`slices/06-F-claim-audit/`](slices/06-F-claim-audit/) | **F — Claim audit** | 15, 16 deferred | 📦 |
 | 7 | [`slices/07-G-atdd-closure/`](slices/07-G-atdd-closure/) | **G — ATDD closure** | 18, 19, 20, 21, 22 (independent gates) | 📋 |
 | 8 | `slices/08-H-agent-guard-integration/` (stubs pending) | **H — Claude Code Agent Guard integration** | H0 governance → H1–H7 (hackathon plan §9 steps 0–7) | 🔨 |
-| 8 | [`slices/08-H-frontline-agent-hooks/`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | 23→32 Must · 33–38 Should · 39 Could | 📋 plan-only |
+| 8 | [`slices/08-H-frontline-agent-hooks/`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | **H0** → 23→32 Must · 33–38 Should · 39 Could | 📋 plan-only · H0 🔨 |
 | 9 | [`slices/09-I-landing-intro-restyle/`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 ✅ · **43** ✅ | [#96](https://github.com/neomatrix369/tripwire/pull/96) |
 | 10 | [`slices/10-J-dashboard-data-quality/`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 ✅ A1–A13 ([#98](https://github.com/neomatrix369/tripwire/pull/98)) · **A14–A15** 🔀 quality tabs | `slice/42-quality-score-tabs` |
 | 11 | [`slices/11-K-docs-ux-plain-language/`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** 🔀 | — |
+| 15 | [`slices/15-O-monk-kit-live-packaging/`](slices/15-O-monk-kit-live-packaging/) | **O — Monk Kit Live packaging** | **O0** → **58**→**59** Must · **60**–**61** Should | 📋 plan-only · ADR-0001 + PoC |
 
 **Status legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 CLOSED — DEFERRED/WON'T`
 
@@ -165,7 +166,7 @@ until stubs exist.
 
 | # | Name | MoSCoW | Status | Depends on |
 | --- | --- | --- | --- | --- |
-| H0 | Governance docs (ADR-0017 + DECISIONS/STATUS/TRAIL/PROGRESS rows) | Must | 🔨 | none |
+| [H0](slices/08-H-frontline-agent-hooks/phase-H0-governance.md) | Governance docs (ADR-0017 + DECISIONS/STATUS/TRAIL/PROGRESS rows) | Must | 🔨 | none |
 | H1–H7 | Handler + guard T1/T2 + `guard/status.py` → hook wiring (spike first) → `setup-agent-hooks` → install live → five `/tw-*` skills → demo artifacts → Phase-1 regression gate | Must | 📋 | H0 (blocks merge, not prototyping) |
 
 **Shared-file sequencing (slice 18 overlap):** `setup-agent-hooks` lands in
@@ -177,7 +178,7 @@ concurrently.
 
 Branch: `frontline-hackathon-london-2026-agent-hooks`. Source: `internal-docs/04_frontline/main_prompt.md`.
 
-**Phase gates:** human test after H1 (25), H2 (30); **HARD GATE** slice 32 PASS before H4+; human test after H4 (34). Parallelism later: after 26, 27∥29; after 32, 33–34 ∥ 35–36 (if access) ∥ 37. AT design before any H → 🔨.
+**Phase gates:** H0 governance ([phase-H0-governance](slices/08-H-frontline-agent-hooks/phase-H0-governance.md)) blocks merge, not prototyping; human test after H1 (25), H2 (30); **HARD GATE** slice 32 PASS before H4+; human test after H4 (34). Parallelism later: after 26, 27∥29; after 32, 33–34 ∥ 35–36 (if access) ∥ 37. AT design before any H → 🔨.
 
 #### H1 — Enforcement walking skeleton (Must)
 
@@ -333,17 +334,49 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 | 56 | [slice-56-gap-repairs](slices/14-N-docs-gap-bridge-audit/slice-56-gap-repairs.md) | Confirmed Gap Repairs (input types, proxy, gate-evidence, Guard mode, cross-link, scanner×input matrix) — 6 sub-items (56-a through 56-f; 56-f added post-review 2026-08-31) | Should | 📋 | 44 ✅ | — | ~5 min |
 | 57 | [slice-57-sync-docs-skill-update](slices/14-N-docs-gap-bridge-audit/slice-57-sync-docs-skill-update.md) | sync-docs Skill Update + module-theme-map | Should | 📋 | 56 | — | ~2 min |
 
+## Wave 15-O — Monk Kit Live packaging
+
+**Group letter O** (next after N). Folder: [`slices/15-O-monk-kit-live-packaging/`](slices/15-O-monk-kit-live-packaging/).
+**EFP Path B Add 2026-09-09** — plan-only on branch `docs/monk-kit-wave-o`. Execution of product slices starts with **58** when explicitly begun; **O0** is governance (ADR Accept + open questions).
+
+**Sources:**
+- ADR: [`docs/adr/0001-monk-deployment-and-packaging.md`](../adr/0001-monk-deployment-and-packaging.md) (Proposed → Accept via O0 HITL before 59 VERIFIED)
+- PoC: [nooga/tripwire `feat/monk-live-supabase-modal-kit`](https://github.com/nooga/tripwire/tree/feat/monk-live-supabase-modal-kit) (`MANIFEST`, `common.yaml` / `latest.yaml` / `v1.0.0.yaml`, `bootstrap/Dockerfile`)
+- PR context: [#63](https://github.com/neomatrix369/tripwire/pull/63)
+- Monk docs: [Package Ecosystem](https://docs.monk.io/features/service-templates) · [First Deployment](https://docs.monk.io/getting-started/first-deployment) · [Local Dashboard](https://docs.monk.io/getting-started/local-dashboard) · [Capsules](https://docs.monk.io/features/capsules) (later) · [CI/CD](https://docs.monk.io/features/build-and-cicd) (later)
+
+**Intent:** Retrospective land of the PoC Kit, then tweak under real deploy pressure toward ADR MVL-complete → full-coverage-complete. Workstation Live path stays supported and primary until 59 VERIFIED.
+
+**Sequence:** **O0** (governance) → 58 (land Kit; prototyping OK while O0 open) → 59 (MVL Walking Skeleton; VERIFIED blocked on O0 Accept) → 60 (Tier 2/3 + honesty) · 61 (docs coexistence; soft-depends 58, VERIFIED wording waits on 59).
+
+**O0 rule:** blocks **merge / VERIFIED claims**, not Kit land prototyping (same pattern as H0).
+
+**Walking Skeleton (59):** Strategy B/C — real Monk + one BYOC provider; manual/slow VERIFIED via `scripts/monk-mvl-verify.sh` + gate-evidence contract; not CI Must.
+
+**Won't for O:** Monk registry publish · Capsules ephemeral clusters · Monk-generated CI/CD · auth IdP · non-Supabase DB flavors · CLI instance-URL targeting · locking a cloud vendor in the ADR.
+
+**Model / harness:** inherits TRAIL Original Material + harness-scout embed. Profile for execute: ambiguity=medium (Brownfield Kit) · blast_radius=medium · worktree recommended · secrets never in chat.
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| O0 | [phase-O0-governance](slices/15-O-monk-kit-live-packaging/phase-O0-governance.md) | Wave O Governance (ADR Accept + open Qs) | Must | 📋 | none | — | ~2 min |
+| 58 | [slice-58-land-poc-monk-kit](slices/15-O-monk-kit-live-packaging/slice-58-land-poc-monk-kit.md) | Land PoC Monk Kit + Bootstrap Image | Must | 📋 | none (O0 blocks merge, not prototyping) | — | ~4 min |
+| 59 | [slice-59-mvl-monk-deploy-proof](slices/15-O-monk-kit-live-packaging/slice-59-mvl-monk-deploy-proof.md) | MVL-Complete Monk Deploy Proof (Tier 1) | Must | 📋 | 58; O0 Accept before VERIFIED | — | ~5 min |
+| 60 | [slice-60-tier2-tier3-coverage-honesty](slices/15-O-monk-kit-live-packaging/slice-60-tier2-tier3-coverage-honesty.md) | Tier 2+3 Plumbing + Coverage Honesty | Should | 📋 | 59; signalling DECISIONS (O0 or Before-Check) | — | ~4 min |
+| 61 | [slice-61-monk-docs-coexistence](slices/15-O-monk-kit-live-packaging/slice-61-monk-docs-coexistence.md) | Monk Docs Coexistence + Operator Honesty | Should | 📋 | 58 (VERIFIED claims wait on 59) | — | ~3 min |
+
 ## Supporting Artifacts
 | File | Status |
 |------|--------|
-| [README.md](README.md) | ✅ wave folder map (`01-A-…` … `14-N-docs-gap-bridge-audit/`) |
-| `01-A-…` … `14-N-…/` | ✅ slice stubs by execution wave |
+| [README.md](README.md) | ✅ wave folder map (`01-A-…` … `15-O-monk-kit-live-packaging/`) |
+| `01-A-…` … `15-O-…/` | ✅ slice stubs by execution wave |
 | [docs-gap-bridge-audit.md](docs-gap-bridge-audit.md) | ✅ Wave N audit report — diagrams, checkpoints, backlog, disclaimers (D1–D8) |
-| interview_summary.md | ✅ written |
+| interview_summary.md | ✅ written (+ Wave O delta 2026-09-09) |
 | PROGRESS.md | ✅ written |
 | DECISIONS.md | ✅ in progress |
 | **[GATE_CONTRACT.md](GATE_CONTRACT.md)** | ✅ SSOT — closing rule + check quality bar |
 | coverage-audit.md | ✅ written — slice 7 |
+| invariants.md | ✅ health-check 2026-09-09 (+ Monk/ADR-0001) |
 | GAP_ANALYSIS.md | pending |
 | HANDOFF.md | pending — `/memory-distiller` at session end |
 | gate-evidence/ | ✅ passed slices, including Slice 17 |

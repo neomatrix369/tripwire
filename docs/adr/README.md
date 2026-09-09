@@ -11,7 +11,9 @@ Status values: **Proposed**, **Accepted**, **Deprecated**, **Superseded**.
 
 **0001** is **Proposed**, not Accepted: it records an intended Monk packaging /
 deployment path that is **not implemented**. The supported Live path remains the
-operator workstation flow. Records **0002** and above are Accepted.
+operator workstation flow. Implementation planning is Wave **15-O** (**O0** +
+slices 58–61) in [plan/TRAIL.md](../plan/TRAIL.md). Records **0002** and above
+are Accepted.
 
 | ADR | Title | Status |
 |-----|-------|--------|

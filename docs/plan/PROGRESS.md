@@ -1,10 +1,11 @@
 # Progress
-> Last updated: 2026-08-25
+> Last updated: 2026-09-09
 
 ## Slice groups (execution sequence)
 
 | Wave | Folder | Group | Slices | Outcome |
 |-----:|--------|-------|--------|---------|
+| 15 | [`15-O-…`](slices/15-O-monk-kit-live-packaging/) | **O — Monk Kit Live packaging** | **O0** → **58**→**59** Must · **60**–**61** Should | 📋 plan-only (ADR-0001 + PoC; branch `docs/monk-kit-wave-o`) |
 | 12 | [`12-L-…`](slices/12-L-tessl-5-row-expansion/) | **L — Tessl 5-row expansion** | 45 ✅ · 46 ✅ · 47 ✅ · 48 ✅ · 49 ✅ · 50 ✅ · **51** 🔀 · 52 📋 | 45–50 ✅ · **51** 🔀 |
 | 13 | [`13-M-…`](slices/13-M-llm-usage-tracking/) | **M — LLM usage / cost observability** | **53** | 📋 plan-only (ADR-0016 follow-on; not J/L/G) |
 | 11 | [`11-K-…`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** | 🔀 |
@@ -33,7 +34,7 @@
 | 3 | G | 20 | Scanner Subprocess Adapter Contract | Must | 📋 PLANNED |
 | 4 | G | 21 | Dashboard Latest-State Accuracy | Must | 📋 PLANNED |
 | 5 | G | 22 | Dashboard Realtime Recovery | Must | 📋 PLANNED |
-| 0 (active, 2026-08-15) | H | H0 | Agent Guard governance docs (ADR-0017 + trackers) | Must | 🔨 IN PROGRESS |
+| 0 (active, 2026-08-15) | H | H0 | Agent Guard governance docs (ADR-0017 + trackers) | Must | 🔨 IN PROGRESS · [phase-H0-governance](slices/08-H-frontline-agent-hooks/phase-H0-governance.md) |
 
 **Wave H addendum (2026-08-15):** the hackathon stream (branch
 `tripwire-frontline-hack`) runs ahead of Wave G. `setup-agent-hooks` lands in
@@ -68,6 +69,11 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 | — | L | 51 | Tessl: Review (Security) (Row 5) | Could | 🔀 ON BRANCH |
 | — | L | 52 | ID Lineage Cross-Reads + UI Side-by-Side | Could | 📋 PLANNED |
 | — | M | **53** | **LLM Usage Tracking + UI Cost Surfacing** | Should | 📋 PLANNED · Wave **13-M** · design: [`docs/design/llm-usage-tracking.md`](../design/llm-usage-tracking.md) · branch docs: `docs/53-llm-usage-tracking-plan` |
+| — | O | **O0** | **Wave O Governance (ADR-0001 Accept + open Qs)** | Must | 📋 PLANNED · [phase-O0-governance](slices/15-O-monk-kit-live-packaging/phase-O0-governance.md) · blocks VERIFIED/merge, not 58 prototyping |
+| — | O | **58** | **Land PoC Monk Kit + Bootstrap Image** | Must | 📋 PLANNED · Wave **15-O** · ADR-0001 · plan branch `docs/monk-kit-wave-o` |
+| — | O | **59** | **MVL-Complete Monk Deploy Proof (Tier 1)** | Must | 📋 PLANNED · depends 58 · Walking Skeleton |
+| — | O | **60** | **Tier 2+3 Plumbing + Coverage Honesty** | Should | 📋 PLANNED · depends 59 |
+| — | O | **61** | **Monk Docs Coexistence + Operator Honesty** | Should | 📋 PLANNED · depends 58 (VERIFIED wording waits on 59) |
 
 ## Quick Status (by group)
 
@@ -145,12 +151,10 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 ### H — Claude Code Agent Guard integration (hackathon)
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 | --- | --- | --- | --- | --- | --- | --- |
-| H0 | Governance docs — [ADR-0017](../adr/0017-claude-code-agent-guard-integration.md) + DECISIONS/STATUS/TRAIL/PROGRESS rows | Must | 🔨 | 2026-08-15 | — | ~25 min |
+| H0 | [phase-H0-governance](slices/08-H-frontline-agent-hooks/phase-H0-governance.md) — [ADR-0017](../adr/0017-claude-code-agent-guard-integration.md) + trackers | Must | 🔨 | 2026-08-15 | — | ~25 min |
 | H1–H7 | Handler + guard T1/T2 + `guard/status.py` → hook wiring (spike first) → `setup-agent-hooks` → install → five `/tw-*` skills → demo artifacts → Phase-1 gate | Must | 📋 | — | — | — |
 
-Wave folder `slices/08-H-agent-guard-integration/` pending; spec is the
-hackathon working plan ("Tripwire × Claude Code Integration — Implementation
-Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
+Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance stub: `phase-H0-governance.md`. Governance blocks *merge*, not prototyping.
 
 ### I — Landing Intro + Visual Refresh
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
@@ -187,6 +191,17 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 
 **Group note:** ADR-0016 router follow-on. Not filed under J (dashboard quality ✅ closed), L (Tessl), or G (ATDD parked).
 
+### O — Monk Kit Live packaging
+| # | Slice | MoSCoW | Status | Started | Completed | Est. time |
+|---|-------|--------|--------|---------|-----------|-----------|
+| O0 | [phase-O0-governance](slices/15-O-monk-kit-live-packaging/phase-O0-governance.md) | Must | 📋 PLANNED | — | — | ~25 min |
+| 58 | [slice-58-land-poc-monk-kit](slices/15-O-monk-kit-live-packaging/slice-58-land-poc-monk-kit.md) | Must | 📋 PLANNED | — | — | ~50 min |
+| 59 | [slice-59-mvl-monk-deploy-proof](slices/15-O-monk-kit-live-packaging/slice-59-mvl-monk-deploy-proof.md) | Must | 📋 PLANNED | — | — | ~50 min [Walking Skeleton] |
+| 60 | [slice-60-tier2-tier3-coverage-honesty](slices/15-O-monk-kit-live-packaging/slice-60-tier2-tier3-coverage-honesty.md) | Should | 📋 PLANNED | — | — | ~25 min |
+| 61 | [slice-61-monk-docs-coexistence](slices/15-O-monk-kit-live-packaging/slice-61-monk-docs-coexistence.md) | Should | 📋 PLANNED | — | — | ~25 min |
+
+**Group note:** ADR-0001 Proposed + PoC on `nooga/…/feat/monk-live-supabase-modal-kit`. **O0** = governance (Accept + open Qs); blocks VERIFIED/merge, not 58 prototyping. Capsules / Monk CI/CD / registry = Won't for O.
+
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 
 **Gate close:** ✅ only per [GATE_CONTRACT.md](GATE_CONTRACT.md) — all After-Checks + evidence `PASS` + review + trackers. `🔀` = checks green on branch, not yet ✅.
@@ -198,6 +213,7 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 4 (historical) | Remotion sibling + VO assets missing | 📦 closed with demo/hackathon deferral — reinstate slice 4 if film day returns |
 
 ## Forward Roadmap
+- Wave **O** (**O0** + slices 58–61) Monk Kit Live packaging is **📋 plan-only** — ADR-0001 + PoC; O0 governance first for Accept/open Qs; product execute via `slice/58-land-poc-monk-kit` (prototyping OK while O0 open).
 - Wave **M** (slice 53) LLM usage / cost observability is **📋 plan-only** — ADR-0016 follow-on; execute when explicitly started (`slice/53-llm-usage-tracking`).
 - Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Slice 15 is retained as a deferred claim-audit artifact, not active work.
 - **Wave H (Frontline):** plan-only stubs 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. Execute Musts 23→32 with human tests after H1/H2 and HARD GATE at 32 before Should work.
@@ -276,6 +292,7 @@ Plan", 2026-08-15). Governance blocks *merge*, not prototyping.
 | 2026-08-25 | slice/51-review-security | sync-docs | 51 | APPLIED | Trackers 🔨→🔀; prerequisites + OPTIONAL_SCANNER_KEYS name Security; adapters heading; README/AGENTS NO_CHANGE |
 | 2026-08-25 | main / plan | enhanced-flow-planner Path B | 54 | 📋 PLANNED | Dashboard quality tabs ≥80 vs Rest; Wave J; depends 42+47 |
 | 2026-08-25 | planning | Blended slice 54 → 42 A14–A15 | 42 | 📋 delta reopen | Quality tabs augment slice 42 in place; slice 54 stub removed; branch `slice/42-quality-score-tabs`. DECIDED |
+| 2026-09-09 | docs/monk-kit-wave-o | enhanced-flow-planner Path B | 58–61 | 📋 stubs | Wave O Monk Kit: land PoC → MVL proof → Tier2/3 honesty → docs coexistence. Grounded in docs.monk.io + ADR-0001. |
 | 2026-08-25 | slice/42-quality-score-tabs | sync-docs | 42 | APPLIED | TRAIL/PROGRESS/gate-evidence/slice-42 + ARCHITECTURE + STATUS Wave J A14–A15 ON BRANCH; three-tab spec (≥80 / <80 / unscored). |
 
 | 2026-08-28 | plan | enhanced-flow-planner Wave N | 44 pile-on GWT-44.9 + 55–57 | 📋 PLANNED | Docs gap-bridge audit: diagram A+B, disclaimer placements (D1–D8), 6 gap repairs (56-a–f; 56-f scanner×input-type matrix added post-review 2026-08-31), sync-docs skill update. Execution in a later session. |
