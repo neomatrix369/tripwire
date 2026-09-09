@@ -197,23 +197,23 @@
 | 2026-08-30 | docs/adr-monk-deployment-packaging | ADR-0001 Proposed | Monk Kit as the intended hosted Live deploy/packaging path — tiered vendor baseline: Tier 1 Supabase + Modal (MVL, required for any deploy), Tier 2 Snyk + Cisco + Tessl (full scanner coverage), Tier 3 SIE + Alibaba Model Studio + Ossprey (env-var pass-through, no provisioning); in-cluster bootstrap + dashboard + HTTPS ingress, Modal stays SaaS. Kit v1 done at two levels (MVL-complete, full-coverage-complete). Formal record: `docs/adr/0001-monk-deployment-and-packaging.md`. Proposal only — not implemented; workstation Live path unchanged. PROPOSED |
 | 2026-08-31 | wave-N-review | GWT reviewer blockers fixed (slices 55/56/57) | nw-acceptance-designer-reviewer returned 3 BLOCKED slices. Applied fixes: 55 dep header + GWT-55.3 placement locked to adjacent-copy + GWT-55.5 inlined D3/D4/D8 text; 56 GWT-56a locked to prerequisites.md + GWT-56b/c/d rewritten to artifact-presence assertions + GWT-56f added (B.4 scanner×input-type matrix); 57 GWT-57a.2 concrete exclusion list + GWT-57b.1 module names inlined. APPLIED |
 | 2026-08-31 | wave-N-review | Docs reviewer blockers fixed (audit report) | nw-documentarist-reviewer: B.4 scanner×input-type matrix (confirmed P1/M) added as seq-8 (56-f) in execution queue; setup-commands DIVIO collapse (pre-existing, not Wave N) added to Not-Now list as Wave O tech debt; DIVIO 'Adopted — partial' row expanded with enumeration; temporal disclaimer at line 8 clarified (reviewed against main + pre-merge slice-44 branch). APPLIED |
-| 2026-09-09 | health-check | Gap 5: missing gate-evidence for PASSED 41/49/50 | Created PENDING_VERIFICATION placeholders (not PASS evidence) | AUTO-FIXED |
-| 2026-09-09 | health-check | Gap 11: invariants.md absent | Created docs/plan/invariants.md skeleton with ADR-0001 Live/Monk constraints inline | AUTO-FIXED |
-| 2026-09-09 | health-check | Gap 12: DECISION-OWNERSHIP.md absent | Created skeleton with TBD owners — USER_FIX required to fill | AUTO-FIXED |
-| 2026-09-09 | health-check | Gap 8/10: legacy Must/Should preamble/coverage | Deferred ask — new Monk wave stubs will include full preamble + gates; legacy backfill optional | PENDING |
-| 2026-09-09 | efp-session | Continuation: Add Monk Kit wave | ADR-0001 merged Proposed; PoC at nooga/feat/monk-live-supabase-modal-kit; retrospective slice(s) to land/tweak Kit toward MVL then full-coverage | IN_PROGRESS |
-| 2026-09-09 | efp-session | Monk.io docs grounding | Plan Wave O against docs.monk.io: Package Ecosystem (inherits/compose), Local Dashboard secrets (never chat), First Deploy flow, Capsules=ephemeral, CI/CD follow-up, env-scoped secrets; public docs lack Kit/MANIFEST page — PoC YAML is SSOT for Kit syntax | DECIDED |
-| 2026-09-09 | planning | Added Wave O slices 58–61 | Monk Kit Live packaging from ADR-0001 + PoC + docs.monk.io | Path B Add · plan branch docs/monk-kit-wave-o |
-| 2026-09-09 | yagni | Capsules / Monk CI/CD / registry | Demoted to Won't for O — assumed after MVL | Promote after 59 VERIFIED if needed |
-| 2026-09-09 | quality-lens | Wave O 58–61 | Applied Planning Quality Lens — awaiting user confirm | PENDING |
-| 2026-09-09 | quality-lens | Wave O 18/18 checks passed | user_action: confirmed 58–61 shape; Capsules/CI/CD/registry remain Won't for O | CONFIRMED |
-| 2026-09-09 | next-wave | Wave O | User chose B — /nw-review on stubs before execute | DECIDED |
-| 2026-09-09 | nw-review | Wave O AT review | NEEDS_REVISION → stub revisions applied (negatives, @contract-shape, WS strategy B/C, 60 signalling HITL gate) | FOLLOW-UP APPLIED |
-| 2026-09-09 | nw-review | Wave O arch review | NEEDS_REVISION → ADR Accept Before-Check on 59; 61 VERIFIED merge gate | FOLLOW-UP APPLIED |
-| 2026-09-09 | nw-review | Wave O platform review | NEEDS_REVISION → schema pin baked; slice-59 evidence contract + verify script + runbook | FOLLOW-UP APPLIED |
-| 2026-09-09 | walking-skeleton | Slice 59 strategy B/C | Real Monk + one BYOC cloud; manual VERIFIED; CI optional (Live E2E Won't) | DECIDED |
-| 2026-09-09 | hitl-pending | ADR-0001 Accept | Required Before-Check before slice 59 STATUS VERIFIED — human only | PENDING |
-| 2026-09-09 | hitl-pending | Partial-coverage signal surface | Choose deploy_summary | dashboard | both before slice 60 UI | PENDING |
-| 2026-09-09 | planning | Added phase H0 + O0 stubs | H0 stub under 08-H (was tracker-only); O0 governance for Wave O — phase labels, not slice-00 renumber | DECIDED |
-| 2026-09-09 | naming | Keep global 58–61 | O0/H0 are phase IDs; product slices stay 58–61 / 23–39 | CONFIRMED |
-| 2026-09-09 | sync-docs | Wave O / ADR-0001 honesty | STATUS + ARCHITECTURE + docs/README + adr/README updated; README/AGENTS/CLAUDE no false Monk ship claims | APPLIED |
+| 2026-09-09 | health-check | Gap 5: missing gate-evidence for PASSED 41/49/50 | Created PENDING_VERIFICATION placeholders (not PASS evidence). AUTO-FIXED |
+| 2026-09-09 | health-check | Gap 11: invariants.md absent | Created docs/plan/invariants.md skeleton with ADR-0001 Live/Monk constraints inline. AUTO-FIXED |
+| 2026-09-09 | health-check | Gap 12: DECISION-OWNERSHIP.md absent | Created skeleton with TBD owners — USER_FIX required to fill. AUTO-FIXED |
+| 2026-09-09 | health-check | Gap 8/10: legacy Must/Should preamble/coverage | Deferred ask — new Monk wave stubs will include full preamble + gates; legacy backfill optional. PENDING |
+| 2026-09-09 | efp-session | Continuation: Add Monk Kit wave | ADR-0001 merged Proposed; PoC at nooga/feat/monk-live-supabase-modal-kit; retrospective slice(s) to land/tweak Kit toward MVL then full-coverage. IN_PROGRESS |
+| 2026-09-09 | efp-session | Monk.io docs grounding | Plan Wave O against docs.monk.io: Package Ecosystem (inherits/compose), Local Dashboard secrets (never chat), First Deploy flow, Capsules=ephemeral, CI/CD follow-up, env-scoped secrets; public docs lack Kit/MANIFEST page — PoC YAML is SSOT for Kit syntax. DECIDED |
+| 2026-09-09 | planning | Added Wave O slices 58–61 | Monk Kit Live packaging from ADR-0001 + PoC + docs.monk.io. Path B Add · plan branch docs/monk-kit-wave-o |
+| 2026-09-09 | yagni | Capsules / Monk CI/CD / registry | Demoted to Won't for O — assumed after MVL. Promote after 59 VERIFIED if needed |
+| 2026-09-09 | quality-lens | Wave O 58–61 | Applied Planning Quality Lens — awaiting user confirm. PENDING |
+| 2026-09-09 | quality-lens | Wave O 18/18 checks passed | user_action: confirmed 58–61 shape; Capsules/CI/CD/registry remain Won't for O. CONFIRMED |
+| 2026-09-09 | next-wave | Wave O | User chose B — /nw-review on stubs before execute. DECIDED |
+| 2026-09-09 | nw-review | Wave O AT review | NEEDS_REVISION → stub revisions applied (negatives, @contract-shape, WS strategy B/C, 60 signalling HITL gate). FOLLOW-UP APPLIED |
+| 2026-09-09 | nw-review | Wave O arch review | NEEDS_REVISION → ADR Accept Before-Check on 59; 61 VERIFIED merge gate. FOLLOW-UP APPLIED |
+| 2026-09-09 | nw-review | Wave O platform review | NEEDS_REVISION → schema pin baked; slice-59 evidence contract + verify script + runbook. FOLLOW-UP APPLIED |
+| 2026-09-09 | walking-skeleton | Slice 59 strategy B/C | Real Monk + one BYOC cloud; manual VERIFIED; CI optional (Live E2E Won't). DECIDED |
+| 2026-09-09 | hitl-pending | ADR-0001 Accept | Required Before-Check before slice 59 STATUS VERIFIED — human only. PENDING |
+| 2026-09-09 | hitl-pending | Partial-coverage signal surface | Choose deploy_summary / dashboard / both before slice 60 UI. PENDING |
+| 2026-09-09 | planning | Added phase H0 + O0 stubs | H0 stub under 08-H (was tracker-only); O0 governance for Wave O — phase labels, not slice-00 renumber. DECIDED |
+| 2026-09-09 | naming | Keep global 58–61 | O0/H0 are phase IDs; product slices stay 58–61 / 23–39. CONFIRMED |
+| 2026-09-09 | sync-docs | Wave O / ADR-0001 honesty | STATUS + ARCHITECTURE + docs/README + adr/README updated; README/AGENTS/CLAUDE no false Monk ship claims. APPLIED |

@@ -76,7 +76,7 @@
 - Monk.io docs grounding: Package Ecosystem (inherits/compose), First Deployment, Local Dashboard (secrets never in chat), Capsules/CI/CD deferred.
 - Slice may be retrospective and tweaked as PoC is made to work toward ADR goals.
 
-## What was inferred
+## What was inferred (Wave O)
 - Kit YAML language matches Monk package defs; public docs lack a Kit/MANIFEST page — PoC is syntax SSOT.
 - PoC gaps vs ADR: Tier 3 secrets incomplete; Modal warn-and-continue vs MVL fail-closed; region/cloud not ADR-locked.
 - Capsules map to ADR ephemeral motivation but are Won't for Wave O until MVL VERIFIED.
