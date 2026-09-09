@@ -31,6 +31,27 @@ function itemNameFor(target, identifier) {
   return identifier.split('/').pop() || identifier;
 }
 
+async function updateItemRow(supabase, id, fields) {
+  const { data, error } = await supabase
+    .from('items')
+    .update({ ...fields, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+async function findLatestByIdentifier(supabase, identifier) {
+  const { data } = await supabase
+    .from('items')
+    .select('*')
+    .eq('identifier', identifier)
+    .order('updated_at', { ascending: false })
+    .limit(1);
+  return Array.isArray(data) ? data[0] : null;
+}
+
 async function upsertItem(supabase, target) {
   const identifier = target.identifier || normalizeIdentifier(target.target);
   const name = itemNameFor(target, identifier);
@@ -38,40 +59,15 @@ async function upsertItem(supabase, target) {
   const { data: byHash } = await supabase.from('items').select('*').eq('content_hash', contentHash).maybeSingle();
   if (byHash) {
     // Refresh display name even on content-hash hits (e.g. card-naming contract changes).
-    if (byHash.name !== name) {
-      const { data: renamed, error: renameError } = await supabase
-        .from('items')
-        .update({ name, updated_at: new Date().toISOString() })
-        .eq('id', byHash.id)
-        .select()
-        .single();
-      if (renameError) throw renameError;
-      return { item: renamed, cached: true };
-    }
-    return { item: byHash, cached: true };
+    if (byHash.name === name) return { item: byHash, cached: true };
+    return { item: await updateItemRow(supabase, byHash.id, { name }), cached: true };
   }
 
   // Reuse the latest row for this path so the live heatmap does not accumulate
   // duplicate identifier rows when content_hash changes between scans.
-  const { data: byIdent } = await supabase
-    .from('items')
-    .select('*')
-    .eq('identifier', identifier)
-    .order('updated_at', { ascending: false })
-    .limit(1);
-  const existing = Array.isArray(byIdent) ? byIdent[0] : null;
+  const existing = await findLatestByIdentifier(supabase, identifier);
   if (existing) {
-    const { data: updated, error: updateError } = await supabase
-      .from('items')
-      .update({
-        content_hash: contentHash,
-        name,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', existing.id)
-      .select()
-      .single();
-    if (updateError) throw updateError;
+    const updated = await updateItemRow(supabase, existing.id, { content_hash: contentHash, name });
     return { item: updated, cached: false };
   }
 

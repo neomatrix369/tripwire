@@ -7,12 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-- Re-scan refreshes dashboard card **`name`** even when content hash is unchanged
-  (`upsertItem` updates `items.name` on hash hits and identifier reuse). Stale
-  titles from pre–naming-contract rows no longer require `--force` or a manual
-  SQL rewrite solely to rename cards.
-
 ### Added
 - GitHub repo discover + fan-out (slice 62, Wave P): `tripwire scan https://github.com/org/repo`
   (and `/tree|/blob/` browse URLs) shallow-clones on the host, walks skills (`SKILL.md`)
@@ -143,6 +137,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   on all quality tabs. Helpers in `tripwire-status.js`; wired in `Tripwire.dc.html`.
 
 ### Fixed
+- Re-scan refreshes dashboard card **`name`** even when content hash is unchanged
+  (`upsertItem` updates `items.name` on hash hits and identifier reuse). Stale
+  titles from pre–naming-contract rows no longer require `--force` or a manual
+  SQL rewrite solely to rename cards.
 - Tessl dashboard progress during Modal scans: skip bulk `running` placeholders for
   all five Tessl rows at group start; Lint and Review (Quality) now persist
   `running`→terminal via `on_scanner_progress` so only the active step shows
