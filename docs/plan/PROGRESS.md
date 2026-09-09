@@ -1,5 +1,5 @@
 # Progress
-> Last updated: 2026-08-25
+> Last updated: 2026-09-09
 
 ## Slice groups (execution sequence)
 
@@ -42,6 +42,11 @@
 `cli/bin/tripwire.js`, the same file slice 18 refactors — one active slice per
 shared code area: slice 18 does not start until the H-wave subcommand lands
 (or is explicitly rebased onto slice 18).
+
+Wave O slices **58–61** are reserved on [PR #135](https://github.com/neomatrix369/tripwire/pull/135) (`docs/monk-kit-wave-o`). Do not reuse those IDs.
+
+| Order | Phase | # | Slice | MoSCoW | Status |
+|------:|-------|---|-------|--------|--------|
 | 1 | H1 | 23 | Config + Handler Scripts | Must | 📋 PLANNED |
 | 2 | H1 | 24 | `tripwire setup-agent-hooks` | Must | 📋 PLANNED |
 | 3 | H1 | 25 | Live Enforce Smoke | Must | 📋 PLANNED |
@@ -59,17 +64,22 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 | 15 | H6 | 37 | CLI Monitoring | Should | 📋 PLANNED |
 | 16 | H6 | 38 | Full-Chain Validation | Should | 📋 PLANNED |
 | 17 | H6 | 39 | FE/BE Rearchitecture | Could | 📦 DEFERRED |
-| **0 (next)** | H-ss | **40** | **`tripwire scan --type <skill\|mcp>` filter** | **Must** | 📋 PLANNED |
-| — | G | 18–22 | ATDD closure (parked) | Must | 📋 PLANNED |
-| — | L | 45 | DB Schema Migration (14-state enum + 4 columns) | Must | ✅ PASSED · [#103](https://github.com/neomatrix369/tripwire/pull/103) |
-| — | L | 46 | Tessl: Lint Adapter (Row 1) | Must | ✅ PASSED · [#105](https://github.com/neomatrix369/tripwire/pull/105) |
-| — | L | 47 | Tessl: Review (Quality) Split (Row 2) | Must | ✅ PASSED · [#109](https://github.com/neomatrix369/tripwire/pull/109) |
-| — | L | 48 | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | 🔨 IN PROGRESS · after-checks green · awaiting commit/PR · `slice/48-not-available-yet-ui` |
-| — | L | 49 | Tessl: Scenario Generation + Resume Checkpoint (Row 3) | Should | 📋 PLANNED |
-| — | L | 50 | Tessl: Eval + Auto-Chain (Row 4) | Should | ✅ PASSED · [#113](https://github.com/neomatrix369/tripwire/pull/113) |
-| — | L | 51 | Tessl: Review (Security) (Row 5) | Could | 🔀 ON BRANCH |
-| — | L | 52 | ID Lineage Cross-Reads + UI Side-by-Side | Could | 📋 PLANNED |
-| — | M | **53** | **LLM Usage Tracking + UI Cost Surfacing** | Should | 📋 PLANNED · Wave **13-M** · design: [`docs/design/llm-usage-tracking.md`](../design/llm-usage-tracking.md) · branch docs: `docs/53-llm-usage-tracking-plan` |
+| — | H-ss | 40 | `tripwire scan --type <skill\|mcp>` filter | Must | ✅ PASSED (2026-08-17) |
+
+### Landed / parked (not the current queue)
+
+G 18–22 and L 51 already appear in **Execution order** above (parked and ON BRANCH). Wave P is slice **62**.
+
+| Wave | # | Slice | MoSCoW | Status |
+|------|---|-------|--------|--------|
+| L | 45 | DB Schema Migration (14-state enum + 4 columns) | Must | ✅ PASSED · [#103](https://github.com/neomatrix369/tripwire/pull/103) |
+| L | 46 | Tessl: Lint Adapter (Row 1) | Must | ✅ PASSED · [#105](https://github.com/neomatrix369/tripwire/pull/105) |
+| L | 47 | Tessl: Review (Quality) Split (Row 2) | Must | ✅ PASSED · [#109](https://github.com/neomatrix369/tripwire/pull/109) |
+| L | 48 | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | 🔨 IN PROGRESS · after-checks green · awaiting commit/PR · `slice/48-not-available-yet-ui` |
+| L | 49 | Tessl: Scenario Generation + Resume Checkpoint (Row 3) | Should | ✅ PASSED · [#112](https://github.com/neomatrix369/tripwire/pull/112) |
+| L | 50 | Tessl: Eval + Auto-Chain (Row 4) | Should | ✅ PASSED · [#113](https://github.com/neomatrix369/tripwire/pull/113) |
+| L | 52 | ID Lineage Cross-Reads + UI Side-by-Side | Could | 📋 PLANNED |
+| M | **53** | **LLM Usage Tracking + UI Cost Surfacing** | Should | 📋 PLANNED · Wave **13-M** · design: [`docs/design/llm-usage-tracking.md`](../design/llm-usage-tracking.md) · branch docs: `docs/53-llm-usage-tracking-plan` |
 
 ## Quick Status (by group)
 
