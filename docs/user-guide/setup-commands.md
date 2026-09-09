@@ -17,7 +17,7 @@ maintenance commands.
 | `tripwire scan [targets…]` | Discover and scan (default command) |
 | `tripwire scan --dry-discover` | Print discovered targets; spawn nothing |
 | `tripwire scan --type skill\|mcp` | Restrict discovery to one artifact category |
-| `tripwire scan --force` | Re-scan even if content hash is unchanged |
+| `tripwire scan --force` | Re-run scanners even if content hash is unchanged (card `name` still refreshes on a normal re-scan) |
 | `tripwire scan --concurrency <n>` | Max concurrent sandboxes (default 5) |
 | `tripwire scan --targets <file>` | JSON file with a `targets` array |
 | `tripwire scan --no-defaults` | Error instead of machine defaults on empty args |
@@ -31,6 +31,7 @@ Full help: `tripwire --help` · `tripwire scan --help`.
 | Symptom | What to try |
 |---|---|
 | Live dashboard blank or stale | Switch Mock ↔ Live in Guard; keep `serve-dashboard.mjs` running; run `./scripts/check-supabase.sh` |
+| Cards show bare GitHub repo name after fan-out | Re-run `tripwire scan https://github.com/org/repo` (name refreshes without `--force`; use `--force` only to re-run scanners). Path-only SQL fallback: set `name` from `identifier` when `name` equals the repo segment — see ADR-0010 |
 | Scanner outputs (0) with recent last-scan | PostgREST **Max rows** default 1000 — raise on [Data API settings](./supabase-setup.md#6-data-api-max-rows-live-dashboard-fleet-size) |
 | Missing scanner output | Confirm vendor keys in [env-vars](./env-vars.md); absent keys → `skipped_missing_credential` |
 | `dry-discover` / `tripwire` not found | Finish [CLI bootstrap](#repository-and-cli-bootstrap) (`npm link`) |

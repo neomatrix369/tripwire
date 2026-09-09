@@ -16,24 +16,30 @@ tree (clone happens inside the sandbox; introspection-only has no files).
 
 ## Decision
 
-Skip spawn when the target’s **content hash** already exists on `items`.
+Skip **sandbox spawn** when the target’s **content hash** already exists on `items`.
 
 - Local `source_on_disk`: SHA-256 of file bytes plus path structure
   (`cli/src/hash.js`). Unique on `items.content_hash`.
-- Non-disk targets: placeholder `pending:<identifier>` until a better hash
-  exists (git after clone is future work).
+- Non-disk / introspection targets: placeholder `pending:<identifier>`.
+  GitHub repo fan-out (slice 62) clones on the host first, so those rows are
+  hashed as local trees — not `pending:`.
 - Same identifier with a **new** hash updates the existing item row so the
   heatmap does not accumulate duplicate cards.
-- `--force` bypasses the skip and always spawns.
+- Display **`name` is always refreshed** on upsert when discovery supplies a
+  different title (hash hit or identifier reuse). Spawn may still be skipped;
+  card titles stay current after naming-contract changes without `--force`.
+- `--force` bypasses the spawn skip and always runs scanners.
 - `--dry-discover` never hashes for spawn; it only prints targets.
 
 ## Consequences
 
-- Scanner engine upgrades do not invalidate hashes; operators must `--force`.
+- Scanner engine upgrades do not invalidate hashes; operators must `--force`
+  to re-run scanners. Stale **card titles** alone are fixed by a normal re-scan
+  (or a one-shot SQL path update when frontmatter is unavailable).
 - Placeholder hashes collapse all non-disk targets with the same identifier
-  into one skip key — acceptable for Horizon A, weak for cloneable git URLs.
-- Characterization tests lock skip vs `--force` Modal spawn behaviour
-  (slice 6).
+  into one skip key — acceptable for Horizon A.
+- Characterization / coverage tests lock skip vs `--force` spawn behaviour
+  and name refresh on hash hit (slice 6 + slice 62).
 
 ## Alternatives considered
 

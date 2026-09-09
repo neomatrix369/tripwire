@@ -308,8 +308,10 @@ Dedicated usage table — does **not** resurrect deferred `tripwire.audit`.
 **O** reserved for Monk Kit plan on `docs/monk-kit-wave-o`). GitHub repo URL (root or
 `/tree|/blob/…` browse URL) → normalize to cloneable repo root → discover **skills and
 MCPs** → **N separate scans** with scanners by `item_type`; dashboard cards carry
-`org/repo` signature (`identifier` = `org/repo/<relpath>`, `name` = basename); repos
-with no skill or MCP artifacts **fail closed** (no synthetic clean scan). Slice 62 is
+skill/MCP **name** (SKILL.md frontmatter when set; repo-relative path when leaf equals
+repo) plus `org/repo` signature (`identifier` = `org/repo/<relpath>`); re-scan refreshes
+`items.name` even on content-hash hits; repos with no skill or MCP artifacts **fail
+closed** (no synthetic clean scan). Slice 62 is
 **🔀 ON BRANCH** (`slice/62-git-repo-discover-fanout`) — IMPLEMENTED pending merge.
 Operator taxonomy soft-amended in slice **56-a**
 ([prerequisites — What can Tripwire scan?](./user-guide/prerequisites.md#what-can-tripwire-scan)).

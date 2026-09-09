@@ -110,7 +110,7 @@ Git walk uses stricter markers so monorepo `package.json` trees are not false MC
 |-----------|-------|----------|----------------|
 | `parseGitHubBrowseUrl` / `gitFanoutDisplayName` | Pure | — | Parsed clone URL / card `name` |
 | `discoverTargets` (git path) | Bounded-change | `$TMP/tripwire-git-*` | Typed target rows (+ temp clone for pack) |
-| `upsertItem` | Unbounded-preservation | Supabase `items` | Insert/update item row (`identifier`, `name`, hash) |
+| `upsertItem` | Unbounded-preservation | Supabase `items` | Insert/update item row (`identifier`, `name`, hash); **refresh `name` on hash hit** (spawn may still skip) |
 | `_normalize_github_clone_url` | Pure | — | Clone URL string (sandbox defense-in-depth) |
 | `repoSignatureFromIdentifier` | Pure | — | `org/repo` subtitle string |
 

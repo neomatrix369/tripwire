@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Re-scan refreshes dashboard card **`name`** even when content hash is unchanged
+  (`upsertItem` updates `items.name` on hash hits and identifier reuse). Stale
+  titles from pre–naming-contract rows no longer require `--force` or a manual
+  SQL rewrite solely to rename cards.
+
 ### Added
 - GitHub repo discover + fan-out (slice 62, Wave P): `tripwire scan https://github.com/org/repo`
   (and `/tree|/blob/` browse URLs) shallow-clones on the host, walks skills (`SKILL.md`)

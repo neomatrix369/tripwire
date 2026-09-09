@@ -63,6 +63,8 @@ Use `tripwire scan --dry-discover <target>` to list expanded targets before a Li
 
 **Findability at scale:** When many artifacts share a basename or skill frontmatter name across paths in one repo, the card title uses the repo-relative path when the leaf equals the GitHub repo name, and the muted `org/repo` signature remains the namespace disambiguator. Filtering/sorting by org or path may follow in later UX work.
 
+**Stale titles:** If cards were scanned before the naming contract, re-run the same `tripwire scan` target — `items.name` refreshes even when content is unchanged (spawn still skips unless `--force`). See [setup-commands — When it fails](./setup-commands.md#when-it-fails) and [ADR-0010](../adr/0010-content-hash-idempotency.md).
+
 ## Capability-specific notes
 
 | Capability | Requires |
