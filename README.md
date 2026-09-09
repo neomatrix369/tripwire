@@ -34,7 +34,10 @@
 Meterian **Security** / **Stability** / **Licensing** badges mirror the public
 [Meterian project report](https://www.meterian.com/report/gh/neomatrix369/tripwire)
 (dependency and policy scan for this GitHub repo — not a Tripwire scan adapter).
-CI / Nightly / Complexity badges reflect GitHub Actions on `main`.
+CI / Complexity badges reflect GitHub Actions on `main`. The **Nightly** badge is
+**A — Light T4** (daily coverage snapshots, complexity, full TruffleHog, dep audit).
+**B — Supply chain** (SBOM / Meterian / Chalk) is weekly; **C — Mutation**
+(Stryker / mutmut, non-gating) is twice monthly — see [CONTRIBUTING](CONTRIBUTING.md).
 
 ![Tripwire banner](./Tripwire-Banner.png)
 

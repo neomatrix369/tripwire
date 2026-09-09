@@ -63,10 +63,17 @@ pre-commit run --all-files          # lint, mypy, bandit, xenon, vulture, pylint
   T3 gitleaks commit-range scan (only pushed commits, fast) runs warn-only —
   findings print but do not block the push; full SAST/SCA is CI-only
 - **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog
-- **Nightly** (`.github/workflows/nightly.yml`): full TruffleHog, SBOM, Meterian;
-  mutmut (Python `sandbox/`,`guard/`) and Stryker (CLI `src/`) run but are **non-gating**
-  (`break: 0` threshold — green Nightly does not mean high mutation score; Chalk failures
-  surface as ⚠ warnings via `continue-on-error: true`)
+- **CI** (`.github/workflows/ci.yml`): Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog
+- **T4 cloud cadences** (split 2026-09-09, USER-CONFIRMED):
+  - **A — Nightly / Light T4** (`.github/workflows/nightly.yml`): **every night**
+    02:00 UTC + dispatch — pytest/CLI coverage snapshots, complexity, TruffleHog
+    **full** history, lockfile dep audit
+  - **B — Supply chain** (`.github/workflows/supply-chain.yml`): **weekly** Mon
+    03:00 UTC + dispatch — SBOM + Trivy license, Meterian (strict 95/95), Chalk
+    (continue-on-error ⚠)
+  - **C — Mutation** (`.github/workflows/mutation.yml`): **twice monthly** 1st+15th
+    04:00 UTC + dispatch — mutmut (Python, advisory/`|| true`) and Stryker (CLI);
+    **non-gating** (`break: 0` — green does not mean high mutation score)
 
 **Coverage today (VERIFIED config):** Python `sandbox/` `fail_under=95` via
 `pytest` / `testpaths = ["sandbox/tests"]` (guard omitted); CLI
@@ -90,5 +97,7 @@ are excluded from secrets scanners.
 ## CI
 
 - [CI](https://github.com/neomatrix369/tripwire/actions/workflows/ci.yml) (`.github/workflows/ci.yml`) — secrets scanning, SAST, Trivy, ruff/bandit, CLI tests
-- [Nightly](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml) (`.github/workflows/nightly.yml`) — T4 deep checks
+- [Nightly](https://github.com/neomatrix369/tripwire/actions/workflows/nightly.yml) — A Light T4 (daily)
+- [Supply chain](https://github.com/neomatrix369/tripwire/actions/workflows/supply-chain.yml) — B (weekly)
+- [Mutation](https://github.com/neomatrix369/tripwire/actions/workflows/mutation.yml) — C (1st+15th; non-gating)
 - Workflow map: [docs/README.md § CI workflows](docs/README.md#ci-workflows)

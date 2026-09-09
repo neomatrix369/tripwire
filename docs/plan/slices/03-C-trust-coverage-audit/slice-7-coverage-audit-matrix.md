@@ -101,6 +101,12 @@ Docs-only.
 ## Gate Status
 ✅ PASSED — Gate A+B on `main` (PRs #26/#27). After-Checks re-verified 2026-08-02; evidence `verdict: PASS`.
 
+> **Soft-amend (2026-09-09):** T4 cloud split (**USER-CONFIRMED**): **A** Nightly /
+> Light T4 **daily** (`nightly.yml` — snapshots, complexity, TruffleHog full, dep
+> audit); **B** `supply-chain.yml` **weekly**; **C** `mutation.yml` **twice monthly**
+> (Stryker + advisory mutmut, non-gating). Supersedes same-day “all jobs twice
+> monthly” soft-amend. Does not reopen Gate A/B.
+
 ## Session Metrics
 | Metric | Value |
 |--------|-------|

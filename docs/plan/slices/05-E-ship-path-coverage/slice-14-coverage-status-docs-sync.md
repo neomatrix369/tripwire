@@ -110,6 +110,10 @@ Docs-only.
 ## Gate Status
 ✅ PASSED — merged through PR #39 (`8c52989`).
 
+> **Soft-amend (2026-09-09):** CONTRIBUTING documents T4 split A/B/C (Nightly daily,
+> Supply chain weekly, Mutation 1st+15th). Regression ownership of T4 honesty remains
+> **slice 7** Gate A. See DECISIONS 2026-09-09 A/B/C row. Does not reopen slice 14.
+
 ## Session Metrics
 | Metric | Value |
 |--------|-------|

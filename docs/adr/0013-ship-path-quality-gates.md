@@ -36,7 +36,13 @@ Govern **ship path only**, with three gate altitudes.
 - Push: full pytest + coverage when Python changes; CLI coverage when CLI
   changes; T3 gitleaks **warn-only**; full SAST/SCA is CI.
 - CI: Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog, coverage jobs.
-- Nightly: mutation (mutmut, Stryker) and extra SCA are **non-gating**.
+- T4 cloud (split 2026-09-09, USER-CONFIRMED) — three workflows:
+  - **A Nightly / Light T4** (`nightly.yml`): **daily** 02:00 UTC — coverage
+    snapshots, complexity, TruffleHog full, dep audit.
+  - **B Supply chain** (`supply-chain.yml`): **weekly** Mon 03:00 UTC — SBOM,
+    Meterian strict, Chalk (warn-only).
+  - **C Mutation** (`mutation.yml`): **twice monthly** 1st+15th 04:00 UTC —
+    mutmut + Stryker; **non-gating** (green ≠ high mutation score).
 - Live Modal/Supabase E2E as CI Must = **Won't** (skip-without-config).
 
 ## Consequences
@@ -45,7 +51,10 @@ Govern **ship path only**, with three gate altitudes.
   fail a coverage number.
 - Branch floors are lower than line floors where residual defensive branches
   remain (orchestrator, CDN import).
-- Green Nightly does not mean a high mutation score.
+- Green Mutation workflow does not mean a high mutation score.
+- Stryker (~45 min) runs only twice monthly; Light T4 stays cheap nightly;
+  supply-chain tools weekly. Ship-path regressions remain on CI + local
+  quality-gates.
 
 ## Alternatives considered
 

@@ -207,7 +207,11 @@ instrumented coverage is still climbing back toward the ADR-0013 ≥95% target
 after the router land. Unit coverage for the router **does** exist:
 [`cli/test/router.test.js`](../cli/test/router.test.js). Temporary floors are a
 gate-policy choice, not “missing tests.” [ADR-0013](./adr/0013-ship-path-quality-gates.md)
-still records the intended ≥95% CLI ship-path target. Exact gate matrix:
+still records the intended ≥95% CLI ship-path target. T4 cloud is split
+(**USER-CONFIRMED** 2026-09-09): **A Nightly** Light T4 daily; **B Supply chain**
+weekly; **C Mutation** twice monthly (Stryker/mutmut **non-gating**). See
+[ADR-0013](./adr/0013-ship-path-quality-gates.md) and CONTRIBUTING.
+Exact gate matrix:
 [plan/coverage-audit.md](./plan/coverage-audit.md).
 
 Heatmap note: card `heatmap_status` is **worst-of** actionable scanner findings

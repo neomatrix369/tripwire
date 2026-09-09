@@ -1,14 +1,16 @@
 name: Nightly
 
-# T4 slow/deep checks — Tripwire (Python: mutmut; CLI: Stryker command runner; no Dockerfile yet).
+# A — Light T4: cheap deep checks that overlap little with PR CI.
+# Schedule: every night 02:00 UTC (+ workflow_dispatch).
+# Bundles: factory coverage snapshots, complexity, TruffleHog full, dep audit.
+# B (supply-chain.yml) and C (mutation.yml) are separate cadences — see CONTRIBUTING.
 #
 # Status badge: README + docs/README.md (Nightly).
 # Primary stack (docs): Cursor · Modal · Supabase · Tripwire
-# Scanners (docs): Cisco Skill/MCP · Snyk · Tessl
 
 on:
   schedule:
-    - cron: "0 2 * * *" # 02:00 UTC every night
+    - cron: "0 2 * * *" # 02:00 UTC every night — Light T4
   workflow_dispatch:
 
 jobs:
@@ -127,68 +129,6 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
 
-  mutation-tests-python:
-    name: Mutation testing — Python (mutmut)
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version-file: ".python-version"
-      - uses: astral-sh/setup-uv@v7
-        with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-      - run: uv pip install --system -e ".[dev]" mutmut
-      - name: Run mutation tests
-        run: |
-          mutmut run --paths-to-mutate sandbox/,guard/ || true
-          mutmut results || true
-          mutmut junitxml > mutation-results-python.xml || true
-      - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: mutation-python-${{ github.run_number }}
-          path: mutation-results-python.xml
-          retention-days: 30
-          if-no-files-found: warn
-
-  mutation-tests-cli:
-    name: Mutation testing — CLI (Stryker)
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: ".nvmrc"
-          cache: npm
-          cache-dependency-path: cli/package-lock.json
-      - run: npm ci
-        working-directory: cli
-      - name: Install Stryker (CI-only, no lockfile change)
-        run: npm install --no-save @stryker-mutator/core@^8
-        working-directory: cli
-      - name: Seed Stryker sandbox base with project-root fixtures
-        # Tests in cli/test/ navigate ../../db/ and ../fixtures/ which resolves
-        # to cli/.stryker-tmp/{db,fixtures} inside Stryker's sandbox. Pre-copy
-        # them so the dry-run passes without || true suppression.
-        run: |
-          mkdir -p cli/.stryker-tmp
-          cp -r db cli/.stryker-tmp/db
-          cp -r fixtures cli/.stryker-tmp/fixtures
-      - name: Run mutation tests
-        run: npx stryker run
-        working-directory: cli
-      - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: mutation-cli-${{ github.run_number }}
-          path: cli/reports/mutation/
-          retention-days: 30
-          if-no-files-found: warn
-
   trufflehog-full:
     name: TruffleHog (full git history)
     runs-on: ubuntu-latest
@@ -201,72 +141,6 @@ jobs:
           path: ./
           base: ""
           extra_args: --only-verified --exclude-paths=.trufflehog-exclude
-
-  sbom:
-    name: SBOM + license compliance
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: anchore/sbom-action@v0.24.2
-        with:
-          format: cyclonedx-json
-          output-file: sbom.json
-      - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: sbom-${{ github.run_number }}
-          path: sbom.json
-          retention-days: 90
-          if-no-files-found: warn
-      - name: License compliance (trivy)
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          scan-type: fs
-          exit-code: "1"
-          format: table
-          scanners: license
-          severity: HIGH,CRITICAL
-          skip-dirs: fixtures,prototypes,internal-docs,cli/node_modules
-
-  meterian:
-    name: Meterian SCA + license (nightly)
-    runs-on: ubuntu-latest
-    env:
-      METERIAN_API_TOKEN: ${{ secrets.METERIAN_API_TOKEN }}
-    steps:
-      - uses: actions/checkout@v7
-      - name: Meterian SCA + license
-        if: env.METERIAN_API_TOKEN != ''
-        uses: MeterianHQ/meterian-github-action@v1.0.18
-        with:
-          cli_args: --min-security=95 --min-licensing=95
-      - name: Meterian skipped (no token)
-        if: env.METERIAN_API_TOKEN == ''
-        run: echo "METERIAN_API_TOKEN not set — skipping Meterian"
-
-  chalk:
-    name: Chalk (source provenance)
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - uses: actions/checkout@v7
-      - name: Set up Chalk
-        uses: crashappsec/setup-chalk-action@v0.0.3
-      - name: Chalk mark source artifacts
-        # continue-on-error keeps the job green while making failures visible
-        # as a yellow ⚠ in the Actions UI — unlike || true which hides them
-        continue-on-error: true
-        run: chalk insert sandbox/ guard/ scripts/ cli/
-      - name: Upload Chalk report
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: chalk-report-${{ github.run_number }}
-          path: ~/.local/chalk/chalk.log
-          retention-days: 90
-          if-no-files-found: warn
 
   dependency-audit:
     name: Dependency audit (full lockfile sweep)
