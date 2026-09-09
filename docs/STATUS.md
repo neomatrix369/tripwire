@@ -315,6 +315,21 @@ as a Monk Kit (Tier 1 MVL = Supabase + Modal; Tier 2/3 scanners per ADR-0001).
 [ADR-0001](./adr/0001-monk-deployment-and-packaging.md),
 [phase-O0](./plan/slices/15-O-monk-kit-live-packaging/phase-O0-governance.md),
 [TRAIL Wave 15-O](./plan/TRAIL.md).
+**Wave P — Git repo discover + fan-out (2026-09-09):** Group **16-P** (letter after N;
+**O** reserved for Monk Kit plan on `docs/monk-kit-wave-o`). GitHub repo URL (root or
+`/tree|/blob/…` browse URL) → normalize to cloneable repo root → discover **skills and
+MCPs** → **N separate scans** with scanners by `item_type`; dashboard cards carry
+skill/MCP **name** (SKILL.md frontmatter when set; repo-relative path when leaf equals
+repo) plus `org/repo` signature (`identifier` = `org/repo/<relpath>`); re-scan refreshes
+`items.name` even on content-hash hits; repos with no skill or MCP artifacts **fail
+closed** (no synthetic clean scan). Slice 62 is
+**🔀 ON BRANCH** (`slice/62-git-repo-discover-fanout`) — IMPLEMENTED pending merge.
+Operator taxonomy soft-amended in slice **56-a**
+([prerequisites — What can Tripwire scan?](./user-guide/prerequisites.md#what-can-tripwire-scan)).
+Spec:
+[slice 62](./plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md),
+[plan/TRAIL.md](./plan/TRAIL.md) Wave 16-P. **On `main` until merge:** HTTPS git URL =
+single `cloneable` target (typed `mcp_server`); browse `/tree/…` URLs fail at `git clone`.
 
 ---
 
@@ -377,6 +392,7 @@ Wave H Must gate closures (23–27, 29–32) remain open.
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 (slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` …
 `15-O-monk-kit-live-packaging/`). Wave G (slices 18–22) is planned ATDD closure
+`16-P-git-repo-scan/`). Wave G (slices 18–22) is planned ATDD closure
 (parked while Wave H Musts run). Wave H (23–39) trackers: Phase 1 code on
 `main`; formal ✅ closures still mostly open (slice 28 🔀). Claim
 audit (slice 15) and slice 16 remediations are deferred; retain their artifacts
@@ -384,3 +400,6 @@ for a future live/demo release. Wave M (slice 53) LLM usage log / cost tips is
 **DECIDED** plan-only — see DECIDED above; not current dashboard behaviour.
 Wave O (Monk Kit, ADR-0001 Proposed / plan **O0**+58–61) is **DECIDED**
 plan-only — not current deploy behaviour; workstation Live remains supported.
+Wave P (slice 62) git repo skill+MCP fan-out, browse-URL normalize, empty-repo
+fail-closed, and `org/repo` cards is **IN PROGRESS** — see DECIDED above; not
+current `tripwire scan` behaviour on `main`.

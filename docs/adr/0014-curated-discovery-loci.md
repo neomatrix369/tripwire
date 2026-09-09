@@ -52,9 +52,22 @@ Rejected: privacy, performance, and surprise scope.
 Rejected: the operator machine *is* a legitimate target; defaults are opt-out
 via `--no-defaults`.
 
+## Later decisions
+
+**Wave P / slice 62 (IN PROGRESS):** Explicit GitHub repo URLs (including
+`/tree/…` and `/blob/…` browse URLs, normalized to repo root) expand to typed
+skill and MCP paths after clone — not a single `cloneable`/`mcp_server` row.
+Each row uses `identifier` `org/repo/<relpath>`. Empty/no-artifact repos fail
+closed (discovery returns no targets). Current Decision bullet “git-looking
+HTTPS → cloneable MCP” remains accurate on `main` until slice 62 merges. See
+[slice-62](../plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md),
+[prerequisites — What can Tripwire scan?](../user-guide/prerequisites.md#what-can-tripwire-scan),
+and [ADR-0012](./0012-sandbox-target-acquisition.md) Later decisions.
+
 ## References
 
 - `cli/src/discovery.js`
 - [docs/plan/interview_summary.md](../plan/interview_summary.md) (zero-arg not
   on critical path)
 - [QUICKSTART.md](../../QUICKSTART.md) dry-discover
+- [slice 62](../plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) (DECIDED fan-out)

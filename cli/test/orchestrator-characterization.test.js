@@ -26,7 +26,7 @@ function makeThenable(value) {
  * `byHashItem` — when set, content_hash lookup returns cached item.
  */
 function createSupabaseStub({ byHashItem = null, itemId = 'item-1', runId = 'run-1' } = {}) {
-  const calls = { insertScanRuns: 0, insertItems: 0, updateItems: 0, rpc: [] };
+  const calls = { insertScanRuns: 0, insertItems: 0, insertedItems: [], updateItems: 0, rpc: [] };
 
   function chain(terminal) {
     const api = {
@@ -75,6 +75,7 @@ function createSupabaseStub({ byHashItem = null, itemId = 'item-1', runId = 'run
         insert(row) {
           if (table === 'items') {
             calls.insertItems += 1;
+            calls.insertedItems.push(row);
             return {
               select() {
                 return {
@@ -232,6 +233,80 @@ test('given new content when runScan then inserts run and spawns sandbox', async
     assert.equal(spawnCalls[0].itemId, 'new-item');
     assert.equal(spawnCalls[0].scanRunId, 'new-run');
     assert.equal(spawnCalls[0].target, dir);
+  });
+});
+
+test('given git artifact identity when runScan then persists its identifier and name', async () => {
+  await withFixtureDir(async (dir) => {
+    const supabase = createSupabaseStub({ byHashItem: null });
+    const target = {
+      target: dir,
+      type: 'skill',
+      locus: 'local',
+      avail: 'source_on_disk',
+      identifier: 'org/repo/skills/foo',
+      name: 'foo',
+    };
+
+    await runScan([target], {
+      ensureSchemaFn: async () => {},
+      getSupabaseFn: () => supabase,
+      spawnFn: async () => {},
+      routeFn: async () => {},
+    });
+
+    assert.equal(supabase.calls.insertedItems[0].identifier, target.identifier,
+      'git artifacts must retain their repo-scoped identifier');
+    assert.equal(supabase.calls.insertedItems[0].name, target.name,
+      'git artifacts must retain the artifact basename as their name');
+  });
+});
+
+test('GWT-62.3: multi-artifact runScan spawns once per target with distinct identifiers', async () => {
+  await withFixtureDir(async (skillDir) => {
+    await withFixtureDir(async (mcpDir) => {
+      const supabase = createSupabaseStub({ byHashItem: null });
+      const spawnCalls = [];
+      const targets = [
+        {
+          target: skillDir,
+          type: 'skill',
+          locus: 'local',
+          avail: 'source_on_disk',
+          identifier: 'org/repo/skills/foo',
+          name: 'foo',
+        },
+        {
+          target: mcpDir,
+          type: 'mcp_server',
+          locus: 'local',
+          avail: 'source_on_disk',
+          identifier: 'org/repo/mcp/bar',
+          name: 'bar',
+        },
+      ];
+
+      await runScan(targets, {
+        ensureSchemaFn: async () => {},
+        getSupabaseFn: () => supabase,
+        spawnFn: async (args) => { spawnCalls.push(args); },
+        routeFn: async () => {},
+      });
+
+      assert.equal(spawnCalls.length, 2, 'each discovered artifact must get its own sandbox spawn');
+      const types = spawnCalls.map(call => call.itemType).sort();
+      assert.deepEqual(types, ['mcp_server', 'skill']);
+      const ids = supabase.calls.insertedItems.map(item => item.identifier);
+      assert.deepEqual(ids.sort(), ['org/repo/mcp/bar', 'org/repo/skills/foo']);
+      assert.ok(ids.every(id => id.startsWith('org/repo/')),
+        'identifiers must share the org/repo prefix');
+      // Data-flow review: identity must round-trip in org/repo/<relpath> shape for card signature
+      assert.ok(ids.every(id => /^[^/]+\/[^/]+\/.+$/.test(id)),
+        'persisted identifier must be org/repo/<relpath> for dashboard org/repo signature');
+      const names = supabase.calls.insertedItems.map(item => item.name).sort();
+      assert.deepEqual(names, ['bar', 'foo'],
+        'persisted name must remain artifact basename for card title');
+    });
   });
 });
 

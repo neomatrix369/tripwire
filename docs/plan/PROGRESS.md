@@ -6,6 +6,7 @@
 | Wave | Folder | Group | Slices | Outcome |
 |-----:|--------|-------|--------|---------|
 | 15 | [`15-O-…`](slices/15-O-monk-kit-live-packaging/) | **O — Monk Kit Live packaging** | **O0** → **58**→**59** Must · **60**–**61** Should | 📋 plan-only (ADR-0001 + PoC; branch `docs/monk-kit-wave-o`) |
+| 16 | [`16-P-…`](slices/16-P-git-repo-scan/) | **P — Git repo discover + fan-out** | **62** | 🔀 ON BRANCH |
 | 12 | [`12-L-…`](slices/12-L-tessl-5-row-expansion/) | **L — Tessl 5-row expansion** | 45 ✅ · 46 ✅ · 47 ✅ · 48 ✅ · 49 ✅ · 50 ✅ · **51** 🔀 · 52 📋 | 45–50 ✅ · **51** 🔀 |
 | 13 | [`13-M-…`](slices/13-M-llm-usage-tracking/) | **M — LLM usage / cost observability** | **53** | 📋 plan-only (ADR-0016 follow-on; not J/L/G) |
 | 11 | [`11-K-…`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** | 🔀 |
@@ -26,6 +27,7 @@
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
+| 0 (plan) | P | **62** | **Git repo discover + fan-out** | Must | 🔀 ON BRANCH · browse URL normalize · N skill+MCP scans · `org/repo` cards · soft-amends 56-a |
 | 0 (docs) | K | **44** | **Docs UX plain language + compaction** | Must | 🔀 ON BRANCH · [#99](https://github.com/neomatrix369/tripwire/pull/99) · GWT-44.1–44.8 · documentarist APPROVED WITH FOLLOW-ON (DIVIO targets pending) · `slice/44-docs-ux-plain-language` |
 | 0 (active) | L | **51** | **Tessl: Review (Security) (Row 5)** | Could | 🔀 ON BRANCH · `slice/51-review-security` · nw-review APPROVED |
 | 0 (delta) | J | 42 | Dashboard Data Quality — Tessl quality UX + tooltips + plain labels (A9–A13) | Must | ✅ PASSED · [#98](https://github.com/neomatrix369/tripwire/pull/98) |
@@ -41,6 +43,11 @@
 `cli/bin/tripwire.js`, the same file slice 18 refactors — one active slice per
 shared code area: slice 18 does not start until the H-wave subcommand lands
 (or is explicitly rebased onto slice 18).
+
+Wave O slices **58–61** are reserved on [PR #135](https://github.com/neomatrix369/tripwire/pull/135) (`docs/monk-kit-wave-o`). Do not reuse those IDs.
+
+| Order | Phase | # | Slice | MoSCoW | Status |
+|------:|-------|---|-------|--------|--------|
 | 1 | H1 | 23 | Config + Handler Scripts | Must | 📋 PLANNED |
 | 2 | H1 | 24 | `tripwire setup-agent-hooks` | Must | 📋 PLANNED |
 | 3 | H1 | 25 | Live Enforce Smoke | Must | 📋 PLANNED |
@@ -74,6 +81,22 @@ shared code area: slice 18 does not start until the H-wave subcommand lands
 | — | O | **59** | **MVL-Complete Monk Deploy Proof (Tier 1)** | Must | 📋 PLANNED · depends 58 · Walking Skeleton |
 | — | O | **60** | **Tier 2+3 Plumbing + Coverage Honesty** | Should | 📋 PLANNED · depends 59 |
 | — | O | **61** | **Monk Docs Coexistence + Operator Honesty** | Should | 📋 PLANNED · depends 58 (VERIFIED wording waits on 59) |
+| — | H-ss | 40 | `tripwire scan --type <skill\|mcp>` filter | Must | ✅ PASSED (2026-08-17) |
+
+### Landed / parked (not the current queue)
+
+G 18–22 and L 51 already appear in **Execution order** above (parked and ON BRANCH). Wave P is slice **62**.
+
+| Wave | # | Slice | MoSCoW | Status |
+|------|---|-------|--------|--------|
+| L | 45 | DB Schema Migration (14-state enum + 4 columns) | Must | ✅ PASSED · [#103](https://github.com/neomatrix369/tripwire/pull/103) |
+| L | 46 | Tessl: Lint Adapter (Row 1) | Must | ✅ PASSED · [#105](https://github.com/neomatrix369/tripwire/pull/105) |
+| L | 47 | Tessl: Review (Quality) Split (Row 2) | Must | ✅ PASSED · [#109](https://github.com/neomatrix369/tripwire/pull/109) |
+| L | 48 | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | 🔨 IN PROGRESS · after-checks green · awaiting commit/PR · `slice/48-not-available-yet-ui` |
+| L | 49 | Tessl: Scenario Generation + Resume Checkpoint (Row 3) | Should | ✅ PASSED · [#112](https://github.com/neomatrix369/tripwire/pull/112) |
+| L | 50 | Tessl: Eval + Auto-Chain (Row 4) | Should | ✅ PASSED · [#113](https://github.com/neomatrix369/tripwire/pull/113) |
+| L | 52 | ID Lineage Cross-Reads + UI Side-by-Side | Could | 📋 PLANNED |
+| M | **53** | **LLM Usage Tracking + UI Cost Surfacing** | Should | 📋 PLANNED · Wave **13-M** · design: [`docs/design/llm-usage-tracking.md`](../design/llm-usage-tracking.md) · branch docs: `docs/53-llm-usage-tracking-plan` |
 
 ## Quick Status (by group)
 
@@ -201,6 +224,12 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 | 61 | [slice-61-monk-docs-coexistence](slices/15-O-monk-kit-live-packaging/slice-61-monk-docs-coexistence.md) | Should | 📋 PLANNED | — | — | ~25 min |
 
 **Group note:** ADR-0001 Proposed + PoC on `nooga/…/feat/monk-live-supabase-modal-kit`. **O0** = governance (Accept + open Qs); blocks VERIFIED/merge, not 58 prototyping. Capsules / Monk CI/CD / registry = Won't for O.
+### P — Git repo discover + fan-out
+| # | Slice | MoSCoW | Status | Started | Completed | Est. time |
+|---|-------|--------|--------|---------|-----------|-----------|
+| 62 | [slice-62-git-repo-discover-fanout](slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) | Must | 🔀 ON BRANCH | 2026-09-09 | — | ~50 min [Walking Skeleton] |
+
+**Group note:** One repo URL → discover skills + MCPs → separate scans + `org/repo` cards. Docs via reused slice **56-a** (not a new docs slice). Number **62** avoids Wave O monk-kit 58–61.
 
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 
@@ -214,6 +243,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 
 ## Forward Roadmap
 - Wave **O** (**O0** + slices 58–61) Monk Kit Live packaging is **📋 plan-only** — ADR-0001 + PoC; O0 governance first for Accept/open Qs; product execute via `slice/58-land-poc-monk-kit` (prototyping OK while O0 open).
+- Wave **P** (slice **62**) git repo discover + fan-out is **🔀 ON BRANCH** (`slice/62-git-repo-discover-fanout`); soft-amended **56-a** documents browse URL + multi-item taxonomy.
 - Wave **M** (slice 53) LLM usage / cost observability is **📋 plan-only** — ADR-0016 follow-on; execute when explicitly started (`slice/53-llm-usage-tracking`).
 - Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Slice 15 is retained as a deferred claim-audit artifact, not active work.
 - **Wave H (Frontline):** plan-only stubs 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. Execute Musts 23→32 with human tests after H1/H2 and HARD GATE at 32 before Should work.

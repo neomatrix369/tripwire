@@ -35,10 +35,13 @@ test('empty args with useDefaults=false returns nothing (caller errors)', async 
   assert.deepEqual(result, []);
 });
 
-test('github URL is detected as cloneable mcp_server', async () => {
-  const result = await discoverTargets({ targets: ['https://github.com/org/mcp-server'], useDefaults: true });
-  assert.equal(result[0].type, 'mcp_server');
-  assert.equal(result[0].avail, 'cloneable');
+test('github URL fans out cloned artifacts instead of producing cloneable placeholder', async () => {
+  const result = await discoverTargets({
+    targets: ['https://github.com/org/mcp-server'],
+    useDefaults: true,
+    cloneRepoFn: async () => {},
+  });
+  assert.deepEqual(result, []);
 });
 
 test('bare https endpoint is detected as introspection-only mcp_server', async () => {

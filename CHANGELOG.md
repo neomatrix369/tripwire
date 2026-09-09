@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- GitHub repo discover + fan-out (slice 62, Wave P): `tripwire scan https://github.com/org/repo`
+  (and `/tree|/blob/` browse URLs) shallow-clones on the host, walks skills (`SKILL.md`)
+  and MCP roots (`server.py`/`server.js`/`run.sh`), emits N typed targets with
+  `identifier=org/repo/<relpath>` and dashboard cards titled by **skill/MCP name**
+  (SKILL.md frontmatter when set; never bare repo name when leaf equals repo) plus
+  `org/repo` signature. Empty repos return `[]` (fail-closed). Soft-amend prerequisites
+  Git URL taxonomy (56-a).
+- Docs: Wave **16-P** git repo discover + fan-out plan (slice 62) —
+  [slice stub](docs/plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md),
+  TRAIL/PROGRESS/STATUS. GitHub repo or `/tree|/blob/`
+  browse URL → skills+MCPs discovered and scanned separately; cards use
+  `org/repo` signature. Soft-amend slice 56-a taxonomy.
 - `/tw-verify` Quality column + blocked footer (slice 28): Scan Status table is
   **Name | Type | Status | Quality | Note**; Quality shows Tessl
   `items.quality_score` as **`N/100`** (else `—`); shared
@@ -125,6 +137,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   on all quality tabs. Helpers in `tripwire-status.js`; wired in `Tripwire.dc.html`.
 
 ### Fixed
+- Re-scan refreshes dashboard card **`name`** even when content hash is unchanged
+  (`upsertItem` updates `items.name` on hash hits and identifier reuse). Stale
+  titles from pre–naming-contract rows no longer require `--force` or a manual
+  SQL rewrite solely to rename cards.
 - Tessl dashboard progress during Modal scans: skip bulk `running` placeholders for
   all five Tessl rows at group start; Lint and Review (Quality) now persist
   `running`→terminal via `on_scanner_progress` so only the active step shows

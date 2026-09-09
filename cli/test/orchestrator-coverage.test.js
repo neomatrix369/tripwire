@@ -11,6 +11,7 @@ import { mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { runScan } from '../src/orchestrator.js';
+import { hashLocalPath } from '../src/hash.js';
 
 function makeThenable(value) {
   return {
@@ -29,7 +30,7 @@ function createSupabaseStub({
   batchError = null,
   scanRunInsertError = null,
 } = {}) {
-  const calls = { failedUpdates: 0, rpc: 0, batches: [], updates: 0 };
+  const calls = { failedUpdates: 0, rpc: 0, batches: [], updates: 0, itemUpdates: [] };
 
   const supabase = {
     calls,
@@ -110,7 +111,7 @@ function createSupabaseStub({
             },
           };
         },
-        update() {
+        update(patch) {
           calls.updates += 1;
           if (table === 'scan_runs') {
             calls.failedUpdates += 1;
@@ -120,6 +121,8 @@ function createSupabaseStub({
               },
             };
           }
+          if (table === 'items') calls.itemUpdates.push(patch);
+          const base = byHashItem || byIdentItem || { id: itemId };
           return {
             eq() {
               return {
@@ -127,7 +130,7 @@ function createSupabaseStub({
                   return {
                     single: () =>
                       makeThenable({
-                        data: { id: byIdentItem?.id || itemId, content_hash: 'new' },
+                        data: { ...base, ...patch },
                         error: null,
                       }),
                   };
@@ -191,6 +194,72 @@ test('given existing identifier when upsert then updates hash', async () => {
   // -- Then --
   assert.equal(spawned, 1);
   assert.ok(sb.calls.updates >= 1);
+  await rm(dir, { recursive: true, force: true });
+});
+
+test('given stale display name when content hash matches then refreshes name without force', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'tw-rename-'));
+  await writeFile(path.join(dir, 'SKILL.md'), '# s');
+  const contentHash = await hashLocalPath(dir);
+  const sb = createSupabaseStub({
+    byHashItem: {
+      id: 'item-stale-name',
+      identifier: 'pbakaus/impeccable/.cursor/skills/audit',
+      name: 'impeccable',
+      content_hash: contentHash,
+    },
+  });
+  const targets = [{
+    target: dir,
+    type: 'skill',
+    locus: 'local',
+    avail: 'source_on_disk',
+    identifier: 'pbakaus/impeccable/.cursor/skills/audit',
+    name: 'audit',
+  }];
+  let spawned = 0;
+
+  await runScan(targets, {
+    ensureSchemaFn: async () => ({ status: 'ready' }),
+    getSupabaseFn: () => sb,
+    spawnFn: async () => {
+      spawned += 1;
+    },
+  });
+
+  assert.equal(spawned, 0, 'unchanged content still skips sandbox without --force');
+  assert.equal(sb.calls.itemUpdates.length, 1);
+  assert.equal(sb.calls.itemUpdates[0].name, 'audit');
+  await rm(dir, { recursive: true, force: true });
+});
+
+test('given existing identifier when upsert then refreshes display name', async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'tw-ident-name-'));
+  await writeFile(path.join(dir, 'SKILL.md'), '# s');
+  const sb = createSupabaseStub({
+    byIdentItem: {
+      id: 'item-existing',
+      identifier: 'pbakaus/impeccable/.cursor/skills/polish',
+      name: 'impeccable',
+    },
+  });
+  const targets = [{
+    target: dir,
+    type: 'skill',
+    locus: 'local',
+    avail: 'source_on_disk',
+    identifier: 'pbakaus/impeccable/.cursor/skills/polish',
+    name: 'polish',
+  }];
+
+  await runScan(targets, {
+    ensureSchemaFn: async () => ({ status: 'ready' }),
+    getSupabaseFn: () => sb,
+    spawnFn: async () => {},
+  });
+
+  const namePatch = sb.calls.itemUpdates.find(p => p.name === 'polish');
+  assert.ok(namePatch, 'identifier reuse must update card name');
   await rm(dir, { recursive: true, force: true });
 });
 

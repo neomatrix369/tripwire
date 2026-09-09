@@ -17,8 +17,9 @@ Horizon A trackers and slice stubs. **Slice files live in wave folders** (execut
 | 11 | [slices/11-K-docs-ux-plain-language/](slices/11-K-docs-ux-plain-language/) | Docs UX plain language + compaction (44) — 🔀 |
 | 12 | [slices/12-L-tessl-5-row-expansion/](slices/12-L-tessl-5-row-expansion/) | Tessl 5-row expansion (45–52) — 45–50 ✅ · 51 🔀 · 52 📋 · design: [tessl-5-row-expansion.md](../design/tessl-5-row-expansion.md) |
 | 13 | [slices/13-M-llm-usage-tracking/](slices/13-M-llm-usage-tracking/) | **M — LLM usage / cost observability** (53) — 📋 plan-only · ADR-0016 follow-on · **not** J/L/G · design: [llm-usage-tracking.md](../design/llm-usage-tracking.md) |
-| 14 | [slices/14-N-docs-gap-bridge-audit/](slices/14-N-docs-gap-bridge-audit/) | **N — Docs gap-bridge audit** (55–57) — 📋 · see [docs-gap-bridge-audit.md](docs-gap-bridge-audit.md) |
+| 14 | [slices/14-N-docs-gap-bridge-audit/](slices/14-N-docs-gap-bridge-audit/) | **N — Docs gap-bridge audit** (55–57); 56-a soft-amended for git taxonomy) — 📋 · see [docs-gap-bridge-audit.md](docs-gap-bridge-audit.md) |
 | 15 | [slices/15-O-monk-kit-live-packaging/](slices/15-O-monk-kit-live-packaging/) | **O — Monk Kit Live packaging** (**O0** + 58–61) — 📋 plan-only · ADR-0001 + PoC · branch `docs/monk-kit-wave-o` |
+| 16 | [slices/16-P-git-repo-scan/](slices/16-P-git-repo-scan/) | **P — Git repo discover + fan-out** (62) — 📋 plan-only · skills+MCPs per repo · `org/repo` cards |
 
 | Tracker | Role |
 |---------|------|

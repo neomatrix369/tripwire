@@ -19,6 +19,7 @@ import sys
 import tarfile
 from datetime import UTC, datetime
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import modal
 
@@ -396,6 +397,17 @@ def _is_git_url(target: str) -> bool:
     return False
 
 
+def _normalize_github_clone_url(target: str) -> str:
+    """Remove GitHub tree/blob browse paths while preserving other targets."""
+    parsed = urlsplit(target)
+    if parsed.scheme not in {"http", "https"} or parsed.netloc != "github.com":
+        return target
+    parts = [part for part in parsed.path.split("/") if part]
+    if len(parts) < 2 or (len(parts) > 2 and parts[2] not in {"tree", "blob"}):
+        return target.rstrip("/")
+    return f"{parsed.scheme}://github.com/{parts[0]}/{parts[1]}"
+
+
 def _looks_like_filesystem_path(target: str) -> bool:
     """True for host paths that should have been uploaded or copied, not protocol URLs."""
     if "://" in target or target.startswith("git@"):
@@ -471,7 +483,7 @@ def _acquire_target(
     os.makedirs(workdir, exist_ok=True)
 
     if _is_git_url(target):
-        _clone_repo(target, workdir)
+        _clone_repo(_normalize_github_clone_url(target), workdir)
         return
 
     if target_archive is not None:

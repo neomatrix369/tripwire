@@ -589,6 +589,20 @@ export function linkedQualityFindingsForSecurity(scanner, findings) {
   );
 }
 
+/**
+ * Card signature for git-fan-out items: first two path segments of identifier.
+ * Returns '' for URLs, bare names, or identifiers without org/repo shape.
+ * @param {string|null|undefined} identifier
+ * @returns {string}
+ */
+export function repoSignatureFromIdentifier(identifier) {
+  if (!identifier || typeof identifier !== 'string') return '';
+  if (identifier.includes('://')) return '';
+  const parts = identifier.split('/').filter(Boolean);
+  if (parts.length < 2) return '';
+  return `${parts[0]}/${parts[1]}`;
+}
+
 export default {
   STATUS_META,
   RESULT_STATUSES,
@@ -627,4 +641,5 @@ export default {
   linkedQualityFindingsForSecurity,
   TESSL_CAPABILITY_SOURCES,
   mergeTesslCapabilityRows,
+  repoSignatureFromIdentifier,
 };

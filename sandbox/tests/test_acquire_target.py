@@ -79,6 +79,7 @@ from scan_app import (  # noqa: E402
     _is_git_url,
     _looks_like_filesystem_path,
     _maybe_pack_local_target,
+    _normalize_github_clone_url,
     _pack_local_dir,
     main,
 )
@@ -143,6 +144,38 @@ def test_looks_like_filesystem_path_rejects_protocol_targets(target):
 
 
 # ── Git clone path ──────────────────────────────────────────────────────────
+
+
+def test_github_browse_url_normalizes_to_clone_url():
+    """
+    Scenario: GitHub browse paths are never passed to git clone.
+    Slice: slice-62 GWT-62.1
+
+    Given a GitHub tree browse URL,
+    When the sandbox normalizes the clone URL,
+    Then only the repository URL remains.
+    """
+    ### Given
+    browse_url = "https://github.com/org/repo/tree/main/skills/foo"
+
+    ### When
+    actual_clone_url = _normalize_github_clone_url(browse_url)
+
+    ### Then
+    assert actual_clone_url == "https://github.com/org/repo", (
+        "GitHub browse URLs must normalize before cloning"
+    )
+
+
+def test_acquire_target_normalizes_github_browse_url_before_clone(tmp_path):
+    workdir = str(tmp_path / "scan-target")
+    fake_result = subprocess.CompletedProcess(args=[], returncode=0, stdout="", stderr="")
+    browse_url = "https://github.com/org/repo/blob/main/skills/foo/SKILL.md"
+
+    with patch("scan_app.subprocess.run", return_value=fake_result) as mock_run:
+        _acquire_target(browse_url, "skill", workdir)
+
+    assert "https://github.com/org/repo" in mock_run.call_args[0][0]
 
 
 def test_acquire_target_clones_git_url(tmp_path):
