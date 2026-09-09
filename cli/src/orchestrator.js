@@ -36,7 +36,20 @@ async function upsertItem(supabase, target) {
   const name = itemNameFor(target, identifier);
   const contentHash = await contentHashFor(target, identifier);
   const { data: byHash } = await supabase.from('items').select('*').eq('content_hash', contentHash).maybeSingle();
-  if (byHash) return { item: byHash, cached: true };
+  if (byHash) {
+    // Refresh display name even on content-hash hits (e.g. card-naming contract changes).
+    if (byHash.name !== name) {
+      const { data: renamed, error: renameError } = await supabase
+        .from('items')
+        .update({ name, updated_at: new Date().toISOString() })
+        .eq('id', byHash.id)
+        .select()
+        .single();
+      if (renameError) throw renameError;
+      return { item: renamed, cached: true };
+    }
+    return { item: byHash, cached: true };
+  }
 
   // Reuse the latest row for this path so the live heatmap does not accumulate
   // duplicate identifier rows when content_hash changes between scans.
@@ -50,7 +63,11 @@ async function upsertItem(supabase, target) {
   if (existing) {
     const { data: updated, error: updateError } = await supabase
       .from('items')
-      .update({ content_hash: contentHash, updated_at: new Date().toISOString() })
+      .update({
+        content_hash: contentHash,
+        name,
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', existing.id)
       .select()
       .single();
