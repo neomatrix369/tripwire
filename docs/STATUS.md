@@ -207,9 +207,10 @@ instrumented coverage is still climbing back toward the ADR-0013 ≥95% target
 after the router land. Unit coverage for the router **does** exist:
 [`cli/test/router.test.js`](../cli/test/router.test.js). Temporary floors are a
 gate-policy choice, not “missing tests.” [ADR-0013](./adr/0013-ship-path-quality-gates.md)
-still records the intended ≥95% CLI ship-path target. Nightly T4 (mutation / SBOM /
-extra SCA) is **non-gating** and scheduled **twice monthly** (1st + 15th 02:00 UTC)
-plus dispatch — DECIDED 2026-09-09 / IMPLEMENTED on `chore/nightly-twice-monthly`.
+still records the intended ≥95% CLI ship-path target. T4 cloud is split
+(**USER-CONFIRMED** 2026-09-09): **A Nightly** Light T4 daily; **B Supply chain**
+weekly; **C Mutation** twice monthly (Stryker/mutmut **non-gating**). See
+[ADR-0013](./adr/0013-ship-path-quality-gates.md) and CONTRIBUTING.
 Exact gate matrix:
 [plan/coverage-audit.md](./plan/coverage-audit.md).
 

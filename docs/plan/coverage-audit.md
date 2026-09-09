@@ -5,8 +5,8 @@
 > back toward ADR-0013 after the router land (`cli/test/router.test.js` exists)
 > Context: private references SoT + public STATUS/ARCHITECTURE
 >
-> Soft-amend 2026-09-09: Nightly T4 workflow is **twice monthly** (1st + 15th
-> 02:00 UTC) + dispatch — see DECISIONS / slice 7 soft-amend (Stryker cost).
+> Soft-amend 2026-09-09: Nightly T4 split — **A** Light T4 daily (`nightly.yml`);
+> **B** supply-chain weekly; **C** mutation 1st+15th. See DECISIONS / ADR-0013.
 
 ## Altitude / targets
 
@@ -60,7 +60,7 @@ Deferred, future-tracked work: full drift/trend/diff behavior and Guard enforcem
 | Phase 4/5 | Won't for A (PROGRESS/TRAIL) | Badges claimed partners | **Gate A done** — badges removed |
 | Guard | Stub + Phase 4 | Was in C4 L2 | **Gate A done** — Future section |
 | Branch for coverage wave | merged PR #25 | STATUS said `plan/coverage-slices-7-14` | **Gate A done** — per-slice branches |
-| Nightly mutmut/Chalk | `\|\| true` / continue-on-error; cron **1st+15th** | Listed as Nightly checks | **Gate A done** — non-gating note; **2026-09-09** schedule soft-amend (slice 7) |
+| Nightly mutmut/Chalk | Split: mutmut→**C** Mutation; Chalk→**B** Supply chain | Listed under T4 cadences | **Gate A done** — non-gating mutation; **2026-09-09** A/B/C split (slice 7) |
 | Adapter JSON field names | RESEARCH | RESEARCH in STATUS | Slices 8–9 + research sync |
 | Realtime poll timing | 8s + 30s paths | “~1s + 8s” only | Slice 16 📦 / audit 15 |
 | Default UI source | `live` default | Normal users should select Mock for local baseline path | Slice **17** + 16 📦 |

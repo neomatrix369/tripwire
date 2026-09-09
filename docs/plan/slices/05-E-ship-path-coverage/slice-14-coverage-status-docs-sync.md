@@ -110,11 +110,9 @@ Docs-only.
 ## Gate Status
 ✅ PASSED — merged through PR #39 (`8c52989`).
 
-> **Soft-amend (2026-09-09):** CONTRIBUTING Nightly section now also states **twice
-> monthly** schedule (1st + 15th 02:00 UTC) alongside non-gating mutmut/Chalk/Stryker.
-> Regression ownership of Nightly honesty remains **slice 7** Gate A; this slice’s
-> Command 14.2 still accepts any equivalent CONTRIBUTING Nightly note. See DECISIONS
-> 2026-09-09. Does not reopen slice 14.
+> **Soft-amend (2026-09-09):** CONTRIBUTING documents T4 split A/B/C (Nightly daily,
+> Supply chain weekly, Mutation 1st+15th). Regression ownership of T4 honesty remains
+> **slice 7** Gate A. See DECISIONS 2026-09-09 A/B/C row. Does not reopen slice 14.
 
 ## Session Metrics
 | Metric | Value |

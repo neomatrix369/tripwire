@@ -183,9 +183,9 @@ Docs/audit-only. Findings canvas or `docs/plan/claim-audit.md`.
 ## Gate Status
 📦 CLOSED — gate evidence is frozen pending an explicit reinstatement decision.
 
-> **Soft-amend (2026-09-09):** Nightly mutation claim still PASS / non-gating; schedule
-> is **twice monthly** (not daily). After-Check mutation language updated; claim-audit.md
-> row annotated. Ownership of schedule honesty: **slice 7**. Does not reinstate slice 15.
+> **Soft-amend (2026-09-09):** Mutation claim still PASS / non-gating on **C**
+> `mutation.yml` (1st+15th). Schedule honesty: T4 A/B/C split — see slice 7.
+> Does not reinstate slice 15.
 
 ## Session Metrics
 | Metric | Value |

@@ -119,9 +119,8 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 |---|------|------|--------|--------|------------|-------|-----------|
 | 7 | [slice-7-coverage-audit-matrix](slices/03-C-trust-coverage-audit/slice-7-coverage-audit-matrix.md) | Coverage Audit Matrix + Docs Parity | Must | ✅ | none | #26/#27 | ~4 min |
 
-> Soft-amend 2026-09-09 (slice 7): Nightly T4 cron → twice monthly (1st+15th);
-> claim cascade soft-amended on slices 14–16 + coverage-audit/claim-audit + ADR-0013.
-> Status stays ✅ — not reopened.
+> Soft-amend 2026-09-09 (slice 7): T4 split A daily / B weekly / C mutation 1st+15th
+> (`nightly.yml` + `supply-chain.yml` + `mutation.yml`). Status stays ✅ — not reopened.
 
 ### D — Task-based onboarding + documentation UX
 
