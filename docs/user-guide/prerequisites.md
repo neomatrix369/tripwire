@@ -61,6 +61,8 @@ Explicit path or URL arguments (see [ADR-0012](../adr/0012-sandbox-target-acquis
 
 Use `tripwire scan --dry-discover <target>` to list expanded targets before a Live run.
 
+**Findability at scale:** When many artifacts share a basename or skill frontmatter name across paths in one repo, the card title uses the repo-relative path when the leaf equals the GitHub repo name, and the muted `org/repo` signature remains the namespace disambiguator. Filtering/sorting by org or path may follow in later UX work.
+
 ## Capability-specific notes
 
 | Capability | Requires |

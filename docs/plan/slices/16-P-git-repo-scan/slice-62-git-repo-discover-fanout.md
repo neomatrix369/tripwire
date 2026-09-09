@@ -105,6 +105,23 @@ Git walk uses stricter markers so monorepo `package.json` trees are not false MC
 - **Sandbox does not re-discover** skills/MCPs for those rows; it scans the path it is given (`item_type` from the row).
 - **Sandbox `_normalize_github_clone_url`** is defense-in-depth if a browse URL still reaches `_acquire_target` (e.g. non-fan-out path). Keep semantics aligned with `parseGitHubBrowseUrl` clone URL.
 
+## Component contracts (Effect Isolation)
+| Component | Shape | Universe | Declared delta |
+|-----------|-------|----------|----------------|
+| `parseGitHubBrowseUrl` / `gitFanoutDisplayName` | Pure | — | Parsed clone URL / card `name` |
+| `discoverTargets` (git path) | Bounded-change | `$TMP/tripwire-git-*` | Typed target rows (+ temp clone for pack) |
+| `upsertItem` | Unbounded-preservation | Supabase `items` | Insert/update item row (`identifier`, `name`, hash) |
+| `_normalize_github_clone_url` | Pure | — | Clone URL string (sandbox defense-in-depth) |
+| `repoSignatureFromIdentifier` | Pure | — | `org/repo` subtitle string |
+
+## Closing Gates
+Required before `🔀 ON BRANCH → ✅ PASSED` (PASSED also requires merge to `main` per GATE_CONTRACT):
+
+1. `/nw-gate-evidence-validator` on `docs/plan/gate-evidence/slice-62.json`
+2. `/verify-slice` → `COMPLETE`
+3. `/nw-review` APPROVED (or NEEDS_REVISION findings addressed + re-check)
+4. PR merged to `main` → mark TRAIL/PROGRESS ✅
+
 ## Before-Checks [GATE]
 - [x] Branch `slice/62-git-repo-discover-fanout` created (not on `main`)
 - [x] This stub opened; ADR-0012 + `discovery.js` `resolveTarget`/`detectType` re-read
@@ -160,9 +177,9 @@ Complexity evidence recorded 2026-09-09: `./scripts/quality-gates.sh` exit 0 (xe
 | `sandbox/scan_app.py` | feat | Normalize GitHub browse URLs before clone |
 | `prototypes/dc-dashboard/tripwire-status.js` | feat | `repoSignatureFromIdentifier` |
 | `prototypes/dc-dashboard/Tripwire.dc.html` | feat | Grid/list org/repo subtitle |
-| `cli/test/discovery-git-fanout.test.js` | test | GWT-62.1/62.2/62.6 + walk harden |
-| `cli/test/orchestrator-characterization.test.js` | test | GWT-62.3 multi-spawn |
-| `docs/user-guide/prerequisites.md` | docs | 56-a Git URL taxonomy |
+| `cli/test/discovery-git-fanout.test.js` | test | GWT-62.1/62.2/62.6/62.7 + walk harden + naming |
+| `cli/test/orchestrator-characterization.test.js` | test | GWT-62.3 multi-spawn + identity shape |
+| `docs/user-guide/prerequisites.md` | docs | 56-a Git URL taxonomy + card naming |
 | `docs/plan/gate-evidence/slice-62.json` | docs | Closing evidence |
 
 ## Session Metrics
