@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Docs: Wave **16-P** git repo discover + fan-out plan (slice 62) —
+  [slice stub](docs/plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md),
+  TRAIL/PROGRESS/STATUS DECIDED (not IMPLEMENTED). GitHub repo or `/tree|/blob/`
+  browse URL → skills+MCPs discovered and scanned separately; cards use
+  `org/repo` signature. Soft-amend slice 56-a taxonomy (docs execution still open).
 - `/tw-verify` Quality column + blocked footer (slice 28): Scan Status table is
   **Name | Type | Status | Quality | Note**; Quality shows Tessl
   `items.quality_score` as **`N/100`** (else `—`); shared

@@ -25,12 +25,12 @@ Add a "What can Tripwire scan?" table to `docs/user-guide/prerequisites.md` (the
 |---|---|---|
 | Skill directory | `./fixtures/skills/safe-csv-cleaner` | Contains `SKILL.md` |
 | MCP server entrypoint | `./path/to/mcp-server/index.js` | Inspected for structure |
-| Git URL | `https://github.com/owner/repo` | Cloned by `_acquire_target` |
+| Git URL | `https://github.com/owner/repo` or `https://github.com/owner/repo/tree/<ref>/<path>` | Repo (or browse URL) → discover skills **and** MCPs → scan each separately; cards use `org/repo` signature. Behaviour: [slice 62](../16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md). Clone dispatch: ADR-0012 |
 | Local copy path | `/abs/path/to/dir` | Tar-uploaded to sandbox |
 
-Link to ADR-0012 (`sandbox-target-acquisition`) for the `_acquire_target` dispatch detail.
+Link to ADR-0012 (`sandbox-target-acquisition`) for the `_acquire_target` dispatch detail. Link to slice 62 for git multi-item fan-out (PLANNED until 62 ✅).
 
-**GWT-56a:** Given a newcomer opens `docs/user-guide/prerequisites.md`, when they look for "what can I scan?", then `prerequisites.md` contains a table headed "What can Tripwire scan?" with exactly 4 rows (Skill directory / MCP server entrypoint / Git URL / Local copy path) and a link to ADR-0012. No new file. Verified by: `grep -n "What can Tripwire scan" docs/user-guide/prerequisites.md`.
+**GWT-56a:** Given a newcomer opens `docs/user-guide/prerequisites.md`, when they look for "what can I scan?", then `prerequisites.md` contains a table headed "What can Tripwire scan?" with exactly 4 rows (Skill directory / MCP server entrypoint / Git URL / Local copy path), the Git URL row mentions browse `/tree/` URLs and multi-item skill+MCP fan-out (or links slice 62), and a link to ADR-0012. No new file. Verified by: `grep -n "What can Tripwire scan" docs/user-guide/prerequisites.md` and `grep -n "tree/" docs/user-guide/prerequisites.md`.
 
 ### 56-b — Dashboard proxy role (CP B.9)
 Add one sentence to `QUICKSTART.md §Try the demo` step 3 (after the `node scripts/serve-dashboard.mjs` command):
@@ -76,7 +76,7 @@ Verify that `docs/user-guide/frontline-output-contract.md` covers the API output
 **GWT-56e:** Given a contributor reads `agent-hooks/README.md`, when they want to understand the API output shape, then they find a direct link to `frontline-output-contract.md` without hunting.
 
 ## Acceptance criteria (short-form)
-- [ ] 56-a: Input-type table present in `docs/user-guide/prerequisites.md` with ADR-0012 link; `grep "What can Tripwire scan" docs/user-guide/prerequisites.md` returns a hit
+- [ ] 56-a: Input-type table present in `docs/user-guide/prerequisites.md` with ADR-0012 link; Git URL row documents browse `/tree/` + skill/MCP fan-out (slice 62); `grep "What can Tripwire scan" docs/user-guide/prerequisites.md` returns a hit
 - [ ] 56-b: Proxy explanation sentence present in `QUICKSTART.md` step 3; `grep "local proxy" QUICKSTART.md` returns a hit
 - [ ] 56-c: `PLANNED (Quality tab gate-evidence UI)` label present in `docs/STATUS.md`; `grep "PLANNED (Quality tab" docs/STATUS.md` returns a hit
 - [ ] 56-d: Guard/Mock explanation present in `QUICKSTART.md`; `grep "Guard" QUICKSTART.md` returns an explanatory line (not just a code reference)
