@@ -93,6 +93,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 9 | [`slices/09-I-landing-intro-restyle/`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 ✅ · **43** ✅ | [#96](https://github.com/neomatrix369/tripwire/pull/96) |
 | 10 | [`slices/10-J-dashboard-data-quality/`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 ✅ A1–A13 ([#98](https://github.com/neomatrix369/tripwire/pull/98)) · **A14–A15** 🔀 quality tabs | `slice/42-quality-score-tabs` |
 | 11 | [`slices/11-K-docs-ux-plain-language/`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** 🔀 | — |
+| 16 | [`slices/16-P-git-repo-scan/`](slices/16-P-git-repo-scan/) | **P — Git repo discover + fan-out** | **62** | 📋 plan-only |
 
 **Status legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 CLOSED — DEFERRED/WON'T`
 
@@ -333,11 +334,23 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 | 56 | [slice-56-gap-repairs](slices/14-N-docs-gap-bridge-audit/slice-56-gap-repairs.md) | Confirmed Gap Repairs (input types, proxy, gate-evidence, Guard mode, cross-link, scanner×input matrix) — 6 sub-items (56-a through 56-f; 56-f added post-review 2026-08-31) | Should | 📋 | 44 ✅ | — | ~5 min |
 | 57 | [slice-57-sync-docs-skill-update](slices/14-N-docs-gap-bridge-audit/slice-57-sync-docs-skill-update.md) | sync-docs Skill Update + module-theme-map | Should | 📋 | 56 | — | ~2 min |
 
+## Wave 16-P — Git repo discover + fan-out
+
+**Group letter P** (after N; **O** reserved for Monk Kit on `docs/monk-kit-wave-o`, slices 58–61). Folder: [`slices/16-P-git-repo-scan/`](slices/16-P-git-repo-scan/).
+**EFP Path B 2026-09-09** — plan-only; triggered by Live clone fail on GitHub `/tree/…` URLs and product need: one repo URL → N skill+MCP scans with `org/repo` card signature.
+Docs taxonomy: soft-amend **slice 56-a** (reuse Wave N stub — no new docs slice).
+
+**Model / harness:** inherits TRAIL Original Material + harness-scout embed. Profile: ambiguity=low · blast_radius=medium · time_box=≤2 Pomos · interactive · Walking Skeleton.
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| 62 | [slice-62-git-repo-discover-fanout](slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) | Git Repo Discover + Fan-Out (skills + MCPs, org/repo cards) | Must | 📋 | none | — | ~5 min |
+
 ## Supporting Artifacts
 | File | Status |
 |------|--------|
-| [README.md](README.md) | ✅ wave folder map (`01-A-…` … `14-N-docs-gap-bridge-audit/`) |
-| `01-A-…` … `14-N-…/` | ✅ slice stubs by execution wave |
+| [README.md](README.md) | ✅ wave folder map (`01-A-…` … `16-P-git-repo-scan/`) |
+| `01-A-…` … `16-P-…/` | ✅ slice stubs by execution wave |
 | [docs-gap-bridge-audit.md](docs-gap-bridge-audit.md) | ✅ Wave N audit report — diagrams, checkpoints, backlog, disclaimers (D1–D8) |
 | interview_summary.md | ✅ written |
 | PROGRESS.md | ✅ written |

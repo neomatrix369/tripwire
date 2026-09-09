@@ -304,6 +304,17 @@ L (Tessl rows), or G (ATDD parked). Spec:
 [slice 53](./plan/slices/13-M-llm-usage-tracking/slice-53-llm-usage-tracking.md).
 Dedicated usage table — does **not** resurrect deferred `tripwire.audit`.
 
+**Wave P — Git repo discover + fan-out (2026-09-09):** Group **16-P** (letter after N;
+**O** reserved for Monk Kit plan on `docs/monk-kit-wave-o`). GitHub repo URL (root or
+`/tree|/blob/…` browse URL) → normalize → discover **skills and MCPs** → **N separate
+scans** with scanners by `item_type`; dashboard cards carry `org/repo` signature
+(`identifier` = `org/repo/<relpath>`, `name` = basename). **DECIDED** as plan-only
+slice 62 — stub + TRAIL/PROGRESS; **not IMPLEMENTED**. Docs taxonomy soft-amended in
+slice **56-a** (still unexecuted). Spec:
+[slice 62](./plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md),
+[plan/TRAIL.md](./plan/TRAIL.md) Wave 16-P. Current behaviour remains: HTTPS git URL =
+single `cloneable` target (typed `mcp_server`); browse `/tree/…` URLs fail at `git clone`.
+
 ---
 
 ## PROPOSED
@@ -364,9 +375,11 @@ Wave H Must gate closures (23–27, 29–32) remain open.
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 (slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` …
-`08-H-frontline-agent-hooks/`). Wave G (slices 18–22) is planned ATDD closure
+`16-P-git-repo-scan/`). Wave G (slices 18–22) is planned ATDD closure
 (parked while Wave H Musts run). Wave H (23–39) trackers: Phase 1 code on
 `main`; formal ✅ closures still mostly open (slice 28 🔀). Claim
 audit (slice 15) and slice 16 remediations are deferred; retain their artifacts
 for a future live/demo release. Wave M (slice 53) LLM usage log / cost tips is
 **DECIDED** plan-only — see DECIDED above; not current dashboard behaviour.
+Wave P (slice 62) git repo skill+MCP fan-out + `org/repo` cards is **DECIDED**
+plan-only — see DECIDED above; not current `tripwire scan` behaviour.

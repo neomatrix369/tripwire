@@ -52,9 +52,19 @@ Rejected: privacy, performance, and surprise scope.
 Rejected: the operator machine *is* a legitimate target; defaults are opt-out
 via `--no-defaults`.
 
+## Later decisions
+
+**Wave P / slice 62 (DECIDED, not IMPLEMENTED):** Explicit GitHub repo URLs should
+expand to typed skill and MCP paths after clone (not stay a single
+`cloneable`/`mcp_server` row). Current Decision bullet “git-looking HTTPS →
+cloneable MCP” remains accurate until slice 62 lands. See
+[slice-62](../plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md)
+and [ADR-0012](./0012-sandbox-target-acquisition.md) Later decisions.
+
 ## References
 
 - `cli/src/discovery.js`
 - [docs/plan/interview_summary.md](../plan/interview_summary.md) (zero-arg not
   on critical path)
 - [QUICKSTART.md](../../QUICKSTART.md) dry-discover
+- [slice 62](../plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) (DECIDED fan-out)

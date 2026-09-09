@@ -222,6 +222,14 @@ clock before Modal's 300s kill — operators reconcile stranded `running` rows w
   [design/llm-usage-tracking.md](./design/llm-usage-tracking.md) ·
   [plan/TRAIL.md](./plan/TRAIL.md) Wave 13-M. **Not IMPLEMENTED** — router still
   discards provider `usage`; no Usage tab. See [STATUS.md](./STATUS.md).
+- **Wave P (Git repo discover + fan-out, DECIDED plan-only):** slice 62 intends
+  GitHub browse-URL normalize, host discover of skills **and** MCPs inside a
+  repo, N separate Modal scans with scanners by `item_type`, and dashboard
+  `org/repo` card signatures. Spec:
+  [slice 62](./plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) ·
+  [plan/TRAIL.md](./plan/TRAIL.md) Wave 16-P. **Not IMPLEMENTED** — a git URL is
+  still one `cloneable` target; `/tree/…` browse URLs fail at clone. See
+  [STATUS.md](./STATUS.md).
 
 ---
 
