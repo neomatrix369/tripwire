@@ -222,13 +222,15 @@ clock before Modal's 300s kill — operators reconcile stranded `running` rows w
   [design/llm-usage-tracking.md](./design/llm-usage-tracking.md) ·
   [plan/TRAIL.md](./plan/TRAIL.md) Wave 13-M. **Not IMPLEMENTED** — router still
   discards provider `usage`; no Usage tab. See [STATUS.md](./STATUS.md).
-- **Wave P (Git repo discover + fan-out, DECIDED plan-only):** slice 62 intends
-  GitHub browse-URL normalize, host discover of skills **and** MCPs inside a
-  repo, N separate Modal scans with scanners by `item_type`, and dashboard
-  `org/repo` card signatures. Spec:
+- **Wave P (Git repo discover + fan-out, slice 62 IN PROGRESS):** GitHub
+  browse URLs (`/tree/…`, `/blob/…`) normalize to cloneable repo root; host
+  discover of skills **and** MCPs fans out to N separate Modal scans (scanners
+  by `item_type`); dashboard `org/repo` signatures (`identifier`
+  `org/repo/<relpath>`); repos with no skill or MCP artifacts fail closed. Spec:
   [slice 62](./plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) ·
-  [plan/TRAIL.md](./plan/TRAIL.md) Wave 16-P. **Not IMPLEMENTED** — a git URL is
-  still one `cloneable` target; `/tree/…` browse URLs fail at clone. See
+  [plan/TRAIL.md](./plan/TRAIL.md) Wave 16-P. **Not on `main` until slice 62
+  merges** — until then a git URL is one `cloneable` target; browse URLs fail at
+  clone. Operator taxonomy: [prerequisites — What can Tripwire scan?](./user-guide/prerequisites.md#what-can-tripwire-scan). See
   [STATUS.md](./STATUS.md).
 
 ---

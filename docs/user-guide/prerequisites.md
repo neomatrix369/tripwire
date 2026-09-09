@@ -48,6 +48,19 @@ python3 -V   # 3.12.x (.python-version)
 - Use the [setup command catalog](./setup-commands.md) for concrete command runs.
 - Use [QUICKSTART.md](../../QUICKSTART.md) for validation and scan workflows.
 
+## What can Tripwire scan?
+
+Explicit path or URL arguments (see [ADR-0012](../adr/0012-sandbox-target-acquisition.md) for sandbox dispatch):
+
+| Input type | Example | Notes |
+|---|---|---|
+| Skill directory | `./fixtures/skills/safe-csv-cleaner` | Contains `SKILL.md` |
+| MCP server entrypoint | `./path/to/mcp-server/index.js` | Inspected for structure |
+| Git URL | `https://github.com/owner/repo` or `https://github.com/owner/repo/tree/<ref>/<path>` or `…/blob/<ref>/<path>` | **Wave P (slice 62, in progress):** GitHub browse URLs (`/tree/…`, `/blob/…`) normalize to the cloneable repo root before clone; the repo fans out to **N** skill and MCP scan targets (`identifier` `org/repo/<relpath>`; cards show `org/repo`). Repos with no skill or MCP artifacts fail closed — no synthetic single clean scan. Spec: [slice 62](../plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md). On `main` until merge: one opaque `cloneable` target; browse URLs may fail at `git clone`. |
+| Local copy path | `/abs/path/to/dir` | Tar-uploaded to sandbox |
+
+Use `tripwire scan --dry-discover <target>` to list expanded targets before a Live run.
+
 ## Capability-specific notes
 
 | Capability | Requires |

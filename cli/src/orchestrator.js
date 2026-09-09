@@ -21,11 +21,20 @@ function normalizeIdentifier(targetPath) {
   return String(targetPath || '').replace(/^\.\//, '').replace(/\/+$/, '');
 }
 
+async function contentHashFor(target, identifier) {
+  if (target.avail === 'source_on_disk') return hashLocalPath(target.target);
+  return 'pending:' + identifier;
+}
+
+function itemNameFor(target, identifier) {
+  if (target.name) return target.name;
+  return identifier.split('/').pop() || identifier;
+}
+
 async function upsertItem(supabase, target) {
-  const identifier = normalizeIdentifier(target.target);
-  const contentHash = target.avail === 'source_on_disk'
-    ? await hashLocalPath(target.target)
-    : 'pending:' + identifier;
+  const identifier = target.identifier || normalizeIdentifier(target.target);
+  const name = itemNameFor(target, identifier);
+  const contentHash = await contentHashFor(target, identifier);
   const { data: byHash } = await supabase.from('items').select('*').eq('content_hash', contentHash).maybeSingle();
   if (byHash) return { item: byHash, cached: true };
 
@@ -50,7 +59,7 @@ async function upsertItem(supabase, target) {
   }
 
   const { data: inserted, error } = await supabase.from('items').insert({
-    type: target.type, name: identifier.split('/').pop() || identifier,
+    type: target.type, name,
     identifier, content_hash: contentHash,
     install_locus: target.locus || 'unknown', source_availability: target.avail || 'unknown'
   }).select().single();

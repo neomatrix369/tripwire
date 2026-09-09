@@ -40,6 +40,7 @@ import {
   matchesQualityTab,
   filterItemsByQualityTab,
   countSkillsByQualityTab,
+  repoSignatureFromIdentifier,
 } from '../tripwire-status.js';
 
 const HTML_PATH = join(dirname(fileURLToPath(import.meta.url)), '..', 'Tripwire.dc.html');
@@ -757,4 +758,21 @@ test('given dashboard html when inspecting security expand then quality findings
   assert.match(html, /securityQualityLink/);
   assert.match(html, /Linked Quality Review/);
   assert.match(html, /linkedQualityFindings/);
+});
+
+// ── GWT-62.5 — org/repo card signature ─────────────────────────────────────
+
+test('GWT-62.5: repoSignatureFromIdentifier extracts org/repo prefix', () => {
+  assert.equal(repoSignatureFromIdentifier('org/repo/skills/foo'), 'org/repo');
+  assert.equal(repoSignatureFromIdentifier('pbakaus/impeccable/skill'), 'pbakaus/impeccable');
+  assert.equal(repoSignatureFromIdentifier('https://github.com/org/repo'), '');
+  assert.equal(repoSignatureFromIdentifier('bare-name'), '');
+  assert.equal(repoSignatureFromIdentifier(null), '');
+});
+
+test('GWT-62.5: dashboard cards bind repoSignature for grid and list', () => {
+  const html = readFileSync(HTML_PATH, 'utf8');
+  assert.match(html, /repoSignatureFromIdentifier/);
+  assert.match(html, /item\.repoSignature/);
+  assert.match(html, /row\.repoSignature/);
 });
