@@ -112,8 +112,9 @@ Docs-only.
 
 > **Soft-amend (2026-09-09):** CONTRIBUTING documents T4 split A/B/C with UTC
 > times (Nightly daily **02:00**; Supply chain weekly **Mon 03:00**; Mutation
-> **1st+15th 04:00**). Regression ownership of T4 honesty remains **slice 7**
-> Gate A. See DECISIONS 2026-09-09 A/B/C row. Does not reopen slice 14.
+> **1st+15th 04:00**). Soft-amend **2026-09-11:** ultra-minimal PR CI +
+> comprehensive Nightly **A** (see ADR-0013 / DECISIONS). Regression ownership of
+> T4 honesty remains **slice 7** Gate A. Does not reopen slice 14.
 
 ## Session Metrics
 | Metric | Value |

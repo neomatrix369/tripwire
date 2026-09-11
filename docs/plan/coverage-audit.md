@@ -1,13 +1,15 @@
 # Coverage audit matrix (slice 7)
 
-> Last updated: 2026-09-09 · Horizon A · Ship-path target ~95% (DECIDED);
+> Last updated: 2026-09-11 · Horizon A · Ship-path target ~95% (DECIDED);
 > CLI enforced floors temporarily 60/60/80/60 while overall CLI coverage climbs
 > back toward ADR-0013 after the router land (`cli/test/router.test.js` exists)
 > Context: private references SoT + public STATUS/ARCHITECTURE
 >
-> Soft-amend 2026-09-09: Nightly T4 split — **A** Light T4 daily **02:00 UTC**
+> Soft-amend 2026-09-09: Nightly T4 split — **A** daily **02:00 UTC**
 > (`nightly.yml`); **B** supply-chain weekly **Mon 03:00 UTC**; **C** mutation
-> **1st+15th 04:00 UTC**. See DECISIONS / ADR-0013 / CONTRIBUTING matrix.
+> **1st+15th 04:00 UTC**. Soft-amend 2026-09-11: **A** expanded (Semgrep · CodeQL ·
+> full scans · dashboard tests); PR CI ultra-minimal (ship-path coverage + OSV +
+> targeted scans; no Mon 03:00 CI T3 re-run). See DECISIONS / ADR-0013 / CONTRIBUTING.
 
 ## Altitude / targets
 

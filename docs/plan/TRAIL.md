@@ -121,7 +121,8 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 
 > Soft-amend 2026-09-09 (slice 7): T4 split **A** daily 02:00 / **B** weekly Mon
 > 03:00 / **C** mutation 1st+15th 04:00 (`nightly.yml` + `supply-chain.yml` +
-> `mutation.yml`). Status stays ✅ — not reopened.
+> `mutation.yml`). Soft-amend 2026-09-11: ultra-minimal PR CI + comprehensive **A**.
+> Status stays ✅ — not reopened.
 
 ### D — Task-based onboarding + documentation UX
 

@@ -34,17 +34,21 @@ Govern **ship path only**, with three gate altitudes.
 - Commit: ruff, mypy, bandit, xenon, vulture, pylint dupes, gitleaks, fast tests,
   ESLint when CLI/dashboard JS staged.
 - Push: full pytest + coverage when Python changes; CLI coverage when CLI
-  changes; T3 gitleaks **warn-only**; full SAST/SCA is CI.
-- CI: Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog, coverage jobs.
-- T4 cloud (split 2026-09-09, USER-CONFIRMED) — three workflows:
+  changes; T3 gitleaks **warn-only**; heavy SAST/SCA deferred to cloud cadences.
+- CI (ultra-minimal 2026-09-11, USER-CONFIRMED — parity with quine-factory):
+  lint · static · **ship-path coverage** · OSV · Trivy (targeted) · gitleaks
+  incremental · TruffleHog incremental. Semgrep / CodeQL / Meterian / dashboard
+  prototype tests / full-history secrets / full Trivy are **not** merge gates.
+- T4 cloud (split 2026-09-09; A expanded 2026-09-11) — three workflows:
 
   | WF | File | Cadence (UTC) | Cron | Jobs |
   |---|---|---|---|---|
-  | **A** | `nightly.yml` | daily 02:00 | `0 2 * * *` | cov snapshots · complexity · TruffleHog full · dep audit |
+  | **A** | `nightly.yml` | daily 02:00 | `0 2 * * *` | Semgrep · CodeQL · gitleaks/Trivy full · dashboard tests · cov snapshots · complexity · TruffleHog full · dep audit |
   | **B** | `supply-chain.yml` | weekly Mon 03:00 | `0 3 * * 1` | SBOM · Meterian strict · Chalk (warn-only) |
   | **C** | `mutation.yml` | 1st+15th 04:00 | `0 4 1,15 * *` | mutmut + Stryker; **non-gating** (green ≠ high mutation score) |
 
-  CI (`ci.yml`) also uses Mon 03:00 for a T3 re-run on `main` — not part of B.
+  Code Review Graph shares A's 02:00 cron (no per-PR run). Mon 03:00 CI T3
+  re-run removed — weekly **B** covers Meterian/SBOM; PR/push cover essentials.
 - Live Modal/Supabase E2E as CI Must = **Won't** (skip-without-config).
 
 ## Consequences
@@ -54,9 +58,9 @@ Govern **ship path only**, with three gate altitudes.
 - Branch floors are lower than line floors where residual defensive branches
   remain (orchestrator, CDN import).
 - Green Mutation workflow does not mean a high mutation score.
-- Stryker (~45 min) runs only twice monthly; Light T4 stays cheap nightly;
-  supply-chain tools weekly. Ship-path regressions remain on CI + local
-  quality-gates.
+- Stryker (~45 min) runs only twice monthly; deep SAST (Semgrep/CodeQL) and
+  full-history scans run nightly; supply-chain tools weekly. Ship-path
+  coverage + OSV remain on CI + local quality-gates.
 
 ## Alternatives considered
 

@@ -101,12 +101,16 @@ Docs-only.
 ## Gate Status
 ✅ PASSED — Gate A+B on `main` (PRs #26/#27). After-Checks re-verified 2026-08-02; evidence `verdict: PASS`.
 
-> **Soft-amend (2026-09-09):** T4 cloud split (**USER-CONFIRMED**): **A** Nightly /
-> Light T4 **daily 02:00 UTC** (`nightly.yml` — cov snapshots, complexity,
-> TruffleHog full, dep audit); **B** `supply-chain.yml` **weekly Mon 03:00 UTC**
+> **Soft-amend (2026-09-09):** T4 cloud split (**USER-CONFIRMED**): **A** Nightly
+> **daily 02:00 UTC** (`nightly.yml`); **B** `supply-chain.yml` **weekly Mon 03:00 UTC**
 > (SBOM · Meterian strict · Chalk); **C** `mutation.yml` **1st+15th 04:00 UTC**
 > (Stryker + advisory mutmut, non-gating). Supersedes same-day “all jobs twice
 > monthly” soft-amend. Does not reopen Gate A/B.
+>
+> **Soft-amend (2026-09-11):** Ultra-minimal PR CI — **A** now carries Semgrep ·
+> CodeQL · full secrets/Trivy · dashboard tests (plus prior Light jobs); Meterian
+> only on **B**; Mon 03:00 CI T3 re-run removed; Code Review Graph on A's cron.
+> Does not reopen Gate A/B.
 
 ## Session Metrics
 | Metric | Value |

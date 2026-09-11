@@ -1,16 +1,21 @@
 name: Nightly
 
 # =============================================================================
-# A — Nightly / Light T4
+# A — Nightly / Comprehensive T4 (daily 02:00 UTC)
 # =============================================================================
 # Cadence:   daily 02:00 UTC  |  cron: "0 2 * * *"  |  + workflow_dispatch
-# Jobs:      pytest/CLI coverage snapshots · complexity · TruffleHog full ·
-#            lockfile dep audit
-# Purpose:   cheap deep checks that overlap little with PR CI (T1–T3).
+# Deferred from PR CI (ultra-minimal cut 2026-09-11, parity with quine-factory):
+#   - Semgrep SAST (patterns / OWASP)
+#   - CodeQL deep SAST
+#   - Gitleaks full history
+#   - Trivy full filesystem
+#   - Prototype dashboard tests
+# Still includes Light T4: cov snapshots · complexity · TruffleHog full · dep audit
 #
 # Sibling T4 cadences (do not fold into this workflow):
 #   B — supply-chain.yml  weekly Mon 03:00 UTC  |  SBOM · Meterian strict · Chalk
 #   C — mutation.yml      1st+15th 04:00 UTC    |  Stryker · advisory mutmut
+#   D — code-review-graph.yml — same 02:00 UTC cron — graph review (comment dormant)
 # Canonical docs: CONTRIBUTING.md § quality gates · docs/README.md § CI workflows
 #                 · ADR-0013
 #
@@ -19,7 +24,7 @@ name: Nightly
 
 on:
   schedule:
-    - cron: "0 2 * * *" # A: daily 02:00 UTC — Light T4
+    - cron: "0 2 * * *" # A: daily 02:00 UTC — comprehensive T4
   workflow_dispatch:
 
 jobs:
@@ -108,6 +113,102 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
 
+  nightly-dashboard-tests:
+    name: Prototype dashboard tests (nightly)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: ".nvmrc"
+          cache: npm
+          cache-dependency-path: prototypes/dc-dashboard/package-lock.json
+      - run: npm ci
+        working-directory: prototypes/dc-dashboard
+      - run: npm run lint
+        working-directory: prototypes/dc-dashboard
+      - run: npm test
+        working-directory: prototypes/dc-dashboard
+
+  nightly-sast-semgrep:
+    name: SAST — Semgrep (patterns + OWASP Top 10)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      # Deferred from ci.yml (ultra-minimal 2026-09-11)
+      - name: Semgrep SAST
+        run: |
+          docker run --rm \
+            -v "${PWD}:/src" \
+            -w /src \
+            semgrep/semgrep:1.110.0 \
+            semgrep scan \
+              --config=p/owasp-top-ten \
+              --config=p/python \
+              --config=p/javascript \
+              --config=p/secrets \
+              --error \
+              --metrics=off \
+              --exclude=node_modules \
+              --exclude=fixtures \
+              --exclude=prototypes \
+              --exclude=internal-docs \
+              --exclude=.reports \
+              --exclude=.github \
+              sandbox guard cli scripts
+
+  nightly-sast-codeql:
+    name: CodeQL (deep SAST — full-branch coverage)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    strategy:
+      matrix:
+        language: [python, javascript]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+      - uses: github/codeql-action/autobuild@v4
+      - uses: github/codeql-action/analyze@v4
+
+  nightly-secrets-gitleaks-full:
+    name: Secrets scan (gitleaks — full history)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+
+  nightly-trivy-full:
+    name: Trivy (filesystem — full scan)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Trivy filesystem scan (full)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+          format: table
+          skip-files: .env,.env.local
+
   nightly-complexity:
     name: Complexity report (nightly snapshot)
     runs-on: ubuntu-latest
@@ -141,11 +242,12 @@ jobs:
   trufflehog-full:
     name: TruffleHog (full git history)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: trufflesecurity/trufflehog@v3.97.1
+      - uses: trufflesecurity/trufflehog@v3.97.4
         with:
           path: ./
           base: ""

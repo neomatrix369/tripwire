@@ -63,14 +63,14 @@ Start here: [QUICKSTART](../QUICKSTART.md) · Repo entry: [README](../README.md)
 
 | Workflow | Cadence | Jobs / role |
 |---|---|---|
-| [CI](../.github/workflows/ci.yml) | PR + push(`main`) + **Mon 03:00 UTC** T3 re-run + dispatch | Serious T1–T3 (Semgrep, OSV, Meterian, CodeQL, Trivy, TruffleHog, coverage, …) |
-| [Nightly](../.github/workflows/nightly.yml) | **A** daily **02:00 UTC** (`0 2 * * *`) + dispatch | pytest/CLI cov snapshots · complexity · TruffleHog full · dep audit |
+| [CI](../.github/workflows/ci.yml) | PR + push(`main`) + dispatch | Ultra-minimal: lint · static · ship-path coverage · OSV · Trivy (targeted) · gitleaks/TruffleHog incremental |
+| [Nightly](../.github/workflows/nightly.yml) | **A** daily **02:00 UTC** (`0 2 * * *`) + dispatch | Semgrep · CodeQL · full secrets/Trivy · dashboard tests · cov snapshots · complexity · dep audit |
 | [Supply chain](../.github/workflows/supply-chain.yml) | **B** weekly **Mon 03:00 UTC** (`0 3 * * 1`) + dispatch | SBOM · Meterian strict · Chalk (warn-only) |
 | [Mutation](../.github/workflows/mutation.yml) | **C** **1st+15th 04:00 UTC** (`0 4 1,15 * *`) + dispatch | Stryker · advisory mutmut (**non-gating**) |
 | [Complexity](../.github/workflows/complexity-report.yml) | PR (path-filtered) | Xenon/complexity evidence on changed `sandbox/` / `cli/` paths |
-| [Code Review Graph](../.github/workflows/code-review-graph.yml) | PR | Knowledge-graph analysis (unprivileged; fork-safe) |
-| [Code Review Graph Comment](../.github/workflows/code-review-graph-comment.yml) | `workflow_run` | Trusted sticky PR comment from the analysis artifact |
+| [Code Review Graph](../.github/workflows/code-review-graph.yml) | **A** daily **02:00 UTC** + dispatch | Knowledge-graph analysis (nightly; PR sticky comments dormant) |
+| [Code Review Graph Comment](../.github/workflows/code-review-graph-comment.yml) | `workflow_run` | Dormant while CRG has no `pull_request` trigger |
 
-T4 A/B/C are separate workflows (split 2026-09-09). CI’s Mon 03:00 cron is a
-T3 re-run on `main`, not Supply chain **B** — same clock, different jobs.
-Details: [CONTRIBUTING](../CONTRIBUTING.md) · [ADR-0013](./adr/0013-ship-path-quality-gates.md).
+T4 A/B/C are separate workflows (split 2026-09-09; A expanded 2026-09-11).
+Meterian runs only on **B** (not PR CI). Details: [CONTRIBUTING](../CONTRIBUTING.md)
+· [ADR-0013](./adr/0013-ship-path-quality-gates.md).
