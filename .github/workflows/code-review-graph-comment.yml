@@ -1,7 +1,11 @@
 # Posts the report produced by the unprivileged Code Review Graph workflow.
 # Runs from the default branch, never checks out PR code, and treats every
-# downloaded artifact byte as untrusted input. This is what lets fork PRs
-# receive a sticky comment: workflow_run has a writable GITHUB_TOKEN.
+# downloaded artifact byte as untrusted input.
+#
+# Currently dormant: Code Review Graph runs on schedule/workflow_dispatch only
+# (no pull_request), so this job's `if:` never matches. Kept so PR sticky
+# comments can be restored by re-adding pull_request + artifact upload to
+# code-review-graph.yml.
 # Adapted from tirth8205/code-review-graph@v2.3.7 pr-review-comment.yml.
 name: Code Review Graph Comment
 

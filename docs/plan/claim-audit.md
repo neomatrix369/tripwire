@@ -1,6 +1,6 @@
 # Horizon A Claim Audit (Slice 15)
 
-_Last updated: 2026-09-09_
+_Last updated: 2026-09-11_
 
 Purpose: provide the required PASS/FAIL/PARTIAL matrix for public claims used by
 Horizon A (`README.md`, `STATUS.md`, `ARCHITECTURE.md`, `QUICKSTART.md`,
@@ -8,7 +8,9 @@ Horizon A (`README.md`, `STATUS.md`, `ARCHITECTURE.md`, `QUICKSTART.md`,
 
 Soft-amend 2026-09-09: T4 split **A** Nightly daily **02:00 UTC** /
 **B** supply-chain weekly **Mon 03:00 UTC** / **C** mutation **1st+15th 04:00 UTC**.
-Mutation/Chalk remain non-gating where applicable (slice 7 / DECISIONS).
+Soft-amend 2026-09-11: PR CI ultra-minimal; **A** comprehensive (Semgrep/CodeQL/full
+scans); Meterian on **B** only. Mutation/Chalk remain non-gating where applicable
+(slice 7 / DECISIONS).
 
 ## Scope
 
@@ -27,7 +29,7 @@ It is a planning artifact for `docs/plan/slices/06-F-claim-audit/slice-15-horizo
 | Dashboard can render scan results in live mode | `README.md`, `prototypes/dc-dashboard/`, `STATUS.md`, `prototypes/README.md` | `prototypes/dc-dashboard/*`, `scripts/serve-dashboard.mjs` | PARTIAL | Docs and tests cover structure; no fresh live 3B proof yet. |
 | Dashboard supports fallback to mock mode | `README.md`, `QUICKSTART.md`, `prototypes/dc-dashboard/` | `prototypes/dc-dashboard/*`, `scripts/sync-dashboard-config.sh` | PASS | Marked in docs as Mock default selector; mock path can be validated without cloud credentials. |
 | Coverage thresholds are achieved for ship-path (python, cli, live ACL) | `coverage-audit.md`, `GATE_CONTRACT.md`, `docs/plan/gate-evidence/slice-11.json`, `slice-12.json`, `slice-13.json` | gate-evidence files + `coverage-audit.md` | PASS | Values already captured; gates are recorded and used by `TRAIL` + `PROGRESS`. |
-| Nightly mutation checks are non-gating | `CONTRIBUTING.md`, `coverage-audit.md` | `CONTRIBUTING.md` T4 cadence matrix; `coverage-audit.md` parity matrix | PASS | mutmut and Stryker remain informational (non-gating) on **C**; Chalk is warn-only on **B**. **2026-09-09:** T4 A daily 02:00 / B Mon 03:00 / C 1st+15th 04:00 (slice 7 soft-amend). |
+| Nightly mutation checks are non-gating | `CONTRIBUTING.md`, `coverage-audit.md` | `CONTRIBUTING.md` T4 cadence matrix; `coverage-audit.md` parity matrix | PASS | mutmut and Stryker remain informational (non-gating) on **C**; Chalk is warn-only on **B**. **2026-09-11:** PR CI ultra-minimal; **A** comprehensive daily 02:00 / **B** Mon 03:00 / **C** 1st+15th 04:00 (slice 7 soft-amend). |
 | Snyk/Tessl/scanner adapter output shape is verified against research | `STATUS.md` (RESEARCH), `docs/research/adapters/scanner-output-adapters.md`, `docs/plan/slices/05-E-ship-path-coverage/slice-11-python-ship-path-coverage-95.md` | `docs/research/adapters/*`, `sandbox/` | PARTIAL | Research remains unsynced; slice 11 includes tests, but this claim still depends on fixture/verification outcomes. |
 | Live dashboard poll cadence includes realtime + poll fallback | `STATUS.md`, `ARCHITECTURE.md` | `prototypes/dc-dashboard/*` | PARTIAL | Architecture/docs carry both modes, but public claims in README/STATUS have drift risk and need a single authoritative update. |
 | Guard/PreToolUse is not production shipped for Horizon A | `STATUS.md`, `ARCHITECTURE.md`, `coverage-audit.md` | `guard/`, `docs/STATUS.md`, `docs/ARCHITECTURE.md` | PASS | Repeatedly marked out-of-scope for Horizon A and handled as `Future`. |

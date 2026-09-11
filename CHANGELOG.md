@@ -88,6 +88,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `--force`, `--concurrency`, and explicit path arguments
 
 ### Changed
+- CI ultra-minimal (parity with quine-factory, **USER-CONFIRMED** 2026-09-11):
+  PR/push keep ship-path coverage + OSV + targeted Trivy/gitleaks/TruffleHog;
+  Semgrep, CodeQL, Meterian, dashboard prototype tests, and full-history scans
+  move to **A** `nightly.yml` (daily 02:00 UTC) or **B** `supply-chain.yml`
+  (weekly Mon 03:00). Removed Mon 03:00 CI T3 re-run cron. Code Review Graph
+  runs on the nightly schedule (PR sticky comments dormant). Docs: ADR-0013,
+  CONTRIBUTING, docs hub, README, STATUS, ARCHITECTURE, DECISIONS,
+  coverage/claim audits + TRAIL/slice soft-amends.
 - T4 cloud split into three workflows (**USER-CONFIRMED**): **A** `nightly.yml`
   Light T4 **daily 02:00 UTC** (cov snapshots, complexity, TruffleHog full, dep
   audit); **B** `supply-chain.yml` **weekly Mon 03:00 UTC** (SBOM, Meterian

@@ -10,7 +10,7 @@ name: Mutation
 # Gating:    NON-GATING — green ≠ high mutation score (ADR-0013; break: 0).
 #
 # Sibling T4 cadences:
-#   A — nightly.yml        daily 02:00 UTC     |  Light T4
+#   A — nightly.yml        daily 02:00 UTC     |  Comprehensive T4 (deferred PR heavies)
 #   B — supply-chain.yml   weekly Mon 03:00 UTC |  SBOM · Meterian · Chalk
 # Canonical docs: CONTRIBUTING.md · docs/README.md § CI workflows · ADR-0013
 
