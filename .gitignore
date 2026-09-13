@@ -64,3 +64,5 @@ tmp/
 cli/.stryker-tmp/
 cli/reports/
 prototypes/model-studio/out
+
+python_modules/
