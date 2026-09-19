@@ -254,9 +254,12 @@ anon-read / service-role-write (0008), fail-closed evidence (0009), content-hash
 idempotency (0010), schema bootstrap (0011), target acquisition (0012),
 ship-path quality gates (0013), curated discovery (0014), Horizon A
 excluding Guard/Drift (0015), and tiered SIE/Model Studio router (0016). Slice
-waivers stay in [plan/DECISIONS.md](./plan/DECISIONS.md). ADR number 0001 is
-reserved for a Proposed Monk Live packaging / deployment draft that is **not**
-on `main` yet (side-branch only); it is omitted from the catalog until accepted.
+waivers stay in [plan/DECISIONS.md](./plan/DECISIONS.md). [ADR-0001](./adr/0001-monk-deployment-and-packaging.md)
+(**Proposed**) records the intended Monk Kit Live packaging path — **not
+IMPLEMENTED** and **not VERIFIED**. The supported Live path remains the
+operator workstation flow (local `.env`, CLI, QUICKSTART). Implementation
+slices are Wave **15-O** (**O0** + 58–61) under
+[plan/TRAIL.md](./plan/TRAIL.md) — plan-only until explicitly executed.
 
 **Wave J delta — dashboard metric surfacing (2026-08-20):** A9–A13
 **IMPLEMENTED** on `main` via [PR #98](https://github.com/neomatrix369/tripwire/pull/98)
@@ -311,6 +314,14 @@ L (Tessl rows), or G (ATDD parked). Spec:
 [slice 53](./plan/slices/13-M-llm-usage-tracking/slice-53-llm-usage-tracking.md).
 Dedicated usage table — does **not** resurrect deferred `tripwire.audit`.
 
+**Wave O — Monk Kit Live packaging (2026-09-09):** Group **15-O**. Package Tripwire
+as a Monk Kit (Tier 1 MVL = Supabase + Modal; Tier 2/3 scanners per ADR-0001).
+**DECIDED** as plan-only (**O0** governance + slices 58–61) on branch
+`docs/monk-kit-wave-o`; ADR-0001 remains **Proposed** until O0 Accept HITL.
+**Not IMPLEMENTED** — no Kit on `main`; workstation Live path unchanged. Spec:
+[ADR-0001](./adr/0001-monk-deployment-and-packaging.md),
+[phase-O0](./plan/slices/15-O-monk-kit-live-packaging/phase-O0-governance.md),
+[TRAIL Wave 15-O](./plan/TRAIL.md).
 **Wave P — Git repo discover + fan-out (2026-09-09):** Group **16-P** (letter after N;
 **O** reserved for Monk Kit plan on `docs/monk-kit-wave-o`). GitHub repo URL (root or
 `/tree|/blob/…` browse URL) → normalize to cloneable repo root → discover **skills and
@@ -387,12 +398,15 @@ Wave H Must gate closures (23–27, 29–32) remain open.
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 (slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` …
+`15-O-monk-kit-live-packaging/`). Wave G (slices 18–22) is planned ATDD closure
 `16-P-git-repo-scan/`). Wave G (slices 18–22) is planned ATDD closure
 (parked while Wave H Musts run). Wave H (23–39) trackers: Phase 1 code on
 `main`; formal ✅ closures still mostly open (slice 28 🔀). Claim
 audit (slice 15) and slice 16 remediations are deferred; retain their artifacts
 for a future live/demo release. Wave M (slice 53) LLM usage log / cost tips is
 **DECIDED** plan-only — see DECIDED above; not current dashboard behaviour.
+Wave O (Monk Kit, ADR-0001 Proposed / plan **O0**+58–61) is **DECIDED**
+plan-only — not current deploy behaviour; workstation Live remains supported.
 Wave P (slice 62) git repo skill+MCP fan-out, browse-URL normalize, empty-repo
 fail-closed, and `org/repo` cards is **IN PROGRESS** — see DECIDED above; not
 current `tripwire scan` behaviour on `main`.

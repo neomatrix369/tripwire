@@ -56,6 +56,7 @@ Start here: [QUICKSTART](../QUICKSTART.md) · Repo entry: [README](../README.md)
 | Review CI and Nightly workflows | [CI workflows](#ci-workflows) |
 | Inspect project planning | [plan README](./plan/README.md) · [progress](./plan/PROGRESS.md) |
 | LLM usage metering (DECIDED plan — not shipped) | [design/llm-usage-tracking.md](./design/llm-usage-tracking.md) · Wave M in [STATUS](./STATUS.md) |
+| Monk Kit Live packaging (ADR Proposed; Wave O plan-only) | [ADR-0001](./adr/0001-monk-deployment-and-packaging.md) · [TRAIL Wave 15-O](./plan/TRAIL.md) · [STATUS](./STATUS.md) |
 | Git repo skill+MCP fan-out (IMPLEMENTED on branch — not on `main`) | [slice 62](./plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) · Wave P in [STATUS](./STATUS.md) · [prerequisites](./user-guide/prerequisites.md#what-can-tripwire-scan) |
 | Check scanner adapter research | [scanner output adapters](./research/adapters/scanner-output-adapters.md) |
 

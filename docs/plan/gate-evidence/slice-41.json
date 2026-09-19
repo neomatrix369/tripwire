@@ -1,0 +1,6 @@
+{
+  "slice": 41,
+  "gate_status": "PENDING_VERIFICATION",
+  "inferred": true,
+  "note": "Backfilled by plan-health-check — NOT evidence of PASS. Executor must rewrite full schema before ON BRANCH→PASSED."
+}
