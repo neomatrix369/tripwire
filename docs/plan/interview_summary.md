@@ -120,4 +120,4 @@
 - 65 coverage ledger → 66 evidence/injection → 67 SIE panel → 68 stepper → 69 fix → (Should) 70 verify → 71 expert/export → (Could) 72 gap scanners.
 
 ## Improvements backlog (Wave R)
-- **R-UX-1 (USER 2026-09-20):** → **Slice 75** 📋 Operator-Visible Pipeline (Should). Soft-amends 67/68. Workflow UI must narrate ≥3 parallel judges + final judge, coverage, evidence-verify, and honest panel-off/pending states.
+- **R-UX-1 (USER 2026-09-20):** → **Slice 75** 🔨 Operator-Visible Pipeline (Should) — unit-VERIFIED on branch; `/verify-slice` pending. Soft-amends 67/68. Workflow UI must narrate ≥3 parallel judges + final judge, coverage, evidence-verify, and honest panel-off/pending states.

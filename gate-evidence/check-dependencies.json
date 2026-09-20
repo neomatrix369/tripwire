@@ -1,28 +1,28 @@
 {
   "primitive": "check-dependencies",
-  "slice_id": "slice-70",
-  "invocation_id": "43CDE808-9790-4704-8B7A-764E2F6D2790",
+  "slice_id": "slice-75",
+  "invocation_id": "A167FB0F-C26A-48F7-8BDC-BC10805D3C49",
   "status": "passed",
-  "timestamp": "2026-09-20T16:43:43Z",
+  "timestamp": "2026-09-20T20:55:39Z",
   "evidence": {
     "checked": [
       {
-        "path": "prototypes/dc-dashboard/tripwire-apply-clean.js",
+        "path": "cli/src/judgePanel.js",
         "exists": true,
         "non_empty": true
       },
       {
-        "path": "prototypes/dc-dashboard/tripwire-fix-propose.js",
+        "path": "prototypes/dc-dashboard/tripwire-run-progress.js",
         "exists": true,
         "non_empty": true
       },
       {
-        "path": "prototypes/dc-dashboard/tripwire-fix-controls.js",
+        "path": "prototypes/dc-dashboard/tripwire-triage.js",
         "exists": true,
         "non_empty": true
       },
       {
-        "path": "prototypes/dc-dashboard/tripwire-workflow-stepper.js",
+        "path": "prototypes/dc-dashboard/tripwire-investigate.js",
         "exists": true,
         "non_empty": true
       },
@@ -32,20 +32,21 @@
         "non_empty": true
       },
       {
-        "path": "docs/plan/slices/18-R-approved-repo-workflow/slice-69-fix-propose-apply-clean.md",
+        "path": "docs/plan/slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md",
         "exists": true,
         "non_empty": true
       },
       {
-        "path": "docs/plan/slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md",
+        "path": "docs/plan/slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md",
+        "exists": true,
+        "non_empty": true
+      },
+      {
+        "path": "docs/plan/invariants.md",
         "exists": true,
         "non_empty": true
       }
     ],
-    "missing": [],
-    "notes": [
-      "Slice 69 merged to main via #154 (HEAD 165ef1f) \u2014 Fix propose + apply-clean available.",
-      "Verify step still stubbed in Tripwire.dc.html (workflowIsStub when step===verify)."
-    ]
+    "missing": []
   }
 }
