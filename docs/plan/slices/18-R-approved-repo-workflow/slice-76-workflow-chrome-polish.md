@@ -1,10 +1,10 @@
 # Slice 76: Workflow Chrome Polish (Filter Density + Typography Sync)
 
-> Scenario: Brownfield | MoSCoW: **Should** | Status: 🔀 ON BRANCH · VERIFIED · Gate 4 APPROVED
+> Scenario: Brownfield | MoSCoW: **Should** | Status: ✅ PASSED
 > Wave: R — Approved-repo security workflow
 > Depends on: **75** (operator-visible pipeline); benefits from **73** (triage filters) + **74** (model labels)
 > Trigger: USER HITL 2026-09-20 — authorize optional chrome polish deferred from slice 75 Non-goals / nw-UX-review FO
-> Branch: `slice/76-workflow-chrome-polish`
+> Branch: `slice/76-workflow-chrome-polish` (merged `main` #165)
 > UI surface: **1A** — Workflow tab panels only (Dashboard inventory chrome unchanged except shared token reuse)
 > Source: DECISIONS `nw-UX-review` optional slice 76; slice 75 Non-goals
 
@@ -126,4 +126,4 @@ As an operator, I want the Workflow tab filters and panel typography to feel com
 - [x] `/verify-slice` — COMPLETE
 
 ## Gate Status
-🔀 ON BRANCH — VERIFIED unit; Gate 4 APPROVED 2026-09-20; awaiting PR/merge for ✅ PASSED
+✅ PASSED — merged `main` via [#165](https://github.com/neomatrix369/tripwire/pull/165) (2026-09-20); GWT-76.* green; Gate 4 APPROVED (craft · AT · architect); ddd=NOT_APPLICABLE

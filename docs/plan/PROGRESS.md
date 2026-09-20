@@ -7,7 +7,7 @@
 |-----:|--------|-------|--------|---------|
 | 15 | [`15-O-…`](slices/15-O-monk-kit-live-packaging/) | **O — Monk Kit Live packaging** | **O0** → **58**→**59** Must · **60**–**61** Should | 📋 plan-only (ADR-0001 + PoC; branch `docs/monk-kit-wave-o`) |
 | 16 | [`16-P-…`](slices/16-P-git-repo-scan/) | **P — Git repo discover + fan-out** | **62**→**64** | ✅ landed main (#145/#146) |
-| 18 | [`18-R-…`](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** | **65**→**69** Must · **70**–**71**/**73**–**76** Should · **72** Could | **65–75** ✅ · **76** 📋 HITL-authorized |
+| 18 | [`18-R-…`](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** | **65**→**69** Must · **70**–**71**/**73**–**76** Should · **72** Could | **65–76** ✅ on `main` |
 | 12 | [`12-L-…`](slices/12-L-tessl-5-row-expansion/) | **L — Tessl 5-row expansion** | 45 ✅ · 46 ✅ · 47 ✅ · 48 ✅ · 49 ✅ · 50 ✅ · **51** 🔀 · 52 📋 | 45–50 ✅ · **51** 🔀 |
 | 13 | [`13-M-…`](slices/13-M-llm-usage-tracking/) | **M — LLM usage / cost observability** | **53** | 📋 plan-only (ADR-0016 follow-on; not J/L/G) |
 | 11 | [`11-K-…`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** | 🔀 |
@@ -257,9 +257,9 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 | 73 | [slice-73-triage-target-filters](slices/18-R-approved-repo-workflow/slice-73-triage-target-filters.md) | Should | ✅ PASSED / VERIFIED (merged-on-main; formal close 2026-09-20) | 2026-09-20 | 2026-09-20 | ~40 min |
 | 74 | [slice-74-workflow-model-labels](slices/18-R-approved-repo-workflow/slice-74-workflow-model-labels.md) | Should | ✅ PASSED (`docs/slice-74-formal-close`) · soft-amend VERIFIED | 2026-09-20 | 2026-09-20 | ~35 min |
 | 75 | [slice-75-operator-visible-pipeline](slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md) | Should | ✅ PASSED ON MAIN (#163) · Gate 4 APPROVED | 2026-09-20 | 2026-09-20 | ~50 min [Walking Skeleton] |
-| 76 | [slice-76-workflow-chrome-polish](slices/18-R-approved-repo-workflow/slice-76-workflow-chrome-polish.md) | Should | 🔀 ON BRANCH · VERIFIED · Gate 4 APPROVED · `slice/76-workflow-chrome-polish` | 2026-09-20 | 2026-09-20 | ~35 min |
+| 76 | [slice-76-workflow-chrome-polish](slices/18-R-approved-repo-workflow/slice-76-workflow-chrome-polish.md) | Should | ✅ PASSED ON MAIN (#165) · Gate 4 APPROVED | 2026-09-20 | 2026-09-20 | ~35 min |
 
-**Group note:** Wave R = approved local repo+commit security workflow. UI **1A** extend dashboard. Reuse Wave P + ADR-0016. Cargo honesty VERIFIED on `fix/cargo-package-scan-error-status` → absorb ledger into **65**; Rust/Cargo via RustSec **Cargo Audit** (**IMPLEMENTED** on `main`) — slice **72** formalizes that gap path. Slices **73–75** Workflow UI (triage filters, model labels, operator-visible pipeline) **IMPLEMENTED / unit-VERIFIED** on `main` — **75** via #163. Slice **76** chrome polish HITL-authorized 2026-09-20. **Nav (2026-09-20):** inventory is the default **Dashboard** primary tab; Run→Report phases live on secondary **Workflow** (merged).
+**Group note:** Wave R = approved local repo+commit security workflow. UI **1A** extend dashboard. Reuse Wave P + ADR-0016. Cargo honesty VERIFIED on `fix/cargo-package-scan-error-status` → absorb ledger into **65**; Rust/Cargo via RustSec **Cargo Audit** (**IMPLEMENTED** on `main`) — slice **72** formalizes that gap path. Slices **73–76** Workflow UI (triage filters, model labels, operator-visible pipeline, chrome polish) **IMPLEMENTED / unit-VERIFIED** on `main` — **75** via #163 · **76** via #165. **Nav (2026-09-20):** inventory is the default **Dashboard** primary tab; Run→Report phases live on secondary **Workflow** (merged).
 
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 
@@ -274,7 +274,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 ## Forward Roadmap
 - Wave **O** (**O0** + slices 58–61) Monk Kit Live packaging is **📋 plan-only** — ADR-0001 + PoC; O0 governance first for Accept/open Qs; product execute via `slice/58-land-poc-monk-kit` (prototyping OK while O0 open).
 - Wave **P** (slices **62–64**) git repo scan: ✅ landed `main` (#145/#146). Cargo SCA unsupported honesty follow-up: `fix/cargo-package-scan-error-status` → Wave **R** slice 65.
-- Wave **R** (slices **65–76**) approved-repo security workflow: **65–75** ✅ on `main` (#148–#163 family) · **76** 📋 HITL-authorized chrome polish. UI 1A + Dashboard/Workflow tabs.
+- Wave **R** (slices **65–76**) approved-repo security workflow: **65–76** ✅ on `main` (#148–#165 family; **76** = #165). UI 1A + Dashboard/Workflow tabs.
 - Wave **M** (slice 53) LLM usage / cost observability is **📋 plan-only** — ADR-0016 follow-on; execute when explicitly started (`slice/53-llm-usage-tracking`).
 - Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Slice 15 is retained as a deferred claim-audit artifact, not active work.
 - **Wave H (Frontline):** plan-only stubs 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. Execute Musts 23→32 with human tests after H1/H2 and HARD GATE at 32 before Should work.

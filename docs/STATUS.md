@@ -119,11 +119,12 @@ Reachable through production entry points / config:
   `tripwire-workflow-models.js` (+ Run/Triage/Investigate/Fix HTML wiring);
   GWT-75.1–75.11 unit green; Gate 4 APPROVED on landing branch. Spec:
   [plan/slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md](./plan/slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md).
-- Wave R **Workflow chrome polish** (slice 76): IMPLEMENTED / unit-VERIFIED on
-  branch `slice/76-workflow-chrome-polish` — shared `tw-panel-*` typography
-  (kicker / title / meta / body) across Run→Report; compact Triage
-  `tw-filter-toolbar` rows with Type/Quality/Target/Status labels; plain-language
-  override buttons. Filter semantics unchanged. Spec:
+- Wave R **Workflow chrome polish** (slice 76): ✅ PASSED on `main`
+  ([#165](https://github.com/neomatrix369/tripwire/pull/165)) — IMPLEMENTED /
+  unit-VERIFIED. Shared `tw-panel-*` typography (kicker / title / meta / body)
+  across Run→Report; compact Triage `tw-filter-toolbar` rows with
+  Type/Quality/Target/Status labels; plain-language override buttons. Filter
+  semantics unchanged. Spec:
   [plan/slices/18-R-approved-repo-workflow/slice-76-workflow-chrome-polish.md](./plan/slices/18-R-approved-repo-workflow/slice-76-workflow-chrome-polish.md).
 - CLI **`tripwire judge --batch-id`** + SIE judge panel module (slice 67, Wave R):
   `cli/src/judgePanel.js` (panel + final judge; open-weight SIE generate models).
@@ -371,11 +372,11 @@ landed/verified on `main` (Must **65–69**, Should **70–71**, Could **72**).
 Slice **67** SIE judge panel CLI + module on `main` (#151): model inventory
 `gen-4b` / `gen-27b`; fewer than 3 models → parallel same-model executions;
 opt-in `TRIPWIRE_JUDGE_PANEL=1` (default off). Panel is **additive** to
-[ADR-0016](./adr/0016-tiered-router-sie-model-studio.md). Should **73–75**
-Workflow UI (triage filters, model labels, operator-visible pipeline / R-UX-1)
-**IMPLEMENTED / VERIFIED** (unit) on `main` — **75** via
-[#163](https://github.com/neomatrix369/tripwire/pull/163). Optional slice **76**
-chrome polish = HITL. See [plan/DECISIONS.md](./plan/DECISIONS.md).
+[ADR-0016](./adr/0016-tiered-router-sie-model-studio.md). Should **73–76** Workflow UI (triage filters, model labels, operator-visible
+pipeline / R-UX-1, chrome polish) **IMPLEMENTED / VERIFIED** (unit) on `main` —
+**75** via [#163](https://github.com/neomatrix369/tripwire/pull/163); **76** via
+[#165](https://github.com/neomatrix369/tripwire/pull/165). See
+[plan/DECISIONS.md](./plan/DECISIONS.md).
 
 **Wave J delta — dashboard metric surfacing (2026-08-20):** A9–A13
 **IMPLEMENTED** on `main` via [PR #98](https://github.com/neomatrix369/tripwire/pull/98)
