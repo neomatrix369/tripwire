@@ -19,11 +19,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Snyk preflight: `sandbox/scanners.py`. VERIFIED on Live Packages (pizauth / snare).
 
 ### Added
+- Dashboard Expert view + Report export (slice 71, Wave R): Expert toggle shows
+  raw judge answers, model IDs, confidence, weakness/AI-sec IDs, scanner details,
+  and data-flow; Report step summarises fixed / left / won't fix with primary
+  JSON export (+ Markdown) including coverage ledger; secrets masked unless
+  explicitly revealed. Modules: `tripwire-report.js`, `tripwire-report-export.js`;
+  GWT-71.* tests — on branch `slice/71-expert-export-report`.
 - Dashboard workflow stepper Run→Triage→Investigate (slice 68, Wave R):
   prototype modules under `prototypes/dc-dashboard/` (`tripwire-workflow-*`,
-  run-progress, triage, investigate) with GWT-68.* tests — on branch
-  `slice/68-workflow-run-triage-investigate` (not yet merged).
-- SIE judge panel CLI + module (slice 67, Wave R, IN PROGRESS): `tripwire judge
+  run-progress, triage, investigate) with GWT-68.* tests — landed `main` (#152).
+- SIE judge panel CLI + module (slice 67, Wave R): `tripwire judge
   --batch-id <id>` → `runJudgePanel` (`cli/src/judgePanel.js`); mocked unit tests
   in `cli/test/judgePanel.test.js`. Model inventory documented (`gen-4b` /
   `gen-27b`; fewer than 3 models → parallel same-model runs). Optional soft-fail
