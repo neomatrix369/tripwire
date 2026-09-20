@@ -3,7 +3,7 @@
 **Wave**: 12-L
 **MoSCoW**: Must
 **Depends on**: 47
-**Status**: 🔨 IN PROGRESS · `slice/48-not-available-yet-ui`
+**Status**: ✅ PASSED · [#110](https://github.com/neomatrix369/tripwire/pull/110) · formal close 2026-09-21
 **Read time**: ~3 min
 
 ## Context
@@ -93,7 +93,7 @@ When real rows replace sentinels (slices 49–51), the dashboard may surface `te
 - [x] Doc audit: design § (d), STATUS, ARCHITECTURE, CHANGELOG, DECISIONS
 - [x] GWT-48.5 — Tessl pack/copy omits root `evals/`; nested non-root paths kept
 - [x] GWT-48.6 — non-Tessl pack keeps `evals/`
-- [ ] `/nw-review` packing addendum (iteration 2) — UI review remains APPROVED; packing landed after
+- [x] `/nw-review` packing addendum (iteration 2) — APPROVED 2026-09-21 (nw-software-crafter-reviewer); acceptance formal-close APPROVED (nw-acceptance-designer-reviewer)
 
 ## Gate evidence fields
 
@@ -177,3 +177,17 @@ None.
 ### Recommended Action
 
 ✅ **APPROVED** — Ready for PR merge. All quality gates pass. No defects found.
+
+---
+
+## 🔍 Review — packing addendum (nw-software-crafter-reviewer)
+
+**Verdict**: **APPROVED** (Iteration 2 / Gate 4, 2026-09-21)
+
+Packing omit for Tessl root `evals/` (`_pack_local_dir` / `_copy_local`) meets GWT-48.5/48.6. Nested `evals/` kept; non-Tessl trees unchanged. Three acquire-target tests cover pack + copy + keep. Zero blockers.
+
+## 🔍 Review — formal close acceptance (nw-acceptance-designer-reviewer)
+
+**Verdict**: **APPROVED** (2026-09-21)
+
+All six GWT scenarios remain test-traceable on `main` (#110). Formal close of trackers + packing addendum Gate 4 complete.

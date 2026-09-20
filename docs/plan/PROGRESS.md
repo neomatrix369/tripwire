@@ -1,5 +1,5 @@
 # Progress
-> Last updated: 2026-09-20
+> Last updated: 2026-09-21
 
 ## Slice groups (execution sequence)
 
@@ -80,7 +80,7 @@ Wave O slices **58–61** are reserved on [PR #135](https://github.com/neomatrix
 | — | L | 45 | DB Schema Migration (14-state enum + 4 columns) | Must | ✅ PASSED · [#103](https://github.com/neomatrix369/tripwire/pull/103) |
 | — | L | 46 | Tessl: Lint Adapter (Row 1) | Must | ✅ PASSED · [#105](https://github.com/neomatrix369/tripwire/pull/105) |
 | — | L | 47 | Tessl: Review (Quality) Split (Row 2) | Must | ✅ PASSED · [#109](https://github.com/neomatrix369/tripwire/pull/109) |
-| — | L | 48 | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | 🔨 IN PROGRESS · after-checks green · awaiting commit/PR · `slice/48-not-available-yet-ui` |
+| — | L | 48 | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | ✅ PASSED · [#110](https://github.com/neomatrix369/tripwire/pull/110) |
 | — | L | 49 | Tessl: Scenario Generation + Resume Checkpoint (Row 3) | Should | 📋 PLANNED |
 | — | L | 50 | Tessl: Eval + Auto-Chain (Row 4) | Should | ✅ PASSED · [#113](https://github.com/neomatrix369/tripwire/pull/113) |
 | — | L | 51 | Tessl: Review (Security) (Row 5) | Could | 🔀 ON BRANCH |
@@ -102,7 +102,7 @@ G 18–22 and L 51 already appear in **Execution order** above (parked and ON BR
 | L | 45 | DB Schema Migration (14-state enum + 4 columns) | Must | ✅ PASSED · [#103](https://github.com/neomatrix369/tripwire/pull/103) |
 | L | 46 | Tessl: Lint Adapter (Row 1) | Must | ✅ PASSED · [#105](https://github.com/neomatrix369/tripwire/pull/105) |
 | L | 47 | Tessl: Review (Quality) Split (Row 2) | Must | ✅ PASSED · [#109](https://github.com/neomatrix369/tripwire/pull/109) |
-| L | 48 | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | 🔨 IN PROGRESS · after-checks green · awaiting commit/PR · `slice/48-not-available-yet-ui` |
+| L | 48 | "Not Available Yet" Placeholder Rows (Rows 3–5) | Must | ✅ PASSED · [#110](https://github.com/neomatrix369/tripwire/pull/110) |
 | L | 49 | Tessl: Scenario Generation + Resume Checkpoint (Row 3) | Should | ✅ PASSED · [#112](https://github.com/neomatrix369/tripwire/pull/112) |
 | L | 50 | Tessl: Eval + Auto-Chain (Row 4) | Should | ✅ PASSED · [#113](https://github.com/neomatrix369/tripwire/pull/113) |
 | L | 52 | ID Lineage Cross-Reads + UI Side-by-Side | Could | 📋 PLANNED |
@@ -211,7 +211,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 | 45 | [slice-45-schema-migration](slices/12-L-tessl-5-row-expansion/slice-45-schema-migration.md) | Must | ✅ PASSED ([#103](https://github.com/neomatrix369/tripwire/pull/103)) | 2026-08-24 | 2026-08-24 | ~3 min |
 | 46 | [slice-46-lint-adapter](slices/12-L-tessl-5-row-expansion/slice-46-lint-adapter.md) | Must | ✅ PASSED ([#105](https://github.com/neomatrix369/tripwire/pull/105)) | 2026-08-24 | 2026-08-24 | ~4 min |
 | 47 | [slice-47-review-quality-split](slices/12-L-tessl-5-row-expansion/slice-47-review-quality-split.md) | Must | ✅ PASSED ([#109](https://github.com/neomatrix369/tripwire/pull/109)) | 2026-08-24 | 2026-08-24 | ~4 min |
-| 48 | [slice-48-not-available-yet-ui](slices/12-L-tessl-5-row-expansion/slice-48-not-available-yet-ui.md) | Must | 🔨 IN PROGRESS | 2026-08-24 | — | ~3 min |
+| 48 | [slice-48-not-available-yet-ui](slices/12-L-tessl-5-row-expansion/slice-48-not-available-yet-ui.md) | Must | ✅ PASSED ([#110](https://github.com/neomatrix369/tripwire/pull/110)) | 2026-08-24 | 2026-09-21 | ~3 min |
 | 49 | [slice-49-scenario-generation](slices/12-L-tessl-5-row-expansion/slice-49-scenario-generation.md) | Should | ✅ PASSED ([#112](https://github.com/neomatrix369/tripwire/pull/112)) | 2026-08-24 | 2026-08-25 | ~6 min |
 | 50 | [slice-50-eval-auto-chain](slices/12-L-tessl-5-row-expansion/slice-50-eval-auto-chain.md) | Should | ✅ PASSED ([#113](https://github.com/neomatrix369/tripwire/pull/113)) | 2026-08-25 | 2026-08-25 | ~5 min |
 | 51 | [slice-51-review-security](slices/12-L-tessl-5-row-expansion/slice-51-review-security.md) | Could | 🔀 ON BRANCH | 2026-08-25 | — | ~3 min |
@@ -360,3 +360,4 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 | 2026-09-09 | chore/nightly-twice-monthly | soft-amend | 7, 14, 15, 16 | SUPERSEDED | Monolith Nightly → twice monthly; replaced same day by A/B/C split |
 | 2026-09-09 | chore/nightly-twice-monthly | ci T4 A/B/C | 7 | APPLIED | A daily 02:00 Light T4 · B weekly Mon 03:00 supply-chain · C mutation 1st+15th 04:00; docs+YAML matrix |
 | 2026-09-11 | ci/slim-pr-gates-nightly-heavy | sync-docs | 7 (soft) | APPLIED | Ultra-minimal PR CI + comprehensive A; ARCHITECTURE GHA row; soft-amends; AGENTS/CLAUDE aligned |
+| 2026-09-21 | docs/slice-48-formal-close | sync-docs | 48 | APPLIED | Post-merge honesty after #110: STATUS/design/DECISIONS/ARCHITECTURE packing→VERIFIED + PR link; trackers already ✅. README/AGENTS/CLAUDE/CHANGELOG NO_CHANGE. |

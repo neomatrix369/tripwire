@@ -1,19 +1,46 @@
 {
   "primitive": "load-slice-spec",
-  "slice_id": "slice-76",
-  "invocation_id": "78e268fb-da05-4be7-a168-7946390af7d7",
+  "slice_id": "slice-48",
+  "invocation_id": "DB9B81E2-877B-48ED-99FB-C4C0A639AAC6",
   "status": "passed",
-  "timestamp": "2026-09-20T22:50:00Z",
+  "timestamp": "2026-09-21T00:20:00Z",
   "evidence": {
-    "spec_path": "docs/plan/slices/18-R-approved-repo-workflow/slice-76-workflow-chrome-polish.md",
-    "sections_found": ["## Context", "## Output contract", "## Exit criteria"],
+    "spec_path": "docs/plan/slices/12-L-tessl-5-row-expansion/slice-48-not-available-yet-ui.md",
+    "sections_found": ["## Context", "## Acceptance Criteria (GWT)", "## After-Checks", "## Files to touch"],
     "missing_sections": [],
+    "note": "Stub uses Acceptance Criteria + After-Checks as exit contract (Wave L convention); treated as Output contract + Exit criteria equivalents.",
     "context_bundle": {
-      "name": "Workflow Chrome Polish (Filters + Typography)",
-      "outcome": "Denser Triage filters + shared typography across Workflow panels + plain-language override buttons",
-      "non_goals": ["Filter semantics changes", "Pipeline narration", "Inventory IA redesign", "Judge panel default-on"],
-      "exit_criteria": ["GWT-76.1 shared panel tokens", "GWT-76.2 compact toolbars", "GWT-76.3 group labels", "GWT-76.4 plain-language buttons", "73/75 regression"],
-      "depends_on": ["slice-75", "slice-73", "slice-74"]
+      "name": "\"Not Available Yet\" Placeholder Rows (Rows 3–5)",
+      "outcome": "Scanner Outputs shows 5 Tessl rows with NAY sentinels for unimplemented capabilities; Tessl pack/copy omits root evals/",
+      "non_goals": ["Insert NAY rows into DB", "Implement Scenario/Eval/Security runners (49–51)", "Change git clone / hashLocalPath evals walk"],
+      "exit_criteria": [
+        "GWT-48.1 five Tessl sources; rows 3–5 not_available_yet",
+        "GWT-48.2 Scanner Outputs count includes placeholders",
+        "GWT-48.3 runner never writes placeholder sources",
+        "GWT-48.4 DB row replaces sentinel",
+        "GWT-48.5 Tessl pack/copy omits root evals/",
+        "GWT-48.6 non-Tessl pack keeps evals/",
+        "nw-review packing addendum APPROVED",
+        "Trackers → PASSED with #110"
+      ],
+      "depends_on": ["slice-47"]
+    },
+    "phase0": {
+      "implementation_state": "ALREADY_ON_MAIN",
+      "pr": 110,
+      "merge_sha": "252edb6e736bc2ac90bb5f2fcb852de6a08f918b",
+      "remaining_work": "packing addendum Gate 4 + formal tracker close",
+      "reviewers": {
+        "nw-software-crafter-reviewer": "APPLICABLE — packing addendum (iteration 2)",
+        "nw-acceptance-designer-reviewer": "APPLICABLE — GWT AC surface (confirm still met)",
+        "nw-solution-architect-reviewer": "NOT_APPLICABLE — no new boundaries",
+        "nw-ddd-architect-reviewer": "NOT_APPLICABLE — no schema/domain change"
+      },
+      "smoke_tests": [
+        "[DERIVED] npm dashboard tests matching GWT-48.1–48.4 + MCP guard",
+        "[DERIVED] pytest sandbox/tests/test_acquire_target.py GWT-48.5/48.6",
+        "[DERIVED] pytest runner never emits placeholder Tessl sources (GWT-48.3)"
+      ]
     }
   }
 }
