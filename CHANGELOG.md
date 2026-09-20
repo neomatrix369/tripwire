@@ -19,6 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Snyk preflight: `sandbox/scanners.py`. VERIFIED on Live Packages (pizauth / snare).
 
 ### Added
+- Dashboard Triage: type + quality + per-target filters (slice 73, Wave R) —
+  applied onto `fix/slice-74-fix-blank-while-heuristic`. Same inventory-style type
+  buttons (All / Skills / MCP / Packages), quality tabs (including All quality),
+  and per-target chips so operators can narrow issues before Fix. Filters
+  compose with status tabs; finding rows show the target name. SCA rows use
+  `package@version · CVE` titles instead of repeating `dependency_vulnerability`
+  (Live also passes through `package_name` / `package_version` / `cve_ids`).
 - Dashboard workflow model labels (slice 74, Wave R) — IN PROGRESS on
   `slice/74-workflow-model-labels`. Stepper tabs show configured default model
   aliases (Run `gen-4b · gen-27b`, Triage `gen-4b`, Investigate

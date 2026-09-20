@@ -1,7 +1,19 @@
 /**
  * Slice 68 Stream C — Triage view builder (pure ESM).
+ * Slice 73 — type / quality / per-target filters compose with status tabs.
  * Headline, status tabs, severity-sorted findings, coverage honesty.
  */
+
+import {
+  matchesQualityTab,
+  QUALITY_TAB_FLOOR,
+} from "./tripwire-status.js";
+
+const STATUS_ORDER = Object.freeze([
+  "to_fix",
+  "needs_review",
+  "dismissed",
+]);
 
 /**
  * Distinctive triage/investigate title — prefer package@ver · CVE over bare category.
@@ -34,12 +46,6 @@ export function buildWorkflowFindingTitle(finding) {
   return "Finding";
 }
 
-const STATUS_ORDER = Object.freeze([
-  "to_fix",
-  "needs_review",
-  "dismissed",
-]);
-
 const STATUS_LABEL = Object.freeze({
   to_fix: "to-fix",
   needs_review: "needs-review",
@@ -57,6 +63,20 @@ const TAB_DEFS = Object.freeze([
   { id: "to_fix", label: "To fix" },
   { id: "needs_review", label: "Needs review" },
   { id: "dismissed", label: "Dismissed" },
+]);
+
+const TYPE_TAB_DEFS = Object.freeze([
+  { id: "all", label: "All items" },
+  { id: "skill", label: "Skills" },
+  { id: "mcp_server", label: "MCP Servers" },
+  { id: "package", label: "Packages" },
+]);
+
+const QUALITY_TAB_DEFS = Object.freeze([
+  { id: "all", label: "All quality" },
+  { id: "high", label: `Quality ≥ ${QUALITY_TAB_FLOOR}` },
+  { id: "low", label: `Quality < ${QUALITY_TAB_FLOOR}` },
+  { id: "unscored", label: "No quality score" },
 ]);
 
 /**
@@ -153,17 +173,175 @@ function buildCoverageHonesty(coverage) {
 }
 
 /**
- * Build triage panel view model.
- * @param {{ findings?: Array<object>, coverage?: object, triageFilter?: string|null }} input
- * @returns {{ headline: string, tabs: Array<object>, filteredFindings: Array<object>, coverageHonesty: object }}
+ * @param {object|null|undefined} finding
+ * @returns {{ type?: string, quality?: number|null }}
  */
-export function buildTriageView({ findings, coverage, triageFilter } = {}) {
-  const counts = countByStatus(findings);
+function findingAsItem(finding) {
+  return {
+    type: finding?.itemType,
+    quality: finding?.itemQuality,
+  };
+}
+
+/**
+ * @param {Array<object>} findings
+ * @param {string|null|undefined} typeFilter
+ * @returns {Array<object>}
+ */
+function filterByType(findings, typeFilter) {
+  if (!typeFilter || typeFilter === "all") return findings;
+  return findings.filter((f) => f?.itemType === typeFilter);
+}
+
+/**
+ * @param {Array<object>} findings
+ * @param {string|null|undefined} qualityTab
+ * @returns {Array<object>}
+ */
+function filterByQuality(findings, qualityTab) {
+  if (!qualityTab || qualityTab === "all") return findings;
+  return findings.filter((f) =>
+    matchesQualityTab(findingAsItem(f), qualityTab),
+  );
+}
+
+/**
+ * @param {Array<object>} findings
+ * @param {string|null|undefined} targetFilter
+ * @returns {Array<object>}
+ */
+function filterByTarget(findings, targetFilter) {
+  if (!targetFilter || targetFilter === "all") return findings;
+  return findings.filter((f) => f?.itemId === targetFilter);
+}
+
+/**
+ * @param {Array<object>} findings
+ * @param {string} selectedType
+ * @returns {Array<{ id: string, label: string, count: number, selected: boolean }>}
+ */
+function buildTypeTabs(findings, selectedType) {
+  return TYPE_TAB_DEFS.map((tab) => {
+    const count =
+      tab.id === "all"
+        ? findings.length
+        : findings.filter((f) => f?.itemType === tab.id).length;
+    return {
+      id: tab.id,
+      label: tab.label,
+      count,
+      selected: tab.id === selectedType,
+    };
+  });
+}
+
+/**
+ * @param {Array<object>} findings
+ * @param {string} selectedQuality
+ * @returns {Array<{ id: string, label: string, count: number, selected: boolean }>}
+ */
+function buildQualityTabs(findings, selectedQuality) {
+  return QUALITY_TAB_DEFS.map((tab) => {
+    const count =
+      tab.id === "all"
+        ? findings.length
+        : findings.filter((f) =>
+            matchesQualityTab(findingAsItem(f), tab.id),
+          ).length;
+    return {
+      id: tab.id,
+      label: tab.label,
+      count,
+      selected: tab.id === selectedQuality,
+    };
+  });
+}
+
+/**
+ * @param {Array<object>} findings
+ * @param {string} selectedTarget
+ * @returns {Array<{ id: string, label: string, count: number, selected: boolean }>}
+ */
+function buildTargetChips(findings, selectedTarget) {
+  const byId = new Map();
+  for (const f of findings) {
+    const id = f?.itemId;
+    if (!id) continue;
+    const existing = byId.get(id);
+    if (existing) {
+      existing.count += 1;
+      continue;
+    }
+    byId.set(id, {
+      id,
+      label: f.itemName || id,
+      count: 1,
+    });
+  }
+  const chips = [...byId.values()].sort((a, b) =>
+    String(a.label).localeCompare(String(b.label)),
+  );
+  return [
+    {
+      id: "all",
+      label: "All targets",
+      count: findings.length,
+      selected: selectedTarget === "all",
+    },
+    ...chips.map((c) => ({
+      ...c,
+      selected: c.id === selectedTarget,
+    })),
+  ];
+}
+
+/**
+ * Build triage panel view model.
+ * @param {{
+ *   findings?: Array<object>,
+ *   coverage?: object,
+ *   triageFilter?: string|null,
+ *   typeFilter?: string|null,
+ *   qualityTab?: string|null,
+ *   targetFilter?: string|null,
+ * }} input
+ * @returns {{
+ *   headline: string,
+ *   tabs: Array<object>,
+ *   typeTabs: Array<object>,
+ *   qualityTabs: Array<object>,
+ *   targetChips: Array<object>,
+ *   filteredFindings: Array<object>,
+ *   coverageHonesty: object,
+ * }}
+ */
+export function buildTriageView({
+  findings,
+  coverage,
+  triageFilter,
+  typeFilter = "all",
+  qualityTab = "all",
+  targetFilter = "all",
+} = {}) {
+  const list = Array.isArray(findings) ? findings : [];
+  const resolvedType = typeFilter || "all";
+  const resolvedQuality = qualityTab || "all";
+  const resolvedTarget = targetFilter || "all";
+
+  const typeScoped = filterByType(list, resolvedType);
+  const qualityScoped = filterByQuality(typeScoped, resolvedQuality);
+  const targetScoped = filterByTarget(qualityScoped, resolvedTarget);
+
+  const counts = countByStatus(targetScoped);
   const selectedId = resolveSelectedTab(triageFilter);
+
   return {
     headline: buildHeadline(counts),
     tabs: buildTabs(counts, selectedId),
-    filteredFindings: filterAndSort(findings, selectedId),
+    typeTabs: buildTypeTabs(list, resolvedType),
+    qualityTabs: buildQualityTabs(typeScoped, resolvedQuality),
+    targetChips: buildTargetChips(qualityScoped, resolvedTarget),
+    filteredFindings: filterAndSort(targetScoped, selectedId),
     coverageHonesty: buildCoverageHonesty(coverage),
   };
 }
