@@ -19,12 +19,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Snyk preflight: `sandbox/scanners.py`. VERIFIED on Live Packages (pizauth / snare).
 
 ### Added
+- Dashboard Fix step: proposed minimal patch + apply-clean on a temp copy
+  (slice 69, Wave R): `tripwire-fix-propose.js`, `tripwire-apply-clean.js`,
+  `tripwire-fix-controls.js` on `slice/69-fix-propose-apply-clean`. Operator
+  can copy the diff / `git apply` command, mark fixed or won't-fix (reason
+  required), and move with J/K. Proposed patches never auto-modify the
+  approved repo and never claim the finding is verified/fixed from generation
+  alone. GWT-69.* tests in `prototypes/dc-dashboard/test/tripwire-fix*.test.js`.
 - Dashboard Expert view + Report export (slice 71, Wave R): Expert toggle shows
   raw judge answers, model IDs, confidence, weakness/AI-sec IDs, scanner details,
   and data-flow; Report step summarises fixed / left / won't fix with primary
   JSON export (+ Markdown) including coverage ledger; secrets masked unless
   explicitly revealed. Modules: `tripwire-report.js`, `tripwire-report-export.js`;
-  GWT-71.* tests — on branch `slice/71-expert-export-report`.
+  GWT-71.* tests — landed `main` (#153).
 - Dashboard workflow stepper Run→Triage→Investigate (slice 68, Wave R):
   prototype modules under `prototypes/dc-dashboard/` (`tripwire-workflow-*`,
   run-progress, triage, investigate) with GWT-68.* tests — landed `main` (#152).

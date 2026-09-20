@@ -1,0 +1,18 @@
+{
+  "primitive": "collect-gate-evidence",
+  "slice_id": "slice-69",
+  "invocation_id": "7E2734D6-4BFA-43F0-87A2-7FF487396864",
+  "status": "passed",
+  "timestamp": "2026-09-20T16:22:00Z",
+  "evidence": {
+    "primitives": [
+      {"name": "load-slice-spec", "status": "passed", "timestamp": "2026-09-20T16:10:02Z"},
+      {"name": "check-dependencies", "status": "passed", "timestamp": "2026-09-20T16:10:02Z"},
+      {"name": "run-tests", "status": "passed", "timestamp": "2026-09-20T16:22:00Z"},
+      {"name": "run-lint", "status": "passed", "timestamp": "2026-09-20T16:16:00Z"},
+      {"name": "run-coverage", "status": "passed", "timestamp": "2026-09-20T16:16:00Z"}
+    ],
+    "blocking": [],
+    "missing": []
+  }
+}

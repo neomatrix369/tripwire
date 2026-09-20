@@ -1,6 +1,7 @@
 # Slice 69: Fix Propose + Apply-Clean Check
 
-> Scenario: Brownfield | MoSCoW: **Must** | Status: 📋 PLANNED
+> Scenario: Brownfield | MoSCoW: **Must** | Status: 🔨 IMPLEMENTED ON BRANCH
+> Timestamp: 2026-09-20T16:20:00Z
 > Wave: R — Approved-repo security workflow
 > Depends on: **68** (Investigate → Fix step)
 > Trigger: True positives get a minimal proposed patch, root-cause vs quick-patch label, apply-clean check on temp copy
@@ -60,21 +61,21 @@
 **Then** UI does not claim the vulnerability is fixed solely because a patch was generated
 
 ## Before-Checks [GATE]
-- [ ] Branch created
-- [ ] GWT RED tests
+- [x] Branch created
+- [x] GWT RED tests
 
 ## After-Checks [GATE]
-- [ ] Tests pass
-- [ ] Specification coverage
-- [ ] Complexity evidence recorded
-- [ ] Doc Audit: STATUS — proposed patch only
+- [x] Tests pass
+- [x] Specification coverage
+- [x] Complexity evidence recorded
+- [x] Doc Audit: STATUS — proposed patch only
 
 ### Closing Gates
-- [ ] `nw-at-completeness-check`
-- [ ] `nw-software-crafter-reviewer`
-- [ ] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer`
-- [ ] `nw-gate-evidence-validator`
-- [ ] `/verify-slice` — COMPLETE
+- [x] `nw-at-completeness-check`
+- [x] `nw-software-crafter-reviewer`
+- [x] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer`
+- [x] `nw-gate-evidence-validator`
+- [x] `/verify-slice` — COMPLETE
 
 ## Gate Status
-📋 PLANNED — EFP Path B 2026-09-20 (Wave R)
+✅ VERIFIED ON BRANCH — GWT-69.* + Gate 4 APPROVED on `slice/69-fix-propose-apply-clean`; not merged / not ✅ PASSED
