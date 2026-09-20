@@ -13,7 +13,7 @@
     "unmet_or_skipped": [],
     "gate4": {
       "nw-software-crafter-reviewer": "APPROVED (prior 2026-08-25; no code delta this close)",
-      "nw-documentarist-reviewer": "APPROVED (tracker honesty formal close)",
+      "nw-documentarist-reviewer": "APPROVED (agent 28ceac3b-fedd-42e2-8267-90bdd5edea6a)",
       "nw-acceptance-designer-reviewer": "NOT_APPLICABLE (no AT delta)",
       "nw-solution-architect-reviewer": "NOT_APPLICABLE",
       "nw-ddd-architect-reviewer": "NOT_APPLICABLE"
