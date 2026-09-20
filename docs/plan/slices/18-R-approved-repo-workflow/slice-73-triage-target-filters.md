@@ -1,10 +1,10 @@
 # Slice 73: Triage Target Type + Per-Target Filters
 
-> Scenario: Brownfield | MoSCoW: **Should** | Status: ✅ VERIFIED ON MAIN
+> Scenario: Brownfield | MoSCoW: **Should** | Status: ✅ PASSED
 > Wave: R — Approved-repo security workflow
 > Depends on: **68** (Triage step + findings with itemId/itemName)
 > Trigger: Operator needs inventory-style type/quality filters **and** per-target chips on Triage to pick issues for the right targets
-> Branch: `slice/73-triage-target-filters`
+> Branch: `slice/73-triage-target-filters` (formal close: `docs/slice-73-formal-close`)
 > UI surface: **1A** — extend existing Tripwire Live/Mock dashboard Triage panel
 
 ## Session bootstrap
@@ -67,16 +67,15 @@
 ## After-Checks [GATE]
 - [x] Tests pass
 - [x] Specification coverage for GWT-73.*
-- [ ] Complexity evidence recorded
+- [x] Complexity evidence recorded
 - [x] Doc Audit: STATUS + CHANGELOG triage filters
 
 ### Closing Gates
-- [x] Specification coverage — GWT-73.* unit tests on `main`
-- [ ] `nw-at-completeness-check` — formal Gate 4 (sibling close agents / follow-up)
-- [ ] `nw-software-crafter-reviewer` — formal Gate 4
-- [ ] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer` — formal Gate 4
-- [x] Unit evidence — `node --test test/tripwire-triage-filters.test.js` green on `main` (2026-09-20)
-- [x] `/verify-slice` unit path — COMPLETE for GWT-73.* on `main`
+- [x] `nw-at-completeness-check`
+- [x] `nw-software-crafter-reviewer`
+- [x] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer`
+- [x] `nw-gate-evidence-validator`
+- [x] `/verify-slice` — COMPLETE
 
 ## Gate Status
-✅ VERIFIED (unit) ON MAIN — 2026-09-20 · code + GWT-73.* green; formal Gate 4 reviewer ticks may still land via close agents — sync-docs does not invent APPROVED
+✅ PASSED — merged-on-main; formal close 2026-09-20 (`docs/slice-73-formal-close`); GWT-73.* green; Gate 4 APPROVED (software-crafter, acceptance-designer, solution-architect); ddd=NOT_APPLICABLE

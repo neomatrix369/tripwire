@@ -1,0 +1,36 @@
+{
+  "primitive": "collect-gate-evidence",
+  "slice_id": "slice-73",
+  "invocation_id": "E49536DF-607C-46BB-B2B9-E4F8EBAD7972",
+  "status": "passed",
+  "timestamp": "2026-09-20T22:35:00Z",
+  "evidence": {
+    "primitives": [
+      {
+        "name": "run-tests",
+        "status": "passed",
+        "file": "gate-evidence/run-tests-slice-73.json"
+      },
+      {
+        "name": "run-lint",
+        "status": "passed",
+        "file": "gate-evidence/run-lint-slice-73.json"
+      },
+      {
+        "name": "run-coverage",
+        "status": "passed",
+        "file": "gate-evidence/run-coverage-slice-73.json"
+      }
+    ],
+    "blocking": [],
+    "missing": [],
+    "verify_slice": "COMPLETE",
+    "gate4": {
+      "nw-software-crafter-reviewer": "APPROVED",
+      "nw-acceptance-designer-reviewer": "APPROVED",
+      "nw-solution-architect-reviewer": "APPROVED",
+      "nw-ddd-architect-reviewer": "NOT_APPLICABLE"
+    },
+    "notes": "Formal close: implementation already on main; GWT-73.* green; inventory-style type/quality + per-target chips reuse matchesQualityTab; HTML Triage panel wired."
+  }
+}

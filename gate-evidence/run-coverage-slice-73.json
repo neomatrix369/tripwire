@@ -1,0 +1,25 @@
+{
+  "primitive": "run-coverage",
+  "slice_id": "slice-73",
+  "invocation_id": "E49536DF-607C-46BB-B2B9-E4F8EBAD7972",
+  "status": "passed",
+  "timestamp": "2026-09-20T22:30:00Z",
+  "evidence": {
+    "command_run": "npm run test:coverage (prototypes/dc-dashboard)",
+    "coverage_pct": 97.83,
+    "threshold": 95.0,
+    "stack": "node",
+    "report_path": null,
+    "lines_pct": 97.83,
+    "branches_pct": 82.16,
+    "functions_pct": 98.73,
+    "statements_pct": 97.83,
+    "triage_module": {
+      "file": "tripwire-triage.js",
+      "lines_pct": 99.04,
+      "branches_pct": 76.85,
+      "functions_pct": 100.0,
+      "statements_pct": 99.04
+    }
+  }
+}

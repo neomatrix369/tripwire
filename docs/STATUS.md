@@ -74,13 +74,14 @@ Reachable through production entry points / config:
   primary **Dashboard** tab = inventory (default); stepper + phase panels move to
   secondary **Workflow** tab — IMPLEMENTED on `main`
   ([#160](https://github.com/neomatrix369/tripwire/pull/160)).
-- Wave R **Triage target filters** (slice 73): IMPLEMENTED / VERIFIED (unit) on
-  `main` — Triage panel adds inventory-style type tabs (All / Skills / MCP /
-  Packages), quality tabs (All + Tessl high/low/unscored), and per-target chips;
-  filters compose with status tabs; finding rows show target name. SCA triage
-  titles prefer `package@version · CVE` (not bare `dependency_vulnerability`);
-  Live maps `package_name` / `package_version` / `cve_ids`. Module:
-  `tripwire-triage.js` + Triage panel in `Tripwire.dc.html`; GWT-73.* tests.
+- Wave R **Triage target filters** (slice 73): ✅ PASSED — merged-on-main;
+  formal close 2026-09-20 (Gate 4 APPROVED). Triage panel adds inventory-style
+  type tabs (All / Skills / MCP / Packages), quality tabs (All + Tessl
+  high/low/unscored), and per-target chips; filters compose with status tabs;
+  finding rows show target name. SCA triage titles prefer `package@version · CVE`
+  (not bare `dependency_vulnerability`); Live maps `package_name` /
+  `package_version` / `cve_ids`. Module: `tripwire-triage.js` + Triage panel in
+  `Tripwire.dc.html`; GWT-73.* tests.
 - Wave R **workflow model labels** (slice 74): IMPLEMENTED / VERIFIED (unit) on
   `main` — stepper tabs show role-aware default model aliases for stages that
   use models (Run panel light/mid + final stronger; Triage SIE; Investigate

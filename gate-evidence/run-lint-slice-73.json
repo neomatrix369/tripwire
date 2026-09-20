@@ -1,0 +1,14 @@
+{
+  "primitive": "run-lint",
+  "slice_id": "slice-73",
+  "invocation_id": "E49536DF-607C-46BB-B2B9-E4F8EBAD7972",
+  "status": "passed",
+  "timestamp": "2026-09-20T22:30:00Z",
+  "evidence": {
+    "linter": "eslint",
+    "command_run": "npm run lint (prototypes/dc-dashboard)",
+    "paths": ["tripwire-triage.js", "test/tripwire-triage-filters.test.js", "*.js", "test/"],
+    "findings_count": 0,
+    "blocking_findings": []
+  }
+}
