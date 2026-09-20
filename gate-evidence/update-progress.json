@@ -1,17 +1,19 @@
 {
   "primitive": "update-progress",
-  "slice_id": "slice-48",
-  "invocation_id": "DB9B81E2-877B-48ED-99FB-C4C0A639AAC6",
+  "slice_id": "phase-H0-governance",
+  "invocation_id": "F15258E1-310B-4620-AF3F-3B204ADC9DE7",
   "status": "passed",
-  "timestamp": "2026-09-21T00:35:00Z",
+  "timestamp": "2026-09-20T23:37:12Z",
   "evidence": {
     "previous_state": "IN_PROGRESS",
     "new_state": "PASSED",
     "files_updated": [
-      "docs/plan/slices/12-L-tessl-5-row-expansion/slice-48-not-available-yet-ui.md",
+      "docs/plan/slices/08-H-frontline-agent-hooks/phase-H0-governance.md",
       "docs/plan/TRAIL.md",
       "docs/plan/PROGRESS.md",
-      "docs/plan/gate-evidence/slice-48.json"
-    ]
+      "docs/plan/DECISIONS.md",
+      "docs/STATUS.md"
+    ],
+    "note": "Docs-only phase close; legal transition approximated as IMPLEMENTED\u2192VERIFIED\u2192PASSED in one governance close (phase-only N/A for /verify-slice)."
   }
 }

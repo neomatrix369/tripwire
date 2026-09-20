@@ -1,52 +1,12 @@
 {
   "primitive": "check-dependencies",
-  "slice_id": "slice-75",
-  "invocation_id": "A167FB0F-C26A-48F7-8BDC-BC10805D3C49",
-  "status": "passed",
-  "timestamp": "2026-09-20T20:55:39Z",
+  "slice_id": "phase-H0-governance",
+  "invocation_id": "F15258E1-310B-4620-AF3F-3B204ADC9DE7",
+  "status": "skipped",
+  "timestamp": "2026-09-20T23:37:12Z",
   "evidence": {
-    "checked": [
-      {
-        "path": "cli/src/judgePanel.js",
-        "exists": true,
-        "non_empty": true
-      },
-      {
-        "path": "prototypes/dc-dashboard/tripwire-run-progress.js",
-        "exists": true,
-        "non_empty": true
-      },
-      {
-        "path": "prototypes/dc-dashboard/tripwire-triage.js",
-        "exists": true,
-        "non_empty": true
-      },
-      {
-        "path": "prototypes/dc-dashboard/tripwire-investigate.js",
-        "exists": true,
-        "non_empty": true
-      },
-      {
-        "path": "prototypes/dc-dashboard/Tripwire.dc.html",
-        "exists": true,
-        "non_empty": true
-      },
-      {
-        "path": "docs/plan/slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md",
-        "exists": true,
-        "non_empty": true
-      },
-      {
-        "path": "docs/plan/slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md",
-        "exists": true,
-        "non_empty": true
-      },
-      {
-        "path": "docs/plan/invariants.md",
-        "exists": true,
-        "non_empty": true
-      }
-    ],
-    "missing": []
+    "checked": [],
+    "missing": [],
+    "reason": "Depends-on: none"
   }
 }

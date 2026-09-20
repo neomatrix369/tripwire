@@ -46,7 +46,7 @@
 | 3 | G | 20 | Scanner Subprocess Adapter Contract | Must | 📋 PLANNED |
 | 4 | G | 21 | Dashboard Latest-State Accuracy | Must | 📋 PLANNED |
 | 5 | G | 22 | Dashboard Realtime Recovery | Must | 📋 PLANNED |
-| 0 (active, 2026-08-15) | H | H0 | Agent Guard governance docs (ADR-0017 + trackers) | Must | 🔨 IN PROGRESS · [phase-H0-governance](slices/08-H-frontline-agent-hooks/phase-H0-governance.md) |
+| 0 (active, 2026-08-15) | H | H0 | Agent Guard governance docs (ADR-0017 + trackers) | Must | ✅ PASSED (2026-09-21) · [phase-H0-governance](slices/08-H-frontline-agent-hooks/phase-H0-governance.md) |
 
 **Wave H addendum (2026-08-15):** the hackathon stream (branch
 `tripwire-frontline-hack`) runs ahead of Wave G. `setup-agent-hooks` lands in
@@ -63,7 +63,7 @@ Wave O slices **58–61** are reserved on [PR #135](https://github.com/neomatrix
 | 3 | H1 | 25 | Live Enforce Smoke | Must | 📋 PLANNED |
 | 4 | H2 | 26 | API Introspect + Dual Output Contract (delta: Quality column) | Must | 📋 PLANNED |
 | 5 | H2 | 27 | `/tw-enable` + `/tw-disable` | Must | 📋 PLANNED |
-| 6 | H2 | 28 | `/tw-verify` (delta: Quality `N/100` + blocked footer) | Must | 🔀 ON BRANCH |
+| 6 | H2 | 28 | `/tw-verify` (delta: Quality `N/100` + blocked footer) | Must | ✅ PASSED (`main` #118) · formal close 2026-09-21 |
 | 7 | H2 | 29 | `/tw-scan` | Must | 📋 PLANNED |
 | 8 | H2 | 30 | `/tw-self-check` | Must | 📋 PLANNED |
 | 9 | H3 | 31 | Demo Artifacts | Must | 📋 PLANNED |
@@ -168,7 +168,7 @@ G 18–22 and L 51 already appear in **Execution order** above (parked and ON BR
 | 25 | [slice-25-live-enforce-smoke](slices/08-H-frontline-agent-hooks/slice-25-live-enforce-smoke.md) | Must | 📋 PLANNED | — | — | ~30 min |
 | 26 | [slice-26-api-output-contract](slices/08-H-frontline-agent-hooks/slice-26-api-output-contract.md) | Must | 📋 PLANNED | — | — | ~40 min |
 | 27 | [slice-27-tw-enable-disable](slices/08-H-frontline-agent-hooks/slice-27-tw-enable-disable.md) | Must | 📋 PLANNED | — | — | ~25 min |
-| 28 | [slice-28-tw-verify](slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md) | Must | 🔀 ON BRANCH | 2026-08-25 | — | ~50 min (delta: Quality + footer) |
+| 28 | [slice-28-tw-verify](slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md) | Must | ✅ PASSED (`main` #118) | 2026-08-25 | 2026-09-21 | ~50 min (delta: Quality + footer) |
 | 29 | [slice-29-tw-scan](slices/08-H-frontline-agent-hooks/slice-29-tw-scan.md) | Must | 📋 PLANNED | — | — | ~40 min |
 | 30 | [slice-30-tw-self-check](slices/08-H-frontline-agent-hooks/slice-30-tw-self-check.md) | Must | 📋 PLANNED | — | — | ~30 min |
 | 31 | [slice-31-demo-artifacts](slices/08-H-frontline-agent-hooks/slice-31-demo-artifacts.md) | Must | 📋 PLANNED | — | — | ~40 min |
@@ -184,10 +184,10 @@ G 18–22 and L 51 already appear in **Execution order** above (parked and ON BR
 ### H — Claude Code Agent Guard integration (hackathon)
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 | --- | --- | --- | --- | --- | --- | --- |
-| H0 | [phase-H0-governance](slices/08-H-frontline-agent-hooks/phase-H0-governance.md) — [ADR-0017](../adr/0017-claude-code-agent-guard-integration.md) + trackers | Must | 🔨 | 2026-08-15 | — | ~25 min |
-| H1–H7 | Handler + guard T1/T2 + `guard/status.py` → hook wiring (spike first) → `setup-agent-hooks` → install → five `/tw-*` skills → demo artifacts → Phase-1 gate | Must | 📋 | — | — | — |
+| H0 | [phase-H0-governance](slices/08-H-frontline-agent-hooks/phase-H0-governance.md) — [ADR-0017](../adr/0017-claude-code-agent-guard-integration.md) + trackers | Must | ✅ | 2026-08-15 | 2026-09-21 | ~25 min |
+| H1–H7 | Handler + guard T1/T2 + `guard/status.py` → hook wiring (spike first) → `setup-agent-hooks` → install → five `/tw-*` skills → demo artifacts → Phase-1 gate | Must | 📋 formal gates open | — | — | — |
 
-Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance stub: `phase-H0-governance.md`. Governance blocks *merge*, not prototyping.
+Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance stub: `phase-H0-governance.md`. **H0 ✅** — governance merge gate clear. Phase 1 code on `main` (`agent-hooks/`); formal Must gate-evidence closures for **23–32** remain open (slice **28** 🔀 closest). Slice **35** Ossprey stays 🔴.
 
 ### I — Landing Intro + Visual Refresh
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
@@ -277,7 +277,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 - Wave **R** (slices **65–76**) approved-repo security workflow: **65–76** ✅ on `main` (#148–#165 family; **76** = #165). UI 1A + Dashboard/Workflow tabs.
 - Wave **M** (slice 53) LLM usage / cost observability is **📋 plan-only** — ADR-0016 follow-on; execute when explicitly started (`slice/53-llm-usage-tracking`).
 - Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Slice 15 is retained as a deferred claim-audit artifact, not active work.
-- **Wave H (Frontline):** plan-only stubs 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. Execute Musts 23→32 with human tests after H1/H2 and HARD GATE at 32 before Should work.
+- **Wave H (Frontline):** **H0 ✅** · **28 ✅** (2026-09-21). Phase 1 code on `main` (`agent-hooks/`). Formal Must gate closures **23–27 / 29–32** still open (next product: **30** `/tw-self-check` or inventory formal-close 23–27/29). Slice **35** Ossprey 🔴 until access OPEN. Should 33–38 wait on 32 PASS.
 - Wave G (18–22) remains planned but **parked** while Frontline H1–H3 is active unless explicitly resumed.
 - Reopen Slice 15 only for a future live/demo release that needs its security and 3B evidence path.
 - **Deferred / Won't (A):** 4 (in A); 15 and 16 (in F) — reinstate only if a new live/demo need arises
@@ -316,7 +316,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 | 2026-08-02 | slice/13-live-acl-coverage-gate-95 | slice-workflow | 13 | ✅ PASSED | Wave E — Live ACL c8 ≥95% lines |
 | 2026-08-02 | main / plan | GATE_CONTRACT | all | 📋 policy | Hard close rule |
 | 2026-08-02 | docs/gate-contract-onboarding-priority | sync-docs + clean-commit | 7, plan | pushed | Groups + close slice 7 on trackers |
-| 2026-08-15 | tripwire-frontline-hack | hackathon build (plan §9 step 0) | H0 | 🔨 | Wave H — ADR-0017 + DECISIONS/STATUS/TRAIL/PROGRESS governance rows |
+| 2026-08-15 | tripwire-frontline-hack | hackathon build (plan §9 step 0) | H0 | ✅ PASSED (2026-09-21) | Wave H — ADR-0017 + DECISIONS/STATUS/TRAIL/PROGRESS governance rows |
 | 2026-08-15 | frontline-hackathon-london-2026-agent-hooks | enhanced-flow-planner Add | 23–39 | 📋 stubs | Wave H Frontline plan-only; Wave G parked |
 | 2026-08-16 | docs/skills-scanner-scan-complexity-study | enhanced-flow-planner + plan-modifier | skills_scanner 35 | 📋 stub | skills_scanner code study: scan() CC=55 → Slice 35 stub ported to `docs/plan/slices/slice-35-scan-complexity-decomposition.md` |
 | 2026-08-17 | docs/slice-40-renumber-and-reframe | sync-docs + clean-commit | 40 | 📋 PLANNED | Renumber conflict (35 taken by H5 Ossprey); reframe as Tripwire-native (run_snyk CC=28, run_cisco_mcp_scanner CC=23); elevate to Must + highest priority. PR #86 |

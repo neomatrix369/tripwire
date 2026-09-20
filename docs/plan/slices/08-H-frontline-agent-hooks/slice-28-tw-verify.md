@@ -6,7 +6,7 @@
 
 `/tw-verify` resolves multiple names, reports every artifact in one pass via the shared human table + machine JSON, covers all six states, surfaces Tessl **Quality** as **`N/100`** when `items.quality_score` is present, de-duplicates the shared blocked message into a **table footer**, attributes vendors via a **Sources** line (Quality = Tessl; Status = Cisco AI Defense + Snyk), offers `/tw-scan` for unscanned, and returns a useful human message for not-found.
 
-**Delta (2026-08-25):** Quality column + blocked-note footer de-dupe + Sources attribution (Quality-only metrics; amend-in-place — no new slice). Evidence state: **IMPLEMENTED** on `slice/28-tw-verify-quality`.
+**Delta (2026-08-25):** Quality column + blocked-note footer de-dupe + Sources attribution (Quality-only metrics; amend-in-place — no new slice). Evidence state: **VERIFIED** on `main` (#118) · formal close 2026-09-21.
 
 ## GWT acceptance specification
 
@@ -62,9 +62,9 @@ RED→GREEN→REFACTOR complete for Quality + footer delta (restored Frontline v
 - [x] `.venv/bin/pytest guard/tests/test_tw_verify.py -q` exit 0
 - [x] Coverage 100% lines on `guard/verify.py` (target ≥95%)
 - [x] Complexity / quality-gates (record in evidence)
-- [x] `docs/plan/gate-evidence/slice-28.json` records commands, coverage, complexity, reviewers, and `verdict: ON_BRANCH` (PASS after merge)
+- [x] `docs/plan/gate-evidence/slice-28.json` records commands, coverage, complexity, reviewers, and `verdict: PASS`
 - [x] Review: `acceptance: APPROVED` and `implementation: APPROVED`
-- [ ] `PROGRESS.md` + `TRAIL.md` show slice 28 ✅ (after merge)
+- [x] `PROGRESS.md` + `TRAIL.md` show slice 28 ✅ (formal close 2026-09-21 after #118 on `main`)
 
 ## Doc Audit
 
@@ -77,4 +77,4 @@ RED→GREEN→REFACTOR complete for Quality + footer delta (restored Frontline v
 
 ## Gate Status
 
-🔀 ON BRANCH
+✅ PASSED (formal close 2026-09-21 · #118 on `main`)
