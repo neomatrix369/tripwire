@@ -399,15 +399,14 @@ documentarist pile-on **APPROVED WITH FOLLOW-ON**; DIVIO purity rewrites
 **Wave H — Frontline agent hooks (2026-08-15):** **H0 governance ✅**
 (2026-09-21 — [phase-H0-governance](./plan/slices/08-H-frontline-agent-hooks/phase-H0-governance.md)).
 Claude Code PreToolUse handlers, `tripwire setup-agent-hooks`, and five `/tw-*`
-skills landed on `main` via Phase 1 agent-hooks (see `agent-hooks/`). Formal Wave H
-Must gate-evidence closures (slices **23–32**) still lag; **slice 28**
+skills landed on `main` via Phase 1 agent-hooks (see `agent-hooks/`). **Slice 28**
 (`/tw-verify` Quality `N/100` + blocked footer + Sources: Tessl Quality /
-Cisco+Snyk Status) is **IMPLEMENTED** on `main`
+Cisco+Snyk Status) is ✅ **PASSED** on `main`
 ([#118](https://github.com/neomatrix369/tripwire/pull/118)) — contract SSOT
 [frontline-output-contract.md](./user-guide/frontline-output-contract.md) —
-tracker still 🔀 pending formal close. Remaining Musts 23–27 / 29–32 stay
-plan-tracked. Slice **35** Ossprey access remains 🔴. ADR-0015 Horizon A
-exclusion is amended by ADR-0017; full Guard VERIFIED still waits on Phase-1
+formal close 2026-09-21. Formal Must gate-evidence closures for **23–27 / 29–32**
+still lag. Slice **35** Ossprey access remains 🔴. ADR-0015 Horizon A exclusion
+is amended by ADR-0017; full Guard VERIFIED still waits on Phase-1
 regression-gate evidence (slice 32).
 
 **Wave L — Tessl 5-row expansion (2026-08-25):** Row 3
@@ -482,8 +481,8 @@ Spec:
 
 Claude Code agent-hooks integration layer — **Phase 1 SUPERSEDED by shipping on
 `main`** under [agent-hooks](../agent-hooks/README.md). **H0 governance ✅**
-(2026-09-21). Slice 28 Quality/`N/100` and Sources attribution is **IMPLEMENTED**
-on `main` (#118; formal gate-evidence still 🔀 — see [DECIDED](#decided) Wave H).
+(2026-09-21). Slice 28 Quality/`N/100` and Sources attribution is ✅ **PASSED**
+on `main` (#118; formal close 2026-09-21 — see [DECIDED](#decided) Wave H).
 Formal Wave H Must gate closures (23–27, 29–32) and the ADR-0017 Phase-1
 regression matrix remain open.
 
@@ -532,14 +531,15 @@ as shipped capabilities. Guard PreToolUse and Drift/trend remain Future /
 Won't (A) for the Horizon A ship path — see
 [ADR-0015](./adr/0015-horizon-a-excludes-guard-and-drift.md). Frontline Guard
 Phase 1 (hooks + `/tw-*` skills) is on `main` under `agent-hooks/`; **H0 ✅**;
-slice 28 Quality dual-output is **IMPLEMENTED** on `main` (#118). Formal
+slice 28 Quality dual-output is ✅ **PASSED** on `main` (#118). Formal
 Wave H Must gate closures (23–27, 29–32) remain open.
 
 Coverage audit matrix: [plan/coverage-audit.md](./plan/coverage-audit.md)
 (slice 7 ✅). Slice stubs: [plan/README.md](./plan/README.md) (`01-A-…` …
 `16-P-git-repo-scan/`). Wave G (slices 18–22) is planned ATDD closure
 (parked while Wave H Musts run). Wave H (23–39) trackers: Phase 1 code on
-`main`; H0 ✅; formal product ✅ closures still mostly open (slice 28 🔀). Claim
+`main`; H0 ✅; slice 28 ✅; formal product ✅ closures still mostly open for
+23–27 / 29–32. Claim
 audit (slice 15) and slice 16 remediations are deferred; retain their artifacts
 for a future live/demo release. Wave M (slice 53) LLM usage log / cost tips is
 **DECIDED** plan-only — see DECIDED above; not current dashboard behaviour.

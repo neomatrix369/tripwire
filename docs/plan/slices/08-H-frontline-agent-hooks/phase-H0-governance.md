@@ -87,4 +87,4 @@ This close: `docs/H0-governance-close`.
 | Estimated Pomos | 1 (~25 min) |
 | Started | 2026-08-15 |
 | Completed | 2026-09-21 |
-| Next-session notes | Next: formal Must gate closures 23→32 (slice 28 ON_BRANCH closest; then 30–32). Slice 35 stays 🔴 until Ossprey access OPEN in DECISIONS. |
+| Next-session notes | Next: formal Must closures 23–27/29 or execute **30** `/tw-self-check` (28 ✅). Slice 35 stays 🔴 until Ossprey access OPEN in DECISIONS. |

@@ -1,42 +1,48 @@
 {
   "slice": 28,
-  "gate_status": "ON_BRANCH",
+  "gate_status": "PASSED",
   "inferred": false,
   "branch": "slice/28-tw-verify-quality",
   "date": "2026-08-25",
   "spec_path": "docs/plan/slices/08-H-frontline-agent-hooks/slice-28-tw-verify.md",
   "output_ssot": "docs/user-guide/frontline-output-contract.md",
-  "skill_layout": ["agent-hooks/skills/tw-verify/SKILL.md"],
-  "before_checks": "waived 26+27 PASS on main (DECISIONS 2026-08-25); branch from main; SSOT frontline-output-contract.md; coverage ≥95% on guard/verify.py; complexity enforcing",
+  "skill_layout": [
+    "agent-hooks/skills/tw-verify/SKILL.md"
+  ],
+  "before_checks": "waived 26+27 PASS on main (DECISIONS 2026-08-25); branch from main; SSOT frontline-output-contract.md; coverage \u226595% on guard/verify.py; complexity enforcing",
   "after_checks": [
-    "PASS — multi-name one-pass + six-state GWTs",
-    "PASS — Quality N/100 / — asserted",
-    "PASS — blocked footer once; Notes lack repeated blocked sentence",
-    "PASS — unscanned→/tw-scan offer asserted",
-    "PASS — not-found human message asserted",
-    "PASS — .venv/bin/pytest guard/tests/test_tw_verify.py -q (15 passed in file; 25 with units)",
-    "PASS — coverage 100% lines on guard/verify.py (target ≥95%)",
-    "PASS — xenon exit 0; ./scripts/quality-gates.sh PASS",
-    "PASS — review acceptance+implementation APPROVED (nw-software-crafter-reviewer)",
-    "PASS — Sources attribution (Tessl Quality; Cisco/Snyk Status) in to_markdown + skill",
-    "PENDING merge — PROGRESS/TRAIL ✅ after merge to main"
+    "PASS \u2014 multi-name one-pass + six-state GWTs",
+    "PASS \u2014 Quality N/100 / \u2014 asserted",
+    "PASS \u2014 blocked footer once; Notes lack repeated blocked sentence",
+    "PASS \u2014 unscanned\u2192/tw-scan offer asserted",
+    "PASS \u2014 not-found human message asserted",
+    "PASS \u2014 .venv/bin/pytest guard/tests/test_tw_verify.py -q (15 passed in file; 25 with units)",
+    "PASS \u2014 coverage 100% lines on guard/verify.py (target \u226595%)",
+    "PASS \u2014 xenon exit 0; ./scripts/quality-gates.sh PASS",
+    "PASS \u2014 review acceptance+implementation APPROVED (nw-software-crafter-reviewer)",
+    "PASS \u2014 Sources attribution (Tessl Quality; Cisco/Snyk Status) in to_markdown + skill",
+    "PASS \u2014 formal close 2026-09-21: TRAIL/PROGRESS \u2705; re-verify pytest 25 passed; cov 100% guard/verify.py"
   ],
   "commands": [
     {
       "cmd": ".venv/bin/pytest guard/tests/test_tw_verify.py guard/tests/test_verify_units.py -q --tb=short",
-      "result": "PASS exit 0 — 25 passed"
+      "result": "PASS exit 0 \u2014 25 passed"
     },
     {
       "cmd": ".venv/bin/pytest guard/tests/test_tw_verify.py guard/tests/test_verify_units.py --cov=guard.verify --cov-report=term-missing -q",
-      "result": "PASS — 25 passed; TOTAL 100% lines on guard/verify.py"
+      "result": "PASS \u2014 25 passed; TOTAL 100% lines on guard/verify.py"
     },
     {
       "cmd": "./scripts/quality-gates.sh",
-      "result": "PASS — quality-gates passed"
+      "result": "PASS \u2014 quality-gates passed"
     },
     {
       "cmd": "test -f agent-hooks/skills/tw-verify/SKILL.md && rg -n \"Name \\| Type \\| Status \\| Quality \\| Note|quality_score|N/100|Will be blocked when Tripwire is enabled\" agent-hooks/skills/tw-verify/SKILL.md",
-      "result": "PASS — skill SSOT documents Quality column + footer"
+      "result": "PASS \u2014 skill SSOT documents Quality column + footer"
+    },
+    {
+      "cmd": ".venv/bin/pytest guard/tests/test_tw_verify.py guard/tests/test_verify_units.py --cov=guard.verify --cov-report=term-missing -q",
+      "result": "PASS \u2014 25 passed; TOTAL 100.0% lines on guard/verify.py (2026-09-21 re-verify)"
     }
   ],
   "planned_commands": [
@@ -52,21 +58,31 @@
     "parametrized_case_counts_as_one": true
   },
   "coverage": {
-    "target": "≥95% lines on guard/verify.py",
+    "target": "\u226595% lines on guard/verify.py",
     "measured": "100.0% lines (109 stmts)",
-    "date": "2026-08-25"
+    "date": "2026-08-25",
+    "remeasured": "100.0% lines (109 stmts) on 2026-09-21"
   },
-  "complexity_policy": "enforcing for product-code — xenon exit 0 via quality-gates",
-  "reviewers": ["nw-software-crafter-reviewer"],
+  "complexity_policy": "enforcing for product-code \u2014 xenon exit 0 via quality-gates",
+  "reviewers": [
+    "nw-software-crafter-reviewer"
+  ],
   "review": {
     "acceptance": "APPROVED",
     "implementation": "APPROVED",
     "agent_id": "0ad0f49f-f5ef-457e-95c6-4719901c3dfa",
-    "date": "2026-08-25"
+    "date": "2026-08-25",
+    "formal_close": "docs-only tracker sync after #118; prior implementation APPROVED retained"
   },
-  "verdict": "ON_BRANCH",
-  "coverage_target": "≥95% lines on guard/verify.py",
+  "verdict": "PASS",
+  "coverage_target": "\u226595% lines on guard/verify.py",
   "phase": "H2",
   "moscow": "Must",
-  "delta_2026_08_25": "Quality column N/100 + blocked footer + Sources Tessl/Cisco+Snyk (IMPLEMENTED)"
+  "delta_2026_08_25": "Quality column N/100 + blocked footer + Sources Tessl/Cisco+Snyk (IMPLEMENTED)",
+  "formal_close_date": "2026-09-21",
+  "merged": {
+    "pr": 118,
+    "merge_commit": "4a8bac1",
+    "branch_at_merge": "slice/28-tw-verify-quality"
+  }
 }
