@@ -261,6 +261,93 @@
   .stat-num { font-family: var(--font-mono); font-size: 32px; font-weight: 700; line-height: 1; margin-bottom: 8px; }
   .stat-label { font-family: var(--font-sans); font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.45; }
   .stat-src { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); border-top: 1px dashed var(--border-default); padding-top: 8px; }
+
+  /* Slice 68 — workflow stepper (colour + text stateLabel; never colour alone) */
+  .tw-workflow-chrome {
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-deep);
+    padding: 10px 20px 12px;
+  }
+  .tw-workflow-stepper {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+  .tw-workflow-stepper button {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid var(--border-default);
+    background: transparent;
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+  }
+  .tw-workflow-stepper button:hover {
+    border-color: var(--cta);
+    color: var(--text-primary);
+  }
+  .tw-workflow-stepper button:focus-visible {
+    outline: 2px solid var(--cta);
+    outline-offset: 2px;
+  }
+  .tw-workflow-stepper button[aria-current="step"] {
+    border-color: var(--cta);
+    background: rgba(196, 165, 116, 0.18);
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+  .tw-workflow-stepper .tw-step-state {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+  .tw-workflow-stepper button[aria-current="step"] .tw-step-state {
+    color: var(--cta-ink);
+  }
+  .tw-workflow-panel {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border-subtle);
+  }
+  .tw-workflow-finding {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font-sans);
+    font-size: 12px;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--grey);
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+  .tw-workflow-finding:focus-visible {
+    outline: 2px solid var(--cta);
+    outline-offset: 2px;
+  }
+  .tw-triage-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+  }
 </style>
 </helmet>
 <div style="display:flex;flex-direction:column;height:100vh;background:var(--bg-base);color:var(--text-primary);font-family:var(--font-sans);overflow:hidden;position:relative;z-index:1">
@@ -282,6 +369,109 @@
     </div>
     <div style="width:1px;height:16px;background:var(--border-subtle);margin:0 2px"></div>
     <button onClick="{{ toggleIntro }}" style="{{ introToggleStyle }}" title="Toggle intro / about">{{ introToggleLabel }}</button>
+  </div>
+
+  <!-- ── Slice 68 workflow chrome (always below nav) ── -->
+  <div class="tw-workflow-chrome" role="region" aria-label="Approved-repo workflow">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px">
+      <nav class="tw-workflow-stepper" aria-label="Workflow steps">
+        <sc-for list="{{ workflowStepperSteps }}" as="step" hint-placeholder-count="6">
+          <button type="button" onClick="{{ step.onClick }}" aria-current="{{ step.ariaCurrent }}" title="{{ step.title }}">
+            <span>{{ step.label }}</span>
+            <span class="tw-step-state">{{ step.stateLabel }}</span>
+          </button>
+        </sc-for>
+      </nav>
+      <div style="display:flex;align-items:center;gap:8px" role="group" aria-label="View mode">
+        <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">View</span>
+        <button type="button" onClick="{{ setSimpleMode }}" style="{{ simpleModeBtnStyle }}" aria-pressed="{{ simpleModePressed }}">Simple</button>
+        <button type="button" onClick="{{ setExpertModeOn }}" style="{{ expertModeBtnStyle }}" aria-pressed="{{ expertModePressed }}">Expert</button>
+      </div>
+    </div>
+
+    <sc-if value="{{ workflowIsRun }}" hint-placeholder-val="{{ true }}">
+      <div class="tw-workflow-panel" aria-label="Run progress">
+        <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:8px">{{ workflowRun.judgesSummary }}</div>
+        <sc-for list="{{ workflowRun.scannerRows }}" as="row" hint-placeholder-count="2">
+          <div style="display:grid;grid-template-columns:1.2fr 1.4fr 0.9fr 0.7fr 0.7fr;gap:8px;padding:6px 8px;margin-bottom:4px;border:1px solid var(--border-subtle);border-radius:4px;background:var(--bg-surface);font-family:var(--font-mono);font-size:11px;color:var(--text-secondary)">
+            <span style="color:var(--text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ row.target }}</span>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ row.scanner }}</span>
+            <span>{{ row.status }}</span>
+            <span>cand {{ row.candidates }}</span>
+            <span>err {{ row.errors }}</span>
+          </div>
+        </sc-for>
+        <sc-for list="{{ workflowRun.judgeSlots }}" as="slot" hint-placeholder-count="0">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);padding:2px 0">{{ slot.slot }} · {{ slot.status }} · {{ slot.verdict }}</div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ workflowIsTriage }}" hint-placeholder-val="{{ false }}">
+      <div class="tw-workflow-panel" aria-label="Triage">
+        <div style="font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:4px">{{ workflowTriage.headline }}</div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:6px">
+          Coverage · discovered {{ workflowTriage.coverageHonesty.discovered }} · scanned {{ workflowTriage.coverageHonesty.scanned }} · failed {{ workflowTriage.coverageHonesty.failed }} · skipped {{ workflowTriage.coverageHonesty.skipped }}
+        </div>
+        <div class="tw-triage-tabs" role="tablist" aria-label="Triage filters">
+          <sc-for list="{{ workflowTriage.tabs }}" as="tab" hint-placeholder-count="4">
+            <button type="button" role="tab" onClick="{{ tab.onClick }}" aria-selected="{{ tab.ariaSelected }}" style="{{ tab.style }}">{{ tab.label }} ({{ tab.count }})</button>
+          </sc-for>
+        </div>
+        <sc-for list="{{ workflowTriage.filteredFindings }}" as="f" hint-placeholder-count="2">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:stretch;margin-bottom:6px">
+            <button type="button" class="tw-workflow-finding" onClick="{{ f.onInvestigate }}" style="flex:1;min-width:200px;border-left-color:{{ f.sevColor }}">
+              <span>
+                <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ f.sevColor }};text-transform:uppercase">{{ f.severity }}</span>
+                <span style="margin-left:8px">{{ f.title }}</span>
+                <span style="display:block;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:2px">{{ f.triageStatus }}</span>
+              </span>
+              <span style="font-family:var(--font-mono);font-size:10px;color:var(--cta-ink)">Investigate →</span>
+            </button>
+            <div style="display:flex;flex-direction:column;gap:4px" role="group" aria-label="Override triage status">
+              <button type="button" onClick="{{ f.setToFix }}" style="{{ f.toFixStyle }}">to_fix</button>
+              <button type="button" onClick="{{ f.setNeedsReview }}" style="{{ f.needsReviewStyle }}">needs_review</button>
+              <button type="button" onClick="{{ f.setDismissed }}" style="{{ f.dismissedStyle }}">dismissed</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ workflowIsInvestigate }}" hint-placeholder-val="{{ false }}">
+      <div class="tw-workflow-panel" aria-label="Investigate">
+        <sc-if value="{{ workflowInvestigateEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12px;color:var(--text-secondary)">Select a finding from Triage to investigate.</div>
+        </sc-if>
+        <sc-if value="{{ workflowInvestigateReady }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ workflowInvestigate.agreementLine }}">
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:8px">Agreement: {{ workflowInvestigate.agreementLine }}</div>
+          </sc-if>
+          <sc-for list="{{ workflowInvestigate.sections }}" as="sec" hint-placeholder-count="4">
+            <div style="margin-bottom:10px;padding:8px 10px;border:1px solid var(--border-subtle);border-radius:4px;background:var(--bg-surface)">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ sec.title }}</div>
+                <sc-if value="{{ sec.isHowWeDecided }}">
+                  <button type="button" onClick="{{ sec.onToggle }}" style="font-family:var(--font-mono);font-size:10px;padding:3px 8px;border-radius:3px;cursor:pointer;border:1px solid var(--border-default);background:transparent;color:var(--text-secondary)" aria-expanded="{{ sec.ariaExpanded }}">{{ sec.toggleLabel }}</button>
+                </sc-if>
+              </div>
+              <sc-if value="{{ sec.showBody }}">
+                <div style="font-size:12px;color:var(--text-primary);white-space:pre-wrap;margin-top:6px;line-height:1.45">{{ sec.body }}</div>
+              </sc-if>
+              <sc-if value="{{ sec.showCollapsedHint }}">
+                <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:6px">Collapsed — expand for decision detail</div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ workflowIsStub }}" hint-placeholder-val="{{ false }}">
+      <div class="tw-workflow-panel" aria-label="Coming later">
+        <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary)">Coming in later slice</div>
+      </div>
+    </sc-if>
   </div>
 
   <!-- ── Intro / landing screen ── -->
@@ -1063,7 +1253,15 @@ class Component extends DCLogic {
     expandedScanners: {},
     findingsExpanded: true,
     realtimeConnected: false,
-    showIntro: !sessionStorage.getItem('tripwire-intro-dismissed')
+    showIntro: !sessionStorage.getItem('tripwire-intro-dismissed'),
+    currentStep: 'run',
+    expertMode: false,
+    workflowSelectedFindingId: null,
+    triageFilter: 'all',
+    investigateHowExpanded: false,
+    workflowKitsLoaded: false,
+    triageRevision: 0,
+    workflowStepInferred: false
   };
 
   componentDidMount() {
@@ -1074,12 +1272,30 @@ class Component extends DCLogic {
       console.error('[tripwire-dashboard] status kit load error:', err);
       this._loadDataForMode(this.state.dataSourceMode);
     });
+    Promise.all([
+      import('./tripwire-workflow-stepper.js'),
+      import('./tripwire-run-progress.js'),
+      import('./tripwire-triage.js'),
+      import('./tripwire-investigate.js'),
+      import('./tripwire-workflow-prefs.js')
+    ]).then(([stepper, run, triage, investigate, prefs]) => {
+      this._workflow = { stepper, run, triage, investigate, prefs };
+      const loadedExpert = prefs.loadExpertMode(sessionStorage);
+      this.setState({ expertMode: loadedExpert, workflowKitsLoaded: true });
+    }).catch(err => {
+      console.error('[tripwire-dashboard] workflow kit load error:', err);
+    });
   }
 
   _loadDataForMode(mode) {
     this.setState({ dataSource: 'loading' });
     import('./tripwire-live.js').then(m => m.default(mode)).then(result => {
-      this.setState({ data: result.data, dataSource: result.source });
+      const patch = { data: result.data, dataSource: result.source };
+      if (!this.state.workflowStepInferred) {
+        patch.currentStep = this.inferDefaultWorkflowStep(result.data);
+        patch.workflowStepInferred = true;
+      }
+      this.setState(patch);
       this._managePoll(result.data, mode);
     }).catch(err => {
       console.error('[tripwire-dashboard] data load error:', err);
@@ -1202,6 +1418,288 @@ class Component extends DCLogic {
     return { expandedScanners: { ...s.expandedScanners, [key]: !s.expandedScanners[key] } };
   });
   toggleFindings = () => this.setState(s => ({ findingsExpanded: !s.findingsExpanded }));
+
+  setWorkflowStep = (stepId) => this.setState({ currentStep: stepId, investigateHowExpanded: false });
+
+  setSimpleMode = () => {
+    const prefs = this._workflow?.prefs;
+    if (prefs) prefs.saveExpertMode(false, sessionStorage);
+    this.setState({ expertMode: false });
+  };
+
+  setExpertModeOn = () => {
+    const prefs = this._workflow?.prefs;
+    if (prefs) prefs.saveExpertMode(true, sessionStorage);
+    this.setState({ expertMode: true });
+  };
+
+  setTriageFilter = (filterId) => this.setState({ triageFilter: filterId });
+
+  selectWorkflowFinding = (findingId) => this.setState({
+    workflowSelectedFindingId: findingId,
+    currentStep: 'investigate',
+    investigateHowExpanded: false
+  });
+
+  setWorkflowTriageStatus = (findingId, status) => {
+    const prefs = this._workflow?.prefs;
+    if (prefs) prefs.saveTriageDecision(findingId, status, localStorage);
+    this.setState(s => ({ triageRevision: (s.triageRevision || 0) + 1 }));
+  };
+
+  toggleInvestigateHow = () => this.setState(s => ({ investigateHowExpanded: !s.investigateHowExpanded }));
+
+  mapWorkflowSeverity(sev) {
+    const key = String(sev || '').toLowerCase();
+    if (key === 'red' || key === 'high' || key === 'critical') return 'High';
+    if (key === 'amber' || key === 'medium' || key === 'yellow' || key === 'warn') return 'Medium';
+    if (key === 'green' || key === 'low' || key === 'info') return 'Low';
+    return 'Medium';
+  }
+
+  defaultTriageStatus(sevLabel) {
+    return sevLabel === 'Low' ? 'needs_review' : 'to_fix';
+  }
+
+  mapItemFindingToWorkflow(item, f, index) {
+    const prefs = this._workflow?.prefs;
+    const severity = this.mapWorkflowSeverity(f.severity);
+    const title = f.category || (f.message ? String(f.message).slice(0, 80) : 'Finding');
+    const evidenceHighlight = f.snippet || f.evidenceHighlight || '';
+    const source = f.file_path
+      ? (f.location != null ? `${f.file_path}:${f.location}` : f.file_path)
+      : (f.source || '');
+    const provisional = {
+      id: f.id || null,
+      title,
+      severity,
+      evidenceHighlight,
+      source,
+      sink: f.sink || '',
+      explanation: f.message || f.explanation || '',
+      verdictLine: f.verdictLine || 'Judgement pending — judge panel fields not present yet',
+      attackPath: f.attackPath || 'Not available yet (judge panel pending)',
+      prerequisites: f.prerequisites || 'Not available yet (judge panel pending)',
+      evidenceVerification: f.evidenceVerification || 'Not available yet (judge panel pending)',
+      howWeDecided: f.howWeDecided || {
+        final: 'Judgement pending',
+        judges: null,
+        rawIds: null
+      },
+      agreement: f.agreement || 'Agreement not available yet',
+      triageStatus: f.triageStatus || this.defaultTriageStatus(severity),
+      itemId: item.id,
+      itemName: item.name
+    };
+    const id = prefs
+      ? prefs.stableFindingId(provisional)
+      : (f.id || `${item.id}:${f.scanner || 'scan'}:${f.category || index}`);
+    return { ...provisional, id };
+  }
+
+  collectWorkflowFindings(data) {
+    if (!data?.items) return [];
+    const out = [];
+    for (const item of data.items) {
+      const findings = item.findings || [];
+      findings.forEach((f, index) => {
+        if (f.scanner === 'tiered_router') return;
+        out.push(this.mapItemFindingToWorkflow(item, f, index));
+      });
+    }
+    return out;
+  }
+
+  collectWorkflowScanners(data) {
+    if (!data?.items) return [];
+    const rows = [];
+    for (const item of data.items) {
+      for (const sc of (item.scanners || [])) {
+        const out = sc.output || {};
+        rows.push({
+          target: item.name || item.identifier || '',
+          scanner: sc.source || sc.scanner || '',
+          status: sc.status || '',
+          candidates: out.candidates ?? out.findings_count ?? (item.findings || []).filter(f => f.scanner === sc.source).length,
+          errors: out.errors ?? (sc.status === 'failed' || sc.status === 'unreachable' ? 1 : 0)
+        });
+      }
+    }
+    return rows;
+  }
+
+  collectWorkflowJudges(data) {
+    const panel = data?.judgePanel || data?.judges;
+    if (panel && typeof panel === 'object') {
+      return {
+        answered: panel.answered ?? 0,
+        total: panel.total ?? 3,
+        slots: panel.slots || []
+      };
+    }
+    return {
+      answered: 0,
+      total: 3,
+      slots: [
+        { slot: 'judge-1', verdict: '', confidence: null, status: 'pending' },
+        { slot: 'judge-2', verdict: '', confidence: null, status: 'pending' },
+        { slot: 'judge-3', verdict: '', confidence: null, status: 'pending' }
+      ]
+    };
+  }
+
+  collectWorkflowCoverage(data) {
+    const items = data?.items || [];
+    return {
+      discovered: items.length,
+      scanned: items.filter(it => it.lastScan || it.status === 'running').length,
+      failed: items.filter(it => it.status === 'error').length,
+      skipped: items.filter(it => it.status === 'grey' || it.status === 'no_coverage').length
+    };
+  }
+
+  inferDefaultWorkflowStep(data) {
+    if (!data?.items) return 'run';
+    if (data.items.some(it => it.status === 'running')) return 'run';
+    const hasFindings = data.items.some(it => (it.findings || []).some(f => f.scanner !== 'tiered_router'));
+    if (hasFindings) return 'triage';
+    return 'run';
+  }
+
+  buildWorkflowView(data, s) {
+    const wf = this._workflow;
+    const emptyRun = { scannerRows: [], judgesSummary: '0 of 3 judges answered', judgeSlots: [] };
+    const emptyTriage = {
+      headline: '0 to-fix · 0 needs-review · 0 dismissed',
+      tabs: [],
+      filteredFindings: [],
+      coverageHonesty: { discovered: 0, scanned: 0, failed: 0, skipped: 0 }
+    };
+    const emptyInvestigate = { sections: [], hiddenInSimple: [], agreementLine: null };
+    const step = s.currentStep || 'run';
+    const stubSteps = step === 'fix' || step === 'verify' || step === 'report';
+
+    if (!wf) {
+      return {
+        workflowStepperSteps: [
+          { id: 'run', label: 'Run', stateLabel: 'current', ariaCurrent: 'step', title: 'Run (current)', onClick: () => this.setWorkflowStep('run') },
+          { id: 'triage', label: 'Triage', stateLabel: 'upcoming', ariaCurrent: 'false', title: 'Triage', onClick: () => this.setWorkflowStep('triage') },
+          { id: 'investigate', label: 'Investigate', stateLabel: 'upcoming', ariaCurrent: 'false', title: 'Investigate', onClick: () => this.setWorkflowStep('investigate') },
+          { id: 'fix', label: 'Fix', stateLabel: 'upcoming', ariaCurrent: 'false', title: 'Fix', onClick: () => this.setWorkflowStep('fix') },
+          { id: 'verify', label: 'Verify', stateLabel: 'upcoming', ariaCurrent: 'false', title: 'Verify', onClick: () => this.setWorkflowStep('verify') },
+          { id: 'report', label: 'Report', stateLabel: 'upcoming', ariaCurrent: 'false', title: 'Report', onClick: () => this.setWorkflowStep('report') }
+        ],
+        workflowIsRun: step === 'run',
+        workflowIsTriage: step === 'triage',
+        workflowIsInvestigate: step === 'investigate',
+        workflowIsStub: stubSteps,
+        workflowRun: emptyRun,
+        workflowTriage: emptyTriage,
+        workflowInvestigate: emptyInvestigate,
+        workflowInvestigateEmpty: true,
+        workflowInvestigateReady: false,
+        setSimpleMode: this.setSimpleMode,
+        setExpertModeOn: this.setExpertModeOn,
+        simpleModePressed: (!s.expertMode).toString(),
+        expertModePressed: (!!s.expertMode).toString(),
+        simpleModeBtnStyle: this.btnStyle(!s.expertMode, { size: '11px', pad: '4px 10px' }),
+        expertModeBtnStyle: this.btnStyle(!!s.expertMode, { size: '11px', pad: '4px 10px' })
+      };
+    }
+
+    const rawFindings = this.collectWorkflowFindings(data);
+    const findings = wf.prefs.applyPersistedTriage(rawFindings, localStorage);
+    const scanners = this.collectWorkflowScanners(data);
+    const judges = this.collectWorkflowJudges(data);
+    const coverage = this.collectWorkflowCoverage(data);
+
+    const stepper = wf.stepper.buildStepperView({ currentStep: step });
+    const workflowStepperSteps = stepper.steps.map(st => ({
+      ...st,
+      ariaCurrent: st.current ? 'step' : 'false',
+      title: `${st.label} (${st.stateLabel})`,
+      onClick: () => this.setWorkflowStep(st.id)
+    }));
+
+    const workflowRun = wf.run.buildRunProgressView({ scanners, judges });
+    const triageVm = wf.triage.buildTriageView({
+      findings,
+      coverage,
+      triageFilter: s.triageFilter
+    });
+    const workflowTriage = {
+      headline: triageVm.headline,
+      coverageHonesty: triageVm.coverageHonesty,
+      tabs: triageVm.tabs.map(tab => ({
+        ...tab,
+        ariaSelected: tab.selected ? 'true' : 'false',
+        onClick: () => this.setTriageFilter(tab.id),
+        style: this.btnStyle(tab.selected, { size: '11px', pad: '4px 10px' })
+      })),
+      filteredFindings: triageVm.filteredFindings.map(f => {
+        const sevColor = f.severity === 'High' ? '#B42318' : (f.severity === 'Medium' ? '#8B5A00' : '#0F766E');
+        const statusBtn = (status) => this.btnStyle(f.triageStatus === status, { size: '10px', pad: '3px 6px' });
+        return {
+          ...f,
+          sevColor,
+          onInvestigate: () => this.selectWorkflowFinding(f.id),
+          setToFix: () => this.setWorkflowTriageStatus(f.id, 'to_fix'),
+          setNeedsReview: () => this.setWorkflowTriageStatus(f.id, 'needs_review'),
+          setDismissed: () => this.setWorkflowTriageStatus(f.id, 'dismissed'),
+          toFixStyle: statusBtn('to_fix'),
+          needsReviewStyle: statusBtn('needs_review'),
+          dismissedStyle: statusBtn('dismissed')
+        };
+      })
+    };
+
+    const selectedFinding = findings.find(f => f.id === s.workflowSelectedFindingId) || null;
+    let workflowInvestigate = emptyInvestigate;
+    if (selectedFinding) {
+      const built = wf.investigate.buildInvestigateView({
+        finding: selectedFinding,
+        expertMode: !!s.expertMode
+      });
+      // Simple mode: title_severity already carries Agreement when present; keep all
+      // sections (including collapsed how_we_decided) — do not strip agreement.
+      workflowInvestigate = {
+        sections: built.sections.map(sec => {
+          const isHow = sec.id === 'how_we_decided';
+          const expanded = isHow ? !!s.investigateHowExpanded : true;
+          return {
+            ...sec,
+            isHowWeDecided: isHow,
+            showBody: expanded,
+            showCollapsedHint: isHow && !expanded,
+            ariaExpanded: expanded ? 'true' : 'false',
+            toggleLabel: expanded ? 'Collapse' : 'Expand',
+            onToggle: this.toggleInvestigateHow
+          };
+        }),
+        hiddenInSimple: built.hiddenInSimple,
+        agreementLine: selectedFinding.agreement || null
+      };
+    }
+
+    return {
+      workflowStepperSteps,
+      workflowIsRun: step === 'run',
+      workflowIsTriage: step === 'triage',
+      workflowIsInvestigate: step === 'investigate',
+      workflowIsStub: stubSteps,
+      workflowRun,
+      workflowTriage,
+      workflowInvestigate,
+      workflowInvestigateEmpty: step === 'investigate' && !selectedFinding,
+      workflowInvestigateReady: step === 'investigate' && !!selectedFinding,
+      setSimpleMode: this.setSimpleMode,
+      setExpertModeOn: this.setExpertModeOn,
+      simpleModePressed: (!s.expertMode).toString(),
+      expertModePressed: (!!s.expertMode).toString(),
+      simpleModeBtnStyle: this.btnStyle(!s.expertMode, { size: '11px', pad: '4px 10px' }),
+      expertModeBtnStyle: this.btnStyle(!!s.expertMode, { size: '11px', pad: '4px 10px' })
+    };
+  }
 
   simulateGuardCall = (id) => {
     this.setState(s => {
@@ -1640,7 +2138,8 @@ class Component extends DCLogic {
         { key: 'name', label: 'Name' }, { key: 'type', label: 'Type' },
         { key: 'lastScan', label: 'Last scanned' }, { key: 'status', label: 'Health' },
         { key: 'risk', label: 'Risk density' }, { key: 'locus', label: 'Source' }
-      ].map(c => ({ ...c, onClick: () => this.setSort(c.key), arrow: s.sortKey === c.key ? (s.sortDir === 'asc' ? ' ▲' : ' ▼') : '' }))
+      ].map(c => ({ ...c, onClick: () => this.setSort(c.key), arrow: s.sortKey === c.key ? (s.sortDir === 'asc' ? ' ▲' : ' ▼') : '' })),
+      ...this.buildWorkflowView(data, s)
     };
 
     if (!data) {

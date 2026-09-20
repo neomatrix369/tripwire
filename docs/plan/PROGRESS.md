@@ -243,7 +243,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 | 65 | [slice-65-lang-ecosystem-coverage-ledger](slices/18-R-approved-repo-workflow/slice-65-lang-ecosystem-coverage-ledger.md) | Must | ✅ VERIFIED ON BRANCH | — | — | ~50 min [Walking Skeleton] |
 | 66 | [slice-66-evidence-verify-injection-guard](slices/18-R-approved-repo-workflow/slice-66-evidence-verify-injection-guard.md) | Must | ✅ VERIFIED ON BRANCH | 2026-09-20 | 2026-09-20 | ~40 min |
 | 67 | [slice-67-sie-judge-panel-final](slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md) | Must | 🔨 IN PROGRESS | 2026-09-20 | — | ~50 min [Walking Skeleton] |
-| 68 | [slice-68-workflow-run-triage-investigate](slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md) | Must | 📋 PLANNED | — | — | ~50 min [Walking Skeleton] |
+| 68 | [slice-68-workflow-run-triage-investigate](slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md) | Must | ✅ VERIFIED ON BRANCH (`slice/68-workflow-run-triage-investigate`) | 2026-09-20 | — | ~50 min [Walking Skeleton] |
 | 69 | [slice-69-fix-propose-apply-clean](slices/18-R-approved-repo-workflow/slice-69-fix-propose-apply-clean.md) | Must | 📋 PLANNED | — | — | ~40 min |
 | 70 | [slice-70-verify-worktree-rescan](slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md) | Should | 📋 PLANNED | — | — | ~40 min |
 | 71 | [slice-71-expert-export-report](slices/18-R-approved-repo-workflow/slice-71-expert-export-report.md) | Should | 📋 PLANNED | — | — | ~40 min |

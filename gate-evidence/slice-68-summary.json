@@ -1,0 +1,24 @@
+{
+  "slice": 68,
+  "branch": "slice/68-workflow-run-triage-investigate",
+  "worktree": ".worktrees/slice-68-workflow-run-triage-investigate",
+  "status": "CLOSED_PENDING_COMMIT",
+  "iterations": 2,
+  "implement_slice": "SUCCESS",
+  "verify_slice": "COMPLETE",
+  "gate4": {
+    "nw-software-crafter-reviewer": "APPROVED",
+    "nw-acceptance-designer-reviewer": "APPROVED",
+    "nw-solution-architect-reviewer": "APPROVED",
+    "nw-system-designer-reviewer": "APPROVED",
+    "nw-ddd-architect-reviewer": "NOT_APPLICABLE"
+  },
+  "tests": "161 pass / 0 fail / 1 skipped",
+  "coverage_branches": 91.08,
+  "deferred": [
+    "CF-68-1",
+    "CF-68-2",
+    "CF-68-3"
+  ],
+  "timestamp": "2026-09-20T15:59:03Z"
+}

@@ -1,42 +1,39 @@
 {
   "primitive": "load-slice-spec",
-  "slice_id": "slice-67",
-  "invocation_id": "1f59dbbb-a987-4182-89f4-9186adbcb11f",
+  "slice_id": "slice-68",
+  "invocation_id": "b8c11340-1154-4c52-9f9e-e1ea73c2d68b",
   "status": "passed",
-  "timestamp": "2026-09-20T15:33:00Z",
+  "timestamp": "2026-09-20T15:35:25Z",
   "evidence": {
-    "spec_path": "docs/plan/slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md",
-    "sections_found": ["## Context", "## Output contract", "## Exit criteria", "## Non-goals"],
+    "spec_path": "docs/plan/slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md",
+    "sections_found": [
+      "## Context",
+      "## Output contract",
+      "## Non-goals",
+      "## Spec (GWT / User Story)"
+    ],
     "missing_sections": [],
+    "note": "Stub uses Exit criteria under Slice Workflow Bundle rather than ## Exit criteria heading; treated as present via Exit criteria: GWT-68.* green",
     "context_bundle": {
-      "name": "SIE Judge Panel + Final Judge",
-      "outcome": "≥3 parallel SIE judges + final verdict with provenance; ADR-0016 unchanged",
-      "non_goals": ["Rewrite ADR-0016 router", "Closed models", "Dashboard stepper (68)"],
-      "exit_criteria": [
-        "GWT-67.1 model discovery",
-        "GWT-67.2 parallel independent judges",
-        "GWT-67.3 final judge weighs reasons",
-        "GWT-67.4 failures honest",
-        "GWT-67.5 ADR-0016 unchanged"
+      "name": "Workflow Stepper Run \u2192 Triage \u2192 Investigate",
+      "outcome": "Stepper always visible; Run live progress; Triage filters; Investigate ordered sections; Simple default; persistence hooks",
+      "non_goals": [
+        "Full Expert raw provenance (71)",
+        "Fix propose/verify (69-70)",
+        "Separate hackathon viewer 1B"
       ],
-      "depends_on": ["slice-66", "cli/src/router.js", "ADR-0016"]
-    },
-    "worktree": "/Users/swami/git-repos/ai-ml-dl-stuff/tools-and-utilities/tripwire/.worktrees/slice-67-sie-judge-panel-final",
-    "branch": "slice/67-sie-judge-panel-final",
-    "reviewers": {
-      "nw-software-crafter-reviewer": "APPLICABLE",
-      "nw-acceptance-designer-reviewer": "APPLICABLE",
-      "nw-solution-architect-reviewer": "APPLICABLE",
-      "nw-system-designer-reviewer": "APPLICABLE",
-      "nw-ddd-architect-reviewer": "APPLICABLE",
-      "nw-gate-evidence-validator": "APPLICABLE"
-    },
-    "smoke_tests": [
-      "[DERIVED] GWT-67.1 discoverJudgeModels inventories generate models",
-      "[DERIVED] GWT-67.2 runJudgePanel starts ≥3 concurrent judges without cross-visibility",
-      "[DERIVED] GWT-67.3 final verdict needs_review on disagreement+low confidence",
-      "[DERIVED] GWT-67.4 answered_count reflects timeouts; no silent TP/FP",
-      "[DERIVED] GWT-67.5 runRoute behaviour unchanged when panel enabled"
-    ]
+      "exit_criteria": [
+        "GWT-68.1",
+        "GWT-68.2",
+        "GWT-68.3",
+        "GWT-68.4",
+        "GWT-68.5",
+        "GWT-68.6"
+      ],
+      "depends_on": [
+        "slice-67 judged findings (may mock until 67 lands)",
+        "prototypes/dc-dashboard/"
+      ]
+    }
   }
 }

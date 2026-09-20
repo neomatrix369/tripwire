@@ -1,6 +1,6 @@
 # Slice 68: Workflow Stepper Run → Triage → Investigate
 
-> Scenario: Brownfield | MoSCoW: **Must** | Status: 📋 PLANNED
+> Scenario: Brownfield | MoSCoW: **Must** | Status: ✅ VERIFIED ON BRANCH
 > Wave: R — Approved-repo security workflow
 > Depends on: **67** (judged findings + coverage)
 > Trigger: Guided UX — Run live progress, Triage summary/tabs, Investigate detail (Simple default)
@@ -82,15 +82,15 @@
 **Then** decision is stored keyed by stable ID for cross-run retention (full controls may complete with 69)
 
 ## Before-Checks [GATE]
-- [ ] Branch created
-- [ ] UI 1A confirmed in DECISIONS
-- [ ] GWT RED / visual checks planned
+- [x] Branch created
+- [x] UI 1A confirmed in DECISIONS
+- [x] GWT RED / visual checks planned
 
 ## After-Checks [GATE]
-- [ ] Tests / dashboard characterisation pass
-- [ ] Specification coverage for GWT-68.*
+- [x] Tests / dashboard characterisation pass
+- [x] Specification coverage for GWT-68.*
 - [ ] Complexity evidence recorded
-- [ ] Doc Audit: screenshots optional; STATUS workflow stepper
+- [x] Doc Audit: screenshots optional; STATUS workflow stepper
 
 ### Closing Gates
 - [ ] `nw-at-completeness-check`
@@ -100,4 +100,4 @@
 - [ ] `/verify-slice` — COMPLETE
 
 ## Gate Status
-📋 PLANNED — EFP Path B 2026-09-20 (Wave R); UI **1A**
+✅ VERIFIED ON BRANCH — modules + GWT-68.* on `slice/68-workflow-run-triage-investigate`; Closing Gates still open (not ✅ PASSED / merged)

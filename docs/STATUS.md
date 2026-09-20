@@ -68,6 +68,11 @@ Reachable through production entry points / config:
   `tripwire scan` / `--dry-discover` print `[evidence]` rows —
   `cli/src/evidenceVerify.js`. IMPLEMENTED (host/CLI); finding-row persistence
   stays slice 67.
+- Wave R **workflow stepper** Run→Triage→Investigate (slice 68): IMPLEMENTED on
+  dashboard prototype branch `slice/68-workflow-run-triage-investigate` —
+  `prototypes/dc-dashboard/tripwire-workflow-*.js` (+ run-progress / triage /
+  investigate modules) with GWT-68.* characterisation tests. Not merged to
+  `main`; Fix/Verify/Report remain stubs for later slices.
 - CLI **`tripwire judge --batch-id`** + SIE judge panel module (slice 67, Wave R):
   `cli/src/judgePanel.js` (panel + final judge; open-weight SIE generate models).
   Optional soft-fail post-route hook only when `TRIPWIRE_JUDGE_PANEL=1` (default
