@@ -74,8 +74,8 @@ Reachable through production entry points / config:
   primary **Dashboard** tab = inventory (default); stepper + phase panels move to
   secondary **Workflow** tab — IMPLEMENTED on `main`
   ([#160](https://github.com/neomatrix369/tripwire/pull/160)).
-- Wave R **Triage target filters** (slice 73): 🔨 IN PROGRESS — cherry-picked
-  onto `fix/slice-74-fix-blank-while-heuristic`. Triage panel adds inventory-style
+- Wave R **Triage target filters** (slice 73): ✅ PASSED — merged-on-main;
+  formal close 2026-09-20. Triage panel adds inventory-style
   type tabs (All / Skills / MCP / Packages), quality tabs (All + Tessl
   high/low/unscored), and per-target chips; filters compose with status tabs;
   finding rows show target name. SCA triage titles prefer `package@version · CVE`

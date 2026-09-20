@@ -1,10 +1,10 @@
 # Slice 73: Triage Target Type + Per-Target Filters
 
-> Scenario: Brownfield | MoSCoW: **Should** | Status: 🔨 IN PROGRESS
+> Scenario: Brownfield | MoSCoW: **Should** | Status: ✅ PASSED
 > Wave: R — Approved-repo security workflow
 > Depends on: **68** (Triage step + findings with itemId/itemName)
 > Trigger: Operator needs inventory-style type/quality filters **and** per-target chips on Triage to pick issues for the right targets
-> Branch: `slice/73-triage-target-filters`
+> Branch: `slice/73-triage-target-filters` (formal close: `docs/slice-73-formal-close`)
 > UI surface: **1A** — extend existing Tripwire Live/Mock dashboard Triage panel
 
 ## Session bootstrap
@@ -67,15 +67,15 @@
 ## After-Checks [GATE]
 - [x] Tests pass
 - [x] Specification coverage for GWT-73.*
-- [ ] Complexity evidence recorded
+- [x] Complexity evidence recorded
 - [x] Doc Audit: STATUS + CHANGELOG triage filters
 
 ### Closing Gates
-- [ ] `nw-at-completeness-check`
-- [ ] `nw-software-crafter-reviewer`
-- [ ] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer`
-- [ ] `nw-gate-evidence-validator`
-- [ ] `/verify-slice` — COMPLETE
+- [x] `nw-at-completeness-check`
+- [x] `nw-software-crafter-reviewer`
+- [x] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer`
+- [x] `nw-gate-evidence-validator`
+- [x] `/verify-slice` — COMPLETE
 
 ## Gate Status
-🔨 IN PROGRESS — GWT-73.* green on `slice/73-triage-target-filters`; Closing Gates open
+✅ PASSED — merged-on-main; formal close 2026-09-20 (`docs/slice-73-formal-close`); GWT-73.* green; Gate 4 APPROVED (software-crafter, acceptance-designer, solution-architect); ddd=NOT_APPLICABLE
