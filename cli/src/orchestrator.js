@@ -146,7 +146,15 @@ async function fetchScannerRows(supabase, scanRunId) {
   return Array.isArray(data) ? data : [];
 }
 
-function printCoverageForTarget(target, scannerRows = []) {
+/**
+ * Print coverage ledger for a package target after scan inventory is known.
+ * Pre-scan (not dispatched / dry-discover) passes empty scannerRows → not_started.
+ * Post-scan passes scan_run_scanners rows → completed/failed/skipped/timed_out.
+ * Ledger rollup (fully covered / partly covered / unsupported or unscanned) is
+ * operator-facing honesty — distinct from scan_run.status and scanner inventory
+ * rollup (ADR-0009 / inventory fully successful). Do not map one onto the other.
+ */
+function printCoverageLedgerForPackage(target, scannerRows = []) {
   if (target.type !== 'package') return;
   const workdir = target.target;
   if (!workdir) return;
@@ -161,14 +169,14 @@ async function printInventoryForOutcome(supabase, target, outcome) {
   if (!outcome.scanRunId) {
     const inventory = mergeScannerInventory(expectedScannersFor(target.type), []);
     console.log(formatScannerInventory(inventory, { label: `${label} (not dispatched)` }));
-    printCoverageForTarget(target, []);
+    printCoverageLedgerForPackage(target, []);
     return;
   }
   try {
     const rows = await fetchScannerRows(supabase, outcome.scanRunId);
     const inventory = mergeScannerInventory(expectedScannersFor(target.type), rows);
     console.log(formatScannerInventory(inventory, { label }));
-    printCoverageForTarget(target, rows);
+    printCoverageLedgerForPackage(target, rows);
   } catch (err) {
     console.warn(`[warn] could not load scanner inventory for ${label}: ${err.message}`);
   }

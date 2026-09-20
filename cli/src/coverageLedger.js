@@ -237,6 +237,8 @@ export function buildCoverageLedger(workdir, scannerRows = []) {
 
 /**
  * Coverage rollup — never "fully successful" when any ecosystem lacks a completed scan.
+ * Operator-facing only; not the same enum as scan_run.status or scanner-inventory
+ * rollup (`fully successful` / `partly successful` / `fully failed`).
  * @param {{ status: string }[]} ledger
  */
 export function rollupCoverageLedger(ledger) {
