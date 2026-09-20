@@ -70,7 +70,10 @@ Reachable through production entry points / config:
   stays slice 67.
 - Wave R **workflow stepper** Run→Triage→Investigate (slice 68): IMPLEMENTED /
   VERIFIED on `main` (#152) — `prototypes/dc-dashboard/tripwire-workflow-*.js`
-  (+ run-progress / triage / investigate) with GWT-68.* tests.
+  (+ run-progress / triage / investigate) with GWT-68.* tests. **Nav (2026-09-20):**
+  primary **Dashboard** tab = inventory (default); stepper + phase panels move to
+  secondary **Workflow** tab — IMPLEMENTED on `feat/inventory-default-workflow-tab`
+  (not VERIFIED until merge + operator observation).
 - Wave R **Triage target filters** (slice 73): 🔨 IN PROGRESS — cherry-picked
   onto `fix/slice-74-fix-blank-while-heuristic`. Triage panel adds inventory-style
   type tabs (All / Skills / MCP / Packages), quality tabs (All + Tessl
@@ -98,11 +101,12 @@ Reachable through production entry points / config:
   `tripwire-verify-rescan.js`, `tripwire-verify-view.js` (dashboard prototype).
   Not VERIFIED until `/verify-slice`.
 - Wave R **Expert view + Report export** (slice 71): IMPLEMENTED / VERIFIED on
-  `main` (#153) — Expert toggle surfaces raw judges, model IDs, confidence,
-  weakness/AI-sec IDs, scanner details, data-flow; Report step headline
-  (fixed / left / won't fix) with JSON/Markdown export + coverage ledger;
-  secrets masked unless Reveal secrets. Modules: `tripwire-report.js`,
-  `tripwire-report-export.js`; GWT-71.* tests.
+  `main` (#153) — on the **Workflow** tab, Expert toggle surfaces raw judges,
+  model IDs, confidence, weakness/AI-sec IDs, scanner details, data-flow (Simple
+  remains the default density); Report step headline (fixed / left / won't fix)
+  with JSON/Markdown export + coverage ledger; secrets masked unless Reveal
+  secrets. Modules: `tripwire-report.js`, `tripwire-report-export.js`; GWT-71.*
+  tests. Expert no longer gates the inventory grid (that is the Dashboard tab).
 - CLI **`tripwire judge --batch-id`** + SIE judge panel module (slice 67, Wave R):
   `cli/src/judgePanel.js` (panel + final judge; open-weight SIE generate models).
   Optional soft-fail post-route hook only when `TRIPWIRE_JUDGE_PANEL=1` (default

@@ -253,7 +253,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 | 73 | [slice-73-triage-target-filters](slices/18-R-approved-repo-workflow/slice-73-triage-target-filters.md) | Should | 🔨 IN PROGRESS | 2026-09-20 | — | ~40 min |
 | 74 | [slice-74-workflow-model-labels](slices/18-R-approved-repo-workflow/slice-74-workflow-model-labels.md) | Should | 🔨 IN PROGRESS | 2026-09-20 | — | ~35 min |
 
-**Group note:** Wave R = approved local repo+commit security workflow. UI **1A** extend dashboard. Reuse Wave P + ADR-0016. Cargo honesty VERIFIED on `fix/cargo-package-scan-error-status` → absorb ledger into **65**; Rust/Cargo via RustSec **Cargo Audit** (**IMPLEMENTED** on `main`) — slice **72** formalizes that gap path. Slice **73** adds inventory-style type/quality + per-target chips on Triage. Slice **74** surfaces default + actual model names on workflow tabs/panels.
+**Group note:** Wave R = approved local repo+commit security workflow. UI **1A** extend dashboard. Reuse Wave P + ADR-0016. Cargo honesty VERIFIED on `fix/cargo-package-scan-error-status` → absorb ledger into **65**; Rust/Cargo via RustSec **Cargo Audit** (**IMPLEMENTED** on `main`) — slice **72** formalizes that gap path. Slice **73** adds inventory-style type/quality + per-target chips on Triage. Slice **74** surfaces default + actual model names on workflow tabs/panels. **Nav (2026-09-20):** inventory is the default **Dashboard** primary tab; Run→Report phases live on secondary **Workflow** (`feat/inventory-default-workflow-tab`).
 
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 

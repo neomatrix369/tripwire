@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Dashboard primary navigation: inventory (KPIs / filters / cards) is the default
+  **Dashboard** tab; Run → Triage → Investigate → Fix → Verify → Report lives on a
+  secondary **Workflow** tab (`prototypes/dc-dashboard/Tripwire.dc.html`). Simple/Expert
+  remains a Workflow-only density toggle (finding detail), not a gate that hides
+  inventory. IMPLEMENTED on `feat/inventory-default-workflow-tab`.
+
 ### Fixed
 - Package / SCA honesty for unsupported ecosystems (Cargo-only and similar):
   `snyk test` does not support Rust/Cargo — Tripwire reports `not_applicable`

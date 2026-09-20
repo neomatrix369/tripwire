@@ -34,7 +34,8 @@ node scripts/serve-dashboard.mjs
 ```
 
 Open [http://127.0.0.1:8765/](http://127.0.0.1:8765/). Use **Mock (demo data)** in Guard.
-Click **Open Dashboard →** past the landing intro if shown.
+Click **Open Dashboard →** past the landing intro if shown (inventory is the default
+tab; use **Workflow** for Run → Report phases).
 
 More commands: [setup-commands.md](docs/user-guide/setup-commands.md).
 
