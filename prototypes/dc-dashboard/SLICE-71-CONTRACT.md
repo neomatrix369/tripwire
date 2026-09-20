@@ -1,8 +1,8 @@
 # Slice 71 — Module Contract (Expert + Report Export)
 
-**Worktree:** `.worktrees/slice-71-expert-export-report`  
-**Branch:** `slice/71-expert-export-report`  
-**Depends on:** Slice 68 (Simple/Expert toggle, Investigate, triage)  
+**Worktree:** `.worktrees/slice-71-expert-export-report`
+**Branch:** `slice/71-expert-export-report`
+**Depends on:** Slice 68 (Simple/Expert toggle, Investigate, triage)
 **Commit only when orchestrator asks.**
 
 ## Invariants
@@ -22,10 +22,10 @@
 | E Wire | `Tripwire.dc.html` + `package.json` c8 includes | Report panel; import kits; map expert fields |
 
 ## Disposition mapping
-Prefer `reportDisposition`: `fixed` | `left` | `wont_fix`.  
+Prefer `reportDisposition`: `fixed` | `left` | `wont_fix`.
 Else: `dismissed`→wont_fix, `fixed`→fixed, else→left.
 
 ## GWT
-1. Expert on → raw judges / model IDs / confidence / weakness IDs / scanner / data-flow visible  
-2. Export → evidence, verdicts, fixes, verification, provenance, coverage; secrets masked unless revealed  
+1. Expert on → raw judges / model IDs / confidence / weakness IDs / scanner / data-flow visible
+2. Export → evidence, verdicts, fixes, verification, provenance, coverage; secrets masked unless revealed
 3. Report step → headline fixed/left/won't fix + one primary export action
