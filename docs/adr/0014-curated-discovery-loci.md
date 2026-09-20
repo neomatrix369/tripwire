@@ -54,20 +54,20 @@ via `--no-defaults`.
 
 ## Later decisions
 
-**Wave P / slice 62 (IN PROGRESS):** Explicit GitHub repo URLs (including
+**Wave P / slice 62 (✅ on `main` via #145/#146):** Explicit GitHub repo URLs (including
 `/tree/…` and `/blob/…` browse URLs, normalized to repo root) expand to typed
 skill and MCP paths after clone — not a single `cloneable`/`mcp_server` row.
 Each row uses `identifier` `org/repo/<relpath>`. Empty/no-artifact repos fail
-closed (discovery returns no targets). Current Decision bullet “git-looking
-HTTPS → cloneable MCP” remains accurate on `main` until slice 62 merges. See
+closed (discovery returns no targets). See
 [slice-62](../plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md),
 [prerequisites — What can Tripwire scan?](../user-guide/prerequisites.md#what-can-tripwire-scan),
 and [ADR-0012](./0012-sandbox-target-acquisition.md) Later decisions.
 
-**Wave P / slice 64 (IN PROGRESS):** When package manifests exist at scope root,
+**Wave P / slice 64 (✅ on `main` via #145/#146):** When package manifests exist at scope root,
 discovery also emits one `items.type = package` target (`identifier` `org/repo`
-or `org/repo/@package` on collision) so DepShield / Ossprey / Snyk apply —
-Cisco Skill / Tessl / Cisco MCP do not. Accept recorded in DECISIONS 2026-09-20.
+or `org/repo/@package` on collision) so DepShield / Ossprey / Snyk (`snyk test`)
+apply — Cisco Skill / Tessl / Cisco MCP do not. Cargo-only → N/A engines /
+UNSCANNED when none complete. Accept recorded in DECISIONS 2026-09-20.
 See [slice-64](../plan/slices/16-P-git-repo-scan/slice-64-git-repo-package-scan.md).
 
 ## References
