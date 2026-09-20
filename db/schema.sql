@@ -68,12 +68,13 @@ create table if not exists scan_run_scanners (
   completed_at   timestamptz
 );
 -- Slice 64: widen items.type for package / DepShield / Ossprey targets (idempotent).
+-- Must not swallow errors: a silent failure leaves the pre-package CHECK in place
+-- and `INSERT type='package'` dies on items_type_check.
 do $$ begin
   alter table items drop constraint if exists items_type_check;
   alter table items add constraint items_type_check check (type in (
     'skill', 'mcp_server', 'package'
   ));
-exception when others then null;
 end $$;
 
 -- Additive migrations for DBs created before these columns existed:

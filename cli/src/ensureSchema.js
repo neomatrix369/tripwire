@@ -49,6 +49,53 @@ function pgSslConfig(url) {
     : { rejectUnauthorized: false };
 }
 
+/** True when a Postgres CHECK definition already allows items.type = package. */
+export function itemsTypeCheckAllowsPackage(def) {
+  return /'package'/.test(String(def || ''));
+}
+
+/**
+ * Apply schema when tables are missing or the live items.type CHECK is pre-package.
+ * @param {boolean} force
+ * @param {'ready'|'missing'} tableState
+ * @param {'ready'|'stale'|'skipped'} typeState
+ */
+export function schemaNeedsApply(force, tableState, typeState) {
+  if (force) return true;
+  if (tableState !== 'ready') return true;
+  return typeState === 'stale';
+}
+
+/**
+ * Read live items_type_check. Skipped in the Node test runner and when DB URL is unset.
+ * @returns {Promise<'ready'|'stale'|'skipped'>}
+ */
+export async function probeItemsTypeCheck({
+  dbUrl = process.env.SUPABASE_DB_URL,
+  ClientImpl = Client,
+} = {}) {
+  if (process.env.NODE_TEST_CONTEXT) return 'skipped';
+  const url = (dbUrl || '').trim();
+  if (!url || !/^postgres(ql)?:\/\//i.test(url)) return 'skipped';
+  const client = new ClientImpl({
+    connectionString: url, ssl: pgSslConfig(url), connectionTimeoutMillis: 5000,
+  });
+  try {
+    await client.connect();
+    const { rows } = await client.query(
+      `SELECT pg_get_constraintdef(oid) AS def
+       FROM pg_constraint
+       WHERE conrelid = 'public.items'::regclass AND conname = 'items_type_check'`
+    );
+    const def = rows[0]?.def || '';
+    return itemsTypeCheckAllowsPackage(def) ? 'ready' : 'stale';
+  } catch {
+    return 'skipped';
+  } finally {
+    await client.end().catch(() => {});
+  }
+}
+
 function pgConnectHint(code) {
   return code === 'ENOTFOUND' || code === 'ECONNREFUSED'
     ? ' Check SUPABASE_DB_URL host (Project Settings → Database). Prefer the Session pooler URI if db.<ref>.supabase.co does not resolve, and confirm the project is not paused.'
@@ -84,18 +131,19 @@ export async function applySchema({
 }
 
 /**
- * Ensure schema exists. Applies db/schema.sql when probe says missing.
+ * Ensure schema exists. Applies db/schema.sql when tables are missing or
+ * items.type CHECK has not been widened to include `package`.
  * @returns {{ status: 'ready'|'applied' }}
  */
 export async function ensureSchema({
   force = false,
   supabase = getSupabase(),
   applySchemaFn = applySchema,
+  probeItemsTypeCheckFn = probeItemsTypeCheck,
 } = {}) {
-  if (!force) {
-    const state = await probeSchema(supabase);
-    if (state === 'ready') return { status: 'ready' };
-  }
+  const tableState = force ? 'missing' : await probeSchema(supabase);
+  const typeState = force ? 'stale' : await probeItemsTypeCheckFn();
+  if (!schemaNeedsApply(force, tableState, typeState)) return { status: 'ready' };
 
   console.error('[tripwire] Applying db/schema.sql to Supabase…');
   await applySchemaFn();
