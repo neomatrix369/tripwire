@@ -3,6 +3,9 @@
 
 # Secrets — keep .env.example tracked (root .gitignore also covers .env)
 .env
+**/.env
+.env.*
+!**/.env.example
 *.env.local
 **/pizauth.local.conf
 **/config/pizauth.local.conf
@@ -22,3 +25,7 @@ smoke-logs/
 **/.smoke-evidence/
 **/smoke-evidence.txt
 *.log
+
+# Local MCP / agent noise if dropped under the lab tree
+.mcp.json
+**/.mcp.json
