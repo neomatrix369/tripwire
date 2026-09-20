@@ -29,7 +29,7 @@
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
 | 0 (next plan) | R | **65** | **Language/ecosystem coverage ledger** | Must | 📋 PLANNED · absorb `fix/cargo-package-scan-error-status` honesty · then 66→69 |
-| 0 (active fix) | — | — | Cargo SCA unsupported detail | — | 🔨 WIP on `fix/cargo-package-scan-error-status` (feeds 65; not full Cargo scan) |
+| 0 (active fix) | — | — | Cargo SCA honesty (N/A → UNSCANNED) | — | ✅ code VERIFIED Live on `fix/cargo-package-scan-error-status` (feeds 65 ledger; not full Cargo scan) |
 | 0 (docs) | K | **44** | **Docs UX plain language + compaction** | Must | 🔀 ON BRANCH · [#99](https://github.com/neomatrix369/tripwire/pull/99) · GWT-44.1–44.8 · documentarist APPROVED WITH FOLLOW-ON (DIVIO targets pending) · `slice/44-docs-ux-plain-language` |
 | 0 (active) | L | **51** | **Tessl: Review (Security) (Row 5)** | Could | 🔀 ON BRANCH · `slice/51-review-security` · nw-review APPROVED |
 | 0 (delta) | J | 42 | Dashboard Data Quality — Tessl quality UX + tooltips + plain labels (A9–A13) | Must | ✅ PASSED · [#98](https://github.com/neomatrix369/tripwire/pull/98) |
@@ -247,7 +247,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 | 71 | [slice-71-expert-export-report](slices/18-R-approved-repo-workflow/slice-71-expert-export-report.md) | Should | 📋 PLANNED | — | — | ~40 min |
 | 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Could | 📋 PLANNED | — | — | ~50 min |
 
-**Group note:** Wave R = approved local repo+commit security workflow. UI **1A** extend dashboard. Reuse Wave P + ADR-0016. Cargo honesty WIP on `fix/cargo-package-scan-error-status` → absorb in **65**; full Rust/Cargo scan → **72** if still gap.
+**Group note:** Wave R = approved local repo+commit security workflow. UI **1A** extend dashboard. Reuse Wave P + ADR-0016. Cargo honesty VERIFIED on `fix/cargo-package-scan-error-status` → absorb ledger into **65**; full Rust/Cargo scan → **72** if still gap.
 
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 

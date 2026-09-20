@@ -391,7 +391,7 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 
 **Group letter R** (after P; **Q** folder `17-Q-ci-hygiene` is a reserved empty placeholder — do not reuse for this wave). Folder: [`slices/18-R-approved-repo-workflow/`](slices/18-R-approved-repo-workflow/).
 **EFP Path B 2026-09-20** — Add from Cursor plan “approved Git repository security scanner”: reuse Wave P scanners + ADR-0016 unchanged; language/ecosystem coverage ledger; evidence verify; SIE judge panel + final judge; dashboard stepper (UI **1A** extend Live/Mock); fix propose; then verify/export; gap scanners Could.
-**Current branch context:** `fix/cargo-package-scan-error-status` — Snyk SCA ecosystem detect + Cargo unsupported detail in `sandbox/scanners.py` (uncommitted) — absorb into **65**, not a parallel path.
+**Current branch context:** `fix/cargo-package-scan-error-status` — Snyk SCA ecosystem detect + Cargo `not_applicable` + all-N/A → UNSCANNED (committed; VERIFIED Live) — absorb ledger/docs into **65**, not a parallel path.
 
 **Model / harness:** inherits TRAIL Original Material + harness-scout embed. Profile: ambiguity=medium · blast_radius=medium · worktree recommended · interactive.
 
