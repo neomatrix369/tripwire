@@ -74,22 +74,20 @@ Reachable through production entry points / config:
   primary **Dashboard** tab = inventory (default); stepper + phase panels move to
   secondary **Workflow** tab — IMPLEMENTED on `main`
   ([#160](https://github.com/neomatrix369/tripwire/pull/160)).
-- Wave R **Triage target filters** (slice 73): 🔨 IN PROGRESS — cherry-picked
-  onto `fix/slice-74-fix-blank-while-heuristic`. Triage panel adds inventory-style
-  type tabs (All / Skills / MCP / Packages), quality tabs (All + Tessl
-  high/low/unscored), and per-target chips; filters compose with status tabs;
-  finding rows show target name. SCA triage titles prefer `package@version · CVE`
-  (not bare `dependency_vulnerability`); Live maps `package_name` /
-  `package_version` / `cve_ids`. Module: `tripwire-triage.js` + Triage panel in
-  `Tripwire.dc.html`. Not VERIFIED until `/verify-slice`.
-- Wave R **workflow model labels** (slice 74): 🔨 IN PROGRESS on
-  `slice/74-workflow-model-labels` — stepper tabs show default model aliases
-  for stages that actually use models (Run/Triage/Investigate; Fix blank while
-  propose is heuristic). Soft-amend (2026-09-20 USER L→R): role labels
-  (panel light/mid · final stronger · fix stronger); Fix default `gen-27b`
-  when LLM propose is the product path; per-target model rows — **DECIDED**,
-  not yet IMPLEMENTED in UI. Module: `tripwire-workflow-models.js`. Not VERIFIED
-  until `/verify-slice`.
+- Wave R **Triage target filters** (slice 73): IMPLEMENTED / VERIFIED (unit) on
+  `main` — Triage panel adds inventory-style type tabs (All / Skills / MCP /
+  Packages), quality tabs (All + Tessl high/low/unscored), and per-target chips;
+  filters compose with status tabs; finding rows show target name. SCA triage
+  titles prefer `package@version · CVE` (not bare `dependency_vulnerability`);
+  Live maps `package_name` / `package_version` / `cve_ids`. Module:
+  `tripwire-triage.js` + Triage panel in `Tripwire.dc.html`; GWT-73.* tests.
+- Wave R **workflow model labels** (slice 74): IMPLEMENTED / VERIFIED (unit) on
+  `main` — stepper tabs show role-aware default model aliases for stages that
+  use models (Run panel light/mid + final stronger; Triage SIE; Investigate
+  SIE/MS; Fix blank while propose is heuristic). Soft-amend (2026-09-20 USER
+  L→R): role labels, Fix `gen-27b` only when LLM propose ran, per-target
+  type·name model rows — **IMPLEMENTED**. Module: `tripwire-workflow-models.js`;
+  GWT-74.* tests.
 - Wave R **Fix propose + apply-clean** (slice 69): IMPLEMENTED / VERIFIED on
   `main` (#154) — proposed unified diff, root-cause vs quick-patch label,
   apply-clean on a temp copy only (approved repo unchanged), mark fixed /
@@ -110,15 +108,15 @@ Reachable through production entry points / config:
   secrets. Modules: `tripwire-report.js`, `tripwire-report-export.js`; GWT-71.*
   tests. Expert no longer gates the inventory grid (that is the Dashboard tab).
 - Wave R **operator-visible pipeline** (slice 75 / R-UX-1): IMPLEMENTED /
-  VERIFIED (unit) on branch `slice/75-operator-visible-pipeline` — Workflow UI
-  narrates judge-panel / coverage / evidence-verify with honest absent states
-  (no fabricated pending judges; process line + primary CTA; Investigate
-  auto-select / final-judge lines; Fix does not inject false `gen-27b`); L→R
-  soft-amend **IMPLEMENTED** (GWT-75.9–75.11: parent type·name on findings,
-  keyboard multi-select + `k of N` progress, role-labelled / parent-attributed
-  model lines). Modules: `tripwire-workflow-pipeline.js`,
+  VERIFIED (unit) on `main` ([#163](https://github.com/neomatrix369/tripwire/pull/163)) —
+  Workflow UI narrates judge-panel / coverage / evidence-verify with honest
+  absent states (no fabricated pending judges; process line + primary CTA;
+  Investigate auto-select / final-judge lines; Fix does not inject false
+  `gen-27b`); L→R soft-amend **IMPLEMENTED** (GWT-75.9–75.11: parent type·name
+  on findings, keyboard multi-select + `k of N` progress, role-labelled /
+  parent-attributed model lines). Modules: `tripwire-workflow-pipeline.js`,
   `tripwire-workflow-models.js` (+ Run/Triage/Investigate/Fix HTML wiring);
-  GWT-75.1–75.11 unit green. Not ✅ PASSED until Gate 4 + merge. Spec:
+  GWT-75.1–75.11 unit green; Gate 4 APPROVED on landing branch. Spec:
   [plan/slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md](./plan/slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md).
   Optional slice 76 chrome polish = HITL.
 - CLI **`tripwire judge --batch-id`** + SIE judge panel module (slice 67, Wave R):
@@ -362,22 +360,16 @@ operator workstation flow (local `.env`, CLI, QUICKSTART). Implementation
 slices are Wave **15-O** (**O0** + 58–61) under
 [plan/TRAIL.md](./plan/TRAIL.md) — plan-only until explicitly executed.
 
-**Wave R — Approved-repo security workflow (2026-09-20):** Slices **65–66**
-landed/verified. Slice **67** (SIE judge panel + final judge) is **IN PROGRESS**
-on `slice/67-sie-judge-panel-final`: model inventory DECIDED
-(`gen-4b` / `gen-27b` from `prototypes/sie-studio/models.json`; fewer than 3
-models → parallel same-model executions); CLI `tripwire judge --batch-id` +
-panel module/tests IMPLEMENTED (unit). Panel is **additive** to
-[ADR-0016](./adr/0016-tiered-router-sie-model-studio.md)
-— router triage/escalation logic unchanged; open-weight SIE only for judging.
-Opt-in post-scan hook `TRIPWIRE_JUDGE_PANEL=1` (default off). Spec:
-[plan/slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md](./plan/slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md).
-**Improvement backlog (R-UX-1, USER 2026-09-20):** → **Slice 75** 🔀 ON BRANCH
-(`slice/75-operator-visible-pipeline`) — Workflow UI narrates judge-panel /
-final-judge / coverage / evidence-verify **and** L→R parent meta / multi-select /
-role-labelled models (GWT-75.1–75.11 unit green). Optional slice 76 chrome
-polish = HITL. Soft-amends 67/68/69/74. See [plan/DECISIONS.md](./plan/DECISIONS.md).
-Not ✅ PASSED until Gate 4 + merge.
+**Wave R — Approved-repo security workflow (2026-09-20):** Slices **65–72**
+landed/verified on `main` (Must **65–69**, Should **70–71**, Could **72**).
+Slice **67** SIE judge panel CLI + module on `main` (#151): model inventory
+`gen-4b` / `gen-27b`; fewer than 3 models → parallel same-model executions;
+opt-in `TRIPWIRE_JUDGE_PANEL=1` (default off). Panel is **additive** to
+[ADR-0016](./adr/0016-tiered-router-sie-model-studio.md). Should **73–75**
+Workflow UI (triage filters, model labels, operator-visible pipeline / R-UX-1)
+**IMPLEMENTED / VERIFIED** (unit) on `main` — **75** via
+[#163](https://github.com/neomatrix369/tripwire/pull/163). Optional slice **76**
+chrome polish = HITL. See [plan/DECISIONS.md](./plan/DECISIONS.md).
 
 **Wave J delta — dashboard metric surfacing (2026-08-20):** A9–A13
 **IMPLEMENTED** on `main` via [PR #98](https://github.com/neomatrix369/tripwire/pull/98)

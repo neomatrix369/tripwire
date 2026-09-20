@@ -25,30 +25,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Dashboard Workflow operator-visible pipeline narration (slice 75 / R-UX-1,
-  Wave R) — IMPLEMENTED / VERIFIED on branch (unit). Workflow UI narrates
-  judge-panel honesty (no fabricated pending slots; panel-off / absent copy),
-  prefers CLI coverage ledger, builds Run process line + “Review findings” CTA,
-  Investigate final-judge / evidence honesty, keeps Fix free of false `gen-27b`
-  hints, and completes the L→R soft-amend: parent type·name on findings,
-  keyboard multi-select with `k of N` progress, and role-labelled /
+  Wave R) — IMPLEMENTED / VERIFIED (unit) on `main`
+  ([#163](https://github.com/neomatrix369/tripwire/pull/163)). Workflow UI
+  narrates judge-panel honesty (no fabricated pending slots; panel-off / absent
+  copy), prefers CLI coverage ledger, builds Run process line + “Review findings”
+  CTA, Investigate final-judge / evidence honesty, keeps Fix free of false
+  `gen-27b` hints, and completes the L→R soft-amend: parent type·name on
+  findings, keyboard multi-select with `k of N` progress, and role-labelled /
   parent-attributed model lines. Modules: `tripwire-workflow-pipeline.js`,
   `tripwire-workflow-models.js` (+ Workflow HTML wiring); GWT-75.1–75.11 tests.
 - Dashboard Triage: type + quality + per-target filters (slice 73, Wave R) —
-  applied onto `fix/slice-74-fix-blank-while-heuristic`. Same inventory-style type
-  buttons (All / Skills / MCP / Packages), quality tabs (including All quality),
-  and per-target chips so operators can narrow issues before Fix. Filters
-  compose with status tabs; finding rows show the target name. SCA rows use
+  IMPLEMENTED / VERIFIED (unit) on `main`. Same inventory-style type buttons
+  (All / Skills / MCP / Packages), quality tabs (including All quality), and
+  per-target chips so operators can narrow issues before Fix. Filters compose
+  with status tabs; finding rows show the target name. SCA rows use
   `package@version · CVE` titles instead of repeating `dependency_vulnerability`
   (Live also passes through `package_name` / `package_version` / `cve_ids`).
-- Dashboard workflow model labels (slice 74, Wave R) — IN PROGRESS on
-  `slice/74-workflow-model-labels`. Stepper tabs show configured default model
-  aliases (Run `gen-4b · gen-27b`, Triage `gen-4b`, Investigate
-  `gen-4b · qwen3.8-max`; Fix blank while propose is heuristic). Run / Triage /
-  Investigate / Fix panels show actual models from judge slots, router
-  envelope, or fix provenance when an LLM ran (`tripwire-workflow-models.js`).
-- Dashboard Verify step: worktree rescan honesty (slice 70, Wave R) — IN
-  PROGRESS on `slice/70-verify-worktree-rescan`. Re-applies the proposed patch
-  on a temp copy only, re-runs applicable scanners via port, and reports
+- Dashboard workflow model labels (slice 74, Wave R) — IMPLEMENTED / VERIFIED
+  (unit) on `main`. Stepper tabs show role-aware default model aliases (Run
+  panel light/mid + final stronger `gen-4b · gen-27b`, Triage SIE `gen-4b`,
+  Investigate SIE/MS `gen-4b · qwen3.8-max`; Fix blank while propose is
+  heuristic). Run / Triage / Investigate / Fix panels show actual models from
+  judge slots, router envelope, or fix provenance when an LLM ran
+  (`tripwire-workflow-models.js`); per-target type·name prefixes when a finding
+  is in context.
+- Dashboard Verify step: worktree rescan honesty (slice 70, Wave R) —
+  IMPLEMENTED / VERIFIED on `main` (#155). Re-applies the proposed patch on a
+  temp copy only, re-runs applicable scanners via port, and reports
   **finding gone** / **still present** / **unable to verify** (with reason +
   scanner actions). Missing/failed/timeout scanners never map to finding gone;
   generation alone never claims fixed. Approved repo stays unchanged.

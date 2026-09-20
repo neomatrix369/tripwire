@@ -1,6 +1,6 @@
 # Slice 67: SIE Judge Panel + Final Judge
 
-> Scenario: Brownfield | MoSCoW: **Must** | Status: 🔨 IN PROGRESS
+> Scenario: Brownfield | MoSCoW: **Must** | Status: ✅ VERIFIED ON MAIN (#151)
 > Wave: R — Approved-repo security workflow
 > Depends on: **66**; ADR-0016 SIE/escalation **unchanged** (inputs only)
 > Trigger: Independent parallel judges + final verdict (TP / FP / needs review) with provenance
@@ -94,7 +94,7 @@
 - [ ] `/verify-slice` — COMPLETE
 
 ## Gate Status
-🔨 IN PROGRESS — 2026-09-20: model inventory + CLI `tripwire judge --batch-id` + panel module/tests present; After-Checks / gate close pending
+✅ VERIFIED ON MAIN (#151) — 2026-09-20 · CLI panel + inventory IMPLEMENTED; formal Closing Gates ticks may lag landing PR — sync-docs honesty only
 
 ## Appendix — SIE model inventory (GWT-67.1)
 

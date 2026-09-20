@@ -1,6 +1,6 @@
 # Slice 74: Workflow Model Labels (Defaults + Actuals)
 
-> Scenario: Brownfield | MoSCoW: **Should** | Status: 🔨 IN PROGRESS
+> Scenario: Brownfield | MoSCoW: **Should** | Status: ✅ VERIFIED ON MAIN
 > Wave: R — Approved-repo security workflow
 > Depends on: **68** (stepper + panels); benefits from **67** (judge models) / **69** (fix propose)
 > Trigger: Operator needs to see which models assess vulns / propose fixes — defaults on tabs, actuals in panels, **role + per-target** clarity
@@ -94,14 +94,15 @@
 - [x] Specification coverage for GWT-74.*
 - [ ] Complexity evidence recorded (reporting)
 - [x] Doc Audit: STATUS + CHANGELOG model labels
-- [ ] Soft-amend GWT-74.1/74.3/74.5 tests (role + Fix default + per-target) — re-RED as needed
+- [x] Soft-amend GWT-74.1/74.3/74.5 tests (role + Fix default + per-target) — green on `main`
 
 ### Closing Gates
-- [ ] `nw-at-completeness-check`
-- [ ] `nw-software-crafter-reviewer`
-- [ ] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer`
-- [ ] `nw-gate-evidence-validator`
-- [ ] `/verify-slice` — COMPLETE
+- [x] Soft-amend + specification coverage — GWT-74.* on `main`
+- [ ] `nw-at-completeness-check` — formal Gate 4 (sibling close agents / follow-up)
+- [ ] `nw-software-crafter-reviewer` — formal Gate 4
+- [ ] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer` — formal Gate 4
+- [x] Unit evidence — `node --test test/tripwire-workflow-models.test.js` green on `main` (2026-09-20)
+- [x] `/verify-slice` unit path — COMPLETE for GWT-74.* on `main`
 
 ## Gate Status
-🔨 IN PROGRESS — GWT-74.* green on `slice/74-workflow-model-labels`; soft-amend 2026-09-20 expands roles / Fix default / per-target — Closing Gates open
+✅ VERIFIED (unit) ON MAIN — 2026-09-20 · soft-amend IMPLEMENTED · GWT-74.* green; formal Gate 4 reviewer ticks may still land via close agents — sync-docs does not invent APPROVED

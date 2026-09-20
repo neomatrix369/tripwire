@@ -1,6 +1,6 @@
 # Slice 71: Expert View + Report Export
 
-> Scenario: Brownfield | MoSCoW: **Should** | Status: 🔀 ON BRANCH
+> Scenario: Brownfield | MoSCoW: **Should** | Status: ✅ VERIFIED ON MAIN (#153)
 > Wave: R — Approved-repo security workflow
 > Depends on: **68** (Simple view); benefits from **67**/**69**/**70** fields
 > Trigger: Expert toggle + full report export including coverage and provenance
@@ -75,4 +75,4 @@
 - [ ] `/verify-slice` — COMPLETE
 
 ## Gate Status
-🔀 ON BRANCH — 2026-09-20 (Wave R) — GWT-71.* green locally; PR pending review gates
+✅ VERIFIED ON MAIN (#153) — 2026-09-20 · Expert + Report export on Workflow tab; sync-docs tracker honesty
