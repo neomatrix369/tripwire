@@ -6,7 +6,8 @@
  * Scope: GWT-75.1 process line; GWT-75.2 final judge narration; GWT-75.3
  *   present/absent/panel-off honesty; GWT-75.4 evidence + coverage; GWT-75.5
  *   live binding characterisation; GWT-75.6 primary CTA; GWT-75.7 first
- *   to-fix pick; GWT-75.8 no gen-27b Fix injection from pipeline/run
+ *   to-fix pick; GWT-75.8 no gen-27b Fix injection from pipeline/run;
+ *   GWT-75.9 parent meta; GWT-75.10 multi-select; GWT-75.11 models per target
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -17,10 +18,14 @@ import {
   buildPrimaryCta,
   buildProcessLine,
   formatEvidenceVerification,
+  formatParentTargetMeta,
   honestAbsentCopy,
+  normalizeSelectionIds,
   pickFirstToFixFinding,
   resolveCoverageHonesty,
   resolveJudgePanelState,
+  selectionProgressLabel,
+  toggleFindingSelection,
 } from '../tripwire-workflow-pipeline.js';
 
 const LIVE_PANEL_RUN = {
@@ -451,4 +456,114 @@ test('GWT-75.8 given pipeline and run narration when Fix defaults checked then n
   assert.equal(fixHint.includes('gen-27b'), false);
   assert.equal(serialized.includes('gen-27b'), false);
   assert.equal(view.primaryCta.visible, true);
+});
+
+// ── GWT-75.9 Parent target metadata ──────────────────────────────────────────
+
+test('GWT-75.9 given skill finding when formatParentTargetMeta then type · name', () => {
+  /**
+   * Scenario: Skill findings show parent type and name as text.
+   * Slice: GWT-75.9
+   */
+  // -- Given / When --
+  const actual = formatParentTargetMeta({
+    itemType: 'skill',
+    itemName: 'safe-csv-cleaner',
+  });
+
+  // -- Then --
+  assert.equal(actual, 'skill · safe-csv-cleaner');
+});
+
+test('GWT-75.9 given mcp_server finding when formatParentTargetMeta then type · name', () => {
+  /**
+   * Scenario: MCP server findings show parent type and name as text.
+   * Slice: GWT-75.9
+   */
+  // -- Given / When / Then --
+  assert.equal(
+    formatParentTargetMeta({
+      itemType: 'mcp_server',
+      itemName: 'vuln-command-injection-server',
+    }),
+    'mcp_server · vuln-command-injection-server',
+  );
+});
+
+test('GWT-75.9 given package finding when formatParentTargetMeta then type · name', () => {
+  /**
+   * Scenario: Package findings show parent type and name (or id) as text.
+   * Slice: GWT-75.9
+   */
+  // -- Given / When / Then --
+  assert.equal(
+    formatParentTargetMeta({ itemType: 'package', itemName: 'lodash' }),
+    'package · lodash',
+  );
+  assert.equal(
+    formatParentTargetMeta({ itemType: 'package', itemId: 'pkg-1' }),
+    'package · pkg-1',
+  );
+});
+
+test('GWT-75.9 given missing parent fields when formatParentTargetMeta then empty or best-effort', () => {
+  /**
+   * Scenario: Missing parent fields do not invent labels.
+   * Slice: GWT-75.9
+   */
+  // -- Given / When / Then --
+  assert.equal(formatParentTargetMeta(null), '');
+  assert.equal(formatParentTargetMeta({}), '');
+  assert.equal(formatParentTargetMeta({ itemName: 'orphan' }), 'orphan');
+  assert.equal(formatParentTargetMeta({ itemType: 'skill' }), 'skill');
+});
+
+// ── GWT-75.10 Multi-select ───────────────────────────────────────────────────
+
+test('GWT-75.10 given ids when normalizeSelectionIds then unique string ids', () => {
+  /**
+   * Scenario: Selection state is a normalized array of finding ids.
+   * Slice: GWT-75.10
+   */
+  // -- Given / When / Then --
+  assert.deepEqual(normalizeSelectionIds(['a', 'b', 'a', '', null]), ['a', 'b']);
+  assert.deepEqual(normalizeSelectionIds(null), []);
+  assert.deepEqual(normalizeSelectionIds(undefined), []);
+});
+
+test('GWT-75.10 given selection when toggleFindingSelection then add or remove id', () => {
+  /**
+   * Scenario: Checkbox toggle adds or removes a finding id.
+   * Slice: GWT-75.10
+   */
+  // -- Given --
+  const empty = [];
+
+  // -- When --
+  const one = toggleFindingSelection(empty, 'f1');
+  const two = toggleFindingSelection(one, 'f2');
+  const back = toggleFindingSelection(two, 'f1');
+
+  // -- Then --
+  assert.deepEqual(one, ['f1']);
+  assert.deepEqual(two, ['f1', 'f2']);
+  assert.deepEqual(back, ['f2']);
+});
+
+test('GWT-75.10 given multi selection when selectionProgressLabel then k of N selected', () => {
+  /**
+   * Scenario: Progress label shows k of N when N>1; empty when single/none.
+   * Slice: GWT-75.10
+   */
+  // -- Given / When / Then --
+  assert.equal(
+    selectionProgressLabel({ selectedIds: ['a', 'b', 'c'], activeId: 'b' }),
+    '2 of 3 selected',
+  );
+  assert.equal(
+    selectionProgressLabel({ selectedIds: ['a', 'b', 'c'], activeId: 'a' }),
+    '1 of 3 selected',
+  );
+  assert.equal(selectionProgressLabel({ selectedIds: ['a'], activeId: 'a' }), '');
+  assert.equal(selectionProgressLabel({ selectedIds: [], activeId: null }), '');
 });

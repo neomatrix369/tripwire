@@ -1,9 +1,17 @@
 {
-  "invocation_id": "0b1762c4-d4a6-4095-9fb0-014aa0d41019",
-  "skill": "run-coverage",
-  "stack": "dc-dashboard",
-  "verdict": "PASS",
-  "lines_pct": 98.5,
-  "threshold": 95,
-  "timestamp": "2026-09-20T21:51:56.458445Z"
+  "primitive": "run-coverage",
+  "slice_id": "slice-75",
+  "invocation_id": "48f53727-91f7-4311-bf5e-40f03eccb82c",
+  "status": "passed",
+  "timestamp": "2026-09-20T22:17:40Z",
+  "evidence": {
+    "coverage_pct": 97.83,
+    "threshold": 95.0,
+    "stack": "node",
+    "report_path": null,
+    "lines_pct": 97.83,
+    "branches_pct": 82.16,
+    "functions_pct": 98.73,
+    "statements_pct": 97.83
+  }
 }

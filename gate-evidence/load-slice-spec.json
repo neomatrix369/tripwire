@@ -1,28 +1,19 @@
 {
   "primitive": "load-slice-spec",
   "slice_id": "slice-75",
-  "invocation_id": "A167FB0F-C26A-48F7-8BDC-BC10805D3C49",
+  "invocation_id": "48f53727-91f7-4311-bf5e-40f03eccb82c",
   "status": "passed",
-  "timestamp": "2026-09-20T20:55:38Z",
+  "timestamp": "2026-09-20T22:12:10Z",
   "evidence": {
     "spec_path": "docs/plan/slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md",
-    "sections_found": ["## Context", "## Output contract", "## Exit criteria", "## Non-goals", "## Depends-on"],
+    "sections_found": ["## Context", "## Output contract", "## Exit criteria"],
     "missing_sections": [],
     "context_bundle": {
       "name": "Operator-Visible Pipeline (R-UX-1)",
-      "outcome": "Workflow UI narrates scanners/judges/coverage/evidence with honest absent states",
-      "non_goals": ["ADR-0016 changes", "judge algorithm changes", "default-on panel without HITL", "charts", "Fix/Verify deep redesign", "full Triage IA redesign"],
-      "exit_criteria": ["GWT-75.1", "GWT-75.2", "GWT-75.3", "GWT-75.4", "GWT-75.5", "GWT-75.6", "GWT-75.7", "GWT-75.8", "Doc Audit STATUS R-UX-1 closed"],
-      "depends_on": [
-        "cli/src/judgePanel.js",
-        "prototypes/dc-dashboard/tripwire-run-progress.js",
-        "prototypes/dc-dashboard/tripwire-triage.js",
-        "prototypes/dc-dashboard/tripwire-investigate.js",
-        "prototypes/dc-dashboard/Tripwire.dc.html",
-        "docs/plan/slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md",
-        "docs/plan/slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md",
-        "docs/plan/invariants.md"
-      ]
+      "outcome": "Workflow UI narrates L→R with parent meta, multi-select, role-labelled models",
+      "non_goals": ["ADR-0016 changes", "default-on judge panel", "slice 76 chrome polish"],
+      "exit_criteria": ["GWT-75.1-75.11 green", "Doc Audit STATUS R-UX-1", "/verify-slice COMPLETE"],
+      "depends_on": ["slice-67", "slice-68", "slice-74", "slice-69"]
     }
   }
 }

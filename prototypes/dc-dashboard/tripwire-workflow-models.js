@@ -1,6 +1,7 @@
 /**
  * Slice 74 — workflow stage model labels (pure ESM).
  * Defaults SSOT for stepper tabs; actuals from judges / router / fix provenance.
+ * Soft-amend (slice 75): role-aware hints + parent-prefixed models lines.
  *
  * WHY-NEW-FILE: prototypes/dc-dashboard/tripwire-workflow-models.js
  *   CLOSEST-EXISTING: tripwire-workflow-stepper.js (labels only)
@@ -8,6 +9,8 @@
  *   separate concern (router/judge/fix fields) and must stay reusable from panels
  *   PARALLEL-RATIONALE: SLICE-74-CONTRACT owns stage model display
  */
+
+import { formatParentTargetMeta } from "./tripwire-workflow-pipeline.js";
 
 /** Configured default aliases per workflow step (product SSOT).
  * Fix stays empty until an LLM propose path is the product default — today
@@ -20,6 +23,12 @@ export const STAGE_DEFAULT_MODELS = Object.freeze({
   fix: Object.freeze([]),
   verify: Object.freeze([]),
   report: Object.freeze([]),
+});
+
+const ROLE_AWARE_HINTS = Object.freeze({
+  run: "panel (light/mid): gen-4b · final (stronger): gen-27b",
+  triage: "SIE triage: gen-4b",
+  investigate: "SIE · Model Studio: gen-4b · qwen3.8-max",
 });
 
 /**
@@ -38,8 +47,25 @@ export function formatModelHint(ids) {
  * @returns {string}
  */
 export function defaultModelHintForStep(stepId) {
+  if (Object.prototype.hasOwnProperty.call(ROLE_AWARE_HINTS, stepId)) {
+    return ROLE_AWARE_HINTS[stepId];
+  }
   const ids = STAGE_DEFAULT_MODELS[stepId];
   return formatModelHint(ids ?? []);
+}
+
+/**
+ * Prefix a models line with parent type · name when finding is present.
+ *
+ * @param {string} line
+ * @param {Record<string, unknown>|null|undefined} finding
+ * @returns {string}
+ */
+export function appendParentTargetMeta(line, finding) {
+  if (!line) return "";
+  const meta = formatParentTargetMeta(finding);
+  if (!meta) return line;
+  return `${meta} — ${line}`;
 }
 
 /**
@@ -96,17 +122,6 @@ export function extractRouterModels(finding) {
 }
 
 /**
- * @param {{ sie: string|null, modelStudio: string|null }} router
- * @returns {string[]}
- */
-function routerIds(router) {
-  const out = [];
-  if (router.sie) out.push(router.sie);
-  if (router.modelStudio) out.push(router.modelStudio);
-  return out;
-}
-
-/**
  * Format router actuals preferentially as SIE=… · MS=… when either field present.
  * @param {{ sie: string|null, modelStudio: string|null }} router
  * @returns {string}
@@ -144,6 +159,23 @@ export function extractFixModelId(finding, proposedFix) {
 }
 
 /**
+ * Role-labelled Run actuals: panel vs final when distinguishable.
+ *
+ * @param {{ slots?: Array, finalModel?: unknown, final_model?: unknown }|null|undefined} judges
+ * @returns {string}
+ */
+function formatRunActualsBody(judges) {
+  const panelIds = collectJudgeModelIds(judges);
+  const finalId = asModelId(judges?.finalModel ?? judges?.final_model);
+  if (!panelIds.length && !finalId) return "";
+  if (panelIds.length && finalId) {
+    return `panel: ${formatModelHint(panelIds)} · final: ${finalId}`;
+  }
+  if (finalId) return `final: ${finalId}`;
+  return `panel: ${formatModelHint(panelIds)}`;
+}
+
+/**
  * Actual models-used line for a workflow panel.
  *
  * @param {{
@@ -162,12 +194,17 @@ export function buildModelsUsedLine({
   proposedFix = null,
   fallbackToDefaults = true,
 } = {}) {
+  let line = "";
+
   if (stepId === "run") {
-    const actual = collectJudgeModelIds(judges);
-    if (actual.length) return `Models used: ${formatModelHint(actual)}`;
-    if (!fallbackToDefaults) return "";
-    const hint = defaultModelHintForStep("run");
-    return hint ? `Models (default): ${hint}` : "";
+    const actualBody = formatRunActualsBody(judges);
+    if (actualBody) {
+      line = `Models used: ${actualBody}`;
+    } else if (fallbackToDefaults) {
+      const hint = defaultModelHintForStep("run");
+      line = hint ? `Models (default): ${hint}` : "";
+    }
+    return appendParentTargetMeta(line, finding);
   }
 
   if (stepId === "triage" || stepId === "investigate") {
@@ -179,23 +216,30 @@ export function buildModelsUsedLine({
     const parts = [];
     if (routerLine) parts.push(routerLine);
     if (judgeIds.length) parts.push(`judges: ${formatModelHint(judgeIds)}`);
-    if (parts.length) return `Models used: ${parts.join(" · ")}`;
-    if (!fallbackToDefaults || !finding) return "";
-    const hint = defaultModelHintForStep(stepId);
-    return hint ? `Models (default): ${hint}` : "";
+    if (parts.length) {
+      line = `Models used: ${parts.join(" · ")}`;
+    } else if (fallbackToDefaults && finding) {
+      const hint = defaultModelHintForStep(stepId);
+      line = hint ? `Models (default): ${hint}` : "";
+    }
+    return appendParentTargetMeta(line, finding);
   }
 
   if (stepId === "fix") {
     const modelId = extractFixModelId(finding, proposedFix);
-    if (modelId) return `Models used: ${modelId}`;
+    if (modelId) {
+      line = `Models used: ${modelId}`;
+    }
     // Heuristic / provided patches did not call an LLM — do not invent a model line
     // that fights an empty Fix tab hint (or a future configured default).
-    return "";
+    return appendParentTargetMeta(line, finding);
   }
 
   // verify / report — only when actuals exist
   const router = extractRouterModels(finding);
   const routerLine = formatRouterModelsLine(router);
-  if (routerLine) return `Models used: ${routerLine}`;
-  return "";
+  if (routerLine) {
+    line = `Models used: ${routerLine}`;
+  }
+  return appendParentTargetMeta(line, finding);
 }

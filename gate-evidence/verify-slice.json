@@ -1,24 +1,31 @@
 {
   "primitive": "verify-slice",
-  "slice_id": "slice-70",
-  "invocation_id": "43CDE808-9790-4704-8B7A-764E2F6D2790",
-  "status": "COMPLETE",
-  "timestamp": "2026-09-20T16:49:45Z",
-  "verdict": "COMPLETE",
+  "slice_id": "slice-75",
+  "invocation_id": "48f53727-91f7-4311-bf5e-40f03eccb82c",
+  "status": "passed",
+  "timestamp": "2026-09-20T22:21:08Z",
   "evidence": {
+    "verdict": "COMPLETE",
     "acceptance": {
-      "GWT-70.1": "PASS",
-      "GWT-70.2": "PASS",
-      "GWT-70.3": "PASS"
+      "total": 11,
+      "passed": 11,
+      "failed": 0,
+      "skipped": 0
     },
     "quality_gates": {
-      "tests": "passed",
-      "lint": "passed",
-      "coverage": "passed"
+      "run-tests": "passed",
+      "run-lint": "passed",
+      "run-coverage": "passed"
     },
-    "static_integration": "Tripwire.dc.html imports verifyRescan/verifyView; workflowIsVerify panel live",
-    "docs": "STATUS Verify honesty; CHANGELOG Unreleased; PROGRESS/TRAIL IN PROGRESS pending close",
-    "visual_assets": "N/A \u2014 no diagrams in slice 70 scope",
-    "unmet_or_skipped": []
+    "docs": "current",
+    "visual_assets": "NOT_APPLICABLE",
+    "gate4": {
+      "nw-software-crafter-reviewer": "APPROVED",
+      "nw-acceptance-designer-reviewer": "APPROVED",
+      "nw-solution-architect-reviewer": "APPROVED",
+      "nw-ddd-architect-reviewer": "NOT_APPLICABLE"
+    },
+    "unmet_or_skipped": [],
+    "notes": "GWT-75.1\u201375.11 unit-VERIFIED on branch; L\u2192R soft-amend included; \u2705 PASSED awaits merge"
   }
 }
