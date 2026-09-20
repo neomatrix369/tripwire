@@ -41,7 +41,7 @@
 **Then** Run shows default judge aliases `gen-4b · gen-27b`
 **And** Triage shows default SIE alias `gen-4b`
 **And** Investigate shows default router aliases `gen-4b · qwen3.8-max`
-**And** Fix shows default fix alias `gen-27b`
+**And** Fix has empty `modelHint` while propose remains heuristic (no LLM default)
 **And** Verify and Report have empty `modelHint` (no model by default)
 
 ### GWT-74.2 — Actual models on Run panel
@@ -57,7 +57,7 @@
 **Given** a proposed fix with `model` / `modelId` (or LLM `source`)
 **When** Fix renders
 **Then** `modelsUsedLine` names that model
-**And** heuristic-only fixes show no inventeds model ID (empty or explicit non-model source label without fake alias)
+**And** heuristic-only / provided fixes show no model line (empty — do not label heuristic as a model)
 
 ### GWT-74.4 — No invented models
 **Given** missing model fields

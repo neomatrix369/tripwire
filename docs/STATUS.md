@@ -73,9 +73,9 @@ Reachable through production entry points / config:
   (+ run-progress / triage / investigate) with GWT-68.* tests.
 - Wave R **workflow model labels** (slice 74): 🔨 IN PROGRESS on
   `slice/74-workflow-model-labels` — stepper tabs show default model aliases
-  (Run/Triage/Investigate/Fix); panels show actual models from judges / router /
-  fix provenance when present. Module: `tripwire-workflow-models.js`. Not
-  VERIFIED until `/verify-slice`.
+  for stages that actually use models (Run/Triage/Investigate; Fix blank while
+  propose is heuristic); panels show actual models only when an LLM ran.
+  Module: `tripwire-workflow-models.js`. Not VERIFIED until `/verify-slice`.
 - Wave R **Fix propose + apply-clean** (slice 69): IMPLEMENTED / VERIFIED on
   `main` (#154) — proposed unified diff, root-cause vs quick-patch label,
   apply-clean on a temp copy only (approved repo unchanged), mark fixed /
