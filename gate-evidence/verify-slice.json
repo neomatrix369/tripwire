@@ -1,20 +1,27 @@
 {
   "primitive": "verify-slice",
-  "slice_id": "slice-48",
-  "invocation_id": "DB9B81E2-877B-48ED-99FB-C4C0A639AAC6",
+  "slice_id": "phase-H0-governance",
+  "invocation_id": "F15258E1-310B-4620-AF3F-3B204ADC9DE7",
   "status": "COMPLETE",
-  "timestamp": "2026-09-21T00:35:00Z",
+  "timestamp": "2026-09-20T23:39:32Z",
   "evidence": {
-    "acceptance": "6/6 GWT PASS (re-verified on main)",
-    "quality_gates": "targeted PASS (dashboard GWT-48 unit; packing 4; tessl status 32); optional live-smoke unrelated",
-    "docs": "trackers formal-closed; STATUS/ARCHITECTURE/CHANGELOG already current on main",
+    "verdict": "COMPLETE",
+    "acceptance": "5/5 PASS (GWT-H0.1\u2013H0.3 + After-Checks + Closing)",
+    "quality_gates": "N/A \u2014 docs/governance phase-only (stub Closing Gates)",
+    "docs_current": true,
     "visual_assets": "N/A",
-    "production_reachability": "mergeTesslCapabilityRows wired in Tripwire.dc.html; packing on acquire path",
+    "smoke": [
+      "ADR-0017 readable",
+      "DECISIONS guard-reopen + H0 close rows",
+      "TRAIL/PROGRESS H0 \u2705",
+      "STATUS no Guard VERIFIED overclaim",
+      "agent-hooks Phase 1 present on main"
+    ],
     "unmet_or_skipped": [],
-    "pr": 110,
     "gate4": {
-      "nw-software-crafter-reviewer": "APPROVED (packing addendum iteration 2)",
-      "nw-acceptance-designer-reviewer": "APPROVED (formal close)",
+      "nw-documentarist-reviewer": "APPROVED",
+      "nw-software-crafter-reviewer": "NOT_APPLICABLE",
+      "nw-acceptance-designer-reviewer": "NOT_APPLICABLE",
       "nw-solution-architect-reviewer": "NOT_APPLICABLE",
       "nw-ddd-architect-reviewer": "NOT_APPLICABLE"
     }

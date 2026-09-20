@@ -2,7 +2,7 @@
 > ~8 min read
 
 ## Original Material
-- **Brief**: Horizon A — ship path + onboarding + coverage. GWT-1/2 evidence ✅. **Demo/hackathon wave closed 2026-08-02** (VO/Remotion + film-day prose deferred; reinstate if needed). **Wave +coverage**: ship-path ~95% (cli + sandbox + Live ACL); onboarding slice 17; slices 7–15. **Wave H (2026-08-15):** Frontline Hackathon London 2026 — Claude Code agent hooks + `/tw-*` skills (slices 23–39); plan-only on branch `frontline-hackathon-london-2026-agent-hooks`.
+- **Brief**: Horizon A — ship path + onboarding + coverage. GWT-1/2 evidence ✅. **Demo/hackathon wave closed 2026-08-02** (VO/Remotion + film-day prose deferred; reinstate if needed). **Wave +coverage**: ship-path ~95% (cli + sandbox + Live ACL); onboarding slice 17; slices 7–15. **Wave H (2026-08-15):** Frontline Hackathon London 2026 — Claude Code agent hooks + `/tw-*` skills (slices 23–39). **H0 ✅ (2026-09-21)**; Phase 1 code on `main` (`agent-hooks/`); formal Must gate closures **23–32** still open; slice **35** Ossprey 🔴.
 - **Scenario**: Brownfield · Flow D · depth 5–8
 Routing: Brownfield · Chosen: 2026-08-02 · Source: health-check-inferred; Wave H Add: 2026-08-15 · Source: `internal-docs/04_frontline/main_prompt.md`
 - **Canonical plan path**: `docs/plan/` (public). Product SoT remains gitignored private references — do not fork parallel plan trees. Enhanced-flow-planner context pack: private references + `01_demo_video/00-tripwire-demo-script.md` (not `02_prototypes/import-stash/`).
@@ -88,8 +88,8 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 5 | [`slices/05-E-ship-path-coverage/`](slices/05-E-ship-path-coverage/) | **E — Ship-path coverage** | 8 → 11 → 12 → 13 ✅ · (9∥10) → 14 | ✅ closed; 9/10 📦 subsumed |
 | 6 | [`slices/06-F-claim-audit/`](slices/06-F-claim-audit/) | **F — Claim audit** | 15, 16 deferred | 📦 |
 | 7 | [`slices/07-G-atdd-closure/`](slices/07-G-atdd-closure/) | **G — ATDD closure** | 18, 19, 20, 21, 22 (independent gates) | 📋 |
-| 8 | `slices/08-H-agent-guard-integration/` (stubs pending) | **H — Claude Code Agent Guard integration** | H0 governance → H1–H7 (hackathon plan §9 steps 0–7) | 🔨 |
-| 8 | [`slices/08-H-frontline-agent-hooks/`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | **H0** → 23→32 Must · 33–38 Should · 39 Could | 📋 plan-only · H0 🔨 |
+| 8 | `slices/08-H-agent-guard-integration/` (stubs pending) | **H — Claude Code Agent Guard integration** | H0 governance → H1–H7 (hackathon plan §9 steps 0–7) | H0 ✅ · product gates open |
+| 8 | [`slices/08-H-frontline-agent-hooks/`](slices/08-H-frontline-agent-hooks/) | **H — Frontline agent hooks** | **H0** ✅ → 23→32 Must · 33–38 Should · 39 Could | Phase 1 on `main` · formal Must closures open · H0 ✅ |
 | 9 | [`slices/09-I-landing-intro-restyle/`](slices/09-I-landing-intro-restyle/) | **I — Landing Intro + Visual Refresh** | 41 ✅ · **43** ✅ | [#96](https://github.com/neomatrix369/tripwire/pull/96) |
 | 10 | [`slices/10-J-dashboard-data-quality/`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 ✅ A1–A13 ([#98](https://github.com/neomatrix369/tripwire/pull/98)) · **A14–A15** 🔀 quality tabs | `slice/42-quality-score-tabs` |
 | 11 | [`slices/11-K-docs-ux-plain-language/`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** 🔀 | — |
@@ -174,19 +174,19 @@ until stubs exist.
 
 | # | Name | MoSCoW | Status | Depends on |
 | --- | --- | --- | --- | --- |
-| [H0](slices/08-H-frontline-agent-hooks/phase-H0-governance.md) | Governance docs (ADR-0017 + DECISIONS/STATUS/TRAIL/PROGRESS rows) | Must | 🔨 | none |
-| H1–H7 | Handler + guard T1/T2 + `guard/status.py` → hook wiring (spike first) → `setup-agent-hooks` → install live → five `/tw-*` skills → demo artifacts → Phase-1 regression gate | Must | 📋 | H0 (blocks merge, not prototyping) |
+| [H0](slices/08-H-frontline-agent-hooks/phase-H0-governance.md) | Governance docs (ADR-0017 + DECISIONS/STATUS/TRAIL/PROGRESS rows) | Must | ✅ | none |
+| H1–H7 | Handler + guard T1/T2 + `guard/status.py` → hook wiring (spike first) → `setup-agent-hooks` → install live → five `/tw-*` skills → demo artifacts → Phase-1 regression gate | Must | 📋 formal gates | H0 ✅ (governance clear); product Must closures 23–32 still open |
 
 **Shared-file sequencing (slice 18 overlap):** `setup-agent-hooks` lands in
 `cli/bin/tripwire.js` — the same file slice 18's Commander-composition refactor
 touches. One active slice per shared code area: land the H-wave subcommand
 before slice 18 starts, or rebase it onto slice 18. Do not run both
 concurrently.
-### H — Frontline agent hooks (planned 2026-08-15 — plan-only)
+### H — Frontline agent hooks (planned 2026-08-15 — Phase 1 on main; formal Must gates open)
 
 Branch: `frontline-hackathon-london-2026-agent-hooks`. Source: `internal-docs/04_frontline/main_prompt.md`.
 
-**Phase gates:** H0 governance ([phase-H0-governance](slices/08-H-frontline-agent-hooks/phase-H0-governance.md)) blocks merge, not prototyping; human test after H1 (25), H2 (30); **HARD GATE** slice 32 PASS before H4+; human test after H4 (34). Parallelism later: after 26, 27∥29; after 32, 33–34 ∥ 35–36 (if access) ∥ 37. AT design before any H → 🔨.
+**Phase gates:** H0 governance ([phase-H0-governance](slices/08-H-frontline-agent-hooks/phase-H0-governance.md)) ✅ **closed 2026-09-21** (cleared governance merge gate; Phase 1 code already on `main`); human test after H1 (25), H2 (30); **HARD GATE** slice 32 PASS before H4+; human test after H4 (34). Parallelism later: after 26, 27∥29; after 32, 33–34 ∥ 35–36 (if access) ∥ 37. Formal product Must gate-evidence for 23–32 still open.
 
 #### H1 — Enforcement walking skeleton (Must)
 

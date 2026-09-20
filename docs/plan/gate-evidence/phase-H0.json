@@ -1,0 +1,49 @@
+{
+  "slice": "H0",
+  "phase": "H0",
+  "gate_status": "PASSED",
+  "verdict": "PASS",
+  "inferred": false,
+  "branch": "docs/H0-governance-close",
+  "date": "2026-09-21",
+  "spec_path": "docs/plan/slices/08-H-frontline-agent-hooks/phase-H0-governance.md",
+  "moscow": "Must",
+  "before_checks": [
+    "PASS \u2014 ADR-0017 readable",
+    "PASS \u2014 TRAIL/PROGRESS H0 rows exist"
+  ],
+  "after_checks": [
+    "PASS \u2014 H0 \u2705 in TRAIL + PROGRESS",
+    "PASS \u2014 stub linked from TRAIL H0 row",
+    "PASS \u2014 STATUS retains formal Must closure / regression-matrix honesty (no Guard VERIFIED overclaim)"
+  ],
+  "commands": [
+    {
+      "cmd": "test -f docs/adr/0017-claude-code-agent-guard-integration.md",
+      "result": "PASS"
+    },
+    {
+      "cmd": "rg -q 'guard-reopen' docs/plan/DECISIONS.md",
+      "result": "PASS"
+    },
+    {
+      "cmd": "rg -q 'H0.*\u2705' docs/plan/TRAIL.md docs/plan/PROGRESS.md",
+      "result": "PASS"
+    },
+    {
+      "cmd": "test -f agent-hooks/hooks/pre-tool-use.sh",
+      "result": "PASS \u2014 Phase 1 evidence on main"
+    }
+  ],
+  "reviewers": [
+    "nw-documentarist-reviewer"
+  ],
+  "review": {
+    "acceptance": "APPROVED",
+    "implementation": "N/A \u2014 docs/governance only",
+    "agent": "nw-documentarist-reviewer",
+    "agent_id": "4f334071-ed58-4d3d-b461-be2b25418109",
+    "date": "2026-09-21"
+  },
+  "invocation_id": "F15258E1-310B-4620-AF3F-3B204ADC9DE7"
+}

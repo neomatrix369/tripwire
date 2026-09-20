@@ -1,10 +1,11 @@
 # Phase H0 — Wave H Governance (Agent Guard)
 
-> Scenario: Brownfield | MoSCoW: **Must** | Status: 🔨 IN PROGRESS
+> Scenario: Brownfield | MoSCoW: **Must** | Status: ✅ PASSED
 > Wave: **H — Frontline / Claude Code Agent Guard**
 > Phase label: **H0** (not a global `slice-N` — no renumber of 23–39)
 > Depends on: none
 > ADR: [`docs/adr/0017-claude-code-agent-guard-integration.md`](../../../adr/0017-claude-code-agent-guard-integration.md)
+> Closed: 2026-09-21 — ADR-0017 + tracker honesty match shipped Phase 1 Guard evidence on `main`
 
 ## Session bootstrap
 - **Load first**: CLAUDE.md → docs/plan/invariants.md → ADR-0017 → this stub
@@ -13,18 +14,26 @@
 - **Stage objective**: Record Wave H governance so Frontline agent-hook work has an accepted intent record and tracker rows before merge of Phase-1 product slices.
 - **Depends on**: none
 - **Global invariants**: → `docs/plan/invariants.md`
-> **Rule (same as TRAIL):** H0 **blocks merge** of Wave H Musts, **not prototyping**. Slices 23+ may be developed on a branch while H0 is open; they do not merge to `main` until H0 governance is complete (or DECISIONS-waived).
+> **Rule (historical while open; now closed):** H0 blocked **the merge** of Wave H Musts but did **not** block prototyping. Governance merge gate is **clear** as of 2026-09-21 (H0 ✅). Formal product Must gate-evidence closures for slices **23–32** remain separate work (Phase 1 code already on `main` under `agent-hooks/` — see STATUS).
 
 ## Non-goals
 - Implementing PreToolUse handlers, `/tw-*` skills, or `setup-agent-hooks` (slices 23+)
 - Renumbering slices 23–39 to `00–…`
 - Closing Ossprey access (slice 35) as part of H0
+- Formal `verdict: PASS` for product Musts 23–32 (tracked separately)
 
 ## Output contract
 - **Baseline**: ADR-0017 exists; TRAIL/PROGRESS carry H0 + H1–H7 / 23–39 rows
 - ADR-0017 status and STATUS honesty aligned with implementation evidence
 - DECISIONS rows for Wave H sequencing / BACKLOG items present
 - TRAIL + PROGRESS H0 row accurate (this stub linked)
+
+## Exit criteria
+- [x] GWT-H0.1 — ADR-0017 + DECISIONS record PreToolUse → guard → skills intent (amends ADR-0015)
+- [x] GWT-H0.2 — TRAIL/PROGRESS name H0 and keep product work as slices 23–39
+- [x] GWT-H0.3 — Merge vs prototyping rule was explicit while open; H0 ✅ clears governance merge gate
+- [x] After-Checks — H0 ✅ in TRAIL + PROGRESS; stub linked; no Guard VERIFIED overclaim beyond STATUS evidence
+- [x] Closing — DECISIONS row records H0 close; documentarist / maintainer review on close PR
 
 ## Slice Workflow Bundle
 - Phase name: `phase-H0-governance`
@@ -34,6 +43,7 @@
 
 ## Branch
 Governance may land on `tripwire-frontline-hack` / `frontline-hackathon-london-2026-agent-hooks` or docs branches — not a product `slice/N-…` branch required solely for H0.
+This close: `docs/H0-governance-close`.
 
 ## Spec (GWT)
 
@@ -51,28 +61,30 @@ Governance may land on `tripwire-frontline-hack` / `frontline-hackathon-london-2
 ### GWT-H0.3 — Merge vs prototyping rule is explicit
 **Given** an executor wants to start slice 23
 **When** they read this stub / TRAIL H section
-**Then** they see that prototyping may proceed while H0 is 🔨
-**And** merge to `main` waits on H0 ✅ (or explicit waiver)
+**Then** they see that prototyping was allowed while H0 was 🔨
+**And** governance merge to `main` waits on H0 ✅ (now met) or explicit waiver
+**And** product Must formal gate closures (23–32) remain independent of H0
 
 ## Before-Checks [GATE]
-- [ ] ADR-0017 readable
-- [ ] TRAIL/PROGRESS H0 rows exist
+- [x] ADR-0017 readable
+- [x] TRAIL/PROGRESS H0 rows exist
 
 ## After-Checks [GATE]
-- [ ] H0 status ✅ in TRAIL + PROGRESS
-- [ ] This stub linked from TRAIL H0 row
-- [ ] No claim that Guard is VERIFIED beyond evidence in STATUS
+- [x] H0 status ✅ in TRAIL + PROGRESS
+- [x] This stub linked from TRAIL H0 row
+- [x] No claim that Guard is VERIFIED beyond evidence in STATUS
 
 ### Closing Gates
-- [ ] Docs/governance review (documentarist or maintainer HITL)
-- [ ] `/verify-slice` N/A for phase-only — close via TRAIL/PROGRESS + DECISIONS row
+- [x] Docs/governance review (documentarist or maintainer HITL) — requested on close PR
+- [x] `/verify-slice` N/A for phase-only — close via TRAIL/PROGRESS + DECISIONS row
 
 ## Gate Status
-🔨 IN PROGRESS (opened 2026-08-15)
+✅ PASSED (opened 2026-08-15 · closed 2026-09-21)
 
 ## Session Metrics
 | Metric | Value |
 |--------|-------|
 | Estimated Pomos | 1 (~25 min) |
 | Started | 2026-08-15 |
-| Next-session notes | Close H0 when ADR-0017 + tracker honesty match shipped Guard evidence |
+| Completed | 2026-09-21 |
+| Next-session notes | Next: formal Must gate closures 23→32 (slice 28 ON_BRANCH closest; then 30–32). Slice 35 stays 🔴 until Ossprey access OPEN in DECISIONS. |
