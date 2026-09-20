@@ -402,7 +402,7 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 | 67 | [slice-67-sie-judge-panel-final](slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md) | SIE Judge Panel + Final Judge | Must | 🔨 | 66; ADR-0016 unchanged | — | ~5 min |
 | 68 | [slice-68-workflow-run-triage-investigate](slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md) | Stepper Run → Triage → Investigate | Must | 🔀 | 67; UI 1A | — | ~5 min |
 | 69 | [slice-69-fix-propose-apply-clean](slices/18-R-approved-repo-workflow/slice-69-fix-propose-apply-clean.md) | Fix Propose + Apply-Clean Check | Must | ✅ | 68 | — | ~4 min |
-| 70 | [slice-70-verify-worktree-rescan](slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md) | Verify Fix via Worktree Re-Check | Should | 📋 | 69 | — | ~3 min |
+| 70 | [slice-70-verify-worktree-rescan](slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md) | Verify Fix via Worktree Re-Check | Should | 🔨 | 69 | — | ~3 min |
 | 71 | [slice-71-expert-export-report](slices/18-R-approved-repo-workflow/slice-71-expert-export-report.md) | Expert View + Report Export | Should | 🔀 | 68 | — | ~3 min |
 | 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Gap Scanners for Unsupported Ecosystems | Could | ✅ | 65 (ledger gaps) | — | ~4 min |
 

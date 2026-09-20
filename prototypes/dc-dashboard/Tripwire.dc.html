@@ -505,6 +505,27 @@
       </div>
     </sc-if>
 
+    <sc-if value="{{ workflowIsVerify }}" hint-placeholder-val="{{ false }}">
+      <div class="tw-workflow-panel" aria-label="Verify">
+        <sc-if value="{{ workflowVerifyEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12px;color:var(--text-secondary)">{{ workflowVerify.emptyMessage }}</div>
+        </sc-if>
+        <sc-if value="{{ workflowVerifyReady }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Verify</div>
+          <div style="font-family:var(--font-mono);font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:8px" role="status">{{ workflowVerify.outcomeLabel }}</div>
+          <sc-if value="{{ workflowVerify.showReason }}">
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Reason: {{ workflowVerify.reasonText }}</div>
+          </sc-if>
+          <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Scanner actions</div>
+          <sc-for list="{{ workflowVerify.scannerActionsLines }}" as="line" hint-placeholder-count="2">
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:4px">{{ line.text }}</div>
+          </sc-for>
+          <div style="font-size:12px;color:var(--text-primary);margin-top:10px;margin-bottom:10px">{{ workflowVerify.honestyLine }}</div>
+          <button type="button" onClick="{{ workflowVerify.runVerify }}" style="{{ workflowVerify.runVerifyStyle }}">Re-run verify</button>
+        </sc-if>
+      </div>
+    </sc-if>
+
     <sc-if value="{{ workflowIsReport }}" hint-placeholder-val="{{ false }}">
       <div class="tw-workflow-panel" aria-label="Report">
         <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
@@ -1328,6 +1349,7 @@ class Component extends DCLogic {
     fixWontFixReason: '',
     fixReasonRequired: false,
     fixRevision: 0,
+    verifyRevision: 0,
     revealSecrets: false,
     exportStatusMessage: '',
     exportStatusVisible: false
@@ -1350,10 +1372,12 @@ class Component extends DCLogic {
       import('./tripwire-fix-propose.js'),
       import('./tripwire-apply-clean.js'),
       import('./tripwire-fix-controls.js'),
+      import('./tripwire-verify-rescan.js'),
+      import('./tripwire-verify-view.js'),
       import('./tripwire-report.js'),
       import('./tripwire-report-export.js')
-    ]).then(([stepper, run, triage, investigate, prefs, fixPropose, applyClean, fixControls, report, reportExport]) => {
-      this._workflow = { stepper, run, triage, investigate, prefs, fixPropose, applyClean, fixControls, report, reportExport };
+    ]).then(([stepper, run, triage, investigate, prefs, fixPropose, applyClean, fixControls, verifyRescan, verifyView, report, reportExport]) => {
+      this._workflow = { stepper, run, triage, investigate, prefs, fixPropose, applyClean, fixControls, verifyRescan, verifyView, report, reportExport };
       const loadedExpert = prefs.loadExpertMode(sessionStorage);
       this.setState({ expertMode: loadedExpert, workflowKitsLoaded: true });
     }).catch(err => {
@@ -1672,6 +1696,69 @@ class Component extends DCLogic {
     };
   }
 
+  emptyVerifyView() {
+    const btn = this.btnStyle(false, { size: '11px', pad: '4px 10px' });
+    return {
+      outcomeLabel: '',
+      reasonText: '',
+      showReason: false,
+      scannerActionsLines: [],
+      honestyLine: '',
+      emptyMessage: 'Select a fix-candidate finding to verify the proposed patch on a temp worktree.',
+      runVerify: this.runWorkflowVerify,
+      runVerifyStyle: btn
+    };
+  }
+
+  runWorkflowVerify = () => {
+    this.setState(s => ({ verifyRevision: (s.verifyRevision || 0) + 1 }));
+  };
+
+  evaluateMemoryVerify(finding, patch) {
+    const rescan = this._workflow?.verifyRescan;
+    if (!rescan) return null;
+    return rescan.verifyFixOnWorktree({
+      finding,
+      patch,
+      approvedRepoPath: 'approved',
+      verifyPort: rescan.createMemoryVerifyPort()
+    });
+  }
+
+  buildVerifyWorkflowSlice(findings, selectedFinding, s) {
+    const wf = this._workflow;
+    const empty = this.emptyVerifyView();
+    const stepIsVerify = (s.currentStep || 'run') === 'verify';
+    const isCandidate = !!(selectedFinding && wf?.fixPropose?.isFixCandidate(selectedFinding));
+    if (!stepIsVerify || !isCandidate || !wf?.verifyRescan || !wf?.verifyView) {
+      empty.emptyMessage = selectedFinding
+        ? 'Selected finding is not a fix candidate (needs true_positive or to_fix).'
+        : 'Select a fix-candidate finding to verify the proposed patch on a temp worktree.';
+      return { workflowVerify: empty, workflowVerifyEmpty: stepIsVerify, workflowVerifyReady: false };
+    }
+    return {
+      workflowVerify: this.populateVerifyReadyView(empty, selectedFinding, wf),
+      workflowVerifyEmpty: false,
+      workflowVerifyReady: true
+    };
+  }
+
+  populateVerifyReadyView(empty, selectedFinding, wf) {
+    const proposedFix = wf.fixPropose.buildProposedFix(selectedFinding);
+    const verification = this.evaluateMemoryVerify(selectedFinding, proposedFix.unifiedDiff);
+    const view = wf.verifyView.buildVerifyView({ finding: selectedFinding, verification });
+    const reasonText = view.reasonText || '';
+    const lines = view.scannerActionsLines || [];
+    return {
+      ...empty,
+      outcomeLabel: view.outcomeLabel,
+      reasonText,
+      showReason: reasonText.length > 0,
+      scannerActionsLines: lines.map(text => ({ text })),
+      honestyLine: view.honestyLine
+    };
+  }
+
   mapWorkflowSeverity(sev) {
     const key = String(sev || '').toLowerCase();
     if (key === 'red' || key === 'high' || key === 'critical') return 'High';
@@ -1821,7 +1908,7 @@ class Component extends DCLogic {
       coverage: { discovered: 0, scanned: 0, failed: 0, skipped: 0 }
     };
     const step = s.currentStep || 'run';
-    const stubSteps = step === 'verify';
+    const stubSteps = false;
 
     if (!wf) {
       return {
@@ -1837,6 +1924,7 @@ class Component extends DCLogic {
         workflowIsTriage: step === 'triage',
         workflowIsInvestigate: step === 'investigate',
         workflowIsFix: step === 'fix',
+        workflowIsVerify: step === 'verify',
         workflowIsReport: step === 'report',
         workflowIsStub: stubSteps,
         workflowRun: emptyRun,
@@ -1847,6 +1935,9 @@ class Component extends DCLogic {
         workflowFix: this.emptyFixView(),
         workflowFixEmpty: step === 'fix',
         workflowFixReady: false,
+        workflowVerify: this.emptyVerifyView(),
+        workflowVerifyEmpty: step === 'verify',
+        workflowVerifyReady: false,
         workflowReport: emptyReport,
         exportReportPrimary: this.exportReportPrimary,
         exportReportMarkdown: this.exportReportMarkdown,
@@ -1940,6 +2031,7 @@ class Component extends DCLogic {
     }
 
     const fixSlice = this.buildFixWorkflowSlice(findings, selectedFinding, s);
+    const verifySlice = this.buildVerifyWorkflowSlice(findings, selectedFinding, s);
     const reportVm = wf.report.buildReportView({ findings });
     const workflowReport = {
       headline: reportVm.headline,
@@ -1954,6 +2046,7 @@ class Component extends DCLogic {
       workflowIsTriage: step === 'triage',
       workflowIsInvestigate: step === 'investigate',
       workflowIsFix: step === 'fix',
+      workflowIsVerify: step === 'verify',
       workflowIsReport: step === 'report',
       workflowIsStub: stubSteps,
       workflowRun,
@@ -1962,6 +2055,7 @@ class Component extends DCLogic {
       workflowInvestigateEmpty: step === 'investigate' && !selectedFinding,
       workflowInvestigateReady: step === 'investigate' && !!selectedFinding,
       ...fixSlice,
+      ...verifySlice,
       workflowReport,
       exportReportPrimary: this.exportReportPrimary,
       exportReportMarkdown: this.exportReportMarkdown,
