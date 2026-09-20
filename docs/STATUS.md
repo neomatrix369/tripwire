@@ -71,12 +71,19 @@ Reachable through production entry points / config:
 - Wave R **workflow stepper** Run→Triage→Investigate (slice 68): IMPLEMENTED /
   VERIFIED on `main` (#152) — `prototypes/dc-dashboard/tripwire-workflow-*.js`
   (+ run-progress / triage / investigate) with GWT-68.* tests.
-- Wave R **Fix propose + apply-clean** (slice 69): IMPLEMENTED on
-  `slice/69-fix-propose-apply-clean` — proposed unified diff, root-cause vs
-  quick-patch label, apply-clean on a temp copy only (approved repo unchanged),
-  mark fixed / won't-fix (reason required), J/K navigation, progress N of M.
-  Never claims fixed from generation alone. Verify remains a stub (slice 70).
-  **IMPLEMENTED** (dashboard prototype); not VERIFIED until `/verify-slice`.
+- Wave R **Fix propose + apply-clean** (slice 69): IMPLEMENTED / VERIFIED on
+  `main` (#154) — proposed unified diff, root-cause vs quick-patch label,
+  apply-clean on a temp copy only (approved repo unchanged), mark fixed /
+  won't-fix (reason required), J/K navigation, progress N of M. Never claims
+  fixed from generation alone — Verify (slice 70) owns outcomes.
+- Wave R **Verify worktree rescan** (slice 70): 🔨 IN PROGRESS on
+  `slice/70-verify-worktree-rescan` — Verify step honesty: outcomes are
+  **finding gone** / **still present** / **unable to verify** (with reason);
+  re-check runs only on a temp worktree/copy (approved repo unchanged);
+  scanner missing/failed/timeout → unable, never “finding gone”; never claim
+  fixed solely because a patch was generated (slice 69). Modules:
+  `tripwire-verify-rescan.js`, `tripwire-verify-view.js` (dashboard prototype).
+  Not VERIFIED until `/verify-slice`.
 - Wave R **Expert view + Report export** (slice 71): IMPLEMENTED / VERIFIED on
   `main` (#153) — Expert toggle surfaces raw judges, model IDs, confidence,
   weakness/AI-sec IDs, scanner details, data-flow; Report step headline

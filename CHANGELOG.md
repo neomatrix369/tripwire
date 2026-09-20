@@ -19,13 +19,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Snyk preflight: `sandbox/scanners.py`. VERIFIED on Live Packages (pizauth / snare).
 
 ### Added
+- Dashboard Verify step: worktree rescan honesty (slice 70, Wave R) — IN
+  PROGRESS on `slice/70-verify-worktree-rescan`. Re-applies the proposed patch
+  on a temp copy only, re-runs applicable scanners via port, and reports
+  **finding gone** / **still present** / **unable to verify** (with reason +
+  scanner actions). Missing/failed/timeout scanners never map to finding gone;
+  generation alone never claims fixed. Approved repo stays unchanged.
 - Dashboard Fix step: proposed minimal patch + apply-clean on a temp copy
   (slice 69, Wave R): `tripwire-fix-propose.js`, `tripwire-apply-clean.js`,
-  `tripwire-fix-controls.js` on `slice/69-fix-propose-apply-clean`. Operator
-  can copy the diff / `git apply` command, mark fixed or won't-fix (reason
-  required), and move with J/K. Proposed patches never auto-modify the
-  approved repo and never claim the finding is verified/fixed from generation
-  alone. GWT-69.* tests in `prototypes/dc-dashboard/test/tripwire-fix*.test.js`.
+  `tripwire-fix-controls.js` — landed `main` (#154). Operator can copy the
+  diff / `git apply` command, mark fixed or won't-fix (reason required), and
+  move with J/K. Proposed patches never auto-modify the approved repo and
+  never claim the finding is verified/fixed from generation alone. GWT-69.*
+  tests in `prototypes/dc-dashboard/test/tripwire-fix*.test.js`.
 - Dashboard Expert view + Report export (slice 71, Wave R): Expert toggle shows
   raw judge answers, model IDs, confidence, weakness/AI-sec IDs, scanner details,
   and data-flow; Report step summarises fixed / left / won't fix with primary

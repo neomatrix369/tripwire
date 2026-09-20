@@ -1,6 +1,6 @@
 # Slice 70: Verify Fix via Worktree Re-Check
 
-> Scenario: Brownfield | MoSCoW: **Should** | Status: 📋 PLANNED
+> Scenario: Brownfield | MoSCoW: **Should** | Status: ✅ VERIFIED ON BRANCH
 > Wave: R — Approved-repo security workflow
 > Depends on: **69**
 > Trigger: Re-check patched temp copy — finding gone / still present / unable to verify
@@ -51,21 +51,21 @@
 **And** this is never shown as finding gone
 
 ## Before-Checks [GATE]
-- [ ] Branch created
-- [ ] GWT RED tests
+- [x] Branch created
+- [x] GWT RED tests
 
 ## After-Checks [GATE]
-- [ ] Tests pass
-- [ ] Specification coverage
-- [ ] Complexity evidence recorded
-- [ ] Doc Audit: STATUS Verify step honesty
+- [x] Tests pass
+- [x] Specification coverage
+- [x] Complexity evidence recorded
+- [x] Doc Audit: STATUS Verify step honesty
 
 ### Closing Gates
-- [ ] `nw-at-completeness-check`
-- [ ] `nw-software-crafter-reviewer`
-- [ ] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer`
-- [ ] `nw-gate-evidence-validator`
-- [ ] `/verify-slice` — COMPLETE
+- [x] `nw-at-completeness-check`
+- [x] `nw-software-crafter-reviewer`
+- [x] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer`
+- [x] `nw-gate-evidence-validator`
+- [x] `/verify-slice` — COMPLETE
 
 ## Gate Status
-📋 PLANNED — EFP Path B 2026-09-20 (Wave R)
+✅ VERIFIED ON BRANCH — 2026-09-20 — branch `slice/70-verify-worktree-rescan` (2026-09-20); parallel streams A–E per `prototypes/dc-dashboard/SLICE-70-CONTRACT.md`

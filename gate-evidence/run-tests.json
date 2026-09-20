@@ -1,18 +1,17 @@
 {
   "primitive": "run-tests",
-  "slice_id": "slice-69",
-  "invocation_id": "7E2734D6-4BFA-43F0-87A2-7FF487396864",
+  "slice_id": "slice-70",
+  "invocation_id": "43CDE808-9790-4704-8B7A-764E2F6D2790",
   "status": "passed",
-  "timestamp": "2026-09-20T16:22:00Z",
+  "timestamp": "2026-09-20T16:49:27Z",
   "evidence": {
-    "stacks_detected": ["node"],
-    "commands_run": ["cd prototypes/dc-dashboard && npm test"],
-    "total": 287,
-    "passed_count": 286,
-    "failed_count": 0,
-    "skipped_count": 1,
-    "failed_tests": [],
-    "coverage_pct": null,
-    "notes": "Dashboard node:test; 1 skipped live-config smoke"
+    "command": "cd prototypes/dc-dashboard && npm test",
+    "tests": 349,
+    "pass": 348,
+    "fail": 0,
+    "skipped": 1,
+    "notes": [
+      "GWT-70.1\u201370.3 green via tripwire-verify*.test.js"
+    ]
   }
 }
