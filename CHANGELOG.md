@@ -24,11 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Snyk preflight: `sandbox/scanners.py`. VERIFIED on Live Packages (pizauth / snare).
 
 ### Added
-- Dashboard Workflow chrome polish (slice 76, Wave R) — denser Triage filter
-  toolbars with Type/Quality/Target/Status group labels, shared
-  `tw-panel-*` typography tokens across Run→Report, and plain-language Triage
-  override buttons (“To fix” / “Needs review” / “Dismiss”). Filter semantics
-  unchanged (GWT-73.*). Spec:
+- Dashboard Workflow chrome polish (slice 76, Wave R) — IMPLEMENTED / VERIFIED
+  (unit) on `main` ([#165](https://github.com/neomatrix369/tripwire/pull/165)).
+  Denser Triage filter toolbars with Type/Quality/Target/Status group labels,
+  shared `tw-panel-*` typography tokens across Run→Report, and plain-language
+  Triage override buttons (“To fix” / “Needs review” / “Dismiss”). Filter
+  semantics unchanged (`GWT-73.*`). Spec:
   `docs/plan/slices/18-R-approved-repo-workflow/slice-76-workflow-chrome-polish.md`.
 - Dashboard Workflow operator-visible pipeline narration (slice 75 / R-UX-1,
   Wave R) — IMPLEMENTED / VERIFIED (unit) on `main`

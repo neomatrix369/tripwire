@@ -35,7 +35,9 @@ Simple/Expert on Workflow only changes finding-detail density. Operator-visible
 judge/coverage/evidence-verify narration **and** L→R soft-amend (parent meta,
 multi-select, role-labelled models) are **IMPLEMENTED / VERIFIED** (unit) on
 `main` via Wave R slice 75
-([PR #163](https://github.com/neomatrix369/tripwire/pull/163)) — see
+([PR #163](https://github.com/neomatrix369/tripwire/pull/163)); denser Triage
+filters + shared panel typography via slice 76
+([PR #165](https://github.com/neomatrix369/tripwire/pull/165)) — see
 [STATUS.md](../STATUS.md). Optional `TRIPWIRE_JUDGE_PANEL=1` enables the CLI
 panel ([env-vars.md](./env-vars.md)).
 

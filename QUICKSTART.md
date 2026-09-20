@@ -37,7 +37,7 @@ Open [http://127.0.0.1:8765/](http://127.0.0.1:8765/). Use **Mock (demo data)** 
 Click **Open Dashboard →** past the landing intro if shown (inventory is the default
 tab; use **Workflow** for Run → Report phases). Workflow chrome + operator-visible
 pipeline (incl. L→R parent meta / multi-select / role models) is **IMPLEMENTED**
-(unit) on slice 75 — see [STATUS.md](docs/STATUS.md).
+(unit) on slices 75–76 (`main` #163/#165) — see [STATUS.md](docs/STATUS.md).
 
 More commands: [setup-commands.md](docs/user-guide/setup-commands.md).
 
