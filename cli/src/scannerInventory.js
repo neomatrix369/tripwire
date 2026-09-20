@@ -24,6 +24,7 @@ export const SCANNER_REGISTRY = [
   ] },
   { applies_to: 'both', sources: ['Snyk'] },
   { applies_to: 'both', sources: ['DepShield'] },
+  { applies_to: 'both', sources: ['Cargo Audit'] },
   { applies_to: 'both', sources: ['Ossprey'] },
 ];
 

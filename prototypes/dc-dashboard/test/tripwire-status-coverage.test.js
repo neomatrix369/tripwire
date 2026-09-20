@@ -12,6 +12,7 @@ import {
   resolveItemStatus,
   scannerExecMeta,
   severityColor,
+  STATUS_META,
 } from '../tripwire-status.js';
 
 test('given complete run with no scores when resolve then grey unscanned', () => {
@@ -27,7 +28,7 @@ test('given complete run with no scores when resolve then grey unscanned', () =>
   );
 });
 
-test('given complete all-not-applicable when resolve then grey not green', () => {
+test('given complete all-not-applicable when resolve then no_coverage not green', () => {
   // -- Given / When / Then --
   assert.equal(
     resolveItemStatus({
@@ -37,9 +38,15 @@ test('given complete all-not-applicable when resolve then grey not green', () =>
       findings: [],
       completedScannerCount: 0,
     }),
-    'grey',
+    'no_coverage',
     'Cargo/package trees with only N/A scanners must not paint false green'
   );
+});
+
+test('given decorateStatus no_coverage when called then NO COVERAGE label', () => {
+  const row = decorateStatus('no_coverage');
+  assert.equal(row.statusLabel, 'NO COVERAGE');
+  assert.equal(row.statusColor, STATUS_META.grey.color);
 });
 
 test('given partial-failed with zero completed engines when resolve then error', () => {

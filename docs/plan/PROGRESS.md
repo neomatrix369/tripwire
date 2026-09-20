@@ -28,7 +28,7 @@
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| 0 (next plan) | R | **65** | **Language/ecosystem coverage ledger** | Must | 📋 PLANNED · absorb `fix/cargo-package-scan-error-status` honesty · then 66→69 |
+| 0 (active) | R | **65** | **Language/ecosystem coverage ledger** | Must | ✅ VERIFIED on `slice/65-lang-ecosystem-coverage-ledger` · PR ready · next 66 |
 | 0 (active fix) | — | — | Cargo SCA honesty (N/A → UNSCANNED) | — | ✅ code VERIFIED Live on `fix/cargo-package-scan-error-status` (feeds 65 ledger; not full Cargo scan) |
 | 0 (docs) | K | **44** | **Docs UX plain language + compaction** | Must | 🔀 ON BRANCH · [#99](https://github.com/neomatrix369/tripwire/pull/99) · GWT-44.1–44.8 · documentarist APPROVED WITH FOLLOW-ON (DIVIO targets pending) · `slice/44-docs-ux-plain-language` |
 | 0 (active) | L | **51** | **Tessl: Review (Security) (Row 5)** | Could | 🔀 ON BRANCH · `slice/51-review-security` · nw-review APPROVED |
@@ -238,7 +238,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 ### R — Approved-repo security workflow
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
-| 65 | [slice-65-lang-ecosystem-coverage-ledger](slices/18-R-approved-repo-workflow/slice-65-lang-ecosystem-coverage-ledger.md) | Must | 📋 PLANNED | — | — | ~50 min [Walking Skeleton] |
+| 65 | [slice-65-lang-ecosystem-coverage-ledger](slices/18-R-approved-repo-workflow/slice-65-lang-ecosystem-coverage-ledger.md) | Must | ✅ VERIFIED ON BRANCH | — | — | ~50 min [Walking Skeleton] |
 | 66 | [slice-66-evidence-verify-injection-guard](slices/18-R-approved-repo-workflow/slice-66-evidence-verify-injection-guard.md) | Must | 📋 PLANNED | — | — | ~40 min |
 | 67 | [slice-67-sie-judge-panel-final](slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md) | Must | 📋 PLANNED | — | — | ~50 min [Walking Skeleton] |
 | 68 | [slice-68-workflow-run-triage-investigate](slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md) | Must | 📋 PLANNED | — | — | ~50 min [Walking Skeleton] |

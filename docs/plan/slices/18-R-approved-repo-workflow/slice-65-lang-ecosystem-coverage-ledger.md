@@ -1,6 +1,6 @@
 # Slice 65: Language/Ecosystem Discovery + Coverage Ledger
 
-> Scenario: Brownfield | MoSCoW: **Must** | Status: 📋 PLANNED
+> Scenario: Brownfield | MoSCoW: **Must** | Status: ✅ VERIFIED ON BRANCH
 > Wave: R — Approved-repo security workflow
 > Depends on: Wave P **62** (fan-out) + **64** (package targets) landed on `main` (PRs #145/#146)
 > Trigger: Approved-repo scanner must discover languages/ecosystems present and never claim full scan when unsupported
@@ -99,4 +99,4 @@ As an operator, I want every approved-repo scan to list which languages/ecosyste
 - [ ] `/verify-slice` — holistic evidence verdict COMPLETE
 
 ## Gate Status
-📋 PLANNED — EFP Path B 2026-09-20 (Wave R)
+✅ VERIFIED ON BRANCH — execute-slice 2026-09-20; quality-gates pass; Gate 4 APPROVED

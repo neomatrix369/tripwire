@@ -46,11 +46,21 @@ Reachable through production entry points / config:
 - CLI scanner inventory after scan (per-source status + rollup
   `fully successful` / `partly successful` / `fully failed` / `not run`;
   zero-artifact paths list registry as `not_run`) — `cli/src/scannerInventory.js`
-  (slice 63 ✅ on `main` via #145/#146)
+  (slice 63 ✅ on `main` via #145/#146). Package expected sources include
+  **Cargo Audit** (RustSec) alongside Snyk / DepShield / Ossprey.
+- Language/ecosystem **coverage ledger** (slice 65, Wave R): `tripwire scan`
+  / `--dry-discover` prints `[coverage]` rows per discovered ecosystem
+  (volume, scanner, action status, unsupported portions, reason) —
+  `cli/src/coverageLedger.js`. Marker-driven discovery (not a closed language
+  list). Unsupported gaps (e.g. Snyk/`snyk test` + DepShield for Rust/Cargo)
+  stay explicit; rollup is never “fully successful” solely from empty findings.
+  Local approved checkouts with manifests also emit a `package` target.
+  Cargo SCA honesty from `fix/cargo-package-scan-error-status` (#147) is
+  absorbed — no parallel Cargo-detail path.
 - Git repo `package` discovery target (`items.type=package` when manifests at
   scope root; DepShield / Ossprey / Snyk only) — `cli/src/discovery.js`,
   `sandbox/scanners.py` `_group_applies` (slice 64 ✅ on `main` via #145/#146;
-  Cargo-only SCA honesty VERIFIED on Live — all-N/A → UNSCANNED, not green)
+  Cargo-only SCA honesty VERIFIED on Live — all-N/A → NO COVERAGE, not green)
 - `tripwire setup` / first-scan schema bootstrap (probes `completed_at` column and
   live `items_type_check` so pre-package DBs re-apply `db/schema.sql`) —
   `cli/src/ensureSchema.js`
@@ -59,7 +69,7 @@ Reachable through production entry points / config:
   `snyk-agent-scan` for skills/MCP, `snyk test` SCA for `package`, `tessl`) with
   real flags and parse documented output shapes — `sandbox/scanners.py`. Package
   Snyk: Rust/Cargo trees → `not_applicable` (no `snyk test` support); complete
-  runs with zero completed engines → rollup/dashboard **grey** (UNSCANNED)
+  runs with zero completed engines → rollup/dashboard **grey** (NO COVERAGE)
 - DepShield dependency-audit adapter (`depshield-mcp` over MCP stdio;
   npm + PyPI via OSV.dev; zero credentials — nothing synced to
   `tripwire-scan-secrets`; runs for skill, mcp_server, and package
@@ -348,13 +358,15 @@ scope root, also emit a **`package`** target (`items.type=package`, Accepted) so
 Ossprey / Snyk run — not a fake skill; Cisco Skill / Tessl / Cisco MCP do **not** apply;
 package Snyk uses **`snyk test` SCA** (Agent Scan only covers skills/MCP); Rust/Cargo
 trees are `not_applicable` for Snyk SCA (honesty — full Cargo coverage is Wave R slice 72
-if the ledger still shows a gap); all-N/A complete → UNSCANNED not green;
+if the ledger still shows a gap); all-N/A complete → NO COVERAGE not green;
 repos with neither skill/MCP **nor** manifests still fail closed. **Slice 63:** CLI
 prints scanner inventory + rollup after scan / zero-artifact (package expected sources =
-Snyk/DepShield/Ossprey). Slices 62–64 ✅ landed `main` via
+Snyk/DepShield/Ossprey (+ Cargo Audit). Slices 62–64 ✅ landed `main` via
 [#145](https://github.com/neomatrix369/tripwire/pull/145) /
-[#146](https://github.com/neomatrix369/tripwire/pull/146). Follow-up SCA honesty:
-`fix/cargo-package-scan-error-status` (feeds Wave R slice 65).
+[#146](https://github.com/neomatrix369/tripwire/pull/146). Cargo SCA honesty
+merged via [#147](https://github.com/neomatrix369/tripwire/pull/147); coverage
+ledger (slice 65) absorbs that honesty — never claim fully scanned for
+Cargo-only when no scanner completed.
 Operator taxonomy soft-amended in slice **56-a**
 ([prerequisites — What can Tripwire scan?](./user-guide/prerequisites.md#what-can-tripwire-scan)).
 Spec:

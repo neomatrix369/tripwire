@@ -4,6 +4,10 @@ import { hashLocalPath } from './hash.js';
 import { spawnScanSandbox } from './modalClient.js';
 import { runRoute } from './router.js';
 import {
+  buildCoverageLedger,
+  formatCoverageLedger,
+} from './coverageLedger.js';
+import {
   expectedScannersFor,
   formatScannerInventory,
   mergeScannerInventory,
@@ -142,17 +146,37 @@ async function fetchScannerRows(supabase, scanRunId) {
   return Array.isArray(data) ? data : [];
 }
 
+/**
+ * Print coverage ledger for a package target after scan inventory is known.
+ * Pre-scan (not dispatched / dry-discover) passes empty scannerRows → not_started.
+ * Post-scan passes scan_run_scanners rows → completed/failed/skipped/timed_out.
+ * Ledger rollup (fully covered / partly covered / unsupported or unscanned) is
+ * operator-facing honesty — distinct from scan_run.status and scanner inventory
+ * rollup (ADR-0009 / inventory fully successful). Do not map one onto the other.
+ */
+function printCoverageLedgerForPackage(target, scannerRows = []) {
+  if (target.type !== 'package') return;
+  const workdir = target.target;
+  if (!workdir) return;
+  const ledger = buildCoverageLedger(workdir, scannerRows);
+  if (!ledger.length) return;
+  const label = target.identifier || target.target;
+  console.log(formatCoverageLedger(ledger, { label }));
+}
+
 async function printInventoryForOutcome(supabase, target, outcome) {
   const label = target.identifier || target.target;
   if (!outcome.scanRunId) {
     const inventory = mergeScannerInventory(expectedScannersFor(target.type), []);
     console.log(formatScannerInventory(inventory, { label: `${label} (not dispatched)` }));
+    printCoverageLedgerForPackage(target, []);
     return;
   }
   try {
     const rows = await fetchScannerRows(supabase, outcome.scanRunId);
     const inventory = mergeScannerInventory(expectedScannersFor(target.type), rows);
     console.log(formatScannerInventory(inventory, { label }));
+    printCoverageLedgerForPackage(target, rows);
   } catch (err) {
     console.warn(`[warn] could not load scanner inventory for ${label}: ${err.message}`);
   }

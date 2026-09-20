@@ -351,10 +351,45 @@ async function annotateWithTypes(resolved) {
   return Promise.all(resolved.map(annotateTarget));
 }
 
+/**
+ * Slice 65 / Wave R: approved local checkout with package manifests → package target
+ * (mirrors git fan-out package emission from slice 64).
+ */
+async function localPackageTarget(dirPath) {
+  if (!await isDir(dirPath) || !hasPackageManifest(dirPath)) return null;
+  return {
+    target: dirPath,
+    type: 'package',
+    locus: 'local',
+    avail: 'source_on_disk',
+    identifier: normalizeIdentifier(dirPath),
+    name: path.basename(path.resolve(dirPath)),
+  };
+}
+
+function normalizeIdentifier(targetPath) {
+  return String(targetPath || '').replace(/^\.\//, '').replace(/\/+$/, '');
+}
+
 async function resolveExplicitTarget(target, cloneRepoFn) {
   const gitHubTargets = await discoverGitHubRepo(target, cloneRepoFn);
   if (gitHubTargets) return gitHubTargets;
-  return resolveTarget(target);
+  const resolved = await resolveTarget(target);
+  if (/^https?:\/\//.test(target)) return resolved;
+  // Local path: also emit package target when manifests sit at the path root.
+  if (typeof target === 'string' && await isDir(target)) {
+    const pkg = await localPackageTarget(target);
+    if (pkg) {
+      const already = resolved.some((row) => (
+        typeof row === 'object'
+        && row !== null
+        && row.type === 'package'
+        && row.target === pkg.target
+      ));
+      if (!already) return [...resolved, pkg];
+    }
+  }
+  return resolved;
 }
 
 const VALID_TYPE_FILTERS = ['skill', 'mcp'];
