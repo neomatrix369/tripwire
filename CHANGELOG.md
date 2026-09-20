@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Snyk preflight: `sandbox/scanners.py`. VERIFIED on Live Packages (pizauth / snare).
 
 ### Added
+- Evidence verify + injection guard (slice 66, Wave R): host-side check that
+  quoted finding text exists at path:line (`evidence_verified` vs fail-closed
+  `unverified`); deterministic hidden/encoded instruction detection; scanned
+  content wrapped as untrusted data for judge/prompt channels; secrets masked
+  unless `tripwire scan --reveal-secrets`. CLI prints `[evidence]` on scan and
+  `--dry-discover` for skill/MCP targets (`cli/src/evidenceVerify.js`).
 - Language/ecosystem coverage ledger (slice 65, Wave R): `tripwire scan` and
   `--dry-discover` print `[coverage]` rows (ecosystem, volume, scanner, status,
   unsupported portions, reason). Marker-driven; reuses DepShield/Snyk/Ossprey/

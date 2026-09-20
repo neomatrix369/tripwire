@@ -398,7 +398,7 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
 | 65 | [slice-65-lang-ecosystem-coverage-ledger](slices/18-R-approved-repo-workflow/slice-65-lang-ecosystem-coverage-ledger.md) | Language/Ecosystem Discovery + Coverage Ledger | Must | ✅ | 62; 64 | — | ~5 min |
-| 66 | [slice-66-evidence-verify-injection-guard](slices/18-R-approved-repo-workflow/slice-66-evidence-verify-injection-guard.md) | Evidence Verify + Injection Guard | Must | 📋 | 65 | — | ~4 min |
+| 66 | [slice-66-evidence-verify-injection-guard](slices/18-R-approved-repo-workflow/slice-66-evidence-verify-injection-guard.md) | Evidence Verify + Injection Guard | Must | ✅ | 65 | — | ~4 min |
 | 67 | [slice-67-sie-judge-panel-final](slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md) | SIE Judge Panel + Final Judge | Must | 📋 | 66; ADR-0016 unchanged | — | ~5 min |
 | 68 | [slice-68-workflow-run-triage-investigate](slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md) | Stepper Run → Triage → Investigate | Must | 📋 | 67; UI 1A | — | ~5 min |
 | 69 | [slice-69-fix-propose-apply-clean](slices/18-R-approved-repo-workflow/slice-69-fix-propose-apply-clean.md) | Fix Propose + Apply-Clean Check | Must | 📋 | 68 | — | ~4 min |

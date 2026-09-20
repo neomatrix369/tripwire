@@ -192,7 +192,7 @@ stack (same names as the badges above):
 | Step | What runs | Stack | Setup |
 |---|---|---|---|
 | Discover | CLI finds skills / MCP servers / packages (`tripwire scan --dry-discover` or a real scan; Wave P package path IMPLEMENTED on branch) | Node.js CLI | [setup-commands](docs/user-guide/setup-commands.md#repository-and-cli-bootstrap) · [prerequisites](docs/user-guide/prerequisites.md#what-can-tripwire-scan) |
-| Scan | Adapters run in an isolated sandbox; CLI prints scanner inventory + rollup (slice 63 ✅) | Modal (+ Docker), Cisco / Snyk / Tessl / DepShield / Ossprey | [modal-setup](docs/user-guide/modal-setup.md) · [env-vars](docs/user-guide/env-vars.md) |
+| Scan | Adapters run in an isolated sandbox; CLI prints scanner inventory, coverage ledger, and `[evidence]` honesty rows (slices 63/65/66) | Modal (+ Docker), Cisco / Snyk / Tessl / DepShield / Ossprey | [modal-setup](docs/user-guide/modal-setup.md) · [env-vars](docs/user-guide/env-vars.md) |
 | Store | Findings and scan_run rows land for the dashboard | Supabase / Postgres | [supabase-setup](docs/user-guide/supabase-setup.md) |
 | Route (optional) | Every item through SIE; escalate only when signaled | Superlinked SIE → Alibaba Cloud Model Studio via `tripwire route` / auto-route | [sie-setup](docs/user-guide/sie-setup.md) · [model-studio-setup](docs/user-guide/model-studio-setup.md) |
 | Review | Heatmap, drawers, pathway strips, Escalated / SIE-only filters | Dashboard (Live or Mock) | [reading-router-results](docs/user-guide/reading-router-results.md) · [screenshots](docs/screenshots/README.md) |
@@ -206,7 +206,7 @@ for router backends (no full batch): [`prototypes/sie-studio/`](prototypes/sie-s
 flowchart LR
   discover["Discover<br/>skills / MCP / package"] --> scan["Scan<br/>Modal + Cisco/Snyk/Tessl/DepShield/Ossprey"]
   scan --> store["Store<br/>Supabase"]
-  store --> inventory["CLI inventory<br/>rollup (slice 63)"]
+  store --> inventory["CLI inventory / coverage / evidence"]
   inventory --> route["Route optional<br/>SIE → Model Studio"]
   route --> review["Review<br/>Dashboard"]
 ```

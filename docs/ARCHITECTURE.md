@@ -261,6 +261,7 @@ sequenceDiagram
 
   Op->>CLI: tripwire scan --dry-discover path
   CLI-->>Op: Print discovered targets
+  CLI-->>Op: Print [coverage] / [evidence] honesty rows when applicable
   Note over CLI: Exits without spawning sandbox
 ```
 

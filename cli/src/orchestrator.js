@@ -7,6 +7,7 @@ import {
   buildCoverageLedger,
   formatCoverageLedger,
 } from './coverageLedger.js';
+import { evidenceReportForWorkdir } from './evidenceVerify.js';
 import {
   expectedScannersFor,
   formatScannerInventory,
@@ -164,12 +165,23 @@ function printCoverageLedgerForPackage(target, scannerRows = []) {
   console.log(formatCoverageLedger(ledger, { label }));
 }
 
-async function printInventoryForOutcome(supabase, target, outcome) {
+function printEvidenceForTarget(target, revealSecrets) {
+  if (target.type !== 'skill' && target.type !== 'mcp_server') return;
+  const workdir = target.target;
+  if (!workdir) return;
+  console.log(evidenceReportForWorkdir(workdir, {
+    label: target.identifier || target.target,
+    revealSecrets,
+  }));
+}
+
+async function printInventoryForOutcome(supabase, target, outcome, revealSecrets) {
   const label = target.identifier || target.target;
   if (!outcome.scanRunId) {
     const inventory = mergeScannerInventory(expectedScannersFor(target.type), []);
     console.log(formatScannerInventory(inventory, { label: `${label} (not dispatched)` }));
     printCoverageLedgerForPackage(target, []);
+    printEvidenceForTarget(target, revealSecrets);
     return;
   }
   try {
@@ -177,14 +189,15 @@ async function printInventoryForOutcome(supabase, target, outcome) {
     const inventory = mergeScannerInventory(expectedScannersFor(target.type), rows);
     console.log(formatScannerInventory(inventory, { label }));
     printCoverageLedgerForPackage(target, rows);
+    printEvidenceForTarget(target, revealSecrets);
   } catch (err) {
     console.warn(`[warn] could not load scanner inventory for ${label}: ${err.message}`);
   }
 }
 
-async function printInventoriesForOutcomes(supabase, targets, outcomes) {
+async function printInventoriesForOutcomes(supabase, targets, outcomes, revealSecrets) {
   for (let i = 0; i < targets.length; i++) {
-    await printInventoryForOutcome(supabase, targets[i], outcomes[i]);
+    await printInventoryForOutcome(supabase, targets[i], outcomes[i], revealSecrets);
   }
 }
 
@@ -199,6 +212,7 @@ async function routeBatchSafely(routeFn, batchId) {
 export async function runScan(targets, {
   concurrency = 5,
   force = false,
+  revealSecrets = false,
   // Injectable seams for characterization tests (defaults preserve production path).
   ensureSchemaFn = ensureSchema,
   getSupabaseFn = getSupabase,
@@ -224,7 +238,7 @@ export async function runScan(targets, {
   };
   console.log(JSON.stringify(result, null, 2));
 
-  await printInventoriesForOutcomes(supabase, targets, outcomes);
+  await printInventoriesForOutcomes(supabase, targets, outcomes, revealSecrets);
   await routeBatchSafely(routeFn, batchId);
 
   if (failures.length) {

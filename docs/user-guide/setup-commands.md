@@ -16,6 +16,7 @@ maintenance commands.
 | `tripwire setup [--force]` | Apply schema to Supabase if tables missing (`SUPABASE_DB_URL`) |
 | `tripwire scan [targets…]` | Discover and scan (default command) |
 | `tripwire scan --dry-discover` | Print discovered targets; spawn nothing |
+| `tripwire scan --reveal-secrets` | Show secret-like tokens in evidence/logs (masked by default) |
 | `tripwire scan --type skill\|mcp` | Restrict discovery to one artifact category |
 | `tripwire scan --force` | Re-run scanners even if content hash is unchanged (card `name` still refreshes on a normal re-scan) |
 | `tripwire scan --concurrency <n>` | Max concurrent sandboxes (default 5) |
