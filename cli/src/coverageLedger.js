@@ -79,37 +79,42 @@ const ECOSYSTEM_CATALOGUE = [
   },
 ];
 
+function safeStat(target) {
+  try {
+    return statSync(target);
+  } catch {
+    return null;
+  }
+}
+
+function safeReaddir(dir) {
+  try {
+    return readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return null;
+  }
+}
+
+function collectWalkEntry(dir, entry, stack, names) {
+  if (entry.isDirectory()) {
+    if (!SKIP_DIRS.has(entry.name)) stack.push(path.join(dir, entry.name));
+    return;
+  }
+  if (entry.isFile()) names.push(entry.name);
+}
+
 function walkFilenames(root) {
   const names = [];
   if (!root || !existsSync(root)) return names;
-  let rootStat;
-  try {
-    rootStat = statSync(root);
-  } catch {
-    return names;
-  }
-  if (!rootStat.isDirectory()) return names;
+  const rootStat = safeStat(root);
+  if (!rootStat?.isDirectory()) return names;
 
   const stack = [root];
   while (stack.length) {
     const dir = stack.pop();
-    let entries;
-    try {
-      entries = readdirSync(dir, { withFileTypes: true });
-    } catch {
-      continue;
-    }
-    for (const entry of entries) {
-      if (entry.name.startsWith('.') && entry.name !== '.git') {
-        // still skip hidden except we already skip .git via SKIP_DIRS
-      }
-      if (entry.isDirectory()) {
-        if (SKIP_DIRS.has(entry.name)) continue;
-        stack.push(path.join(dir, entry.name));
-        continue;
-      }
-      if (entry.isFile()) names.push(entry.name);
-    }
+    const entries = safeReaddir(dir);
+    if (!entries) continue;
+    for (const entry of entries) collectWalkEntry(dir, entry, stack, names);
   }
   return names;
 }
@@ -145,6 +150,20 @@ export function discoverEcosystems(workdir) {
   return found;
 }
 
+/** Inventory / scan_run status → ledger action status (GWT-65.4). */
+const STATUS_TO_ACTION = new Map([
+  ['completed', 'completed'],
+  ['running', 'running'],
+  ['timed_out', 'timed_out'],
+  ['timeout', 'timed_out'],
+  ['failed', 'failed'],
+  ['unreachable', 'failed'],
+  ['interrupted', 'failed'],
+  ['skipped', 'skipped'],
+  ['skipped_missing_credential', 'skipped'],
+  ['not_applicable', 'skipped'],
+]);
+
 /**
  * Map scan_run_scanners / inventory status → ledger action status.
  * @param {string|null|undefined} status
@@ -152,18 +171,7 @@ export function discoverEcosystems(workdir) {
  */
 export function mapScannerStatusToAction(status) {
   const raw = String(status || 'not_run');
-  if (raw === 'completed') return 'completed';
-  if (raw === 'running') return 'running';
-  if (raw === 'timed_out' || raw === 'timeout') return 'timed_out';
-  if (raw === 'failed' || raw === 'unreachable' || raw === 'interrupted') return 'failed';
-  if (
-    raw === 'skipped'
-    || raw === 'skipped_missing_credential'
-    || raw === 'not_applicable'
-  ) {
-    return 'skipped';
-  }
-  return 'not_started';
+  return STATUS_TO_ACTION.get(raw) || 'not_started';
 }
 
 function pickBestScanner(ecosystemScanners, bySource) {
