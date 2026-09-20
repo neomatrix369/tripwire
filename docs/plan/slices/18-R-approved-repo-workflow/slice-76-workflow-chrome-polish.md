@@ -35,7 +35,7 @@
 ## Output contract
 > Observable shape of completion (shape only — not exact file paths).
 - **Baseline**: Four Triage filter rows stack with generous vertical margin; Run/Triage/Investigate/Verify/Report headlines are ad-hoc mono inline styles while Fix alone uses display/sans/mono hierarchy; Triage override buttons show snake_case status ids (`to_fix` / `needs_review` / `dismissed`)
-- After: (1) shared panel chrome classes (kicker / title / meta / body) applied across all six Workflow panels; (2) Triage filter rows use a compact shared toolbar class with visible group labels (Type / Quality / Target / Status); (3) override buttons use plain-language labels; (4) GWT-73.* and GWT-75.* remain green
+- After: (1) shared panel chrome classes (kicker / title / meta / body) applied across all six Workflow panels; (2) Triage filter rows use a compact shared toolbar class with visible group labels (Type / Quality / Target / Status); (3) override buttons use plain-language labels; (4) `GWT-73.*` and `GWT-75.*` remain green
 
 ## Design Context
 | Field | Value |
@@ -62,7 +62,7 @@ Files:
 
 Exit criteria:
   [ ] GWT-76.1–76.4 green
-  [ ] GWT-73.* + GWT-75.* regression green
+  [ ] `GWT-73.*` + `GWT-75.*` regression green
   [ ] Doc Audit STATUS + CHANGELOG
   [ ] code review passed (Gate 4)
 ```
@@ -85,7 +85,7 @@ As an operator, I want the Workflow tab filters and panel typography to feel com
 **Given** Triage step with type, quality, target, and status filters
 **When** Triage renders
 **Then** each filter row uses a shared compact toolbar class (tighter gap/margin than pre-76 `.tw-triage-tabs` spacing)
-**And** filter semantics and counts remain unchanged (GWT-73.* still pass)
+**And** filter semantics and counts remain unchanged (`GWT-73.*` still pass)
 
 ### GWT-76.3 — Filter group labels
 **Given** Triage filter rows
@@ -115,7 +115,7 @@ As an operator, I want the Workflow tab filters and panel typography to feel com
 - [x] Specification coverage for GWT-76.*
 - [x] Complexity evidence recorded (reporting policy for dashboard HTML/CSS)
 - [x] Doc Audit: STATUS + CHANGELOG chrome polish
-- [x] GWT-73.* and GWT-75.* regression pass
+- [x] `GWT-73.*` and `GWT-75.*` regression pass
 
 ### Closing Gates
 - [x] `nw-at-completeness-check` — AT completeness audit (slice close gate #8)
