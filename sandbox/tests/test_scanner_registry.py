@@ -29,7 +29,7 @@ def test_given_registry_when_inspected_then_order_and_applicability_preserved() 
     When its entries are inspected,
     Then skill groups come first (Cisco Skill Scanner then Tessl), the MCP
     group follows, and the both-type groups close the list (Snyk, DepShield,
-    then Ossprey last).
+    Cargo Audit, then Ossprey last).
     """
     ### Given / When
     groups = scanners.SCANNER_GROUPS
@@ -41,12 +41,14 @@ def test_given_registry_when_inspected_then_order_and_applicability_preserved() 
         scanners.MCP_SCANNER_SOURCES,
         scanners.SNYK_SOURCES,
         scanners.DEPSHIELD_SOURCES,
+        scanners.CARGO_AUDIT_SOURCES,
         scanners.OSSPREY_SOURCES,
     ]
     assert [g["applies_to"] for g in groups] == [
         "skill",
         "skill",
         "mcp_server",
+        "both",
         "both",
         "both",
         "both",
@@ -118,6 +120,11 @@ def test_given_package_when_run_all_then_both_groups_only_no_cisco() -> None:
         ),
         patch.object(
             scanners,
+            "_run_cargo_audit_group",
+            return_value=([], [{"scanner_source": "Cargo Audit", "status": "completed"}], None),
+        ),
+        patch.object(
+            scanners,
             "_run_ossprey_group",
             return_value=([], [{"scanner_source": "Ossprey", "status": "completed"}], None),
         ),
@@ -133,6 +140,7 @@ def test_given_package_when_run_all_then_both_groups_only_no_cisco() -> None:
     assert started == [
         list(scanners.SNYK_SOURCES),
         list(scanners.DEPSHIELD_SOURCES),
+        list(scanners.CARGO_AUDIT_SOURCES),
         list(scanners.OSSPREY_SOURCES),
     ]
     skill_mock.assert_not_called()
@@ -152,7 +160,7 @@ def test_given_skill_when_run_all_then_skill_groups_in_order_and_mcp_skipped() -
 
     Given a skill item with all runners mocked,
     When run_all_scanners runs,
-    Then on_scanner_start sees Cisco Skill → Tessl → Snyk → DepShield → Ossprey
+    Then on_scanner_start sees Cisco Skill → Tessl → Snyk → DepShield → Cargo Audit → Ossprey
     and the MCP runner is never invoked.
     """
     ### Given
@@ -166,6 +174,7 @@ def test_given_skill_when_run_all_then_skill_groups_in_order_and_mcp_skipped() -
         patch.object(scanners, "run_cisco_mcp_scanner", mcp_mock),
         patch.object(scanners, "run_snyk", return_value=([], [])),
         patch.object(scanners, "run_depshield", return_value=([], [])),
+        patch.object(scanners, "run_cargo_audit", return_value=([], [])),
         patch.object(scanners, "run_ossprey", return_value=([], [])),
     ):
         scanners.run_all_scanners(
@@ -178,6 +187,7 @@ def test_given_skill_when_run_all_then_skill_groups_in_order_and_mcp_skipped() -
         list(scanners.TESSL_SOURCES),
         list(scanners.SNYK_SOURCES),
         list(scanners.DEPSHIELD_SOURCES),
+        list(scanners.CARGO_AUDIT_SOURCES),
         list(scanners.OSSPREY_SOURCES),
     ]
     mcp_mock.assert_not_called()
@@ -190,7 +200,7 @@ def test_given_mcp_server_when_run_all_then_mcp_group_then_snyk_and_skill_skippe
 
     Given an mcp_server item with all runners mocked,
     When run_all_scanners runs,
-    Then start order is MCP → Snyk → DepShield → Ossprey and neither skill runner
+    Then start order is MCP → Snyk → DepShield → Cargo Audit → Ossprey and neither skill runner
     is invoked.
     """
     ### Given
@@ -205,6 +215,7 @@ def test_given_mcp_server_when_run_all_then_mcp_group_then_snyk_and_skill_skippe
         patch.object(scanners, "run_cisco_mcp_scanner", return_value=([], [])),
         patch.object(scanners, "run_snyk", return_value=([], [])),
         patch.object(scanners, "run_depshield", return_value=([], [])),
+        patch.object(scanners, "run_cargo_audit", return_value=([], [])),
         patch.object(scanners, "run_ossprey", return_value=([], [])),
     ):
         scanners.run_all_scanners(
@@ -219,6 +230,7 @@ def test_given_mcp_server_when_run_all_then_mcp_group_then_snyk_and_skill_skippe
         list(scanners.MCP_SCANNER_SOURCES),
         list(scanners.SNYK_SOURCES),
         list(scanners.DEPSHIELD_SOURCES),
+        list(scanners.CARGO_AUDIT_SOURCES),
         list(scanners.OSSPREY_SOURCES),
     ]
     skill_mock.assert_not_called()
@@ -255,6 +267,7 @@ def test_given_fake_group_in_copied_registry_when_run_all_then_same_protocol() -
         patch.object(scanners, "run_tessl", return_value=(None, [])),
         patch.object(scanners, "run_snyk", return_value=([], [])),
         patch.object(scanners, "run_depshield", return_value=([], [])),
+        patch.object(scanners, "run_cargo_audit", return_value=([], [])),
         patch.object(scanners, "run_ossprey", return_value=([], [])),
     ):
         result = scanners.run_all_scanners(
@@ -297,6 +310,7 @@ def test_given_fake_skill_only_group_when_mcp_scan_then_not_run() -> None:
         patch.object(scanners, "run_cisco_mcp_scanner", return_value=([], [])),
         patch.object(scanners, "run_snyk", return_value=([], [])),
         patch.object(scanners, "run_depshield", return_value=([], [])),
+        patch.object(scanners, "run_cargo_audit", return_value=([], [])),
         patch.object(scanners, "run_ossprey", return_value=([], [])),
     ):
         result = scanners.run_all_scanners("/tmp/mcp", "mcp_server", "https://example.invalid")
@@ -311,7 +325,7 @@ def test_given_group_runners_when_called_directly_then_normalized_triples() -> N
     Scenario: Each built-in group runner normalizes its adapter return shape.
     Slice: registry — runner adapters
 
-    Given the five adapters mocked with their native return shapes,
+    Given the six adapters mocked with their native return shapes,
     When each group runner is called with the uniform signature,
     Then all return (findings, rows, quality_score) triples matching the
     legacy aggregation (Tessl contributes no findings, only the score).
@@ -323,6 +337,7 @@ def test_given_group_runners_when_called_directly_then_normalized_triples() -> N
         patch.object(scanners, "run_cisco_mcp_scanner", return_value=(["f3"], ["r3"])) as mcp,
         patch.object(scanners, "run_snyk", return_value=(["f4"], ["r4"])) as snyk,
         patch.object(scanners, "run_depshield", return_value=(["f5"], ["r5"])) as dep,
+        patch.object(scanners, "run_cargo_audit", return_value=(["f6"], ["r6"])) as cargo,
     ):
         ### When / Then
         assert scanners._run_skill_scanner_group("/w", "skill", "/w") == (["f1"], ["r1"], None)
@@ -333,3 +348,5 @@ def test_given_group_runners_when_called_directly_then_normalized_triples() -> N
         snyk.assert_called_once_with("/w", "mcp_server")
         assert scanners._run_depshield_group("/w", "skill", "/w") == (["f5"], ["r5"], None)
         dep.assert_called_once_with("/w", "skill")
+        assert scanners._run_cargo_audit_group("/w", "package", "/w") == (["f6"], ["r6"], None)
+        cargo.assert_called_once_with("/w", "package")

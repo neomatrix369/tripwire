@@ -30,11 +30,11 @@ test('expectedScannersFor mcp includes MCP and both, excludes skill-only', () =>
   assert.ok(!names.includes('Tessl: Lint'));
 });
 
-test('GWT-64.5: expectedScannersFor package is DepShield/Ossprey/Snyk only', () => {
+test('GWT-64.5: expectedScannersFor package is DepShield/Ossprey/Snyk/Cargo Audit', () => {
   const names = expectedScannersFor('package');
   assert.deepEqual(
     names.sort(),
-    ['DepShield', 'Ossprey', 'Snyk'].sort(),
+    ['Cargo Audit', 'DepShield', 'Ossprey', 'Snyk'].sort(),
   );
   assert.ok(!names.some(n => n.startsWith('Cisco')));
   assert.ok(!names.some(n => n.startsWith('Tessl')));

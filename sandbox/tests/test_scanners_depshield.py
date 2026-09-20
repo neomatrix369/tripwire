@@ -692,10 +692,10 @@ def test_given_expired_deadline_or_dead_stdin_when_client_io_then_mapped_errors(
 # ---------------------------------------------------------------------------
 
 
-def test_given_registry_when_inspected_then_depshield_is_both_before_ossprey() -> None:
+def test_given_registry_when_inspected_then_depshield_is_both_before_cargo_audit() -> None:
     """
-    Scenario: DepShield joins via a both-type registry entry, now second-to-last
-    (Ossprey was appended after it).
+    Scenario: DepShield joins via a both-type registry entry before Cargo Audit
+    and Ossprey.
     Slice: registry — DepShield entry
     """
     ### Given / When
@@ -705,23 +705,22 @@ def test_given_registry_when_inspected_then_depshield_is_both_before_ossprey() -
     assert dep["sources"] == ["DepShield"]
     assert dep["applies_to"] == "both"
     assert dep["runner"] is scanners._run_depshield_group
-    # DepShield is immediately before the Ossprey group appended after it.
-    assert scanners.SCANNER_GROUPS[-2] is dep
+    assert scanners.SCANNER_GROUPS[-3] is dep
+    assert scanners.SCANNER_GROUPS[-2]["sources"] == scanners.CARGO_AUDIT_SOURCES
     assert scanners.SCANNER_GROUPS[-1]["sources"] == scanners.OSSPREY_SOURCES
 
 
 @pytest.mark.parametrize(("item_type", "target"), [("skill", "/w"), ("mcp_server", "https://x")])
-def test_given_any_item_type_when_run_all_then_depshield_runs_last(
+def test_given_any_item_type_when_run_all_then_depshield_before_cargo_and_ossprey(
     item_type: str, target: str
 ) -> None:
     """
-    Scenario: DepShield runs for both item types, always as the final group.
+    Scenario: DepShield runs for both item types before Cargo Audit and Ossprey.
     Slice: registry — dispatch
 
     Given all other runners mocked,
     When run_all_scanners runs for either item type,
-    Then DepShield is the second-to-last start-signalled group (Ossprey closes
-    the list) and its runner is called with (workdir, item_type).
+    Then DepShield is start-signalled before Cargo Audit; Ossprey closes the list.
     """
     ### Given
     started: list[list[str]] = []
@@ -734,6 +733,7 @@ def test_given_any_item_type_when_run_all_then_depshield_runs_last(
         patch.object(scanners, "run_cisco_mcp_scanner", return_value=([], [])),
         patch.object(scanners, "run_snyk", return_value=([], [])),
         patch.object(scanners, "run_depshield", return_value=([], dep_rows)) as dep,
+        patch.object(scanners, "run_cargo_audit", return_value=([], [])),
         patch.object(scanners, "run_ossprey", return_value=([], [])),
     ):
         result = scanners.run_all_scanners(
@@ -741,7 +741,8 @@ def test_given_any_item_type_when_run_all_then_depshield_runs_last(
         )
 
     ### Then
-    assert started[-2] == ["DepShield"]
+    assert started[-3] == ["DepShield"]
+    assert started[-2] == ["Cargo Audit"]
     assert started[-1] == ["Ossprey"]
     dep.assert_called_once_with("/w", item_type)
     assert result["scanner_rows"] == dep_rows

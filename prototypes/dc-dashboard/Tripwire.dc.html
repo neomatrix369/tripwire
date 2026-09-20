@@ -1385,6 +1385,7 @@ class Component extends DCLogic {
       amber: { color: '#8B5A00', label: 'AMBER', glyph: '▲' },
       green: { color: '#0F766E', label: 'GREEN', glyph: '✓' },
       grey: { color: '#6B645A', label: 'UNSCANNED', glyph: '–' },
+      no_coverage: { color: '#6B645A', label: 'NO COVERAGE', glyph: '–' },
       running: { color: '#0E7490', label: 'SCANNING', glyph: '◌' },
       error: { color: '#6D28D9', label: 'ERROR', glyph: '!' }
     };
@@ -1570,6 +1571,7 @@ class Component extends DCLogic {
       amber: { color: '#8B5A00', label: 'AMBER', glyph: '▲' },
       green: { color: '#0F766E', label: 'GREEN', glyph: '✓' },
       grey: { color: '#6B645A', label: 'UNSCANNED', glyph: '–' },
+      no_coverage: { color: '#6B645A', label: 'NO COVERAGE', glyph: '–' },
       running: { color: '#0E7490', label: 'SCANNING', glyph: '◌' },
       error: { color: '#6D28D9', label: 'ERROR', glyph: '!' }
     };
@@ -1725,7 +1727,7 @@ class Component extends DCLogic {
     const showItemResults = filtered.length > 0;
     const emptyCopy = this.filterEmptyCopy(s.statusFilter, s.typeFilter, s.qualityTab, s.searchQuery, data.items.length);
 
-    const counts = { red: 0, amber: 0, green: 0, grey: 0, running: 0, error: 0 };
+    const counts = { red: 0, amber: 0, green: 0, grey: 0, no_coverage: 0, running: 0, error: 0 };
     data.items.forEach(it => { counts[it.status] = (counts[it.status] || 0) + 1; });
     const escalatedCount = data.items.filter(it => it.findings.some(f => f.scanner === 'tiered_router' && ['routing_decision', 'routing_triage'].includes(f.category))).length;
     const sieOnlyCount = data.items.filter(it => it.findings.some(f => f.scanner === 'tiered_router' && f.category === 'routing_review')).length;
@@ -1736,6 +1738,7 @@ class Component extends DCLogic {
       { key: 'green', label: 'Green', value: counts.green, color: statusMeta.green.color },
       { key: 'running', label: 'Scanning', value: counts.running, color: statusMeta.running.color },
       { key: 'grey', label: 'Unscanned', value: counts.grey, color: statusMeta.grey.color },
+      { key: 'no_coverage', label: 'No coverage', value: counts.no_coverage, color: (statusMeta.no_coverage || statusMeta.grey).color },
       { key: 'error', label: 'Error', value: counts.error, color: statusMeta.error.color },
       { key: 'drifted', label: 'Changed', value: data.items.filter(it => it.drifted).length, color: statusMeta.amber.color },
       { key: 'escalated', label: 'Escalated', value: escalatedCount, color: '#6D28D9' },
@@ -1845,7 +1848,7 @@ class Component extends DCLogic {
     const lastScanTimes = data.items.map(i => i.lastScan).filter(Boolean).sort().reverse();
     const footerLastScan = lastScanTimes.length ? this.fmtTime(lastScanTimes[0]) : 'never';
 
-    const statusOrder = { running: 0, red: 1, amber: 2, green: 3, grey: 4, error: 5 };
+    const statusOrder = { running: 0, red: 1, amber: 2, green: 3, no_coverage: 4, grey: 5, error: 6 };
     const listRows = [...filtered].sort((a, b) => {
       const av = this.sortValue(a, s.sortKey, statusOrder), bv = this.sortValue(b, s.sortKey, statusOrder);
       if (av < bv) return s.sortDir === 'asc' ? -1 : 1;

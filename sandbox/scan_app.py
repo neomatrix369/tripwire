@@ -63,6 +63,14 @@ image = (
         "ln -sf /usr/local/lib/node_modules/snyk/bin/snyk /usr/local/bin/snyk || true",
         # DepShield stdio MCP server (npm/PyPI dependency audit) — pinned so cold `npx` is not the path.
         "npm install -g depshield-mcp@1.0.0",
+        # RustSec cargo-audit — Cargo.lock / Cargo.toml SCA (prefer over LLM for Rust).
+        # Modal caches this layer; on install failure the adapter reports unreachable.
+        "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | "
+        "sh -s -- -y --profile minimal --default-toolchain stable && "
+        ". /root/.cargo/env && cargo install cargo-audit --locked && "
+        "ln -sf /root/.cargo/bin/cargo-audit /usr/local/bin/cargo-audit && "
+        "test -x /usr/local/bin/cargo-audit "
+        '|| echo "WARNING: cargo-audit install failed — run_cargo_audit will report unreachable" >&2',
         # Ossprey CLI (linux amd64 release binary; sudo-less). Warn loudly when the
         # pinned release asset is missing so operators do not confuse unreachable
         # with a clean malware scan once credentials land.

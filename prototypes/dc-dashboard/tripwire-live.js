@@ -129,7 +129,9 @@ function shapeItem(item, runsByItem, scannersByRun, findingsByRun) {
 
   // No completed engines → no scored density (avoid stale R 0.00 as "clean").
   const risk =
-    status === "grey" && completedScannerCount === 0 ? null : item.risk_score;
+    (status === "grey" || status === "no_coverage") && completedScannerCount === 0
+      ? null
+      : item.risk_score;
 
   const unreachableCount = latestScanners.filter((s) => s.status === "unreachable").length;
   const totalScanners = latestScanners.length;

@@ -141,7 +141,7 @@ test('given complete green risk when resolveItemStatus then green', () => {
   );
 });
 
-test('given complete with zero completed scanners when resolveItemStatus then grey', () => {
+test('given complete with zero completed scanners when resolveItemStatus then no_coverage', () => {
   assert.equal(
     resolveItemStatus({
       runStatus: 'complete',
@@ -150,7 +150,7 @@ test('given complete with zero completed scanners when resolveItemStatus then gr
       findings: [],
       completedScannerCount: 0,
     }),
-    'grey'
+    'no_coverage'
   );
 });
 

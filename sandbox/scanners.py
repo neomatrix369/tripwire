@@ -2081,7 +2081,7 @@ def run_tessl(
 # Single source of truth for the pinned depshield-mcp version; the Modal image
 # install line in scan_app.py must match (sync-checked by test_scanners_depshield).
 DEPSHIELD_VERSION = "1.0.0"
-DEPSHIELD_TIMEOUT = 120
+DEPSHIELD_TIMEOUT = 110
 DEPSHIELD_HANDSHAKE_TIMEOUT = 20
 DEPSHIELD_MAX_MANIFESTS = 10
 _DEPSHIELD_MANIFEST_NAMES = ("package.json", "requirements.txt")
@@ -2392,6 +2392,194 @@ def run_depshield(workdir, item_type="mcp_server"):
     return findings, [row]
 
 
+# ---- Cargo Audit (RustSec advisory DB via cargo-audit) ----------------------
+# Prefer real RustSec SCA over LLM source review when Cargo.lock/Cargo.toml is
+# present (Wave R slice 72 gap fill; DECISIONS 2026-09-20). LLM Rust analysis
+# stays deferred while cargo-audit covers package advisories.
+# Exit codes (cargo-audit): 0 = clean, 1 = vulns/warnings denied, 2 = error.
+# Tail budget: DEPSHIELD + CARGO_AUDIT + OSSPREY <= SCAN_TIMEOUT.
+
+CARGO_AUDIT_TIMEOUT = 40
+CARGO_AUDIT_SOURCES = ["Cargo Audit"]
+_CARGO_AUDIT_SKIP_DIRS = frozenset(
+    {"node_modules", ".git", "venv", ".venv", "__pycache__", "target"}
+)
+
+
+def _cargo_audit_find_lockfile(workdir):
+    """Prefer Cargo.lock; fall back to a directory that has Cargo.toml only."""
+    locks = []
+    tomls = []
+    for root, dirnames, filenames in os.walk(workdir):
+        dirnames[:] = sorted(d for d in dirnames if d not in _CARGO_AUDIT_SKIP_DIRS)
+        rel_root = os.path.relpath(root, workdir)
+        if "Cargo.lock" in filenames:
+            locks.append("." if rel_root == "." else rel_root)
+        elif "Cargo.toml" in filenames:
+            tomls.append("." if rel_root == "." else rel_root)
+    if locks:
+        return locks[0], "Cargo.lock"
+    if tomls:
+        return tomls[0], "Cargo.toml"
+    return None, None
+
+
+def _cargo_audit_cmd():
+    if _which("cargo-audit"):
+        return ["cargo-audit"]
+    if _which("cargo"):
+        return ["cargo", "audit"]
+    return None
+
+
+def _cargo_audit_severity(advisory):
+    """Map RustSec advisory severity / CVSS to Tripwire red|amber."""
+    if not isinstance(advisory, dict):
+        return "amber"
+    raw = advisory.get("severity")
+    if isinstance(raw, str):
+        collapsed = _collapse_severity(raw)
+        if collapsed in ("red", "amber"):
+            return collapsed
+    cvss = advisory.get("cvss")
+    if isinstance(cvss, dict):
+        score = cvss.get("score")
+        try:
+            n = float(score)
+        except (TypeError, ValueError):
+            n = None
+        if n is not None:
+            if n >= 7.0:
+                return "red"
+            return "amber"
+    # Known advisory without a score is still actionable.
+    return "amber"
+
+
+def _cargo_audit_finding(entry, lock_relpath):
+    advisory = entry.get("advisory") if isinstance(entry, dict) else {}
+    package = entry.get("package") if isinstance(entry, dict) else {}
+    if not isinstance(advisory, dict):
+        advisory = {}
+    if not isinstance(package, dict):
+        package = {}
+    adv_id = advisory.get("id") or "RUSTSEC-unknown"
+    title = advisory.get("title") or advisory.get("description") or "RustSec advisory"
+    pkg_name = package.get("name") or advisory.get("package") or "unknown"
+    pkg_ver = package.get("version") or "?"
+    url = advisory.get("url") or f"https://rustsec.org/advisories/{adv_id}"
+    return {
+        "scanner_source": "Cargo Audit",
+        "severity": _cargo_audit_severity(advisory),
+        "category": "dependency_vulnerability",
+        "rule_id": str(adv_id),
+        "message": f"{pkg_name}@{pkg_ver}: {title}",
+        "file": lock_relpath,
+        "line": None,
+        "entity_kind": "package",
+        "entity_name": pkg_name,
+        "advisory_url": url,
+    }
+
+
+def _parse_cargo_audit_json(text, lock_relpath):
+    """Parse `cargo audit --json` report into findings + check count."""
+    try:
+        root = json.loads(text or "{}")
+    except json.JSONDecodeError:
+        return [], 0, "cargo-audit JSON parse failed"
+    vulns = root.get("vulnerabilities") if isinstance(root, dict) else None
+    if not isinstance(vulns, dict):
+        return [], 0, None
+    entries = vulns.get("list") or []
+    if not isinstance(entries, list):
+        entries = []
+    findings = []
+    for entry in entries:
+        if isinstance(entry, dict):
+            findings.append(_cargo_audit_finding(entry, lock_relpath))
+    checks = max(int(vulns.get("count") or 0), len(findings), 1)
+    return findings, checks, None
+
+
+def run_cargo_audit(workdir, item_type="package"):
+    """Audit Cargo.lock / Cargo.toml trees via RustSec cargo-audit.
+
+    *item_type* does not change behaviour — N/A when no Cargo manifests exist.
+    """
+    source = "Cargo Audit"
+    crate_dir, kind = _cargo_audit_find_lockfile(workdir)
+    if crate_dir is None:
+        return [], [
+            _skipped(
+                source,
+                "not_applicable",
+                detail="no Cargo.toml / Cargo.lock in workdir",
+            )
+        ]
+    cmd = _cargo_audit_cmd()
+    if cmd is None:
+        return [], [
+            _unreachable(
+                source,
+                "cargo-audit not installed (and cargo missing from image)",
+            )
+        ]
+
+    abs_dir = workdir if crate_dir == "." else os.path.join(workdir, crate_dir)
+    lock_rel = "Cargo.lock" if kind == "Cargo.lock" else os.path.join(crate_dir, "Cargo.toml")
+    if crate_dir != "." and kind == "Cargo.lock":
+        lock_rel = os.path.join(crate_dir, "Cargo.lock")
+    elif crate_dir == "." and kind == "Cargo.toml":
+        lock_rel = "Cargo.toml"
+
+    argv = [*cmd, "--json"]
+    if kind == "Cargo.lock" and crate_dir != ".":
+        argv.extend(["--file", os.path.join(abs_dir, "Cargo.lock")])
+        run_cwd = workdir
+    else:
+        run_cwd = abs_dir
+
+    try:
+        code, out, err = _run(argv, timeout=CARGO_AUDIT_TIMEOUT, cwd=run_cwd)
+    except subprocess.TimeoutExpired:
+        return [], [
+            _unreachable(
+                source,
+                f"cargo-audit timed out after {CARGO_AUDIT_TIMEOUT}s",
+            )
+        ]
+    except OSError as exc:
+        return [], [_unreachable(source, f"cargo-audit failed to start: {exc}")]
+
+    console = _build_console(out, err)
+    # Exit 2 = tool/error; exit 1 = vulns found (still a completed scan).
+    if code not in (0, 1):
+        detail = (err or out or f"cargo-audit exit {code}").strip()[:4000]
+        return [], [_unreachable(source, detail, console_output=console)]
+
+    findings, checks, parse_err = _parse_cargo_audit_json(out, lock_rel)
+    if parse_err and code == 0 and not (out or "").strip():
+        # Clean scan sometimes prints little JSON — treat as completed zero vulns.
+        return [], [_completed(source, 1, [], console_output=console)]
+    if parse_err and not findings:
+        return [], [_unreachable(source, parse_err, console_output=console)]
+
+    row = _completed(source, checks, findings, console_output=console)
+    if kind == "Cargo.toml":
+        row["detail"] = (
+            f"{row.get('detail', '')} — audited via Cargo.toml "
+            "(cargo-audit may generate/locate Cargo.lock)"
+        ).strip(" —")[:4000]
+    return findings, [row]
+
+
+def _run_cargo_audit_group(workdir, item_type, target):
+    """Cargo Audit group — RustSec SCA for skill/mcp/package when Cargo present."""
+    findings, rows = run_cargo_audit(workdir, item_type)
+    return findings, rows, None
+
+
 # ---- Ossprey (malicious-package / malware detection) ------------------------
 # RESEARCH-grade adapter (ADR-0005): the shape below is taken from ossprey.com
 # and the OSSPREY GitHub org docs, NOT round-tripped against a live ossprey-cli.
@@ -2410,9 +2598,10 @@ def run_depshield(workdir, item_type="mcp_server"):
 # adapter MUST disambiguate — a finding is emitted only on a POSITIVE malware
 # signal (a malicious OSSBOM entry, or an unambiguous verdict line). exit 1 with
 # no such signal is a scan failure → unreachable, never a phantom red finding.
-# Tail budget: DEPSHIELD_TIMEOUT + OSSPREY_TIMEOUT must stay <= SCAN_TIMEOUT;
-# see scripts/check-scanner-timeout-budget.sh and docs/ARCHITECTURE.md.
-OSSPREY_TIMEOUT = 100
+# Tail budget: DEPSHIELD_TIMEOUT + CARGO_AUDIT_TIMEOUT + OSSPREY_TIMEOUT must
+# stay <= SCAN_TIMEOUT; see scripts/check-scanner-timeout-budget.sh and
+# docs/ARCHITECTURE.md.
+OSSPREY_TIMEOUT = 90
 
 # RESEARCH: verdict wording UNVERIFIED. Match malware/malicious lines but skip
 # known clean-summary phrases only — never bare "not"/"clean" (false negatives).
@@ -2786,7 +2975,7 @@ def _run_ossprey_group(workdir, item_type, target):
 
 
 # Ordered: skill-only groups (Cisco Skill Scanner, then Tessl), the mcp-only
-# group (Cisco MCP Scanner), then the both-type groups (Snyk, DepShield, then
+# group (Cisco MCP Scanner), then both-type groups (Snyk, DepShield, Cargo Audit,
 # Ossprey last — the RESEARCH-grade malicious-package adapter, credential-gated).
 SCANNER_GROUPS = [
     {"sources": SKILL_SCANNER_SOURCES, "applies_to": "skill", "runner": _run_skill_scanner_group},
@@ -2794,11 +2983,12 @@ SCANNER_GROUPS = [
     {"sources": MCP_SCANNER_SOURCES, "applies_to": "mcp_server", "runner": _run_mcp_scanner_group},
     {"sources": SNYK_SOURCES, "applies_to": "both", "runner": _run_snyk_group},
     {"sources": DEPSHIELD_SOURCES, "applies_to": "both", "runner": _run_depshield_group},
+    {"sources": CARGO_AUDIT_SOURCES, "applies_to": "both", "runner": _run_cargo_audit_group},
     {"sources": OSSPREY_SOURCES, "applies_to": "both", "runner": _run_ossprey_group},
 ]
 
 
-# Types that inherit ``applies_to: "both"`` groups (Snyk / DepShield / Ossprey).
+# Types that inherit ``applies_to: "both"`` groups (Snyk / DepShield / Cargo Audit / Ossprey).
 _BOTH_ITEM_TYPES = frozenset({"skill", "mcp_server", "package"})
 
 

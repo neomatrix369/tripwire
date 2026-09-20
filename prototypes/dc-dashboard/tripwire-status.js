@@ -8,8 +8,9 @@
  * heatmap_status / card colour = worst-of actionable findings (aligned with
  * tripwire_rollup_item). risk_score remains weighted density for sort/trend;
  * statusFromRisk is only a fallback when heatmap and findings are unscorable.
- * complete + zero completed scanners (all not_applicable / skipped) → grey
- * (UNSCANNED), never a false green.
+ * complete + zero completed scanners (all not_applicable / skipped) →
+ * no_coverage (NO COVERAGE), never a false green or "UNSCANNED"
+ * (UNSCANNED = never ran / no usable scan record).
  */
 
 export const STATUS_META = {
@@ -18,6 +19,7 @@ export const STATUS_META = {
   amber: { color: "#8B5A00", label: "AMBER", glyph: "▲" }, // must equal --amber-ink
   green: { color: "#0F766E", label: "GREEN", glyph: "✓" }, // must equal --green-ink
   grey: { color: "#6B645A", label: "UNSCANNED", glyph: "–" }, // must equal --text-muted
+  no_coverage: { color: "#6B645A", label: "NO COVERAGE", glyph: "–" }, // same ink as grey
   running: { color: "#0E7490", label: "SCANNING", glyph: "◌" }, // must equal --signal-ink
   error: { color: "#6D28D9", label: "ERROR", glyph: "!" }, // must equal --violet-ink
 };
@@ -148,7 +150,7 @@ export function normalizeSeverity(raw) {
  *   findings?: Array<{severity?: string}>|null,
  *   completedScannerCount?: number|null,
  * }} input
- * @returns {'red'|'amber'|'green'|'grey'|'running'|'error'}
+ * @returns {'red'|'amber'|'green'|'grey'|'no_coverage'|'running'|'error'}
  */
 function resolveCompletedStatus(
   heatmapStatus,
@@ -167,11 +169,12 @@ function resolveCompletedStatus(
   if (runStatus === "partial-failed" && noCompletedEngine) return "error";
 
   // complete with zero completed engines (all not_applicable / skipped) →
-  // UNSCANNED, never a false green — even if rollup still has stale green.
-  if (runStatus === "complete" && noCompletedEngine) return "grey";
+  // NO COVERAGE (ran, no engine scored) — never false green / never "UNSCANNED".
+  if (runStatus === "complete" && noCompletedEngine) return "no_coverage";
 
   if (RESULT_STATUSES.has(heatmapStatus)) return heatmapStatus;
   if (heatmapStatus === "grey") return "grey";
+  if (heatmapStatus === "no_coverage") return "no_coverage";
   if (heatmapStatus === "error") return "error";
 
   const fromRisk = statusFromRisk(riskScore);

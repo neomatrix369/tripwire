@@ -84,8 +84,11 @@ disagree or coverage looks incomplete ([ADR-0016](docs/adr/0016-tiered-router-si
 Missing Snyk / Cisco / Tessl / Ossprey keys → that scanner reports skipped /
 `needs_setup` / `skipped_missing_credential` rather than claiming a complete scan.
 DepShield always runs when the sandbox image includes it (no secret sync).
-When every package scanner is `not_applicable` or skipped (e.g. Cargo-only
-repos), the card is **UNSCANNED**, not green.
+When every package scanner is `not_applicable` or skipped (e.g. no Cargo Audit
+and no other engine completed), the card is **NO COVERAGE**, not green.
+**UNSCANNED** remains for never-run / no usable scan record.
+Cargo / Rust crates: **Cargo Audit** (RustSec) runs when `Cargo.lock` or
+`Cargo.toml` is present.
 Capability honesty and evidence states: [docs/STATUS.md](docs/STATUS.md) ·
 inventory: [ARCHITECTURE §0](docs/ARCHITECTURE.md#0-external-services-inventory) ·
 Ossprey key allowlist: [OPTIONAL_SCANNER_KEYS](fixtures/OPTIONAL_SCANNER_KEYS.md).
