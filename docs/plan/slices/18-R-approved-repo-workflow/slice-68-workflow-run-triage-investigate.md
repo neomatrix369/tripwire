@@ -21,6 +21,7 @@
 - Full Expert raw provenance (slice 71)
 - Fix propose / verify worktree (69–70)
 - Separate hackathon-only viewer (1B rejected for this wave)
+- **Live binding + honest empty-state narration** for judge panel / coverage / evidence-verify outcomes when CLI ran silently or panel is opt-in off — owned by **slice 75** (R-UX-1). Slice 68 keeps builders + placeholders; 75 closes operator-visible honesty.
 
 ## Design Context
 | Field | Value |

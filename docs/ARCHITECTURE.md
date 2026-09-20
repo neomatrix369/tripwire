@@ -156,7 +156,7 @@ C4Container
     Container(cli, "CLI", "Node.js", "Discovery, hashing, idempotency, Modal spawn, tiered route")
     Container(sandbox, "Sandbox app", "Python / Modal", "Acquire target, run adapters")
     ContainerDb(db, "Database", "Postgres / Supabase", "schema.sql, Realtime")
-    Container(dash, "Dashboard", "HTML / JS", "Live/Mock UI; pathway strips; Escalated / SIE-only filters")
+    Container(dash, "Dashboard", "HTML / JS", "Live/Mock UI; Dashboard inventory tab + Workflow Run→Report; pathway strips; Escalated / SIE-only filters")
   }
 
   System_Ext(scanners, "Upstream scanners")

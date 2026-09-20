@@ -22,6 +22,22 @@ Start here: [QUICKSTART](../../QUICKSTART.md) · Setup:
 | **SIE-only** | SIE reviewed; Model Studio did **not** run |
 | **tiered_router** | Informational triage row — not a fourth scanner; excluded from risk rollup |
 
+## Dashboard vs Workflow tabs
+
+The Live/Mock UI has two primary tabs:
+
+| Tab | What it is for |
+|---|---|
+| **Dashboard** (default) | Inventory heatmap, KPIs, filters, cards, pathway strips, Escalated / SIE-only |
+| **Workflow** | Run → Triage → Investigate → Fix → Verify → Report stepper for an approved-repo guided path |
+
+Simple/Expert on Workflow only changes finding-detail density. Operator-visible
+narration of the SIE judge panel, coverage ledger, and evidence-verify honesty
+(process line, “panel off”, no silent success) is **PLANNED** (Wave R slice 75) —
+see [STATUS.md](../STATUS.md). Optional `TRIPWIRE_JUDGE_PANEL=1` enables the CLI
+panel ([env-vars.md](./env-vars.md)); it does not by itself complete Workflow UI
+honesty.
+
 ## What you are looking at
 
 After a batch is routed, each processed item has one finding with

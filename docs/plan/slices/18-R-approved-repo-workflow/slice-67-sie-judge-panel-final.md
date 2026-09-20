@@ -20,10 +20,12 @@
 - Replacing or rewriting the tiered router (ADR-0016)
 - Closed / proprietary generation models for the panel
 - Dashboard stepper chrome (slice 68) beyond persisting fields the UI will read
+- **Operator-facing Workflow narration** of panel progress / honest empty states — owned by **slice 75** (R-UX-1); this slice still must persist UI-consumable panel_run fields
 
 ## Output contract
 - **Baseline**: ADR-0016 writes `tiered_router` triage/escalation rows; no independent 3-judge panel + final verdict schema
 - After: each candidate has panel judgements + final verdict ∈ {true_positive, false_positive, needs_review}; disagreements flagged; if judges disagree and final judge is unconfident → needs_review; timeouts/failures recorded
+- **UI handoff**: persisted `panel_run` (per-judge model/verdict/confidence/reason/status + final_*) must be readable by dashboard Workflow builders (slice 75 binds and narrates; this slice does not own chrome copy)
 
 ## Slice Workflow Bundle
 - Slice name: `slice-67-sie-judge-panel-final`

@@ -1030,15 +1030,17 @@ test('GWT-69.1 given dashboard html when proposed patch pane then full diff is s
   assert.match(html, /aria-label="Proposed patch diff"/, 'patch pane is labelled for assistive tech');
 });
 
-test('GWT-69.1 given dashboard html when Simple mode then inventory is Expert-only', () => {
+test('GWT-69.1 given dashboard html when primary tabs then inventory is default and workflow is secondary', () => {
   // -- Given --
   const html = DASHBOARD_HTML;
 
   // -- When / Then --
-  assert.match(html, /showInventory:\s*!s\.showIntro\s*&&\s*!!s\.expertMode/, 'Simple hides inventory grid and detail drawer');
-  assert.match(html, /tw-workflow-focus/, 'Simple expands workflow chrome to fill the page');
-  assert.match(html, /class="\{\{\s*workflowChromeClass\s*\}\}"/, 'workflow chrome class is bound for Simple focus');
+  assert.match(html, /\['dashboard',\s*'workflow'\]/, 'primary tabs are Dashboard then Workflow');
+  assert.match(html, /showInventory:\s*!s\.showIntro\s*&&\s*s\.activeTab\s*===\s*'dashboard'/, 'inventory is the default Dashboard tab');
+  assert.match(html, /showWorkflow:\s*!s\.showIntro\s*&&\s*s\.activeTab\s*===\s*'workflow'/, 'workflow phases live on the Workflow tab');
+  assert.match(html, /sc-if value="\{\{\s*showWorkflow\s*\}\}"/, 'workflow chrome is gated behind showWorkflow');
   assert.match(html, /sc-if value="\{\{\s*showInventory\s*\}\}"/, 'inventory is gated behind showInventory');
+  assert.match(html, /tw-workflow-focus/, 'Workflow tab expands chrome to fill the page');
 });
 
 test('GWT-69.1 given dashboard html when Fix step then typography separates prose from mono diff', () => {

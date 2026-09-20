@@ -21,7 +21,7 @@ Horizon A trackers and slice stubs. **Slice files live in wave folders** (execut
 | 15 | [slices/15-O-monk-kit-live-packaging/](slices/15-O-monk-kit-live-packaging/) | **O — Monk Kit Live packaging** (**O0** + 58–61) — 📋 plan-only · ADR-0001 + PoC · branch `docs/monk-kit-wave-o` |
 | 16 | [slices/16-P-git-repo-scan/](slices/16-P-git-repo-scan/) | **P — Git repo discover + fan-out** (62–64) — ✅ landed main (#145/#146) · skills+MCPs+package · `org/repo` cards |
 | 17 | [slices/17-Q-ci-hygiene/](slices/17-Q-ci-hygiene/) | **Q — CI hygiene** — reserved empty placeholder |
-| 18 | [slices/18-R-approved-repo-workflow/](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** (65–72) — 📋 plan-only · coverage ledger · SIE judges · stepper UI 1A · fix/verify/export · gap scanners Could |
+| 18 | [slices/18-R-approved-repo-workflow/](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** (65–75) — coverage ledger · SIE judges · stepper UI 1A · fix/verify/export · gap scanners · **75** operator-visible pipeline |
 
 | Tracker | Role |
 |---------|------|

@@ -70,7 +70,10 @@ Reachable through production entry points / config:
   stays slice 67.
 - Wave R **workflow stepper** Run→Triage→Investigate (slice 68): IMPLEMENTED /
   VERIFIED on `main` (#152) — `prototypes/dc-dashboard/tripwire-workflow-*.js`
-  (+ run-progress / triage / investigate) with GWT-68.* tests.
+  (+ run-progress / triage / investigate) with GWT-68.* tests. **Nav (2026-09-20):**
+  primary **Dashboard** tab = inventory (default); stepper + phase panels move to
+  secondary **Workflow** tab — IMPLEMENTED on `feat/inventory-default-workflow-tab`
+  (not VERIFIED until merge + operator observation).
 - Wave R **Triage target filters** (slice 73): 🔨 IN PROGRESS — cherry-picked
   onto `fix/slice-74-fix-blank-while-heuristic`. Triage panel adds inventory-style
   type tabs (All / Skills / MCP / Packages), quality tabs (All + Tessl
@@ -89,20 +92,26 @@ Reachable through production entry points / config:
   apply-clean on a temp copy only (approved repo unchanged), mark fixed /
   won't-fix (reason required), J/K navigation, progress N of M. Never claims
   fixed from generation alone — Verify (slice 70) owns outcomes.
-- Wave R **Verify worktree rescan** (slice 70): 🔨 IN PROGRESS on
-  `slice/70-verify-worktree-rescan` — Verify step honesty: outcomes are
+- Wave R **Verify worktree rescan** (slice 70): IMPLEMENTED / VERIFIED on
+  `main` (#155) — Verify step honesty: outcomes are
   **finding gone** / **still present** / **unable to verify** (with reason);
   re-check runs only on a temp worktree/copy (approved repo unchanged);
   scanner missing/failed/timeout → unable, never “finding gone”; never claim
   fixed solely because a patch was generated (slice 69). Modules:
   `tripwire-verify-rescan.js`, `tripwire-verify-view.js` (dashboard prototype).
-  Not VERIFIED until `/verify-slice`.
 - Wave R **Expert view + Report export** (slice 71): IMPLEMENTED / VERIFIED on
-  `main` (#153) — Expert toggle surfaces raw judges, model IDs, confidence,
-  weakness/AI-sec IDs, scanner details, data-flow; Report step headline
-  (fixed / left / won't fix) with JSON/Markdown export + coverage ledger;
-  secrets masked unless Reveal secrets. Modules: `tripwire-report.js`,
-  `tripwire-report-export.js`; GWT-71.* tests.
+  `main` (#153) — on the **Workflow** tab, Expert toggle surfaces raw judges,
+  model IDs, confidence, weakness/AI-sec IDs, scanner details, data-flow (Simple
+  remains the default density); Report step headline (fixed / left / won't fix)
+  with JSON/Markdown export + coverage ledger; secrets masked unless Reveal
+  secrets. Modules: `tripwire-report.js`, `tripwire-report-export.js`; GWT-71.*
+  tests. Expert no longer gates the inventory grid (that is the Dashboard tab).
+- Wave R **operator-visible pipeline** (slice 75 / R-UX-1): 📋 PLANNED —
+  Workflow UI must narrate judge panel / coverage / evidence-verify with honest
+  absent states (no fabricated pending judges; process CTA; Investigate
+  auto-select). Spec:
+  [plan/slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md](./plan/slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md).
+  Optional slice 76 chrome polish = HITL.
 - CLI **`tripwire judge --batch-id`** + SIE judge panel module (slice 67, Wave R):
   `cli/src/judgePanel.js` (panel + final judge; open-weight SIE generate models).
   Optional soft-fail post-route hook only when `TRIPWIRE_JUDGE_PANEL=1` (default
@@ -354,6 +363,14 @@ panel module/tests IMPLEMENTED (unit). Panel is **additive** to
 — router triage/escalation logic unchanged; open-weight SIE only for judging.
 Opt-in post-scan hook `TRIPWIRE_JUDGE_PANEL=1` (default off). Spec:
 [plan/slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md](./plan/slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md).
+**Improvement backlog (R-UX-1, USER 2026-09-20):** → **Slice 75** 📋 PLANNED
+(`slice-75-operator-visible-pipeline`) — Workflow UI must surface judge-panel /
+final-judge / coverage / evidence-verify progress and outcomes in plain language
+(not silent b/g). Soft-amended after nw Workflow UX review (GWT-75.3–75.8:
+no fabricated judges, honest placeholders, process CTA, auto-select Investigate,
+truthful model hints). Optional slice 76 chrome polish = HITL. Soft-amends
+slices 67/68. See [plan/DECISIONS.md](./plan/DECISIONS.md) Path B Add slice 75
++ `nw-UX-review` row.
 
 **Wave J delta — dashboard metric surfacing (2026-08-20):** A9–A13
 **IMPLEMENTED** on `main` via [PR #98](https://github.com/neomatrix369/tripwire/pull/98)

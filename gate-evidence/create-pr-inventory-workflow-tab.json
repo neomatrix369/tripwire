@@ -1,0 +1,35 @@
+{
+  "invocation_id": "1f95c00f-d87e-44b1-bb58-e4f1a4026662",
+  "branch": "feat/inventory-default-workflow-tab",
+  "stacks": {
+    "dc-dashboard": {
+      "command": "npm run test:coverage",
+      "tests": 366,
+      "passed": 366,
+      "failed": 0,
+      "coverage": {
+        "statements": 98.21,
+        "branches": 83.13,
+        "functions": 98.0,
+        "lines": 98.21
+      }
+    },
+    "cli": {
+      "command": "npm test",
+      "tests": 209,
+      "passed": 209,
+      "failed": 0
+    },
+    "sandbox_sample": {
+      "command": "uv run pytest sandbox/tests/test_scanners_cargo_audit.py -q",
+      "passed": 31,
+      "failed": 0,
+      "note": "sample; full sandbox suite not re-run (UI-only delta)"
+    }
+  },
+  "quality_gates": {
+    "script": "./scripts/quality-gates.sh --quick",
+    "result": "pass"
+  },
+  "recorded_at": "2026-09-20T21:11:00+01:00"
+}

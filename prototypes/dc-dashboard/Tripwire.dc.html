@@ -269,7 +269,7 @@
     background: var(--bg-deep);
     padding: 10px 20px 12px;
   }
-  /* Simple mode: workflow is the page — inventory stays Expert-only */
+  /* Workflow tab: chrome fills the main pane (inventory lives on Dashboard) */
   .tw-workflow-chrome.tw-workflow-focus {
     flex: 1 1 auto;
     min-height: 0;
@@ -493,7 +493,8 @@
     <button onClick="{{ toggleIntro }}" style="{{ introToggleStyle }}" title="Toggle intro / about">{{ introToggleLabel }}</button>
   </div>
 
-  <!-- ── Slice 68 workflow chrome (always below nav) ── -->
+  <!-- ── Slice 68 workflow chrome (Workflow primary tab only) ── -->
+  <sc-if value="{{ showWorkflow }}" hint-placeholder-val="{{ false }}">
   <div class="{{ workflowChromeClass }}" role="region" aria-label="Approved-repo workflow">
     <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px">
       <nav class="tw-workflow-stepper" aria-label="Workflow steps">
@@ -709,6 +710,7 @@
       </div>
     </sc-if>
   </div>
+  </sc-if><!-- end showWorkflow -->
 
   <!-- ── Intro / landing screen ── -->
   <sc-if value="{{ showIntro }}" hint-placeholder-val="{{ false }}">
@@ -1030,10 +1032,10 @@
     </div>
   </sc-if>
 
-  <!-- ── Main dashboard inventory (Expert only; Simple focuses on workflow) ── -->
+  <!-- ── Main dashboard inventory (default Dashboard tab) ── -->
   <sc-if value="{{ showDashboard }}" hint-placeholder-val="{{ true }}">
 
-  <sc-if value="{{ showInventory }}" hint-placeholder-val="{{ false }}">
+  <sc-if value="{{ showInventory }}" hint-placeholder-val="{{ true }}">
   <sc-if value="{{ activeTabIsDashboard }}" hint-placeholder-val="{{ true }}">
     <div style="display:flex;flex:1;min-height:0">
       <div style="flex:1;display:flex;flex-direction:column;min-width:0">
@@ -1645,7 +1647,7 @@ class Component extends DCLogic {
 
   enterDashboard = () => {
     sessionStorage.setItem('tripwire-intro-dismissed', '1');
-    this.setState({ showIntro: false });
+    this.setState({ showIntro: false, activeTab: 'dashboard' });
   };
 
   toggleIntro = () => {
@@ -2737,9 +2739,10 @@ class Component extends DCLogic {
       error: { color: '#6D28D9', label: 'ERROR', glyph: '!' }
     };
 
-    const primaryTabs = ['dashboard'].map(key => ({
+    const primaryTabLabels = { dashboard: 'Dashboard', workflow: 'Workflow' };
+    const primaryTabs = ['dashboard', 'workflow'].map(key => ({
       key,
-      label: key.charAt(0).toUpperCase() + key.slice(1),
+      label: primaryTabLabels[key],
       onClick: () => this.setTab(key),
       style: this.btnStyle(s.activeTab === key, { size: '13px' })
     }));
@@ -2766,15 +2769,15 @@ class Component extends DCLogic {
     const base = {
       showIntro: s.showIntro,
       showDashboard: !s.showIntro,
-      showInventory: !s.showIntro && !!s.expertMode,
-      workflowChromeClass: (!s.showIntro && !s.expertMode)
-        ? 'tw-workflow-chrome tw-workflow-focus'
-        : 'tw-workflow-chrome',
+      showInventory: !s.showIntro && s.activeTab === 'dashboard',
+      showWorkflow: !s.showIntro && s.activeTab === 'workflow',
+      workflowChromeClass: 'tw-workflow-chrome tw-workflow-focus',
       enterDashboard: this.enterDashboard,
       toggleIntro: this.toggleIntro,
       introToggleLabel: s.showIntro ? 'Dashboard' : 'About',
       introToggleStyle: `font-family:var(--font-mono);font-size:11px;padding:4px 10px;border-radius:2px;cursor:pointer;border:1px solid ${s.showIntro ? 'var(--cta)' : 'var(--border-subtle)'};background:${s.showIntro ? 'rgba(196,165,116,0.18)' : 'transparent'};color:${s.showIntro ? 'var(--text-primary)' : 'var(--text-muted)'};transition:all 150ms`,
       activeTabIsDashboard: s.activeTab === 'dashboard',
+      activeTabIsWorkflow: s.activeTab === 'workflow',
       activeTabIsGuard: s.activeTab === 'guard',
       primaryTabs,
       guardTab,
