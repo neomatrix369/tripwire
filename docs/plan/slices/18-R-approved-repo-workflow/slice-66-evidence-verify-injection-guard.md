@@ -1,6 +1,6 @@
 # Slice 66: Evidence Verify + Injection Guard
 
-> Scenario: Brownfield | MoSCoW: **Must** | Status: 🔨 IN PROGRESS
+> Scenario: Brownfield | MoSCoW: **Must** | Status: ✅ VERIFIED ON BRANCH
 > Wave: R — Approved-repo security workflow
 > Depends on: **65** (candidates + coverage context)
 > Trigger: Findings must be independently checkable; scanned content must not instruct judges/scanners
@@ -65,17 +65,17 @@
 - [x] GWT RED tests authored
 
 ## After-Checks [GATE]
-- [ ] Tests pass
-- [ ] Specification coverage: every GWT clause has ≥1 test
-- [ ] Complexity evidence: policy recorded (enforcing/reporting)
-- [ ] Doc Audit: STATUS — evidence verified + untrusted-data boundary
+- [x] Tests pass
+- [x] Specification coverage: every GWT clause has ≥1 test
+- [x] Complexity evidence: policy `enforcing` (eslint complexity≤10 + xenon); `./scripts/quality-gates.sh`; `.reports/complexity/pr-body.md`
+- [x] Doc Audit: STATUS — evidence verified + untrusted-data boundary
 
 ### Closing Gates
-- [ ] `nw-at-completeness-check`
-- [ ] `nw-software-crafter-reviewer`
-- [ ] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer`
-- [ ] `nw-gate-evidence-validator`
-- [ ] `/verify-slice` — COMPLETE
+- [x] `nw-at-completeness-check` — covered by `nw-acceptance-designer-reviewer` APPROVED (GWT-66.1–66.4)
+- [x] `nw-software-crafter-reviewer` — APPROVED
+- [x] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer` — APPROVED
+- [x] `nw-gate-evidence-validator` — `gate-evidence/slice-66-summary.json` + verify-slice COMPLETE
+- [x] `/verify-slice` — COMPLETE
 
 ## Gate Status
-📋 PLANNED — EFP Path B 2026-09-20 (Wave R)
+✅ VERIFIED ON BRANCH — execute-slice 2026-09-20; quality-gates pass; Gate 4 APPROVED
