@@ -17,6 +17,13 @@ export function isMissingSchemaError(error) {
   return /PGRST20[45]|could not find the (table|.*column)|relation ["'].*["'] does not exist|schema cache/i.test(blob);
 }
 
+async function probeSelect(supabase, table, columns) {
+  const { error } = await supabase.from(table).select(columns).limit(1);
+  if (!error) return 'ready';
+  if (isMissingSchemaError(error)) return 'missing';
+  throw new Error(`Supabase probe failed: ${error.message || error.code || 'unknown error'}`);
+}
+
 /**
  * Probe via HTTP API whether core tables and migration columns are queryable.
  * Checks `items` (table existence), `scan_run_scanners.completed_at`
@@ -25,31 +32,14 @@ export function isMissingSchemaError(error) {
  * @returns {'ready'|'missing'}
  */
 export async function probeSchema(supabase = getSupabase()) {
-  const { error: itemsErr } = await supabase.from('items').select('id').limit(1);
-  if (itemsErr) {
-    if (isMissingSchemaError(itemsErr)) return 'missing';
-    throw new Error(`Supabase probe failed: ${itemsErr.message || itemsErr.code || 'unknown error'}`);
+  const probes = [
+    ['items', 'id'],
+    ['scan_run_scanners', 'completed_at'],
+    ['judge_panel_runs', 'id'],
+  ];
+  for (const [table, columns] of probes) {
+    if ((await probeSelect(supabase, table, columns)) === 'missing') return 'missing';
   }
-
-  const { error: colErr } = await supabase
-    .from('scan_run_scanners')
-    .select('completed_at')
-    .limit(1);
-  if (colErr) {
-    if (isMissingSchemaError(colErr)) return 'missing';
-    throw new Error(`Supabase probe failed: ${colErr.message || colErr.code || 'unknown error'}`);
-  }
-
-  // Slice 67: panel tables — missing on DBs created before judge panel schema.
-  const { error: panelErr } = await supabase
-    .from('judge_panel_runs')
-    .select('id')
-    .limit(1);
-  if (panelErr) {
-    if (isMissingSchemaError(panelErr)) return 'missing';
-    throw new Error(`Supabase probe failed: ${panelErr.message || panelErr.code || 'unknown error'}`);
-  }
-
   return 'ready';
 }
 

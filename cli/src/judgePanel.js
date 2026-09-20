@@ -89,7 +89,7 @@ export async function callChatApi(baseUrl, apiKey, model, systemPrompt, userCont
 }
 
 /** GET /v1/models from SIE (injectable via listModelsFn). */
-export async function listModels({ endpoint, apiKey, fetchFn = fetch, timeoutMs = JUDGE_TIMEOUT_MS } = {}) {
+export async function listModels({ endpoint, apiKey, fetchFn: _fetchFn = fetch, timeoutMs = JUDGE_TIMEOUT_MS } = {}) {
   const { endpoint: ep, apiKey: key } = resolveSieConfig({ endpoint, apiKey });
   if (!ep || !key) throw new Error('SIE_ENDPOINT and SIE_API_KEY must be set for model discovery');
   const url = `${ep.replace(/\/$/, '')}/v1/models`;
@@ -114,10 +114,8 @@ function normalizeModelList(payload) {
 }
 
 function isGenerateModel(entry) {
-  const id = String(entry?.id || entry?.model || entry?.name || '');
   const kind = String(entry?.kind || entry?.type || '').toLowerCase();
-  if (kind === 'generate' || kind === 'chat') return true;
-  return /^gen-/i.test(id);
+  return kind === 'generate' || kind === 'chat' || /^gen-/i.test(modelIdOf(entry));
 }
 
 function modelIdOf(entry) {
@@ -174,20 +172,37 @@ function confidenceOf(value) {
   return 0;
 }
 
+function candidateLabel(candidate) {
+  return candidate.item_label || candidate.item_id || 'unknown';
+}
+
+function evidenceStatusOf(candidate) {
+  return candidate.evidence?.evidence_status || candidate.evidence_status || 'unverified';
+}
+
+function scannedSnippet(candidate) {
+  return candidate.scanned_content || candidate.evidence?.snippet || candidate.finding?.message || '';
+}
+
+function findingSummary(candidate) {
+  const finding = candidate.finding || {};
+  const evidence = candidate.evidence || {};
+  return {
+    severity: finding.severity,
+    category: finding.category,
+    scanner_source: finding.scanner_source,
+    message: finding.message,
+    file_path: finding.file_path || evidence.file_path,
+    location: finding.location || evidence.location,
+  };
+}
+
 function buildPanelUserContent(candidate) {
-  const scanned = candidate.scanned_content || candidate.evidence?.snippet || candidate.finding?.message || '';
-  const wrapped = wrapUntrustedContent(scanned);
+  const wrapped = wrapUntrustedContent(scannedSnippet(candidate));
   return JSON.stringify({
-    item: candidate.item_label || candidate.item_id || 'unknown',
-    finding: {
-      severity: candidate.finding?.severity,
-      category: candidate.finding?.category,
-      scanner_source: candidate.finding?.scanner_source,
-      message: candidate.finding?.message,
-      file_path: candidate.finding?.file_path || candidate.evidence?.file_path,
-      location: candidate.finding?.location || candidate.evidence?.location,
-    },
-    evidence_status: candidate.evidence?.evidence_status || candidate.evidence_status || 'unverified',
+    item: candidateLabel(candidate),
+    finding: findingSummary(candidate),
+    evidence_status: evidenceStatusOf(candidate),
     analysis: candidate.analysis || null,
     escalation: candidate.escalation || candidate.analysis || null,
     untrusted_content: formatUntrustedForPrompt(wrapped),
@@ -196,8 +211,8 @@ function buildPanelUserContent(candidate) {
 
 function buildFinalUserContent(candidate, judgements) {
   return JSON.stringify({
-    item: candidate.item_label || candidate.item_id || 'unknown',
-    evidence_status: candidate.evidence?.evidence_status || candidate.evidence_status || 'unverified',
+    item: candidateLabel(candidate),
+    evidence_status: evidenceStatusOf(candidate),
     analysis: candidate.analysis || null,
     escalation: candidate.escalation || candidate.analysis || null,
     panel_judgements: judgements.map((j) => ({
@@ -211,43 +226,52 @@ function buildFinalUserContent(candidate, judgements) {
   });
 }
 
+function answeredJudgeRecord({ slot, model, role, parsed, result, started }) {
+  return {
+    slot,
+    model,
+    role,
+    status: 'answered',
+    verdict: pickVerdict(parsed.verdict),
+    confidence: confidenceOf(parsed.confidence),
+    reason: parsed.reason || '',
+    raw_response: result.raw || JSON.stringify(parsed),
+    prompt_version: PROMPT_VERSION,
+    run_id: result.run_id || `${role}-${slot}-${started}`,
+    timestamp: started,
+    error_message: null,
+  };
+}
+
+function failedJudgeRecord({ slot, model, role, started, err }) {
+  const status = /abort|timeout/i.test(String(err?.message || err)) ? 'timeout' : 'error';
+  return {
+    slot,
+    model,
+    role,
+    status,
+    verdict: null,
+    confidence: null,
+    reason: null,
+    raw_response: null,
+    prompt_version: PROMPT_VERSION,
+    run_id: `${role}-${slot}-failed-${started}`,
+    timestamp: started,
+    error_message: String(err?.message || err).slice(0, 200),
+  };
+}
+
 async function invokeJudge({
   slot, model, systemPrompt, userContent, callChatApiFn, sieBase, apiKey, nowFn, role,
 }) {
   const started = nowFn();
   try {
     const result = await callChatApiFn(sieBase, apiKey, model, systemPrompt, userContent, JUDGE_TIMEOUT_MS);
-    const parsed = result.parsed || result;
-    return {
-      slot,
-      model,
-      role,
-      status: 'answered',
-      verdict: pickVerdict(parsed.verdict),
-      confidence: confidenceOf(parsed.confidence),
-      reason: parsed.reason || '',
-      raw_response: result.raw || JSON.stringify(parsed),
-      prompt_version: PROMPT_VERSION,
-      run_id: result.run_id || `${role}-${slot}-${started}`,
-      timestamp: started,
-      error_message: null,
-    };
+    return answeredJudgeRecord({
+      slot, model, role, parsed: result.parsed || result, result, started,
+    });
   } catch (err) {
-    const status = /abort|timeout/i.test(String(err?.message || err)) ? 'timeout' : 'error';
-    return {
-      slot,
-      model,
-      role,
-      status,
-      verdict: null,
-      confidence: null,
-      reason: null,
-      raw_response: null,
-      prompt_version: PROMPT_VERSION,
-      run_id: `${role}-${slot}-failed-${started}`,
-      timestamp: started,
-      error_message: String(err?.message || err).slice(0, 200),
-    };
+    return failedJudgeRecord({ slot, model, role, started, err });
   }
 }
 
@@ -279,53 +303,30 @@ function coerceFinal(finalJudge, judgements) {
   return { ...finalJudge, verdict, confidence, disagreement };
 }
 
-/**
- * Run ≥3 independent parallel judges then one final judge for a single candidate.
- */
-export async function runPanelForCandidate(candidate, opts = {}) {
-  const nowFn = opts.nowFn || (() => new Date().toISOString());
-  const callChatApiFn = opts.callChatApiFn || callChatApi;
-  const { endpoint, apiKey } = resolveSieConfig(opts);
-  const sieBase = `${endpoint.replace(/\/$/, '')}/v1`;
-
-  const inventory = opts.inventory || await discoverJudgeModels(opts);
-  const slots = allocateJudgeSlots(inventory.suitable, opts.targetCount || TARGET_JUDGE_COUNT);
-  const panelUser = buildPanelUserContent(candidate);
-
-  // Independent parallel starts — no judge receives another judge's answer.
-  const judgements = await Promise.all(slots.map(({ slot, model }) => invokeJudge({
+function judgeCallArgs({ slot, model, systemPrompt, userContent, callChatApiFn, sieBase, apiKey, nowFn, role }) {
+  return {
     slot,
     model,
-    systemPrompt: PANEL_SYSTEM,
-    userContent: panelUser,
+    systemPrompt,
+    userContent,
     callChatApiFn,
     sieBase,
     apiKey: apiKey || 'test-key',
     nowFn,
-    role: 'panel',
-  })));
+    role,
+  };
+}
 
-  const finalJudge = coerceFinal(
-    await invokeJudge({
-      slot: 0,
-      model: opts.finalModel || inventory.suitable[inventory.suitable.length - 1] || DEFAULT_GENERATE[0],
-      systemPrompt: FINAL_SYSTEM,
-      userContent: buildFinalUserContent(candidate, judgements),
-      callChatApiFn,
-      sieBase,
-      apiKey: apiKey || 'test-key',
-      nowFn,
-      role: 'final',
-    }),
-    judgements,
-  );
+function finalModelOf(opts, inventory) {
+  return opts.finalModel || inventory.suitable[inventory.suitable.length - 1] || DEFAULT_GENERATE[0];
+}
 
-  const answered_count = judgements.filter((j) => j.status === 'answered').length;
-  const panel_run = {
+function buildPanelRun(candidate, judgements, finalJudge, inventory, nowFn) {
+  return {
     scan_run_id: candidate.scan_run_id || null,
     item_id: candidate.item_id || null,
     finding_id: candidate.finding_id || null,
-    answered_count,
+    answered_count: judgements.filter((j) => j.status === 'answered').length,
     total_judges: judgements.length,
     disagreement: finalJudge.disagreement,
     final_verdict: finalJudge.verdict,
@@ -340,11 +341,41 @@ export async function runPanelForCandidate(candidate, opts = {}) {
     final_judge: finalJudge,
     created_at: nowFn(),
   };
+}
 
-  if (opts.persistFn) {
-    await opts.persistFn(panel_run);
-  }
+/**
+ * Run ≥3 independent parallel judges then one final judge for a single candidate.
+ */
+export async function runPanelForCandidate(candidate, opts = {}) {
+  const nowFn = opts.nowFn || (() => new Date().toISOString());
+  const callChatApiFn = opts.callChatApiFn || callChatApi;
+  const { endpoint, apiKey } = resolveSieConfig(opts);
+  const sieBase = `${endpoint.replace(/\/$/, '')}/v1`;
+  const shared = { callChatApiFn, sieBase, apiKey, nowFn };
 
+  const inventory = opts.inventory || await discoverJudgeModels(opts);
+  const slots = allocateJudgeSlots(inventory.suitable, opts.targetCount || TARGET_JUDGE_COUNT);
+  const panelUser = buildPanelUserContent(candidate);
+
+  // Independent parallel starts — no judge receives another judge's answer.
+  const judgements = await Promise.all(slots.map(({ slot, model }) => invokeJudge(
+    judgeCallArgs({ ...shared, slot, model, systemPrompt: PANEL_SYSTEM, userContent: panelUser, role: 'panel' }),
+  )));
+
+  const finalJudge = coerceFinal(
+    await invokeJudge(judgeCallArgs({
+      ...shared,
+      slot: 0,
+      model: finalModelOf(opts, inventory),
+      systemPrompt: FINAL_SYSTEM,
+      userContent: buildFinalUserContent(candidate, judgements),
+      role: 'final',
+    })),
+    judgements,
+  );
+
+  const panel_run = buildPanelRun(candidate, judgements, finalJudge, inventory, nowFn);
+  if (opts.persistFn) await opts.persistFn(panel_run);
   return panel_run;
 }
 

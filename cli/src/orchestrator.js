@@ -223,17 +223,43 @@ async function judgeBatchSafely(judgeFn, batchId) {
   }
 }
 
-export async function runScan(targets, {
-  concurrency = 5,
-  force = false,
-  revealSecrets = false,
-  // Injectable seams for characterization tests (defaults preserve production path).
-  ensureSchemaFn = ensureSchema,
-  getSupabaseFn = getSupabase,
-  spawnFn = spawnScanSandbox,
-  routeFn = runRoute,
-  judgeFn = runJudgePanel,
-} = {}) {
+/** ADR-0016 auto-route always; opt-in soft-fail panel only when env set. */
+async function runPostScanJudgement(routeFn, judgeFn, batchId) {
+  await routeBatchSafely(routeFn, batchId);
+  if (judgePanelEnvEnabled()) await judgeBatchSafely(judgeFn, batchId);
+}
+
+function resolveScanDeps(opts = {}) {
+  return {
+    concurrency: opts.concurrency ?? 5,
+    force: opts.force ?? false,
+    revealSecrets: opts.revealSecrets ?? false,
+    ensureSchemaFn: opts.ensureSchemaFn || ensureSchema,
+    getSupabaseFn: opts.getSupabaseFn || getSupabase,
+    spawnFn: opts.spawnFn || spawnScanSandbox,
+    routeFn: opts.routeFn || runRoute,
+    judgeFn: opts.judgeFn || runJudgePanel,
+  };
+}
+
+function scanResultFromOutcomes(batchId, outcomes) {
+  const failures = outcomes.filter(outcome => outcome.error);
+  return {
+    failures,
+    result: {
+      batch_id: batchId,
+      scan_run_ids: outcomes.map(outcome => outcome.scanRunId).filter(Boolean),
+      failed_targets: failures.map(({ target, error }) => ({ target, error })),
+    },
+  };
+}
+
+export async function runScan(targets, opts = {}) {
+  const {
+    concurrency, force, revealSecrets,
+    ensureSchemaFn, getSupabaseFn, spawnFn, routeFn, judgeFn,
+  } = resolveScanDeps(opts);
+
   assertPositiveConcurrency(concurrency);
   await ensureSchemaFn();
   const supabase = getSupabaseFn();
@@ -245,20 +271,11 @@ export async function runScan(targets, {
     target => dispatchTarget(supabase, target, { batchId, force, spawnFn }),
   );
 
-  const failures = outcomes.filter(outcome => outcome.error);
-  const result = {
-    batch_id: batchId,
-    scan_run_ids: outcomes.map(outcome => outcome.scanRunId).filter(Boolean),
-    failed_targets: failures.map(({ target, error }) => ({ target, error })),
-  };
+  const { failures, result } = scanResultFromOutcomes(batchId, outcomes);
   console.log(JSON.stringify(result, null, 2));
 
   await printInventoriesForOutcomes(supabase, targets, outcomes, revealSecrets);
-  await routeBatchSafely(routeFn, batchId);
-  // ADR-0016 auto-route path unchanged when env unset; opt-in soft-fail panel only.
-  if (judgePanelEnvEnabled()) {
-    await judgeBatchSafely(judgeFn, batchId);
-  }
+  await runPostScanJudgement(routeFn, judgeFn, batchId);
 
   if (failures.length) {
     throw new Error(`${failures.length} target scan dispatch failure(s); inspect failed_targets output`);
