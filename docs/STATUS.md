@@ -342,8 +342,8 @@ scope root, also emit a **`package`** target (`items.type=package`, Accepted) so
 Ossprey / Snyk run — not a fake skill; Cisco Skill / Tessl / Cisco MCP do **not** apply;
 repos with neither skill/MCP **nor** manifests still fail closed. **Slice 63 (🔀):** CLI
 prints scanner inventory + rollup after scan / zero-artifact (package expected sources =
-Snyk/DepShield/Ossprey). Slice 62 is
-**🔀 ON BRANCH** (`slice/62-git-repo-discover-fanout`) — IMPLEMENTED pending merge.
+Snyk/DepShield/Ossprey). Slices 62–64 ship together on
+**🔀 ON BRANCH** (`slice/64-git-repo-package-scan`) — IMPLEMENTED pending merge.
 Operator taxonomy soft-amended in slice **56-a**
 ([prerequisites — What can Tripwire scan?](./user-guide/prerequisites.md#what-can-tripwire-scan)).
 Spec:
