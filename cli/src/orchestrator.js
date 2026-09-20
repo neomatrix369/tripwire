@@ -158,6 +158,20 @@ async function printInventoryForOutcome(supabase, target, outcome) {
   }
 }
 
+async function printInventoriesForOutcomes(supabase, targets, outcomes) {
+  for (let i = 0; i < targets.length; i++) {
+    await printInventoryForOutcome(supabase, targets[i], outcomes[i]);
+  }
+}
+
+async function routeBatchSafely(routeFn, batchId) {
+  try {
+    await routeFn(batchId);
+  } catch (err) {
+    console.warn(`[warn] auto-route failed for batch ${batchId}: ${err.message}`);
+  }
+}
+
 export async function runScan(targets, {
   concurrency = 5,
   force = false,
@@ -186,15 +200,8 @@ export async function runScan(targets, {
   };
   console.log(JSON.stringify(result, null, 2));
 
-  for (let i = 0; i < targets.length; i++) {
-    await printInventoryForOutcome(supabase, targets[i], outcomes[i]);
-  }
-
-  try {
-    await routeFn(batchId);
-  } catch (err) {
-    console.warn(`[warn] auto-route failed for batch ${batchId}: ${err.message}`);
-  }
+  await printInventoriesForOutcomes(supabase, targets, outcomes);
+  await routeBatchSafely(routeFn, batchId);
 
   if (failures.length) {
     throw new Error(`${failures.length} target scan dispatch failure(s); inspect failed_targets output`);
