@@ -272,3 +272,22 @@ test('GWT-62.5: frontmatter name wins when it differs from folder basename', asy
     await rm(fixture, { recursive: true, force: true });
   }
 });
+
+test('GWT-65.1 local: approved checkout with Node+Cargo yields package target', async () => {
+  const fixture = await mkdtemp(path.join(os.tmpdir(), 'tripwire-local-pkg-'));
+  try {
+    await writeFile(path.join(fixture, 'package.json'), '{"name":"local-app"}');
+    await writeFile(path.join(fixture, 'Cargo.toml'), '[package]\nname = "local-app"\n');
+
+    const targets = await discoverTargets({
+      targets: [fixture],
+      useDefaults: false,
+    });
+
+    const pkgs = targets.filter((t) => t.type === 'package');
+    assert.equal(pkgs.length, 1, 'local checkout with manifests yields one package target');
+    assert.equal(pkgs[0].target, fixture);
+  } finally {
+    await rm(fixture, { recursive: true, force: true });
+  }
+});

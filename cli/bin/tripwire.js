@@ -6,11 +6,30 @@ import { loadEnv } from '../src/loadEnv.js';
 import { runScan } from '../src/orchestrator.js';
 import { runRoute } from '../src/router.js';
 import {
+  buildCoverageLedger,
+  formatCoverageLedger,
+} from '../src/coverageLedger.js';
+import {
   formatScannerInventory,
   inventoryForNotRun,
 } from '../src/scannerInventory.js';
 import { runSetupAgentHooks } from '../src/setupAgentHooks.js';
 import { runStatus } from '../src/statusCommand.js';
+
+function printDryDiscoverCoverage(list) {
+  const seen = new Set();
+  for (const target of list) {
+    if (target.type !== 'package') continue;
+    const workdir = target.target;
+    if (!workdir || seen.has(workdir)) continue;
+    seen.add(workdir);
+    const ledger = buildCoverageLedger(workdir, []);
+    if (!ledger.length) continue;
+    console.log(formatCoverageLedger(ledger, {
+      label: `${target.identifier || workdir} (pre-scan)`,
+    }));
+  }
+}
 
 loadEnv();
 
@@ -53,6 +72,7 @@ program
       const list = await discoverTargets({ targets, targetsFile: opts.targets, useDefaults: opts.defaults !== false, typeFilter: opts.type || null });
       if (opts.dryDiscover) {
         console.log(JSON.stringify(list, null, 2));
+        printDryDiscoverCoverage(list);
         return;
       }
       if (list.length === 0) {

@@ -4,6 +4,10 @@ import { hashLocalPath } from './hash.js';
 import { spawnScanSandbox } from './modalClient.js';
 import { runRoute } from './router.js';
 import {
+  buildCoverageLedger,
+  formatCoverageLedger,
+} from './coverageLedger.js';
+import {
   expectedScannersFor,
   formatScannerInventory,
   mergeScannerInventory,
@@ -142,17 +146,29 @@ async function fetchScannerRows(supabase, scanRunId) {
   return Array.isArray(data) ? data : [];
 }
 
+function printCoverageForTarget(target, scannerRows = []) {
+  if (target.type !== 'package') return;
+  const workdir = target.target;
+  if (!workdir) return;
+  const ledger = buildCoverageLedger(workdir, scannerRows);
+  if (!ledger.length) return;
+  const label = target.identifier || target.target;
+  console.log(formatCoverageLedger(ledger, { label }));
+}
+
 async function printInventoryForOutcome(supabase, target, outcome) {
   const label = target.identifier || target.target;
   if (!outcome.scanRunId) {
     const inventory = mergeScannerInventory(expectedScannersFor(target.type), []);
     console.log(formatScannerInventory(inventory, { label: `${label} (not dispatched)` }));
+    printCoverageForTarget(target, []);
     return;
   }
   try {
     const rows = await fetchScannerRows(supabase, outcome.scanRunId);
     const inventory = mergeScannerInventory(expectedScannersFor(target.type), rows);
     console.log(formatScannerInventory(inventory, { label }));
+    printCoverageForTarget(target, rows);
   } catch (err) {
     console.warn(`[warn] could not load scanner inventory for ${label}: ${err.message}`);
   }

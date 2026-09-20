@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Snyk preflight: `sandbox/scanners.py`. VERIFIED on Live Packages (pizauth / snare).
 
 ### Added
+- Language/ecosystem coverage ledger (slice 65, Wave R): `tripwire scan` and
+  `--dry-discover` print `[coverage]` rows (ecosystem, volume, scanner, status,
+  unsupported portions, reason). Marker-driven; reuses DepShield/Snyk/Ossprey/
+  Cargo Audit — no invented scanners. Cargo-only honesty absorbed from #147;
+  rollup never claims fully successful when ecosystems lack a completed scan.
+  Local checkouts with package manifests emit a `package` target.
 - **Cargo Audit** (RustSec `cargo-audit`) SCA adapter for `Cargo.lock` /
   `Cargo.toml` trees — registered in `SCANNER_GROUPS` between DepShield and
   Ossprey; Modal image installs `cargo-audit`. Prefer real RustSec over LLM
@@ -176,7 +182,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   MCP servers are excluded from quality buckets (no score) but remain visible
   on all quality tabs. Helpers in `tripwire-status.js`; wired in `Tripwire.dc.html`.
 
-### Fixed
+### Fixed (schema, naming, Tessl progress, live fleet)
 - Schema bootstrap for existing DBs (slice 64 follow-up): `ensureSchema` probes live
   `items_type_check` and re-applies `db/schema.sql` when `package` is missing from the
   CHECK; the widen `DO` block no longer swallows errors with `exception when others`.

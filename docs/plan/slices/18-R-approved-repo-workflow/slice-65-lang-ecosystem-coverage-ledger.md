@@ -1,6 +1,6 @@
 # Slice 65: Language/Ecosystem Discovery + Coverage Ledger
 
-> Scenario: Brownfield | MoSCoW: **Must** | Status: 📋 PLANNED
+> Scenario: Brownfield | MoSCoW: **Must** | Status: 🚧 ON BRANCH
 > Wave: R — Approved-repo security workflow
 > Depends on: Wave P **62** (fan-out) + **64** (package targets) landed on `main` (PRs #145/#146)
 > Trigger: Approved-repo scanner must discover languages/ecosystems present and never claim full scan when unsupported
