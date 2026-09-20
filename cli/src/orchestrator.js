@@ -3,6 +3,11 @@ import { getSupabase } from './supabaseClient.js';
 import { hashLocalPath } from './hash.js';
 import { spawnScanSandbox } from './modalClient.js';
 import { runRoute } from './router.js';
+import {
+  expectedScannersFor,
+  formatScannerInventory,
+  mergeScannerInventory,
+} from './scannerInventory.js';
 
 async function mapWithConcurrency(items, limit, fn) {
   const results = new Array(items.length);
@@ -128,6 +133,31 @@ async function createScanBatch(supabase, targets, concurrency) {
   return batch.id;
 }
 
+async function fetchScannerRows(supabase, scanRunId) {
+  const { data, error } = await supabase
+    .from('scan_run_scanners')
+    .select('scanner_source, status')
+    .eq('scan_run_id', scanRunId);
+  if (error) throw error;
+  return Array.isArray(data) ? data : [];
+}
+
+async function printInventoryForOutcome(supabase, target, outcome) {
+  const label = target.identifier || target.target;
+  if (!outcome.scanRunId) {
+    const inventory = mergeScannerInventory(expectedScannersFor(target.type), []);
+    console.log(formatScannerInventory(inventory, { label: `${label} (not dispatched)` }));
+    return;
+  }
+  try {
+    const rows = await fetchScannerRows(supabase, outcome.scanRunId);
+    const inventory = mergeScannerInventory(expectedScannersFor(target.type), rows);
+    console.log(formatScannerInventory(inventory, { label }));
+  } catch (err) {
+    console.warn(`[warn] could not load scanner inventory for ${label}: ${err.message}`);
+  }
+}
+
 export async function runScan(targets, {
   concurrency = 5,
   force = false,
@@ -155,6 +185,10 @@ export async function runScan(targets, {
     failed_targets: failures.map(({ target, error }) => ({ target, error })),
   };
   console.log(JSON.stringify(result, null, 2));
+
+  for (let i = 0; i < targets.length; i++) {
+    await printInventoryForOutcome(supabase, targets[i], outcomes[i]);
+  }
 
   try {
     await routeFn(batchId);

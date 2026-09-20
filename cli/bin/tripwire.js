@@ -5,6 +5,10 @@ import { ensureSchema } from '../src/ensureSchema.js';
 import { loadEnv } from '../src/loadEnv.js';
 import { runScan } from '../src/orchestrator.js';
 import { runRoute } from '../src/router.js';
+import {
+  formatScannerInventory,
+  inventoryForNotRun,
+} from '../src/scannerInventory.js';
 import { runSetupAgentHooks } from '../src/setupAgentHooks.js';
 import { runStatus } from '../src/statusCommand.js';
 
@@ -52,6 +56,19 @@ program
         return;
       }
       if (list.length === 0) {
+        const hadExplicit = (Array.isArray(targets) && targets.length > 0) || Boolean(opts.targets);
+        if (hadExplicit) {
+          // GWT-62.6: explicit URL/path with zero skill/MCP markers is a clear
+          // zero-artifact outcome — not the same as "forgot to pass a target".
+          const label = Array.isArray(targets) && targets.length
+            ? targets.join(', ')
+            : opts.targets;
+          console.log(`No skill or MCP artifacts found in: ${label}`);
+          // GWT-63.1: show registry inventory as not_run (sandbox never started).
+          const typeHint = opts.type === 'mcp' ? 'mcp_server' : (opts.type || null);
+          console.log(formatScannerInventory(inventoryForNotRun(typeHint), { label }));
+          return;
+        }
         throw new Error('No targets found. Pass a path/URL, or run inside a folder with agent-installed skills/MCP configs.');
       }
       await runScan(list, { concurrency, force: Boolean(opts.force) });

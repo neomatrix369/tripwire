@@ -60,9 +60,13 @@ See [plan/DECISIONS.md](../plan/DECISIONS.md) (2026-08-24 packing).
 **Wave P / slice 62 (IN PROGRESS):** GitHub browse URLs (`…/tree/…`,
 `…/blob/…`) normalize to cloneable repo root before clone; a repo URL fans out
 to N skill/MCP workdirs rather than one opaque clone target. Identity
-`org/repo/<relpath>`. Repos with no discoverable skill or MCP artifact fail
-closed — no empty-workdir “clean” scan. See
-[slice-62](../plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md),
+`org/repo/<relpath>`. Repos with no discoverable skill or MCP artifact **and**
+no package manifests fail closed — no empty-workdir “clean” scan.
+
+**Wave P / slice 64 (IN PROGRESS):** When package manifests exist at scope root,
+discovery also emits one `items.type = package` workdir (same host-clone packing);
+sandbox scanners for package are Snyk / DepShield / Ossprey only. See
+[slice-64](../plan/slices/16-P-git-repo-scan/slice-64-git-repo-package-scan.md),
 [prerequisites — What can Tripwire scan?](../user-guide/prerequisites.md#what-can-tripwire-scan),
 and [STATUS.md](../STATUS.md) Wave P. On `main` until merge, `_clone_repo` still
 receives the raw URL string.
@@ -73,3 +77,4 @@ receives the raw URL string.
 - `sandbox/tests/test_acquire_target.py`
 - [docs/STATUS.md](../STATUS.md) `_acquire_target` dispatch
 - [slice 62](../plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) (DECIDED fan-out)
+- [slice 64](../plan/slices/16-P-git-repo-scan/slice-64-git-repo-package-scan.md) (package target)

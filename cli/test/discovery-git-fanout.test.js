@@ -70,7 +70,7 @@ test('GWT-62.2: GitHub root URL fans out typed artifacts with repo identifiers',
   }
 });
 
-test('GWT-62.6: GitHub repository without artifacts returns no targets', async () => {
+test('GWT-62.6: GitHub repository without skill/MCP/package manifests returns no targets', async () => {
   const emptyFixture = await mkdtemp(path.join(os.tmpdir(), 'tripwire-empty-git-fixture-'));
 
   try {
@@ -83,6 +83,89 @@ test('GWT-62.6: GitHub repository without artifacts returns no targets', async (
     assert.deepEqual(targets, [], 'empty repositories must not become a misleading scan target');
   } finally {
     await rm(emptyFixture, { recursive: true, force: true });
+  }
+});
+
+test('GWT-64.1: package.json-only repo yields package target, not skill', async () => {
+  const fixture = await mkdtemp(path.join(os.tmpdir(), 'tripwire-pkg-only-'));
+  try {
+    await writeFile(path.join(fixture, 'package.json'), '{"name":"vibe-kanban"}');
+
+    const targets = await discoverTargets({
+      targets: ['https://github.com/BloopAI/vibe-kanban'],
+      useDefaults: false,
+      cloneRepoFn: cloneFixtureInto(fixture, []),
+    });
+
+    assert.equal(targets.length, 1, 'manifest-only repo must yield exactly one package target');
+    assert.equal(targets[0].type, 'package');
+    assert.equal(targets[0].identifier, 'BloopAI/vibe-kanban');
+    assert.equal(targets[0].name, 'vibe-kanban');
+    assert.ok(!targets.some(t => t.type === 'skill'), 'must not fake a skill scan');
+  } finally {
+    await rm(fixture, { recursive: true, force: true });
+  }
+});
+
+test('GWT-64.2: package target sits alongside skill/MCP fan-out', async () => {
+  const fixture = await makeArtifactFixture();
+  try {
+    await writeFile(path.join(fixture, 'package.json'), '{"name":"mixed-repo"}');
+
+    const targets = await discoverTargets({
+      targets: ['https://github.com/org/repo'],
+      useDefaults: false,
+      cloneRepoFn: cloneFixtureInto(fixture, []),
+    });
+
+    assert.ok(targets.some(t => t.type === 'skill'));
+    assert.ok(targets.some(t => t.type === 'mcp_server'));
+    const pkgs = targets.filter(t => t.type === 'package');
+    assert.equal(pkgs.length, 1, 'exactly one package target at scope root');
+    assert.equal(pkgs[0].identifier, 'org/repo');
+  } finally {
+    await rm(fixture, { recursive: true, force: true });
+  }
+});
+
+test('GWT-64.6: package identifier uses @package when org/repo collides', async () => {
+  const fixture = await mkdtemp(path.join(os.tmpdir(), 'tripwire-pkg-collide-'));
+  try {
+    // Skill at clone root → identifier org/repo/ (empty rel) collides with org/repo
+    await writeFile(path.join(fixture, 'SKILL.md'), '---\nname: root-skill\n---\n');
+    await writeFile(path.join(fixture, 'package.json'), '{}');
+
+    const targets = await discoverTargets({
+      targets: ['https://github.com/org/repo'],
+      useDefaults: false,
+      cloneRepoFn: cloneFixtureInto(fixture, []),
+    });
+
+    const pkg = targets.find(t => t.type === 'package');
+    assert.ok(pkg);
+    assert.equal(pkg.identifier, 'org/repo/@package');
+    assert.ok(targets.some(t => t.type === 'skill'));
+  } finally {
+    await rm(fixture, { recursive: true, force: true });
+  }
+});
+
+test('GWT-64.4: Cargo.lock alone counts as package manifest', async () => {
+  const fixture = await mkdtemp(path.join(os.tmpdir(), 'tripwire-lock-only-'));
+  try {
+    await writeFile(path.join(fixture, 'Cargo.lock'), '# lock');
+
+    const targets = await discoverTargets({
+      targets: ['https://github.com/org/rust-app'],
+      useDefaults: false,
+      cloneRepoFn: cloneFixtureInto(fixture, []),
+    });
+
+    assert.equal(targets.length, 1);
+    assert.equal(targets[0].type, 'package');
+    assert.equal(targets[0].identifier, 'org/rust-app');
+  } finally {
+    await rm(fixture, { recursive: true, force: true });
   }
 });
 

@@ -60,23 +60,84 @@ def test_given_registry_when_inspected_then_order_and_applicability_preserved() 
     [
         ("both", "skill", True),
         ("both", "mcp_server", True),
+        ("both", "package", True),
+        ("both", "something_else", False),
         ("skill", "skill", True),
         ("skill", "mcp_server", False),
+        ("skill", "package", False),
         ("mcp_server", "mcp_server", True),
         ("mcp_server", "skill", False),
-        # Historical if/else fallthrough: any non-skill item takes the MCP path.
-        ("mcp_server", "something_else", True),
+        # Slice 64: mcp_server groups are exact-match — package must not inherit MCP scanners.
+        ("mcp_server", "package", False),
+        ("mcp_server", "something_else", False),
+        ("package", "package", True),
+        ("package", "skill", False),
     ],
 )
 def test_given_applies_to_when_routed_then_matches_legacy_branching(
     applies_to: str, item_type: str, expected: bool
 ) -> None:
     """
-    Scenario: _group_applies reproduces the pre-registry if/else routing.
-    Slice: registry — applies_to routing
+    Scenario: _group_applies routes skill / mcp_server / package / both correctly.
+    Slice: registry — applies_to routing (slice 64 package)
     """
     ### Given / When / Then
     assert scanners._group_applies(applies_to, item_type) is expected
+
+
+def test_given_package_when_run_all_then_both_groups_only_no_cisco() -> None:
+    """
+    Scenario: Package scans get Snyk/DepShield/Ossprey only (GWT-64.3).
+    Slice: registry — package dispatch
+
+    Given a package item with all runners mocked,
+    When run_all_scanners runs,
+    Then on_scanner_start sees Snyk → DepShield → Ossprey and skill/MCP runners
+    are never invoked.
+    """
+    ### Given
+    started: list[list[str]] = []
+    skill_mock = MagicMock()
+    tessl_mock = MagicMock()
+    mcp_mock = MagicMock()
+
+    ### When
+    with (
+        patch.object(scanners, "_run_skill_scanner_group", skill_mock),
+        patch.object(scanners, "_run_tessl_group", tessl_mock),
+        patch.object(scanners, "_run_mcp_scanner_group", mcp_mock),
+        patch.object(
+            scanners,
+            "_run_snyk_group",
+            return_value=([], [{"scanner_source": "Snyk", "status": "completed"}], None),
+        ),
+        patch.object(
+            scanners,
+            "_run_depshield_group",
+            return_value=([], [{"scanner_source": "DepShield", "status": "completed"}], None),
+        ),
+        patch.object(
+            scanners,
+            "_run_ossprey_group",
+            return_value=([], [{"scanner_source": "Ossprey", "status": "completed"}], None),
+        ),
+    ):
+        scanners.run_all_scanners(
+            "/w",
+            "package",
+            "/w",
+            on_scanner_start=lambda s: started.append(list(s)),
+        )
+
+    ### Then
+    assert started == [
+        list(scanners.SNYK_SOURCES),
+        list(scanners.DEPSHIELD_SOURCES),
+        list(scanners.OSSPREY_SOURCES),
+    ]
+    skill_mock.assert_not_called()
+    tessl_mock.assert_not_called()
+    mcp_mock.assert_not_called()
 
 
 # ---------------------------------------------------------------------------

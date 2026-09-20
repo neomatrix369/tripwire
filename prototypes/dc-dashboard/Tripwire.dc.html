@@ -1305,7 +1305,9 @@ class Component extends DCLogic {
     if (qualityTab === 'high') bits.push('Quality ≥ 80');
     else if (qualityTab === 'low') bits.push('Quality < 80');
     else if (qualityTab === 'unscored') bits.push('No quality score');
-    if (typeFilter !== 'all') bits.push(typeFilter === 'skill' ? 'Skills' : 'MCP Servers');
+    if (typeFilter !== 'all') bits.push(
+      typeFilter === 'skill' ? 'Skills' : typeFilter === 'package' ? 'Packages' : 'MCP Servers'
+    );
     if (statusFilter !== 'all') bits.push(statusFilter);
     if (searchQuery.trim()) bits.push('“' + searchQuery.trim() + '”');
     return {
@@ -1657,7 +1659,8 @@ class Component extends DCLogic {
     const typeTabs = [
       { key: 'all', label: 'All items' },
       { key: 'skill', label: 'Skills' },
-      { key: 'mcp_server', label: 'MCP Servers' }
+      { key: 'mcp_server', label: 'MCP Servers' },
+      { key: 'package', label: 'Packages' }
     ].map(t => ({ ...t, onClick: () => this.setTypeFilter(t.key), style: this.btnStyle(s.typeFilter === t.key, { activeBg: 'rgba(196,165,116,0.18)', activeBorder: '#C4A574', activeColor: '#1C1915' }) }));
 
     const qCounts = kit?.countSkillsByQualityTab
@@ -1709,7 +1712,7 @@ class Component extends DCLogic {
       return {
         ...decorated,
         repoSignature,
-        typeLabel: it.type === 'skill' ? 'Skill' : 'MCP Server',
+        typeLabel: it.type === 'skill' ? 'Skill' : (it.type === 'package' ? 'Package' : 'MCP Server'),
         timeLabel: it.scanStartedAt ? 'scanning since ' + this.fmtTime(it.scanStartedAt) : it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
         locusLabel: this.locusLabel(it.locus),
         availLabel: this.availLabel(it.avail),
@@ -1757,7 +1760,7 @@ class Component extends DCLogic {
         : [...selected.scanners].sort((a, b) => this.compareScannerSource(a, b));
       return {
       ...decorated,
-      typeLabel: selected.type === 'skill' ? 'Skill' : 'MCP Server',
+      typeLabel: selected.type === 'skill' ? 'Skill' : (selected.type === 'package' ? 'Package' : 'MCP Server'),
       timeLabel: selected.scanStartedAt ? 'scanning since ' + this.fmtTime(selected.scanStartedAt) : selected.lastScan ? this.fmtTime(selected.lastScan) : 'never scanned',
       locusLabel: this.locusLabel(selected.locus),
       availLabel: this.availLabel(selected.avail),
@@ -1856,7 +1859,7 @@ class Component extends DCLogic {
       return {
       ...decorated,
       repoSignature,
-      typeLabel: it.type === 'skill' ? 'Skill' : 'MCP Server',
+      typeLabel: it.type === 'skill' ? 'Skill' : (it.type === 'package' ? 'Package' : 'MCP Server'),
       timeLabel: it.scanStartedAt ? 'scanning since ' + this.fmtTime(it.scanStartedAt) : it.lastScan ? this.fmtTime(it.lastScan) : 'never scanned',
       sourceLabel: this.locusLabel(it.locus) + ' · ' + this.availLabel(it.avail),
       onSelect: () => this.selectItem(it.id)

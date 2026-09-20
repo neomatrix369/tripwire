@@ -5,7 +5,7 @@ create extension if not exists pgcrypto;
 
 create table if not exists items (
   id               uuid primary key default gen_random_uuid(),
-  type             text not null check (type in ('skill', 'mcp_server')),
+  type             text not null check (type in ('skill', 'mcp_server', 'package')),
   name             text not null,
   identifier       text not null, -- stable name/path grouping key (drift/trend), distinct from content_hash identity
   content_hash     text not null,
@@ -67,6 +67,15 @@ create table if not exists scan_run_scanners (
   started_at     timestamptz,
   completed_at   timestamptz
 );
+-- Slice 64: widen items.type for package / DepShield / Ossprey targets (idempotent).
+do $$ begin
+  alter table items drop constraint if exists items_type_check;
+  alter table items add constraint items_type_check check (type in (
+    'skill', 'mcp_server', 'package'
+  ));
+exception when others then null;
+end $$;
+
 -- Additive migrations for DBs created before these columns existed:
 alter table scan_run_scanners add column if not exists detail text;
 alter table scan_run_scanners add column if not exists console_output text;
