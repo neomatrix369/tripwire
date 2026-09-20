@@ -22,8 +22,45 @@ const MCP_SERVER_MARKERS = [
 /** Stricter markers for recursive git-repo walks — package.json alone is too noisy. */
 const GIT_WALK_MCP_MARKERS = ['server.py', 'server.js', 'run.sh'];
 
+/** Scope-root package manifests (slice 64) — any one is sufficient; not recursive. */
+const PACKAGE_MARKERS = [
+  'package.json',
+  'pyproject.toml',
+  'requirements.txt',
+  'Pipfile',
+  'Cargo.toml',
+  'go.mod',
+  'package-lock.json',
+  'pnpm-lock.yaml',
+  'yarn.lock',
+  'poetry.lock',
+  'Cargo.lock',
+];
+
 async function isDir(p) {
   try { return (await stat(p)).isDirectory(); } catch { return false; }
+}
+
+/** True when *dirPath* has a package/lockfile marker at that directory only. */
+export function hasPackageManifest(dirPath) {
+  return PACKAGE_MARKERS.some(f => existsSync(path.join(dirPath, f)));
+}
+
+/**
+ * Package identity under org/repo. Collision with skill/MCP → `@package` suffix.
+ * @param {{ org: string, repo: string, scopePath: string|null, artifactIds: string[] }} args
+ */
+export function packageTargetIdentifier({ org, repo, scopePath, artifactIds }) {
+  const scopeSeg = scopePath
+    ? String(scopePath).split(path.sep).join('/').replace(/^\/+|\/+$/g, '')
+    : '';
+  const base = scopeSeg ? `${org}/${repo}/${scopeSeg}` : `${org}/${repo}`;
+  const normalized = base.replace(/\/+$/, '');
+  const collision = (artifactIds || []).some(id => {
+    const n = String(id || '').replace(/\/+$/, '');
+    return n === normalized || n === `${normalized}/.`;
+  });
+  return collision ? `${normalized}/@package` : normalized;
 }
 
 function looksLikeMcpServer(dirPath, markers = MCP_SERVER_MARKERS) {
@@ -162,7 +199,7 @@ async function discoverGitHubRepo(target, cloneRepoFn) {
     const scopeDir = path.join(destDir, gitHub.scopePath || '');
     if (!await isDir(scopeDir)) return [];
     const artifacts = await walkArtifacts(scopeDir);
-    return artifacts.map(artifact => {
+    const rows = artifacts.map(artifact => {
       const rel = path.relative(destDir, artifact.target).split(path.sep).join('/');
       return {
         target: artifact.target,
@@ -179,6 +216,27 @@ async function discoverGitHubRepo(target, cloneRepoFn) {
         gitCloneUrl: gitHub.cloneUrl,
       };
     });
+    // Slice 64: one package target at scope root when manifests exist (not a fake skill).
+    if (hasPackageManifest(scopeDir)) {
+      const pkgName = gitHub.scopePath
+        ? path.basename(scopeDir)
+        : gitHub.repo;
+      rows.push({
+        target: scopeDir,
+        type: 'package',
+        locus: 'local',
+        avail: 'source_on_disk',
+        identifier: packageTargetIdentifier({
+          org: gitHub.org,
+          repo: gitHub.repo,
+          scopePath: gitHub.scopePath,
+          artifactIds: rows.map(r => r.identifier),
+        }),
+        name: pkgName,
+        gitCloneUrl: gitHub.cloneUrl,
+      });
+    }
+    return rows;
   } catch (error) {
     await rm(destDir, { recursive: true, force: true });
     throw error;

@@ -73,10 +73,11 @@ As an operator, I want `tripwire scan https://github.com/org/repo` (or a `/tree/
 **Then** the card title (`name`) is the skill/MCP artifact name — SKILL.md frontmatter `name` when present, else folder basename — **never the GitHub repository name alone** when the artifact lives under a subpath (if leaf name equals the repo, use the repo-relative path as the title)
 **And** the visible `org/repo` signature appears on the card (reuse `identifier` prefix or dedicated subtitle — no new card component type)
 
-### GWT-62.6 — Empty / no-artifact repo fails closed
-**Given** a cloneable repo with no skill and no MCP markers
+### GWT-62.6 — Empty skill/MCP without package manifests fails closed
+**Given** a cloneable repo with no skill and no MCP markers **and** no package manifests (see slice 64)
 **When** discovery completes
 **Then** the operator gets a clear zero-artifact outcome (no fake empty “clean” single scan of the whole tree as a skill)
+**Note (2026-09-20):** Repos with package manifests but no skill/MCP are **not** empty — they yield a `package` target per **slice 64** (SUPERSEDES the older reading of 62.6 that zeroed all non-skill/MCP repos).
 
 ### GWT-62.7 — Git fan-out card names are artifact names, not the repo name
 **Given** a GitHub repo named `impeccable` containing skills under `.cursor/skills/impeccable` (frontmatter/folder name also `impeccable`) and another skill `audit`

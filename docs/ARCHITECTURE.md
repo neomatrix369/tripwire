@@ -32,13 +32,13 @@ services — see [prerequisites](./user-guide/prerequisites.md).
 |---|---|---|---|
 | **Supabase** | Postgres + Realtime system of record | MVP Live | [supabase-setup](./user-guide/supabase-setup.md) → [env-vars](./user-guide/env-vars.md) |
 | **Modal** | Isolated scanner sandbox compute | MVP Live | [modal-setup](./user-guide/modal-setup.md) → [env-vars](./user-guide/env-vars.md) |
-| **Snyk** | Skill/MCP depth scanner | Full scanner coverage | [procurement](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
+| **Snyk** | Skill / MCP / package depth scanner (`applies_to: both`) | Full scanner coverage | [procurement](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
 | **Tessl** | Skill lint (auth-free) + review / scenario / eval / security (`TESSL_TOKEN`; `--workspace` from optional `TESSL_WORKSPACE` or `whoami`+`workspace list`) + Scenario Generation (`.tessl-plugin/plugin.json`; IMPLEMENTED unit, slice 49) + Eval auto-chain (`tessl.json` project link; IMPLEMENTED unit, slice 50) + Security Review (IMPLEMENTED unit, slice 51) | Full scanner coverage | [procurement](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
 | **Cisco AI Defense** | Skill Scanner / MCP Scanner / AI Defense APIs | Full scanner coverage | [procurement](./user-guide/env-vars.md#vendor-procurement-quick-steps) |
 | **Superlinked SIE** | Cheap post-scan triage | Optional tiered router | [tiered-router-setup](./user-guide/tiered-router-setup.md) |
 | **Alibaba Cloud Model Studio** | Escalation arbitration / triage | Optional tiered router | [tiered-router-setup](./user-guide/tiered-router-setup.md) |
-| **DepShield** (`depshield-mcp`) | Local dependency-audit adapter over MCP stdio | Optional / local | No cloud account — npm package; see [STATUS](./STATUS.md) |
-| **Ossprey** (`ossprey-cli`) | Malware / malicious-package scan (after DepShield in `SCANNER_GROUPS`) | Full scanner coverage (when keyed) | `OSSPREY_API_KEY` via [env-vars](./user-guide/env-vars.md) · [OPTIONAL_SCANNER_KEYS](../fixtures/OPTIONAL_SCANNER_KEYS.md); absent → `skipped_missing_credential`. IMPLEMENTED adapter; access provisioning OPEN — not VERIFIED live |
+| **DepShield** (`depshield-mcp`) | Local dependency-audit adapter over MCP stdio (skill, mcp_server, package) | Optional / local | No cloud account — npm package; see [STATUS](./STATUS.md) |
+| **Ossprey** (`ossprey-cli`) | Malware / malicious-package scan after DepShield (skill, mcp_server, package) | Full scanner coverage (when keyed) | `OSSPREY_API_KEY` via [env-vars](./user-guide/env-vars.md) · [OPTIONAL_SCANNER_KEYS](../fixtures/OPTIONAL_SCANNER_KEYS.md); absent → `skipped_missing_credential`. IMPLEMENTED adapter; access provisioning OPEN — not VERIFIED live |
 | **GitHub Actions** | CI ultra-minimal (PR/`main`) · Nightly **A** daily 02:00 (Semgrep/CodeQL/full scans) · Supply chain **B** weekly Mon 03:00 · Mutation **C** 1st+15th 04:00 · complexity · Code Review Graph nightly | Contributors | Repo secrets as needed — not operator Live; [ADR-0013](./adr/0013-ship-path-quality-gates.md) |
 | **Cursor / Claude Code** | Dev tooling; Wave H agent hooks (Phase 1 on `main`) | Contributors / operators | [agent-hooks](../agent-hooks/README.md) · [frontline-output-contract](./user-guide/frontline-output-contract.md) · Wave H in [TRAIL](./plan/TRAIL.md) |
 
@@ -228,15 +228,20 @@ clock before Modal's 300s kill — operators reconcile stranded `running` rows w
   [plan/TRAIL.md](./plan/TRAIL.md) Wave 15-O. **Not IMPLEMENTED** — no Kit
   artifacts on `main`; workstation Live remains the supported path. See
   [ADR-0001](./adr/0001-monk-deployment-and-packaging.md) · [STATUS.md](./STATUS.md).
-- **Wave P (Git repo discover + fan-out, slice 62 IN PROGRESS):** GitHub
+- **Wave P (Git repo discover + fan-out, slices 62–64 IN PROGRESS):** GitHub
   browse URLs (`/tree/…`, `/blob/…`) normalize to cloneable repo root; host
   discover of skills **and** MCPs fans out to N separate Modal scans (scanners
   by `item_type`); dashboard cards titled by skill/MCP name + `org/repo`
   signatures (`identifier` `org/repo/<relpath>`); re-scan refreshes `items.name`
-  even when content hash matches (spawn still skipped unless `--force`);
-  repos with no skill or MCP artifacts fail closed. Spec:
+  even when content hash matches (spawn still skipped unless `--force`).
+  **Slice 64:** package manifests at scope root also emit one `items.type=package`
+  target (Snyk / DepShield / Ossprey only — not Cisco Skill / Tessl / Cisco MCP).
+  **Slice 63:** CLI prints `[scanners]` inventory + rollup after scan / zero-artifact.
+  Repos with neither skill/MCP **nor** package manifests fail closed. Spec:
   [slice 62](./plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) ·
-  [plan/TRAIL.md](./plan/TRAIL.md) Wave 16-P. **Not on `main` until slice 62
+  [slice 63](./plan/slices/16-P-git-repo-scan/slice-63-cli-scanner-inventory.md) ·
+  [slice 64](./plan/slices/16-P-git-repo-scan/slice-64-git-repo-package-scan.md) ·
+  [plan/TRAIL.md](./plan/TRAIL.md) Wave 16-P. **Not on `main` until Wave P
   merges** — until then a git URL is one `cloneable` target; browse URLs fail at
   clone. Operator taxonomy: [prerequisites — What can Tripwire scan?](./user-guide/prerequisites.md#what-can-tripwire-scan). See
   [STATUS.md](./STATUS.md).
@@ -274,6 +279,7 @@ sequenceDiagram
   CLI->>DB: Ensure schema / create scan_run
   CLI->>SB: Spawn scanners
   SB->>DB: Findings / console_output
+  CLI-->>Op: Scanner inventory + rollup (slice 63)
   CLI->>Route: Auto-route batch (optional; warn+skip if keys missing)
   Route-->>CLI: Triage / escalation
   CLI->>DB: tiered_router findings

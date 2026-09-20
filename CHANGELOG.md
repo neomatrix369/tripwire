@@ -13,13 +13,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and MCP roots (`server.py`/`server.js`/`run.sh`), emits N typed targets with
   `identifier=org/repo/<relpath>` and dashboard cards titled by **skill/MCP name**
   (SKILL.md frontmatter when set; never bare repo name when leaf equals repo) plus
-  `org/repo` signature. Empty repos return `[]` (fail-closed). Soft-amend prerequisites
-  Git URL taxonomy (56-a).
-- Docs: Wave **16-P** git repo discover + fan-out plan (slice 62) —
-  [slice stub](docs/plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md),
-  TRAIL/PROGRESS/STATUS. GitHub repo or `/tree|/blob/`
-  browse URL → skills+MCPs discovered and scanned separately; cards use
-  `org/repo` signature. Soft-amend slice 56-a taxonomy.
+  `org/repo` signature. Soft-amend prerequisites Git URL taxonomy (56-a).
+- Git repo **package** target + DepShield/Ossprey/Snyk path (slice 64, Wave P): when
+  package manifests exist at scope root, discovery also emits one `items.type=package`
+  target (`identifier` `org/repo` or `org/repo/@package` on collision) — not a fake
+  skill; Cisco Skill / Tessl / Cisco MCP do not apply. Repos with neither skill/MCP
+  **nor** manifests still return `[]` (fail-closed). Schema check widens
+  `items.type` to include `package`. Dashboard type filter adds Packages.
+- CLI scanner inventory after scan (slice 63, Wave P): `tripwire scan` prints
+  `[scanners]` per-source status + rollup (`fully successful` / `partly successful` /
+  `fully failed` / `not run`) after dispatch and on zero-artifact explicit targets
+  (registry listed as `not_run`). Package expected sources = Snyk / DepShield / Ossprey.
+- Docs: Wave **16-P** git repo discover + fan-out plan (slices 62–64) —
+  [slice 62](docs/plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md),
+  [slice 63](docs/plan/slices/16-P-git-repo-scan/slice-63-cli-scanner-inventory.md),
+  [slice 64](docs/plan/slices/16-P-git-repo-scan/slice-64-git-repo-package-scan.md),
+  TRAIL/PROGRESS/STATUS. Soft-amend slice 56-a taxonomy.
 - `/tw-verify` Quality column + blocked footer (slice 28): Scan Status table is
   **Name | Type | Status | Quality | Note**; Quality shows Tessl
   `items.quality_score` as **`N/100`** (else `—`); shared

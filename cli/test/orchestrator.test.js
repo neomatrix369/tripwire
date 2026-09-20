@@ -43,6 +43,27 @@ test('scan --no-defaults exits with actionable guidance when no targets are supp
   );
 });
 
+test('scan with explicit target that has no artifacts exits 0 with zero-artifact message', async () => {
+  // GWT-62.6 UX: explicit path/URL with nothing discoverable is not an error.
+  // -- Given --
+  const emptyDir = await mkdtemp(path.join(tmpdir(), 'tw-empty-'));
+  try {
+    // -- When --
+    const { stdout, stderr } = await exec('node', [tripwireBin, 'scan', emptyDir, '--no-defaults']);
+
+    // -- Then --
+    assert.equal(stderr, '');
+    assert.match(stdout, /No skill or MCP artifacts found/);
+    assert.match(stdout, new RegExp(emptyDir.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    // GWT-63.1
+    assert.match(stdout, /\[scanners\].*not run/);
+    assert.match(stdout, /DepShield: not_run/);
+    assert.match(stdout, /Ossprey: not_run/);
+  } finally {
+    await rm(emptyDir, { recursive: true, force: true });
+  }
+});
+
 test('setup reports its environment requirement instead of applying schema without credentials', async () => {
   // -- Given --
   const args = [tripwireBin, 'setup'];

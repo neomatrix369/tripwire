@@ -2515,18 +2515,26 @@ SCANNER_GROUPS = [
 ]
 
 
+# Types that inherit ``applies_to: "both"`` groups (Snyk / DepShield / Ossprey).
+_BOTH_ITEM_TYPES = frozenset({"skill", "mcp_server", "package"})
+
+
 def _group_applies(applies_to, item_type):
     """True when a registry group should run for *item_type*.
 
-    ``'both'`` always runs; ``'skill'`` only for skills; ``'mcp_server'`` for
-    any non-skill item_type — preserving the historical if/else fallthrough
-    where everything that isn't a skill takes the MCP path.
+    ``'both'`` → skill, mcp_server, and package (slice 64).
+    ``'skill'`` / ``'mcp_server'`` / ``'package'`` → exact match only — MCP-only
+    groups must not run on package targets.
     """
     if applies_to == "both":
-        return True
+        return item_type in _BOTH_ITEM_TYPES
     if applies_to == "skill":
         return item_type == "skill"
-    return item_type != "skill"
+    if applies_to == "mcp_server":
+        return item_type == "mcp_server"
+    if applies_to == "package":
+        return item_type == "package"
+    return False
 
 
 def run_all_scanners(

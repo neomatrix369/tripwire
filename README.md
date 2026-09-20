@@ -58,10 +58,10 @@ ultra-minimal (ship-path coverage + OSV + targeted scans) — see
 
 ## What Tripwire does
 
-Tripwire helps technical teams assess AI skills and MCP servers before they rely
-on them. It discovers targets, runs the enabled scanner adapters in an isolated
-Modal sandbox, stores findings in Supabase, and brings them together in one
-dashboard (Live or Mock).
+Tripwire helps technical teams assess AI skills, MCP servers, and (on the Wave P
+branch) package manifests before they rely on them. It discovers targets, runs
+the enabled scanner adapters in an isolated Modal sandbox, stores findings in
+Supabase, and brings them together in one dashboard (Live or Mock).
 
 Optionally, after each scan batch it runs a tiered router: **Superlinked SIE**
 triages findings, and **Alibaba Cloud Model Studio** escalates when scanners
@@ -74,10 +74,10 @@ disagree or coverage looks incomplete ([ADR-0016](docs/adr/0016-tiered-router-si
 | Platform | **Modal** | Isolated scan sandbox (Docker image + Python adapters) |
 | Platform | **Supabase** | Postgres + Realtime store for runs, scanners, findings |
 | Scanner | **Cisco** Skill Scanner / MCP Scanner / AI Defense | Skill and MCP security inspection |
-| Scanner | **Snyk** (`snyk-agent-scan`) | Depth / agent scan for skills and MCP servers |
+| Scanner | **Snyk** (`snyk-agent-scan`) | Depth / agent scan for skills, MCP servers, and packages |
 | Scanner | **Tessl** | Five skill capabilities: Lint (auth-free), Review (Quality), Scenario Generation, Eval, Review (Security) |
-| Scanner | **DepShield** (`depshield-mcp`) | Dependency audit (npm + PyPI via OSV.dev); **no credentials** |
-| Scanner | **Ossprey** (`ossprey-cli`) | Malware / malicious-package scan (skills + MCP); needs `OSSPREY_API_KEY` |
+| Scanner | **DepShield** (`depshield-mcp`) | Dependency audit (npm + PyPI via OSV.dev); **no credentials**; skills, MCP, and packages |
+| Scanner | **Ossprey** (`ossprey-cli`) | Malware / malicious-package scan (skills, MCP, packages); needs `OSSPREY_API_KEY` |
 | Router (optional) | **Superlinked SIE** | Cheap post-scan triage on every item |
 | Router (optional) | **Alibaba Cloud Model Studio** | Escalation only when SIE signals |
 
@@ -98,7 +98,7 @@ output to resolve a setup issue.
 
 | You are... | You want to... |
 |---|---|
-| An AI-tooling developer or team | Assess skills and MCP servers before using or sharing them |
+| An AI-tooling developer or team | Assess skills, MCP servers, and package trees before using or sharing them |
 | A platform, operations, or security practitioner | Run and maintain scans for a team |
 | A contributor | Extend scanner support, the CLI, or the dashboard |
 
@@ -186,8 +186,8 @@ stack (same names as the badges above):
 
 | Step | What runs | Stack | Setup |
 |---|---|---|---|
-| Discover | CLI finds skills / MCP servers (`tripwire scan --dry-discover` or a real scan) | Node.js CLI | [setup-commands](docs/user-guide/setup-commands.md#repository-and-cli-bootstrap) |
-| Scan | Adapters run in an isolated sandbox | Modal (+ Docker), Cisco / Snyk / Tessl / DepShield / Ossprey | [modal-setup](docs/user-guide/modal-setup.md) · [env-vars](docs/user-guide/env-vars.md) |
+| Discover | CLI finds skills / MCP servers / packages (`tripwire scan --dry-discover` or a real scan; Wave P package path IMPLEMENTED on branch) | Node.js CLI | [setup-commands](docs/user-guide/setup-commands.md#repository-and-cli-bootstrap) · [prerequisites](docs/user-guide/prerequisites.md#what-can-tripwire-scan) |
+| Scan | Adapters run in an isolated sandbox; CLI prints scanner inventory + rollup (slice 63, on branch) | Modal (+ Docker), Cisco / Snyk / Tessl / DepShield / Ossprey | [modal-setup](docs/user-guide/modal-setup.md) · [env-vars](docs/user-guide/env-vars.md) |
 | Store | Findings and scan_run rows land for the dashboard | Supabase / Postgres | [supabase-setup](docs/user-guide/supabase-setup.md) |
 | Route (optional) | Every item through SIE; escalate only when signaled | Superlinked SIE → Alibaba Cloud Model Studio via `tripwire route` / auto-route | [sie-setup](docs/user-guide/sie-setup.md) · [model-studio-setup](docs/user-guide/model-studio-setup.md) |
 | Review | Heatmap, drawers, pathway strips, Escalated / SIE-only filters | Dashboard (Live or Mock) | [reading-router-results](docs/user-guide/reading-router-results.md) · [screenshots](docs/screenshots/README.md) |
@@ -199,9 +199,10 @@ for router backends (no full batch): [`prototypes/sie-studio/`](prototypes/sie-s
 
 ```mermaid
 flowchart LR
-  discover["Discover<br/>Node CLI"] --> scan["Scan<br/>Modal + Cisco/Snyk/Tessl/DepShield/Ossprey"]
+  discover["Discover<br/>skills / MCP / package"] --> scan["Scan<br/>Modal + Cisco/Snyk/Tessl/DepShield/Ossprey"]
   scan --> store["Store<br/>Supabase"]
-  store --> route["Route optional<br/>SIE → Model Studio"]
+  store --> inventory["CLI inventory<br/>rollup (slice 63)"]
+  inventory --> route["Route optional<br/>SIE → Model Studio"]
   route --> review["Review<br/>Dashboard"]
 ```
 

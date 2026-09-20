@@ -228,8 +228,10 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 | # | Slice | MoSCoW | Status | Started | Completed | Est. time |
 |---|-------|--------|--------|---------|-----------|-----------|
 | 62 | [slice-62-git-repo-discover-fanout](slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) | Must | 🔀 ON BRANCH | 2026-09-09 | — | ~50 min [Walking Skeleton] |
+| 63 | [slice-63-cli-scanner-inventory](slices/16-P-git-repo-scan/slice-63-cli-scanner-inventory.md) | Should | 🔀 ON BRANCH | 2026-09-20 | — | ~40 min |
+| 64 | [slice-64-git-repo-package-scan](slices/16-P-git-repo-scan/slice-64-git-repo-package-scan.md) | Must | 🔨 IN PROGRESS | 2026-09-20 | — | ~60 min [Walking Skeleton] |
 
-**Group note:** One repo URL → discover skills + MCPs → separate scans + `org/repo` cards. Docs via reused slice **56-a** (not a new docs slice). Number **62** avoids Wave O monk-kit 58–61.
+**Group note:** One repo URL → discover skills + MCPs → separate scans + `org/repo` cards. Docs via reused slice **56-a** (not a new docs slice). Number **62** avoids Wave O monk-kit 58–61. Slice **63** = CLI scanner inventory honesty. Slice **64** = package/DepShield/Ossprey target when manifests exist (SUPERSEDES empty-repo dead-end for app repos like vibe-kanban).
 
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 
@@ -243,7 +245,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 
 ## Forward Roadmap
 - Wave **O** (**O0** + slices 58–61) Monk Kit Live packaging is **📋 plan-only** — ADR-0001 + PoC; O0 governance first for Accept/open Qs; product execute via `slice/58-land-poc-monk-kit` (prototyping OK while O0 open).
-- Wave **P** (slice **62**) git repo discover + fan-out is **🔀 ON BRANCH** (`slice/62-git-repo-discover-fanout`); soft-amended **56-a** documents browse URL + multi-item taxonomy.
+- Wave **P** (slices **62–64**) git repo scan: **62** fan-out 🔀; **63** CLI inventory 🔀; **64** package/DepShield/Ossprey 🔨 on `slice/64-git-repo-package-scan` — soft-amended **56-a** documents browse URL + multi-item taxonomy.
 - Wave **M** (slice 53) LLM usage / cost observability is **📋 plan-only** — ADR-0016 follow-on; execute when explicitly started (`slice/53-llm-usage-tracking`).
 - Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Slice 15 is retained as a deferred claim-audit artifact, not active work.
 - **Wave H (Frontline):** plan-only stubs 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. Execute Musts 23→32 with human tests after H1/H2 and HARD GATE at 32 before Should work.
