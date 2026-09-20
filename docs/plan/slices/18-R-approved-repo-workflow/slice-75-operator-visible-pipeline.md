@@ -33,7 +33,7 @@
 - Turning `TRIPWIRE_JUDGE_PANEL=1` into default-on without a separate DECISIONS row / USER confirm (honest “panel off” copy is in scope; default flip is HITL)
 - Charts, prior-run compare, snippet target discovery (Then-phase / other backlog)
 - Fix/Verify/Report deep redesign (reuse existing step panels; only add narration hooks + selection/meta/model lines if fields already exist)
-- Full Triage filter IA redesign / typography unification across all six panels — **slice 76** (HITL-authorized 2026-09-20; see `slice-76-workflow-chrome-polish.md`)
+- Full Triage filter IA redesign / typography unification across all six panels — **slice 76** ✅ on `main` (#165); see `slice-76-workflow-chrome-polish.md`
 
 ## Output contract
 > Observable shape of completion (shape only — not exact file paths).
