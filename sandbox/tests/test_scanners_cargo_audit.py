@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 from unittest.mock import patch
 
@@ -97,3 +98,336 @@ def test_given_registry_when_list_groups_then_cargo_audit_between_depshield_ossp
 def test_given_tail_timeouts_when_summed_then_within_scan_timeout() -> None:
     tail = scanners.DEPSHIELD_TIMEOUT + scanners.CARGO_AUDIT_TIMEOUT + scanners.OSSPREY_TIMEOUT
     assert tail <= scanners.SCAN_TIMEOUT
+
+
+def test_given_cargo_only_when_which_cargo_then_uses_cargo_audit_subcommand(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "Cargo.toml").write_text('[package]\nname = "x"\n', encoding="utf-8")
+    clean = json.dumps({"vulnerabilities": {"found": False, "count": 0, "list": []}})
+    seen: list[list[str]] = []
+
+    def _fake_run(cmd, timeout=None, cwd=None):
+        seen.append(list(cmd))
+        return 0, clean, ""
+
+    with (
+        patch.object(scanners, "_which", side_effect=lambda b: b == "cargo"),
+        patch.object(scanners, "_run", side_effect=_fake_run),
+    ):
+        _, rows = scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert seen and seen[0][:2] == ["cargo", "audit"]
+    assert rows[0]["status"] == "completed"
+
+
+def test_given_nested_lock_when_run_then_passes_file_flag(tmp_path: Path) -> None:
+    nested = tmp_path / "crates" / "inner"
+    nested.mkdir(parents=True)
+    (nested / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
+    clean = json.dumps({"vulnerabilities": {"found": False, "count": 0, "list": []}})
+    seen: list[list[str]] = []
+
+    def _fake_run(cmd, timeout=None, cwd=None):
+        seen.append(list(cmd))
+        return 0, clean, ""
+
+    with (
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", side_effect=_fake_run),
+    ):
+        _, rows = scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert rows[0]["status"] == "completed"
+    assert any("--file" in c for c in seen)
+
+
+def test_given_timeout_when_run_then_unreachable(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
+
+    with (
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(
+            scanners,
+            "_run",
+            side_effect=subprocess.TimeoutExpired(cmd="cargo-audit", timeout=1),
+        ),
+    ):
+        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert findings == []
+    assert rows[0]["status"] == "unreachable"
+    assert "timed out" in rows[0]["detail"]
+
+
+def test_given_oserror_when_run_then_unreachable(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
+
+    with (
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", side_effect=OSError("boom")),
+    ):
+        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert findings == []
+    assert rows[0]["status"] == "unreachable"
+    assert "failed to start" in rows[0]["detail"]
+
+
+def test_given_exit_2_when_run_then_unreachable(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
+
+    with (
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", return_value=(2, "", "tool error")),
+    ):
+        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert findings == []
+    assert rows[0]["status"] == "unreachable"
+
+
+def test_given_bad_json_when_run_then_unreachable(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
+
+    with (
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", return_value=(0, "not-json{{{", "")),
+    ):
+        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert findings == []
+    assert rows[0]["status"] == "unreachable"
+    assert "JSON" in rows[0]["detail"]
+
+
+def test_given_cvss_score_when_finding_then_severity_red() -> None:
+    entry = {
+        "advisory": {"id": "RUSTSEC-1", "cvss": {"score": "9.1"}, "title": "x"},
+        "package": {"name": "crate", "version": "1.0"},
+    }
+    finding = scanners._cargo_audit_finding(entry, "Cargo.lock")
+    assert finding["severity"] == "red"
+
+
+def test_given_cvss_low_score_when_finding_then_amber() -> None:
+    entry = {
+        "advisory": {"id": "RUSTSEC-2", "cvss": {"score": "3.1"}, "title": "low"},
+        "package": {"name": "crate", "version": "1.0"},
+    }
+    assert scanners._cargo_audit_finding(entry, "Cargo.lock")["severity"] == "amber"
+
+
+def test_given_bad_cvss_when_severity_then_amber() -> None:
+    assert scanners._cargo_audit_severity({"cvss": {"score": "nope"}}) == "amber"
+
+
+def test_given_non_dict_advisory_when_severity_then_amber() -> None:
+    assert scanners._cargo_audit_severity("high") == "amber"
+
+
+def test_given_malformed_entry_when_finding_then_defaults() -> None:
+    finding = scanners._cargo_audit_finding({"advisory": "x", "package": None}, "Cargo.lock")
+    assert finding["rule_id"] == "RUSTSEC-unknown"
+    assert finding["severity"] == "amber"
+
+
+def test_given_vulns_not_dict_when_parse_then_empty() -> None:
+    findings, checks, err = scanners._parse_cargo_audit_json('{"vulnerabilities":[]}', "Cargo.lock")
+    assert findings == []
+    assert checks == 0
+    assert err is None
+
+
+def test_given_list_not_list_when_parse_then_empty_findings() -> None:
+    text = json.dumps({"vulnerabilities": {"count": 0, "list": {"bad": True}}})
+    findings, checks, err = scanners._parse_cargo_audit_json(text, "Cargo.lock")
+    assert findings == []
+    assert checks == 1
+    assert err is None
+
+
+def test_given_empty_stdout_parse_err_exit0_when_run_then_completed(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
+
+    with (
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", return_value=(0, "", "")),
+        patch.object(
+            scanners,
+            "_parse_cargo_audit_json",
+            return_value=([], 0, "cargo-audit JSON parse failed"),
+        ),
+    ):
+        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert findings == []
+    assert rows[0]["status"] == "completed"
+
+
+def test_given_toml_only_completed_when_run_then_detail_mentions_toml(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "Cargo.toml").write_text('[package]\nname = "x"\n', encoding="utf-8")
+    clean = json.dumps({"vulnerabilities": {"found": False, "count": 0, "list": []}})
+
+    with (
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", return_value=(0, clean, "")),
+    ):
+        _, rows = scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert rows[0]["status"] == "completed"
+    assert "Cargo.toml" in (rows[0].get("detail") or "")
+
+
+def test_given_group_runner_when_invoked_then_returns_triple(tmp_path: Path) -> None:
+    findings, rows, quality = scanners._run_cargo_audit_group(str(tmp_path), "package", None)
+    assert findings == []
+    assert rows[0]["status"] == "not_applicable"
+    assert quality is None
+
+
+def test_given_only_cargo_binary_when_cmd_then_cargo_audit_subcommand() -> None:
+    with patch.object(scanners, "_which", side_effect=lambda b: b == "cargo"):
+        assert scanners._cargo_audit_cmd() == ["cargo", "audit"]
+
+
+def test_given_cvss_and_malformed_when_severity_then_maps() -> None:
+    assert scanners._cargo_audit_severity("x") == "amber"
+    assert scanners._cargo_audit_severity({"severity": "medium"}) == "amber"
+    assert scanners._cargo_audit_severity({"cvss": {"score": 9.1}}) == "red"
+    assert scanners._cargo_audit_severity({"cvss": {"score": 3.2}}) == "amber"
+    assert scanners._cargo_audit_severity({"cvss": {"score": "bad"}}) == "amber"
+    assert scanners._cargo_audit_severity({}) == "amber"
+
+
+def test_given_nested_cargo_lock_when_run_then_passes_file_flag(tmp_path: Path) -> None:
+    nested = tmp_path / "crates" / "lib"
+    nested.mkdir(parents=True)
+    (nested / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
+    (nested / "Cargo.toml").write_text('[package]\nname = "lib"\n', encoding="utf-8")
+    captured: dict = {}
+
+    def _fake_run(cmd, timeout=None, cwd=None):
+        captured["cmd"] = cmd
+        captured["cwd"] = cwd
+        return 0, json.dumps({"vulnerabilities": {"found": False, "count": 0, "list": []}}), ""
+
+    with (
+        patch.object(scanners, "_which", side_effect=lambda b: b == "cargo-audit"),
+        patch.object(scanners, "_run", side_effect=_fake_run),
+    ):
+        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert findings == []
+    assert rows[0]["status"] == "completed"
+    assert "--file" in captured["cmd"]
+    assert captured["cwd"] == str(tmp_path)
+
+
+def test_given_cargo_toml_only_when_run_then_detail_notes_toml(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.toml").write_text('[package]\nname = "x"\n', encoding="utf-8")
+    clean = json.dumps({"vulnerabilities": {"found": False, "count": 0, "list": []}})
+
+    with (
+        patch.object(scanners, "_which", side_effect=lambda b: b == "cargo-audit"),
+        patch.object(scanners, "_run", return_value=(0, clean, "")),
+    ):
+        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert findings == []
+    assert "Cargo.toml" in rows[0].get("detail", "")
+
+
+def test_given_exit_2_when_run_then_unreachable(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
+
+    with (
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", return_value=(2, "", "db fetch failed")),
+    ):
+        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert findings == []
+    assert rows[0]["status"] == "unreachable"
+    assert "db fetch failed" in rows[0]["detail"]
+
+
+def test_given_timeout_when_run_then_unreachable(tmp_path: Path) -> None:
+    import subprocess
+
+    (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
+
+    with (
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(
+            scanners,
+            "_run",
+            side_effect=subprocess.TimeoutExpired(cmd=["cargo-audit"], timeout=1),
+        ),
+    ):
+        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert rows[0]["status"] == "unreachable"
+    assert "timed out" in rows[0]["detail"]
+
+
+def test_given_oserror_when_run_then_unreachable(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
+
+    with (
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", side_effect=OSError("boom")),
+    ):
+        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert rows[0]["status"] == "unreachable"
+    assert "boom" in rows[0]["detail"]
+
+
+def test_given_bad_json_when_run_then_unreachable(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
+
+    with (
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", return_value=(1, "not-json", "")),
+    ):
+        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert findings == []
+    assert rows[0]["status"] == "unreachable"
+
+
+def test_given_empty_stdout_exit0_when_run_then_completed(tmp_path: Path) -> None:
+    (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
+
+    with (
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", return_value=(0, "", "")),
+    ):
+        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert findings == []
+    assert rows[0]["status"] == "completed"
+
+
+def test_given_malformed_entry_when_finding_then_defaults() -> None:
+    finding = scanners._cargo_audit_finding("not-a-dict", "Cargo.lock")
+    assert finding["rule_id"] == "RUSTSEC-unknown"
+    assert finding["entity_name"] == "unknown"
+    finding2 = scanners._cargo_audit_finding(
+        {"advisory": "x", "package": "y"}, "Cargo.lock"
+    )
+    assert finding2["severity"] == "amber"
+
+
+def test_given_non_list_vulns_when_parse_then_empty() -> None:
+    findings, checks, err = scanners._parse_cargo_audit_json(
+        json.dumps({"vulnerabilities": {"count": 0, "list": "x"}}), "Cargo.lock"
+    )
+    assert findings == []
+    assert err is None
+    assert checks >= 1
