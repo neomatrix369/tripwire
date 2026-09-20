@@ -8,7 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- Triage SCA rows: show lockfile path in the title (`pkg@ver · CVE · path`) and
+  collapse exact duplicate inserts (`×N`) so monorepo package findings are
+  distinguishable — vibe-kanban braces/adm-zip no longer look identical.
+  `tripwire-triage.js` + Triage row meta line.
 - Package / SCA honesty for unsupported ecosystems (Cargo-only and similar):
+
   `snyk test` does not support Rust/Cargo — Tripwire reports `not_applicable`
   with an explicit ecosystem detail instead of a false clean. When every
   applicable scanner is `not_applicable` / skipped (zero completed engines),

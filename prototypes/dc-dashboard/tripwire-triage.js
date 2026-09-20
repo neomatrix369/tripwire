@@ -16,12 +16,14 @@ const STATUS_ORDER = Object.freeze([
 ]);
 
 /**
- * Distinctive triage/investigate title — prefer package@ver · CVE over bare category.
- * SCA findings share category `dependency_vulnerability`; uniqueness is in package/CVE/message.
+ * Distinctive triage/investigate title — prefer package@ver · CVE · path over bare category.
+ * SCA findings share category `dependency_vulnerability`; uniqueness is in package/CVE/path/message.
  * @param {{
  *   package_name?: string|null,
  *   package_version?: string|null,
  *   cve_ids?: string[]|null,
+ *   file_path?: string|null,
+ *   source?: string|null,
  *   message?: string|null,
  *   category?: string|null,
  *   title?: string|null,
@@ -30,6 +32,7 @@ const STATUS_ORDER = Object.freeze([
  */
 export function buildWorkflowFindingTitle(finding) {
   if (!finding || typeof finding !== "object") return "Finding";
+  const pathHint = shortFindingPath(finding.file_path || finding.source);
   const pkg = finding.package_name;
   if (pkg) {
     const ver = finding.package_version;
@@ -38,12 +41,79 @@ export function buildWorkflowFindingTitle(finding) {
       ? finding.cve_ids.filter(Boolean)
       : [];
     const cve = cves[0];
-    return cve ? `${label} · ${cve}` : label;
+    const base = cve ? `${label} · ${cve}` : label;
+    return pathHint ? `${base} · ${pathHint}` : base;
   }
-  if (finding.message) return String(finding.message).slice(0, 120);
+  if (finding.message) {
+    const msg = String(finding.message).slice(0, 120);
+    return pathHint ? `${msg} · ${pathHint}` : msg;
+  }
   if (finding.title) return String(finding.title).slice(0, 120);
-  if (finding.category) return String(finding.category);
+  if (finding.category) {
+    const cat = String(finding.category);
+    return pathHint ? `${cat} · ${pathHint}` : cat;
+  }
   return "Finding";
+}
+
+/**
+ * @param {string|null|undefined} path
+ * @returns {string}
+ */
+function shortFindingPath(path) {
+  if (!path || typeof path !== "string") return "";
+  const trimmed = path.trim();
+  if (!trimmed) return "";
+  // Drop trailing :line from mapped source fields.
+  const noLoc = trimmed.replace(/:\d+$/, "");
+  if (noLoc.length <= 48) return noLoc;
+  const parts = noLoc.split("/").filter(Boolean);
+  if (parts.length <= 2) return noLoc.slice(-48);
+  return `${parts[parts.length - 2]}/${parts[parts.length - 1]}`;
+}
+
+/**
+ * Collapse byte-identical SCA/insert duplicates (same target + package + CVE + path + scanner).
+ * @param {Array<object>} findings
+ * @returns {Array<object>}
+ */
+export function dedupeTriageFindings(findings) {
+  if (!Array.isArray(findings) || findings.length === 0) return [];
+  const byKey = new Map();
+  for (const f of findings) {
+    const key = triageDedupeKey(f);
+    const existing = byKey.get(key);
+    if (!existing) {
+      byKey.set(key, { ...f, duplicateCount: 1 });
+      continue;
+    }
+    existing.duplicateCount = (existing.duplicateCount || 1) + 1;
+  }
+  return [...byKey.values()];
+}
+
+/**
+ * @param {object|null|undefined} f
+ * @returns {string}
+ */
+function triageDedupeKey(f) {
+  if (!f || typeof f !== "object") return "∅";
+  // Only collapse SCA / message-identical inserts — never merge unrelated findings
+  // that merely lack package fields (they share empty key slots otherwise).
+  const hasIdentity = Boolean(f.package_name || f.message);
+  if (!hasIdentity) return `id:${f.id != null ? f.id : "anon"}`;
+  const cve = Array.isArray(f.cve_ids) ? f.cve_ids.filter(Boolean)[0] || "" : "";
+  return [
+    f.itemId || "",
+    f.scanner || "",
+    f.category || "",
+    f.package_name || "",
+    f.package_version || "",
+    cve,
+    f.file_path || f.source || "",
+    f.message || "",
+    f.triageStatus || "",
+  ].join("\u0001");
 }
 
 const STATUS_LABEL = Object.freeze({
@@ -323,7 +393,7 @@ export function buildTriageView({
   qualityTab = "all",
   targetFilter = "all",
 } = {}) {
-  const list = Array.isArray(findings) ? findings : [];
+  const list = dedupeTriageFindings(Array.isArray(findings) ? findings : []);
   const resolvedType = typeFilter || "all";
   const resolvedQuality = qualityTab || "all";
   const resolvedTarget = targetFilter || "all";

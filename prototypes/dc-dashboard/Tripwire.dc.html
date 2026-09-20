@@ -582,7 +582,7 @@
               <span>
                 <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ f.sevColor }};text-transform:uppercase">{{ f.severity }}</span>
                 <span style="margin-left:8px">{{ f.title }}</span>
-                <span style="display:block;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:2px">{{ f.targetLabel }} · {{ f.triageStatus }}</span>
+                <span style="display:block;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:2px">{{ f.metaLine }}</span>
               </span>
               <span style="font-family:var(--font-mono);font-size:10px;color:var(--cta-ink)">Investigate →</span>
             </button>
@@ -2354,6 +2354,14 @@ class Component extends DCLogic {
           ...f,
           sevColor,
           targetLabel: f.itemName || f.itemId || '',
+          pathLabel: f.source || f.file_path || '',
+          duplicateLabel: (f.duplicateCount || 1) > 1 ? `×${f.duplicateCount}` : '',
+          metaLine: [
+            f.itemName || f.itemId || '',
+            f.source || f.file_path || '',
+            f.triageStatus || '',
+            (f.duplicateCount || 1) > 1 ? `×${f.duplicateCount}` : ''
+          ].filter(Boolean).join(' · '),
           onInvestigate: () => this.selectWorkflowFinding(f.id),
           setToFix: () => this.setWorkflowTriageStatus(f.id, 'to_fix'),
           setNeedsReview: () => this.setWorkflowTriageStatus(f.id, 'needs_review'),
