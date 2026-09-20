@@ -55,6 +55,23 @@ export function itemsTypeCheckAllowsPackage(def) {
 }
 
 /**
+ * Trim and validate a Postgres connection URL. Returns null when unusable.
+ * @param {string|undefined|null} dbUrl
+ * @returns {string|null}
+ */
+export function usablePostgresUrl(dbUrl) {
+  const url = (dbUrl || '').trim();
+  if (!url) return null;
+  if (!/^postgres(ql)?:\/\//i.test(url)) return null;
+  return url;
+}
+
+/** Map a live CHECK definition to ready/stale for package support. */
+export function typeCheckStateFromDef(def) {
+  return itemsTypeCheckAllowsPackage(def) ? 'ready' : 'stale';
+}
+
+/**
  * Apply schema when tables are missing or the live items.type CHECK is pre-package.
  * @param {boolean} force
  * @param {'ready'|'missing'} tableState
@@ -66,6 +83,15 @@ export function schemaNeedsApply(force, tableState, typeState) {
   return typeState === 'stale';
 }
 
+async function fetchItemsTypeCheckDef(client) {
+  const { rows } = await client.query(
+    `SELECT pg_get_constraintdef(oid) AS def
+     FROM pg_constraint
+     WHERE conrelid = 'public.items'::regclass AND conname = 'items_type_check'`
+  );
+  return rows[0]?.def || '';
+}
+
 /**
  * Read live items_type_check. Skipped in the Node test runner and when DB URL is unset.
  * @returns {Promise<'ready'|'stale'|'skipped'>}
@@ -75,20 +101,14 @@ export async function probeItemsTypeCheck({
   ClientImpl = Client,
 } = {}) {
   if (process.env.NODE_TEST_CONTEXT) return 'skipped';
-  const url = (dbUrl || '').trim();
-  if (!url || !/^postgres(ql)?:\/\//i.test(url)) return 'skipped';
+  const url = usablePostgresUrl(dbUrl);
+  if (!url) return 'skipped';
   const client = new ClientImpl({
     connectionString: url, ssl: pgSslConfig(url), connectionTimeoutMillis: 5000,
   });
   try {
     await client.connect();
-    const { rows } = await client.query(
-      `SELECT pg_get_constraintdef(oid) AS def
-       FROM pg_constraint
-       WHERE conrelid = 'public.items'::regclass AND conname = 'items_type_check'`
-    );
-    const def = rows[0]?.def || '';
-    return itemsTypeCheckAllowsPackage(def) ? 'ready' : 'stale';
+    return typeCheckStateFromDef(await fetchItemsTypeCheckDef(client));
   } catch {
     return 'skipped';
   } finally {

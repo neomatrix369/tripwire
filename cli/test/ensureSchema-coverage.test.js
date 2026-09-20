@@ -14,6 +14,8 @@ import {
   itemsTypeCheckAllowsPackage,
   probeSchema,
   schemaNeedsApply,
+  typeCheckStateFromDef,
+  usablePostgresUrl,
 } from '../src/ensureSchema.js';
 
 function mockSupabase({ itemsError = null, colError = null } = {}) {
@@ -135,6 +137,23 @@ test('given constraint def with package when itemsTypeCheckAllowsPackage then tr
 
   // -- When / Then --
   assert.equal(itemsTypeCheckAllowsPackage(def), true);
+});
+
+test('given blank or non-postgres url when usablePostgresUrl then null', () => {
+  // -- Given / When / Then --
+  assert.equal(usablePostgresUrl(''), null);
+  assert.equal(usablePostgresUrl('  '), null);
+  assert.equal(usablePostgresUrl('https://example.com'), null);
+  assert.equal(usablePostgresUrl('postgresql://user:pass@localhost/db'), 'postgresql://user:pass@localhost/db');
+});
+
+test('given constraint defs when typeCheckStateFromDef then ready or stale', () => {
+  // -- Given / When / Then --
+  assert.equal(typeCheckStateFromDef("CHECK ((type = ANY (ARRAY['skill'::text])))"), 'stale');
+  assert.equal(
+    typeCheckStateFromDef("CHECK ((type = ANY (ARRAY['skill'::text, 'package'::text])))"),
+    'ready',
+  );
 });
 
 test('given ready tables and ready type check when schemaNeedsApply then false', () => {

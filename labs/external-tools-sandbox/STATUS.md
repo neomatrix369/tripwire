@@ -1,9 +1,12 @@
 # External tools sandbox — status board
-# Sibling agents update **only their own row**. Shared infra owner updates
-# the Shared row and keeps the table structure stable.
-#
-# Status: PENDING | IN_PROGRESS | PASS | PARTIAL | FAIL | BLOCKED_HITL
-# Runtime: modal | docker | both | undecided
+
+<!--
+Sibling agents update **only their own row**. Shared infra owner updates
+the Shared row and keeps the table structure stable.
+
+Status: PENDING | IN_PROGRESS | PASS | PARTIAL | FAIL | BLOCKED_HITL
+Runtime: modal | docker | both | undecided
+-->
 
 | Tool | Status | Runtime | Evidence / notes | Updated |
 |------|--------|---------|------------------|---------|
