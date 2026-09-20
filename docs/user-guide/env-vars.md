@@ -137,6 +137,7 @@ and skips. Prototype CLIs under `prototypes/sie-studio/` and
 | `SIE_ENDPOINT` | Tiered router + SIE sample CLI | [tiered-router-setup](./tiered-router-setup.md) — us-east-2 `https://api.superlinked.com`; EU `https://eu.api.superlinked.com` |
 | `SIE_API_KEY` | Tiered router + SIE sample CLI | [tiered-router-setup](./tiered-router-setup.md) — Superlinked console → Keys (`sk-sie-…`) |
 | `SIE_MODEL` | Optional SIE model override (default `gen-4b`) | [tiered-router-setup](./tiered-router-setup.md) / `prototypes/sie-studio/models.json` |
+| `TRIPWIRE_JUDGE_PANEL` | Opt-in post-scan judge panel (`1` = soft-fail after auto-route; default off) | Slice 67; ADR-0016 route unchanged when unset |
 | `DASHSCOPE_API_KEY` | Model Studio escalation + sample CLI | [tiered-router-setup](./tiered-router-setup.md) |
 | `DASHSCOPE_HOST` | Optional host used to derive Model Studio URLs when blank | [tiered-router-setup](./tiered-router-setup.md) |
 | `ALIBABA_OPENAI_BASE_URL` | Router Model Studio chat + `model_studio.py chat` | [tiered-router-setup](./tiered-router-setup.md) |

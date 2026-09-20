@@ -3,6 +3,7 @@ import { getSupabase } from './supabaseClient.js';
 import { hashLocalPath } from './hash.js';
 import { spawnScanSandbox } from './modalClient.js';
 import { runRoute } from './router.js';
+import { runJudgePanel } from './judgePanel.js';
 import {
   buildCoverageLedger,
   formatCoverageLedger,
@@ -13,6 +14,10 @@ import {
   formatScannerInventory,
   mergeScannerInventory,
 } from './scannerInventory.js';
+
+function judgePanelEnvEnabled() {
+  return process.env.TRIPWIRE_JUDGE_PANEL === '1';
+}
 
 async function mapWithConcurrency(items, limit, fn) {
   const results = new Array(items.length);
@@ -209,6 +214,15 @@ async function routeBatchSafely(routeFn, batchId) {
   }
 }
 
+/** Soft-fail post-route judge panel — only when TRIPWIRE_JUDGE_PANEL=1 (default off). */
+async function judgeBatchSafely(judgeFn, batchId) {
+  try {
+    await judgeFn(batchId);
+  } catch (err) {
+    console.warn(`[warn] auto-judge-panel failed for batch ${batchId}: ${err.message}`);
+  }
+}
+
 export async function runScan(targets, {
   concurrency = 5,
   force = false,
@@ -218,6 +232,7 @@ export async function runScan(targets, {
   getSupabaseFn = getSupabase,
   spawnFn = spawnScanSandbox,
   routeFn = runRoute,
+  judgeFn = runJudgePanel,
 } = {}) {
   assertPositiveConcurrency(concurrency);
   await ensureSchemaFn();
@@ -240,6 +255,10 @@ export async function runScan(targets, {
 
   await printInventoriesForOutcomes(supabase, targets, outcomes, revealSecrets);
   await routeBatchSafely(routeFn, batchId);
+  // ADR-0016 auto-route path unchanged when env unset; opt-in soft-fail panel only.
+  if (judgePanelEnvEnabled()) {
+    await judgeBatchSafely(judgeFn, batchId);
+  }
 
   if (failures.length) {
     throw new Error(`${failures.length} target scan dispatch failure(s); inspect failed_targets output`);

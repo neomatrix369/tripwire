@@ -68,6 +68,11 @@ Reachable through production entry points / config:
   `tripwire scan` / `--dry-discover` print `[evidence]` rows —
   `cli/src/evidenceVerify.js`. IMPLEMENTED (host/CLI); finding-row persistence
   stays slice 67.
+- CLI **`tripwire judge --batch-id`** + SIE judge panel module (slice 67, Wave R):
+  `cli/src/judgePanel.js` (panel + final judge; open-weight SIE generate models).
+  Optional soft-fail post-route hook only when `TRIPWIRE_JUDGE_PANEL=1` (default
+  off — ADR-0016 auto-route unchanged). Unit tests: `cli/test/judgePanel.test.js`.
+  IMPLEMENTED (CLI + unit); Live/gate VERIFIED pending.
 - Git repo `package` discovery target (`items.type=package` when manifests at
   scope root; DepShield / Ossprey / Snyk / Cargo Audit) — `cli/src/discovery.js`,
   `sandbox/scanners.py` `_group_applies` (slice 64 ✅ on `main` via #145/#146;
@@ -303,6 +308,17 @@ IMPLEMENTED** and **not VERIFIED**. The supported Live path remains the
 operator workstation flow (local `.env`, CLI, QUICKSTART). Implementation
 slices are Wave **15-O** (**O0** + 58–61) under
 [plan/TRAIL.md](./plan/TRAIL.md) — plan-only until explicitly executed.
+
+**Wave R — Approved-repo security workflow (2026-09-20):** Slices **65–66**
+landed/verified. Slice **67** (SIE judge panel + final judge) is **IN PROGRESS**
+on `slice/67-sie-judge-panel-final`: model inventory DECIDED
+(`gen-4b` / `gen-27b` from `prototypes/sie-studio/models.json`; fewer than 3
+models → parallel same-model executions); CLI `tripwire judge --batch-id` +
+panel module/tests IMPLEMENTED (unit). Panel is **additive** to
+[ADR-0016](./adr/0016-tiered-router-sie-model-studio.md)
+— router triage/escalation logic unchanged; open-weight SIE only for judging.
+Opt-in post-scan hook `TRIPWIRE_JUDGE_PANEL=1` (default off). Spec:
+[plan/slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md](./plan/slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md).
 
 **Wave J delta — dashboard metric surfacing (2026-08-20):** A9–A13
 **IMPLEMENTED** on `main` via [PR #98](https://github.com/neomatrix369/tripwire/pull/98)

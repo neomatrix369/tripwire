@@ -7,7 +7,7 @@
 |-----:|--------|-------|--------|---------|
 | 15 | [`15-O-…`](slices/15-O-monk-kit-live-packaging/) | **O — Monk Kit Live packaging** | **O0** → **58**→**59** Must · **60**–**61** Should | 📋 plan-only (ADR-0001 + PoC; branch `docs/monk-kit-wave-o`) |
 | 16 | [`16-P-…`](slices/16-P-git-repo-scan/) | **P — Git repo discover + fan-out** | **62**→**64** | ✅ landed main (#145/#146) |
-| 18 | [`18-R-…`](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** | **65**→**69** Must · **70**–**71** Should · **72** Could | 📋 plan-only |
+| 18 | [`18-R-…`](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** | **65**→**69** Must · **70**–**71** Should · **72** Could | **65–66** ✅ · **67** 🔨 · 68–72 📋 |
 | 12 | [`12-L-…`](slices/12-L-tessl-5-row-expansion/) | **L — Tessl 5-row expansion** | 45 ✅ · 46 ✅ · 47 ✅ · 48 ✅ · 49 ✅ · 50 ✅ · **51** 🔀 · 52 📋 | 45–50 ✅ · **51** 🔀 |
 | 13 | [`13-M-…`](slices/13-M-llm-usage-tracking/) | **M — LLM usage / cost observability** | **53** | 📋 plan-only (ADR-0016 follow-on; not J/L/G) |
 | 11 | [`11-K-…`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** | 🔀 |
@@ -28,7 +28,8 @@
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| 0 (active) | R | **66** | **Evidence verify + injection guard** | Must | ✅ VERIFIED on `slice/66-evidence-verify-injection-guard` · next 67 |
+| 0 (active) | R | **67** | **SIE judge panel + final judge** | Must | 🔨 IN PROGRESS on `slice/67-sie-judge-panel-final` · inventory + CLI + panel/tests; gate close pending |
+| 0 (landed) | R | **66** | **Evidence verify + injection guard** | Must | ✅ VERIFIED on `slice/66-evidence-verify-injection-guard` · next 67 |
 | 0 (landed) | R | **65** | **Language/ecosystem coverage ledger** | Must | ✅ landed `main` (#148) · next 66 |
 | 0 (active fix) | — | — | Cargo SCA honesty (N/A → UNSCANNED) | — | ✅ code VERIFIED Live on `fix/cargo-package-scan-error-status` (feeds 65 ledger; not full Cargo scan) |
 | 0 (docs) | K | **44** | **Docs UX plain language + compaction** | Must | 🔀 ON BRANCH · [#99](https://github.com/neomatrix369/tripwire/pull/99) · GWT-44.1–44.8 · documentarist APPROVED WITH FOLLOW-ON (DIVIO targets pending) · `slice/44-docs-ux-plain-language` |
@@ -241,7 +242,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 |---|-------|--------|--------|---------|-----------|-----------|
 | 65 | [slice-65-lang-ecosystem-coverage-ledger](slices/18-R-approved-repo-workflow/slice-65-lang-ecosystem-coverage-ledger.md) | Must | ✅ VERIFIED ON BRANCH | — | — | ~50 min [Walking Skeleton] |
 | 66 | [slice-66-evidence-verify-injection-guard](slices/18-R-approved-repo-workflow/slice-66-evidence-verify-injection-guard.md) | Must | ✅ VERIFIED ON BRANCH | 2026-09-20 | 2026-09-20 | ~40 min |
-| 67 | [slice-67-sie-judge-panel-final](slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md) | Must | 📋 PLANNED | — | — | ~50 min [Walking Skeleton] |
+| 67 | [slice-67-sie-judge-panel-final](slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md) | Must | 🔨 IN PROGRESS | 2026-09-20 | — | ~50 min [Walking Skeleton] |
 | 68 | [slice-68-workflow-run-triage-investigate](slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md) | Must | 📋 PLANNED | — | — | ~50 min [Walking Skeleton] |
 | 69 | [slice-69-fix-propose-apply-clean](slices/18-R-approved-repo-workflow/slice-69-fix-propose-apply-clean.md) | Must | 📋 PLANNED | — | — | ~40 min |
 | 70 | [slice-70-verify-worktree-rescan](slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md) | Should | 📋 PLANNED | — | — | ~40 min |
@@ -263,7 +264,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 ## Forward Roadmap
 - Wave **O** (**O0** + slices 58–61) Monk Kit Live packaging is **📋 plan-only** — ADR-0001 + PoC; O0 governance first for Accept/open Qs; product execute via `slice/58-land-poc-monk-kit` (prototyping OK while O0 open).
 - Wave **P** (slices **62–64**) git repo scan: ✅ landed `main` (#145/#146). Cargo SCA unsupported honesty follow-up: `fix/cargo-package-scan-error-status` → Wave **R** slice 65.
-- Wave **R** (slices **65–72**) approved-repo security workflow: Musts **65→69** next product stream; slice **72** docs stream 🔨 IN PROGRESS (Cargo Audit formalization — production path already on `main`). UI 1A; execute starting `slice/65-lang-ecosystem-coverage-ledger`.
+- Wave **R** (slices **65–72**) approved-repo security workflow: **65–66** ✅ · **67** 🔨 on `slice/67-sie-judge-panel-final` · **68–71** 📋 · **72** ✅ landed `main` (#150). UI 1A.
 - Wave **M** (slice 53) LLM usage / cost observability is **📋 plan-only** — ADR-0016 follow-on; execute when explicitly started (`slice/53-llm-usage-tracking`).
 - Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Slice 15 is retained as a deferred claim-audit artifact, not active work.
 - **Wave H (Frontline):** plan-only stubs 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. Execute Musts 23→32 with human tests after H1/H2 and HARD GATE at 32 before Should work.
