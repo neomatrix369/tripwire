@@ -370,7 +370,7 @@ final-judge / coverage / evidence-verify progress and outcomes in plain language
 no fabricated judges, honest placeholders, process CTA, auto-select Investigate,
 truthful model hints). Optional slice 76 chrome polish = HITL. Soft-amends
 slices 67/68. See [plan/DECISIONS.md](./plan/DECISIONS.md) Path B Add slice 75
-+ `nw-UX-review` row.
+and `nw-UX-review` row.
 
 **Wave J delta — dashboard metric surfacing (2026-08-20):** A9–A13
 **IMPLEMENTED** on `main` via [PR #98](https://github.com/neomatrix369/tripwire/pull/98)
