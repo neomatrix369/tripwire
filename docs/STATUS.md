@@ -51,7 +51,8 @@ Reachable through production entry points / config:
   scope root; DepShield / Ossprey / Snyk only) — `cli/src/discovery.js`,
   `sandbox/scanners.py` `_group_applies` (slice 64 🔨; IMPLEMENTED on branch,
   not yet ✅ on `main`; not VERIFIED live)
-- `tripwire setup` / first-scan schema bootstrap (probes `completed_at` column) —
+- `tripwire setup` / first-scan schema bootstrap (probes `completed_at` column and
+  live `items_type_check` so pre-package DBs re-apply `db/schema.sql`) —
   `cli/src/ensureSchema.js`
 - `./scripts/setup-modal.sh` secret sync + deploy
 - Scanner adapters shell out to upstream CLIs (`skill-scanner`, `mcp-scanner`,

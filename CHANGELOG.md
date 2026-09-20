@@ -160,6 +160,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   on all quality tabs. Helpers in `tripwire-status.js`; wired in `Tripwire.dc.html`.
 
 ### Fixed
+- Schema bootstrap for existing DBs (slice 64 follow-up): `ensureSchema` probes live
+  `items_type_check` and re-applies `db/schema.sql` when `package` is missing from the
+  CHECK; the widen `DO` block no longer swallows errors with `exception when others`.
+  Pre-package projects no longer silently keep rejecting `INSERT type='package'`.
 - Re-scan refreshes dashboard card **`name`** even when content hash is unchanged
   (`upsertItem` updates `items.name` on hash hits and identifier reuse). Stale
   titles from pre–naming-contract rows no longer require `--force` or a manual
