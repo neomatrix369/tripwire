@@ -374,13 +374,15 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 
 **Group letter P** (after N; **O** reserved for Monk Kit on `docs/monk-kit-wave-o`, slices 58–61). Folder: [`slices/16-P-git-repo-scan/`](slices/16-P-git-repo-scan/).
 **EFP Path B 2026-09-09** — plan-only; triggered by Live clone fail on GitHub `/tree/…` URLs and product need: one repo URL → N skill+MCP scans with `org/repo` card signature.
-Docs taxonomy: soft-amend **slice 56-a** (reuse Wave N stub — no new docs slice).
+**EFP Path B 2026-09-20** — slice **64** Must: same URL also yields a **package** target (DepShield/Ossprey/Snyk) when manifests exist; slice **63** inventory honesty holds. Soft-amend **56-a** (reuse Wave N stub — no new docs slice).
 
 **Model / harness:** inherits TRAIL Original Material + harness-scout embed. Profile: ambiguity=low · blast_radius=medium · time_box=≤2 Pomos · interactive · Walking Skeleton.
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
 | 62 | [slice-62-git-repo-discover-fanout](slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) | Git Repo Discover + Fan-Out (skills + MCPs, org/repo cards) | Must | 🔀 | none | — | ~5 min |
+| 63 | [slice-63-cli-scanner-inventory](slices/16-P-git-repo-scan/slice-63-cli-scanner-inventory.md) | CLI Scanner Inventory (succeeded / failed / not_run) | Should | 🔀 | none | — | ~3 min |
+| 64 | [slice-64-git-repo-package-scan](slices/16-P-git-repo-scan/slice-64-git-repo-package-scan.md) | Git Repo Package + DepShield/Ossprey Scan | Must | 🔨 | 62 (fan-out); 63 (inventory honesty) | — | ~5 min |
 
 ## Supporting Artifacts
 | File | Status |

@@ -43,6 +43,14 @@ Reachable through production entry points / config:
   `console_output`, `started_at`/`completed_at`; PGRST204-safe fallback when
   columns missing) — `sandbox/`
 - CLI discovery / hashing / idempotency / batching — `cli/` (`tripwire scan`)
+- CLI scanner inventory after scan (per-source status + rollup
+  `fully successful` / `partly successful` / `fully failed` / `not run`;
+  zero-artifact paths list registry as `not_run`) — `cli/src/scannerInventory.js`
+  (slice 63 🔀; IMPLEMENTED on branch, not yet ✅ on `main`)
+- Git repo `package` discovery target (`items.type=package` when manifests at
+  scope root; DepShield / Ossprey / Snyk only) — `cli/src/discovery.js`,
+  `sandbox/scanners.py` `_group_applies` (slice 64 🔨; IMPLEMENTED on branch,
+  not yet ✅ on `main`; not VERIFIED live)
 - `tripwire setup` / first-scan schema bootstrap (probes `completed_at` column) —
   `cli/src/ensureSchema.js`
 - `./scripts/setup-modal.sh` secret sync + deploy
@@ -51,14 +59,15 @@ Reachable through production entry points / config:
   `sandbox/scanners.py`
 - DepShield dependency-audit adapter (`depshield-mcp` over MCP stdio;
   npm + PyPI via OSV.dev; zero credentials — nothing synced to
-  `tripwire-scan-secrets`; runs for both item types, before Ossprey in the
+  `tripwire-scan-secrets`; runs for skill, mcp_server, and package
+  (`applies_to: both`), before Ossprey in the
   `SCANNER_GROUPS` registry) — `sandbox/scanners.py`, unit-tested in
   `sandbox/tests/`. IMPLEMENTED only: no live-Modal run recorded yet, so no
   VERIFIED (operator) claim — see
   [scanner-output-adapters.md](./research/adapters/scanner-output-adapters.md) §7
 - Ossprey malware / malicious-package adapter (`ossprey-cli`, [ossprey.com](https://ossprey.com);
   credential-gated `OSSPREY_API_KEY`; registered **after** DepShield in
-  `SCANNER_GROUPS`; both item types). Absent key → `skipped_missing_credential`.
+  `SCANNER_GROUPS`; skill, mcp_server, and package). Absent key → `skipped_missing_credential`.
   IMPLEMENTED (adapter reachable) + RESEARCH (vendor-docs parsing, not live-probed);
   access provisioning still OPEN (slice 35 🔴) — no VERIFIED live claim.
   Public README listing allowed per DECISIONS `ossprey-readme` (2026-08-25).
@@ -322,19 +331,25 @@ as a Monk Kit (Tier 1 MVL = Supabase + Modal; Tier 2/3 scanners per ADR-0001).
 [ADR-0001](./adr/0001-monk-deployment-and-packaging.md),
 [phase-O0](./plan/slices/15-O-monk-kit-live-packaging/phase-O0-governance.md),
 [TRAIL Wave 15-O](./plan/TRAIL.md).
-**Wave P — Git repo discover + fan-out (2026-09-09):** Group **16-P** (letter after N;
+**Wave P — Git repo discover + fan-out (2026-09-09; package path 2026-09-20):** Group **16-P** (letter after N;
 **O** reserved for Monk Kit plan on `docs/monk-kit-wave-o`). GitHub repo URL (root or
 `/tree|/blob/…` browse URL) → normalize to cloneable repo root → discover **skills and
 MCPs** → **N separate scans** with scanners by `item_type`; dashboard cards carry
 skill/MCP **name** (SKILL.md frontmatter when set; repo-relative path when leaf equals
 repo) plus `org/repo` signature (`identifier` = `org/repo/<relpath>`); re-scan refreshes
-`items.name` even on content-hash hits; repos with no skill or MCP artifacts **fail
-closed** (no synthetic clean scan). Slice 62 is
+`items.name` even on content-hash hits. **Slice 64 (🔨):** when package manifests exist at
+scope root, also emit a **`package`** target (`items.type=package`, Accepted) so DepShield /
+Ossprey / Snyk run — not a fake skill; Cisco Skill / Tessl / Cisco MCP do **not** apply;
+repos with neither skill/MCP **nor** manifests still fail closed. **Slice 63 (🔀):** CLI
+prints scanner inventory + rollup after scan / zero-artifact (package expected sources =
+Snyk/DepShield/Ossprey). Slice 62 is
 **🔀 ON BRANCH** (`slice/62-git-repo-discover-fanout`) — IMPLEMENTED pending merge.
 Operator taxonomy soft-amended in slice **56-a**
 ([prerequisites — What can Tripwire scan?](./user-guide/prerequisites.md#what-can-tripwire-scan)).
 Spec:
 [slice 62](./plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md),
+[slice 63](./plan/slices/16-P-git-repo-scan/slice-63-cli-scanner-inventory.md),
+[slice 64](./plan/slices/16-P-git-repo-scan/slice-64-git-repo-package-scan.md),
 [plan/TRAIL.md](./plan/TRAIL.md) Wave 16-P. **On `main` until merge:** HTTPS git URL =
 single `cloneable` target (typed `mcp_server`); browse `/tree/…` URLs fail at `git clone`.
 
@@ -407,6 +422,6 @@ for a future live/demo release. Wave M (slice 53) LLM usage log / cost tips is
 **DECIDED** plan-only — see DECIDED above; not current dashboard behaviour.
 Wave O (Monk Kit, ADR-0001 Proposed / plan **O0**+58–61) is **DECIDED**
 plan-only — not current deploy behaviour; workstation Live remains supported.
-Wave P (slice 62) git repo skill+MCP fan-out, browse-URL normalize, empty-repo
-fail-closed, and `org/repo` cards is **IN PROGRESS** — see DECIDED above; not
-current `tripwire scan` behaviour on `main`.
+Wave P (slices 62–64) git repo skill+MCP fan-out, CLI scanner inventory, and
+package/DepShield/Ossprey targets is **IN PROGRESS / PLANNED** — see DECIDED above; not
+all of that is current `tripwire scan` behaviour on `main`.
