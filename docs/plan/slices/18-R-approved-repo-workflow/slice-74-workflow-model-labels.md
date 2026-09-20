@@ -1,10 +1,10 @@
 # Slice 74: Workflow Model Labels (Defaults + Actuals)
 
-> Scenario: Brownfield | MoSCoW: **Should** | Status: ✅ VERIFIED ON MAIN
+> Scenario: Brownfield | MoSCoW: **Should** | Status: ✅ PASSED
 > Wave: R — Approved-repo security workflow
 > Depends on: **68** (stepper + panels); benefits from **67** (judge models) / **69** (fix propose)
 > Trigger: Operator needs to see which models assess vulns / propose fixes — defaults on tabs, actuals in panels, **role + per-target** clarity
-> Branch: `slice/74-workflow-model-labels`
+> Branch: `docs/slice-74-formal-close` (impl landed via #157/#158/#159; formal close 2026-09-20)
 > UI surface: **1A** — extend Tripwire Live/Mock workflow chrome
 > Soft-amended 2026-09-20 (USER): role labels (panel light/mid · final stronger · fix stronger); Fix default `gen-27b` when LLM propose is product path; per-target (skill/mcp/package) model rows
 
@@ -92,17 +92,16 @@
 ## After-Checks [GATE]
 - [x] Tests pass
 - [x] Specification coverage for GWT-74.*
-- [ ] Complexity evidence recorded (reporting)
+- [x] Complexity evidence recorded (reporting) — `gate-evidence/run-coverage-slice-74.json` (93.46% lines on `tripwire-workflow-models.js`)
 - [x] Doc Audit: STATUS + CHANGELOG model labels
 - [x] Soft-amend GWT-74.1/74.3/74.5 tests (role + Fix default + per-target) — green on `main`
 
 ### Closing Gates
-- [x] Soft-amend + specification coverage — GWT-74.* on `main`
-- [ ] `nw-at-completeness-check` — formal Gate 4 (sibling close agents / follow-up)
-- [ ] `nw-software-crafter-reviewer` — formal Gate 4
-- [ ] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer` — formal Gate 4
-- [x] Unit evidence — `node --test test/tripwire-workflow-models.test.js` green on `main` (2026-09-20)
-- [x] `/verify-slice` unit path — COMPLETE for GWT-74.* on `main`
+- [x] `nw-at-completeness-check`
+- [x] `nw-software-crafter-reviewer`
+- [x] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer`
+- [x] `nw-gate-evidence-validator`
+- [x] `/verify-slice` — COMPLETE
 
 ## Gate Status
-✅ VERIFIED (unit) ON MAIN — 2026-09-20 · soft-amend IMPLEMENTED · GWT-74.* green; formal Gate 4 reviewer ticks may still land via close agents — sync-docs does not invent APPROVED
+✅ PASSED — formal close 2026-09-20 (`docs/slice-74-formal-close`); soft-amend roles / Fix / per-target IMPLEMENTED; GWT-74.* green; Gate 4 APPROVED (crafter · acceptance · solution-architect); ddd=NOT_APPLICABLE

@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: GWT-74.1 given workflow chrome when stepper renders then modelHints are role-aware
+ok 1 - GWT-74.1 given workflow chrome when stepper renders then modelHints are role-aware
+  ---
+  duration_ms: 2.628625
+  type: 'test'
+  ...
+# Subtest: GWT-74.2 given judge slots with modelIds when Run builds then modelsUsedLine lists role-labelled actuals
+ok 2 - GWT-74.2 given judge slots with modelIds when Run builds then modelsUsedLine lists role-labelled actuals
+  ---
+  duration_ms: 0.881292
+  type: 'test'
+  ...
+# Subtest: GWT-74.2 given empty judge models when Run builds then falls back to role-aware default hint
+ok 3 - GWT-74.2 given empty judge models when Run builds then falls back to role-aware default hint
+  ---
+  duration_ms: 0.133
+  type: 'test'
+  ...
+# Subtest: GWT-74.3 given finding with router models when Investigate builds then SIE/MS line shown
+ok 4 - GWT-74.3 given finding with router models when Investigate builds then SIE/MS line shown
+  ---
+  duration_ms: 0.195625
+  type: 'test'
+  ...
+# Subtest: GWT-74.3 given LLM fix model when Fix builds then modelsUsedLine names that model
+ok 5 - GWT-74.3 given LLM fix model when Fix builds then modelsUsedLine names that model
+  ---
+  duration_ms: 0.137458
+  type: 'test'
+  ...
+# Subtest: GWT-74.3 given heuristic fix when Fix builds then no model line
+ok 6 - GWT-74.3 given heuristic fix when Fix builds then no model line
+  ---
+  duration_ms: 0.456042
+  type: 'test'
+  ...
+# Subtest: GWT-74.4 given verify step with no models when line builds then empty string
+ok 7 - GWT-74.4 given verify step with no models when line builds then empty string
+  ---
+  duration_ms: 0.531833
+  type: 'test'
+  ...
+# Subtest: GWT-74.5 / GWT-75.11 given finding with parent when models line builds then type·name prefix
+ok 8 - GWT-74.5 / GWT-75.11 given finding with parent when models line builds then type·name prefix
+  ---
+  duration_ms: 1.632166
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 269.820333

@@ -41,14 +41,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with status tabs; finding rows show the target name. SCA rows use
   `package@version · CVE` titles instead of repeating `dependency_vulnerability`
   (Live also passes through `package_name` / `package_version` / `cve_ids`).
-- Dashboard workflow model labels (slice 74, Wave R) — IMPLEMENTED / VERIFIED
-  (unit) on `main`. Stepper tabs show role-aware default model aliases (Run
+- Dashboard workflow model labels (slice 74, Wave R) — ✅ PASSED (formal close
+  2026-09-20). Stepper tabs show role-aware default model aliases (Run
   panel light/mid + final stronger `gen-4b · gen-27b`, Triage SIE `gen-4b`,
   Investigate SIE/MS `gen-4b · qwen3.8-max`; Fix blank while propose is
   heuristic). Run / Triage / Investigate / Fix panels show actual models from
-  judge slots, router envelope, or fix provenance when an LLM ran
-  (`tripwire-workflow-models.js`); per-target type·name prefixes when a finding
-  is in context.
+  judge slots, router envelope, or fix provenance when an LLM ran, with
+  type·name parent prefix when a finding is in context
+  (`tripwire-workflow-models.js`; GWT-74.1–74.5).
 - Dashboard Verify step: worktree rescan honesty (slice 70, Wave R) —
   IMPLEMENTED / VERIFIED on `main` (#155). Re-applies the proposed patch on a
   temp copy only, re-runs applicable scanners via port, and reports
