@@ -364,6 +364,80 @@ export function pickFirstToFixFinding(findings) {
 }
 
 /**
+ * Parent target label: "type · name" (never colour-only).
+ *
+ * @param {Record<string, unknown>|null|undefined} finding
+ * @returns {string}
+ */
+export function formatParentTargetMeta(finding) {
+  if (!finding || typeof finding !== 'object') return '';
+  const type = String(
+    finding.itemType ?? finding.parentType ?? finding.type ?? '',
+  ).trim();
+  const name = String(
+    finding.itemName ??
+      finding.parentName ??
+      finding.name ??
+      finding.itemId ??
+      '',
+  ).trim();
+  if (type && name) return `${type} · ${name}`;
+  if (type) return type;
+  if (name) return name;
+  return '';
+}
+
+/**
+ * @param {unknown} ids
+ * @returns {string[]}
+ */
+export function normalizeSelectionIds(ids) {
+  if (!Array.isArray(ids)) return [];
+  const seen = new Set();
+  const out = [];
+  for (const raw of ids) {
+    if (raw == null || raw === '') continue;
+    const id = String(raw);
+    if (seen.has(id)) continue;
+    seen.add(id);
+    out.push(id);
+  }
+  return out;
+}
+
+/**
+ * @param {unknown} ids
+ * @param {unknown} findingId
+ * @returns {string[]}
+ */
+export function toggleFindingSelection(ids, findingId) {
+  const current = normalizeSelectionIds(ids);
+  if (findingId == null || findingId === '') return current;
+  const id = String(findingId);
+  const idx = current.indexOf(id);
+  if (idx >= 0) {
+    return current.filter((_, i) => i !== idx);
+  }
+  return [...current, id];
+}
+
+/**
+ * @param {{ selectedIds?: unknown, activeId?: unknown }} [input]
+ * @returns {string} empty when N ≤ 1
+ */
+export function selectionProgressLabel({ selectedIds, activeId } = {}) {
+  const ids = normalizeSelectionIds(selectedIds);
+  const n = ids.length;
+  if (n <= 1) return '';
+  let k = 1;
+  if (activeId != null && activeId !== '') {
+    const idx = ids.indexOf(String(activeId));
+    if (idx >= 0) k = idx + 1;
+  }
+  return `${k} of ${n} selected`;
+}
+
+/**
  * Final-judge + disagreement narration for GWT-75.2.
  *
  * @param {{

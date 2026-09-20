@@ -3,8 +3,9 @@
  *
  * Author: swami
  * Created: 2026-09-20
- * Scope: GWT-74.1 stepper defaults; GWT-74.2 Run actuals; GWT-74.3 Investigate/Fix;
- *   GWT-74.4 no invented models
+ * Scope: GWT-74.1 stepper defaults (role-aware soft-amend); GWT-74.2 Run actuals;
+ *   GWT-74.3 Investigate/Fix; GWT-74.4 no invented models; GWT-74.5 / GWT-75.11
+ *   parent-prefixed models line
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -16,23 +17,29 @@ import {
   formatModelHint,
 } from '../tripwire-workflow-models.js';
 
-test('GWT-74.1 given workflow chrome when stepper renders then modelHints match defaults SSOT', () => {
+test('GWT-74.1 given workflow chrome when stepper renders then modelHints are role-aware', () => {
   /**
-   * Scenario: Stepper tabs show configured default model aliases.
-   * Slice: GWT-74.1
+   * Scenario: Stepper tabs show role-aware default model hints.
+   * Slice: GWT-74.1 soft-amend
    *
    * Given the approved-repo workflow chrome,
    * When the stepper builds for currentStep=run,
-   * Then Run/Triage/Investigate/Fix carry default hints and Verify/Report are empty.
+   * Then Run/Triage/Investigate carry role labels; Fix/Verify/Report stay empty.
    */
   // -- Given / When --
   const { steps } = buildStepperView({ currentStep: 'run' });
   const byId = Object.fromEntries(steps.map((s) => [s.id, s]));
 
   // -- Then --
-  assert.equal(byId.run.modelHint, 'gen-4b · gen-27b');
-  assert.equal(byId.triage.modelHint, 'gen-4b');
-  assert.equal(byId.investigate.modelHint, 'gen-4b · qwen3.8-max');
+  assert.equal(
+    byId.run.modelHint,
+    'panel (light/mid): gen-4b · final (stronger): gen-27b',
+  );
+  assert.equal(byId.triage.modelHint, 'SIE triage: gen-4b');
+  assert.match(byId.investigate.modelHint, /SIE/);
+  assert.match(byId.investigate.modelHint, /Model Studio|MS/);
+  assert.match(byId.investigate.modelHint, /gen-4b/);
+  assert.match(byId.investigate.modelHint, /qwen3\.8-max/);
   assert.equal(byId.fix.modelHint, '', 'Fix tab stays blank until LLM propose is the default');
   assert.equal(byId.verify.modelHint, '');
   assert.equal(byId.report.modelHint, '');
@@ -40,35 +47,36 @@ test('GWT-74.1 given workflow chrome when stepper renders then modelHints match 
   assert.deepEqual(STAGE_DEFAULT_MODELS.fix, []);
 });
 
-test('GWT-74.2 given judge slots with modelIds when Run builds then modelsUsedLine lists actuals', () => {
+test('GWT-74.2 given judge slots with modelIds when Run builds then modelsUsedLine lists role-labelled actuals', () => {
   /**
-   * Scenario: Run panel prefers actual judge model IDs over defaults.
-   * Slice: GWT-74.2
+   * Scenario: Run panel prefers actual judge model IDs with panel vs final roles.
+   * Slice: GWT-74.2 soft-amend
    *
-   * Given judge slots that record modelId,
+   * Given judge slots and a final model,
    * When buildModelsUsedLine runs for step run,
-   * Then the line lists distinct actual IDs.
+   * Then the line distinguishes panel vs final in text.
    */
   // -- Given --
   const judges = {
     slots: [
       { slot: 'j1', modelId: 'gen-4b', status: 'done' },
-      { slot: 'j2', model: 'gen-27b', status: 'done' },
+      { slot: 'j2', model: 'gen-4b', status: 'done' },
       { slot: 'j3', modelId: 'gen-4b', status: 'done' },
     ],
+    finalModel: 'gen-27b',
   };
 
   // -- When --
   const actual = buildModelsUsedLine({ stepId: 'run', judges });
 
   // -- Then --
-  assert.equal(actual, 'Models used: gen-4b · gen-27b');
+  assert.equal(actual, 'Models used: panel: gen-4b · final: gen-27b');
 });
 
-test('GWT-74.2 given empty judge models when Run builds then falls back to default hint', () => {
+test('GWT-74.2 given empty judge models when Run builds then falls back to role-aware default hint', () => {
   /**
-   * Scenario: Run panel falls back to defaults when slots lack model fields.
-   * Slice: GWT-74.2
+   * Scenario: Run panel falls back to role-aware defaults when slots lack model fields.
+   * Slice: GWT-74.2 soft-amend
    */
   // -- Given / When --
   const actual = buildModelsUsedLine({
@@ -77,7 +85,10 @@ test('GWT-74.2 given empty judge models when Run builds then falls back to defau
   });
 
   // -- Then --
-  assert.equal(actual, 'Models (default): gen-4b · gen-27b');
+  assert.equal(
+    actual,
+    'Models (default): panel (light/mid): gen-4b · final (stronger): gen-27b',
+  );
 });
 
 test('GWT-74.3 given finding with router models when Investigate builds then SIE/MS line shown', () => {
@@ -146,4 +157,29 @@ test('GWT-74.4 given verify step with no models when line builds then empty stri
   assert.equal(report, '');
   assert.equal(defaultModelHintForStep('verify'), '');
   assert.equal(formatModelHint([]), '');
+});
+
+test('GWT-74.5 / GWT-75.11 given finding with parent when models line builds then type·name prefix', () => {
+  /**
+   * Scenario: Models line is attributable to parent target when a finding is in context.
+   * Slice: GWT-74.5 / GWT-75.11
+   *
+   * Given an Investigate finding with skill parent and router models,
+   * When buildModelsUsedLine runs,
+   * Then the line is prefixed with skill · name.
+   */
+  // -- Given --
+  const finding = {
+    itemType: 'skill',
+    itemName: 'safe-csv-cleaner',
+    models: { sie: 'gen-4b', model_studio: 'qwen3.8-max' },
+  };
+
+  // -- When --
+  const actual = buildModelsUsedLine({ stepId: 'investigate', finding });
+
+  // -- Then --
+  assert.match(actual, /^skill · safe-csv-cleaner — /);
+  assert.match(actual, /Models used:/);
+  assert.match(actual, /SIE=gen-4b · MS=qwen3\.8-max/);
 });

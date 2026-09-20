@@ -464,6 +464,33 @@
     outline: 2px solid var(--cta);
     outline-offset: 2px;
   }
+  .tw-workflow-finding-selected {
+    border-color: var(--cta, var(--border-default));
+    background: var(--bg-elevated, var(--bg-surface));
+  }
+  .tw-finding-select {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 8px 4px;
+  }
+  .tw-finding-select input {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+  }
+  .tw-parent-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-right: 8px;
+  }
+  .tw-selection-progress {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
   .tw-triage-tabs {
     display: flex;
     flex-wrap: wrap;
@@ -577,10 +604,16 @@
           </sc-for>
         </div>
         <sc-for list="{{ workflowTriage.filteredFindings }}" as="f" hint-placeholder-count="2">
-          <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:stretch;margin-bottom:6px">
-            <button type="button" class="tw-workflow-finding" onClick="{{ f.onInvestigate }}" style="flex:1;min-width:200px;border-left-color:{{ f.sevColor }}">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:stretch;margin-bottom:6px" class="{{ f.rowClass }}">
+            <label class="tw-finding-select">
+              <input type="checkbox" checked="{{ f.selectionChecked }}" onChange="{{ f.onToggleSelect }}" aria-label="{{ f.selectAriaLabel }}" />
+            </label>
+            <button type="button" class="tw-workflow-finding {{ f.findingClass }}" onClick="{{ f.onInvestigate }}" style="flex:1;min-width:200px;border-left-color:{{ f.sevColor }}">
               <span>
                 <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ f.sevColor }};text-transform:uppercase">{{ f.severity }}</span>
+                <sc-if value="{{ f.parentMeta }}">
+                  <span class="tw-parent-meta">{{ f.parentMeta }}</span>
+                </sc-if>
                 <span style="margin-left:8px">{{ f.title }}</span>
                 <span style="display:block;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:2px">{{ f.metaLine }}</span>
               </span>
@@ -602,6 +635,12 @@
           <div style="font-size:12px;color:var(--text-secondary)">Select a finding from Triage to investigate.</div>
         </sc-if>
         <sc-if value="{{ workflowInvestigateReady }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ workflowInvestigate.parentMetaLine }}">
+            <div class="tw-parent-meta" style="display:block;margin-bottom:4px">{{ workflowInvestigate.parentMetaLine }}</div>
+          </sc-if>
+          <sc-if value="{{ workflowInvestigate.selectionProgressLabel }}">
+            <div class="tw-selection-progress">{{ workflowInvestigate.selectionProgressLabel }}</div>
+          </sc-if>
           <sc-if value="{{ workflowInvestigate.modelsUsedLine }}">
             <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:8px">{{ workflowInvestigate.modelsUsedLine }}</div>
           </sc-if>
@@ -638,6 +677,12 @@
       <div class="tw-workflow-panel" aria-label="Fix">
         <div class="tw-fix-kicker">{{ workflowFix.progressLabel }}</div>
         <h2 class="tw-fix-title">Propose a fix</h2>
+        <sc-if value="{{ workflowFix.parentMetaLine }}">
+          <div class="tw-parent-meta" style="display:block;margin-bottom:4px">{{ workflowFix.parentMetaLine }}</div>
+        </sc-if>
+        <sc-if value="{{ workflowFix.selectionProgressLabel }}">
+          <div class="tw-selection-progress">{{ workflowFix.selectionProgressLabel }}</div>
+        </sc-if>
         <sc-if value="{{ workflowFix.modelsUsedLine }}">
           <div class="tw-fix-hint">{{ workflowFix.modelsUsedLine }}</div>
         </sc-if>
@@ -1515,6 +1560,7 @@ class Component extends DCLogic {
     currentStep: 'run',
     expertMode: false,
     workflowSelectedFindingId: null,
+    workflowSelectedFindingIds: [],
     triageFilter: 'all',
     triageQualityTab: 'all',
     triageTargetFilter: 'all',
@@ -1716,11 +1762,45 @@ class Component extends DCLogic {
   setTriageTargetFilter = (v) => this.setState({ triageTargetFilter: v });
   setTriageTypeFilter = (v) => this.setState({ typeFilter: v, triageTargetFilter: 'all' });
 
-  selectWorkflowFinding = (findingId) => this.setState({
-    workflowSelectedFindingId: findingId,
-    currentStep: 'investigate',
-    investigateHowExpanded: false
-  });
+  selectWorkflowFinding = (findingId) => {
+    const pipeline = this._workflow?.pipeline;
+    const prev = this.state.workflowSelectedFindingIds || [];
+    const nextIds = pipeline
+      ? pipeline.normalizeSelectionIds(
+        prev.includes(findingId) ? prev : [...prev, findingId],
+      )
+      : [findingId];
+    this.setState({
+      workflowSelectedFindingId: findingId,
+      workflowSelectedFindingIds: nextIds,
+      currentStep: 'investigate',
+      investigateHowExpanded: false
+    });
+  };
+
+  toggleWorkflowFindingSelection = (findingId) => {
+    const pipeline = this._workflow?.pipeline;
+    if (!pipeline) return;
+    const next = pipeline.toggleFindingSelection(
+      this.state.workflowSelectedFindingIds,
+      findingId,
+    );
+    const active = this.state.workflowSelectedFindingId;
+    const nextActive = next.includes(active)
+      ? active
+      : (next[0] || null);
+    this.setState({
+      workflowSelectedFindingIds: next,
+      workflowSelectedFindingId: nextActive
+    });
+  };
+
+  clearWorkflowFindingSelection = () => {
+    this.setState({
+      workflowSelectedFindingIds: [],
+      workflowSelectedFindingId: null
+    });
+  };
 
   setWorkflowTriageStatus = (findingId, status) => {
     const prefs = this._workflow?.prefs;
@@ -1816,6 +1896,8 @@ class Component extends DCLogic {
       operatorMarkedLabel: '',
       showOperatorMarked: false,
       modelsUsedLine: '',
+      parentMetaLine: '',
+      selectionProgressLabel: '',
       wontFixReason: '',
       reasonRequired: false,
       copyPatch: this.copyFixPatch,
@@ -1874,6 +1956,9 @@ class Component extends DCLogic {
         fallbackToDefaults: true
       })
       : '';
+    const parentMetaLine = wf.pipeline
+      ? wf.pipeline.formatParentTargetMeta(selectedFinding)
+      : '';
     return {
       ...empty,
       problemText: view.problemText,
@@ -1884,7 +1969,8 @@ class Component extends DCLogic {
       applyCleanLine: applyResult.applyClean ? 'Applies cleanly: yes' : 'Applies cleanly: no',
       operatorMarkedLabel: marked ? 'Operator marked fixed — not verified' : '',
       showOperatorMarked: marked,
-      modelsUsedLine
+      modelsUsedLine,
+      parentMetaLine
     };
   }
 
@@ -2195,6 +2281,8 @@ class Component extends DCLogic {
       hiddenInSimple: [],
       agreementLine: null,
       modelsUsedLine: '',
+      parentMetaLine: '',
+      selectionProgressLabel: '',
       finalLine: '',
       disagreementLine: ''
     };
@@ -2210,10 +2298,10 @@ class Component extends DCLogic {
     if (!wf) {
       return {
         workflowStepperSteps: [
-          { id: 'run', label: 'Run', stateLabel: 'current', modelHint: 'gen-4b · gen-27b', hasModelHint: true, ariaCurrent: 'step', title: 'Run (current) · gen-4b · gen-27b', onClick: () => this.setWorkflowStep('run') },
-          { id: 'triage', label: 'Triage', stateLabel: 'upcoming', modelHint: 'gen-4b', hasModelHint: true, ariaCurrent: 'false', title: 'Triage (upcoming) · gen-4b', onClick: () => this.setWorkflowStep('triage') },
-          { id: 'investigate', label: 'Investigate', stateLabel: 'upcoming', modelHint: 'gen-4b · qwen3.8-max', hasModelHint: true, ariaCurrent: 'false', title: 'Investigate (upcoming) · gen-4b · qwen3.8-max', onClick: () => this.setWorkflowStep('investigate') },
-          { id: 'fix', label: 'Fix', stateLabel: 'upcoming', modelHint: 'gen-27b', hasModelHint: true, ariaCurrent: 'false', title: 'Fix (upcoming) · gen-27b', onClick: () => this.setWorkflowStep('fix') },
+          { id: 'run', label: 'Run', stateLabel: 'current', modelHint: 'panel (light/mid): gen-4b · final (stronger): gen-27b', hasModelHint: true, ariaCurrent: 'step', title: 'Run (current) · panel (light/mid): gen-4b · final (stronger): gen-27b', onClick: () => this.setWorkflowStep('run') },
+          { id: 'triage', label: 'Triage', stateLabel: 'upcoming', modelHint: 'SIE triage: gen-4b', hasModelHint: true, ariaCurrent: 'false', title: 'Triage (upcoming) · SIE triage: gen-4b', onClick: () => this.setWorkflowStep('triage') },
+          { id: 'investigate', label: 'Investigate', stateLabel: 'upcoming', modelHint: 'SIE · Model Studio: gen-4b · qwen3.8-max', hasModelHint: true, ariaCurrent: 'false', title: 'Investigate (upcoming) · SIE · Model Studio: gen-4b · qwen3.8-max', onClick: () => this.setWorkflowStep('investigate') },
+          { id: 'fix', label: 'Fix', stateLabel: 'upcoming', modelHint: '', hasModelHint: false, ariaCurrent: 'false', title: 'Fix (upcoming)', onClick: () => this.setWorkflowStep('fix') },
           { id: 'verify', label: 'Verify', stateLabel: 'upcoming', modelHint: '', hasModelHint: false, ariaCurrent: 'false', title: 'Verify (upcoming)', onClick: () => this.setWorkflowStep('verify') },
           { id: 'report', label: 'Report', stateLabel: 'upcoming', modelHint: '', hasModelHint: false, ariaCurrent: 'false', title: 'Report (upcoming)', onClick: () => this.setWorkflowStep('report') }
         ],
@@ -2273,11 +2361,38 @@ class Component extends DCLogic {
       };
     });
 
-    const selectedFromState = findings.find(f => f.id === s.workflowSelectedFindingId) || null;
-    let selectedFinding = selectedFromState;
-    if (step === 'investigate' && !selectedFinding && wf.pipeline?.pickFirstToFixFinding) {
+    const selectedIds = wf.pipeline
+      ? wf.pipeline.normalizeSelectionIds(s.workflowSelectedFindingIds)
+      : (Array.isArray(s.workflowSelectedFindingIds) ? s.workflowSelectedFindingIds : []);
+    const selectedIdSet = new Set(selectedIds);
+
+    let selectedFinding = null;
+    if (selectedIds.length > 0) {
+      const activeId = selectedIds.includes(s.workflowSelectedFindingId)
+        ? s.workflowSelectedFindingId
+        : selectedIds[0];
+      selectedFinding = findings.find((f) => f.id === activeId) || null;
+    } else {
+      selectedFinding = findings.find((f) => f.id === s.workflowSelectedFindingId) || null;
+    }
+    if (
+      (step === 'investigate' || step === 'fix') &&
+      !selectedFinding &&
+      selectedIds.length === 0 &&
+      wf.pipeline?.pickFirstToFixFinding
+    ) {
       selectedFinding = wf.pipeline.pickFirstToFixFinding(findings) || null;
     }
+
+    const selectionProgress = wf.pipeline
+      ? wf.pipeline.selectionProgressLabel({
+        selectedIds,
+        activeId: selectedFinding?.id ?? s.workflowSelectedFindingId
+      })
+      : '';
+    const parentMetaLine = wf.pipeline && selectedFinding
+      ? wf.pipeline.formatParentTargetMeta(selectedFinding)
+      : '';
 
     const hasFindings = findings.length > 0;
     const scannersComplete = scanners.length > 0 && scanners.every((r) => {
@@ -2350,14 +2465,24 @@ class Component extends DCLogic {
       filteredFindings: triageVm.filteredFindings.map(f => {
         const sevColor = f.severity === 'High' ? '#B42318' : (f.severity === 'Medium' ? '#8B5A00' : '#0F766E');
         const statusBtn = (status) => this.btnStyle(f.triageStatus === status, { size: '10px', pad: '3px 6px' });
+        const parentMeta = wf.pipeline
+          ? wf.pipeline.formatParentTargetMeta(f)
+          : ([f.itemType, f.itemName || f.itemId].filter(Boolean).join(' · '));
+        const isSelected = selectedIdSet.has(f.id);
         return {
           ...f,
           sevColor,
+          parentMeta,
+          selectionChecked: isSelected,
+          selectAriaLabel: `Select finding ${f.title || f.id}`,
+          findingClass: isSelected ? 'tw-workflow-finding-selected' : '',
+          rowClass: isSelected ? 'tw-row-selected' : '',
+          onToggleSelect: () => this.toggleWorkflowFindingSelection(f.id),
           targetLabel: f.itemName || f.itemId || '',
           pathLabel: f.source || f.file_path || '',
           duplicateLabel: (f.duplicateCount || 1) > 1 ? `×${f.duplicateCount}` : '',
           metaLine: [
-            f.itemName || f.itemId || '',
+            parentMeta || f.itemName || f.itemId || '',
             f.source || f.file_path || '',
             f.triageStatus || '',
             (f.duplicateCount || 1) > 1 ? `×${f.duplicateCount}` : ''
@@ -2408,6 +2533,8 @@ class Component extends DCLogic {
         agreementLine: selectedFinding.agreement || null,
         finalLine: invNarration.finalLine || '',
         disagreementLine: invNarration.disagreementLine || '',
+        parentMetaLine,
+        selectionProgressLabel: selectionProgress,
         modelsUsedLine: wf.models
           ? wf.models.buildModelsUsedLine({ stepId: 'investigate', finding: selectedFinding })
           : ''
@@ -2415,6 +2542,10 @@ class Component extends DCLogic {
     }
 
     const fixSlice = this.buildFixWorkflowSlice(findings, selectedFinding, s);
+    if (fixSlice.workflowFix) {
+      fixSlice.workflowFix.parentMetaLine = parentMetaLine || fixSlice.workflowFix.parentMetaLine || '';
+      fixSlice.workflowFix.selectionProgressLabel = selectionProgress;
+    }
     const verifySlice = this.buildVerifyWorkflowSlice(findings, selectedFinding, s);
     const reportVm = wf.report.buildReportView({ findings });
     const workflowReport = {
