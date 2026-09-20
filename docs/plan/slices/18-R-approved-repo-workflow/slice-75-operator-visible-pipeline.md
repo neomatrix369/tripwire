@@ -167,11 +167,11 @@ As an operator, I want the Workflow tab to walk me left→right through Run→Re
 - [x] Doc Audit: STATUS — R-UX-1 L→R IMPLEMENTED/VERIFIED (unit); DECISIONS soft-amend APPLIED
 
 ### Closing Gates
-- [ ] `nw-at-completeness-check` — AT completeness audit (slice close gate #8)
-- [ ] `nw-software-crafter-reviewer` — code quality + TDD discipline review (slice close gate #9)
-- [ ] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer` — data flow review (Live → UI binding)
-- [ ] `nw-gate-evidence-validator` — all 9 gate-evidence conditions pass
-- [ ] `/verify-slice` — holistic evidence verdict COMPLETE (final closing gate)
+- [x] `nw-at-completeness-check` — AT completeness audit (slice close gate #8) — via nw-acceptance-designer-reviewer APPROVED
+- [x] `nw-software-crafter-reviewer` — code quality + TDD discipline review (slice close gate #9) — APPROVED
+- [x] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer` — data flow review (Live → UI binding) — solution-architect APPROVED; system-designer absorbed (same Live→UI scope); ddd NOT_APPLICABLE
+- [x] `nw-gate-evidence-validator` — run-tests / run-lint / run-coverage + slice-75-summary passed
+- [x] `/verify-slice` — holistic evidence verdict COMPLETE (final closing gate)
 
 ## Gate Status
-🔀 ON BRANCH — 2026-09-20 · GWT-75.1–75.11 unit green (incl. L→R parent meta / multi-select / role models) · docs synced · Gate 4 + `/verify-slice` in progress
+🔀 ON BRANCH — 2026-09-20 · `/verify-slice` COMPLETE · Gate 4 APPROVED · ✅ PASSED awaits merge to `main`
