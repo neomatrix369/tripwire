@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint *.js test/",
     "test": "node --test test/*.test.js",
-    "test:coverage": "c8 --include 'tripwire-live.js' --include 'tripwire-status.js' --include 'tripwire-realtime.js' --include 'tripwire-data.js' --exclude 'support.js' --reporter text --reporter text-summary --check-coverage --lines 95 --functions 85 --branches 80 --statements 95 node --test test/*.test.js"
+    "test:coverage": "c8 --include 'tripwire-live.js' --include 'tripwire-status.js' --include 'tripwire-realtime.js' --include 'tripwire-data.js' --include 'tripwire-workflow-stepper.js' --include 'tripwire-run-progress.js' --include 'tripwire-triage.js' --include 'tripwire-investigate.js' --include 'tripwire-workflow-prefs.js' --exclude 'support.js' --reporter text --reporter text-summary --check-coverage --lines 95 --functions 85 --branches 80 --statements 95 node --test test/*.test.js"
   },
   "engines": {
     "node": ">=18"

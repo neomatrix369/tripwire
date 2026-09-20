@@ -1,0 +1,33 @@
+{
+  "slice": 68,
+  "mode": "parallel-streams",
+  "streams": [
+    "A-stepper",
+    "B-run",
+    "C-triage",
+    "D-investigate",
+    "E-prefs",
+    "F-tests",
+    "G-html"
+  ],
+  "tdd_note": "Contract-first + RED tests in Stream F alongside GREEN modules A-E; coverage stream closed branch gap",
+  "verify": {
+    "tests": 161,
+    "coverage_branches": 91.08
+  },
+  "gate4_fixes": {
+    "source_sink_parametrize": true,
+    "how_we_decided_null_parametrize": true,
+    "gwt_68_3_filter_vs_sort_split": true,
+    "expert_raw_ids_positive": true,
+    "storage_isolation": true,
+    "edge_tests": 5,
+    "prefs_storage_throw_safe": true,
+    "run_progress_default_judges": "0 of 3 confirmed",
+    "html_judges_placeholders": "collectWorkflowJudges answered/total defaults already present"
+  },
+  "commands": {
+    "npm_test": "161 pass / 0 fail / 1 skipped",
+    "npm_test_coverage": "branches 91.08%"
+  }
+}

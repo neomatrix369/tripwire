@@ -1,14 +1,13 @@
 {
   "primitive": "run-coverage",
-  "slice_id": "slice-72",
-  "invocation_id": "73D85B48-7DA9-40EA-AE0E-FFBF2712BC27",
+  "slice_id": "slice-68",
+  "invocation_id": "b8c11340-1154-4c52-9f9e-e1ea73c2d68b",
   "status": "passed",
-  "timestamp": "2026-09-20T15:17:56Z",
+  "timestamp": "2026-09-20T15:58:14Z",
   "evidence": {
-    "coverage_pct": 17.6,
-    "threshold": 0.0,
-    "stack": "python",
-    "report_path": null,
-    "note": "Focused cargo_audit suite cover of scanners.py (module-wide % expected low; --cov-fail-under=0)"
+    "branches": 91.08,
+    "statements": 98.34,
+    "functions": 96.59,
+    "lines": 98.34
   }
 }

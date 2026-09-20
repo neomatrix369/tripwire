@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Snyk preflight: `sandbox/scanners.py`. VERIFIED on Live Packages (pizauth / snare).
 
 ### Added
+- Dashboard workflow stepper Run→Triage→Investigate (slice 68, Wave R):
+  prototype modules under `prototypes/dc-dashboard/` (`tripwire-workflow-*`,
+  run-progress, triage, investigate) with GWT-68.* tests — on branch
+  `slice/68-workflow-run-triage-investigate` (not yet merged).
 - SIE judge panel CLI + module (slice 67, Wave R, IN PROGRESS): `tripwire judge
   --batch-id <id>` → `runJudgePanel` (`cli/src/judgePanel.js`); mocked unit tests
   in `cli/test/judgePanel.test.js`. Model inventory documented (`gen-4b` /
