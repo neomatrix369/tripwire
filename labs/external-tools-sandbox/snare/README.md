@@ -2,7 +2,7 @@
 
 Upstream: [softdevteam/snare](https://github.com/softdevteam/snare)
 
-**Runtime: docker** (Modal preferred in theory; API 403 here — Docker used)  
+**Runtime: docker** (Modal preferred in theory; API 403 here — Docker used)
 **BUILD: PASS** · **LIVE-RUNNING: PASS** (`ext-tools-snare-live` → `http://127.0.0.1:18000`)
 
 ## What this lab proves

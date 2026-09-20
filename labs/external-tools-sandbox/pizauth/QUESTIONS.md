@@ -10,9 +10,9 @@ Answer these so the next pass can reach **OAuth LIVE** (token via
 
 ## Required
 
-1. **Which IdP?**  
-   - [ ] Google (Gmail / Google Cloud OAuth client)  
-   - [ ] Microsoft (Entra ID / Azure AD / Office 365)  
+1. **Which IdP?**
+   - [ ] Google (Gmail / Google Cloud OAuth client)
+   - [ ] Microsoft (Entra ID / Azure AD / Office 365)
    - [ ] Other (name + auth/token URI): _______________
 
 2. **Client credentials** (put in `labs/external-tools-sandbox/.env` — never commit):
@@ -22,7 +22,7 @@ Answer these so the next pass can reach **OAuth LIVE** (token via
 
 3. **Redirect URI you will register in the IdP console** (must match exactly):
    - Recommended for this lab: `http://localhost:14204/`
-   - Alternate (same host listen): `http://127.0.0.1:14204/`  
+   - Alternate (same host listen): `http://127.0.0.1:14204/`
      Prefer **one** and register that one; pizauth emits `http://localhost:14204/` by default when `http_listen` uses port `14204`.
 
 4. **Scopes** (defaults below — change if your app needs fewer/more):
