@@ -517,6 +517,15 @@
     <sc-if value="{{ workflowIsRun }}" hint-placeholder-val="{{ true }}">
       <div class="tw-workflow-panel" aria-label="Run progress">
         <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:8px">{{ workflowRun.judgesSummary }}</div>
+        <sc-if value="{{ workflowRun.processLine }}">
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:8px">{{ workflowRun.processLine }}</div>
+        </sc-if>
+        <sc-if value="{{ workflowRun.finalLine }}">
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-primary);margin-bottom:4px">{{ workflowRun.finalLine }}</div>
+        </sc-if>
+        <sc-if value="{{ workflowRun.disagreementLine }}">
+          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:8px">{{ workflowRun.disagreementLine }}</div>
+        </sc-if>
         <sc-if value="{{ workflowRun.modelsUsedLine }}">
           <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:8px">{{ workflowRun.modelsUsedLine }}</div>
         </sc-if>
@@ -532,6 +541,9 @@
         <sc-for list="{{ workflowRun.judgeSlots }}" as="slot" hint-placeholder-count="0">
           <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);padding:2px 0">{{ slot.slot }} · {{ slot.status }} · {{ slot.verdict }}</div>
         </sc-for>
+        <sc-if value="{{ workflowRun.primaryCtaVisible }}">
+          <button type="button" onClick="{{ workflowRun.onPrimaryCta }}" style="margin-top:10px;font-family:var(--font-mono);font-size:11px;padding:6px 12px;border-radius:4px;cursor:pointer;border:1px solid var(--border-default);background:var(--cta-bg, var(--bg-elevated));color:var(--cta-ink, var(--text-primary))">{{ workflowRun.primaryCtaLabel }}</button>
+        </sc-if>
       </div>
     </sc-if>
 
@@ -592,6 +604,12 @@
         <sc-if value="{{ workflowInvestigateReady }}" hint-placeholder-val="{{ false }}">
           <sc-if value="{{ workflowInvestigate.modelsUsedLine }}">
             <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:8px">{{ workflowInvestigate.modelsUsedLine }}</div>
+          </sc-if>
+          <sc-if value="{{ workflowInvestigate.finalLine }}">
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-primary);margin-bottom:4px">{{ workflowInvestigate.finalLine }}</div>
+          </sc-if>
+          <sc-if value="{{ workflowInvestigate.disagreementLine }}">
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:8px">{{ workflowInvestigate.disagreementLine }}</div>
           </sc-if>
           <sc-if value="{{ workflowInvestigate.agreementLine }}">
             <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:8px">Agreement: {{ workflowInvestigate.agreementLine }}</div>
@@ -1534,9 +1552,10 @@ class Component extends DCLogic {
       import('./tripwire-verify-view.js'),
       import('./tripwire-report.js'),
       import('./tripwire-report-export.js'),
-      import('./tripwire-workflow-models.js')
-    ]).then(([stepper, run, triage, investigate, prefs, fixPropose, applyClean, fixControls, verifyRescan, verifyView, report, reportExport, models]) => {
-      this._workflow = { stepper, run, triage, investigate, prefs, fixPropose, applyClean, fixControls, verifyRescan, verifyView, report, reportExport, models };
+      import('./tripwire-workflow-models.js'),
+      import('./tripwire-workflow-pipeline.js')
+    ]).then(([stepper, run, triage, investigate, prefs, fixPropose, applyClean, fixControls, verifyRescan, verifyView, report, reportExport, models, pipeline]) => {
+      this._workflow = { stepper, run, triage, investigate, prefs, fixPropose, applyClean, fixControls, verifyRescan, verifyView, report, reportExport, models, pipeline };
       const loadedExpert = prefs.loadExpertMode(sessionStorage);
       this.setState({ expertMode: loadedExpert, workflowKitsLoaded: true });
     }).catch(err => {
@@ -1946,6 +1965,7 @@ class Component extends DCLogic {
 
   mapItemFindingToWorkflow(item, f, index) {
     const prefs = this._workflow?.prefs;
+    const pipeline = this._workflow?.pipeline;
     const severity = this.mapWorkflowSeverity(f.severity);
     const titleFn = this._workflow?.triage?.buildWorkflowFindingTitle;
     // Prefer unique message/package over bare category even before kits load.
@@ -1958,6 +1978,70 @@ class Component extends DCLogic {
     const source = f.file_path
       ? (f.location != null ? `${f.file_path}:${f.location}` : f.file_path)
       : (f.source || '');
+
+    const absent = (kind) => (pipeline
+      ? pipeline.honestAbsentCopy(kind)
+      : ({
+        attack_path: 'Not provided by scanner',
+        prerequisites: 'Not provided by scanner',
+        evidence: 'Evidence verification not run',
+        verdict: 'Judgement pending — judge panel fields not present yet'
+      })[kind]);
+
+    const panelRun = f.panel_run || f.panelRun || null;
+    const rawJudgePanel = f.judgePanel || null;
+    const panelState = pipeline
+      ? pipeline.resolveJudgePanelState({
+        panel_run: panelRun,
+        judgePanel: rawJudgePanel,
+        judgePanelEnabled: f.judgePanelEnabled,
+        panel_status: f.panel_status,
+        judgePanelOptIn: f.judgePanelOptIn
+      })
+      : null;
+
+    const rawEvidence = f.evidenceVerification ?? f.evidence_verification ?? f.evidence_status ?? null;
+    let evidenceVerification;
+    if (rawEvidence != null && rawEvidence !== '') {
+      evidenceVerification = pipeline
+        ? pipeline.formatEvidenceVerification(rawEvidence)
+        : String(rawEvidence);
+    } else {
+      evidenceVerification = absent('evidence');
+    }
+
+    let verdictLine = f.verdictLine || null;
+    let agreement = f.agreement || null;
+    let howWeDecided = f.howWeDecided || null;
+    let judgePanel = rawJudgePanel;
+
+    if (panelState && (panelState.mode === 'live' || panelState.mode === 'present')) {
+      if (!verdictLine && panelState.finalVerdict != null) {
+        verdictLine = `Final verdict: ${panelState.finalVerdict}`;
+      }
+      if (!agreement && panelState.total > 0) {
+        agreement = panelState.disagreement
+          ? 'Judges disagreed — final judge weighed reasons'
+          : `${panelState.answered} of ${panelState.total} agree`;
+      }
+      if (!howWeDecided && panelState.finalVerdict != null) {
+        howWeDecided = {
+          final: String(panelState.finalVerdict),
+          judges: panelState.slots,
+          rawIds: null
+        };
+      }
+      if (!judgePanel) {
+        judgePanel = {
+          slots: panelState.slots,
+          answered: panelState.answered,
+          total: panelState.total,
+          finalVerdict: panelState.finalVerdict,
+          disagreement: panelState.disagreement
+        };
+      }
+    }
+
     const provisional = {
       id: f.id || null,
       title,
@@ -1966,16 +2050,16 @@ class Component extends DCLogic {
       source,
       sink: f.sink || '',
       explanation: f.message || f.explanation || '',
-      verdictLine: f.verdictLine || 'Judgement pending — judge panel fields not present yet',
-      attackPath: f.attackPath || 'Not available yet (judge panel pending)',
-      prerequisites: f.prerequisites || 'Not available yet (judge panel pending)',
-      evidenceVerification: f.evidenceVerification || 'Not available yet (judge panel pending)',
-      howWeDecided: f.howWeDecided || {
+      verdictLine: verdictLine || absent('verdict'),
+      attackPath: f.attackPath || f.attack_path || absent('attack_path'),
+      prerequisites: f.prerequisites || absent('prerequisites'),
+      evidenceVerification,
+      howWeDecided: howWeDecided || {
         final: 'Judgement pending',
         judges: null,
         rawIds: null
       },
-      agreement: f.agreement || 'Agreement not available yet',
+      agreement: agreement || 'Agreement not available yet',
       triageStatus: f.triageStatus || this.defaultTriageStatus(severity),
       proposedPatch: f.proposedPatch,
       reportDisposition: f.reportDisposition || null,
@@ -1989,7 +2073,8 @@ class Component extends DCLogic {
         scanner: f.scanner || '',
         status: f.scanner_status || f.status || ''
       },
-      judgePanel: f.judgePanel || null,
+      judgePanel,
+      panel_run: panelRun,
       confidence: f.confidence ?? null,
       dataFlow: f.dataFlow || null,
       package_name: f.package_name || null,
@@ -2039,32 +2124,37 @@ class Component extends DCLogic {
   }
 
   collectWorkflowJudges(data) {
-    const panel = data?.judgePanel || data?.judges;
-    if (panel && typeof panel === 'object') {
-      return {
-        answered: panel.answered ?? 0,
-        total: panel.total ?? 3,
-        slots: panel.slots || []
-      };
+    const pipeline = this._workflow?.pipeline;
+    if (pipeline?.resolveJudgePanelState) {
+      return pipeline.resolveJudgePanelState(data);
     }
+    // Kits not loaded yet — honest absent (never fabricate pending slots).
     return {
+      mode: 'absent',
       answered: 0,
-      total: 3,
-      slots: [
-        { slot: 'judge-1', verdict: '', confidence: null, status: 'pending' },
-        { slot: 'judge-2', verdict: '', confidence: null, status: 'pending' },
-        { slot: 'judge-3', verdict: '', confidence: null, status: 'pending' }
-      ]
+      total: 0,
+      slots: [],
+      disagreement: false,
+      finalVerdict: null,
+      finalReason: null,
+      finalModel: null,
+      panelOff: false,
+      statusLine: 'Judge panel pending / not available yet'
     };
   }
 
   collectWorkflowCoverage(data) {
+    const pipeline = this._workflow?.pipeline;
+    if (pipeline?.resolveCoverageHonesty) {
+      return pipeline.resolveCoverageHonesty(data);
+    }
     const items = data?.items || [];
     return {
       discovered: items.length,
       scanned: items.filter(it => it.lastScan || it.status === 'running').length,
       failed: items.filter(it => it.status === 'error').length,
-      skipped: items.filter(it => it.status === 'grey' || it.status === 'no_coverage').length
+      skipped: items.filter(it => it.status === 'grey' || it.status === 'no_coverage').length,
+      source: 'heuristic'
     };
   }
 
@@ -2078,7 +2168,18 @@ class Component extends DCLogic {
 
   buildWorkflowView(data, s) {
     const wf = this._workflow;
-    const emptyRun = { scannerRows: [], judgesSummary: '0 of 3 judges answered', judgeSlots: [], modelsUsedLine: '' };
+    const emptyRun = {
+      scannerRows: [],
+      judgesSummary: 'Judge panel pending / not available yet',
+      judgeSlots: [],
+      modelsUsedLine: '',
+      processLine: '',
+      finalLine: '',
+      disagreementLine: '',
+      primaryCtaVisible: false,
+      primaryCtaLabel: 'Review findings',
+      onPrimaryCta: () => this.setWorkflowStep('triage')
+    };
     const emptyTriage = {
       headline: '0 to-fix · 0 needs-review · 0 dismissed',
       typeTabs: [],
@@ -2089,7 +2190,14 @@ class Component extends DCLogic {
       coverageHonesty: { discovered: 0, scanned: 0, failed: 0, skipped: 0 },
       modelsUsedLine: ''
     };
-    const emptyInvestigate = { sections: [], hiddenInSimple: [], agreementLine: null, modelsUsedLine: '' };
+    const emptyInvestigate = {
+      sections: [],
+      hiddenInSimple: [],
+      agreementLine: null,
+      modelsUsedLine: '',
+      finalLine: '',
+      disagreementLine: ''
+    };
     const emptyReport = {
       headline: '0 fixed · 0 left · 0 won\'t fix',
       counts: { fixed: 0, left: 0, wontFix: 0 },
@@ -2165,9 +2273,40 @@ class Component extends DCLogic {
       };
     });
 
-    const selectedFinding = findings.find(f => f.id === s.workflowSelectedFindingId) || null;
+    const selectedFromState = findings.find(f => f.id === s.workflowSelectedFindingId) || null;
+    let selectedFinding = selectedFromState;
+    if (step === 'investigate' && !selectedFinding && wf.pipeline?.pickFirstToFixFinding) {
+      selectedFinding = wf.pipeline.pickFirstToFixFinding(findings) || null;
+    }
+
+    const hasFindings = findings.length > 0;
+    const scannersComplete = scanners.length > 0 && scanners.every((r) => {
+      const st = String(r.status ?? '').toLowerCase();
+      return ['done', 'completed', 'failed', 'skipped', 'timed_out', 'unreachable'].includes(st);
+    });
+    const runProgress = wf.run.buildRunProgressView({ scanners, judges });
+    const processLine = wf.pipeline
+      ? wf.pipeline.buildProcessLine({ scanners, judgesState: judges, hasFindings })
+      : '';
+    const runNarration = wf.pipeline
+      ? wf.pipeline.buildFinalJudgeNarration(judges)
+      : { finalLine: '', disagreementLine: '' };
+    const primaryCta = wf.pipeline
+      ? wf.pipeline.buildPrimaryCta({
+        scannersComplete,
+        hasFindings,
+        panelMode: judges.mode
+      })
+      : { label: 'Review findings', visible: false };
     const workflowRun = {
-      ...wf.run.buildRunProgressView({ scanners, judges }),
+      ...runProgress,
+      judgesSummary: judges.statusLine || runProgress.judgesSummary,
+      processLine,
+      finalLine: runNarration.finalLine || '',
+      disagreementLine: runNarration.disagreementLine || '',
+      primaryCtaVisible: !!primaryCta.visible,
+      primaryCtaLabel: primaryCta.label || 'Review findings',
+      onPrimaryCta: () => this.setWorkflowStep('triage'),
       modelsUsedLine: wf.models
         ? wf.models.buildModelsUsedLine({ stepId: 'run', judges })
         : ''
@@ -2232,6 +2371,15 @@ class Component extends DCLogic {
         finding: selectedFinding,
         expertMode: !!s.expertMode
       });
+      const findingJudges = wf.pipeline
+        ? wf.pipeline.resolveJudgePanelState({
+          panel_run: selectedFinding.panel_run,
+          judgePanel: selectedFinding.judgePanel
+        })
+        : null;
+      const invNarration = wf.pipeline && findingJudges
+        ? wf.pipeline.buildFinalJudgeNarration(findingJudges)
+        : { finalLine: '', disagreementLine: '' };
       // Simple mode: title_severity already carries Agreement when present; keep all
       // sections (including collapsed how_we_decided) — do not strip agreement.
       workflowInvestigate = {
@@ -2250,6 +2398,8 @@ class Component extends DCLogic {
         }),
         hiddenInSimple: built.hiddenInSimple,
         agreementLine: selectedFinding.agreement || null,
+        finalLine: invNarration.finalLine || '',
+        disagreementLine: invNarration.disagreementLine || '',
         modelsUsedLine: wf.models
           ? wf.models.buildModelsUsedLine({ stepId: 'investigate', finding: selectedFinding })
           : ''
