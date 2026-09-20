@@ -1,28 +1,12 @@
 {
   "primitive": "verify-slice",
-  "slice_id": "slice-68",
-  "invocation_id": "b8c11340-1154-4c52-9f9e-e1ea73c2d68b",
-  "iteration": 2,
+  "slice_id": "slice-71",
+  "invocation_id": "40B782B5-5DAE-4320-8633-FEA069780C90",
   "status": "COMPLETE",
-  "timestamp": "2026-09-20T15:58:14Z",
-  "verdict": "COMPLETE",
-  "acceptance": {
-    "GWT-68.1": "PASS",
-    "GWT-68.2": "PASS",
-    "GWT-68.3": "PASS",
-    "GWT-68.4": "PASS",
-    "GWT-68.5": "PASS",
-    "GWT-68.6": "PASS"
-  },
-  "quality_gates": {
-    "tests": "PASS",
-    "lint": "PASS",
-    "coverage": "PASS"
-  },
-  "runtime_browser_smoke": {
-    "result": "NOT_APPLICABLE",
-    "rationale": "UI 1A prototype: intended verification is ESM unit characterization of pure view builders + static HTML wiring; no Playwright harness in dc-dashboard package"
-  },
-  "docs": "PASS",
-  "unmet_or_skipped": []
+  "timestamp": "2026-09-20T16:14:34Z",
+  "evidence": {
+    "acceptance": "3/3 GWT-71.*",
+    "quality_gates": "dashboard npm test + lint + test:coverage passed",
+    "docs": "STATUS/PROGRESS/TRAIL/CHANGELOG/slice stub updated"
+  }
 }

@@ -1,6 +1,6 @@
 # Slice 71: Expert View + Report Export
 
-> Scenario: Brownfield | MoSCoW: **Should** | Status: 📋 PLANNED
+> Scenario: Brownfield | MoSCoW: **Should** | Status: 🔀 ON BRANCH
 > Wave: R — Approved-repo security workflow
 > Depends on: **68** (Simple view); benefits from **67**/**69**/**70** fields
 > Trigger: Expert toggle + full report export including coverage and provenance
@@ -58,14 +58,14 @@
 **Then** headline summarises fixed / left / won't fix with one primary export action
 
 ## Before-Checks [GATE]
-- [ ] Branch created
-- [ ] GWT RED tests
+- [x] Branch created
+- [x] GWT RED tests
 
 ## After-Checks [GATE]
-- [ ] Tests pass
-- [ ] Specification coverage
-- [ ] Complexity evidence recorded
-- [ ] Doc Audit: STATUS Expert + export
+- [x] Tests pass
+- [x] Specification coverage
+- [x] Complexity evidence recorded
+- [x] Doc Audit: STATUS Expert + export
 
 ### Closing Gates
 - [ ] `nw-at-completeness-check`
@@ -75,4 +75,4 @@
 - [ ] `/verify-slice` — COMPLETE
 
 ## Gate Status
-📋 PLANNED — EFP Path B 2026-09-20 (Wave R)
+🔀 ON BRANCH — 2026-09-20 (Wave R) — GWT-71.* green locally; PR pending review gates

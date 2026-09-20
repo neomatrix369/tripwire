@@ -1,0 +1,14 @@
+{
+  "primitive": "slice-summary",
+  "slice_id": "slice-71",
+  "invocation_id": "40B782B5-5DAE-4320-8633-FEA069780C90",
+  "status": "passed",
+  "timestamp": "2026-09-20T16:14:34Z",
+  "evidence": {
+    "branch": "slice/71-expert-export-report",
+    "gwt": ["GWT-71.1", "GWT-71.2", "GWT-71.3"],
+    "tests": { "pass": 173, "fail": 0, "skipped": 1 },
+    "coverage": { "lines": 98.24, "branches": 84.37, "functions": 97.6, "statements": 98.24 },
+    "lint": "passed"
+  }
+}

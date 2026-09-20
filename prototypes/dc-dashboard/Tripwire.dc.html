@@ -467,6 +467,31 @@
       </div>
     </sc-if>
 
+    <sc-if value="{{ workflowIsReport }}" hint-placeholder-val="{{ false }}">
+      <div class="tw-workflow-panel" aria-label="Report">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+          <div>
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Report</div>
+            <div style="font-family:var(--font-mono);font-size:14px;font-weight:600;color:var(--text-primary)">{{ workflowReport.headline }}</div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px" role="group" aria-label="Export actions">
+            <button type="button" onClick="{{ exportReportPrimary }}" style="{{ exportPrimaryBtnStyle }}">{{ workflowReport.primaryExportLabel }}</button>
+            <button type="button" onClick="{{ exportReportMarkdown }}" style="{{ exportSecondaryBtnStyle }}">Export Markdown</button>
+            <label style="display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);cursor:pointer">
+              <input type="checkbox" checked="{{ revealSecretsChecked }}" onChange="{{ toggleRevealSecrets }}" />
+              Reveal secrets
+            </label>
+          </div>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:8px">
+          Coverage: discovered {{ workflowReport.coverage.discovered }} · scanned {{ workflowReport.coverage.scanned }} · failed {{ workflowReport.coverage.failed }} · skipped {{ workflowReport.coverage.skipped }}
+        </div>
+        <sc-if value="{{ exportStatusVisible }}">
+          <div role="status" style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);padding:8px;border:1px solid var(--border-subtle);border-radius:4px;background:var(--bg-surface);white-space:pre-wrap;max-height:160px;overflow:auto">{{ exportStatusMessage }}</div>
+        </sc-if>
+      </div>
+    </sc-if>
+
     <sc-if value="{{ workflowIsStub }}" hint-placeholder-val="{{ false }}">
       <div class="tw-workflow-panel" aria-label="Coming later">
         <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-secondary)">Coming in later slice</div>
@@ -1261,7 +1286,10 @@ class Component extends DCLogic {
     investigateHowExpanded: false,
     workflowKitsLoaded: false,
     triageRevision: 0,
-    workflowStepInferred: false
+    workflowStepInferred: false,
+    revealSecrets: false,
+    exportStatusMessage: '',
+    exportStatusVisible: false
   };
 
   componentDidMount() {
@@ -1277,9 +1305,11 @@ class Component extends DCLogic {
       import('./tripwire-run-progress.js'),
       import('./tripwire-triage.js'),
       import('./tripwire-investigate.js'),
-      import('./tripwire-workflow-prefs.js')
-    ]).then(([stepper, run, triage, investigate, prefs]) => {
-      this._workflow = { stepper, run, triage, investigate, prefs };
+      import('./tripwire-workflow-prefs.js'),
+      import('./tripwire-report.js'),
+      import('./tripwire-report-export.js')
+    ]).then(([stepper, run, triage, investigate, prefs, report, reportExport]) => {
+      this._workflow = { stepper, run, triage, investigate, prefs, report, reportExport };
       const loadedExpert = prefs.loadExpertMode(sessionStorage);
       this.setState({ expertMode: loadedExpert, workflowKitsLoaded: true });
     }).catch(err => {
@@ -1488,6 +1518,20 @@ class Component extends DCLogic {
       },
       agreement: f.agreement || 'Agreement not available yet',
       triageStatus: f.triageStatus || this.defaultTriageStatus(severity),
+      reportDisposition: f.reportDisposition || null,
+      fix: f.fix || f.proposedFix || null,
+      verification: f.verification || f.verifyResult || null,
+      cwe_ids: f.cwe_ids || f.cweIds || [],
+      weaknessIds: f.weaknessIds || [],
+      ai_sec_ids: f.ai_sec_ids || f.aiSecIds || [],
+      scanner: f.scanner || '',
+      scannerDetails: f.scannerDetails || {
+        scanner: f.scanner || '',
+        status: f.scanner_status || f.status || ''
+      },
+      judgePanel: f.judgePanel || null,
+      confidence: f.confidence ?? null,
+      dataFlow: f.dataFlow || null,
       itemId: item.id,
       itemName: item.name
     };
@@ -1576,8 +1620,14 @@ class Component extends DCLogic {
       coverageHonesty: { discovered: 0, scanned: 0, failed: 0, skipped: 0 }
     };
     const emptyInvestigate = { sections: [], hiddenInSimple: [], agreementLine: null };
+    const emptyReport = {
+      headline: '0 fixed · 0 left · 0 won\'t fix',
+      counts: { fixed: 0, left: 0, wontFix: 0 },
+      primaryExportLabel: 'Export report',
+      coverage: { discovered: 0, scanned: 0, failed: 0, skipped: 0 }
+    };
     const step = s.currentStep || 'run';
-    const stubSteps = step === 'fix' || step === 'verify' || step === 'report';
+    const stubSteps = step === 'fix' || step === 'verify';
 
     if (!wf) {
       return {
@@ -1592,12 +1642,22 @@ class Component extends DCLogic {
         workflowIsRun: step === 'run',
         workflowIsTriage: step === 'triage',
         workflowIsInvestigate: step === 'investigate',
+        workflowIsReport: step === 'report',
         workflowIsStub: stubSteps,
         workflowRun: emptyRun,
         workflowTriage: emptyTriage,
         workflowInvestigate: emptyInvestigate,
         workflowInvestigateEmpty: true,
         workflowInvestigateReady: false,
+        workflowReport: emptyReport,
+        exportReportPrimary: this.exportReportPrimary,
+        exportReportMarkdown: this.exportReportMarkdown,
+        toggleRevealSecrets: this.toggleRevealSecrets,
+        revealSecretsChecked: !!s.revealSecrets,
+        exportPrimaryBtnStyle: this.btnStyle(true, { size: '11px', pad: '6px 12px' }),
+        exportSecondaryBtnStyle: this.btnStyle(false, { size: '11px', pad: '6px 12px' }),
+        exportStatusMessage: s.exportStatusMessage || '',
+        exportStatusVisible: !!s.exportStatusVisible,
         setSimpleMode: this.setSimpleMode,
         setExpertModeOn: this.setExpertModeOn,
         simpleModePressed: (!s.expertMode).toString(),
@@ -1681,17 +1741,35 @@ class Component extends DCLogic {
       };
     }
 
+    const reportVm = wf.report.buildReportView({ findings });
+    const workflowReport = {
+      headline: reportVm.headline,
+      counts: reportVm.counts,
+      primaryExportLabel: reportVm.primaryExportLabel,
+      coverage
+    };
+
     return {
       workflowStepperSteps,
       workflowIsRun: step === 'run',
       workflowIsTriage: step === 'triage',
       workflowIsInvestigate: step === 'investigate',
+      workflowIsReport: step === 'report',
       workflowIsStub: stubSteps,
       workflowRun,
       workflowTriage,
       workflowInvestigate,
       workflowInvestigateEmpty: step === 'investigate' && !selectedFinding,
       workflowInvestigateReady: step === 'investigate' && !!selectedFinding,
+      workflowReport,
+      exportReportPrimary: this.exportReportPrimary,
+      exportReportMarkdown: this.exportReportMarkdown,
+      toggleRevealSecrets: this.toggleRevealSecrets,
+      revealSecretsChecked: !!s.revealSecrets,
+      exportPrimaryBtnStyle: this.btnStyle(true, { size: '11px', pad: '6px 12px' }),
+      exportSecondaryBtnStyle: this.btnStyle(false, { size: '11px', pad: '6px 12px' }),
+      exportStatusMessage: s.exportStatusMessage || '',
+      exportStatusVisible: !!s.exportStatusVisible,
       setSimpleMode: this.setSimpleMode,
       setExpertModeOn: this.setExpertModeOn,
       simpleModePressed: (!s.expertMode).toString(),
@@ -1700,6 +1778,72 @@ class Component extends DCLogic {
       expertModeBtnStyle: this.btnStyle(!!s.expertMode, { size: '11px', pad: '4px 10px' })
     };
   }
+
+  toggleRevealSecrets = (ev) => {
+    const checked = ev?.target ? !!ev.target.checked : !this.state.revealSecrets;
+    this.setState({ revealSecrets: checked });
+  };
+
+  _buildExportPayload() {
+    const wf = this._workflow;
+    if (!wf?.reportExport) return null;
+    const data = this.state.data;
+    const rawFindings = this.collectWorkflowFindings(data);
+    const findings = wf.prefs.applyPersistedTriage(rawFindings, localStorage);
+    const coverage = this.collectWorkflowCoverage(data);
+    return wf.reportExport.buildReportPayload({
+      findings,
+      coverage: {
+        ...coverage,
+        repo: data?.repo || data?.repository || null,
+        commit: data?.commit || data?.sha || null,
+        scanners: this.collectWorkflowScanners(data)
+      },
+      meta: {
+        repo: data?.repo || data?.repository || null,
+        commit: data?.commit || data?.sha || null,
+        exportedAt: new Date().toISOString()
+      },
+      revealSecrets: !!this.state.revealSecrets
+    });
+  }
+
+  _copyExportText(text, label) {
+    const done = (ok) => {
+      this.setState({
+        exportStatusVisible: true,
+        exportStatusMessage: ok
+          ? `${label} copied to clipboard (${text.length} chars). Secrets ${this.state.revealSecrets ? 'REVEALED' : 'masked'}.`
+          : `${label} ready (${text.length} chars) — clipboard unavailable; text logged to console.`
+      });
+      if (!ok) console.info(`[tripwire-export] ${label}\n`, text);
+    };
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(() => done(true)).catch(() => done(false));
+      return;
+    }
+    done(false);
+  }
+
+  exportReportPrimary = () => {
+    const wf = this._workflow;
+    const payload = this._buildExportPayload();
+    if (!wf?.reportExport || !payload) {
+      this.setState({ exportStatusVisible: true, exportStatusMessage: 'Export kit not loaded' });
+      return;
+    }
+    this._copyExportText(wf.reportExport.serializeReportJson(payload), 'JSON report');
+  };
+
+  exportReportMarkdown = () => {
+    const wf = this._workflow;
+    const payload = this._buildExportPayload();
+    if (!wf?.reportExport || !payload) {
+      this.setState({ exportStatusVisible: true, exportStatusMessage: 'Export kit not loaded' });
+      return;
+    }
+    this._copyExportText(wf.reportExport.serializeReportMarkdown(payload), 'Markdown report');
+  };
 
   simulateGuardCall = (id) => {
     this.setState(s => {

@@ -6,7 +6,8 @@
  * Scope: GWT-68.1 stepper stateLabels; GWT-68.2 judgesSummary; GWT-68.3 triage
  *   headline / filter / severity (split); GWT-68.4 investigate section order +
  *   source_sink + how_we_decided null cases; GWT-68.5 simple vs expert raw IDs +
- *   storage isolation; GWT-68.6 triage persistence; Gate-4 edge paths
+ *   storage isolation; GWT-68.6 triage persistence; GWT-71.1 expert fields;
+ *   Gate-4 edge paths
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -470,6 +471,113 @@ test('GWT-68.6 given expert toggle when saveExpertMode then loadExpertMode round
   // -- Then --
   assert.equal(on, true);
   assert.equal(off, false);
+});
+
+// ── GWT-71.1 Expert view ─────────────────────────────────────────────────────
+
+const EXPERT_PANEL_FINDING = {
+  title: 'Prompt injection',
+  severity: 'High',
+  source: 'tools.py:10',
+  sink: 'llm.invoke',
+  howWeDecided: {
+    final: 'true_positive',
+    judges: [
+      {
+        slot: 'j1',
+        verdict: 'true_positive',
+        answer: 'exploitable via tool args',
+        modelId: 'gen-4b',
+        confidence: 0.91,
+      },
+    ],
+    rawIds: ['raw-judge-1'],
+  },
+  judgePanel: {
+    slots: [
+      { slot: 'j2', verdict: 'needs_review', model: 'qwen3', confidence: 0.55 },
+    ],
+  },
+  cwe_ids: ['CWE-74'],
+  weaknessIds: ['W-PROMPT'],
+  ai_sec_ids: ['AI-SEC-01'],
+  scanner: 'semgrep',
+  scannerDetails: { rule: 'prompt-injection', engine: 'semgrep' },
+  dataFlow: 'tools.py:10 → llm.invoke',
+  agreement: '2 of 3 agree',
+};
+
+test('GWT-71.1 given panel provenance when expertMode true then expert fields visible in how_we_decided', () => {
+  // -- Given --
+  const finding = EXPERT_PANEL_FINDING;
+
+  // -- When --
+  const expert = buildInvestigateView({ finding, expertMode: true });
+
+  // -- Then --
+  assert.deepEqual(expert.hiddenInSimple, [], 'expert mode leaves hiddenInSimple empty');
+  const how = expert.sections.find((s) => s.id === 'how_we_decided');
+  assert.ok(how, 'how_we_decided required when Expert on');
+  assert.match(how.body, /exploitable via tool args|Judges:/);
+  assert.match(how.body, /Model IDs:.*gen-4b/);
+  assert.match(how.body, /Confidence:.*0\.91/);
+  assert.match(how.body, /Weakness IDs:.*CWE-74/);
+  assert.match(how.body, /AI-SEC-01/);
+  assert.match(how.body, /Scanner:/);
+  assert.match(how.body, /Data flow:/);
+});
+
+test('GWT-71.1 given panel provenance when expertMode false then expert fields listed in hiddenInSimple', () => {
+  // -- Given --
+  const finding = EXPERT_PANEL_FINDING;
+
+  // -- When --
+  const simple = buildInvestigateView({ finding, expertMode: false });
+
+  // -- Then --
+  const blob = JSON.stringify(simple.sections);
+  assert.equal(blob.includes('gen-4b'), false, 'model IDs must stay out of simple sections');
+  assert.equal(blob.includes('0.91'), false, 'confidence numbers must stay out of simple sections');
+  assert.equal(blob.includes('CWE-74'), false, 'weakness IDs must stay out of simple sections');
+  assert.equal(blob.includes('prompt-injection'), false, 'scanner details must stay out of simple sections');
+
+  for (const key of [
+    'how_we_decided',
+    'raw_judges',
+    'model_ids',
+    'confidence',
+    'weakness_ids',
+    'scanner_details',
+    'data_flow',
+  ]) {
+    assert.ok(
+      simple.hiddenInSimple.includes(key),
+      `hiddenInSimple must include ${key} when Expert is off`
+    );
+  }
+});
+
+test('GWT-71.1 given judgePanel slots only when expertMode true then model and confidence appear', () => {
+  // -- Given --
+  const finding = {
+    title: 'XSS',
+    severity: 'Medium',
+    judgePanel: {
+      slots: [
+        { slot: 'a', answer: 'true_positive', modelId: 'sie-gen', confidence: 0.77 },
+      ],
+    },
+  };
+
+  // -- When --
+  const expert = buildInvestigateView({ finding, expertMode: true });
+
+  // -- Then --
+  const how = expert.sections.find((s) => s.id === 'how_we_decided');
+  assert.ok(how, 'judgePanel alone should surface how_we_decided in expert mode');
+  assert.match(how.body, /Judges:.*a=true_positive/);
+  assert.match(how.body, /Model IDs: sie-gen/);
+  assert.match(how.body, /Confidence: 0\.77/);
 });
 
 // ── Gate 4 edge / error paths ────────────────────────────────────────────────
