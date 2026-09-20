@@ -250,8 +250,9 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 | 70 | [slice-70-verify-worktree-rescan](slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md) | Should | ✅ VERIFIED ON BRANCH (`slice/70-verify-worktree-rescan`) (`slice/70-verify-worktree-rescan`) | 2026-09-20 | — | ~40 min |
 | 71 | [slice-71-expert-export-report](slices/18-R-approved-repo-workflow/slice-71-expert-export-report.md) | Should | 🔀 ON BRANCH (`slice/71-expert-export-report`) | 2026-09-20 | — | ~40 min |
 | 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Could | ✅ VERIFIED ON BRANCH | 2026-09-20 | — | ~50 min |
+| 74 | [slice-74-workflow-model-labels](slices/18-R-approved-repo-workflow/slice-74-workflow-model-labels.md) | Should | 🔨 IN PROGRESS | 2026-09-20 | — | ~35 min |
 
-**Group note:** Wave R = approved local repo+commit security workflow. UI **1A** extend dashboard. Reuse Wave P + ADR-0016. Cargo honesty VERIFIED on `fix/cargo-package-scan-error-status` → absorb ledger into **65**; Rust/Cargo via RustSec **Cargo Audit** (**IMPLEMENTED** on `main`) — slice **72** formalizes that gap path (docs stream in progress; Snyk/DepShield Rust gaps stay explicit).
+**Group note:** Wave R = approved local repo+commit security workflow. UI **1A** extend dashboard. Reuse Wave P + ADR-0016. Cargo honesty VERIFIED on `fix/cargo-package-scan-error-status` → absorb ledger into **65**; Rust/Cargo via RustSec **Cargo Audit** (**IMPLEMENTED** on `main`) — slice **72** formalizes that gap path. Slice **74** surfaces default + actual model names on workflow tabs/panels.
 
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 
@@ -266,7 +267,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 ## Forward Roadmap
 - Wave **O** (**O0** + slices 58–61) Monk Kit Live packaging is **📋 plan-only** — ADR-0001 + PoC; O0 governance first for Accept/open Qs; product execute via `slice/58-land-poc-monk-kit` (prototyping OK while O0 open).
 - Wave **P** (slices **62–64**) git repo scan: ✅ landed `main` (#145/#146). Cargo SCA unsupported honesty follow-up: `fix/cargo-package-scan-error-status` → Wave **R** slice 65.
-- Wave **R** (slices **65–72**) approved-repo security workflow: **65–66** ✅ · **67** 🔨 · **68**–**69** ✅ (#152/#154) · **70** ✅ on `slice/70-verify-worktree-rescan` · **71** ✅ (#153) · **72** ✅ (#150). UI 1A.
+- Wave **R** (slices **65–72** + **74**) approved-repo security workflow: **65–66** ✅ · **67** 🔨 · **68**–**69** ✅ (#152/#154) · **70** ✅ on `slice/70-verify-worktree-rescan` · **71** ✅ (#153) · **72** ✅ (#150) · **74** 🔨 workflow model labels. UI 1A.
 - Wave **M** (slice 53) LLM usage / cost observability is **📋 plan-only** — ADR-0016 follow-on; execute when explicitly started (`slice/53-llm-usage-tracking`).
 - Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Slice 15 is retained as a deferred claim-audit artifact, not active work.
 - **Wave H (Frontline):** plan-only stubs 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. Execute Musts 23→32 with human tests after H1/H2 and HARD GATE at 32 before Should work.

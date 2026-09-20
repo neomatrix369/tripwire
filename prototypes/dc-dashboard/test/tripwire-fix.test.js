@@ -1016,6 +1016,39 @@ test('GWT-69.1 given dashboard html when Fix step then side-by-side problem and 
   assert.match(html, /aria-label="Fix"/, 'Fix panel must be labelled');
   assert.match(html, />Problem</, 'left pane is the problem');
   assert.match(html, />Proposed patch</, 'right pane is the proposed diff');
+  assert.match(html, /Propose a fix/, 'Fix step has a readable display title');
+});
+
+test('GWT-69.1 given dashboard html when proposed patch pane then full diff is scrollable not clipped', () => {
+  // -- Given --
+  const html = DASHBOARD_HTML;
+
+  // -- When / Then --
+  assert.match(html, /class="tw-proposed-patch"/, 'proposed patch uses dedicated scroll pane');
+  assert.match(html, /\.tw-proposed-patch\s*\{[^}]*overflow:\s*auto/s, 'patch pane must scroll the full unified diff');
+  assert.match(html, /\.tw-proposed-patch\s*\{[^}]*max-height:/s, 'patch pane caps height so chrome stays usable');
+  assert.match(html, /aria-label="Proposed patch diff"/, 'patch pane is labelled for assistive tech');
+});
+
+test('GWT-69.1 given dashboard html when Simple mode then inventory is Expert-only', () => {
+  // -- Given --
+  const html = DASHBOARD_HTML;
+
+  // -- When / Then --
+  assert.match(html, /showInventory:\s*!s\.showIntro\s*&&\s*!!s\.expertMode/, 'Simple hides inventory grid and detail drawer');
+  assert.match(html, /tw-workflow-focus/, 'Simple expands workflow chrome to fill the page');
+  assert.match(html, /class="\{\{\s*workflowChromeClass\s*\}\}"/, 'workflow chrome class is bound for Simple focus');
+  assert.match(html, /sc-if value="\{\{\s*showInventory\s*\}\}"/, 'inventory is gated behind showInventory');
+});
+
+test('GWT-69.1 given dashboard html when Fix step then typography separates prose from mono diff', () => {
+  // -- Given --
+  const html = DASHBOARD_HTML;
+
+  // -- When / Then --
+  assert.match(html, /\.tw-fix-title\s*\{[^}]*font-family:\s*var\(--font-display\)/s, 'Fix title uses display font');
+  assert.match(html, /\.tw-fix-problem\s*\{[^}]*font-family:\s*var\(--font-sans\)/s, 'problem prose uses sans');
+  assert.match(html, /\.tw-proposed-patch\s*\{[^}]*font-family:\s*var\(--font-mono\)/s, 'diff stays monospace');
 });
 
 test('GWT-69.2 given dashboard html when Fix step then apply-clean line is yes or no text', () => {

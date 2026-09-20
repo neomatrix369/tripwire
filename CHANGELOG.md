@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Snyk preflight: `sandbox/scanners.py`. VERIFIED on Live Packages (pizauth / snare).
 
 ### Added
+- Dashboard workflow model labels (slice 74, Wave R) — IN PROGRESS on
+  `slice/74-workflow-model-labels`. Stepper tabs show configured default model
+  aliases (Run `gen-4b · gen-27b`, Triage `gen-4b`, Investigate
+  `gen-4b · qwen3.8-max`, Fix `gen-27b`; Verify/Report blank). Run / Triage /
+  Investigate / Fix panels show actual models from judge slots, router
+  envelope, or fix provenance when present (`tripwire-workflow-models.js`).
 - Dashboard Verify step: worktree rescan honesty (slice 70, Wave R) — IN
   PROGRESS on `slice/70-verify-worktree-rescan`. Re-applies the proposed patch
   on a temp copy only, re-runs applicable scanners via port, and reports

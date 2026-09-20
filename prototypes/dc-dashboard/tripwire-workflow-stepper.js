@@ -2,7 +2,10 @@
  * Slice 68 Stream A — workflow stepper (pure view model).
  * Steps: Run → Triage → Investigate → Fix → Verify → Report.
  * stateLabel is text status (not colour-only): current | complete | upcoming.
+ * Slice 74: modelHint = configured default aliases for stages that use models.
  */
+
+import { defaultModelHintForStep } from "./tripwire-workflow-models.js";
 
 export const WORKFLOW_STEPS = Object.freeze([
   Object.freeze({ id: "run", label: "Run" }),
@@ -26,7 +29,7 @@ function stateLabelFor(index, currentIndex) {
 
 /**
  * @param {{ currentStep: string }} state
- * @returns {{ steps: Array<{ id: string, label: string, current: boolean, stateLabel: string }> }}
+ * @returns {{ steps: Array<{ id: string, label: string, current: boolean, stateLabel: string, modelHint: string }> }}
  */
 export function buildStepperView({ currentStep }) {
   const currentIndex = WORKFLOW_STEPS.findIndex((s) => s.id === currentStep);
@@ -35,6 +38,7 @@ export function buildStepperView({ currentStep }) {
     label: step.label,
     current: index === currentIndex,
     stateLabel: stateLabelFor(index, currentIndex),
+    modelHint: defaultModelHintForStep(step.id),
   }));
   return { steps };
 }
