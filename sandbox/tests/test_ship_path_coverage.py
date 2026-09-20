@@ -1022,7 +1022,13 @@ def test_given_package_snyk_test_vulns_without_dep_count_when_run_then_checks_ma
         "ok": False,
         "displayTargetFile": "requirements.txt",
         "vulnerabilities": [
-            {"id": "SNYK-PY-A", "title": "a", "severity": "low", "packageName": "a", "version": "1"},
+            {
+                "id": "SNYK-PY-A",
+                "title": "a",
+                "severity": "low",
+                "packageName": "a",
+                "version": "1",
+            },
             "not-a-dict",
         ],
     }
