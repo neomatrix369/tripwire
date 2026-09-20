@@ -157,3 +157,25 @@ test('given no database credentials when tripwire route runs then exits non-zero
     (error) => error.code !== 0,
   );
 });
+
+test('scan --help includes --reveal-secrets masked-by-default contract', async () => {
+  // -- Given / When --
+  const { stdout } = await exec('node', [tripwireBin, 'scan', '--help']);
+
+  // -- Then --
+  assert.match(stdout, /--reveal-secrets/, 'Expected --reveal-secrets flag in scan help');
+  assert.match(stdout, /masked by\s+default/i, 'Help must say secrets are masked by default');
+});
+
+test('GWT-66.3: dry-discover of injection fixture prints an evidence warning', async () => {
+  // -- Given --
+  const skillDir = path.join(path.dirname(tripwireBin), '../../fixtures/skills/vuln-prompt-injection-notes');
+
+  // -- When --
+  const { stdout } = await exec('node', [tripwireBin, 'scan', skillDir, '--dry-discover', '--no-defaults']);
+
+  // -- Then --
+  assert.match(stdout, /\[evidence]/, 'pre-scan evidence report required');
+  assert.match(stdout, /hidden_instruction|injection/, 'hidden instruction attempt must be recorded');
+  assert.match(stdout, /SKILL\.md/);
+});

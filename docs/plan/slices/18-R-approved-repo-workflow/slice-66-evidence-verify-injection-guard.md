@@ -1,6 +1,6 @@
 # Slice 66: Evidence Verify + Injection Guard
 
-> Scenario: Brownfield | MoSCoW: **Must** | Status: 📋 PLANNED
+> Scenario: Brownfield | MoSCoW: **Must** | Status: 🔨 IN PROGRESS
 > Wave: R — Approved-repo security workflow
 > Depends on: **65** (candidates + coverage context)
 > Trigger: Findings must be independently checkable; scanned content must not instruct judges/scanners
@@ -60,9 +60,9 @@
 **Then** secrets are masked unless the operator explicitly reveals
 
 ## Before-Checks [GATE]
-- [ ] Branch created
-- [ ] Slice 65 coverage available or mocked
-- [ ] GWT RED tests authored
+- [x] Branch created
+- [x] Slice 65 coverage available or mocked
+- [x] GWT RED tests authored
 
 ## After-Checks [GATE]
 - [ ] Tests pass

@@ -57,6 +57,15 @@ Reachable through production entry points / config:
   Local approved checkouts with manifests also emit a `package` target.
   Cargo SCA honesty from `fix/cargo-package-scan-error-status` (#147) is
   absorbed — no parallel Cargo-detail path.
+- Host-side **evidence verify + injection guard** (slice 66, Wave R): quoted
+  findings are `evidence_verified` only when the text exists at the reported
+  path:line; mismatches fail closed and are never independently confirmed.
+  Deterministic guards record hidden/encoded instruction attempts; scanned
+  content is wrapped as `untrusted_data` (never system/judge instructions).
+  Secret-like tokens are masked in logs/prompts unless `--reveal-secrets`.
+  `tripwire scan` / `--dry-discover` print `[evidence]` rows —
+  `cli/src/evidenceVerify.js`. IMPLEMENTED (host/CLI); finding-row persistence
+  stays slice 67.
 - Git repo `package` discovery target (`items.type=package` when manifests at
   scope root; DepShield / Ossprey / Snyk only) — `cli/src/discovery.js`,
   `sandbox/scanners.py` `_group_applies` (slice 64 ✅ on `main` via #145/#146;
