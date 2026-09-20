@@ -241,3 +241,75 @@ test('given dependency finding when buildWorkflowFindingTitle then package and C
   assert.match(fromMessage, /unique advisory/);
   assert.equal(buildWorkflowFindingTitle(null), 'Finding');
 });
+
+test('given same package CVE in different lockfiles when titled then path distinguishes rows', () => {
+  /**
+   * Scenario: Monorepo SCA hits share package/CVE; file_path is the unique signal.
+   *
+   * Given braces@3.0.3 · same CVE under two package.json paths,
+   * When titles are built,
+   * Then each title includes its path so Triage rows are not identical.
+   */
+  // -- Given --
+  const localWeb = {
+    package_name: 'braces',
+    package_version: '3.0.3',
+    cve_ids: ['CVE-2026-93687'],
+    file_path: 'packages/local-web/package.json',
+  };
+  const webCore = {
+    ...localWeb,
+    file_path: 'packages/web-core/package.json',
+  };
+
+  // -- When --
+  const titleLocal = buildWorkflowFindingTitle(localWeb);
+  const titleCore = buildWorkflowFindingTitle(webCore);
+
+  // -- Then --
+  assert.match(titleLocal, /packages\/local-web\/package\.json/);
+  assert.match(titleCore, /packages\/web-core\/package\.json/);
+  assert.notEqual(titleLocal, titleCore);
+});
+
+test('given identical SCA rows when buildTriageView then duplicates collapse with count', () => {
+  /**
+   * Scenario: Exact duplicate inserts must not spam Triage.
+   *
+   * Given three identical braces findings for one path,
+   * When Triage builds,
+   * Then one row remains with duplicateCount 3.
+   */
+  // -- Given --
+  const base = {
+    severity: 'High',
+    triageStatus: 'to_fix',
+    itemId: 'vk',
+    itemName: 'vibe-kanban',
+    itemType: 'package',
+    package_name: 'braces',
+    package_version: '3.0.3',
+    cve_ids: ['CVE-2026-93687'],
+    file_path: 'packages/local-web/package.json',
+    scanner: 'Snyk',
+    category: 'dependency_vulnerability',
+  };
+  const findings = [
+    { ...base, id: 'a' },
+    { ...base, id: 'b' },
+    { ...base, id: 'c' },
+  ];
+
+  // -- When --
+  const view = buildTriageView({
+    findings,
+    typeFilter: 'all',
+    qualityTab: 'all',
+    triageFilter: 'all',
+  });
+
+  // -- Then --
+  assert.equal(view.filteredFindings.length, 1);
+  assert.equal(view.filteredFindings[0].duplicateCount, 3);
+  assert.equal(view.tabs.find((t) => t.id === 'to_fix').count, 1);
+});

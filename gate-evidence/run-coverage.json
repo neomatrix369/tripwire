@@ -1,15 +1,9 @@
 {
-  "primitive": "run-coverage",
-  "slice_id": "slice-74",
-  "invocation_id": "805dd000-1149-4164-b3b6-d60fea0c265d",
-  "status": "passed",
-  "timestamp": "2026-09-20T17:57:36Z",
-  "evidence": {
-    "coverage_pct": 97.68,
-    "threshold": 95,
-    "python_pct": 95.53,
-    "cli_pct": 94.67,
-    "dc_dashboard_pct": 97.68,
-    "command": "uv run pytest --cov; npm run test:coverage (cli + dc-dashboard)"
-  }
+  "invocation_id": "0b1762c4-d4a6-4095-9fb0-014aa0d41019",
+  "skill": "run-coverage",
+  "stack": "dc-dashboard",
+  "verdict": "PASS",
+  "lines_pct": 98.5,
+  "threshold": 95,
+  "timestamp": "2026-09-20T21:51:56.458445Z"
 }

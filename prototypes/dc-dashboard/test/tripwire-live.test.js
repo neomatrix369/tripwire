@@ -460,7 +460,7 @@ test('given dashboard html when inspecting triage then type quality and target f
   assert.match(html, /aria-label="Triage status filters"/);
   assert.match(html, /workflowTriage\.typeTabs/);
   assert.match(html, /workflowTriage\.targetChips/);
-  assert.match(html, /f\.targetLabel/);
+  assert.match(html, /f\.metaLine/);
 });
 
 test('given dashboard html when filters match nothing then empty-state copy is defined', () => {
