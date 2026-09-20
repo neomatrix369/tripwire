@@ -115,11 +115,16 @@ function shapeItem(item, runsByItem, scannersByRun, findingsByRun) {
     cwe_ids: f.cwe_ids,
   }));
 
+  const completedScannerCount = latestScanners.filter(
+    (s) => s.status === "completed"
+  ).length;
+
   const status = resolveItemStatus({
     runStatus,
     heatmapStatus: item.heatmap_status,
     riskScore: item.risk_score,
     findings: mappedFindings,
+    completedScannerCount,
   });
 
   const unreachableCount = latestScanners.filter((s) => s.status === "unreachable").length;

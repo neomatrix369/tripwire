@@ -904,12 +904,52 @@ def test_given_package_snyk_test_no_supported_projects_when_run_then_not_applica
         patch.dict("os.environ", {"SNYK_TOKEN": "t"}, clear=False),
         patch.object(scanners, "_which", side_effect=lambda b: b == "snyk"),
         patch.object(scanners, "_run", return_value=(3, json.dumps(payload), "")),
+        # Preflight must see a catalogueable manifest so exit-3 mapping is exercised.
+        patch.object(
+            scanners,
+            "_snyk_detect_sca_ecosystems",
+            return_value=(("package.json",), ()),
+        ),
     ):
         findings, rows = scanners.run_snyk("/tmp/scan-target", item_type="package")
 
     ### Then
     assert findings == []
     assert rows[0]["status"] == "not_applicable"
+
+
+def test_given_cargo_only_package_when_run_snyk_then_not_applicable_without_cli(
+    tmp_path,
+) -> None:
+    """
+    Scenario: Rust/Cargo-only package targets skip `snyk test` (unsupported).
+    Slice: fix/cargo-package-scan-error-status
+
+    Given a workdir with only Cargo.toml (no npm/Python/Go manifests),
+    When run_snyk runs for item_type=package,
+    Then the row is not_applicable with a Rust/Cargo explanation and snyk is not invoked.
+    """
+    ### Given
+    (tmp_path / "Cargo.toml").write_text('[package]\nname = "demo"\n', encoding="utf-8")
+    run_calls: list = []
+
+    def _capture_run(*_a, **_k):
+        run_calls.append(True)
+        return (3, "{}", "")
+
+    ### When
+    with (
+        patch.dict("os.environ", {"SNYK_TOKEN": "t"}, clear=False),
+        patch.object(scanners, "_which", side_effect=lambda b: b == "snyk"),
+        patch.object(scanners, "_run", side_effect=_capture_run),
+    ):
+        findings, rows = scanners.run_snyk(str(tmp_path), item_type="package")
+
+    ### Then
+    assert findings == []
+    assert rows[0]["status"] == "not_applicable"
+    assert "Rust/Cargo" in (rows[0].get("detail") or "")
+    assert run_calls == [], "snyk CLI must not be invoked for Cargo-only trees"
 
 
 def test_given_package_snyk_test_all_projects_when_run_then_merges_project_vulns() -> None:
