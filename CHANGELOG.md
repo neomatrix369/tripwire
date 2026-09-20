@@ -19,6 +19,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Snyk preflight: `sandbox/scanners.py`. VERIFIED on Live Packages (pizauth / snare).
 
 ### Added
+- Dashboard Workflow operator-visible pipeline narration (slice 75 / R-UX-1,
+  Wave R) — IMPLEMENTED on branch (unit). Workflow UI narrates judge-panel
+  honesty (no fabricated pending slots; panel-off / absent copy), prefers CLI
+  coverage ledger, builds Run process line + “Review findings” CTA, Investigate
+  final-judge / evidence honesty, and keeps Fix free of false `gen-27b` hints.
+  L→R soft-amend (parent meta, multi-select, role-labelled models) still open.
+  Modules: `tripwire-workflow-pipeline.js` (+ Run/Investigate/HTML wiring);
+  GWT-75.* tests.
 - Dashboard Triage: type + quality + per-target filters (slice 73, Wave R) —
   applied onto `fix/slice-74-fix-blank-while-heuristic`. Same inventory-style type
   buttons (All / Skills / MCP / Packages), quality tabs (including All quality),

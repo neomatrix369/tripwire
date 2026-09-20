@@ -407,7 +407,7 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 | 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Gap Scanners for Unsupported Ecosystems | Could | ✅ | 65 (ledger gaps) | — | ~4 min |
 | 73 | [slice-73-triage-target-filters](slices/18-R-approved-repo-workflow/slice-73-triage-target-filters.md) | Triage Type + Per-Target Filters | Should | 🔨 | 68 | — | ~3 min |
 | 74 | [slice-74-workflow-model-labels](slices/18-R-approved-repo-workflow/slice-74-workflow-model-labels.md) | Workflow Model Labels (Defaults + Actuals) | Should | 🔨 | 68; 67/69 fields | — | ~3 min |
-| 75 | [slice-75-operator-visible-pipeline](slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md) | Operator-Visible Pipeline (R-UX-1) | Should | 📋 | 67; 68 (benefits 74) | — | ~5 min |
+| 75 | [slice-75-operator-visible-pipeline](slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md) | Operator-Visible Pipeline (R-UX-1) | Should | 🔀 | 67; 68 (benefits 74) | — | ~5 min |
 
 ## Supporting Artifacts
 | File | Status |
@@ -437,9 +437,9 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 2. **Active Frontline branch:** Wave **H** Musts **23 → 32** (phase-gated H1→H2→H3). Human test after 25 and 30; **HARD GATE** at 32 before any Should 33+.
 3. Wave **H** Should 33–38 after 32 PASS (35 stays 🔴 until Ossprey access in DECISIONS). Slice 39 stays 📦 unless pulled in.
 4. Wave **G** (18–22) remains 📋 — do **not** start while H1–H3 is active unless explicitly resumed. Prefer one active slice per shared code area.
-5. **2026-09-20 addendum:** Wave **R** (approved-repo security workflow, slices **65→69** Must) is the next product stream after Wave P landed. **65–66** ✅ · **67** ✅ landed `main` (#151) · **68** ✅ landed `main` (#152) · **69** ✅ · **70** ✅ landed `main` (#155) · **71** ✅ landed `main` (#153) · Could **72** ✅ landed `main` (#150). Should **73** 🔨 · **74** 🔨 · **75** 📋 operator-visible pipeline (R-UX-1).
-6. **2026-09-20 improvement (R-UX-1):** Operator-visible pipeline — Workflow UI must narrate judge panel (≥3 parallel + final `gen-27b`), coverage, evidence-verify, and stage progress/outcomes in plain language (not silent b/g). → **Slice 75** 📋 PLANNED (Should); soft-amends 67/68.
-7. **2026-09-20 soft-amend (Workflow L→R):** Slice **75** expands to parent target meta + multi-select + role-labelled models per step/target (skill/mcp/package) + visible background. Soft-amends **74** (Fix `gen-27b` when LLM propose), **67** (panel light/mid · final stronger), **69** (stronger fix model + parent meta). Not 100% correct in UI yet — chrome (68) exists; honesty/narration/selection/model roles still 📋/🔨.
+5. **2026-09-20 addendum:** Wave **R** (approved-repo security workflow, slices **65→69** Must) is the next product stream after Wave P landed. **65–66** ✅ · **67** ✅ landed `main` (#151) · **68** ✅ landed `main` (#152) · **69** ✅ · **70** ✅ landed `main` (#155) · **71** ✅ landed `main` (#153) · Could **72** ✅ landed `main` (#150). Should **73** 🔨 · **74** 🔨 · **75** 🔀 operator-visible pipeline (R-UX-1) — GWT-75.1–75.8 unit green on branch; L→R soft-amend + `/verify-slice` pending.
+6. **2026-09-20 improvement (R-UX-1):** Operator-visible pipeline — Workflow UI must narrate judge panel (≥3 parallel + final `gen-27b`), coverage, evidence-verify, and stage progress/outcomes in plain language (not silent b/g). → **Slice 75** 🔀 ON BRANCH (Should); soft-amends 67/68.
+7. **2026-09-20 soft-amend (Workflow L→R):** Slice **75** expands to parent target meta + multi-select + role-labelled models per step/target (skill/mcp/package) + visible background. Soft-amends **74** (Fix `gen-27b` when LLM propose), **67** (panel light/mid · final stronger), **69** (stronger fix model + parent meta). Core narration helpers are on branch; L→R selection/meta/model-role GWTs still open.
 
 ## Wave G source-finding map
 
