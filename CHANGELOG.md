@@ -7,13 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-- Dashboard primary navigation: inventory (KPIs / filters / cards) is the default
-  **Dashboard** tab; Run → Triage → Investigate → Fix → Verify → Report lives on a
-  secondary **Workflow** tab (`prototypes/dc-dashboard/Tripwire.dc.html`). Simple/Expert
-  remains a Workflow-only density toggle (finding detail), not a gate that hides
-  inventory. IMPLEMENTED on `feat/inventory-default-workflow-tab`.
-
 ### Fixed
 - Package / SCA honesty for unsupported ecosystems (Cargo-only and similar):
   `snyk test` does not support Rust/Cargo — Tripwire reports `not_applicable`
@@ -176,6 +169,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `--force`, `--concurrency`, and explicit path arguments
 
 ### Changed
+- Dashboard primary navigation: inventory (KPIs / filters / cards) is the default
+  **Dashboard** tab; Run → Triage → Investigate → Fix → Verify → Report lives on a
+  secondary **Workflow** tab (`prototypes/dc-dashboard/Tripwire.dc.html`). Simple/Expert
+  remains a Workflow-only density toggle (finding detail), not a gate that hides
+  inventory. IMPLEMENTED on `feat/inventory-default-workflow-tab`.
 - CI ultra-minimal (parity with quine-factory, **USER-CONFIRMED** 2026-09-11):
   PR/push keep ship-path coverage + OSV + targeted Trivy/gitleaks/TruffleHog;
   Semgrep, CodeQL, Meterian, dashboard prototype tests, and full-history scans
