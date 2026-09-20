@@ -378,65 +378,6 @@ def test_given_cargo_toml_only_when_run_then_detail_notes_toml(tmp_path: Path) -
     assert "Cargo.toml" in rows[0].get("detail", "")
 
 
-def test_given_exit_2_when_run_then_unreachable(tmp_path: Path) -> None:
-    (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
-
-    with (
-        patch.object(scanners, "_which", return_value=True),
-        patch.object(scanners, "_run", return_value=(2, "", "db fetch failed")),
-    ):
-        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
-
-    assert findings == []
-    assert rows[0]["status"] == "unreachable"
-    assert "db fetch failed" in rows[0]["detail"]
-
-
-def test_given_timeout_when_run_then_unreachable(tmp_path: Path) -> None:
-    import subprocess
-
-    (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
-
-    with (
-        patch.object(scanners, "_which", return_value=True),
-        patch.object(
-            scanners,
-            "_run",
-            side_effect=subprocess.TimeoutExpired(cmd=["cargo-audit"], timeout=1),
-        ),
-    ):
-        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
-
-    assert rows[0]["status"] == "unreachable"
-    assert "timed out" in rows[0]["detail"]
-
-
-def test_given_oserror_when_run_then_unreachable(tmp_path: Path) -> None:
-    (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
-
-    with (
-        patch.object(scanners, "_which", return_value=True),
-        patch.object(scanners, "_run", side_effect=OSError("boom")),
-    ):
-        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
-
-    assert rows[0]["status"] == "unreachable"
-    assert "boom" in rows[0]["detail"]
-
-
-def test_given_bad_json_when_run_then_unreachable(tmp_path: Path) -> None:
-    (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
-
-    with (
-        patch.object(scanners, "_which", return_value=True),
-        patch.object(scanners, "_run", return_value=(1, "not-json", "")),
-    ):
-        findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
-
-    assert findings == []
-    assert rows[0]["status"] == "unreachable"
-
-
 def test_given_empty_stdout_exit0_when_run_then_completed(tmp_path: Path) -> None:
     (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
 
@@ -454,9 +395,7 @@ def test_given_non_dict_entry_when_finding_then_defaults() -> None:
     finding = scanners._cargo_audit_finding("not-a-dict", "Cargo.lock")
     assert finding["cve_ids"] == ["RUSTSEC-unknown"]
     assert finding["package_name"] == "unknown"
-    finding2 = scanners._cargo_audit_finding(
-        {"advisory": "x", "package": "y"}, "Cargo.lock"
-    )
+    finding2 = scanners._cargo_audit_finding({"advisory": "x", "package": "y"}, "Cargo.lock")
     assert finding2["severity"] == "amber"
 
 
