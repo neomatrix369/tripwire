@@ -1925,7 +1925,13 @@ class Component extends DCLogic {
   mapItemFindingToWorkflow(item, f, index) {
     const prefs = this._workflow?.prefs;
     const severity = this.mapWorkflowSeverity(f.severity);
-    const title = f.category || (f.message ? String(f.message).slice(0, 80) : 'Finding');
+    const titleFn = this._workflow?.triage?.buildWorkflowFindingTitle;
+    // Prefer unique message/package over bare category even before kits load.
+    const title = titleFn
+      ? titleFn(f)
+      : (f.message
+        ? String(f.message).slice(0, 120)
+        : (f.category || 'Finding'));
     const evidenceHighlight = f.snippet || f.evidenceHighlight || '';
     const source = f.file_path
       ? (f.location != null ? `${f.file_path}:${f.location}` : f.file_path)
@@ -1964,6 +1970,10 @@ class Component extends DCLogic {
       judgePanel: f.judgePanel || null,
       confidence: f.confidence ?? null,
       dataFlow: f.dataFlow || null,
+      package_name: f.package_name || null,
+      package_version: f.package_version || null,
+      cve_ids: Array.isArray(f.cve_ids) ? f.cve_ids : [],
+      category: f.category || '',
       itemId: item.id,
       itemName: item.name
     };

@@ -3,6 +3,37 @@
  * Headline, status tabs, severity-sorted findings, coverage honesty.
  */
 
+/**
+ * Distinctive triage/investigate title — prefer package@ver · CVE over bare category.
+ * SCA findings share category `dependency_vulnerability`; uniqueness is in package/CVE/message.
+ * @param {{
+ *   package_name?: string|null,
+ *   package_version?: string|null,
+ *   cve_ids?: string[]|null,
+ *   message?: string|null,
+ *   category?: string|null,
+ *   title?: string|null,
+ * }|null|undefined} finding
+ * @returns {string}
+ */
+export function buildWorkflowFindingTitle(finding) {
+  if (!finding || typeof finding !== "object") return "Finding";
+  const pkg = finding.package_name;
+  if (pkg) {
+    const ver = finding.package_version;
+    const label = ver ? `${pkg}@${ver}` : String(pkg);
+    const cves = Array.isArray(finding.cve_ids)
+      ? finding.cve_ids.filter(Boolean)
+      : [];
+    const cve = cves[0];
+    return cve ? `${label} · ${cve}` : label;
+  }
+  if (finding.message) return String(finding.message).slice(0, 120);
+  if (finding.title) return String(finding.title).slice(0, 120);
+  if (finding.category) return String(finding.category);
+  return "Finding";
+}
+
 const STATUS_ORDER = Object.freeze([
   "to_fix",
   "needs_review",

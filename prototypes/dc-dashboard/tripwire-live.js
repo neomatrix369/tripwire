@@ -113,6 +113,9 @@ function shapeItem(item, runsByItem, scannersByRun, findingsByRun) {
     message: f.message,
     snippet: f.snippet,
     cwe_ids: f.cwe_ids,
+    package_name: f.package_name,
+    package_version: f.package_version,
+    cve_ids: f.cve_ids,
   }));
 
   const completedScannerCount = latestScanners.filter(
