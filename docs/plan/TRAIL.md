@@ -406,7 +406,7 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 | 71 | [slice-71-expert-export-report](slices/18-R-approved-repo-workflow/slice-71-expert-export-report.md) | Expert View + Report Export | Should | 🔀 | 68 | — | ~3 min |
 | 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Gap Scanners for Unsupported Ecosystems | Could | ✅ | 65 (ledger gaps) | — | ~4 min |
 | 73 | [slice-73-triage-target-filters](slices/18-R-approved-repo-workflow/slice-73-triage-target-filters.md) | Triage Type + Per-Target Filters | Should | 🔨 | 68 | — | ~3 min |
-| 74 | [slice-74-workflow-model-labels](slices/18-R-approved-repo-workflow/slice-74-workflow-model-labels.md) | Workflow Model Labels (Defaults + Actuals) | Should | 🔨 | 68; 67/69 fields | — | ~3 min |
+| 74 | [slice-74-workflow-model-labels](slices/18-R-approved-repo-workflow/slice-74-workflow-model-labels.md) | Workflow Model Labels (Defaults + Actuals) | Should | ✅ | 68; 67/69 fields | — | ~3 min |
 | 75 | [slice-75-operator-visible-pipeline](slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md) | Operator-Visible Pipeline (R-UX-1) | Should | 🔀 | 67; 68 (benefits 74) | — | ~5 min |
 
 ## Supporting Artifacts

@@ -1,14 +1,14 @@
 {
   "primitive": "verify-slice",
-  "slice_id": "slice-75",
-  "invocation_id": "48f53727-91f7-4311-bf5e-40f03eccb82c",
+  "slice_id": "slice-74",
+  "invocation_id": "E49536DF-607C-46BB-B2B9-E4F8EBAD7972",
   "status": "passed",
-  "timestamp": "2026-09-20T22:21:08Z",
+  "timestamp": "2026-09-20T22:32:00Z",
   "evidence": {
     "verdict": "COMPLETE",
     "acceptance": {
-      "total": 11,
-      "passed": 11,
+      "total": 5,
+      "passed": 5,
       "failed": 0,
       "skipped": 0
     },
@@ -19,6 +19,11 @@
     },
     "docs": "current",
     "visual_assets": "NOT_APPLICABLE",
+    "production_reachability": "VERIFIED",
+    "production_paths": [
+      "tripwire-workflow-stepper.js imports defaultModelHintForStep",
+      "Tripwire.dc.html dynamic-imports tripwire-workflow-models.js and calls buildModelsUsedLine"
+    ],
     "gate4": {
       "nw-software-crafter-reviewer": "APPROVED",
       "nw-acceptance-designer-reviewer": "APPROVED",
@@ -26,6 +31,6 @@
       "nw-ddd-architect-reviewer": "NOT_APPLICABLE"
     },
     "unmet_or_skipped": [],
-    "notes": "GWT-75.1\u201375.11 unit-VERIFIED on branch; L\u2192R soft-amend included; \u2705 PASSED awaits merge"
+    "notes": "Soft-amend already on main (role-aware modelHints, Fix empty while heuristic, GWT-74.5 type·name). Formal close 2026-09-20; 8/8 unit tests green."
   }
 }

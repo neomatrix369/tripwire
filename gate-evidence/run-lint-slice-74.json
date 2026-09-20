@@ -1,0 +1,14 @@
+{
+  "primitive": "run-lint",
+  "slice_id": "slice-74",
+  "invocation_id": "E49536DF-607C-46BB-B2B9-E4F8EBAD7972",
+  "status": "passed",
+  "timestamp": "2026-09-20T22:32:00Z",
+  "evidence": {
+    "linter": "eslint",
+    "command_run": "npx eslint tripwire-workflow-models.js test/tripwire-workflow-models.test.js",
+    "findings_count": 0,
+    "blocking_findings": [],
+    "raw_log": "gate-evidence/run-lint-slice-74-raw.txt"
+  }
+}

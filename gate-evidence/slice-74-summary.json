@@ -1,0 +1,28 @@
+{
+  "primitive": "collect-gate-evidence",
+  "slice_id": "slice-74",
+  "invocation_id": "E49536DF-607C-46BB-B2B9-E4F8EBAD7972",
+  "status": "passed",
+  "timestamp": "2026-09-20T22:32:00Z",
+  "evidence": {
+    "primitives": [
+      {"name": "run-tests", "status": "passed", "timestamp": "2026-09-20T22:32:00Z"},
+      {"name": "run-lint", "status": "passed", "timestamp": "2026-09-20T22:32:00Z"},
+      {"name": "run-coverage", "status": "passed", "timestamp": "2026-09-20T22:32:00Z"}
+    ],
+    "acceptance": {
+      "GWT-74.1": "PASS",
+      "GWT-74.2": "PASS",
+      "GWT-74.3": "PASS",
+      "GWT-74.4": "PASS",
+      "GWT-74.5": "PASS"
+    },
+    "soft_amend": {
+      "role_aware_hints": "PASS",
+      "fix_blank_while_heuristic": "PASS",
+      "per_target_type_name_prefix": "PASS"
+    },
+    "blocking": [],
+    "missing": []
+  }
+}

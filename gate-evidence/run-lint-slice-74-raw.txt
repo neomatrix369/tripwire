@@ -1,0 +1,1 @@
+eslint: 0 findings (tripwire-workflow-models.js + test)

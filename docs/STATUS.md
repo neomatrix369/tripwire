@@ -82,14 +82,13 @@ Reachable through production entry points / config:
   (not bare `dependency_vulnerability`); Live maps `package_name` /
   `package_version` / `cve_ids`. Module: `tripwire-triage.js` + Triage panel in
   `Tripwire.dc.html`. Not VERIFIED until `/verify-slice`.
-- Wave R **workflow model labels** (slice 74): 🔨 IN PROGRESS on
-  `slice/74-workflow-model-labels` — stepper tabs show default model aliases
-  for stages that actually use models (Run/Triage/Investigate; Fix blank while
-  propose is heuristic). Soft-amend (2026-09-20 USER L→R): role labels
-  (panel light/mid · final stronger · fix stronger); Fix default `gen-27b`
-  when LLM propose is the product path; per-target model rows — **DECIDED**,
-  not yet IMPLEMENTED in UI. Module: `tripwire-workflow-models.js`. Not VERIFIED
-  until `/verify-slice`.
+- Wave R **workflow model labels** (slice 74): ✅ PASSED (formal close 2026-09-20)
+  — IMPLEMENTED / VERIFIED. Stepper tabs show role-aware default model aliases
+  for stages that use models (Run panel + final; Triage SIE; Investigate SIE ·
+  Model Studio; Fix blank while propose is heuristic). Soft-amend (2026-09-20):
+  role labels, Fix empty while heuristic-only, per-target type·name on model
+  lines. Module: `tripwire-workflow-models.js`; GWT-74.1–74.5;
+  `gate-evidence/verify-slice.json` COMPLETE.
 - Wave R **Fix propose + apply-clean** (slice 69): IMPLEMENTED / VERIFIED on
   `main` (#154) — proposed unified diff, root-cause vs quick-patch label,
   apply-clean on a temp copy only (approved repo unchanged), mark fixed /

@@ -1,10 +1,10 @@
 # Slice 74: Workflow Model Labels (Defaults + Actuals)
 
-> Scenario: Brownfield | MoSCoW: **Should** | Status: 🔨 IN PROGRESS
+> Scenario: Brownfield | MoSCoW: **Should** | Status: ✅ PASSED
 > Wave: R — Approved-repo security workflow
 > Depends on: **68** (stepper + panels); benefits from **67** (judge models) / **69** (fix propose)
 > Trigger: Operator needs to see which models assess vulns / propose fixes — defaults on tabs, actuals in panels, **role + per-target** clarity
-> Branch: `slice/74-workflow-model-labels`
+> Branch: `docs/slice-74-formal-close` (impl landed via #157/#158/#159; formal close 2026-09-20)
 > UI surface: **1A** — extend Tripwire Live/Mock workflow chrome
 > Soft-amended 2026-09-20 (USER): role labels (panel light/mid · final stronger · fix stronger); Fix default `gen-27b` when LLM propose is product path; per-target (skill/mcp/package) model rows
 
@@ -92,16 +92,16 @@
 ## After-Checks [GATE]
 - [x] Tests pass
 - [x] Specification coverage for GWT-74.*
-- [ ] Complexity evidence recorded (reporting)
+- [x] Complexity evidence recorded (reporting) — `gate-evidence/run-coverage-slice-74.json` (93.46% lines on `tripwire-workflow-models.js`)
 - [x] Doc Audit: STATUS + CHANGELOG model labels
-- [ ] Soft-amend GWT-74.1/74.3/74.5 tests (role + Fix default + per-target) — re-RED as needed
+- [x] Soft-amend GWT-74.1/74.3/74.5 tests (role + Fix default + per-target) — re-RED as needed
 
 ### Closing Gates
-- [ ] `nw-at-completeness-check`
-- [ ] `nw-software-crafter-reviewer`
-- [ ] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer`
-- [ ] `nw-gate-evidence-validator`
-- [ ] `/verify-slice` — COMPLETE
+- [x] `nw-at-completeness-check`
+- [x] `nw-software-crafter-reviewer`
+- [x] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer`
+- [x] `nw-gate-evidence-validator`
+- [x] `/verify-slice` — COMPLETE
 
 ## Gate Status
-🔨 IN PROGRESS — GWT-74.* green on `slice/74-workflow-model-labels`; soft-amend 2026-09-20 expands roles / Fix default / per-target — Closing Gates open
+✅ PASSED — formal close 2026-09-20 (`docs/slice-74-formal-close`); soft-amend VERIFIED on main; Gate 4 APPROVED (crafter / acceptance / solution-architect); DDD N/A; evidence `gate-evidence/slice-74-summary.json` + `verify-slice.json`
