@@ -1,26 +1,24 @@
 {
-  "slice": 69,
-  "branch": "slice/69-fix-propose-apply-clean",
-  "worktree": ".worktrees/slice-69-fix-propose-apply-clean",
+  "primitive": "verify-slice",
+  "slice_id": "slice-70",
+  "invocation_id": "43CDE808-9790-4704-8B7A-764E2F6D2790",
   "status": "COMPLETE",
-  "iterations": 1,
-  "implement_slice": "SUCCESS",
-  "verify_slice": "COMPLETE",
-  "evidence_state": "IMPLEMENTED",
-  "acceptance": {
-    "GWT-69.1": "PASS — unified diff + patchClass label + regression suggestion (provided/generateFn/heuristic)",
-    "GWT-69.2": "PASS — applyPatch only on temp path; approved fingerprint unchanged; empty patch not applied",
-    "GWT-69.3": "PASS — won't-fix requires reason; J/K; progress N of M; copy patch / git apply; HTML chrome",
-    "GWT-69.4": "PASS — claimedFixed false; verificationStatus not_verified; operator mark says not verified"
-  },
-  "quality_gates": {
-    "tests": "298 pass / 0 fail / 1 skipped",
-    "lint": "passed",
-    "coverage": { "lines": 98.51, "branches": 86.09, "functions": 98.15, "statements": 98.51 }
-  },
-  "runtime": "PASS — Fix panel wired in Tripwire.dc.html; createMemoryApplyPort in browser (no git on approved tree)",
-  "documentation": "current — STATUS, CHANGELOG, TRAIL, PROGRESS, slice stub",
-  "visual_assets": "NOT_APPLICABLE — no current-truth architecture diagrams in slice boundary",
-  "integration": "PASS — Promise.all loads fix modules; workflowIsFix; stub only verify after merge with slice 71 Report",
-  "timestamp": "2026-09-20T16:40:00Z"
+  "timestamp": "2026-09-20T16:49:45Z",
+  "verdict": "COMPLETE",
+  "evidence": {
+    "acceptance": {
+      "GWT-70.1": "PASS",
+      "GWT-70.2": "PASS",
+      "GWT-70.3": "PASS"
+    },
+    "quality_gates": {
+      "tests": "passed",
+      "lint": "passed",
+      "coverage": "passed"
+    },
+    "static_integration": "Tripwire.dc.html imports verifyRescan/verifyView; workflowIsVerify panel live",
+    "docs": "STATUS Verify honesty; CHANGELOG Unreleased; PROGRESS/TRAIL IN PROGRESS pending close",
+    "visual_assets": "N/A \u2014 no diagrams in slice 70 scope",
+    "unmet_or_skipped": []
+  }
 }

@@ -1055,11 +1055,16 @@ test('GWT-69.4 given dashboard html when operator marks fixed then copy says not
   assert.match(
     html,
     /workflowIsStub: stubSteps/,
-    'stub helper remains for later steps'
+    'stub helper remains (unused once all steps are live)'
   );
   assert.match(
     html,
-    /const stubSteps = step === 'verify';/,
-    'Fix and Report are live; only Verify stays stubbed (slice 70)'
+    /const stubSteps = false/,
+    'Fix, Verify, and Report are live — no workflow stub step'
+  );
+  assert.match(
+    html,
+    /workflowIsVerify/,
+    'Verify step has a dedicated live panel flag'
   );
 });

@@ -1,0 +1,21 @@
+{
+  "primitive": "collect-gate-evidence",
+  "slice_id": "slice-70",
+  "invocation_id": "43CDE808-9790-4704-8B7A-764E2F6D2790",
+  "status": "passed",
+  "timestamp": "2026-09-20T16:49:45Z",
+  "evidence": {
+    "primitives": {
+      "load-slice-spec": "passed",
+      "check-dependencies": "passed",
+      "run-tests": "passed",
+      "run-lint": "passed",
+      "run-coverage": "passed"
+    },
+    "acceptance": {
+      "GWT-70.1": "PASS",
+      "GWT-70.2": "PASS",
+      "GWT-70.3": "PASS"
+    }
+  }
+}
