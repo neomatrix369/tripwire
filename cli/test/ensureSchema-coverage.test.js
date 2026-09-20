@@ -18,7 +18,7 @@ import {
   usablePostgresUrl,
 } from '../src/ensureSchema.js';
 
-function mockSupabase({ itemsError = null, colError = null } = {}) {
+function mockSupabase({ itemsError = null, colError = null, panelError = null } = {}) {
   return {
     from(table) {
       return {
@@ -26,7 +26,9 @@ function mockSupabase({ itemsError = null, colError = null } = {}) {
           return {
             limit: async () => {
               if (table === 'items') return { error: itemsError };
-              return { error: colError };
+              if (table === 'scan_run_scanners') return { error: colError };
+              if (table === 'judge_panel_runs') return { error: panelError };
+              return { error: null };
             },
           };
         },
@@ -49,6 +51,24 @@ test('given completed_at missing when probeSchema then missing', async () => {
   // -- Given --
   const sb = mockSupabase({
     colError: { code: 'PGRST204', message: "Could not find the 'completed_at' column" },
+  });
+
+  // -- When / Then --
+  assert.equal(await probeSchema(sb), 'missing');
+});
+
+test('given judge_panel_runs missing when probeSchema then missing', async () => {
+  /**
+   * Scenario: DBs created before slice 67 lack judge panel tables.
+   * Slice: 67 — judge_panel_runs probe
+   *
+   * Given items and scan_run_scanners are ready but judge_panel_runs is absent,
+   * When probeSchema runs,
+   * Then it reports missing so ensureSchema applies db/schema.sql.
+   */
+  // -- Given --
+  const sb = mockSupabase({
+    panelError: { code: 'PGRST205', message: 'Could not find the table' },
   });
 
   // -- When / Then --

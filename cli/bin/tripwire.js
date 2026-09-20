@@ -5,6 +5,7 @@ import { ensureSchema } from '../src/ensureSchema.js';
 import { loadEnv } from '../src/loadEnv.js';
 import { runScan } from '../src/orchestrator.js';
 import { runRoute } from '../src/router.js';
+import { runJudgePanel } from '../src/judgePanel.js';
 import {
   buildCoverageLedger,
   formatCoverageLedger,
@@ -154,6 +155,21 @@ program
         sieModel: opts.sieModel,
         modelStudioModel: opts.modelStudioModel,
       });
+    } catch (err) {
+      console.error(err.message || err);
+      process.exitCode = 1;
+    }
+  });
+
+program
+  .command('judge')
+  .description(
+    'Run SIE judge panel + final judge for a completed batch (slice 67; additive to ADR-0016 route)',
+  )
+  .requiredOption('--batch-id <id>', 'batch_id to judge')
+  .action(async (opts) => {
+    try {
+      await runJudgePanel(opts.batchId);
     } catch (err) {
       console.error(err.message || err);
       process.exitCode = 1;

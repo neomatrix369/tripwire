@@ -134,6 +134,47 @@ create table if not exists coverage (
   scanned        boolean not null
 );
 
+-- Slice 67: SIE judge panel + final verdict (separate from ADR-0016 tiered_router findings).
+create table if not exists judge_panel_runs (
+  id                  uuid primary key default gen_random_uuid(),
+  scan_run_id         uuid not null references scan_runs(id),
+  item_id             uuid not null references items(id),
+  finding_id          uuid references findings(id),
+  answered_count      integer not null default 0,
+  total_judges        integer not null default 0,
+  disagreement        boolean not null default false,
+  final_verdict       text check (final_verdict in ('true_positive', 'false_positive', 'needs_review')),
+  final_confidence    numeric,
+  final_reason        text,
+  final_model         text,
+  final_raw_response  text,
+  prompt_version      text,
+  sie_run_id          text,
+  inventory_note      text,  -- e.g. <3 suitable models: parallel re-runs of available model(s)
+  created_at          timestamptz not null default now()
+);
+create index if not exists judge_panel_runs_scan_run_idx on judge_panel_runs (scan_run_id);
+create index if not exists judge_panel_runs_item_idx on judge_panel_runs (item_id);
+create index if not exists judge_panel_runs_finding_idx on judge_panel_runs (finding_id);
+
+create table if not exists judge_panel_judgements (
+  id             uuid primary key default gen_random_uuid(),
+  panel_run_id   uuid not null references judge_panel_runs(id),
+  slot           integer not null,
+  model          text not null,
+  verdict        text check (verdict in ('true_positive', 'false_positive', 'needs_review')),
+  confidence     numeric,
+  reason         text,
+  raw_response   text,
+  prompt_version text,
+  run_id         text,
+  status         text not null check (status in ('answered', 'timeout', 'error')),
+  error_message  text,
+  created_at     timestamptz not null default now(),
+  unique (panel_run_id, slot)
+);
+create index if not exists judge_panel_judgements_panel_run_idx on judge_panel_judgements (panel_run_id);
+
 create table if not exists config (
   id                  int primary key default 1,
   monitoring_enabled  boolean not null default true,
@@ -145,10 +186,12 @@ insert into config (id) values (1) on conflict (id) do nothing;
 
 -- ─── Row Level Security ──────────────────────────────────────────────────────
 -- Anon (browser dashboard) may SELECT; writes require service_role (bypasses RLS).
-alter table items              enable row level security;
-alter table scan_runs          enable row level security;
-alter table scan_run_scanners  enable row level security;
-alter table findings           enable row level security;
+alter table items                   enable row level security;
+alter table scan_runs               enable row level security;
+alter table scan_run_scanners       enable row level security;
+alter table findings                enable row level security;
+alter table judge_panel_runs        enable row level security;
+alter table judge_panel_judgements  enable row level security;
 
 do $$ begin
   if not exists (select 1 from pg_policies where policyname = 'anon_read_items') then
@@ -163,12 +206,19 @@ do $$ begin
   if not exists (select 1 from pg_policies where policyname = 'anon_read_findings') then
     create policy anon_read_findings          on findings           for select to anon using (true);
   end if;
+  if not exists (select 1 from pg_policies where policyname = 'anon_read_judge_panel_runs') then
+    create policy anon_read_judge_panel_runs       on judge_panel_runs       for select to anon using (true);
+  end if;
+  if not exists (select 1 from pg_policies where policyname = 'anon_read_judge_panel_judgements') then
+    create policy anon_read_judge_panel_judgements on judge_panel_judgements for select to anon using (true);
+  end if;
 end $$;
 
 -- PostgREST needs table GRANTs in addition to RLS policies (tables created via
 -- raw SQL as postgres do not always inherit default API grants).
 grant usage on schema public to anon, authenticated;
-grant select on table items, scan_runs, scan_run_scanners, findings to anon, authenticated;
+grant select on table items, scan_runs, scan_run_scanners, findings,
+  judge_panel_runs, judge_panel_judgements to anon, authenticated;
 grant select on dashboard_latest_runs to anon, authenticated;
 
 -- Rollup function: recompute an item's heatmap_status/risk_score from its latest scan_run.

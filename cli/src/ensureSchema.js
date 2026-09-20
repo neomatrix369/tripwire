@@ -17,29 +17,29 @@ export function isMissingSchemaError(error) {
   return /PGRST20[45]|could not find the (table|.*column)|relation ["'].*["'] does not exist|schema cache/i.test(blob);
 }
 
+async function probeSelect(supabase, table, columns) {
+  const { error } = await supabase.from(table).select(columns).limit(1);
+  if (!error) return 'ready';
+  if (isMissingSchemaError(error)) return 'missing';
+  throw new Error(`Supabase probe failed: ${error.message || error.code || 'unknown error'}`);
+}
+
 /**
  * Probe via HTTP API whether core tables and migration columns are queryable.
- * Checks both `items` (table existence) and `scan_run_scanners.completed_at`
- * (column-level migration), so `ensureSchema --force` is triggered when the
- * DB has stale columns.
+ * Checks `items` (table existence), `scan_run_scanners.completed_at`
+ * (column-level migration), and `judge_panel_runs` (slice 67 panel tables),
+ * so `ensureSchema --force` is triggered when the DB has stale columns/tables.
  * @returns {'ready'|'missing'}
  */
 export async function probeSchema(supabase = getSupabase()) {
-  const { error: itemsErr } = await supabase.from('items').select('id').limit(1);
-  if (itemsErr) {
-    if (isMissingSchemaError(itemsErr)) return 'missing';
-    throw new Error(`Supabase probe failed: ${itemsErr.message || itemsErr.code || 'unknown error'}`);
+  const probes = [
+    ['items', 'id'],
+    ['scan_run_scanners', 'completed_at'],
+    ['judge_panel_runs', 'id'],
+  ];
+  for (const [table, columns] of probes) {
+    if ((await probeSelect(supabase, table, columns)) === 'missing') return 'missing';
   }
-
-  const { error: colErr } = await supabase
-    .from('scan_run_scanners')
-    .select('completed_at')
-    .limit(1);
-  if (colErr) {
-    if (isMissingSchemaError(colErr)) return 'missing';
-    throw new Error(`Supabase probe failed: ${colErr.message || colErr.code || 'unknown error'}`);
-  }
-
   return 'ready';
 }
 

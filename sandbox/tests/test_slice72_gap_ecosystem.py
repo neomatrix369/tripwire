@@ -36,8 +36,7 @@ def test_gwt_72_2_registered_cargo_audit_runner_completes_via_entry_point(
     cargo_i = next(i for i, s in enumerate(sources) if s == ("Cargo Audit",))
     oss_i = next(i for i, s in enumerate(sources) if s == ("Ossprey",))
     assert dep_i < cargo_i < oss_i, (
-        f"expected DepShield < Cargo Audit < Ossprey, got "
-        f"dep={dep_i} cargo={cargo_i} oss={oss_i}"
+        f"expected DepShield < Cargo Audit < Ossprey, got dep={dep_i} cargo={cargo_i} oss={oss_i}"
     )
     cargo_group = scanners.SCANNER_GROUPS[cargo_i]
     assert cargo_group["applies_to"] == "both"

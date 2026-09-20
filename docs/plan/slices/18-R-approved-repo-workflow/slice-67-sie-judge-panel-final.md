@@ -1,6 +1,6 @@
 # Slice 67: SIE Judge Panel + Final Judge
 
-> Scenario: Brownfield | MoSCoW: **Must** | Status: 📋 PLANNED
+> Scenario: Brownfield | MoSCoW: **Must** | Status: 🔨 IN PROGRESS
 > Wave: R — Approved-repo security workflow
 > Depends on: **66**; ADR-0016 SIE/escalation **unchanged** (inputs only)
 > Trigger: Independent parallel judges + final verdict (TP / FP / needs review) with provenance
@@ -69,9 +69,9 @@
 **And** router outputs are inputs to the panel/final judge only
 
 ## Before-Checks [GATE]
-- [ ] Branch created
-- [ ] SIE model inventory documented in DECISIONS or stub appendix
-- [ ] GWT RED tests with mocked SIE
+- [x] Branch created (`slice/67-sie-judge-panel-final`)
+- [x] SIE model inventory documented in DECISIONS or stub appendix
+- [x] GWT RED tests with mocked SIE (`cli/test/judgePanel.test.js`)
 
 ## After-Checks [GATE]
 - [ ] Tests pass
@@ -87,4 +87,17 @@
 - [ ] `/verify-slice` — COMPLETE
 
 ## Gate Status
-📋 PLANNED — EFP Path B 2026-09-20 (Wave R)
+🔨 IN PROGRESS — 2026-09-20: model inventory + CLI `tripwire judge --batch-id` + panel module/tests present; After-Checks / gate close pending
+
+## Appendix — SIE model inventory (GWT-67.1)
+
+Source: [`prototypes/sie-studio/models.json`](../../../../prototypes/sie-studio/models.json) (catalog fetched 2026-08-14; Superlinked Cloud). Also recorded in [DECISIONS.md](../../../DECISIONS.md) (2026-09-20 slice-67 row).
+
+| Alias | Title | Kind | Upstream model | Role for panel |
+|-------|-------|------|----------------|----------------|
+| `gen-4b` | Qwen3.5-4B | generate | `Qwen/Qwen3.5-4B` | Fast generation lane; **default** (`generate_default`) |
+| `gen-27b` | Qwen3.6-27B | generate | `Qwen/Qwen3.6-27B` | Higher-quality generation (costlier) |
+
+**Suitable judge models:** the two **generate** aliases above (open-weight via SIE only). Encode/score catalog entries (`embed-4b`, `rerank-0.6b`, `rerank-4b`, `vl-rerank-2b`, `colqwen`) are **not** panel judges.
+
+**Fewer than three models:** inventory has **2** generate models (<3). Per GWT-67.1, the panel uses independent **parallel same-model** executions (e.g. multiple concurrent `gen-4b` and/or `gen-27b` runs) so ≥3 judge executions still start without inventing a third distinct model ID. Record each execution’s model alias + run ID explicitly.
