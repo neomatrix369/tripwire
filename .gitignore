@@ -64,14 +64,3 @@ tmp/
 cli/.stryker-tmp/
 cli/reports/
 prototypes/model-studio/out
-
-# Labs (external-tools-sandbox) — keep authored scaffolding trackable;
-# ignore attempt logs, cloned/vendor trees, and local junk under the four
-# tool siblings (pizauth, snare, vibe-kanban, who-targets-me).
-labs/**/.tries/
-labs/**/.vendor/
-labs/**/vendor/
-labs/**/.smoke-evidence/
-labs/**/smoke-logs/
-labs/**/smoke-evidence.txt
-labs/**/pizauth.local.conf
