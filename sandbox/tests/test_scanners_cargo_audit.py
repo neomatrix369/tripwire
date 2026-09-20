@@ -295,6 +295,31 @@ def test_given_only_cargo_binary_when_cmd_then_cargo_audit_subcommand() -> None:
         assert scanners._cargo_audit_cmd() == ["cargo", "audit"]
 
 
+def test_given_cargo_audit_binary_when_cmd_then_includes_audit_token() -> None:
+    """Direct cargo-audit invoke must pass 'audit' or --json is eaten by cargo clap."""
+    with patch.object(scanners, "_which", side_effect=lambda b: b == "cargo-audit"):
+        assert scanners._cargo_audit_cmd() == ["cargo-audit", "audit"]
+
+
+def test_given_cargo_audit_binary_when_run_then_argv_is_audit_then_json(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "Cargo.lock").write_text("# lock\n", encoding="utf-8")
+    captured: dict = {}
+
+    def _fake_run(cmd, timeout=None, cwd=None):
+        captured["cmd"] = list(cmd)
+        return 0, json.dumps({"vulnerabilities": {"found": False, "count": 0, "list": []}}), ""
+
+    with (
+        patch.object(scanners, "_which", side_effect=lambda b: b == "cargo-audit"),
+        patch.object(scanners, "_run", side_effect=_fake_run),
+    ):
+        scanners.run_cargo_audit(str(tmp_path), "package")
+
+    assert captured["cmd"][:3] == ["cargo-audit", "audit", "--json"]
+
+
 def test_given_cvss_and_malformed_when_severity_then_maps() -> None:
     assert scanners._cargo_audit_severity("x") == "amber"
     assert scanners._cargo_audit_severity({"severity": "medium"}) == "amber"

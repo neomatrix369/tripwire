@@ -2425,8 +2425,15 @@ def _cargo_audit_find_lockfile(workdir):
 
 
 def _cargo_audit_cmd():
+    """Return argv prefix for RustSec cargo-audit.
+
+    The ``cargo-audit`` binary is a Cargo plugin: clap's bin_name is ``cargo``,
+    so a direct invoke still needs the ``audit`` subcommand token first.
+    ``cargo-audit --json`` is parsed as ``cargo --json`` → unexpected argument.
+    Correct forms: ``cargo-audit audit --json`` or ``cargo audit --json``.
+    """
     if _which("cargo-audit"):
-        return ["cargo-audit"]
+        return ["cargo-audit", "audit"]
     if _which("cargo"):
         return ["cargo", "audit"]
     return None
