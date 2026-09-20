@@ -1,12 +1,26 @@
 {
-  "primitive": "verify-slice",
-  "slice_id": "slice-71",
-  "invocation_id": "40B782B5-5DAE-4320-8633-FEA069780C90",
+  "slice": 69,
+  "branch": "slice/69-fix-propose-apply-clean",
+  "worktree": ".worktrees/slice-69-fix-propose-apply-clean",
   "status": "COMPLETE",
-  "timestamp": "2026-09-20T16:14:34Z",
-  "evidence": {
-    "acceptance": "3/3 GWT-71.*",
-    "quality_gates": "dashboard npm test + lint + test:coverage passed",
-    "docs": "STATUS/PROGRESS/TRAIL/CHANGELOG/slice stub updated"
-  }
+  "iterations": 1,
+  "implement_slice": "SUCCESS",
+  "verify_slice": "COMPLETE",
+  "evidence_state": "IMPLEMENTED",
+  "acceptance": {
+    "GWT-69.1": "PASS — unified diff + patchClass label + regression suggestion (provided/generateFn/heuristic)",
+    "GWT-69.2": "PASS — applyPatch only on temp path; approved fingerprint unchanged; empty patch not applied",
+    "GWT-69.3": "PASS — won't-fix requires reason; J/K; progress N of M; copy patch / git apply; HTML chrome",
+    "GWT-69.4": "PASS — claimedFixed false; verificationStatus not_verified; operator mark says not verified"
+  },
+  "quality_gates": {
+    "tests": "298 pass / 0 fail / 1 skipped",
+    "lint": "passed",
+    "coverage": { "lines": 98.51, "branches": 86.09, "functions": 98.15, "statements": 98.51 }
+  },
+  "runtime": "PASS — Fix panel wired in Tripwire.dc.html; createMemoryApplyPort in browser (no git on approved tree)",
+  "documentation": "current — STATUS, CHANGELOG, TRAIL, PROGRESS, slice stub",
+  "visual_assets": "NOT_APPLICABLE — no current-truth architecture diagrams in slice boundary",
+  "integration": "PASS — Promise.all loads fix modules; workflowIsFix; stub only verify after merge with slice 71 Report",
+  "timestamp": "2026-09-20T16:40:00Z"
 }

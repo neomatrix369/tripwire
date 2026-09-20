@@ -1,13 +1,20 @@
 {
   "primitive": "run-lint",
-  "slice_id": "slice-68",
-  "invocation_id": "b8c11340-1154-4c52-9f9e-e1ea73c2d68b",
+  "slice_id": "slice-69",
+  "invocation_id": "7E2734D6-4BFA-43F0-87A2-7FF487396864",
   "status": "passed",
-  "timestamp": "2026-09-20T15:45:17Z",
+  "timestamp": "2026-09-20T16:16:00Z",
   "evidence": {
     "commands_run": [
-      "npm run lint (prototypes/dc-dashboard)"
+      "cd prototypes/dc-dashboard && npm run lint",
+      "cd prototypes/dc-dashboard && npx eslint -c eslint.complexity.config.js tripwire-fix-propose.js tripwire-apply-clean.js tripwire-fix-controls.js"
     ],
-    "blocking_findings": 0
+    "blocking_findings": 0,
+    "paths": [
+      "prototypes/dc-dashboard/tripwire-fix-propose.js",
+      "prototypes/dc-dashboard/tripwire-apply-clean.js",
+      "prototypes/dc-dashboard/tripwire-fix-controls.js",
+      "prototypes/dc-dashboard/test/"
+    ]
   }
 }

@@ -467,6 +467,44 @@
       </div>
     </sc-if>
 
+    <sc-if value="{{ workflowIsFix }}" hint-placeholder-val="{{ false }}">
+      <div class="tw-workflow-panel" aria-label="Fix">
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:8px">{{ workflowFix.progressLabel }}</div>
+        <sc-if value="{{ workflowFixEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12px;color:var(--text-secondary)">{{ workflowFix.emptyMessage }}</div>
+        </sc-if>
+        <sc-if value="{{ workflowFixReady }}" hint-placeholder-val="{{ false }}">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div style="padding:8px 10px;border:1px solid var(--border-subtle);border-radius:4px;background:var(--bg-surface)">
+              <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Problem</div>
+              <div style="font-size:12px;color:var(--text-primary);white-space:pre-wrap;line-height:1.45">{{ workflowFix.problemText }}</div>
+            </div>
+            <div style="padding:8px 10px;border:1px solid var(--border-subtle);border-radius:4px;background:var(--bg-surface)">
+              <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Proposed patch</div>
+              <div style="font-size:12px;color:var(--text-primary);white-space:pre-wrap;line-height:1.45;font-family:var(--font-mono)">{{ workflowFix.diffText }}</div>
+            </div>
+          </div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:6px">{{ workflowFix.patchClassLabel }}</div>
+          <div style="font-size:12px;color:var(--text-primary);margin-bottom:6px">Regression test: {{ workflowFix.regressionTest }}</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:8px">{{ workflowFix.applyCleanLine }}</div>
+          <sc-if value="{{ workflowFix.showOperatorMarked }}">
+            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:8px">{{ workflowFix.operatorMarkedLabel }}</div>
+          </sc-if>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px">
+            <button type="button" onClick="{{ workflowFix.copyPatch }}" style="{{ workflowFix.copyPatchStyle }}">Copy patch</button>
+            <button type="button" onClick="{{ workflowFix.copyGitApply }}" style="{{ workflowFix.copyGitApplyStyle }}">Copy git apply</button>
+            <button type="button" onClick="{{ workflowFix.markFixed }}" style="{{ workflowFix.markFixedStyle }}">Mark fixed</button>
+            <button type="button" onClick="{{ workflowFix.markWontFix }}" style="{{ workflowFix.markWontFixStyle }}">Won't fix</button>
+          </div>
+          <label for="tw-fix-wont-reason" style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);display:block;margin-bottom:4px">Won't-fix reason (required)</label>
+          <input id="tw-fix-wont-reason" type="text" required aria-required="true" aria-label="Won't-fix reason" value="{{ workflowFix.wontFixReason }}" onChange="{{ workflowFix.onReasonChange }}" style="background:var(--bg-input);border:1px solid var(--border-subtle);color:var(--text-primary);font-family:var(--font-sans);font-size:12px;padding:7px 12px;border-radius:6px;width:100%;max-width:480px;outline:none" />
+          <sc-if value="{{ workflowFix.reasonRequired }}">
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--red-ink);margin-top:4px">Reason required</div>
+          </sc-if>
+        </sc-if>
+      </div>
+    </sc-if>
+
     <sc-if value="{{ workflowIsReport }}" hint-placeholder-val="{{ false }}">
       <div class="tw-workflow-panel" aria-label="Report">
         <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
@@ -1287,6 +1325,9 @@ class Component extends DCLogic {
     workflowKitsLoaded: false,
     triageRevision: 0,
     workflowStepInferred: false,
+    fixWontFixReason: '',
+    fixReasonRequired: false,
+    fixRevision: 0,
     revealSecrets: false,
     exportStatusMessage: '',
     exportStatusVisible: false
@@ -1306,15 +1347,19 @@ class Component extends DCLogic {
       import('./tripwire-triage.js'),
       import('./tripwire-investigate.js'),
       import('./tripwire-workflow-prefs.js'),
+      import('./tripwire-fix-propose.js'),
+      import('./tripwire-apply-clean.js'),
+      import('./tripwire-fix-controls.js'),
       import('./tripwire-report.js'),
       import('./tripwire-report-export.js')
-    ]).then(([stepper, run, triage, investigate, prefs, report, reportExport]) => {
-      this._workflow = { stepper, run, triage, investigate, prefs, report, reportExport };
+    ]).then(([stepper, run, triage, investigate, prefs, fixPropose, applyClean, fixControls, report, reportExport]) => {
+      this._workflow = { stepper, run, triage, investigate, prefs, fixPropose, applyClean, fixControls, report, reportExport };
       const loadedExpert = prefs.loadExpertMode(sessionStorage);
       this.setState({ expertMode: loadedExpert, workflowKitsLoaded: true });
     }).catch(err => {
       console.error('[tripwire-dashboard] workflow kit load error:', err);
     });
+    document.addEventListener('keydown', this.handleFixKeydown);
   }
 
   _loadDataForMode(mode) {
@@ -1410,6 +1455,7 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     clearInterval(this._pollTimer);
+    document.removeEventListener('keydown', this.handleFixKeydown);
     if (this._rt) {
       this._rt.unsubscribe();
       this._rt = null;
@@ -1479,6 +1525,153 @@ class Component extends DCLogic {
 
   toggleInvestigateHow = () => this.setState(s => ({ investigateHowExpanded: !s.investigateHowExpanded }));
 
+  isFixReasonInput(target) {
+    return !!target && target.id === 'tw-fix-wont-reason';
+  }
+
+  listFixCandidates() {
+    const wf = this._workflow;
+    if (!wf?.fixPropose) return [];
+    const raw = this.collectWorkflowFindings(this.state.data);
+    const findings = wf.prefs ? wf.prefs.applyPersistedTriage(raw, localStorage) : raw;
+    return findings.filter(wf.fixPropose.isFixCandidate);
+  }
+
+  handleFixKeydown = (e) => {
+    if (this.state.currentStep !== 'fix') return;
+    if (this.isFixReasonInput(e.target)) return;
+    const key = e.key;
+    if (key !== 'j' && key !== 'J' && key !== 'k' && key !== 'K') return;
+    const candidates = this.listFixCandidates();
+    if (!candidates.length || !this._workflow?.fixControls) return;
+    const index = Math.max(0, candidates.findIndex(f => f.id === this.state.workflowSelectedFindingId));
+    const next = this._workflow.fixControls.navigateFix({ key, index, count: candidates.length });
+    this.setState({ workflowSelectedFindingId: candidates[next.index].id });
+    e.preventDefault();
+  };
+
+  copyToClipboard(text) {
+    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text);
+  }
+
+  copyFixPatch = () => {
+    const controls = this._workflow?.fixControls;
+    if (controls) this.copyToClipboard(controls.copyPatchText(this._fixUnifiedDiff || ''));
+  };
+
+  copyFixGitApply = () => {
+    const controls = this._workflow?.fixControls;
+    if (controls) this.copyToClipboard(controls.gitApplyCommand(this._fixUnifiedDiff || ''));
+  };
+
+  markSelectedFixed = () => {
+    const controls = this._workflow?.fixControls;
+    const id = this.state.workflowSelectedFindingId;
+    if (!controls || !id) return;
+    controls.markFixed({ findingId: id, storage: localStorage });
+    this.setState(s => ({ fixRevision: (s.fixRevision || 0) + 1 }));
+  };
+
+  markSelectedWontFix = () => {
+    const controls = this._workflow?.fixControls;
+    const id = this.state.workflowSelectedFindingId;
+    if (!controls || !id) return;
+    const result = controls.markWontFix({
+      findingId: id,
+      reason: this.state.fixWontFixReason,
+      storage: localStorage
+    });
+    if (!result.ok) {
+      this.setState({ fixReasonRequired: true });
+      return;
+    }
+    this.setState(s => ({
+      fixRevision: (s.fixRevision || 0) + 1,
+      fixReasonRequired: false,
+      fixWontFixReason: ''
+    }));
+  };
+
+  setFixWontFixReason = (e) => {
+    this.setState({ fixWontFixReason: e.target.value, fixReasonRequired: false });
+  };
+
+  emptyFixView() {
+    const btn = this.btnStyle(false, { size: '11px', pad: '4px 10px' });
+    return {
+      problemText: '',
+      diffText: '',
+      patchClassLabel: '',
+      regressionTest: '',
+      applyClean: false,
+      applyCleanLine: 'Applies cleanly: no',
+      progressLabel: '0 of 0 reviewed',
+      emptyMessage: 'Select a true-positive or to_fix finding to propose a patch.',
+      operatorMarkedLabel: '',
+      showOperatorMarked: false,
+      wontFixReason: '',
+      reasonRequired: false,
+      copyPatch: this.copyFixPatch,
+      copyGitApply: this.copyFixGitApply,
+      markFixed: this.markSelectedFixed,
+      markWontFix: this.markSelectedWontFix,
+      onReasonChange: this.setFixWontFixReason,
+      copyPatchStyle: btn,
+      copyGitApplyStyle: btn,
+      markFixedStyle: btn,
+      markWontFixStyle: btn
+    };
+  }
+
+  evaluateMemoryApplyClean(unifiedDiff) {
+    const apply = this._workflow?.applyClean;
+    if (!apply) return { applyClean: false };
+    return apply.evaluateApplyClean({
+      patch: unifiedDiff,
+      approvedRepoPath: 'approved',
+      applyPort: apply.createMemoryApplyPort()
+    });
+  }
+
+  buildFixWorkflowSlice(findings, selectedFinding, s) {
+    const wf = this._workflow;
+    const empty = this.emptyFixView();
+    const stepIsFix = (s.currentStep || 'run') === 'fix';
+    if (wf?.fixControls) {
+      const withDecisions = wf.fixControls.applyPersistedFixDecisions(findings, localStorage);
+      empty.progressLabel = wf.fixControls.buildFixProgress({ findings: withDecisions }).label;
+    }
+    empty.wontFixReason = s.fixWontFixReason || '';
+    empty.reasonRequired = !!s.fixReasonRequired;
+    const isCandidate = !!(selectedFinding && wf?.fixPropose?.isFixCandidate(selectedFinding));
+    if (!stepIsFix || !isCandidate) {
+      empty.emptyMessage = selectedFinding
+        ? 'Selected finding is not a fix candidate (needs true_positive or to_fix).'
+        : 'Select a true-positive or to_fix finding to propose a patch.';
+      return { workflowFix: empty, workflowFixEmpty: stepIsFix, workflowFixReady: false };
+    }
+    return { workflowFix: this.populateFixReadyView(empty, selectedFinding, wf), workflowFixEmpty: false, workflowFixReady: true };
+  }
+
+  populateFixReadyView(empty, selectedFinding, wf) {
+    const proposedFix = wf.fixPropose.buildProposedFix(selectedFinding);
+    this._fixUnifiedDiff = proposedFix.unifiedDiff;
+    const view = wf.fixPropose.buildFixProposeView({ finding: selectedFinding, proposedFix });
+    const applyResult = this.evaluateMemoryApplyClean(proposedFix.unifiedDiff);
+    const marked = wf.fixControls.loadFixDecision(selectedFinding.id, localStorage)?.status === 'fixed';
+    return {
+      ...empty,
+      problemText: view.problemText,
+      diffText: view.diffText,
+      patchClassLabel: view.patchClassLabel,
+      regressionTest: view.regressionTest,
+      applyClean: !!applyResult.applyClean,
+      applyCleanLine: applyResult.applyClean ? 'Applies cleanly: yes' : 'Applies cleanly: no',
+      operatorMarkedLabel: marked ? 'Operator marked fixed — not verified' : '',
+      showOperatorMarked: marked
+    };
+  }
+
   mapWorkflowSeverity(sev) {
     const key = String(sev || '').toLowerCase();
     if (key === 'red' || key === 'high' || key === 'critical') return 'High';
@@ -1518,6 +1711,7 @@ class Component extends DCLogic {
       },
       agreement: f.agreement || 'Agreement not available yet',
       triageStatus: f.triageStatus || this.defaultTriageStatus(severity),
+      proposedPatch: f.proposedPatch,
       reportDisposition: f.reportDisposition || null,
       fix: f.fix || f.proposedFix || null,
       verification: f.verification || f.verifyResult || null,
@@ -1627,7 +1821,7 @@ class Component extends DCLogic {
       coverage: { discovered: 0, scanned: 0, failed: 0, skipped: 0 }
     };
     const step = s.currentStep || 'run';
-    const stubSteps = step === 'fix' || step === 'verify';
+    const stubSteps = step === 'verify';
 
     if (!wf) {
       return {
@@ -1642,6 +1836,7 @@ class Component extends DCLogic {
         workflowIsRun: step === 'run',
         workflowIsTriage: step === 'triage',
         workflowIsInvestigate: step === 'investigate',
+        workflowIsFix: step === 'fix',
         workflowIsReport: step === 'report',
         workflowIsStub: stubSteps,
         workflowRun: emptyRun,
@@ -1649,6 +1844,9 @@ class Component extends DCLogic {
         workflowInvestigate: emptyInvestigate,
         workflowInvestigateEmpty: true,
         workflowInvestigateReady: false,
+        workflowFix: this.emptyFixView(),
+        workflowFixEmpty: step === 'fix',
+        workflowFixReady: false,
         workflowReport: emptyReport,
         exportReportPrimary: this.exportReportPrimary,
         exportReportMarkdown: this.exportReportMarkdown,
@@ -1741,6 +1939,7 @@ class Component extends DCLogic {
       };
     }
 
+    const fixSlice = this.buildFixWorkflowSlice(findings, selectedFinding, s);
     const reportVm = wf.report.buildReportView({ findings });
     const workflowReport = {
       headline: reportVm.headline,
@@ -1754,6 +1953,7 @@ class Component extends DCLogic {
       workflowIsRun: step === 'run',
       workflowIsTriage: step === 'triage',
       workflowIsInvestigate: step === 'investigate',
+      workflowIsFix: step === 'fix',
       workflowIsReport: step === 'report',
       workflowIsStub: stubSteps,
       workflowRun,
@@ -1761,6 +1961,7 @@ class Component extends DCLogic {
       workflowInvestigate,
       workflowInvestigateEmpty: step === 'investigate' && !selectedFinding,
       workflowInvestigateReady: step === 'investigate' && !!selectedFinding,
+      ...fixSlice,
       workflowReport,
       exportReportPrimary: this.exportReportPrimary,
       exportReportMarkdown: this.exportReportMarkdown,
