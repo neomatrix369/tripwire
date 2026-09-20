@@ -1,12 +1,15 @@
 {
   "primitive": "run-coverage",
   "slice_id": "slice-74",
-  "invocation_id": "4fd8393b-101c-4502-924d-b2a334fe3d46",
+  "invocation_id": "805dd000-1149-4164-b3b6-d60fea0c265d",
   "status": "passed",
-  "timestamp": "2026-09-20T17:48:16Z",
+  "timestamp": "2026-09-20T17:57:36Z",
   "evidence": {
     "coverage_pct": 97.68,
     "threshold": 95,
-    "command": "npm run test:coverage (prototypes/dc-dashboard)"
+    "python_pct": 95.53,
+    "cli_pct": 94.67,
+    "dc_dashboard_pct": 97.68,
+    "command": "uv run pytest --cov; npm run test:coverage (cli + dc-dashboard)"
   }
 }

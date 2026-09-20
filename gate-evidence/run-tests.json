@@ -1,17 +1,21 @@
 {
   "primitive": "run-tests",
   "slice_id": "slice-74",
-  "invocation_id": "4fd8393b-101c-4502-924d-b2a334fe3d46",
+  "invocation_id": "805dd000-1149-4164-b3b6-d60fea0c265d",
   "status": "passed",
-  "timestamp": "2026-09-20T17:48:16Z",
+  "timestamp": "2026-09-20T17:57:36Z",
   "evidence": {
-    "stacks_detected": ["node"],
-    "commands_run": ["npm test (prototypes/dc-dashboard)"],
-    "total": 359,
-    "passed_count": 358,
+    "stacks_detected": ["python", "node-cli", "node-dc-dashboard"],
+    "commands_run": [
+      "uv run pytest --cov (sandbox/guard)",
+      "npm test (cli)",
+      "npm run test:coverage (prototypes/dc-dashboard)"
+    ],
+    "total": 1061,
+    "passed_count": 1060,
     "failed_count": 1,
     "failed_tests": ["optional smoke: given local live config when fetching items then supabase responds"],
-    "notes": "Only failure is optional Live smoke (network); unit suite otherwise green",
+    "notes": "Only failure is optional Live smoke (network); Python 493, CLI 209, dc-dashboard unit suite otherwise green",
     "coverage_pct": 97.68
   }
 }
