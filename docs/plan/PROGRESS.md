@@ -360,3 +360,4 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 | 2026-09-09 | chore/nightly-twice-monthly | soft-amend | 7, 14, 15, 16 | SUPERSEDED | Monolith Nightly → twice monthly; replaced same day by A/B/C split |
 | 2026-09-09 | chore/nightly-twice-monthly | ci T4 A/B/C | 7 | APPLIED | A daily 02:00 Light T4 · B weekly Mon 03:00 supply-chain · C mutation 1st+15th 04:00; docs+YAML matrix |
 | 2026-09-11 | ci/slim-pr-gates-nightly-heavy | sync-docs | 7 (soft) | APPLIED | Ultra-minimal PR CI + comprehensive A; ARCHITECTURE GHA row; soft-amends; AGENTS/CLAUDE aligned |
+| 2026-09-21 | docs/slice-48-formal-close | sync-docs | 48 | APPLIED | Post-merge honesty after #110: STATUS/design/DECISIONS/ARCHITECTURE packing→VERIFIED + PR link; trackers already ✅. README/AGENTS/CLAUDE/CHANGELOG NO_CHANGE. |

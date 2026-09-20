@@ -221,7 +221,9 @@ Reachable through production entry points / config:
   VERIFIED (Mock UI 2026-08-24: `safe-changelog-writer` Scanner Outputs (7),
   five Tessl rows, three NAY pills, no chevron; MCP `SCANNER OUTPUTS (3)`
   unpadded) — `tripwire-status.js` `mergeTesslCapabilityRows`, `Tripwire.dc.html`
-  (slice 48 ✅). Security Review writes a real DB row from slice 51 (NAY only when
+  (slice 48 ✅
+  [PR #110](https://github.com/neomatrix369/tripwire/pull/110); formal close
+  2026-09-21 packing Gate 4 APPROVED). Security Review writes a real DB row from slice 51 (NAY only when
   that source is still absent).
 - Tessl Scenario Generation — `run_tessl()` emits `"Tessl: Scenario Generation"`
   after Review (Quality): plugin-path `scenario generate --count 3`, download to
@@ -415,10 +417,11 @@ scenario re-run; resume via `eval view`. Row 5 (`"Tessl: Review (Security)"`)
 is **IMPLEMENTED (unit, slice 51)** — `review run security` after Eval;
 `upstream_run_ids.review_quality` from ctx; dashboard shows linked Quality
 findings on the expanded Security row. Coverage Gap B (`scenario view <id>`)
-resolved; Gap C (agent-assisted generation) open. **IMPLEMENTED (slice 48):**
-host `evals/` is not a vuln-scan input — `_pack_local_dir` / `_copy_local` omit
-root `evals/` when the skill root has `tessl.json` or `.tessl-plugin/`. Git
-clone and identity hash still see on-disk `evals/`. Spec:
+resolved; Gap C (agent-assisted generation) open. **VERIFIED (slice 48 ✅
+[#110](https://github.com/neomatrix369/tripwire/pull/110); packing re-check
+2026-09-21):** host `evals/` is not a vuln-scan input — `_pack_local_dir` /
+`_copy_local` omit root `evals/` when the skill root has `tessl.json` or
+`.tessl-plugin/`. Git clone and identity hash still see on-disk `evals/`. Spec:
 [design/tessl-5-row-expansion.md](./design/tessl-5-row-expansion.md),
 [slices 49–51](./plan/slices/12-L-tessl-5-row-expansion/).
 

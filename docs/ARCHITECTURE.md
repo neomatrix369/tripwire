@@ -345,7 +345,7 @@ from `tessl review view --last --json`, then seeds in-process
 [design/tessl-5-row-expansion.md](./design/tessl-5-row-expansion.md) and slices
 49–51; scenario→eval pipeline is generate → download → `eval run` on disk
 `evals/` (sandbox-populated; host `evals/` is not a vuln-scan input — packing
-exclude **IMPLEMENTED** in slice 48: Tessl plugin pack/copy omits root `evals/`;
+exclude **VERIFIED** in slice 48 ✅ [#110](https://github.com/neomatrix369/tripwire/pull/110): Tessl plugin pack/copy omits root `evals/`;
 git clone / `hashLocalPath` unchanged). Dashboard skill cards surface
 compact `Q N` / `Q —` / `Q ?` badges with a fixed `#score-tip-portal` (not delayed
 native `title=`, not in-card absolute bubbles that clip under `overflow-y: auto`);
