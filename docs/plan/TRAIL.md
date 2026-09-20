@@ -439,6 +439,7 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 4. Wave **G** (18–22) remains 📋 — do **not** start while H1–H3 is active unless explicitly resumed. Prefer one active slice per shared code area.
 5. **2026-09-20 addendum:** Wave **R** (approved-repo security workflow, slices **65→69** Must) is the next product stream after Wave P landed. **65–66** ✅ · **67** ✅ landed `main` (#151) · **68** ✅ landed `main` (#152) · **69** ✅ · **70** ✅ landed `main` (#155) · **71** ✅ landed `main` (#153) · Could **72** ✅ landed `main` (#150). Should **73** 🔨 · **74** 🔨 · **75** 📋 operator-visible pipeline (R-UX-1).
 6. **2026-09-20 improvement (R-UX-1):** Operator-visible pipeline — Workflow UI must narrate judge panel (≥3 parallel + final `gen-27b`), coverage, evidence-verify, and stage progress/outcomes in plain language (not silent b/g). → **Slice 75** 📋 PLANNED (Should); soft-amends 67/68.
+7. **2026-09-20 soft-amend (Workflow L→R):** Slice **75** expands to parent target meta + multi-select + role-labelled models per step/target (skill/mcp/package) + visible background. Soft-amends **74** (Fix `gen-27b` when LLM propose), **67** (panel light/mid · final stronger), **69** (stronger fix model + parent meta). Not 100% correct in UI yet — chrome (68) exists; honesty/narration/selection/model roles still 📋/🔨.
 
 ## Wave G source-finding map
 

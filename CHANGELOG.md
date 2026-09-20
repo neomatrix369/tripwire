@@ -173,7 +173,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   **Dashboard** tab; Run → Triage → Investigate → Fix → Verify → Report lives on a
   secondary **Workflow** tab (`prototypes/dc-dashboard/Tripwire.dc.html`). Simple/Expert
   remains a Workflow-only density toggle (finding detail), not a gate that hides
-  inventory. IMPLEMENTED on `feat/inventory-default-workflow-tab`.
+  inventory. IMPLEMENTED on `main`
+  ([#160](https://github.com/neomatrix369/tripwire/pull/160)).
 - CI ultra-minimal (parity with quine-factory, **USER-CONFIRMED** 2026-09-11):
   PR/push keep ship-path coverage + OSV + targeted Trivy/gitleaks/TruffleHog;
   Semgrep, CodeQL, Meterian, dashboard prototype tests, and full-history scans

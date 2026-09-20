@@ -12,20 +12,23 @@
 - **Load first**: CLAUDE.md → docs/plan/invariants.md → this stub → ADR-0016 → `cli/src/router.js` / SIE client
 
 ## Context
-- **Stage objective**: For every candidate with verified (or explicitly unverified) evidence, run ≥3 independent parallel SIE judge executions, then one final judge that weighs reasons + existing analysis/escalation results; persist per-judge model, verdict, confidence, reason, raw response, prompt version, run ID, timestamp.
+- **Stage objective**: For every candidate with verified (or explicitly unverified) evidence, run ≥3 independent parallel SIE judge executions (**light → mid-size** generate models), then one **stronger final judge** that weighs reasons + existing analysis/escalation results and selects the most defensible verdict (true_positive / false_positive / needs_review); persist per-judge model, role, verdict, confidence, reason, raw response, prompt version, run ID, timestamp, plus **parent target identity** (`item_id`, target type/name when known).
 - **Depends on**: Slice 66 evidence pipeline; existing `tripwire route` / SIE client (reuse — do not invent a second model integration)
 - **Global invariants**: ADR-0016 behaviour unchanged; open-weight via Superlinked SIE only for judging; scanned content is data not instructions; model failures never silently become TP/FP
+> Soft-amended 2026-09-20 (USER): explicit light/mid panel vs stronger final; persist parent target for Workflow rows.
 
 ## Non-goals
 - Replacing or rewriting the tiered router (ADR-0016)
 - Closed / proprietary generation models for the panel
 - Dashboard stepper chrome (slice 68) beyond persisting fields the UI will read
 - **Operator-facing Workflow narration** of panel progress / honest empty states — owned by **slice 75** (R-UX-1); this slice still must persist UI-consumable panel_run fields
+- **LLM Fix propose** (stronger model for patch text) — owned by **slice 69** + labels in **74**; panel/final judging stay here
 
 ## Output contract
 - **Baseline**: ADR-0016 writes `tiered_router` triage/escalation rows; no independent 3-judge panel + final verdict schema
 - After: each candidate has panel judgements + final verdict ∈ {true_positive, false_positive, needs_review}; disagreements flagged; if judges disagree and final judge is unconfident → needs_review; timeouts/failures recorded
-- **UI handoff**: persisted `panel_run` (per-judge model/verdict/confidence/reason/status + final_*) must be readable by dashboard Workflow builders (slice 75 binds and narrates; this slice does not own chrome copy)
+- **Role split (product)**: panel slots = light/mid (`gen-4b` and/or parallel same-model runs when inventory <3 distinct models); **final** = stronger generate alias (prefer `gen-27b` / last suitable in inventory) — weighs reasons, not vote count alone
+- **UI handoff**: persisted `panel_run` (per-judge `role` ∈ {panel, final}, model/verdict/confidence/reason/status + `final_*` + parent `item_id` / finding id) must be readable by dashboard Workflow builders (slice 75 binds and narrates; this slice does not own chrome copy)
 
 ## Slice Workflow Bundle
 - Slice name: `slice-67-sie-judge-panel-final`
@@ -51,12 +54,14 @@
 **And** no judge receives another judge’s answer
 **And** each records model, verdict, confidence, reason, raw response, prompt version, run ID, timestamp
 
-### GWT-67.3 — Final judge weighs reasons
+### GWT-67.3 — Final judge weighs reasons (stronger model)
 **Given** all available panel judgements (including partial if some failed)
 **When** the final judge runs
-**Then** it receives all judgements + analysis/escalation results
+**Then** it uses the stronger generate model from inventory (prefer `gen-27b` / last suitable) with `role: final`
+**And** it receives all judgements + analysis/escalation results
 **And** the verdict weighs evidence/reasons, not simple majority alone
 **And** disagreement + low final confidence → needs_review
+**And** persisted `final_model` / `final_judge.model` are distinct fields the Workflow UI can label as “final (stronger)”
 
 ### GWT-67.4 — Failures are honest
 **Given** 1 of 3 judges times out or errors

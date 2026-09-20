@@ -32,11 +32,11 @@ The Live/Mock UI has two primary tabs:
 | **Workflow** | Run → Triage → Investigate → Fix → Verify → Report stepper for an approved-repo guided path |
 
 Simple/Expert on Workflow only changes finding-detail density. Operator-visible
-narration of the SIE judge panel, coverage ledger, and evidence-verify honesty
-(process line, “panel off”, no silent success) is **PLANNED** (Wave R slice 75) —
-see [STATUS.md](../STATUS.md). Optional `TRIPWIRE_JUDGE_PANEL=1` enables the CLI
-panel ([env-vars.md](./env-vars.md)); it does not by itself complete Workflow UI
-honesty.
+Workflow honesty — SIE judge panel / coverage / evidence-verify narration,
+parent target meta, multi-select for review, and role-labelled models per
+step/target — is **PLANNED** (Wave R slice 75) — see [STATUS.md](../STATUS.md).
+Optional `TRIPWIRE_JUDGE_PANEL=1` enables the CLI panel
+([env-vars.md](./env-vars.md)); it does not by itself complete Workflow UI honesty.
 
 ## What you are looking at
 

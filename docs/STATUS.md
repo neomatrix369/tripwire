@@ -72,8 +72,8 @@ Reachable through production entry points / config:
   VERIFIED on `main` (#152) — `prototypes/dc-dashboard/tripwire-workflow-*.js`
   (+ run-progress / triage / investigate) with GWT-68.* tests. **Nav (2026-09-20):**
   primary **Dashboard** tab = inventory (default); stepper + phase panels move to
-  secondary **Workflow** tab — IMPLEMENTED on `feat/inventory-default-workflow-tab`
-  (not VERIFIED until merge + operator observation).
+  secondary **Workflow** tab — IMPLEMENTED on `main`
+  ([#160](https://github.com/neomatrix369/tripwire/pull/160)).
 - Wave R **Triage target filters** (slice 73): 🔨 IN PROGRESS — cherry-picked
   onto `fix/slice-74-fix-blank-while-heuristic`. Triage panel adds inventory-style
   type tabs (All / Skills / MCP / Packages), quality tabs (All + Tessl
@@ -85,8 +85,11 @@ Reachable through production entry points / config:
 - Wave R **workflow model labels** (slice 74): 🔨 IN PROGRESS on
   `slice/74-workflow-model-labels` — stepper tabs show default model aliases
   for stages that actually use models (Run/Triage/Investigate; Fix blank while
-  propose is heuristic); panels show actual models only when an LLM ran.
-  Module: `tripwire-workflow-models.js`. Not VERIFIED until `/verify-slice`.
+  propose is heuristic). Soft-amend (2026-09-20 USER L→R): role labels
+  (panel light/mid · final stronger · fix stronger); Fix default `gen-27b`
+  when LLM propose is the product path; per-target model rows — **DECIDED**,
+  not yet IMPLEMENTED in UI. Module: `tripwire-workflow-models.js`. Not VERIFIED
+  until `/verify-slice`.
 - Wave R **Fix propose + apply-clean** (slice 69): IMPLEMENTED / VERIFIED on
   `main` (#154) — proposed unified diff, root-cause vs quick-patch label,
   apply-clean on a temp copy only (approved repo unchanged), mark fixed /
@@ -368,9 +371,12 @@ Opt-in post-scan hook `TRIPWIRE_JUDGE_PANEL=1` (default off). Spec:
 final-judge / coverage / evidence-verify progress and outcomes in plain language
 (not silent b/g). Soft-amended after nw Workflow UX review (GWT-75.3–75.8:
 no fabricated judges, honest placeholders, process CTA, auto-select Investigate,
-truthful model hints). Optional slice 76 chrome polish = HITL. Soft-amends
-slices 67/68. See [plan/DECISIONS.md](./plan/DECISIONS.md) Path B Add slice 75
-and `nw-UX-review` row.
+truthful model hints). Soft-amended again for L→R operator contract
+(GWT-75.9–75.11): parent target type·name with every finding, multi-select for
+review, role-labelled models per step/target (skill / mcp / package). Optional
+slice 76 chrome polish = HITL. Soft-amends slices 67/68/69/74. See
+[plan/DECISIONS.md](./plan/DECISIONS.md) Path B Add slice 75, `nw-UX-review`,
+and `Workflow L→R operator contract` rows.
 
 **Wave J delta — dashboard metric surfacing (2026-08-20):** A9–A13
 **IMPLEMENTED** on `main` via [PR #98](https://github.com/neomatrix369/tripwire/pull/98)

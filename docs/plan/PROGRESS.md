@@ -28,7 +28,7 @@
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| 0 (planned) | R | **75** | **Operator-visible pipeline (R-UX-1)** | Should | 📋 PLANNED · narrate judge panel / coverage / evidence in Workflow UI · depends 67; 68 · `slice/75-operator-visible-pipeline` |
+| 0 (planned) | R | **75** | **Operator-visible pipeline (R-UX-1)** | Should | 📋 PLANNED · L→R: narrate judges/coverage/evidence + parent meta + multi-select + role models per target · depends 67; 68 · `slice/75-operator-visible-pipeline` |
 | 0 (landed) | R | **70** | **Verify fix via worktree rescan** | Should | ✅ landed `main` (#155) · finding gone / still present / unable; temp worktree |
 | 0 (landed) | R | **69** | **Fix propose + apply-clean** | Must | ✅ landed `main` (#154) · next 70 |
 | 0 (active) | R | **67** | **SIE judge panel + final judge** | Must | 🔨 IN PROGRESS on `slice/67-sie-judge-panel-final` · inventory + CLI + panel/tests; gate close pending |
