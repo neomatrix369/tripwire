@@ -113,4 +113,3 @@
 
 ## Simplest shape (Wave R)
 - 65 coverage ledger → 66 evidence/injection → 67 SIE panel → 68 stepper → 69 fix → (Should) 70 verify → 71 expert/export → (Could) 72 gap scanners.
-
