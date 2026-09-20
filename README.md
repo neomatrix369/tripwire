@@ -74,7 +74,7 @@ disagree or coverage looks incomplete ([ADR-0016](docs/adr/0016-tiered-router-si
 | Platform | **Modal** | Isolated scan sandbox (Docker image + Python adapters) |
 | Platform | **Supabase** | Postgres + Realtime store for runs, scanners, findings |
 | Scanner | **Cisco** Skill Scanner / MCP Scanner / AI Defense | Skill and MCP security inspection |
-| Scanner | **Snyk** (`snyk-agent-scan`) | Depth / agent scan for skills, MCP servers, and packages |
+| Scanner | **Snyk** | Skills/MCP: `snyk-agent-scan`. Packages: `snyk test` SCA (npm/Python/Go/… — **not** Rust/Cargo; unsupported trees → `not_applicable`) |
 | Scanner | **Tessl** | Five skill capabilities: Lint (auth-free), Review (Quality), Scenario Generation, Eval, Review (Security) |
 | Scanner | **DepShield** (`depshield-mcp`) | Dependency audit (npm + PyPI via OSV.dev); **no credentials**; skills, MCP, and packages |
 | Scanner | **Ossprey** (`ossprey-cli`) | Malware / malicious-package scan (skills, MCP, packages); needs `OSSPREY_API_KEY` |
@@ -84,6 +84,8 @@ disagree or coverage looks incomplete ([ADR-0016](docs/adr/0016-tiered-router-si
 Missing Snyk / Cisco / Tessl / Ossprey keys → that scanner reports skipped /
 `needs_setup` / `skipped_missing_credential` rather than claiming a complete scan.
 DepShield always runs when the sandbox image includes it (no secret sync).
+When every package scanner is `not_applicable` or skipped (e.g. Cargo-only
+repos), the card is **UNSCANNED**, not green.
 Capability honesty and evidence states: [docs/STATUS.md](docs/STATUS.md) ·
 inventory: [ARCHITECTURE §0](docs/ARCHITECTURE.md#0-external-services-inventory) ·
 Ossprey key allowlist: [OPTIONAL_SCANNER_KEYS](fixtures/OPTIONAL_SCANNER_KEYS.md).
@@ -187,7 +189,7 @@ stack (same names as the badges above):
 | Step | What runs | Stack | Setup |
 |---|---|---|---|
 | Discover | CLI finds skills / MCP servers / packages (`tripwire scan --dry-discover` or a real scan; Wave P package path IMPLEMENTED on branch) | Node.js CLI | [setup-commands](docs/user-guide/setup-commands.md#repository-and-cli-bootstrap) · [prerequisites](docs/user-guide/prerequisites.md#what-can-tripwire-scan) |
-| Scan | Adapters run in an isolated sandbox; CLI prints scanner inventory + rollup (slice 63, on branch) | Modal (+ Docker), Cisco / Snyk / Tessl / DepShield / Ossprey | [modal-setup](docs/user-guide/modal-setup.md) · [env-vars](docs/user-guide/env-vars.md) |
+| Scan | Adapters run in an isolated sandbox; CLI prints scanner inventory + rollup (slice 63 ✅) | Modal (+ Docker), Cisco / Snyk / Tessl / DepShield / Ossprey | [modal-setup](docs/user-guide/modal-setup.md) · [env-vars](docs/user-guide/env-vars.md) |
 | Store | Findings and scan_run rows land for the dashboard | Supabase / Postgres | [supabase-setup](docs/user-guide/supabase-setup.md) |
 | Route (optional) | Every item through SIE; escalate only when signaled | Superlinked SIE → Alibaba Cloud Model Studio via `tripwire route` / auto-route | [sie-setup](docs/user-guide/sie-setup.md) · [model-studio-setup](docs/user-guide/model-studio-setup.md) |
 | Review | Heatmap, drawers, pathway strips, Escalated / SIE-only filters | Dashboard (Live or Mock) | [reading-router-results](docs/user-guide/reading-router-results.md) · [screenshots](docs/screenshots/README.md) |

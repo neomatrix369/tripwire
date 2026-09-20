@@ -537,6 +537,78 @@ def run_cisco_mcp_scanner(workdir, target):
 
 _SNYK_SCA_NO_SUPPORTED_PROJECTS = 3
 
+# Manifests `snyk test` can audit. Rust/Cargo is intentionally absent — Snyk Open
+# Source documents Rust as SBOM/API-only (not `snyk test` / `snyk monitor`).
+_SNYK_SCA_SUPPORTED_MARKERS = frozenset(
+    {
+        "package.json",
+        "package-lock.json",
+        "pnpm-lock.yaml",
+        "yarn.lock",
+        "requirements.txt",
+        "Pipfile",
+        "Pipfile.lock",
+        "poetry.lock",
+        "pyproject.toml",
+        "go.mod",
+        "go.sum",
+        "pom.xml",
+        "build.gradle",
+        "build.gradle.kts",
+        "build.sbt",
+        "Gemfile",
+        "Gemfile.lock",
+        "composer.json",
+        "composer.lock",
+        "Package.swift",
+        "Package.resolved",
+    }
+)
+_SNYK_SCA_UNSUPPORTED_LABELS = (
+    ("Cargo.toml", "Rust/Cargo"),
+    ("Cargo.lock", "Rust/Cargo"),
+)
+
+
+def _snyk_detect_sca_ecosystems(workdir):
+    """Return ``(supported_names, unsupported_labels)`` under *workdir* for SCA."""
+    skip_dirs = frozenset({"node_modules", ".git", "venv", ".venv", "__pycache__"})
+    supported = set()
+    unsupported = set()
+    if not workdir or not os.path.isdir(workdir):
+        return (), ()
+    for _root, dirnames, filenames in os.walk(workdir):
+        dirnames[:] = sorted(d for d in dirnames if d not in skip_dirs)
+        for name in filenames:
+            if name in _SNYK_SCA_SUPPORTED_MARKERS:
+                supported.add(name)
+            for marker, label in _SNYK_SCA_UNSUPPORTED_LABELS:
+                if name == marker:
+                    unsupported.add(label)
+    return tuple(sorted(supported)), tuple(sorted(unsupported))
+
+
+def _snyk_package_na_detail(workdir, vendor_detail=None):
+    """Operator-facing detail when `snyk test` has nothing it can audit."""
+    supported, unsupported = _snyk_detect_sca_ecosystems(workdir)
+    if unsupported and not supported:
+        labels = ", ".join(unsupported)
+        return (
+            f"Snyk `snyk test` does not support {labels} manifests "
+            "(Rust requires SBOM/API testing). "
+            f"No SCA-supported manifests found under {workdir or 'workdir'}."
+        )
+    if vendor_detail:
+        return str(vendor_detail).strip()
+    if supported:
+        return "Snyk reported no supported projects despite catalogueable manifests: " + ", ".join(
+            supported
+        )
+    return (
+        "No Snyk SCA-supported manifests found "
+        "(needs package.json / requirements / pyproject / go.mod / …)."
+    )
+
 
 def _snyk_sca_severity(raw):
     return "red" if (raw or "").lower() in ("critical", "high") else "amber"
@@ -589,15 +661,16 @@ def _snyk_parse_sca(root, source):
     return findings, checks
 
 
-def _snyk_package_result(source, code, out, err, console):
+def _snyk_package_result(source, code, out, err, console, workdir=""):
     root = _safe_json(out) or _safe_json(err)
     if code == _SNYK_SCA_NO_SUPPORTED_PROJECTS:
-        detail = root.get("error") if isinstance(root, dict) else None
+        vendor = root.get("error") if isinstance(root, dict) else None
+        detail = _snyk_package_na_detail(workdir, vendor_detail=vendor or err or out)
         return [], [
             _skipped(
                 source,
                 "not_applicable",
-                detail=detail or err or out or "no supported projects",
+                detail=detail,
                 console_output=console,
             )
         ]
@@ -635,6 +708,14 @@ def run_snyk(workdir, item_type="mcp_server"):
     source = "Snyk"
     if not os.environ.get("SNYK_TOKEN"):
         return [], [_skipped(source)]
+    if item_type == "package":
+        supported, unsupported = _snyk_detect_sca_ecosystems(workdir)
+        # Only skip the CLI when we positively see unsupported-only trees
+        # (e.g. Cargo.toml). Empty/missing workdirs still invoke snyk so exit-3
+        # mapping and tests with mocked paths keep working.
+        if not supported and unsupported:
+            detail = _snyk_package_na_detail(workdir)
+            return [], [_skipped(source, "not_applicable", detail=detail)]
     cmd = _snyk_cmd(workdir, item_type)
     if cmd is None:
         missing = (
@@ -647,7 +728,7 @@ def run_snyk(workdir, item_type="mcp_server"):
     code, out, err = _run(cmd, cwd=workdir)
     console = _build_console(out, err)
     if item_type == "package":
-        return _snyk_package_result(source, code, out, err, console)
+        return _snyk_package_result(source, code, out, err, console, workdir=workdir)
 
     root = _safe_json(out) or _safe_json(err) or {}
     if not isinstance(root, dict) or not root:

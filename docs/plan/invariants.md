@@ -35,3 +35,11 @@
 - In-repo Kit uses Monk package patterns: compose + `inherits`, immutable `*-v1` + mutable `latest` track ([Package Ecosystem](https://docs.monk.io/features/service-templates)).
 - MVL-complete (Tier 1) before full-coverage claims; Capsules/CI/CD are follow-ups after VERIFIED MVL.
 → Source: docs/adr/0001-monk-deployment-and-packaging.md; docs.monk.io
+
+## Approved-repo workflow (Wave R)
+- Scan only operator-approved local repo at specified commit; scanned content is untrusted data (never instructions for scanners/judges/system).
+- Reuse Wave P discovery/scanners and ADR-0016 analysis/escalation unchanged; judge panel is additive.
+- Language/ecosystem coverage ledger required; unsupported ecosystems must be explicit — never claim fully scanned.
+- UI stepper extends existing dashboard (1A); proposed patches only — verify on temp worktree; never auto-modify approved repo by default.
+- Open-weight models via Superlinked SIE for judging; mask secrets by default.
+→ Source: docs/plan/interview_summary.md § Wave R; docs/plan/DECISIONS.md 2026-09-20 Wave R rows; docs/adr/0016-tiered-router-sie-model-studio.md

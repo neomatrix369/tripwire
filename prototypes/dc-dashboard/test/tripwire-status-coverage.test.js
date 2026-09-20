@@ -14,7 +14,7 @@ import {
   severityColor,
 } from '../tripwire-status.js';
 
-test('given complete run with no scores when resolve then error', () => {
+test('given complete run with no scores when resolve then grey unscanned', () => {
   // -- Given / When / Then --
   assert.equal(
     resolveItemStatus({
@@ -22,6 +22,35 @@ test('given complete run with no scores when resolve then error', () => {
       heatmapStatus: 'grey',
       riskScore: null,
       findings: [],
+    }),
+    'grey'
+  );
+});
+
+test('given complete all-not-applicable when resolve then grey not green', () => {
+  // -- Given / When / Then --
+  assert.equal(
+    resolveItemStatus({
+      runStatus: 'complete',
+      heatmapStatus: 'green',
+      riskScore: 0,
+      findings: [],
+      completedScannerCount: 0,
+    }),
+    'grey',
+    'Cargo/package trees with only N/A scanners must not paint false green'
+  );
+});
+
+test('given partial-failed with zero completed engines when resolve then error', () => {
+  // -- Given / When / Then --
+  assert.equal(
+    resolveItemStatus({
+      runStatus: 'partial-failed',
+      heatmapStatus: 'grey',
+      riskScore: null,
+      findings: [],
+      completedScannerCount: 0,
     }),
     'error'
   );

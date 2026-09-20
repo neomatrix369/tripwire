@@ -94,7 +94,9 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 10 | [`slices/10-J-dashboard-data-quality/`](slices/10-J-dashboard-data-quality/) | **J — Dashboard Data Quality Fixes** | 42 ✅ A1–A13 ([#98](https://github.com/neomatrix369/tripwire/pull/98)) · **A14–A15** 🔀 quality tabs | `slice/42-quality-score-tabs` |
 | 11 | [`slices/11-K-docs-ux-plain-language/`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** 🔀 | — |
 | 15 | [`slices/15-O-monk-kit-live-packaging/`](slices/15-O-monk-kit-live-packaging/) | **O — Monk Kit Live packaging** | **O0** → **58**→**59** Must · **60**–**61** Should | 📋 plan-only · ADR-0001 + PoC |
-| 16 | [`slices/16-P-git-repo-scan/`](slices/16-P-git-repo-scan/) | **P — Git repo discover + fan-out** | **62** | 🔀 ON BRANCH |
+| 16 | [`slices/16-P-git-repo-scan/`](slices/16-P-git-repo-scan/) | **P — Git repo discover + fan-out** | **62**→**64** | ✅ landed `main` (#145/#146); formal gate-evidence close optional |
+| 17 | [`slices/17-Q-ci-hygiene/`](slices/17-Q-ci-hygiene/) | **Q — CI hygiene** | (reserved empty) | 📋 placeholder folder only |
+| 18 | [`slices/18-R-approved-repo-workflow/`](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** | **65**→**69** Must · **70**–**71** Should · **72** Could | 📋 plan-only · EFP Path B 2026-09-20 |
 
 **Status legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 CLOSED — DEFERRED/WON'T`
 
@@ -375,22 +377,40 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 **Group letter P** (after N; **O** reserved for Monk Kit on `docs/monk-kit-wave-o`, slices 58–61). Folder: [`slices/16-P-git-repo-scan/`](slices/16-P-git-repo-scan/).
 **EFP Path B 2026-09-09** — plan-only; triggered by Live clone fail on GitHub `/tree/…` URLs and product need: one repo URL → N skill+MCP scans with `org/repo` card signature.
 **EFP Path B 2026-09-20** — slice **64** Must: same URL also yields a **package** target (DepShield/Ossprey/Snyk) when manifests exist; slice **63** inventory honesty holds. Soft-amend **56-a** (reuse Wave N stub — no new docs slice).
+**Landed 2026-09-20** — merged to `main` via [#145](https://github.com/neomatrix369/tripwire/pull/145) / [#146](https://github.com/neomatrix369/tripwire/pull/146). Follow-up honesty for Cargo-only SCA: branch `fix/cargo-package-scan-error-status` (feeds Wave **R** slice 65).
 
 **Model / harness:** inherits TRAIL Original Material + harness-scout embed. Profile: ambiguity=low · blast_radius=medium · time_box=≤2 Pomos · interactive · Walking Skeleton.
 
 | # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
 |---|------|------|--------|--------|------------|-------|-----------|
-| 62 | [slice-62-git-repo-discover-fanout](slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) | Git Repo Discover + Fan-Out (skills + MCPs, org/repo cards) | Must | 🔀 | none | — | ~5 min |
-| 63 | [slice-63-cli-scanner-inventory](slices/16-P-git-repo-scan/slice-63-cli-scanner-inventory.md) | CLI Scanner Inventory (succeeded / failed / not_run) | Should | 🔀 | none | — | ~3 min |
-| 64 | [slice-64-git-repo-package-scan](slices/16-P-git-repo-scan/slice-64-git-repo-package-scan.md) | Git Repo Package + DepShield/Ossprey Scan | Must | 🔨 | 62 (fan-out); 63 (inventory honesty) | — | ~5 min |
+| 62 | [slice-62-git-repo-discover-fanout](slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) | Git Repo Discover + Fan-Out (skills + MCPs, org/repo cards) | Must | ✅ landed main | none | #145/#146 | ~5 min |
+| 63 | [slice-63-cli-scanner-inventory](slices/16-P-git-repo-scan/slice-63-cli-scanner-inventory.md) | CLI Scanner Inventory (succeeded / failed / not_run) | Should | ✅ landed main | none | #145/#146 | ~3 min |
+| 64 | [slice-64-git-repo-package-scan](slices/16-P-git-repo-scan/slice-64-git-repo-package-scan.md) | Git Repo Package + DepShield/Ossprey Scan | Must | ✅ landed main | 62; 63 | #145/#146 | ~5 min |
+
+## Wave 18-R — Approved-repo security workflow
+
+**Group letter R** (after P; **Q** folder `17-Q-ci-hygiene` is a reserved empty placeholder — do not reuse for this wave). Folder: [`slices/18-R-approved-repo-workflow/`](slices/18-R-approved-repo-workflow/).
+**EFP Path B 2026-09-20** — Add from Cursor plan “approved Git repository security scanner”: reuse Wave P scanners + ADR-0016 unchanged; language/ecosystem coverage ledger; evidence verify; SIE judge panel + final judge; dashboard stepper (UI **1A** extend Live/Mock); fix propose; then verify/export; gap scanners Could.
+**Current branch context:** `fix/cargo-package-scan-error-status` — Snyk SCA ecosystem detect + Cargo `not_applicable` + all-N/A → UNSCANNED (committed; VERIFIED Live) — absorb ledger/docs into **65**, not a parallel path.
+
+**Model / harness:** inherits TRAIL Original Material + harness-scout embed. Profile: ambiguity=medium · blast_radius=medium · worktree recommended · interactive.
+
+| # | File | Name | MoSCoW | Status | Depends on | Issue | Read time |
+|---|------|------|--------|--------|------------|-------|-----------|
+| 65 | [slice-65-lang-ecosystem-coverage-ledger](slices/18-R-approved-repo-workflow/slice-65-lang-ecosystem-coverage-ledger.md) | Language/Ecosystem Discovery + Coverage Ledger | Must | 📋 | 62; 64 | — | ~5 min |
+| 66 | [slice-66-evidence-verify-injection-guard](slices/18-R-approved-repo-workflow/slice-66-evidence-verify-injection-guard.md) | Evidence Verify + Injection Guard | Must | 📋 | 65 | — | ~4 min |
+| 67 | [slice-67-sie-judge-panel-final](slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md) | SIE Judge Panel + Final Judge | Must | 📋 | 66; ADR-0016 unchanged | — | ~5 min |
+| 68 | [slice-68-workflow-run-triage-investigate](slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md) | Stepper Run → Triage → Investigate | Must | 📋 | 67; UI 1A | — | ~5 min |
+| 69 | [slice-69-fix-propose-apply-clean](slices/18-R-approved-repo-workflow/slice-69-fix-propose-apply-clean.md) | Fix Propose + Apply-Clean Check | Must | 📋 | 68 | — | ~4 min |
+| 70 | [slice-70-verify-worktree-rescan](slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md) | Verify Fix via Worktree Re-Check | Should | 📋 | 69 | — | ~3 min |
+| 71 | [slice-71-expert-export-report](slices/18-R-approved-repo-workflow/slice-71-expert-export-report.md) | Expert View + Report Export | Should | 📋 | 68 | — | ~3 min |
+| 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Gap Scanners for Unsupported Ecosystems | Could | 📋 | 65 (ledger gaps) | — | ~4 min |
 
 ## Supporting Artifacts
 | File | Status |
 |------|--------|
-| [README.md](README.md) | ✅ wave folder map (`01-A-…` … `15-O-monk-kit-live-packaging/`) |
-| `01-A-…` … `15-O-…/` | ✅ slice stubs by execution wave |
-| [README.md](README.md) | ✅ wave folder map (`01-A-…` … `16-P-git-repo-scan/`) |
-| `01-A-…` … `16-P-…/` | ✅ slice stubs by execution wave |
+| [README.md](README.md) | ✅ wave folder map through `18-R-approved-repo-workflow/` |
+| `01-A-…` … `18-R-…/` | ✅ slice stubs by execution wave |
 | [docs-gap-bridge-audit.md](docs-gap-bridge-audit.md) | ✅ Wave N audit report — diagrams, checkpoints, backlog, disclaimers (D1–D8) |
 | interview_summary.md | ✅ written (+ Wave O delta 2026-09-09) |
 | PROGRESS.md | ✅ written |
@@ -414,6 +434,7 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 2. **Active Frontline branch:** Wave **H** Musts **23 → 32** (phase-gated H1→H2→H3). Human test after 25 and 30; **HARD GATE** at 32 before any Should 33+.
 3. Wave **H** Should 33–38 after 32 PASS (35 stays 🔴 until Ossprey access in DECISIONS). Slice 39 stays 📦 unless pulled in.
 4. Wave **G** (18–22) remains 📋 — do **not** start while H1–H3 is active unless explicitly resumed. Prefer one active slice per shared code area.
+5. **2026-09-20 addendum:** Wave **R** (approved-repo security workflow, slices **65→69** Must) is the next product stream after Wave P landed. Finish or park `fix/cargo-package-scan-error-status` via slice **65**; then execute `slice/65-…` → **69**. Should **70–71** after Musts; Could **72** only when ledger proves unsupported ecosystems.
 
 ## Wave G source-finding map
 

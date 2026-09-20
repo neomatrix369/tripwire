@@ -1,0 +1,90 @@
+# Slice 67: SIE Judge Panel + Final Judge
+
+> Scenario: Brownfield | MoSCoW: **Must** | Status: 📋 PLANNED
+> Wave: R — Approved-repo security workflow
+> Depends on: **66**; ADR-0016 SIE/escalation **unchanged** (inputs only)
+> Trigger: Independent parallel judges + final verdict (TP / FP / needs review) with provenance
+> Branch: `slice/67-sie-judge-panel-final`
+
+## Session bootstrap
+- **Runtime source**: → CLAUDE.md § Environment
+- **Test source**: → CLAUDE.md § Testing
+- **Load first**: CLAUDE.md → docs/plan/invariants.md → this stub → ADR-0016 → `cli/src/router.js` / SIE client
+
+## Context
+- **Stage objective**: For every candidate with verified (or explicitly unverified) evidence, run ≥3 independent parallel SIE judge executions, then one final judge that weighs reasons + existing analysis/escalation results; persist per-judge model, verdict, confidence, reason, raw response, prompt version, run ID, timestamp.
+- **Depends on**: Slice 66 evidence pipeline; existing `tripwire route` / SIE client (reuse — do not invent a second model integration)
+- **Global invariants**: ADR-0016 behaviour unchanged; open-weight via Superlinked SIE only for judging; scanned content is data not instructions; model failures never silently become TP/FP
+
+## Non-goals
+- Replacing or rewriting the tiered router (ADR-0016)
+- Closed / proprietary generation models for the panel
+- Dashboard stepper chrome (slice 68) beyond persisting fields the UI will read
+
+## Output contract
+- **Baseline**: ADR-0016 writes `tiered_router` triage/escalation rows; no independent 3-judge panel + final verdict schema
+- After: each candidate has panel judgements + final verdict ∈ {true_positive, false_positive, needs_review}; disagreements flagged; if judges disagree and final judge is unconfident → needs_review; timeouts/failures recorded
+
+## Slice Workflow Bundle
+- Slice name: `slice-67-sie-judge-panel-final`
+- Files: judge orchestration (CLI), schema/persist, SIE client reuse, tests with mocked SIE
+- Exit criteria: GWT-67.* green; model inventory performed before wiring (document available models/limits)
+- Commit pattern: `feat(slice-67): SIE judge panel and final judge`
+
+## Branch
+`slice/67-sie-judge-panel-final`
+
+## Spec (GWT / User Story)
+
+### GWT-67.1 — Model discovery first
+**Given** configured SIE access
+**When** the judging pipeline is initialised
+**Then** available models/capabilities/limits are discovered via the existing client
+**And** if fewer than three suitable models exist, independent parallel executions of available model(s) are used and recorded explicitly
+
+### GWT-67.2 — Parallel independent judges
+**Given** a candidate finding with evidence + ADR-0016 analysis/escalation results
+**When** the panel runs
+**Then** ≥3 judge executions start concurrently
+**And** no judge receives another judge’s answer
+**And** each records model, verdict, confidence, reason, raw response, prompt version, run ID, timestamp
+
+### GWT-67.3 — Final judge weighs reasons
+**Given** all available panel judgements (including partial if some failed)
+**When** the final judge runs
+**Then** it receives all judgements + analysis/escalation results
+**And** the verdict weighs evidence/reasons, not simple majority alone
+**And** disagreement + low final confidence → needs_review
+
+### GWT-67.4 — Failures are honest
+**Given** 1 of 3 judges times out or errors
+**When** the run continues
+**Then** UI/API can express “2 of 3 judges answered”
+**And** the missing judge is not treated as TP or FP
+
+### GWT-67.5 — ADR-0016 unchanged
+**Given** an existing `tripwire route` / auto-route path
+**When** the panel is enabled
+**Then** router triage/escalation logic and persistence rules from ADR-0016 still hold
+**And** router outputs are inputs to the panel/final judge only
+
+## Before-Checks [GATE]
+- [ ] Branch created
+- [ ] SIE model inventory documented in DECISIONS or stub appendix
+- [ ] GWT RED tests with mocked SIE
+
+## After-Checks [GATE]
+- [ ] Tests pass
+- [ ] Specification coverage: every GWT clause has ≥1 test
+- [ ] Complexity evidence recorded
+- [ ] Doc Audit: STATUS — panel vs ADR-0016 separation; open-weight constraint
+
+### Closing Gates
+- [ ] `nw-at-completeness-check`
+- [ ] `nw-software-crafter-reviewer`
+- [ ] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer`
+- [ ] `nw-gate-evidence-validator`
+- [ ] `/verify-slice` — COMPLETE
+
+## Gate Status
+📋 PLANNED — EFP Path B 2026-09-20 (Wave R)

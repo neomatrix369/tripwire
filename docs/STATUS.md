@@ -46,18 +46,20 @@ Reachable through production entry points / config:
 - CLI scanner inventory after scan (per-source status + rollup
   `fully successful` / `partly successful` / `fully failed` / `not run`;
   zero-artifact paths list registry as `not_run`) — `cli/src/scannerInventory.js`
-  (slice 63 🔀; IMPLEMENTED on branch, not yet ✅ on `main`)
+  (slice 63 ✅ on `main` via #145/#146)
 - Git repo `package` discovery target (`items.type=package` when manifests at
   scope root; DepShield / Ossprey / Snyk only) — `cli/src/discovery.js`,
-  `sandbox/scanners.py` `_group_applies` (slice 64 🔨; IMPLEMENTED on branch,
-  not yet ✅ on `main`; not VERIFIED live)
+  `sandbox/scanners.py` `_group_applies` (slice 64 ✅ on `main` via #145/#146;
+  Cargo-only SCA honesty VERIFIED on Live — all-N/A → UNSCANNED, not green)
 - `tripwire setup` / first-scan schema bootstrap (probes `completed_at` column and
   live `items_type_check` so pre-package DBs re-apply `db/schema.sql`) —
   `cli/src/ensureSchema.js`
 - `./scripts/setup-modal.sh` secret sync + deploy
 - Scanner adapters shell out to upstream CLIs (`skill-scanner`, `mcp-scanner`,
   `snyk-agent-scan` for skills/MCP, `snyk test` SCA for `package`, `tessl`) with
-  real flags and parse documented output shapes — `sandbox/scanners.py`
+  real flags and parse documented output shapes — `sandbox/scanners.py`. Package
+  Snyk: Rust/Cargo trees → `not_applicable` (no `snyk test` support); complete
+  runs with zero completed engines → rollup/dashboard **grey** (UNSCANNED)
 - DepShield dependency-audit adapter (`depshield-mcp` over MCP stdio;
   npm + PyPI via OSV.dev; zero credentials — nothing synced to
   `tripwire-scan-secrets`; runs for skill, mcp_server, and package
@@ -228,8 +230,11 @@ Exact gate matrix:
 [plan/coverage-audit.md](./plan/coverage-audit.md).
 
 Heatmap note: card `heatmap_status` is **worst-of** actionable scanner findings
-(any red → red; amber-only → amber); finding-count chips are density, not colour.
-Router rows (`tiered_router`) are excluded from severity rollup.
+(any red → red; amber-only → amber) when ≥1 scanner **completed**; finding-count
+chips are density, not colour. A `complete` run with **zero** completed engines
+(all `not_applicable` / skipped — e.g. Cargo-only packages) → **`grey`
+(UNSCANNED)** with `risk_score` null, not green / `R 0.00`. Router rows
+(`tiered_router`) are excluded from severity rollup.
 `risk_score` = `(3×red + 1×amber) / Σ completed checks_run` (unbounded ≥0) for
 sort/trend only — see [ARCHITECTURE.md](./ARCHITECTURE.md) § Quality attributes.
 
@@ -338,23 +343,25 @@ as a Monk Kit (Tier 1 MVL = Supabase + Modal; Tier 2/3 scanners per ADR-0001).
 MCPs** → **N separate scans** with scanners by `item_type`; dashboard cards carry
 skill/MCP **name** (SKILL.md frontmatter when set; repo-relative path when leaf equals
 repo) plus `org/repo` signature (`identifier` = `org/repo/<relpath>`); re-scan refreshes
-`items.name` even on content-hash hits. **Slice 64 (🔨):** when package manifests exist at
+`items.name` even on content-hash hits. **Slice 64:** when package manifests exist at
 scope root, also emit a **`package`** target (`items.type=package`, Accepted) so DepShield /
 Ossprey / Snyk run — not a fake skill; Cisco Skill / Tessl / Cisco MCP do **not** apply;
-package Snyk uses **`snyk test` SCA** (Agent Scan only covers skills/MCP and reports
-empty `skill_risks`/`server_risks` on application repos);
-repos with neither skill/MCP **nor** manifests still fail closed. **Slice 63 (🔀):** CLI
+package Snyk uses **`snyk test` SCA** (Agent Scan only covers skills/MCP); Rust/Cargo
+trees are `not_applicable` for Snyk SCA (honesty — full Cargo coverage is Wave R slice 72
+if the ledger still shows a gap); all-N/A complete → UNSCANNED not green;
+repos with neither skill/MCP **nor** manifests still fail closed. **Slice 63:** CLI
 prints scanner inventory + rollup after scan / zero-artifact (package expected sources =
-Snyk/DepShield/Ossprey). Slices 62–64 ship together on
-**🔀 ON BRANCH** (`slice/64-git-repo-package-scan`) — IMPLEMENTED pending merge.
+Snyk/DepShield/Ossprey). Slices 62–64 ✅ landed `main` via
+[#145](https://github.com/neomatrix369/tripwire/pull/145) /
+[#146](https://github.com/neomatrix369/tripwire/pull/146). Follow-up SCA honesty:
+`fix/cargo-package-scan-error-status` (feeds Wave R slice 65).
 Operator taxonomy soft-amended in slice **56-a**
 ([prerequisites — What can Tripwire scan?](./user-guide/prerequisites.md#what-can-tripwire-scan)).
 Spec:
 [slice 62](./plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md),
 [slice 63](./plan/slices/16-P-git-repo-scan/slice-63-cli-scanner-inventory.md),
 [slice 64](./plan/slices/16-P-git-repo-scan/slice-64-git-repo-package-scan.md),
-[plan/TRAIL.md](./plan/TRAIL.md) Wave 16-P. **On `main` until merge:** HTTPS git URL =
-single `cloneable` target (typed `mcp_server`); browse `/tree/…` URLs fail at `git clone`.
+[plan/TRAIL.md](./plan/TRAIL.md) Wave 16-P.
 
 ---
 
@@ -426,5 +433,6 @@ for a future live/demo release. Wave M (slice 53) LLM usage log / cost tips is
 Wave O (Monk Kit, ADR-0001 Proposed / plan **O0**+58–61) is **DECIDED**
 plan-only — not current deploy behaviour; workstation Live remains supported.
 Wave P (slices 62–64) git repo skill+MCP fan-out, CLI scanner inventory, and
-package/DepShield/Ossprey targets is **IN PROGRESS / PLANNED** — see DECIDED above; not
-all of that is current `tripwire scan` behaviour on `main`.
+package/DepShield/Ossprey targets is ✅ on `main` (#145/#146). Cargo-only SCA
+honesty (all-N/A → UNSCANNED) is VERIFIED on `fix/cargo-package-scan-error-status`
+and feeds Wave R slice 65 — see DECIDED above.

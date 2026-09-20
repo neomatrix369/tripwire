@@ -115,12 +115,21 @@ function shapeItem(item, runsByItem, scannersByRun, findingsByRun) {
     cwe_ids: f.cwe_ids,
   }));
 
+  const completedScannerCount = latestScanners.filter(
+    (s) => s.status === "completed"
+  ).length;
+
   const status = resolveItemStatus({
     runStatus,
     heatmapStatus: item.heatmap_status,
     riskScore: item.risk_score,
     findings: mappedFindings,
+    completedScannerCount,
   });
+
+  // No completed engines → no scored density (avoid stale R 0.00 as "clean").
+  const risk =
+    status === "grey" && completedScannerCount === 0 ? null : item.risk_score;
 
   const unreachableCount = latestScanners.filter((s) => s.status === "unreachable").length;
   const totalScanners = latestScanners.length;
@@ -134,7 +143,7 @@ function shapeItem(item, runsByItem, scannersByRun, findingsByRun) {
     name: item.name,
     identifier: item.identifier || item.name,
     status,
-    risk: item.risk_score,
+    risk,
     quality: item.quality_score,
     locus: item.install_locus || "unknown",
     avail: item.source_availability || "unknown",

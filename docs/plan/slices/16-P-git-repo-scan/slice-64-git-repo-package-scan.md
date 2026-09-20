@@ -1,6 +1,6 @@
 # Slice 64: Git Repo Package + DepShield/Ossprey Scan
 
-> Scenario: Brownfield | MoSCoW: **Must** | Status: 🔨 IN PROGRESS
+> Scenario: Brownfield | MoSCoW: **Must** | Status: ✅ landed main (#145/#146)
 > Wave: P — Git repo scan (package / OSS malware path)
 > Depends on: slice 62 (fan-out + clone) conceptually; slice 63 (CLI inventory) for operator honesty — execute on branch that includes 63 inventory helpers
 > Trigger: USER 2026-09-20 — `tripwire scan <github-repo>` must cover **not only** skills/MCPs **but also** package dependency audit (DepShield) and Ossprey malware scans; prior CLI inventory + clear outcomes still hold
@@ -163,4 +163,4 @@ Ordered steps — implement after this plan is saved; branch from slice-63 work 
 5. Quality gates
 
 ## Gate Status
-🔨 IN PROGRESS — Accept `items.type=package` USER-CONFIRMED 2026-09-20 (DECISIONS); execution on `slice/64-git-repo-package-scan`
+✅ landed `main` via [#145](https://github.com/neomatrix369/tripwire/pull/145) / [#146](https://github.com/neomatrix369/tripwire/pull/146) — Accept `items.type=package` USER-CONFIRMED 2026-09-20. Formal `gate-evidence/slice-64.json` PASS close may still be pending. Follow-up: Cargo SCA unsupported honesty on `fix/cargo-package-scan-error-status` → Wave R slice 65.

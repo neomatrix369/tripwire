@@ -173,8 +173,9 @@ grant select on dashboard_latest_runs to anon, authenticated;
 
 -- Rollup function: recompute an item's heatmap_status/risk_score from its latest scan_run.
 -- heatmap_status = worst-of actionable findings (any red → red; else any amber → amber;
--- else green). risk_score stays weighted density for sort/trend only.
--- partial-failed still scores completed engines. failed / running / empty partial → error.
+-- else green when ≥1 engine completed). risk_score stays weighted density for sort/trend.
+-- complete with zero completed engines (all not_applicable / skipped) → grey (unscanned),
+-- not a false green. partial-failed with zero completed → error. failed / running → error.
 create or replace function tripwire_rollup_item(p_item_id uuid) returns void as $$
 declare
   v_latest_run_id uuid;
@@ -208,15 +209,18 @@ begin
     return;
   end if;
 
+  -- complete with zero completed engines (all N/A / skipped) → unscanned, not green.
+  if v_latest_status = 'complete' and v_total_checks = 0 then
+    update items set heatmap_status = 'grey', risk_score = null, updated_at = now() where id = p_item_id;
+    update scan_runs set risk_score = null where id = v_latest_run_id;
+    return;
+  end if;
+
   select count(*) filter (where severity = 'red'), count(*) filter (where severity = 'amber')
   into v_red_count, v_amber_count
   from findings where scan_run_id = v_latest_run_id and scanner_source != 'tiered_router';
 
-  if v_total_checks = 0 then
-    v_risk := 0;
-  else
-    v_risk := (3 * v_red_count + 1 * v_amber_count) / v_total_checks;
-  end if;
+  v_risk := (3 * v_red_count + 1 * v_amber_count) / v_total_checks;
 
   -- Card colour is an alarm (worst-of), not density. risk_score still dilutes.
   if v_red_count > 0 then

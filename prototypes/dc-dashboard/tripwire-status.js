@@ -8,6 +8,8 @@
  * heatmap_status / card colour = worst-of actionable findings (aligned with
  * tripwire_rollup_item). risk_score remains weighted density for sort/trend;
  * statusFromRisk is only a fallback when heatmap and findings are unscorable.
+ * complete + zero completed scanners (all not_applicable / skipped) → grey
+ * (UNSCANNED), never a false green.
  */
 
 export const STATUS_META = {
@@ -144,17 +146,39 @@ export function normalizeSeverity(raw) {
  *   heatmapStatus?: string|null,
  *   riskScore?: number|null,
  *   findings?: Array<{severity?: string}>|null,
+ *   completedScannerCount?: number|null,
  * }} input
  * @returns {'red'|'amber'|'green'|'grey'|'running'|'error'}
  */
-function resolveCompletedStatus(heatmapStatus, riskScore, findings) {
+function resolveCompletedStatus(
+  heatmapStatus,
+  riskScore,
+  findings,
+  { runStatus, completedScannerCount } = {}
+) {
   // Worst-of findings wins over stale density-era heatmap / risk buckets.
   const fromFindings = maxFindingStatus(findings);
   if (fromFindings) return fromFindings;
+
+  const knowsCompletedCount = typeof completedScannerCount === "number";
+  const noCompletedEngine = knowsCompletedCount && completedScannerCount === 0;
+
+  // partial-failed with zero completed engines → ERROR (matches rollup).
+  if (runStatus === "partial-failed" && noCompletedEngine) return "error";
+
+  // complete with zero completed engines (all not_applicable / skipped) →
+  // UNSCANNED, never a false green — even if rollup still has stale green.
+  if (runStatus === "complete" && noCompletedEngine) return "grey";
+
   if (RESULT_STATUSES.has(heatmapStatus)) return heatmapStatus;
+  if (heatmapStatus === "grey") return "grey";
+  if (heatmapStatus === "error") return "error";
+
   const fromRisk = statusFromRisk(riskScore);
   if (fromRisk !== "grey") return fromRisk;
-  // Completed/partial with nothing scorable → execution error (matches rollup).
+
+  // Nothing scorable and no completed-count hint: complete → grey; else error.
+  if (runStatus === "complete") return "grey";
   return "error";
 }
 
@@ -170,11 +194,15 @@ export function resolveItemStatus({
   heatmapStatus,
   riskScore,
   findings,
+  completedScannerCount,
 } = {}) {
   if (runStatus === "running") return "running";
   if (runStatus === "failed") return "error";
   if (runStatus === "complete" || runStatus === "partial-failed") {
-    return resolveCompletedStatus(heatmapStatus, riskScore, findings);
+    return resolveCompletedStatus(heatmapStatus, riskScore, findings, {
+      runStatus,
+      completedScannerCount,
+    });
   }
   if (!runStatus) return resolveNoRunStatus(heatmapStatus);
   if (RESULT_STATUSES.has(heatmapStatus)) return heatmapStatus;

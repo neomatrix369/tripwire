@@ -135,8 +135,22 @@ test('given complete green risk when resolveItemStatus then green', () => {
       heatmapStatus: 'green',
       riskScore: 0.1,
       findings: [],
+      completedScannerCount: 3,
     }),
     'green'
+  );
+});
+
+test('given complete with zero completed scanners when resolveItemStatus then grey', () => {
+  assert.equal(
+    resolveItemStatus({
+      runStatus: 'complete',
+      heatmapStatus: 'green',
+      riskScore: 0,
+      findings: [],
+      completedScannerCount: 0,
+    }),
+    'grey'
   );
 });
 

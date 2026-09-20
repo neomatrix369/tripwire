@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Package / SCA honesty for unsupported ecosystems (Cargo-only and similar):
+  `snyk test` does not support Rust/Cargo — Tripwire reports `not_applicable`
+  with an explicit ecosystem detail instead of a false clean. When every
+  applicable scanner is `not_applicable` / skipped (zero completed engines),
+  `tripwire_rollup_item` and the Live dashboard paint **UNSCANNED** (`grey`)
+  with `risk_score` null (`R —`), not GREEN / `R 0.00`. Partial-failed with
+  zero completed engines remains ERROR. Dashboard: `tripwire-status.js` /
+  `tripwire-live.js`; rollup: `db/schema.sql`; Snyk preflight:
+  `sandbox/scanners.py`. VERIFIED on Live Packages (pizauth / snare).
+
 ### Added
 - GitHub repo discover + fan-out (slice 62, Wave P): `tripwire scan https://github.com/org/repo`
   (and `/tree|/blob/` browse URLs) shallow-clones on the host, walks skills (`SKILL.md`)
