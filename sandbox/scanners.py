@@ -2475,17 +2475,21 @@ def _cargo_audit_finding(entry, lock_relpath):
     pkg_name = package.get("name") or advisory.get("package") or "unknown"
     pkg_ver = package.get("version") or "?"
     url = advisory.get("url") or f"https://rustsec.org/advisories/{adv_id}"
+    # Shape must match findings schema (DepShield/Snyk SCA). Unknown columns or
+    # entity_kind='package' (CHECK allows tool|prompt|resource|server only) make
+    # PostgREST insert raise → scan_app marks the whole run failed despite a
+    # completed Cargo Audit row (dashboard ERROR with empty findings).
     return {
-        "scanner_source": "Cargo Audit",
         "severity": _cargo_audit_severity(advisory),
         "category": "dependency_vulnerability",
-        "rule_id": str(adv_id),
         "message": f"{pkg_name}@{pkg_ver}: {title}",
-        "file": lock_relpath,
-        "line": None,
-        "entity_kind": "package",
-        "entity_name": pkg_name,
+        "scanner_source": "Cargo Audit",
+        "file_path": lock_relpath,
+        "package_name": pkg_name,
+        "package_version": None if pkg_ver == "?" else pkg_ver,
+        "cve_ids": [str(adv_id)],
         "advisory_url": url,
+        "advisory_provider": "rustsec",
     }
 
 

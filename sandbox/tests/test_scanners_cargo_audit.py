@@ -56,7 +56,9 @@ def test_given_cargo_lock_and_vuln_json_when_run_then_completed_with_finding(
         findings, rows = scanners.run_cargo_audit(str(tmp_path), "package")
 
     assert len(findings) == 1
-    assert findings[0]["rule_id"] == "RUSTSEC-2022-0051"
+    assert findings[0]["cve_ids"] == ["RUSTSEC-2022-0051"]
+    assert findings[0]["file_path"] == "Cargo.lock"
+    assert findings[0]["package_name"]
     assert findings[0]["severity"] == "red"
     assert rows[0]["status"] == "completed"
     assert rows[0]["scanner_source"] == "Cargo Audit"
@@ -228,8 +230,17 @@ def test_given_non_dict_advisory_when_severity_then_amber() -> None:
 
 def test_given_malformed_entry_when_finding_then_defaults() -> None:
     finding = scanners._cargo_audit_finding({"advisory": "x", "package": None}, "Cargo.lock")
-    assert finding["rule_id"] == "RUSTSEC-unknown"
+    assert finding["cve_ids"] == ["RUSTSEC-unknown"]
+    assert finding["package_name"] == "unknown"
+    assert finding["package_version"] is None
     assert finding["severity"] == "amber"
+    assert finding["file_path"] == "Cargo.lock"
+    assert finding["advisory_provider"] == "rustsec"
+    # Must not emit schema-invalid keys (would fail findings INSERT → run failed).
+    assert "rule_id" not in finding
+    assert "file" not in finding
+    assert "line" not in finding
+    assert "entity_kind" not in finding
 
 
 def test_given_vulns_not_dict_when_parse_then_empty() -> None:
@@ -439,10 +450,10 @@ def test_given_empty_stdout_exit0_when_run_then_completed(tmp_path: Path) -> Non
     assert rows[0]["status"] == "completed"
 
 
-def test_given_malformed_entry_when_finding_then_defaults() -> None:
+def test_given_non_dict_entry_when_finding_then_defaults() -> None:
     finding = scanners._cargo_audit_finding("not-a-dict", "Cargo.lock")
-    assert finding["rule_id"] == "RUSTSEC-unknown"
-    assert finding["entity_name"] == "unknown"
+    assert finding["cve_ids"] == ["RUSTSEC-unknown"]
+    assert finding["package_name"] == "unknown"
     finding2 = scanners._cargo_audit_finding(
         {"advisory": "x", "package": "y"}, "Cargo.lock"
     )
