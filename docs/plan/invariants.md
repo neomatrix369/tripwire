@@ -41,5 +41,6 @@
 - Reuse Wave P discovery/scanners and ADR-0016 analysis/escalation unchanged; judge panel is additive.
 - Language/ecosystem coverage ledger required; unsupported ecosystems must be explicit — never claim fully scanned.
 - UI stepper extends existing dashboard (1A); proposed patches only — verify on temp worktree; never auto-modify approved repo by default.
+- Workflow UI must **narrate** judge panel / coverage / evidence-verify outcomes (slice **75** / R-UX-1) — never imply silent b/g success; honest “panel off / not run / pending” when absent.
 - Open-weight models via Superlinked SIE for judging; mask secrets by default.
 → Source: docs/plan/interview_summary.md § Wave R; docs/plan/DECISIONS.md 2026-09-20 Wave R rows; docs/adr/0016-tiered-router-sie-model-studio.md

@@ -7,7 +7,7 @@
 |-----:|--------|-------|--------|---------|
 | 15 | [`15-O-…`](slices/15-O-monk-kit-live-packaging/) | **O — Monk Kit Live packaging** | **O0** → **58**→**59** Must · **60**–**61** Should | 📋 plan-only (ADR-0001 + PoC; branch `docs/monk-kit-wave-o`) |
 | 16 | [`16-P-…`](slices/16-P-git-repo-scan/) | **P — Git repo discover + fan-out** | **62**→**64** | ✅ landed main (#145/#146) |
-| 18 | [`18-R-…`](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** | **65**→**69** Must · **70**–**71** Should · **72** Could | **65–66** ✅ · **67** 🔨 · **68**–**69** ✅ · **70** ✅ · **71** ✅ · **72** ✅ |
+| 18 | [`18-R-…`](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** | **65**→**69** Must · **70**–**71**/**73**–**75** Should · **72** Could | **65–66** ✅ · **67** 🔨 · **68**–**69** ✅ · **70** ✅ · **71** ✅ · **72** ✅ · **75** 📋 |
 | 12 | [`12-L-…`](slices/12-L-tessl-5-row-expansion/) | **L — Tessl 5-row expansion** | 45 ✅ · 46 ✅ · 47 ✅ · 48 ✅ · 49 ✅ · 50 ✅ · **51** 🔀 · 52 📋 | 45–50 ✅ · **51** 🔀 |
 | 13 | [`13-M-…`](slices/13-M-llm-usage-tracking/) | **M — LLM usage / cost observability** | **53** | 📋 plan-only (ADR-0016 follow-on; not J/L/G) |
 | 11 | [`11-K-…`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** | 🔀 |
@@ -28,7 +28,8 @@
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| 0 (active) | R | **70** | **Verify fix via worktree rescan** | Should | 🔨 IN PROGRESS on `slice/70-verify-worktree-rescan` · finding gone / still present / unable; temp worktree; never claim fixed from generation |
+| 0 (planned) | R | **75** | **Operator-visible pipeline (R-UX-1)** | Should | 📋 PLANNED · narrate judge panel / coverage / evidence in Workflow UI · depends 67; 68 · `slice/75-operator-visible-pipeline` |
+| 0 (landed) | R | **70** | **Verify fix via worktree rescan** | Should | ✅ landed `main` (#155) · finding gone / still present / unable; temp worktree |
 | 0 (landed) | R | **69** | **Fix propose + apply-clean** | Must | ✅ landed `main` (#154) · next 70 |
 | 0 (active) | R | **67** | **SIE judge panel + final judge** | Must | 🔨 IN PROGRESS on `slice/67-sie-judge-panel-final` · inventory + CLI + panel/tests; gate close pending |
 | 0 (landed) | R | **66** | **Evidence verify + injection guard** | Must | ✅ VERIFIED on `slice/66-evidence-verify-injection-guard` · next 67 |

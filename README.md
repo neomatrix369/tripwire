@@ -175,6 +175,9 @@ shipped skills, and roadmap). Click **Open Dashboard →** to proceed to the sca
 view (primary **Dashboard** tab: inventory KPIs, filters, and cards). Use the secondary
 **Workflow** tab for Run → Triage → Investigate → Fix → Verify → Report. Simple/Expert
 on Workflow only changes finding-detail density, not which primary tab you are on.
+Operator-visible judging/coverage narration (honest “panel off / pending”, process CTA)
+is **PLANNED** as Wave R slice 75 — see [docs/STATUS.md](docs/STATUS.md); do not treat
+current Workflow chrome as a complete live judge pipeline yet.
 The "About" nav button toggles the intro back on at any time; the choice is
 remembered in `sessionStorage`.
 
@@ -200,7 +203,7 @@ stack (same names as the badges above):
 | Scan | Adapters run in an isolated sandbox; CLI prints scanner inventory, coverage ledger, and `[evidence]` honesty rows (slices 63/65/66); optional `tripwire judge` panel (slice 67) | Modal (+ Docker), Cisco / Snyk / Tessl / DepShield / Cargo Audit / Ossprey | [modal-setup](docs/user-guide/modal-setup.md) · [env-vars](docs/user-guide/env-vars.md) |
 | Store | Findings and scan_run rows land for the dashboard | Supabase / Postgres | [supabase-setup](docs/user-guide/supabase-setup.md) |
 | Route (optional) | Every item through SIE; escalate only when signaled | Superlinked SIE → Alibaba Cloud Model Studio via `tripwire route` / auto-route | [sie-setup](docs/user-guide/sie-setup.md) · [model-studio-setup](docs/user-guide/model-studio-setup.md) |
-| Review | Heatmap, drawers, pathway strips, Escalated / SIE-only filters; guided Run→Report on **Workflow** tab | Dashboard (Live or Mock) | [reading-router-results](docs/user-guide/reading-router-results.md) · [screenshots](docs/screenshots/README.md) |
+| Review | Heatmap, drawers, pathway strips, Escalated / SIE-only filters; Run→Report chrome on **Workflow** tab (operator-visible judge/coverage narration: slice 75 PLANNED) | Dashboard (Live or Mock) | [reading-router-results](docs/user-guide/reading-router-results.md) · [screenshots](docs/screenshots/README.md) |
 
 Mock skips Discover→Scan→Store and still shows Review (plus router fixtures).
 Without SIE keys, Route warns and skips; scanner results still store. Sample CLIs
