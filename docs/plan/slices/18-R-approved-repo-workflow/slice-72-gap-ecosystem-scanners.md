@@ -1,6 +1,6 @@
 # Slice 72: Gap Scanners for Unsupported Ecosystems
 
-> Scenario: Brownfield | MoSCoW: **Could** | Status: 🔨 IN PROGRESS
+> Scenario: Brownfield | MoSCoW: **Could** | Status: ✅ PASSED
 > Wave: R — Approved-repo security workflow
 > Depends on: **65** (coverage ledger shows gaps)
 > Trigger: Only where discovery shows an unsupported language/ecosystem — e.g. Rust/Cargo if Snyk SCA + DepShield still cannot cover
@@ -62,22 +62,22 @@
 **And** prior “unsupported” reasons stay accurate for Snyk/DepShield; Cargo Audit path is documented as IMPLEMENTED when installed
 
 ## Before-Checks [GATE]
-- [x] Branch created (`slice/72-gap-ecosystem-scanners-docs` from `main`)
+- [x] Branch created (`slice/72-gap-ecosystem-scanners` from `main`)
 - [x] DECISIONS row names which ecosystem gap(s) are in scope for this execution (Rust/Cargo via cargo-audit — APPLIED 2026-09-20)
-- [ ] GWT RED tests / fixtures (product path already tested on `main`; close only with evidence if further RED→Green needed)
+- [x] GWT-72.* acceptance tests added (ledger + registry entry-point smoke)
 
 ## After-Checks [GATE]
-- [ ] Tests pass
-- [ ] Specification coverage
-- [ ] Complexity evidence recorded
-- [ ] Doc Audit: STATUS capability honesty for new ecosystem
+- [x] Tests pass (CLI GWT-72.* + pytest slice72/cargo_audit)
+- [x] Specification coverage (GWT-72.1–72.4)
+- [x] Complexity evidence recorded (docs-only + additive tests; adapter complexity unchanged)
+- [x] Doc Audit: STATUS capability honesty for new ecosystem
 
 ### Closing Gates
-- [ ] `nw-at-completeness-check`
-- [ ] `nw-software-crafter-reviewer`
-- [ ] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer`
-- [ ] `nw-gate-evidence-validator`
-- [ ] `/verify-slice` — COMPLETE
+- [x] `nw-at-completeness-check` (acceptance reviewer APPROVED)
+- [x] `nw-software-crafter-reviewer` (APPROVED after entry-point nit applied)
+- [x] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer` (APPROVED)
+- [x] `nw-gate-evidence-validator` (gate-evidence/slice-72-summary.json + verify-slice.json)
+- [x] `/verify-slice` — COMPLETE
 
 ## Gate Status
-🔨 IN PROGRESS — docs stream 2026-09-20; Cargo Audit production path IMPLEMENTED on `main`; Could formalization — do not mark ✅ until After-Checks + evidence
+✅ PASSED — 2026-09-20; Cargo Audit gap scanner formalized (docs + GWT-72.*); Gate 4 APPROVED

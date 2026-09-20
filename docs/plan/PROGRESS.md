@@ -246,7 +246,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 | 69 | [slice-69-fix-propose-apply-clean](slices/18-R-approved-repo-workflow/slice-69-fix-propose-apply-clean.md) | Must | 📋 PLANNED | — | — | ~40 min |
 | 70 | [slice-70-verify-worktree-rescan](slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md) | Should | 📋 PLANNED | — | — | ~40 min |
 | 71 | [slice-71-expert-export-report](slices/18-R-approved-repo-workflow/slice-71-expert-export-report.md) | Should | 📋 PLANNED | — | — | ~40 min |
-| 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Could | 🔨 IN PROGRESS | 2026-09-20 | — | ~50 min |
+| 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Could | ✅ VERIFIED ON BRANCH | 2026-09-20 | — | ~50 min |
 
 **Group note:** Wave R = approved local repo+commit security workflow. UI **1A** extend dashboard. Reuse Wave P + ADR-0016. Cargo honesty VERIFIED on `fix/cargo-package-scan-error-status` → absorb ledger into **65**; Rust/Cargo via RustSec **Cargo Audit** (**IMPLEMENTED** on `main`) — slice **72** formalizes that gap path (docs stream in progress; Snyk/DepShield Rust gaps stay explicit).
 
