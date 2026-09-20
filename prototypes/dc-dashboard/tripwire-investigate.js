@@ -1,5 +1,6 @@
 /**
  * Slice 68/71 — investigate view (pure section list).
+ * Slice 75 — final-judge + evidence honesty (GWT-75.2 / 75.4).
  * Order: title/severity → evidence → source/sink → explanation → verdict →
  * attack path → prerequisites → evidence verification → how we decided (collapsed).
  * Expert mode enriches how_we_decided with judges, models, confidence, IDs, scanner, flow.
@@ -9,6 +10,12 @@
  *   EXTENSION-COST: would couple stepper step-ids with investigate section composition
  *   PARALLEL-RATIONALE: SLICE-68/71 contracts assign exclusive ownership of this file
  */
+
+import {
+  buildFinalJudgeNarration,
+  formatEvidenceVerification,
+  honestAbsentCopy,
+} from "./tripwire-workflow-pipeline.js";
 
 const SECTION_DEFS = Object.freeze([
   Object.freeze({ id: "title_severity", title: "Finding", field: "titleSeverity" }),
@@ -36,6 +43,12 @@ const EXPERT_HIDDEN = Object.freeze({
   dataFlow: "data_flow",
 });
 
+const FINAL_VERDICTS = Object.freeze(
+  new Set(["true_positive", "false_positive", "needs_review"]),
+);
+
+const JUDGE_PANEL_PENDING_RE = /judge\s*panel\s*pending/i;
+
 /**
  * @param {unknown} value
  * @returns {boolean}
@@ -47,12 +60,116 @@ function hasText(value) {
 }
 
 /**
- * @param {{ title?: string, severity?: string, agreement?: string }} finding
+ * Replace misattributed "judge panel pending" placeholders with honest copy.
+ * @param {unknown} value
+ * @param {'attack_path'|'prerequisites'|'evidence'|'verdict'} kind
  * @returns {string}
  */
-function titleSeverityBody(finding) {
+function sanitizeFieldCopy(value, kind) {
+  if (!hasText(value)) return "";
+  const text = String(value);
+  if (JUDGE_PANEL_PENDING_RE.test(text)) return honestAbsentCopy(kind);
+  return text;
+}
+
+/**
+ * @param {Record<string, unknown>} finding
+ * @returns {string|null}
+ */
+function resolveFinalVerdict(finding) {
+  const panel = finding.judgePanel;
+  const candidates = [
+    finding.howWeDecided?.final,
+    finding.finalVerdict,
+    finding.final_verdict,
+    panel?.finalVerdict,
+    panel?.final_verdict,
+    panel?.final_judge?.verdict,
+  ];
+  for (const candidate of candidates) {
+    if (candidate == null) continue;
+    const key = String(candidate).trim();
+    if (FINAL_VERDICTS.has(key)) return key;
+  }
+  return null;
+}
+
+/**
+ * @param {Record<string, unknown>} finding
+ * @returns {boolean}
+ */
+function resolveDisagreement(finding) {
+  if (finding.disagreement != null) return Boolean(finding.disagreement);
+  if (finding.howWeDecided?.disagreement != null) {
+    return Boolean(finding.howWeDecided.disagreement);
+  }
+  if (finding.judgePanel?.disagreement != null) {
+    return Boolean(finding.judgePanel.disagreement);
+  }
+  return false;
+}
+
+/**
+ * @param {Record<string, unknown>} finding
+ * @returns {string|null}
+ */
+function resolveFinalReason(finding) {
+  const panel = finding.judgePanel;
+  const reason =
+    finding.finalReason ??
+    finding.howWeDecided?.finalReason ??
+    finding.howWeDecided?.reason ??
+    panel?.finalReason ??
+    panel?.final_reason ??
+    panel?.final_judge?.reason ??
+    null;
+  return hasText(reason) ? String(reason) : null;
+}
+
+/**
+ * @param {Record<string, unknown>} finding
+ * @returns {string|null}
+ */
+function resolveFinalModel(finding) {
+  const panel = finding.judgePanel;
+  const model =
+    finding.finalModel ??
+    finding.howWeDecided?.finalModel ??
+    panel?.finalModel ??
+    panel?.final_model ??
+    panel?.final_judge?.model ??
+    null;
+  return hasText(model) ? String(model) : null;
+}
+
+/**
+ * @param {Record<string, unknown>} finding
+ * @param {boolean} expertMode
+ * @returns {{ finalLine: string, disagreementLine: string }|null}
+ */
+function finalJudgeNarration(finding, expertMode) {
+  const finalVerdict = resolveFinalVerdict(finding);
+  if (!finalVerdict) return null;
+  return buildFinalJudgeNarration({
+    mode: "present",
+    panelOff: false,
+    finalVerdict,
+    finalReason: resolveFinalReason(finding),
+    finalModel: expertMode ? resolveFinalModel(finding) : null,
+    disagreement: resolveDisagreement(finding),
+  });
+}
+
+/**
+ * @param {{ title?: string, severity?: string, agreement?: string }} finding
+ * @param {{ finalLine: string, disagreementLine: string }|null} narration
+ * @returns {string}
+ */
+function titleSeverityBody(finding, narration) {
   const parts = [finding.title, finding.severity].filter(hasText);
   const head = parts.join(" · ");
+  // Prefer final-judge disagreement narration over vote-count agreement alone.
+  if (narration) return head;
   if (!hasText(finding.agreement)) return head;
   return `${head}\nAgreement: ${finding.agreement}`;
 }
@@ -66,6 +183,44 @@ function sourceSinkBody(finding) {
   if (hasText(finding.source)) lines.push(`Source: ${finding.source}`);
   if (hasText(finding.sink)) lines.push(`Sink: ${finding.sink}`);
   return lines.join("\n");
+}
+
+/**
+ * @param {Record<string, unknown>} finding
+ * @param {{ finalLine: string, disagreementLine: string }|null} narration
+ * @returns {string}
+ */
+function verdictBody(finding, narration) {
+  if (narration) {
+    const lines = [narration.finalLine];
+    if (hasText(narration.disagreementLine)) lines.push(narration.disagreementLine);
+    return lines.join("\n");
+  }
+  const cleaned = sanitizeFieldCopy(finding.verdictLine, "verdict");
+  if (hasText(cleaned)) return cleaned;
+  return "";
+}
+
+/**
+ * @param {Record<string, unknown>} finding
+ * @returns {string}
+ */
+function evidenceVerificationBody(finding) {
+  const hasKey =
+    Object.prototype.hasOwnProperty.call(finding, "evidenceVerification") ||
+    Object.prototype.hasOwnProperty.call(finding, "evidence_status") ||
+    Object.prototype.hasOwnProperty.call(finding, "evidenceStatus");
+  if (!hasKey) return "";
+
+  const raw =
+    finding.evidenceVerification ??
+    finding.evidence_status ??
+    finding.evidenceStatus;
+
+  if (hasText(raw) && JUDGE_PANEL_PENDING_RE.test(String(raw))) {
+    return formatEvidenceVerification(null);
+  }
+  return formatEvidenceVerification(raw);
 }
 
 /**
@@ -221,7 +376,13 @@ function hasExpertExtras(finding) {
 function expertHowWeDecidedBody(finding) {
   const hwd = finding.howWeDecided || {};
   const parts = [];
-  if (hasText(hwd.final)) parts.push(`Final: ${hwd.final}`);
+  const narration = finalJudgeNarration(finding, true);
+  if (narration) {
+    parts.push(narration.finalLine);
+    if (hasText(narration.disagreementLine)) parts.push(narration.disagreementLine);
+  } else if (hasText(hwd.final)) {
+    parts.push(`Final: ${hwd.final}`);
+  }
   const judges = resolveJudges(finding);
   if (judges != null) parts.push(`Judges: ${formatJudges(judges)}`);
   if (hwd.rawIds != null) parts.push(`Raw IDs: ${formatRawIds(hwd.rawIds)}`);
@@ -241,17 +402,24 @@ function expertHowWeDecidedBody(finding) {
 /**
  * @param {Record<string, unknown>} finding
  * @param {boolean} expertMode
+ * @param {{ finalLine: string, disagreementLine: string }|null} narration
  * @returns {string}
  */
-function howWeDecidedBody(finding, expertMode) {
+function howWeDecidedBody(finding, expertMode, narration) {
+  if (expertMode) return expertHowWeDecidedBody(finding);
+
   const hwd = finding.howWeDecided || {};
-  if (!expertMode) {
-    const parts = [];
-    if (hasText(hwd.final)) parts.push(String(hwd.final));
-    if (hasText(finding.agreement)) parts.push(`Agreement: ${finding.agreement}`);
-    return parts.join("\n");
+  const parts = [];
+  if (narration) {
+    parts.push(narration.finalLine);
+    if (hasText(narration.disagreementLine)) parts.push(narration.disagreementLine);
+  } else if (hasText(hwd.final)) {
+    parts.push(String(hwd.final));
   }
-  return expertHowWeDecidedBody(finding);
+  if (!narration && hasText(finding.agreement)) {
+    parts.push(`Agreement: ${finding.agreement}`);
+  }
+  return parts.join("\n");
 }
 
 /**
@@ -260,16 +428,17 @@ function howWeDecidedBody(finding, expertMode) {
  * @returns {Record<string, string>}
  */
 function resolveBodies(finding, expertMode) {
+  const narration = finalJudgeNarration(finding, expertMode);
   return {
-    titleSeverity: titleSeverityBody(finding),
+    titleSeverity: titleSeverityBody(finding, narration),
     evidenceHighlight: finding.evidenceHighlight ?? "",
     sourceSink: sourceSinkBody(finding),
     explanation: finding.explanation ?? "",
-    verdictLine: finding.verdictLine ?? "",
-    attackPath: finding.attackPath ?? "",
-    prerequisites: finding.prerequisites ?? "",
-    evidenceVerification: finding.evidenceVerification ?? "",
-    howWeDecided: howWeDecidedBody(finding, expertMode),
+    verdictLine: verdictBody(finding, narration),
+    attackPath: sanitizeFieldCopy(finding.attackPath, "attack_path"),
+    prerequisites: sanitizeFieldCopy(finding.prerequisites, "prerequisites"),
+    evidenceVerification: evidenceVerificationBody(finding),
+    howWeDecided: howWeDecidedBody(finding, expertMode, narration),
   };
 }
 
@@ -286,7 +455,11 @@ function shouldInclude(id, body, expertMode, finding) {
     if (expertMode) {
       return hasText(body) || finding.howWeDecided != null || hasExpertExtras(finding);
     }
-    return finding.howWeDecided != null || hasText(finding.agreement);
+    return (
+      finding.howWeDecided != null ||
+      hasText(finding.agreement) ||
+      resolveFinalVerdict(finding) != null
+    );
   }
   return hasText(body);
 }
