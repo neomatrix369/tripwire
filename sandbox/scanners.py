@@ -601,9 +601,8 @@ def _snyk_package_na_detail(workdir, vendor_detail=None):
     if vendor_detail:
         return str(vendor_detail).strip()
     if supported:
-        return (
-            "Snyk reported no supported projects despite catalogueable manifests: "
-            + ", ".join(supported)
+        return "Snyk reported no supported projects despite catalogueable manifests: " + ", ".join(
+            supported
         )
     return (
         "No Snyk SCA-supported manifests found "
