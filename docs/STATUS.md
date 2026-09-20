@@ -52,8 +52,10 @@ Reachable through production entry points / config:
   / `--dry-discover` prints `[coverage]` rows per discovered ecosystem
   (volume, scanner, action status, unsupported portions, reason) —
   `cli/src/coverageLedger.js`. Marker-driven discovery (not a closed language
-  list). Unsupported gaps (e.g. Snyk/`snyk test` + DepShield for Rust/Cargo)
-  stay explicit; rollup is never “fully successful” solely from empty findings.
+  list). Snyk/`snyk test` + DepShield still do **not** cover Rust/Cargo — that
+  gap stays explicit; RustSec **Cargo Audit** covers `Cargo.lock` / `Cargo.toml`
+  when installed (slice 72 formalizes that path). Rollup is never “fully
+  successful” solely from empty findings.
   Local approved checkouts with manifests also emit a `package` target.
   Cargo SCA honesty from `fix/cargo-package-scan-error-status` (#147) is
   absorbed — no parallel Cargo-detail path.
@@ -67,7 +69,7 @@ Reachable through production entry points / config:
   `cli/src/evidenceVerify.js`. IMPLEMENTED (host/CLI); finding-row persistence
   stays slice 67.
 - Git repo `package` discovery target (`items.type=package` when manifests at
-  scope root; DepShield / Ossprey / Snyk only) — `cli/src/discovery.js`,
+  scope root; DepShield / Ossprey / Snyk / Cargo Audit) — `cli/src/discovery.js`,
   `sandbox/scanners.py` `_group_applies` (slice 64 ✅ on `main` via #145/#146;
   Cargo-only SCA honesty VERIFIED on Live — all-N/A → NO COVERAGE, not green)
 - `tripwire setup` / first-scan schema bootstrap (probes `completed_at` column and
@@ -79,16 +81,23 @@ Reachable through production entry points / config:
   real flags and parse documented output shapes — `sandbox/scanners.py`. Package
   Snyk: Rust/Cargo trees → `not_applicable` (no `snyk test` support); complete
   runs with zero completed engines → rollup/dashboard **grey** (NO COVERAGE)
+- **Cargo Audit** (RustSec `cargo-audit`) SCA adapter — `Cargo.lock` /
+  `Cargo.toml` trees; registered in `SCANNER_GROUPS` between DepShield and
+  Ossprey; Modal image installs `cargo-audit` when possible. **IMPLEMENTED** on
+  `main` (production path via `run_cargo_audit` / `_run_cargo_audit_group`).
+  Slice 72 formalizes this as the Rust/Cargo gap scanner. Absent binary →
+  unreachable/skipped honesty — do not claim VERIFIED Live unless citing a
+  dated Live run. Prefer RustSec over LLM Rust analysis (LLM deferred).
 - DepShield dependency-audit adapter (`depshield-mcp` over MCP stdio;
   npm + PyPI via OSV.dev; zero credentials — nothing synced to
   `tripwire-scan-secrets`; runs for skill, mcp_server, and package
-  (`applies_to: both`), before Ossprey in the
+  (`applies_to: both`), before Cargo Audit / Ossprey in the
   `SCANNER_GROUPS` registry) — `sandbox/scanners.py`, unit-tested in
   `sandbox/tests/`. IMPLEMENTED only: no live-Modal run recorded yet, so no
   VERIFIED (operator) claim — see
   [scanner-output-adapters.md](./research/adapters/scanner-output-adapters.md) §7
 - Ossprey malware / malicious-package adapter (`ossprey-cli`, [ossprey.com](https://ossprey.com);
-  credential-gated `OSSPREY_API_KEY`; registered **after** DepShield in
+  credential-gated `OSSPREY_API_KEY`; registered **after** Cargo Audit in
   `SCANNER_GROUPS`; skill, mcp_server, and package). Absent key → `skipped_missing_credential`.
   IMPLEMENTED (adapter reachable) + RESEARCH (vendor-docs parsing, not live-probed);
   access provisioning still OPEN (slice 35 🔴) — no VERIFIED live claim.
@@ -366,11 +375,14 @@ repo) plus `org/repo` signature (`identifier` = `org/repo/<relpath>`); re-scan r
 scope root, also emit a **`package`** target (`items.type=package`, Accepted) so DepShield /
 Ossprey / Snyk run — not a fake skill; Cisco Skill / Tessl / Cisco MCP do **not** apply;
 package Snyk uses **`snyk test` SCA** (Agent Scan only covers skills/MCP); Rust/Cargo
-trees are `not_applicable` for Snyk SCA (honesty — full Cargo coverage is Wave R slice 72
-if the ledger still shows a gap); all-N/A complete → NO COVERAGE not green;
-repos with neither skill/MCP **nor** manifests still fail closed. **Slice 63:** CLI
-prints scanner inventory + rollup after scan / zero-artifact (package expected sources =
-Snyk/DepShield/Ossprey (+ Cargo Audit). Slices 62–64 ✅ landed `main` via
+trees are `not_applicable` for Snyk SCA and DepShield (npm+PyPI only) — that gap
+stays explicit; RustSec **Cargo Audit** covers `Cargo.lock` / `Cargo.toml` when
+installed (**IMPLEMENTED** on `main`; slice 72 formalizes the gap-scanner path —
+not a deferred “full Cargo coverage” placeholder). All-N/A complete → NO COVERAGE
+not green; repos with neither skill/MCP **nor** manifests still fail closed.
+**Slice 63:** CLI prints scanner inventory + rollup after scan / zero-artifact
+(package expected sources = Snyk/DepShield/Ossprey (+ Cargo Audit)). Slices 62–64 ✅
+landed `main` via
 [#145](https://github.com/neomatrix369/tripwire/pull/145) /
 [#146](https://github.com/neomatrix369/tripwire/pull/146). Cargo SCA honesty
 merged via [#147](https://github.com/neomatrix369/tripwire/pull/147); coverage
@@ -455,5 +467,6 @@ Wave O (Monk Kit, ADR-0001 Proposed / plan **O0**+58–61) is **DECIDED**
 plan-only — not current deploy behaviour; workstation Live remains supported.
 Wave P (slices 62–64) git repo skill+MCP fan-out, CLI scanner inventory, and
 package/DepShield/Ossprey targets is ✅ on `main` (#145/#146). Cargo-only SCA
-honesty (all-N/A → UNSCANNED) is VERIFIED on `fix/cargo-package-scan-error-status`
-and feeds Wave R slice 65 — see DECIDED above.
+honesty (all-N/A → NO COVERAGE) is VERIFIED on Live for the zero-engine path;
+RustSec Cargo Audit is **IMPLEMENTED** on `main` for Cargo.lock/toml when
+installed (slice 72 formalizes). Feeds Wave R slice 65 ledger — see DECIDED above.

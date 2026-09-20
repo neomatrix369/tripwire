@@ -1,0 +1,455 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index d5ab6f2..5f3d8ae 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -29,7 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
+   `Cargo.toml` trees — registered in `SCANNER_GROUPS` between DepShield and
+   Ossprey; Modal image installs `cargo-audit`. Prefer real RustSec over LLM
+   Rust analysis (LLM deferred). Package inventory expects Cargo Audit alongside
+-  Snyk / DepShield / Ossprey.
++  Snyk / DepShield / Ossprey. Slice **72** (Wave R Could) formalizes this as the
++  Rust/Cargo gap scanner: production path **IMPLEMENTED** on `main`; Snyk SCA +
++  DepShield Rust gaps remain explicit (not claimed fixed by this adapter).
+ - GitHub repo discover + fan-out (slice 62, Wave P): `tripwire scan https://github.com/org/repo`
+   (and `/tree|/blob/` browse URLs) shallow-clones on the host, walks skills (`SKILL.md`)
+   and MCP roots (`server.py`/`server.js`/`run.sh`), emits N typed targets with
+diff --git a/cli/test/coverageLedger.test.js b/cli/test/coverageLedger.test.js
+index 4f8896a..0179d62 100644
+--- a/cli/test/coverageLedger.test.js
++++ b/cli/test/coverageLedger.test.js
+@@ -4,7 +4,8 @@
+  * Author: swami
+  * Created: 2026-09-20
+  * Scope: GWT-65.1–65.4 ecosystem discovery, scanner reuse, unsupported Cargo,
+- *        action-status mapping, coverage rollup honesty
++ *        action-status mapping, coverage rollup honesty;
++ *        GWT-72.1–72.4 Rust/Cargo gap scanner formalization (ledger honesty)
+  */
+ import { test } from 'node:test';
+ import assert from 'node:assert/strict';
+@@ -193,3 +194,115 @@ test('pre-scan ledger uses not_started when no scanner rows', async () => {
+     assert.equal(py.coverage, 'none');
+   });
+ });
++
++test('GWT-72.1: Cargo-only checkout scopes ledger to Rust/Cargo — not Node/Python', async () => {
++  await withFixture(
++    {
++      'Cargo.toml': '[package]\nname = "gap-only"\n',
++      'Cargo.lock': '# lock\n',
++    },
++    (root) => {
++      // -- Given / When --
++      const found = discoverEcosystems(root);
++      const names = found.map((row) => row.ecosystem);
++
++      // -- Then --
++      assert.deepEqual(names, ['Rust/Cargo']);
++      assert.ok(found[0].volume > 0, 'Rust/Cargo must have non-zero volume');
++      assert.ok(!names.includes('Node/npm'), 'must not reimplement Node ecosystem');
++      assert.ok(!names.includes('Python'), 'must not reimplement Python ecosystem');
++    },
++  );
++});
++
++test('GWT-72.2: Rust/Cargo reuses named Cargo Audit adapter — no invented scanner', async () => {
++  await withFixture({ 'Cargo.toml': '[package]\nname = "reuse"\n' }, (root) => {
++    // -- Given / When --
++    const found = discoverEcosystems(root);
++    const rust = found.find((row) => row.ecosystem === 'Rust/Cargo');
++
++    // -- Then --
++    assert.ok(rust, 'Rust/Cargo catalogue row required');
++    assert.deepEqual(rust.scanners, ['Cargo Audit']);
++    assert.ok(
++      !rust.scanners.some((name) => /invented|custom.?rust|llm.?rust/i.test(name)),
++      'must not invent a parallel Rust scanner name',
++    );
++  });
++});
++
++test('GWT-72.3: Cargo Audit honesty matrix maps completed/failed/timed_out/unreachable', async () => {
++  await withFixture(
++    {
++      'Cargo.toml': '[package]\nname = "honesty"\n',
++      'Cargo.lock': '# lock\n',
++    },
++    async (root) => {
++      const cases = [
++        { status: 'completed', expected: 'completed', coverage: 'partial_or_full', rollup: 'fully covered' },
++        { status: 'failed', expected: 'failed', coverage: 'none', rollup: 'unsupported or unscanned' },
++        { status: 'timed_out', expected: 'timed_out', coverage: 'none', rollup: 'unsupported or unscanned' },
++        { status: 'unreachable', expected: 'failed', coverage: 'none', rollup: 'unsupported or unscanned' },
++      ];
++
++      for (const row of cases) {
++        // -- Given --
++        const scannerRows = [{ scanner_source: 'Cargo Audit', status: row.status }];
++
++        // -- When --
++        const ledger = buildCoverageLedger(root, scannerRows);
++        const rust = ledger.find((entry) => entry.ecosystem === 'Rust/Cargo');
++        const rollup = rollupCoverageLedger(ledger);
++
++        // -- Then --
++        assert.ok(rust, `Rust/Cargo row required for ${row.status}`);
++        assert.equal(rust.scanner, 'Cargo Audit', row.status);
++        assert.equal(rust.status, row.expected, `status for ${row.status}`);
++        assert.equal(rust.coverage, row.coverage, `coverage for ${row.status}`);
++        assert.equal(rollup, row.rollup, `rollup for ${row.status}`);
++        if (row.expected === 'completed') {
++          assert.equal(rollup, 'fully covered');
++        } else {
++          assert.notEqual(rollup, 'fully covered', `must not claim full cover on ${row.status}`);
++        }
++      }
++    },
++  );
++});
++
++test('GWT-72.4: completed Cargo Audit names the tool; Snyk/DepShield gaps stay explicit', async () => {
++  await withFixture(
++    {
++      'Cargo.toml': '[package]\nname = "named"\n',
++      'Cargo.lock': '# lock\n',
++    },
++    (root) => {
++      // -- Given --
++      const scannerRows = [
++        { scanner_source: 'Cargo Audit', status: 'completed' },
++        { scanner_source: 'Snyk', status: 'not_applicable' },
++        { scanner_source: 'DepShield', status: 'not_applicable' },
++      ];
++
++      // -- When --
++      const ledger = buildCoverageLedger(root, scannerRows);
++      const rust = ledger.find((row) => row.ecosystem === 'Rust/Cargo');
++      const formatted = formatCoverageLedger(ledger);
++
++      // -- Then --
++      assert.equal(rust.scanner, 'Cargo Audit');
++      assert.equal(rust.status, 'completed');
++      assert.equal(rust.coverage, 'partial_or_full');
++      assert.ok(
++        (rust.unsupported_portions || []).some((p) => /Snyk/i.test(p)),
++        'Snyk Rust/Cargo gap must remain explicit',
++      );
++      assert.ok(
++        (rust.unsupported_portions || []).some((p) => /DepShield/i.test(p)),
++        'DepShield Rust/Cargo gap must remain explicit',
++      );
++      assert.match(formatted, /Cargo Audit/);
++      assert.match(formatted, /Rust\/Cargo/);
++    },
++  );
++});
+diff --git a/docs/STATUS.md b/docs/STATUS.md
+index 2816b59..306e37d 100644
+--- a/docs/STATUS.md
++++ b/docs/STATUS.md
+@@ -52,13 +52,15 @@ Reachable through production entry points / config:
+   / `--dry-discover` prints `[coverage]` rows per discovered ecosystem
+   (volume, scanner, action status, unsupported portions, reason) —
+   `cli/src/coverageLedger.js`. Marker-driven discovery (not a closed language
+-  list). Unsupported gaps (e.g. Snyk/`snyk test` + DepShield for Rust/Cargo)
+-  stay explicit; rollup is never “fully successful” solely from empty findings.
++  list). Snyk/`snyk test` + DepShield still do **not** cover Rust/Cargo — that
++  gap stays explicit; RustSec **Cargo Audit** covers `Cargo.lock` / `Cargo.toml`
++  when installed (slice 72 formalizes that path). Rollup is never “fully
++  successful” solely from empty findings.
+   Local approved checkouts with manifests also emit a `package` target.
+   Cargo SCA honesty from `fix/cargo-package-scan-error-status` (#147) is
+   absorbed — no parallel Cargo-detail path.
+ - Git repo `package` discovery target (`items.type=package` when manifests at
+-  scope root; DepShield / Ossprey / Snyk only) — `cli/src/discovery.js`,
++  scope root; DepShield / Ossprey / Snyk / Cargo Audit) — `cli/src/discovery.js`,
+   `sandbox/scanners.py` `_group_applies` (slice 64 ✅ on `main` via #145/#146;
+   Cargo-only SCA honesty VERIFIED on Live — all-N/A → NO COVERAGE, not green)
+ - `tripwire setup` / first-scan schema bootstrap (probes `completed_at` column and
+@@ -70,16 +72,23 @@ Reachable through production entry points / config:
+   real flags and parse documented output shapes — `sandbox/scanners.py`. Package
+   Snyk: Rust/Cargo trees → `not_applicable` (no `snyk test` support); complete
+   runs with zero completed engines → rollup/dashboard **grey** (NO COVERAGE)
++- **Cargo Audit** (RustSec `cargo-audit`) SCA adapter — `Cargo.lock` /
++  `Cargo.toml` trees; registered in `SCANNER_GROUPS` between DepShield and
++  Ossprey; Modal image installs `cargo-audit` when possible. **IMPLEMENTED** on
++  `main` (production path via `run_cargo_audit` / `_run_cargo_audit_group`).
++  Slice 72 formalizes this as the Rust/Cargo gap scanner. Absent binary →
++  unreachable/skipped honesty — do not claim VERIFIED Live unless citing a
++  dated Live run. Prefer RustSec over LLM Rust analysis (LLM deferred).
+ - DepShield dependency-audit adapter (`depshield-mcp` over MCP stdio;
+   npm + PyPI via OSV.dev; zero credentials — nothing synced to
+   `tripwire-scan-secrets`; runs for skill, mcp_server, and package
+-  (`applies_to: both`), before Ossprey in the
++  (`applies_to: both`), before Cargo Audit / Ossprey in the
+   `SCANNER_GROUPS` registry) — `sandbox/scanners.py`, unit-tested in
+   `sandbox/tests/`. IMPLEMENTED only: no live-Modal run recorded yet, so no
+   VERIFIED (operator) claim — see
+   [scanner-output-adapters.md](./research/adapters/scanner-output-adapters.md) §7
+ - Ossprey malware / malicious-package adapter (`ossprey-cli`, [ossprey.com](https://ossprey.com);
+-  credential-gated `OSSPREY_API_KEY`; registered **after** DepShield in
++  credential-gated `OSSPREY_API_KEY`; registered **after** Cargo Audit in
+   `SCANNER_GROUPS`; skill, mcp_server, and package). Absent key → `skipped_missing_credential`.
+   IMPLEMENTED (adapter reachable) + RESEARCH (vendor-docs parsing, not live-probed);
+   access provisioning still OPEN (slice 35 🔴) — no VERIFIED live claim.
+@@ -357,11 +366,14 @@ repo) plus `org/repo` signature (`identifier` = `org/repo/<relpath>`); re-scan r
+ scope root, also emit a **`package`** target (`items.type=package`, Accepted) so DepShield /
+ Ossprey / Snyk run — not a fake skill; Cisco Skill / Tessl / Cisco MCP do **not** apply;
+ package Snyk uses **`snyk test` SCA** (Agent Scan only covers skills/MCP); Rust/Cargo
+-trees are `not_applicable` for Snyk SCA (honesty — full Cargo coverage is Wave R slice 72
+-if the ledger still shows a gap); all-N/A complete → NO COVERAGE not green;
+-repos with neither skill/MCP **nor** manifests still fail closed. **Slice 63:** CLI
+-prints scanner inventory + rollup after scan / zero-artifact (package expected sources =
+-Snyk/DepShield/Ossprey (+ Cargo Audit). Slices 62–64 ✅ landed `main` via
++trees are `not_applicable` for Snyk SCA and DepShield (npm+PyPI only) — that gap
++stays explicit; RustSec **Cargo Audit** covers `Cargo.lock` / `Cargo.toml` when
++installed (**IMPLEMENTED** on `main`; slice 72 formalizes the gap-scanner path —
++not a deferred “full Cargo coverage” placeholder). All-N/A complete → NO COVERAGE
++not green; repos with neither skill/MCP **nor** manifests still fail closed.
++**Slice 63:** CLI prints scanner inventory + rollup after scan / zero-artifact
++(package expected sources = Snyk/DepShield/Ossprey (+ Cargo Audit)). Slices 62–64 ✅
++landed `main` via
+ [#145](https://github.com/neomatrix369/tripwire/pull/145) /
+ [#146](https://github.com/neomatrix369/tripwire/pull/146). Cargo SCA honesty
+ merged via [#147](https://github.com/neomatrix369/tripwire/pull/147); coverage
+@@ -446,5 +458,6 @@ Wave O (Monk Kit, ADR-0001 Proposed / plan **O0**+58–61) is **DECIDED**
+ plan-only — not current deploy behaviour; workstation Live remains supported.
+ Wave P (slices 62–64) git repo skill+MCP fan-out, CLI scanner inventory, and
+ package/DepShield/Ossprey targets is ✅ on `main` (#145/#146). Cargo-only SCA
+-honesty (all-N/A → UNSCANNED) is VERIFIED on `fix/cargo-package-scan-error-status`
+-and feeds Wave R slice 65 — see DECIDED above.
++honesty (all-N/A → NO COVERAGE) is VERIFIED on Live for the zero-engine path;
++RustSec Cargo Audit is **IMPLEMENTED** on `main` for Cargo.lock/toml when
++installed (slice 72 formalizes). Feeds Wave R slice 65 ledger — see DECIDED above.
+diff --git a/docs/plan/DECISIONS.md b/docs/plan/DECISIONS.md
+index 8de456a..3a5b5eb 100644
+--- a/docs/plan/DECISIONS.md
++++ b/docs/plan/DECISIONS.md
+@@ -248,3 +248,4 @@
+ | 2026-09-20 | human+agent | Cargo Audit + NO COVERAGE label | Card label: complete+0 completed engines → **NO COVERAGE** (not UNSCANNED). Rust gap: prefer RustSec **cargo-audit** SCA (registered in SCANNER_GROUPS; Modal install) over LLM Rust analysis — LLM deferred while cargo-audit covers Cargo.lock/toml. DECIDED (user authorized). Slice 72 partial advance. |
+ | 2026-09-20 | planning | Wave letter Q vs R | Do not put approved-repo workflow under `17-Q-ci-hygiene` (empty reserved). Use Wave **R** / slices 65–72. DECIDED |
+ | 2026-09-20 | slice-65 | Absorb Cargo SCA honesty into coverage ledger | `fix/cargo-package-scan-error-status` (#147) already on `main` (Snyk `not_applicable` + zero-engine → NO COVERAGE). Slice 65 supersedes a parallel Cargo-detail path: ledger + STATUS soft-amend are the operator surface; RustSec Cargo Audit covers Cargo when installed; remaining gap scanners stay slice **72**. APPLIED |
++| 2026-09-20 | slice-72 | Execute Rust/Cargo via cargo-audit | Slice 72 scopes the Rust/Cargo ledger gap to RustSec **cargo-audit** already registered in `SCANNER_GROUPS` (`run_cargo_audit` / Modal install). Covers `Cargo.lock` / `Cargo.toml` when the binary is present. Does **not** claim Snyk SCA or DepShield Rust support. Docs stream `slice/72-gap-ecosystem-scanners-docs` marks trackers 🔨 IN PROGRESS; production path **IMPLEMENTED** on `main` — no VERIFIED Live claim without dated evidence. APPLIED |
+diff --git a/docs/plan/PROGRESS.md b/docs/plan/PROGRESS.md
+index e6f82f7..1e75d19 100644
+--- a/docs/plan/PROGRESS.md
++++ b/docs/plan/PROGRESS.md
+@@ -245,9 +245,9 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
+ | 69 | [slice-69-fix-propose-apply-clean](slices/18-R-approved-repo-workflow/slice-69-fix-propose-apply-clean.md) | Must | 📋 PLANNED | — | — | ~40 min |
+ | 70 | [slice-70-verify-worktree-rescan](slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md) | Should | 📋 PLANNED | — | — | ~40 min |
+ | 71 | [slice-71-expert-export-report](slices/18-R-approved-repo-workflow/slice-71-expert-export-report.md) | Should | 📋 PLANNED | — | — | ~40 min |
+-| 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Could | 📋 PLANNED | — | — | ~50 min |
++| 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Could | 🔨 IN PROGRESS | 2026-09-20 | — | ~50 min |
+
+-**Group note:** Wave R = approved local repo+commit security workflow. UI **1A** extend dashboard. Reuse Wave P + ADR-0016. Cargo honesty VERIFIED on `fix/cargo-package-scan-error-status` → absorb ledger into **65**; full Rust/Cargo scan → **72** if still gap.
++**Group note:** Wave R = approved local repo+commit security workflow. UI **1A** extend dashboard. Reuse Wave P + ADR-0016. Cargo honesty VERIFIED on `fix/cargo-package-scan-error-status` → absorb ledger into **65**; Rust/Cargo via RustSec **Cargo Audit** (**IMPLEMENTED** on `main`) — slice **72** formalizes that gap path (docs stream in progress; Snyk/DepShield Rust gaps stay explicit).
+
+ **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
+
+@@ -262,7 +262,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
+ ## Forward Roadmap
+ - Wave **O** (**O0** + slices 58–61) Monk Kit Live packaging is **📋 plan-only** — ADR-0001 + PoC; O0 governance first for Accept/open Qs; product execute via `slice/58-land-poc-monk-kit` (prototyping OK while O0 open).
+ - Wave **P** (slices **62–64**) git repo scan: ✅ landed `main` (#145/#146). Cargo SCA unsupported honesty follow-up: `fix/cargo-package-scan-error-status` → Wave **R** slice 65.
+-- Wave **R** (slices **65–72**) approved-repo security workflow: **📋 plan-only** — EFP Path B 2026-09-20; UI 1A; execute starting `slice/65-lang-ecosystem-coverage-ledger`.
++- Wave **R** (slices **65–72**) approved-repo security workflow: Musts **65→69** next product stream; slice **72** docs stream 🔨 IN PROGRESS (Cargo Audit formalization — production path already on `main`). UI 1A; execute starting `slice/65-lang-ecosystem-coverage-ledger`.
+ - Wave **M** (slice 53) LLM usage / cost observability is **📋 plan-only** — ADR-0016 follow-on; execute when explicitly started (`slice/53-llm-usage-tracking`).
+ - Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Slice 15 is retained as a deferred claim-audit artifact, not active work.
+ - **Wave H (Frontline):** plan-only stubs 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. Execute Musts 23→32 with human tests after H1/H2 and HARD GATE at 32 before Should work.
+diff --git a/docs/plan/TRAIL.md b/docs/plan/TRAIL.md
+index 89ca5b8..a937c1e 100644
+--- a/docs/plan/TRAIL.md
++++ b/docs/plan/TRAIL.md
+@@ -404,7 +404,7 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
+ | 69 | [slice-69-fix-propose-apply-clean](slices/18-R-approved-repo-workflow/slice-69-fix-propose-apply-clean.md) | Fix Propose + Apply-Clean Check | Must | 📋 | 68 | — | ~4 min |
+ | 70 | [slice-70-verify-worktree-rescan](slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md) | Verify Fix via Worktree Re-Check | Should | 📋 | 69 | — | ~3 min |
+ | 71 | [slice-71-expert-export-report](slices/18-R-approved-repo-workflow/slice-71-expert-export-report.md) | Expert View + Report Export | Should | 📋 | 68 | — | ~3 min |
+-| 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Gap Scanners for Unsupported Ecosystems | Could | 📋 | 65 (ledger gaps) | — | ~4 min |
++| 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Gap Scanners for Unsupported Ecosystems | Could | 🔨 | 65 (ledger gaps) | — | ~4 min |
+
+ ## Supporting Artifacts
+ | File | Status |
+@@ -434,7 +434,7 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
+ 2. **Active Frontline branch:** Wave **H** Musts **23 → 32** (phase-gated H1→H2→H3). Human test after 25 and 30; **HARD GATE** at 32 before any Should 33+.
+ 3. Wave **H** Should 33–38 after 32 PASS (35 stays 🔴 until Ossprey access in DECISIONS). Slice 39 stays 📦 unless pulled in.
+ 4. Wave **G** (18–22) remains 📋 — do **not** start while H1–H3 is active unless explicitly resumed. Prefer one active slice per shared code area.
+-5. **2026-09-20 addendum:** Wave **R** (approved-repo security workflow, slices **65→69** Must) is the next product stream after Wave P landed. Finish or park `fix/cargo-package-scan-error-status` via slice **65**; then execute `slice/65-…` → **69**. Should **70–71** after Musts; Could **72** only when ledger proves unsupported ecosystems.
++5. **2026-09-20 addendum:** Wave **R** (approved-repo security workflow, slices **65→69** Must) is the next product stream after Wave P landed. Finish or park `fix/cargo-package-scan-error-status` via slice **65**; then execute `slice/65-…` → **69**. Should **70–71** after Musts; Could **72** formalizes Rust/Cargo via Cargo Audit (production path already on `main`; Snyk/DepShield Rust gaps remain).
+
+ ## Wave G source-finding map
+
+diff --git a/docs/plan/interview_summary.md b/docs/plan/interview_summary.md
+index 06ccb76..3bc559b 100644
+--- a/docs/plan/interview_summary.md
++++ b/docs/plan/interview_summary.md
+@@ -99,17 +99,22 @@
+ - Full product prompt: approved Git repo scanner; reuse scanners/analysis; SIE judge panel (≥3 parallel) + final judge; evidence verify; Run→Triage→Investigate→Fix→Verify→Report; Simple/Expert; language/ecosystem coverage honesty (unsupported must be explicit; Rust as example gap not a closed list).
+ - ChatGPT amendments locked: expand target discovery; per-ecosystem coverage records; Then-phase gap scanners only where no suitable existing scanner.
+ - UI **1A**: extend existing dashboard (not separate viewer).
+-- Wave P 62–64 landed `main` (#145/#146). Current branch `fix/cargo-package-scan-error-status` adds Snyk SCA ecosystem detect + Cargo unsupported detail (honesty, not full Cargo scan).
++- Wave P 62–64 landed `main` (#145/#146). Cargo SCA honesty (#147) is on `main`
++  (Snyk `not_applicable` + zero-engine → NO COVERAGE). RustSec **Cargo Audit**
++  is **IMPLEMENTED** on `main` for `Cargo.lock` / `Cargo.toml` when installed;
++  slice 72 formalizes that gap path (docs stream in progress).
+
+ ## What was inferred (Wave R)
+ - ADR-0016 is triage/escalation, not the judge panel — keep unchanged; feed outputs into panel/final judge.
+-- DepShield still npm+PyPI manifests only; Snyk `snyk test` does not support Rust/Cargo — ledger must say so until slice 72.
++- DepShield still npm+PyPI manifests only; Snyk `snyk test` does not support Rust/Cargo —
++  ledger must keep those gaps explicit. Rust/Cargo package advisories are covered by
++  Cargo Audit when installed (slice 72), not by Snyk/DepShield.
+ - Letter **Q** folder reserved empty → Wave letter **R**, slices **65–72**.
+
+ ## Constraints (Wave R)
+ - Approved local repo+commit only; no unapproved remote fetch; never execute scanned host code; open-weight SIE for judging; secrets masked by default.
+ - Slice stub + branch before product code; do not start R Musts until stubs exist (done) and execute branch created.
+-- Absorb cargo-fix WIP into **65**; full Cargo/Rust scan only via **72** when ledger still shows gap.
++- Absorb cargo-fix WIP into **65**; Rust/Cargo gap scanning via **72** = Cargo Audit formalization (path already on `main`).
+
+ ## Simplest shape (Wave R)
+ - 65 coverage ledger → 66 evidence/injection → 67 SIE panel → 68 stepper → 69 fix → (Should) 70 verify → 71 expert/export → (Could) 72 gap scanners.
+diff --git a/docs/plan/slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md b/docs/plan/slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md
+index 0444030..c8b7f05 100644
+--- a/docs/plan/slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md
++++ b/docs/plan/slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md
+@@ -1,10 +1,10 @@
+ # Slice 72: Gap Scanners for Unsupported Ecosystems
+
+-> Scenario: Brownfield | MoSCoW: **Could** | Status: 📋 PLANNED
++> Scenario: Brownfield | MoSCoW: **Could** | Status: 🔨 IN PROGRESS
+ > Wave: R — Approved-repo security workflow
+ > Depends on: **65** (coverage ledger shows gaps)
+ > Trigger: Only where discovery shows an unsupported language/ecosystem — e.g. Rust/Cargo if Snyk SCA + DepShield still cannot cover
+-> Branch: `slice/72-gap-ecosystem-scanners`
++> Branch: `slice/72-gap-ecosystem-scanners` (docs stream: `slice/72-gap-ecosystem-scanners-docs`)
+
+ ## Session bootstrap
+ - **Load first**: CLAUDE.md → docs/plan/invariants.md → this stub → slice 65 → `sandbox/scanners.py`
+@@ -12,26 +12,28 @@
+ ## Context
+ - **Stage objective**: When the coverage ledger reports unsupported ecosystems with real code/packages present, add scanning capability by extending an existing adapter where practical (prefer reuse over a parallel stack). Example motivating gap: Rust/Cargo discovered but `snyk test` + DepShield (`package.json`/`requirements.txt` only) cannot audit — do not silently leave unscanned.
+ - **Depends on**: Slice 65 ledger proving the gap; Wave P package path on main
+-- **Branch note**: Current WIP `fix/cargo-package-scan-error-status` improves honesty (unsupported detail) — that is **not** full Cargo scanning; full coverage remains this slice when promoted
++- **Branch note**: Cargo SCA honesty (#147) is on `main`. RustSec **Cargo Audit** is already **IMPLEMENTED** in `SCANNER_GROUPS` (`run_cargo_audit`) for `Cargo.lock` / `Cargo.toml` when installed. Slice 72 **formalizes** that path as the Rust/Cargo gap scanner — it does not invent a second stack. Snyk SCA + DepShield Rust gaps stay explicit.
+ - **Global invariants**: reuse-first; no hard-coded closed language list; do not claim full scan until a scanner actually completes for that ecosystem
+
+ ## Non-goals
+ - Duplicating Cisco/Snyk/Tessl/DepShield/Ossprey for ecosystems they already cover
++- Claiming Snyk or DepShield now support Rust/Cargo
+ - Snippet-specific checks / prior-run comparison as separate Musts (add only if still missing after this slice and confirmed needed)
+ - Changing ADR-0016
+
+ ## Output contract
+-- **Baseline**: Cargo-only repos are discovered as `package` but SCA reports unsupported / no supported projects (honesty path from 65 / cargo fix branch)
+-- After (when executed): an applicable scanner path exists for at least one previously unsupported ecosystem proven by ledger evidence (starting with Rust/Cargo if still gap), with statuses honest on failure
++- **Baseline**: Cargo-only repos are discovered as `package`; Snyk/DepShield report unsupported / N/A; zero completed engines → **NO COVERAGE** (honesty path from 65 / #147)
++- **Current (IMPLEMENTED on `main`)**: Cargo Audit covers Cargo.lock/toml when `cargo-audit` is installed; absent binary → unreachable/skipped honesty
++- After (when slice closes): docs/STATUS honesty + GWTs/evidence aligned; “fully scanned” only when Cargo Audit (or another named engine) actually completed
+
+ ## Slice Workflow Bundle
+ - Slice name: `slice-72-gap-ecosystem-scanners`
+-- Files: `sandbox/scanners.py` (extend), possibly DepShield/Snyk/Ossprey adapters, fixtures (Cargo), tests, STATUS
+-- Exit criteria: GWT-72.* green for the chosen gap ecosystem(s)
+-- Commit pattern: `feat(slice-72): gap scanner for unsupported ecosystem`
++- Files: docs/STATUS · CHANGELOG · plan trackers · DECISIONS (this docs stream); product path already in `sandbox/scanners.py` Cargo Audit — further product/test work only if GWT gaps remain
++- Exit criteria: GWT-72.* green for the chosen gap ecosystem(s); Doc Audit STATUS honesty
++- Commit pattern: `docs(slice-72): …` (docs stream); `feat(slice-72): …` only if further product work is required
+
+ ## Branch
+-`slice/72-gap-ecosystem-scanners`
++`slice/72-gap-ecosystem-scanners` · docs: `slice/72-gap-ecosystem-scanners-docs`
+
+ ## Spec (GWT / User Story)
+
+@@ -54,15 +56,15 @@
+ **And** “fully scanned” is only claimed for ecosystems that actually completed
+
+ ### GWT-72.4 — Example: Rust/Cargo
+-**Given** Rust/Cargo remains unsupported after 65
++**Given** Rust/Cargo remains unsupported by Snyk SCA + DepShield
+ **When** this Could is promoted to execute
+-**Then** Cargo packages (and/or Rust source checks if in scope) are covered by a named tool
+-**And** prior “unsupported” reason is updated or removed for that path
++**Then** Cargo packages are covered by RustSec **Cargo Audit** (named tool in `SCANNER_GROUPS`)
++**And** prior “unsupported” reasons stay accurate for Snyk/DepShield; Cargo Audit path is documented as IMPLEMENTED when installed
+
+ ## Before-Checks [GATE]
+-- [ ] Branch created
+-- [ ] DECISIONS row names which ecosystem gap(s) are in scope for this execution
+-- [ ] GWT RED tests / fixtures
++- [x] Branch created (`slice/72-gap-ecosystem-scanners-docs` from `main`)
++- [x] DECISIONS row names which ecosystem gap(s) are in scope for this execution (Rust/Cargo via cargo-audit — APPLIED 2026-09-20)
++- [ ] GWT RED tests / fixtures (product path already tested on `main`; close only with evidence if further RED→Green needed)
+
+ ## After-Checks [GATE]
+ - [ ] Tests pass
+@@ -78,4 +80,4 @@
+ - [ ] `/verify-slice` — COMPLETE
+
+ ## Gate Status
+-📋 PLANNED — EFP Path B 2026-09-20 (Wave R); Could — execute only when ledger proves gap
++🔨 IN PROGRESS — docs stream 2026-09-20; Cargo Audit production path IMPLEMENTED on `main`; Could formalization — do not mark ✅ until After-Checks + evidence
+diff --git a/sandbox/tests/test_slice72_gap_ecosystem.py b/sandbox/tests/test_slice72_gap_ecosystem.py
+new file mode 100644
+index 0000000..8252d99
+--- /dev/null
++++ b/sandbox/tests/test_slice72_gap_ecosystem.py
+@@ -0,0 +1,59 @@
++"""
++Tests for Slice 72 gap-ecosystem scanner acceptance (Rust/Cargo).
++
++Author: swami
++Created: 2026-09-20
++Scope: GWT-72.2 SCANNER_GROUPS registry reuse (Cargo Audit between DepShield
++       and Ossprey); GWT-72.4 named tool source string on the adapter
++"""
++
++from __future__ import annotations
++
++import scanners
++
++
++def test_gwt_72_2_cargo_audit_lands_in_scanner_groups_between_depshield_and_ossprey() -> None:
++    """
++    Scenario: Gap fill extends the existing registry — no orphan scanner stack.
++    Slice: GWT-72.2 — Prefer extend existing adapter
++
++    Given SCANNER_GROUPS on the sandbox scanners module,
++    When Cargo Audit is registered for the Rust/Cargo gap,
++    Then it appears as a group between DepShield and Ossprey with applies_to both.
++    """
++    ### Given / When
++    groups = scanners.SCANNER_GROUPS
++    sources = [tuple(g["sources"]) for g in groups]
++
++    ### Then
++    assert ("Cargo Audit",) in sources, "Cargo Audit must reuse SCANNER_GROUPS"
++    assert scanners.CARGO_AUDIT_SOURCES == ["Cargo Audit"]
++
++    dep_i = next(i for i, s in enumerate(sources) if s == ("DepShield",))
++    cargo_i = next(i for i, s in enumerate(sources) if s == ("Cargo Audit",))
++    oss_i = next(i for i, s in enumerate(sources) if s == ("Ossprey",))
++    assert dep_i < cargo_i < oss_i, (
++        f"expected DepShield < Cargo Audit < Ossprey, got indices "
++        f"dep={dep_i} cargo={cargo_i} oss={oss_i}"
++    )
++
++    cargo_group = groups[cargo_i]
++    assert cargo_group["applies_to"] == "both"
++    assert callable(cargo_group["runner"])
++    assert cargo_group["runner"].__name__ == "_run_cargo_audit_group"
++
++
++def test_gwt_72_4_named_tool_source_is_cargo_audit() -> None:
++    """
++    Scenario: The gap scanner is named Cargo Audit (not a parallel invented brand).
++    Slice: GWT-72.4 — Example: Rust/Cargo
++
++    Given the Cargo Audit adapter constants,
++    When the named tool identity is inspected,
++    Then CARGO_AUDIT_SOURCES is exactly ["Cargo Audit"].
++    """
++    ### Given / When
++    actual_sources = list(scanners.CARGO_AUDIT_SOURCES)
++
++    ### Then
++    assert actual_sources == ["Cargo Audit"]

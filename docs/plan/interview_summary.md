@@ -99,17 +99,22 @@
 - Full product prompt: approved Git repo scanner; reuse scanners/analysis; SIE judge panel (≥3 parallel) + final judge; evidence verify; Run→Triage→Investigate→Fix→Verify→Report; Simple/Expert; language/ecosystem coverage honesty (unsupported must be explicit; Rust as example gap not a closed list).
 - ChatGPT amendments locked: expand target discovery; per-ecosystem coverage records; Then-phase gap scanners only where no suitable existing scanner.
 - UI **1A**: extend existing dashboard (not separate viewer).
-- Wave P 62–64 landed `main` (#145/#146). Current branch `fix/cargo-package-scan-error-status` adds Snyk SCA ecosystem detect + Cargo unsupported detail (honesty, not full Cargo scan).
+- Wave P 62–64 landed `main` (#145/#146). Cargo SCA honesty (#147) is on `main`
+  (Snyk `not_applicable` + zero-engine → NO COVERAGE). RustSec **Cargo Audit**
+  is **IMPLEMENTED** on `main` for `Cargo.lock` / `Cargo.toml` when installed;
+  slice 72 formalizes that gap path (docs stream in progress).
 
 ## What was inferred (Wave R)
 - ADR-0016 is triage/escalation, not the judge panel — keep unchanged; feed outputs into panel/final judge.
-- DepShield still npm+PyPI manifests only; Snyk `snyk test` does not support Rust/Cargo — ledger must say so until slice 72.
+- DepShield still npm+PyPI manifests only; Snyk `snyk test` does not support Rust/Cargo —
+  ledger must keep those gaps explicit. Rust/Cargo package advisories are covered by
+  Cargo Audit when installed (slice 72), not by Snyk/DepShield.
 - Letter **Q** folder reserved empty → Wave letter **R**, slices **65–72**.
 
 ## Constraints (Wave R)
 - Approved local repo+commit only; no unapproved remote fetch; never execute scanned host code; open-weight SIE for judging; secrets masked by default.
 - Slice stub + branch before product code; do not start R Musts until stubs exist (done) and execute branch created.
-- Absorb cargo-fix WIP into **65**; full Cargo/Rust scan only via **72** when ledger still shows gap.
+- Absorb cargo-fix WIP into **65**; Rust/Cargo gap scanning via **72** = Cargo Audit formalization (path already on `main`).
 
 ## Simplest shape (Wave R)
 - 65 coverage ledger → 66 evidence/injection → 67 SIE panel → 68 stepper → 69 fix → (Should) 70 verify → 71 expert/export → (Could) 72 gap scanners.

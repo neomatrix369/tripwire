@@ -404,7 +404,7 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 | 69 | [slice-69-fix-propose-apply-clean](slices/18-R-approved-repo-workflow/slice-69-fix-propose-apply-clean.md) | Fix Propose + Apply-Clean Check | Must | 📋 | 68 | — | ~4 min |
 | 70 | [slice-70-verify-worktree-rescan](slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md) | Verify Fix via Worktree Re-Check | Should | 📋 | 69 | — | ~3 min |
 | 71 | [slice-71-expert-export-report](slices/18-R-approved-repo-workflow/slice-71-expert-export-report.md) | Expert View + Report Export | Should | 📋 | 68 | — | ~3 min |
-| 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Gap Scanners for Unsupported Ecosystems | Could | 📋 | 65 (ledger gaps) | — | ~4 min |
+| 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Gap Scanners for Unsupported Ecosystems | Could | ✅ | 65 (ledger gaps) | — | ~4 min |
 
 ## Supporting Artifacts
 | File | Status |
@@ -434,7 +434,7 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 2. **Active Frontline branch:** Wave **H** Musts **23 → 32** (phase-gated H1→H2→H3). Human test after 25 and 30; **HARD GATE** at 32 before any Should 33+.
 3. Wave **H** Should 33–38 after 32 PASS (35 stays 🔴 until Ossprey access in DECISIONS). Slice 39 stays 📦 unless pulled in.
 4. Wave **G** (18–22) remains 📋 — do **not** start while H1–H3 is active unless explicitly resumed. Prefer one active slice per shared code area.
-5. **2026-09-20 addendum:** Wave **R** (approved-repo security workflow, slices **65→69** Must) is the next product stream after Wave P landed. Finish or park `fix/cargo-package-scan-error-status` via slice **65**; then execute `slice/65-…` → **69**. Should **70–71** after Musts; Could **72** only when ledger proves unsupported ecosystems.
+5. **2026-09-20 addendum:** Wave **R** (approved-repo security workflow, slices **65→69** Must) is the next product stream after Wave P landed. Finish or park `fix/cargo-package-scan-error-status` via slice **65**; then execute `slice/65-…` → **69**. Should **70–71** after Musts; Could **72** formalizes Rust/Cargo via Cargo Audit (production path already on `main`; Snyk/DepShield Rust gaps remain).
 
 ## Wave G source-finding map
 

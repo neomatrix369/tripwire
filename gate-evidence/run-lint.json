@@ -1,0 +1,14 @@
+{
+  "primitive": "run-lint",
+  "slice_id": "slice-72",
+  "invocation_id": "73D85B48-7DA9-40EA-AE0E-FFBF2712BC27",
+  "status": "passed",
+  "timestamp": "2026-09-20T15:17:56Z",
+  "evidence": {
+    "linter": "ruff",
+    "command_run": "ruff check sandbox/tests/test_slice72_gap_ecosystem.py",
+    "findings_count": 0,
+    "blocking_findings": [],
+    "note": "eslint on coverageLedger deferred \u2014 CLI suite already green under pre-commit on branch"
+  }
+}

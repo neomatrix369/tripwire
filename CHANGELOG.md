@@ -35,7 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `Cargo.toml` trees — registered in `SCANNER_GROUPS` between DepShield and
   Ossprey; Modal image installs `cargo-audit`. Prefer real RustSec over LLM
   Rust analysis (LLM deferred). Package inventory expects Cargo Audit alongside
-  Snyk / DepShield / Ossprey.
+  Snyk / DepShield / Ossprey. Slice **72** (Wave R Could) formalizes this as the
+  Rust/Cargo gap scanner: production path **IMPLEMENTED** on `main`; Snyk SCA +
+  DepShield Rust gaps remain explicit (not claimed fixed by this adapter).
 - GitHub repo discover + fan-out (slice 62, Wave P): `tripwire scan https://github.com/org/repo`
   (and `/tree|/blob/` browse URLs) shallow-clones on the host, walks skills (`SKILL.md`)
   and MCP roots (`server.py`/`server.js`/`run.sh`), emits N typed targets with
