@@ -1,0 +1,15 @@
+# Lab packaging context — keep the image build lean.
+.git
+.gitignore
+README.md
+STATUS.md
+smoke.sh
+smoke-logs/
+vendor/
+**/node_modules/
+**/build/
+**/.cache/
+*.md
+modal_app.py
+.env
+.env.*

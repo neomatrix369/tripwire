@@ -1,0 +1,23 @@
+// Example Microsoft / Entra account block (NO secrets).
+// Copy via oauth-setup.sh → pizauth.local.conf (gitignored).
+//
+// Redirect URI to register (exact match, including trailing slash):
+//   http://localhost:14204/
+//
+// Create app: Microsoft identity platform / Azure portal → App registrations
+//   → New registration → Redirect URI type: Web → http://localhost:14204/
+//   → Certificates & secrets → New client secret
+//   → API permissions: IMAP.AccessAsUser.All, SMTP.Send, offline_access (delegated)
+
+account "lab" {
+    auth_uri = "https://login.microsoftonline.com/common/oauth2/v2.0/authorize";
+    token_uri = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
+    client_id = "<YOUR_CLIENT_ID>";
+    client_secret = "<YOUR_CLIENT_SECRET>";
+    scopes = [
+        "https://outlook.office365.com/IMAP.AccessAsUser.All",
+        "https://outlook.office365.com/SMTP.Send",
+        "offline_access"
+    ];
+    auth_uri_fields = { "login_hint": "<you@example.com>" };
+}

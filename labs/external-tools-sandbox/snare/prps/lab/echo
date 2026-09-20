@@ -1,0 +1,8 @@
+#!/bin/sh
+# Lab per-repo program: logs event type; never trusts payload path beyond argv.
+# Invoked as: /prps/<owner>/<repo> <event> <json-path>
+set -eu
+event="${1:-unknown}"
+json="${2:-}"
+echo "snare-lab prp: event=${event} json=${json}" >&2
+exit 0

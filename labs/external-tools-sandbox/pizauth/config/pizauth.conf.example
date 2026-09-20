@@ -1,0 +1,5 @@
+# Placeholder stub — see provider-specific examples (no secrets):
+#   pizauth.conf.example.microsoft
+#   pizauth.conf.example.google
+# Runtime placeholders: pizauth.conf
+# Real credentials: gitignored pizauth.local.conf via scripts/oauth-setup.sh
