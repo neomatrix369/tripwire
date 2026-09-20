@@ -543,7 +543,22 @@
         <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:6px">
           Coverage · discovered {{ workflowTriage.coverageHonesty.discovered }} · scanned {{ workflowTriage.coverageHonesty.scanned }} · failed {{ workflowTriage.coverageHonesty.failed }} · skipped {{ workflowTriage.coverageHonesty.skipped }}
         </div>
-        <div class="tw-triage-tabs" role="tablist" aria-label="Triage filters">
+        <div class="tw-triage-tabs" role="tablist" aria-label="Target type filters">
+          <sc-for list="{{ workflowTriage.typeTabs }}" as="tab" hint-placeholder-count="4">
+            <button type="button" role="tab" onClick="{{ tab.onClick }}" aria-selected="{{ tab.ariaSelected }}" style="{{ tab.style }}">{{ tab.label }} ({{ tab.count }})</button>
+          </sc-for>
+        </div>
+        <div class="tw-triage-tabs" role="tablist" aria-label="Quality filters">
+          <sc-for list="{{ workflowTriage.qualityTabs }}" as="tab" hint-placeholder-count="4">
+            <button type="button" role="tab" onClick="{{ tab.onClick }}" aria-selected="{{ tab.ariaSelected }}" style="{{ tab.style }}">{{ tab.label }} ({{ tab.count }})</button>
+          </sc-for>
+        </div>
+        <div class="tw-triage-tabs" role="tablist" aria-label="Target filters">
+          <sc-for list="{{ workflowTriage.targetChips }}" as="tab" hint-placeholder-count="3">
+            <button type="button" role="tab" onClick="{{ tab.onClick }}" aria-selected="{{ tab.ariaSelected }}" style="{{ tab.style }}">{{ tab.label }} ({{ tab.count }})</button>
+          </sc-for>
+        </div>
+        <div class="tw-triage-tabs" role="tablist" aria-label="Triage status filters">
           <sc-for list="{{ workflowTriage.tabs }}" as="tab" hint-placeholder-count="4">
             <button type="button" role="tab" onClick="{{ tab.onClick }}" aria-selected="{{ tab.ariaSelected }}" style="{{ tab.style }}">{{ tab.label }} ({{ tab.count }})</button>
           </sc-for>
@@ -554,7 +569,7 @@
               <span>
                 <span style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:{{ f.sevColor }};text-transform:uppercase">{{ f.severity }}</span>
                 <span style="margin-left:8px">{{ f.title }}</span>
-                <span style="display:block;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:2px">{{ f.triageStatus }}</span>
+                <span style="display:block;font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:2px">{{ f.targetLabel }} · {{ f.triageStatus }}</span>
               </span>
               <span style="font-family:var(--font-mono);font-size:10px;color:var(--cta-ink)">Investigate →</span>
             </button>
@@ -1481,6 +1496,8 @@ class Component extends DCLogic {
     expertMode: false,
     workflowSelectedFindingId: null,
     triageFilter: 'all',
+    triageQualityTab: 'all',
+    triageTargetFilter: 'all',
     investigateHowExpanded: false,
     workflowKitsLoaded: false,
     triageRevision: 0,
@@ -1674,6 +1691,9 @@ class Component extends DCLogic {
   };
 
   setTriageFilter = (filterId) => this.setState({ triageFilter: filterId });
+  setTriageQualityTab = (v) => this.setState({ triageQualityTab: v, triageTargetFilter: 'all' });
+  setTriageTargetFilter = (v) => this.setState({ triageTargetFilter: v });
+  setTriageTypeFilter = (v) => this.setState({ typeFilter: v, triageTargetFilter: 'all' });
 
   selectWorkflowFinding = (findingId) => this.setState({
     workflowSelectedFindingId: findingId,
@@ -1975,7 +1995,9 @@ class Component extends DCLogic {
       cve_ids: Array.isArray(f.cve_ids) ? f.cve_ids : [],
       category: f.category || '',
       itemId: item.id,
-      itemName: item.name
+      itemName: item.name,
+      itemType: item.type || '',
+      itemQuality: typeof item.quality === 'number' ? item.quality : null
     };
     const id = prefs
       ? prefs.stableFindingId(provisional)
@@ -2057,6 +2079,9 @@ class Component extends DCLogic {
     const emptyRun = { scannerRows: [], judgesSummary: '0 of 3 judges answered', judgeSlots: [], modelsUsedLine: '' };
     const emptyTriage = {
       headline: '0 to-fix · 0 needs-review · 0 dismissed',
+      typeTabs: [],
+      qualityTabs: [],
+      targetChips: [],
       tabs: [],
       filteredFindings: [],
       coverageHonesty: { discovered: 0, scanned: 0, failed: 0, skipped: 0 },
@@ -2148,7 +2173,16 @@ class Component extends DCLogic {
     const triageVm = wf.triage.buildTriageView({
       findings,
       coverage,
-      triageFilter: s.triageFilter
+      triageFilter: s.triageFilter,
+      typeFilter: s.typeFilter,
+      qualityTab: s.triageQualityTab,
+      targetFilter: s.triageTargetFilter
+    });
+    const mapFilterTab = (tab, onClick) => ({
+      ...tab,
+      ariaSelected: tab.selected ? 'true' : 'false',
+      onClick,
+      style: this.btnStyle(tab.selected, { size: '11px', pad: '4px 10px' })
     });
     const workflowTriage = {
       headline: triageVm.headline,
@@ -2160,18 +2194,25 @@ class Component extends DCLogic {
           fallbackToDefaults: !!selectedFinding
         })
         : '',
-      tabs: triageVm.tabs.map(tab => ({
-        ...tab,
-        ariaSelected: tab.selected ? 'true' : 'false',
-        onClick: () => this.setTriageFilter(tab.id),
-        style: this.btnStyle(tab.selected, { size: '11px', pad: '4px 10px' })
-      })),
+      typeTabs: triageVm.typeTabs.map(tab =>
+        mapFilterTab(tab, () => this.setTriageTypeFilter(tab.id))
+      ),
+      qualityTabs: triageVm.qualityTabs.map(tab =>
+        mapFilterTab(tab, () => this.setTriageQualityTab(tab.id))
+      ),
+      targetChips: triageVm.targetChips.map(tab =>
+        mapFilterTab(tab, () => this.setTriageTargetFilter(tab.id))
+      ),
+      tabs: triageVm.tabs.map(tab =>
+        mapFilterTab(tab, () => this.setTriageFilter(tab.id))
+      ),
       filteredFindings: triageVm.filteredFindings.map(f => {
         const sevColor = f.severity === 'High' ? '#B42318' : (f.severity === 'Medium' ? '#8B5A00' : '#0F766E');
         const statusBtn = (status) => this.btnStyle(f.triageStatus === status, { size: '10px', pad: '3px 6px' });
         return {
           ...f,
           sevColor,
+          targetLabel: f.itemName || f.itemId || '',
           onInvestigate: () => this.selectWorkflowFinding(f.id),
           setToFix: () => this.setWorkflowTriageStatus(f.id, 'to_fix'),
           setNeedsReview: () => this.setWorkflowTriageStatus(f.id, 'needs_review'),

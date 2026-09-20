@@ -152,6 +152,9 @@ test('given live config when loadData live then fetches expected Supabase tables
         message: 'Suspicious instruction pattern',
         snippet: 'ignore previous',
         cwe_ids: ['CWE-74'],
+        package_name: null,
+        package_version: null,
+        cve_ids: null,
       },
     ],
   });
@@ -238,6 +241,9 @@ test('given successful supabase rows when loadData live then maps UI item shape'
         message: 'command injection surface',
         snippet: null,
         cwe_ids: null,
+        package_name: 'left-pad',
+        package_version: '1.0.0',
+        cve_ids: ['CVE-TEST-1'],
       },
     ],
   });
@@ -262,6 +268,9 @@ test('given successful supabase rows when loadData live then maps UI item shape'
   assert.equal(item.findings[0].severity, 'red');
   assert.equal(item.findings[0].scanner, 'cisco');
   assert.equal(item.findings[0].entity_name, 'run_shell');
+  assert.equal(item.findings[0].package_name, 'left-pad');
+  assert.equal(item.findings[0].package_version, '1.0.0');
+  assert.deepEqual(item.findings[0].cve_ids, ['CVE-TEST-1']);
   assert.equal(item.scanners.length, 1);
   assert.equal(item.scanners[0].source, 'cisco');
   assert.equal(item.scanners[0].checks_run, 3);
@@ -438,6 +447,20 @@ test('given dashboard html when inspecting chips then no fallback user-visible c
   assert.match(block, /label: 'Connection error'/);
   // Mock remains available without credentials (no "Missing API key" chip).
   assert.doesNotMatch(block, /Missing API key/);
+});
+
+test('given dashboard html when inspecting triage then type quality and target filter bars exist', () => {
+  // -- Given --
+  const html = readFileSync(HTML_PATH, 'utf8');
+
+  // -- Then --
+  assert.match(html, /aria-label="Target type filters"/);
+  assert.match(html, /aria-label="Quality filters"/);
+  assert.match(html, /aria-label="Target filters"/);
+  assert.match(html, /aria-label="Triage status filters"/);
+  assert.match(html, /workflowTriage\.typeTabs/);
+  assert.match(html, /workflowTriage\.targetChips/);
+  assert.match(html, /f\.targetLabel/);
 });
 
 test('given dashboard html when filters match nothing then empty-state copy is defined', () => {

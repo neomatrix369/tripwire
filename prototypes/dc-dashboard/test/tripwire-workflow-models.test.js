@@ -33,10 +33,11 @@ test('GWT-74.1 given workflow chrome when stepper renders then modelHints match 
   assert.equal(byId.run.modelHint, 'gen-4b · gen-27b');
   assert.equal(byId.triage.modelHint, 'gen-4b');
   assert.equal(byId.investigate.modelHint, 'gen-4b · qwen3.8-max');
-  assert.equal(byId.fix.modelHint, 'gen-27b');
+  assert.equal(byId.fix.modelHint, '', 'Fix tab stays blank until LLM propose is the default');
   assert.equal(byId.verify.modelHint, '');
   assert.equal(byId.report.modelHint, '');
   assert.deepEqual(STAGE_DEFAULT_MODELS.run, ['gen-4b', 'gen-27b']);
+  assert.deepEqual(STAGE_DEFAULT_MODELS.fix, []);
 });
 
 test('GWT-74.2 given judge slots with modelIds when Run builds then modelsUsedLine lists actuals', () => {
@@ -114,21 +115,21 @@ test('GWT-74.3 given LLM fix model when Fix builds then modelsUsedLine names tha
   assert.equal(actual, 'Models used: gen-27b');
 });
 
-test('GWT-74.3 given heuristic fix when Fix builds then no invented model alias', () => {
+test('GWT-74.3 given heuristic fix when Fix builds then no model line', () => {
   /**
-   * Scenario: Heuristic fixes must not invent an LLM model ID.
+   * Scenario: Heuristic fixes must not invent an LLM model ID or a fake "Models used" line.
    * Slice: GWT-74.3 / GWT-74.4
    */
   // -- Given / When --
   const actual = buildModelsUsedLine({
     stepId: 'fix',
     proposedFix: { source: 'heuristic', unifiedDiff: '--- a\n+++ b\n' },
-    fallbackToDefaults: false,
   });
 
   // -- Then --
-  assert.equal(actual, 'Models used: heuristic (no LLM)');
+  assert.equal(actual, '');
   assert.equal(actual.includes('gen-27b'), false);
+  assert.equal(actual.includes('heuristic'), false);
 });
 
 test('GWT-74.4 given verify step with no models when line builds then empty string', () => {

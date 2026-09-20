@@ -71,11 +71,19 @@ Reachable through production entry points / config:
 - Wave R **workflow stepper** Run→Triage→Investigate (slice 68): IMPLEMENTED /
   VERIFIED on `main` (#152) — `prototypes/dc-dashboard/tripwire-workflow-*.js`
   (+ run-progress / triage / investigate) with GWT-68.* tests.
+- Wave R **Triage target filters** (slice 73): 🔨 IN PROGRESS — cherry-picked
+  onto `fix/slice-74-fix-blank-while-heuristic`. Triage panel adds inventory-style
+  type tabs (All / Skills / MCP / Packages), quality tabs (All + Tessl
+  high/low/unscored), and per-target chips; filters compose with status tabs;
+  finding rows show target name. SCA triage titles prefer `package@version · CVE`
+  (not bare `dependency_vulnerability`); Live maps `package_name` /
+  `package_version` / `cve_ids`. Module: `tripwire-triage.js` + Triage panel in
+  `Tripwire.dc.html`. Not VERIFIED until `/verify-slice`.
 - Wave R **workflow model labels** (slice 74): 🔨 IN PROGRESS on
   `slice/74-workflow-model-labels` — stepper tabs show default model aliases
-  (Run/Triage/Investigate/Fix); panels show actual models from judges / router /
-  fix provenance when present. Module: `tripwire-workflow-models.js`. Not
-  VERIFIED until `/verify-slice`.
+  for stages that actually use models (Run/Triage/Investigate; Fix blank while
+  propose is heuristic); panels show actual models only when an LLM ran.
+  Module: `tripwire-workflow-models.js`. Not VERIFIED until `/verify-slice`.
 - Wave R **Fix propose + apply-clean** (slice 69): IMPLEMENTED / VERIFIED on
   `main` (#154) — proposed unified diff, root-cause vs quick-patch label,
   apply-clean on a temp copy only (approved repo unchanged), mark fixed /
