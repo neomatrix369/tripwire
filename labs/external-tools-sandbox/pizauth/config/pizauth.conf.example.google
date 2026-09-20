@@ -1,0 +1,20 @@
+// Example Google / Gmail account block (NO secrets).
+// Copy via oauth-setup.sh → pizauth.local.conf (gitignored).
+//
+// Redirect URI to register (exact match, including trailing slash):
+//   http://localhost:14204/
+//
+// Create client: Google Cloud Console → APIs & Services → Credentials
+//   → Create OAuth client ID → Application type: Web application
+//   → Authorized redirect URIs: http://localhost:14204/
+//   → Enable Gmail API if you need mail scopes
+//   → OAuth consent screen: add test users while in Testing
+
+account "lab" {
+    auth_uri = "https://accounts.google.com/o/oauth2/auth";
+    token_uri = "https://oauth2.googleapis.com/token";
+    client_id = "<YOUR_CLIENT_ID>";
+    client_secret = "<YOUR_CLIENT_SECRET>";
+    scopes = ["https://mail.google.com/"];
+    auth_uri_fields = { "login_hint": "<you@gmail.com>" };
+}

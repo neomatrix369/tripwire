@@ -11,7 +11,11 @@ import {
   applySchema,
   ensureSchema,
   isMissingSchemaError,
+  itemsTypeCheckAllowsPackage,
   probeSchema,
+  schemaNeedsApply,
+  typeCheckStateFromDef,
+  usablePostgresUrl,
 } from '../src/ensureSchema.js';
 
 function mockSupabase({ itemsError = null, colError = null } = {}) {
@@ -90,6 +94,74 @@ test('given ready probe when ensureSchema then ready without apply', async () =>
   assert.deepEqual(await ensureSchema({ supabase: mockSupabase(), force: false }), {
     status: 'ready',
   });
+});
+
+test('given stale items type check when ensureSchema then applies schema', async () => {
+  /**
+   * Scenario: existing DBs created before slice 64 still reject type=package.
+   * Slice: 64 — items_type_check widen
+   *
+   * Given HTTP tables are ready but items_type_check does not allow package,
+   * When ensureSchema runs,
+   * Then db/schema.sql is applied so package inserts can succeed.
+   */
+  // -- Given --
+  let applyCalls = 0;
+
+  // -- When --
+  const actual = await ensureSchema({
+    supabase: mockSupabase(),
+    force: false,
+    probeItemsTypeCheckFn: async () => 'stale',
+    applySchemaFn: async () => {
+      applyCalls += 1;
+    },
+  });
+
+  // -- Then --
+  assert.equal(actual.status, 'applied', 'stale type CHECK must trigger schema apply');
+  assert.equal(applyCalls, 1, 'schema apply should run once for a stale type CHECK');
+});
+
+test('given constraint def without package when itemsTypeCheckAllowsPackage then false', () => {
+  // -- Given --
+  const def = "CHECK ((type = ANY (ARRAY['skill'::text, 'mcp_server'::text])))";
+
+  // -- When / Then --
+  assert.equal(itemsTypeCheckAllowsPackage(def), false);
+});
+
+test('given constraint def with package when itemsTypeCheckAllowsPackage then true', () => {
+  // -- Given --
+  const def = "CHECK ((type = ANY (ARRAY['skill'::text, 'mcp_server'::text, 'package'::text])))";
+
+  // -- When / Then --
+  assert.equal(itemsTypeCheckAllowsPackage(def), true);
+});
+
+test('given blank or non-postgres url when usablePostgresUrl then null', () => {
+  // -- Given / When / Then --
+  assert.equal(usablePostgresUrl(''), null);
+  assert.equal(usablePostgresUrl('  '), null);
+  assert.equal(usablePostgresUrl('https://example.com'), null);
+  assert.equal(usablePostgresUrl('postgresql://user:pass@localhost/db'), 'postgresql://user:pass@localhost/db');
+});
+
+test('given constraint defs when typeCheckStateFromDef then ready or stale', () => {
+  // -- Given / When / Then --
+  assert.equal(typeCheckStateFromDef("CHECK ((type = ANY (ARRAY['skill'::text])))"), 'stale');
+  assert.equal(
+    typeCheckStateFromDef("CHECK ((type = ANY (ARRAY['skill'::text, 'package'::text])))"),
+    'ready',
+  );
+});
+
+test('given ready tables and ready type check when schemaNeedsApply then false', () => {
+  // -- Given / When / Then --
+  assert.equal(schemaNeedsApply(false, 'ready', 'ready'), false);
+  assert.equal(schemaNeedsApply(false, 'ready', 'skipped'), false);
+  assert.equal(schemaNeedsApply(false, 'ready', 'stale'), true);
+  assert.equal(schemaNeedsApply(true, 'ready', 'ready'), true);
 });
 
 test('given missing schema when ensureSchema without db url then throws on apply', async () => {

@@ -1,0 +1,117 @@
+# labs/external-tools-sandbox — Compose skeleton for four external tools.
+# Sibling agents own each build context; services no-op until Dockerfiles exist.
+#
+# Usage:
+#   docker compose --profile vibe-kanban up --build
+#   docker compose --profile all up --build
+#   docker compose --profile all down
+
+name: external-tools-sandbox
+
+x-lab-common: &lab-common
+  env_file:
+    - path: .env
+      required: false
+  restart: "no"
+
+services:
+  vibe-kanban:
+    <<: *lab-common
+    profiles: ["vibe-kanban", "all"]
+    build:
+      context: ./vibe-kanban
+      dockerfile: Dockerfile
+    ports:
+      - "${VIBE_KANBAN_PORT:-3000}:3000"
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "3000"
+      HOME: /data
+    volumes:
+      - vibe-kanban-data:/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://127.0.0.1:3000/ >/dev/null || exit 1",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 15s
+
+  who-targets-me:
+    <<: *lab-common
+    profiles: ["who-targets-me", "all"]
+    build:
+      context: ./who-targets-me
+      dockerfile: Dockerfile
+    # Extension build artefact; no host port required for build-only smoke.
+    environment:
+      WTM_BUILD_TARGET: ${WTM_BUILD_TARGET:-all}
+    volumes:
+      - wtm-dist:/dist
+    # ENTRYPOINT builds chrome/firefox and copies to /dist when mounted.
+
+  pizauth:
+    <<: *lab-common
+    profiles: ["pizauth", "all"]
+    build:
+      context: ./pizauth
+      dockerfile: Dockerfile
+    # Keep daemon up for lab inspection (overrides x-lab-common restart: "no").
+    restart: unless-stopped
+    ports:
+      - "${PIZAUTH_HOST_PORT:-14204}:14204"
+    volumes:
+      - ./pizauth/config:/config:ro
+      - pizauth-state:/var/lib/pizauth
+    environment:
+      # Prefer gitignored pizauth.local.conf when present (oauth-setup.sh).
+      PIZAUTH_CONFIG_PATH: ${PIZAUTH_CONFIG_PATH:-/config/pizauth.conf}
+      PIZAUTH_HTTP_LISTEN: ${PIZAUTH_HTTP_LISTEN:-0.0.0.0:14204}
+    # Compose interpolates host env so local OAuth conf can replace placeholders.
+    command:
+      [
+        "pizauth",
+        "server",
+        "-d",
+        "-c",
+        "${PIZAUTH_CONFIG_PATH:-/config/pizauth.conf}",
+      ]
+    # 404 on / is normal — proves HTTP listen is up (do not use curl -f).
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pizauth info -j -c \"$${PIZAUTH_CONFIG_PATH:-/config/pizauth.conf}\" | grep -q '\"server_running\":true'",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  snare:
+    <<: *lab-common
+    profiles: ["snare", "all"]
+    build:
+      context: ./snare
+      dockerfile: Dockerfile
+    # Keep daemon up for lab inspection.
+    # Port lock: Graphiti owns host :8000; snare lab defaults to host :18000 → container :8000.
+    # Do not change this mapping to take :8000.
+    restart: unless-stopped
+    ports:
+      - "${SNARE_HOST_PORT:-18000}:8000"
+    volumes:
+      - ./snare/config:/config:ro
+    environment:
+      SNARE_CONFIG_PATH: ${SNARE_CONFIG_PATH:-/config/snare.conf}
+      SNARE_LISTEN: ${SNARE_LISTEN:-0.0.0.0:8000}
+    # snare does not read SNARE_* env; pass -c explicitly. Image USER is snare.
+    command: ["snare", "-d", "-v", "-v", "-c", "/config/snare.conf"]
+
+volumes:
+  vibe-kanban-data:
+  wtm-dist:
+  pizauth-state:

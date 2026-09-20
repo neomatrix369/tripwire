@@ -51,7 +51,8 @@ Reachable through production entry points / config:
   scope root; DepShield / Ossprey / Snyk only) — `cli/src/discovery.js`,
   `sandbox/scanners.py` `_group_applies` (slice 64 🔨; IMPLEMENTED on branch,
   not yet ✅ on `main`; not VERIFIED live)
-- `tripwire setup` / first-scan schema bootstrap (probes `completed_at` column) —
+- `tripwire setup` / first-scan schema bootstrap (probes `completed_at` column and
+  live `items_type_check` so pre-package DBs re-apply `db/schema.sql`) —
   `cli/src/ensureSchema.js`
 - `./scripts/setup-modal.sh` secret sync + deploy
 - Scanner adapters shell out to upstream CLIs (`skill-scanner`, `mcp-scanner`,
@@ -342,8 +343,8 @@ scope root, also emit a **`package`** target (`items.type=package`, Accepted) so
 Ossprey / Snyk run — not a fake skill; Cisco Skill / Tessl / Cisco MCP do **not** apply;
 repos with neither skill/MCP **nor** manifests still fail closed. **Slice 63 (🔀):** CLI
 prints scanner inventory + rollup after scan / zero-artifact (package expected sources =
-Snyk/DepShield/Ossprey). Slice 62 is
-**🔀 ON BRANCH** (`slice/62-git-repo-discover-fanout`) — IMPLEMENTED pending merge.
+Snyk/DepShield/Ossprey). Slices 62–64 ship together on
+**🔀 ON BRANCH** (`slice/64-git-repo-package-scan`) — IMPLEMENTED pending merge.
 Operator taxonomy soft-amended in slice **56-a**
 ([prerequisites — What can Tripwire scan?](./user-guide/prerequisites.md#what-can-tripwire-scan)).
 Spec:

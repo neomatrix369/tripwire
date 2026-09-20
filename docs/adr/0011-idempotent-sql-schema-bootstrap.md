@@ -14,7 +14,9 @@ tooling without solving the real operator problem: a fresh project must become
 queryable from `tripwire setup` or the first Live scan.
 
 PostgREST schema cache can lag; the CLI must probe both table existence and
-migration columns (`completed_at`) before declaring ready.
+migration columns (`completed_at`) before declaring ready. Slice 64 also probes
+live `items_type_check` via `SUPABASE_DB_URL` so existing DBs re-apply when the
+CHECK still omits `package`.
 
 ## Decision
 
@@ -27,7 +29,8 @@ migration history.
   creation, `GRANT`s, replaceable rollup function, Realtime `ALTER PUBLICATION`
   with exception handlers.
 - `--force` re-applies when the probe sees missing tables **or** missing
-  columns.
+  columns. Without `--force`, a stale `items_type_check` (pre-`package`) also
+  triggers apply so package inserts do not fail closed on CHECK.
 - Probe distinguishes missing-schema (PGRST204/205, missing relation) from
   auth/network failure ([ADR-0009](./0009-fail-closed-incomplete-evidence.md)).
 - Injectable `ClientImpl` / `applySchemaFn` so unit tests never talk to live
