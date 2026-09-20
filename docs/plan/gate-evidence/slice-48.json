@@ -1,52 +1,43 @@
 {
   "slice": 48,
   "name": "not-available-yet-ui",
-  "gate_status": "ON_BRANCH",
+  "gate_status": "PASSED",
   "verdict": "PASS",
-  "date": "2026-08-24",
-  "branch": "slice/48-not-available-yet-ui",
+  "date": "2026-09-21",
+  "branch": "docs/slice-48-formal-close",
   "moscow": "Must",
+  "pr": 110,
+  "merge_sha": "252edb6e736bc2ac90bb5f2fcb852de6a08f918b",
   "before_checks": "slice 47 ✅ #109; design § (d) count formula DECIDED (include NAY; MCP unpadded)",
   "after_checks": [
-    "GWT-48.1 — five Tessl sources in design order; rows 3–5 not_available_yet, no checks/duration (unit + Mock UI)",
-    "GWT-48.2 — Scanner Outputs count includes placeholders (unit + Mock UI: SCANNER OUTPUTS (7))",
-    "GWT-48.3 — runner never emits Scenario Generation / Eval / Review (Security) (pytest)",
-    "GWT-48.4 — Eval DB row replaces sentinel; Security stays NAY (unit)",
-    "MCP-only scanners are not padded (unit + Mock UI: SCANNER OUTPUTS (3))",
-    "nw-review APPROVED — nw-software-crafter-reviewer 2026-08-24 iteration 1; zero blockers"
+    "GWT-48.1 — five Tessl sources in design order; rows 3–5 not_available_yet (unit + Mock UI) — PASS 2026-09-21 re-verify",
+    "GWT-48.2 — Scanner Outputs count includes placeholders — PASS",
+    "GWT-48.3 — runner never emits Scenario Generation / Eval / Review (Security) — PASS (32 tessl status tests)",
+    "GWT-48.4 — Eval DB row replaces sentinel; Security stays NAY — PASS",
+    "MCP-only scanners are not padded — PASS",
+    "GWT-48.5 / 48.6 — Tessl pack/copy omits root evals/; non-Tessl keeps — PASS (4 acquire-target tests)",
+    "nw-review UI APPROVED — 2026-08-24 iteration 1",
+    "nw-review packing addendum APPROVED — 2026-09-21 iteration 2 (nw-software-crafter-reviewer)",
+    "nw-acceptance-designer-reviewer formal-close APPROVED — 2026-09-21",
+    "Trackers TRAIL/PROGRESS/stub → ✅ PASSED #110"
   ],
   "commands": [
     {
-      "cmd": "npm --prefix prototypes/dc-dashboard test",
-      "result": "PASS — 102 tests (102 pass, 0 skip); live-smoke reads repo .env"
+      "cmd": "npm --prefix prototypes/dc-dashboard test (GWT-48 mergeTessl tests)",
+      "result": "PASS — mergeTesslCapabilityRows tests ok 236–242; optional live-smoke unrelated fail (fetch)"
     },
     {
-      "cmd": "npm --prefix prototypes/dc-dashboard run test:coverage",
-      "result": "PASS — statements/lines 98.88%, branches 87.27%, functions 97.72% (gates 95/80/85/95)"
+      "cmd": "uv run pytest sandbox/tests/test_acquire_target.py -k evals -q",
+      "result": "PASS — 4 passed"
     },
     {
-      "cmd": "uv run pytest sandbox/tests/test_scanners_status.py::test_run_tessl_with_token_emits_lint_and_review_rows -q",
-      "result": "PASS — 1 test"
-    },
-    {
-      "cmd": "./scripts/quality-gates.sh",
-      "result": "PASS — 248 pytest (sandbox 96.8%, scanners.py 98.3%), 138 CLI tests, ruff/mypy/xenon/bandit/pip-audit/gitleaks green"
-    },
-    {
-      "cmd": "/nw-review @nw-software-crafter implementation slice-48-not-available-yet-ui.md step_id=48",
-      "result": "APPROVED — appended to slice stub; zero blocking issues"
+      "cmd": "uv run pytest sandbox/tests/test_scanners_status.py -k tessl -q",
+      "result": "PASS — 32 passed"
     }
   ],
-  "coverage_pct": "dashboard JS 98.88% statements/lines (fail-under 95); sandbox 96.8% / scanners.py 98.3%",
-  "complexity_tool": "N/A for dashboard JS; xenon scanners.py max-absolute D (exit 0) via quality-gates",
-  "doc_audit": "design § (d) NAY rules + count formula IMPLEMENTED; STATUS Mock UI VERIFIED; ARCHITECTURE/CHANGELOG/DECISIONS",
-  "mock_ui": {
-    "date_utc": "2026-08-24",
-    "item": "safe-changelog-writer",
-    "gwt_48_1": "five Tessl rows Lint → Quality → Scenario Generation → Eval → Review (Security); three muted Not Available Yet pills; no chevron/checks/duration",
-    "gwt_48_2": "SCANNER OUTPUTS (7) = Cisco + Snyk + 5 Tessl",
-    "mcp_guard": "MCP item SCANNER OUTPUTS (3); zero Tessl rows"
-  },
-  "review": "nw-review APPROVED 2026-08-24 (nw-software-crafter-reviewer, iteration 1)",
-  "pr": null
+  "coverage_pct": "dashboard JS gates unchanged; packing covered by test_acquire_target GWT-48.5/48.6",
+  "complexity_tool": "N/A for dashboard JS; xenon via quality-gates on sandbox",
+  "doc_audit": "design § (d) NAY + packing E IMPLEMENTED; STATUS/ARCHITECTURE/CHANGELOG already on main; trackers formal-closed 2026-09-21",
+  "review": "UI APPROVED 2026-08-24; packing addendum APPROVED 2026-09-21; acceptance formal-close APPROVED 2026-09-21",
+  "invocation_id": "DB9B81E2-877B-48ED-99FB-C4C0A639AAC6"
 }
