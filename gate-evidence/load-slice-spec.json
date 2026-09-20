@@ -1,19 +1,19 @@
 {
   "primitive": "load-slice-spec",
-  "slice_id": "slice-75",
-  "invocation_id": "48f53727-91f7-4311-bf5e-40f03eccb82c",
+  "slice_id": "slice-76",
+  "invocation_id": "78e268fb-da05-4be7-a168-7946390af7d7",
   "status": "passed",
-  "timestamp": "2026-09-20T22:12:10Z",
+  "timestamp": "2026-09-20T22:50:00Z",
   "evidence": {
-    "spec_path": "docs/plan/slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md",
+    "spec_path": "docs/plan/slices/18-R-approved-repo-workflow/slice-76-workflow-chrome-polish.md",
     "sections_found": ["## Context", "## Output contract", "## Exit criteria"],
     "missing_sections": [],
     "context_bundle": {
-      "name": "Operator-Visible Pipeline (R-UX-1)",
-      "outcome": "Workflow UI narrates L→R with parent meta, multi-select, role-labelled models",
-      "non_goals": ["ADR-0016 changes", "default-on judge panel", "slice 76 chrome polish"],
-      "exit_criteria": ["GWT-75.1-75.11 green", "Doc Audit STATUS R-UX-1", "/verify-slice COMPLETE"],
-      "depends_on": ["slice-67", "slice-68", "slice-74", "slice-69"]
+      "name": "Workflow Chrome Polish (Filters + Typography)",
+      "outcome": "Denser Triage filters + shared typography across Workflow panels + plain-language override buttons",
+      "non_goals": ["Filter semantics changes", "Pipeline narration", "Inventory IA redesign", "Judge panel default-on"],
+      "exit_criteria": ["GWT-76.1 shared panel tokens", "GWT-76.2 compact toolbars", "GWT-76.3 group labels", "GWT-76.4 plain-language buttons", "73/75 regression"],
+      "depends_on": ["slice-75", "slice-73", "slice-74"]
     }
   }
 }

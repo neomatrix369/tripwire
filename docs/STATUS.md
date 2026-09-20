@@ -119,7 +119,12 @@ Reachable through production entry points / config:
   `tripwire-workflow-models.js` (+ Run/Triage/Investigate/Fix HTML wiring);
   GWT-75.1–75.11 unit green; Gate 4 APPROVED on landing branch. Spec:
   [plan/slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md](./plan/slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md).
-  Optional slice 76 chrome polish = HITL.
+- Wave R **Workflow chrome polish** (slice 76): IMPLEMENTED / unit-VERIFIED on
+  branch `slice/76-workflow-chrome-polish` — shared `tw-panel-*` typography
+  (kicker / title / meta / body) across Run→Report; compact Triage
+  `tw-filter-toolbar` rows with Type/Quality/Target/Status labels; plain-language
+  override buttons. Filter semantics unchanged. Spec:
+  [plan/slices/18-R-approved-repo-workflow/slice-76-workflow-chrome-polish.md](./plan/slices/18-R-approved-repo-workflow/slice-76-workflow-chrome-polish.md).
 - CLI **`tripwire judge --batch-id`** + SIE judge panel module (slice 67, Wave R):
   `cli/src/judgePanel.js` (panel + final judge; open-weight SIE generate models).
   Optional soft-fail post-route hook only when `TRIPWIRE_JUDGE_PANEL=1` (default

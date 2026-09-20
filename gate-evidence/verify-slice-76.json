@@ -1,0 +1,14 @@
+{
+  "primitive": "verify-slice",
+  "slice_id": "slice-76",
+  "invocation_id": "78e268fb-da05-4be7-a168-7946390af7d7",
+  "status": "COMPLETE",
+  "timestamp": "2026-09-20T22:50:48Z",
+  "evidence": {
+    "acceptance": "4/4",
+    "quality_gates": "passed",
+    "docs": "current",
+    "visual_assets": "N/A — CSS class chrome only",
+    "unmet": []
+  }
+}

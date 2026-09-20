@@ -1,0 +1,12 @@
+{
+  "primitive": "run-coverage",
+  "slice_id": "slice-76",
+  "invocation_id": "78e268fb-da05-4be7-a168-7946390af7d7",
+  "status": "passed",
+  "timestamp": "2026-09-20T22:50:48Z",
+  "evidence": {
+    "policy": "reporting",
+    "note": "Chrome/CSS/HTML-only slice; GWT-76.* specification coverage via dedicated test file; dashboard c8 floor N/A for Tripwire.dc.html",
+    "gwt_covered": ["76.1", "76.2", "76.3", "76.4"]
+  }
+}

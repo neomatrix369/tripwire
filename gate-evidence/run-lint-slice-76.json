@@ -1,0 +1,12 @@
+{
+  "primitive": "run-lint",
+  "slice_id": "slice-76",
+  "invocation_id": "78e268fb-da05-4be7-a168-7946390af7d7",
+  "status": "passed",
+  "timestamp": "2026-09-20T22:50:48Z",
+  "evidence": {
+    "command": "cd prototypes/dc-dashboard && npm run lint",
+    "exit_code": 0,
+    "summary": "eslint *.js test/ clean"
+  }
+}
