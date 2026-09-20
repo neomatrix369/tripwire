@@ -1,6 +1,6 @@
 # Slice 75: Operator-Visible Pipeline (R-UX-1)
 
-> Scenario: Brownfield | MoSCoW: **Should** | Status: 🔀 ON BRANCH
+> Scenario: Brownfield | MoSCoW: **Should** | Status: ✅ PASSED
 > Wave: R — Approved-repo security workflow
 > Depends on: **67** (panel fields); **68** (stepper panels); benefits from **74** (model labels); consumes **69** fix provenance
 > Trigger: USER 2026-09-20 — backend/CLI judging + honesty must not stay silent in Workflow UI; USER follow-on — L→R flow must show parent meta, multi-select, role-labelled models, background process
@@ -174,4 +174,4 @@ As an operator, I want the Workflow tab to walk me left→right through Run→Re
 - [x] `/verify-slice` — holistic evidence verdict COMPLETE (final closing gate)
 
 ## Gate Status
-🔀 ON BRANCH — 2026-09-20 · `/verify-slice` COMPLETE · Gate 4 APPROVED · ✅ PASSED awaits merge to `main`
+✅ PASSED — 2026-09-20 · `/verify-slice` COMPLETE · Gate 4 APPROVED · merged `main` via [#163](https://github.com/neomatrix369/tripwire/pull/163) (`8e3a57f`)

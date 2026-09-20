@@ -96,7 +96,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 15 | [`slices/15-O-monk-kit-live-packaging/`](slices/15-O-monk-kit-live-packaging/) | **O — Monk Kit Live packaging** | **O0** → **58**→**59** Must · **60**–**61** Should | 📋 plan-only · ADR-0001 + PoC |
 | 16 | [`slices/16-P-git-repo-scan/`](slices/16-P-git-repo-scan/) | **P — Git repo discover + fan-out** | **62**→**64** | ✅ landed `main` (#145/#146); formal gate-evidence close optional |
 | 17 | [`slices/17-Q-ci-hygiene/`](slices/17-Q-ci-hygiene/) | **Q — CI hygiene** | (reserved empty) | 📋 placeholder folder only |
-| 18 | [`slices/18-R-approved-repo-workflow/`](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** | **65**→**69** Must · **70**–**71**/**73**–**75** Should · **72** Could | 📋 plan-only · EFP Path B 2026-09-20 |
+| 18 | [`slices/18-R-approved-repo-workflow/`](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** | **65**→**69** Must · **70**–**71**/**73**–**75** Should · **72** Could | ✅ **65–75** on `main` · optional **76** HITL |
 
 **Status legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 CLOSED — DEFERRED/WON'T`
 
@@ -399,15 +399,15 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 |---|------|------|--------|--------|------------|-------|-----------|
 | 65 | [slice-65-lang-ecosystem-coverage-ledger](slices/18-R-approved-repo-workflow/slice-65-lang-ecosystem-coverage-ledger.md) | Language/Ecosystem Discovery + Coverage Ledger | Must | ✅ | 62; 64 | — | ~5 min |
 | 66 | [slice-66-evidence-verify-injection-guard](slices/18-R-approved-repo-workflow/slice-66-evidence-verify-injection-guard.md) | Evidence Verify + Injection Guard | Must | ✅ | 65 | — | ~4 min |
-| 67 | [slice-67-sie-judge-panel-final](slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md) | SIE Judge Panel + Final Judge | Must | 🔨 | 66; ADR-0016 unchanged | — | ~5 min |
-| 68 | [slice-68-workflow-run-triage-investigate](slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md) | Stepper Run → Triage → Investigate | Must | 🔀 | 67; UI 1A | — | ~5 min |
+| 67 | [slice-67-sie-judge-panel-final](slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md) | SIE Judge Panel + Final Judge | Must | ✅ | 66; ADR-0016 unchanged | — | ~5 min |
+| 68 | [slice-68-workflow-run-triage-investigate](slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md) | Stepper Run → Triage → Investigate | Must | ✅ | 67; UI 1A | — | ~5 min |
 | 69 | [slice-69-fix-propose-apply-clean](slices/18-R-approved-repo-workflow/slice-69-fix-propose-apply-clean.md) | Fix Propose + Apply-Clean Check | Must | ✅ | 68 | — | ~4 min |
 | 70 | [slice-70-verify-worktree-rescan](slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md) | Verify Fix via Worktree Re-Check | Should | ✅ | 69 | — | ~3 min |
-| 71 | [slice-71-expert-export-report](slices/18-R-approved-repo-workflow/slice-71-expert-export-report.md) | Expert View + Report Export | Should | 🔀 | 68 | — | ~3 min |
+| 71 | [slice-71-expert-export-report](slices/18-R-approved-repo-workflow/slice-71-expert-export-report.md) | Expert View + Report Export | Should | ✅ | 68 | — | ~3 min |
 | 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Gap Scanners for Unsupported Ecosystems | Could | ✅ | 65 (ledger gaps) | — | ~4 min |
-| 73 | [slice-73-triage-target-filters](slices/18-R-approved-repo-workflow/slice-73-triage-target-filters.md) | Triage Type + Per-Target Filters | Should | 🔨 | 68 | — | ~3 min |
-| 74 | [slice-74-workflow-model-labels](slices/18-R-approved-repo-workflow/slice-74-workflow-model-labels.md) | Workflow Model Labels (Defaults + Actuals) | Should | 🔨 | 68; 67/69 fields | — | ~3 min |
-| 75 | [slice-75-operator-visible-pipeline](slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md) | Operator-Visible Pipeline (R-UX-1) | Should | 🔀 | 67; 68 (benefits 74) | — | ~5 min |
+| 73 | [slice-73-triage-target-filters](slices/18-R-approved-repo-workflow/slice-73-triage-target-filters.md) | Triage Type + Per-Target Filters | Should | ✅ | 68 | — | ~3 min |
+| 74 | [slice-74-workflow-model-labels](slices/18-R-approved-repo-workflow/slice-74-workflow-model-labels.md) | Workflow Model Labels (Defaults + Actuals) | Should | ✅ | 68; 67/69 fields | — | ~3 min |
+| 75 | [slice-75-operator-visible-pipeline](slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md) | Operator-Visible Pipeline (R-UX-1) | Should | ✅ | 67; 68 (benefits 74) | — | ~5 min |
 
 ## Supporting Artifacts
 | File | Status |
@@ -437,9 +437,9 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 2. **Active Frontline branch:** Wave **H** Musts **23 → 32** (phase-gated H1→H2→H3). Human test after 25 and 30; **HARD GATE** at 32 before any Should 33+.
 3. Wave **H** Should 33–38 after 32 PASS (35 stays 🔴 until Ossprey access in DECISIONS). Slice 39 stays 📦 unless pulled in.
 4. Wave **G** (18–22) remains 📋 — do **not** start while H1–H3 is active unless explicitly resumed. Prefer one active slice per shared code area.
-5. **2026-09-20 addendum:** Wave **R** (approved-repo security workflow, slices **65→69** Must) is the next product stream after Wave P landed. **65–66** ✅ · **67** ✅ landed `main` (#151) · **68** ✅ landed `main` (#152) · **69** ✅ · **70** ✅ landed `main` (#155) · **71** ✅ landed `main` (#153) · Could **72** ✅ landed `main` (#150). Should **73** 🔨 formal close · **74** 🔨 soft-amend roles / formal close · **75** 🔀 operator-visible pipeline (R-UX-1) — GWT-75.1–75.11 unit green on branch (L→R included); Gate 4 + merge pending.
-6. **2026-09-20 improvement (R-UX-1):** Operator-visible pipeline — Workflow UI must narrate judge panel (≥3 parallel + final `gen-27b`), coverage, evidence-verify, and stage progress/outcomes in plain language (not silent b/g). → **Slice 75** 🔀 ON BRANCH (Should); soft-amends 67/68.
-7. **2026-09-20 soft-amend (Workflow L→R):** Slice **75** expands to parent target meta + multi-select + role-labelled models per step/target (skill/mcp/package) + visible background. Soft-amends **74** (Fix `gen-27b` when LLM propose), **67** (panel light/mid · final stronger), **69** (stronger fix model + parent meta). **L→R GWT-75.9–75.11 IMPLEMENTED / unit-VERIFIED** on `slice/75-operator-visible-pipeline` (`f4b113f`); Gate 4 pending.
+5. **2026-09-20 addendum:** Wave **R** (approved-repo security workflow, slices **65→69** Must) is the next product stream after Wave P landed. **65–75** ✅ on `main` — **67** (#151) · **68** (#152) · **69** · **70** (#155) · **71** (#153) · **72** (#150) · **73–74** unit-VERIFIED on `main` · **75** (#163, Gate 4 APPROVED). Optional **76** chrome polish = HITL.
+6. **2026-09-20 improvement (R-UX-1):** Operator-visible pipeline — Workflow UI must narrate judge panel (≥3 parallel + final `gen-27b`), coverage, evidence-verify, and stage progress/outcomes in plain language (not silent b/g). → **Slice 75** ✅ on `main` (#163); soft-amends 67/68/69/74 absorbed.
+7. **2026-09-20 soft-amend (Workflow L→R):** Slice **75** expands to parent target meta + multi-select + role-labelled models per step/target (skill/mcp/package) + visible background. Soft-amends **74** (Fix `gen-27b` when LLM propose), **67** (panel light/mid · final stronger), **69** (stronger fix model + parent meta). **L→R GWT-75.9–75.11 IMPLEMENTED / unit-VERIFIED** on `main` (#163).
 
 ## Wave G source-finding map
 

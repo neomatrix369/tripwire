@@ -1,0 +1,21 @@
+{
+  "primitive": "run-tests",
+  "slice_id": "slice-74",
+  "invocation_id": "E49536DF-607C-46BB-B2B9-E4F8EBAD7972",
+  "status": "passed",
+  "timestamp": "2026-09-20T22:32:00Z",
+  "evidence": {
+    "stacks_detected": ["node"],
+    "commands_run": [
+      "cd prototypes/dc-dashboard && node --test test/tripwire-workflow-models.test.js"
+    ],
+    "total": 8,
+    "passed_count": 8,
+    "failed_count": 0,
+    "failed_tests": [],
+    "skipped_count": 0,
+    "coverage_pct": null,
+    "raw_log": "gate-evidence/run-tests-slice-74-raw.txt",
+    "notes": "GWT-74.1–74.5 soft-amend suite (role-aware hints, Fix blank while heuristic, type·name prefix)"
+  }
+}

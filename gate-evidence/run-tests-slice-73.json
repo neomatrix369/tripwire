@@ -1,0 +1,28 @@
+{
+  "primitive": "run-tests",
+  "slice_id": "slice-73",
+  "invocation_id": "E49536DF-607C-46BB-B2B9-E4F8EBAD7972",
+  "status": "passed",
+  "timestamp": "2026-09-20T22:30:00Z",
+  "evidence": {
+    "stacks_detected": ["node"],
+    "commands_run": [
+      "cd prototypes/dc-dashboard && node --test test/tripwire-triage-filters.test.js",
+      "cd prototypes/dc-dashboard && npm test (full suite via test:coverage)"
+    ],
+    "focused_suite": {
+      "file": "test/tripwire-triage-filters.test.js",
+      "total": 8,
+      "passed_count": 8,
+      "failed_count": 0,
+      "skipped_count": 0
+    },
+    "full_dashboard": {
+      "total": 400,
+      "passed_count": 399,
+      "failed_count": 0,
+      "skipped_count": 1
+    },
+    "gwt_coverage": ["GWT-73.1", "GWT-73.2", "GWT-73.3", "GWT-73.4"]
+  }
+}

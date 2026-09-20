@@ -33,9 +33,11 @@ The Live/Mock UI has two primary tabs:
 
 Simple/Expert on Workflow only changes finding-detail density. Operator-visible
 judge/coverage/evidence-verify narration **and** L→R soft-amend (parent meta,
-multi-select, role-labelled models) are **IMPLEMENTED** (unit) on Wave R
-slice 75 — see [STATUS.md](../STATUS.md). Optional `TRIPWIRE_JUDGE_PANEL=1`
-enables the CLI panel ([env-vars.md](./env-vars.md)).
+multi-select, role-labelled models) are **IMPLEMENTED / VERIFIED** (unit) on
+`main` via Wave R slice 75
+([PR #163](https://github.com/neomatrix369/tripwire/pull/163)) — see
+[STATUS.md](../STATUS.md). Optional `TRIPWIRE_JUDGE_PANEL=1` enables the CLI
+panel ([env-vars.md](./env-vars.md)).
 
 ## What you are looking at
 
