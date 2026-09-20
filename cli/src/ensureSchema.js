@@ -19,9 +19,9 @@ export function isMissingSchemaError(error) {
 
 /**
  * Probe via HTTP API whether core tables and migration columns are queryable.
- * Checks both `items` (table existence) and `scan_run_scanners.completed_at`
- * (column-level migration), so `ensureSchema --force` is triggered when the
- * DB has stale columns.
+ * Checks `items` (table existence), `scan_run_scanners.completed_at`
+ * (column-level migration), and `judge_panel_runs` (slice 67 panel tables),
+ * so `ensureSchema --force` is triggered when the DB has stale columns/tables.
  * @returns {'ready'|'missing'}
  */
 export async function probeSchema(supabase = getSupabase()) {
@@ -38,6 +38,16 @@ export async function probeSchema(supabase = getSupabase()) {
   if (colErr) {
     if (isMissingSchemaError(colErr)) return 'missing';
     throw new Error(`Supabase probe failed: ${colErr.message || colErr.code || 'unknown error'}`);
+  }
+
+  // Slice 67: panel tables — missing on DBs created before judge panel schema.
+  const { error: panelErr } = await supabase
+    .from('judge_panel_runs')
+    .select('id')
+    .limit(1);
+  if (panelErr) {
+    if (isMissingSchemaError(panelErr)) return 'missing';
+    throw new Error(`Supabase probe failed: ${panelErr.message || panelErr.code || 'unknown error'}`);
   }
 
   return 'ready';
