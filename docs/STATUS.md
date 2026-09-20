@@ -109,13 +109,16 @@ Reachable through production entry points / config:
   with JSON/Markdown export + coverage ledger; secrets masked unless Reveal
   secrets. Modules: `tripwire-report.js`, `tripwire-report-export.js`; GWT-71.*
   tests. Expert no longer gates the inventory grid (that is the Dashboard tab).
-- Wave R **operator-visible pipeline** (slice 75 / R-UX-1): IMPLEMENTED /
-  VERIFIED on `slice/75-operator-visible-pipeline` — Workflow UI narrates
-  judge-panel / coverage / evidence-verify with honest absent states (no
-  fabricated pending judges; process line + primary CTA; Investigate
-  auto-select / final-judge lines; Fix does not inject false `gen-27b`).
-  Modules: `tripwire-workflow-pipeline.js` (+ Run/Investigate/HTML wiring);
-  GWT-75.* tests (`e3e1d71`…`e30772f`). Spec:
+- Wave R **operator-visible pipeline** (slice 75 / R-UX-1): IMPLEMENTED (unit)
+  on `fix/status-markdownlint-md004` (cherry-picked from
+  `slice/75-operator-visible-pipeline`) — Workflow UI narrates judge-panel /
+  coverage / evidence-verify with honest absent states (no fabricated pending
+  judges; process line + primary CTA; Investigate auto-select / final-judge
+  lines; Fix does not inject false `gen-27b`). Modules:
+  `tripwire-workflow-pipeline.js` (+ Run/Investigate/HTML wiring); GWT-75.1–75.8
+  tests (`e3e1d71`…`e30772f`). L→R soft-amend (GWT-75.9–75.11: parent meta,
+  multi-select, role-labelled models) remains **DECIDED / open**. Not ✅ PASSED
+  until `/verify-slice` + Gate 4. Spec:
   [plan/slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md](./plan/slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md).
   Optional slice 76 chrome polish = HITL.
 - CLI **`tripwire judge --batch-id`** + SIE judge panel module (slice 67, Wave R):
