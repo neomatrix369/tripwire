@@ -533,9 +533,92 @@ def run_cisco_mcp_scanner(workdir, target):
 # Prefer image-preinstalled `snyk-agent-scan` (uv tool install); fall back to uvx.
 # JSON: Agent Scan v0.6+ uses scan_path_responses / risk_indexes; v0.5 path-keyed
 # issues[] remains supported (see docs/research/adapters/scanner-output-adapters.md §2).
+# Package targets use `snyk test` SCA — Agent Scan does not audit manifests.
+
+_SNYK_SCA_NO_SUPPORTED_PROJECTS = 3
+
+
+def _snyk_sca_severity(raw):
+    return "red" if (raw or "").lower() in ("critical", "high") else "amber"
+
+
+def _snyk_sca_projects(root):
+    if isinstance(root, list):
+        return [item for item in root if isinstance(item, dict)]
+    if isinstance(root, dict):
+        return [root]
+    return []
+
+
+def _snyk_sca_finding(vuln, target_file, source):
+    name = vuln.get("packageName") or vuln.get("name") or "package"
+    version = vuln.get("version") or ""
+    vid = vuln.get("id") or "SNYK"
+    title = vuln.get("title") or ""
+    sev_raw = vuln.get("severity") or "medium"
+    ident = vuln.get("identifiers") if isinstance(vuln.get("identifiers"), dict) else {}
+    cves = ident.get("CVE") or []
+    label = f"{name}@{version}" if version else name
+    return {
+        "severity": _snyk_sca_severity(sev_raw),
+        "category": "dependency_vulnerability",
+        "message": f"{label}: {vid} ({sev_raw}): {title}".strip(),
+        "scanner_source": source,
+        "file_path": target_file,
+        "package_name": name,
+        "package_version": version or None,
+        "cve_ids": cves or [vid],
+    }
+
+
+def _snyk_parse_sca(root, source):
+    findings, checks = [], 0
+    for project in _snyk_sca_projects(root):
+        target_file = project.get("displayTargetFile") or project.get("path") or ""
+        deps = project.get("dependencyCount")
+        vulns = project.get("vulnerabilities") or []
+        if isinstance(deps, int):
+            checks += deps
+        elif isinstance(vulns, list):
+            checks += len(vulns)
+        if not isinstance(vulns, list):
+            continue
+        for vuln in vulns:
+            if isinstance(vuln, dict):
+                findings.append(_snyk_sca_finding(vuln, target_file, source))
+    return findings, checks
+
+
+def _snyk_package_result(source, code, out, err, console):
+    root = _safe_json(out) or _safe_json(err)
+    if code == _SNYK_SCA_NO_SUPPORTED_PROJECTS:
+        detail = root.get("error") if isinstance(root, dict) else None
+        return [], [
+            _skipped(
+                source,
+                "not_applicable",
+                detail=detail or err or out or "no supported projects",
+                console_output=console,
+            )
+        ]
+    if not isinstance(root, dict | list) or not root:
+        return [], [_unreachable(source, err or out or f"exit {code}", console_output=console)]
+    findings, checks = _snyk_parse_sca(root, source)
+    if code not in (0, 1, None) and not findings:
+        detail = root.get("error") if isinstance(root, dict) else None
+        return [], [
+            _unreachable(source, detail or err or out or f"exit {code}", console_output=console)
+        ]
+    return findings, [_completed(source, checks or 1, findings, console_output=console)]
 
 
 def _snyk_cmd(workdir, item_type):
+    # Package targets need SCA (`snyk test`). Agent Scan only inspects skills/MCP
+    # (empty skill_risks/server_risks on application repos — live 2026-09-20).
+    if item_type == "package":
+        if _which("snyk"):
+            return ["snyk", "test", "--json", "--all-projects", workdir]
+        return None
     # --ci always requires --dangerously-run-mcp-servers (Snyk Agent Scan policy).
     # Skills additionally need --skills so the path is treated as SKILL.md, not MCP config.
     flags = ["--ci", "--dangerously-run-mcp-servers", "--json", workdir]
@@ -554,12 +637,18 @@ def run_snyk(workdir, item_type="mcp_server"):
         return [], [_skipped(source)]
     cmd = _snyk_cmd(workdir, item_type)
     if cmd is None:
-        return [], [
-            _unreachable(source, "snyk-agent-scan not installed and uvx missing from image")
-        ]
+        missing = (
+            "snyk CLI not installed in image"
+            if item_type == "package"
+            else "snyk-agent-scan not installed and uvx missing from image"
+        )
+        return [], [_unreachable(source, missing)]
 
-    code, out, err = _run(cmd)
+    code, out, err = _run(cmd, cwd=workdir)
     console = _build_console(out, err)
+    if item_type == "package":
+        return _snyk_package_result(source, code, out, err, console)
+
     root = _safe_json(out) or _safe_json(err) or {}
     if not isinstance(root, dict) or not root:
         return [], [_unreachable(source, err or out or f"exit {code}", console_output=console)]
@@ -2338,13 +2427,122 @@ def _read_ossprey_ossbom(path):
         return None
 
 
-def _ossprey_verdict(source, code, out, err, findings, n_packages, console):
+# Ossprey catalogues Python + JavaScript only (vendor README). Markers below
+# drive operator-facing detail and not_applicable when the tree has nothing
+# Ossprey can turn into an SBOM.
+_OSSPREY_SUPPORTED_MARKERS = frozenset(
+    {
+        "package.json",
+        "package-lock.json",
+        "pnpm-lock.yaml",
+        "yarn.lock",
+        "requirements.txt",
+        "Pipfile",
+        "Pipfile.lock",
+        "poetry.lock",
+        "pyproject.toml",
+    }
+)
+_OSSPREY_UNSUPPORTED_LABELS = (
+    ("Cargo.toml", "Rust/Cargo"),
+    ("Cargo.lock", "Rust/Cargo"),
+    ("go.mod", "Go"),
+    ("go.sum", "Go"),
+)
+_OSSPREY_NO_SBOM_RE = re.compile(r"no\s+sbom", re.IGNORECASE)
+_OSSPREY_TIMEOUT_RE = re.compile(r"timeout after\s+(\d+)s", re.IGNORECASE)
+
+
+def _ossprey_detect_ecosystems(workdir):
+    """Return ``(supported_names, unsupported_labels)`` found under *workdir*."""
+    supported = set()
+    unsupported = set()
+    if not workdir or not os.path.isdir(workdir):
+        return (), ()
+    for root, dirnames, filenames in os.walk(workdir):
+        dirnames[:] = sorted(d for d in dirnames if d not in _DEPSHIELD_SKIP_DIRS)
+        for name in filenames:
+            if name in _OSSPREY_SUPPORTED_MARKERS:
+                supported.add(name)
+            for marker, label in _OSSPREY_UNSUPPORTED_LABELS:
+                if name == marker:
+                    unsupported.add(label)
+    return tuple(sorted(supported)), tuple(sorted(unsupported))
+
+
+def _ossprey_raw_failure_text(out, err, code):
+    return (err or out or (f"exit {code}" if code is not None else "scan failed")).strip()
+
+
+def _ossprey_is_no_sbom_failure(raw):
+    return bool(_OSSPREY_NO_SBOM_RE.search(raw or ""))
+
+
+def _ossprey_timeout_seconds(raw):
+    match = _OSSPREY_TIMEOUT_RE.search(raw or "")
+    return int(match.group(1)) if match else None
+
+
+def _ossprey_ecosystem_hint(supported, unsupported):
+    if unsupported and not supported:
+        labels = ", ".join(unsupported)
+        return (
+            f"This workdir looks {labels}-only — Ossprey catalogues Python and "
+            "JavaScript manifests only (package.json / requirements / pyproject / locks)."
+        )
+    if unsupported and supported:
+        return (
+            f"Also found unsupported markers ({', '.join(unsupported)}); "
+            "Ossprey ignores those ecosystems."
+        )
+    if not supported and not unsupported:
+        return (
+            "No Python/JavaScript manifests found for Ossprey to catalogue "
+            "(needs package.json / requirements / pyproject / locks)."
+        )
+    return f"Detected catalogueable manifests: {', '.join(supported)}."
+
+
+def _ossprey_operator_failure(raw, workdir):
+    """Map raw CLI/API failure text → ``(status, detail)`` for operators.
+
+    ``not_applicable`` when Ossprey reports no SBOM and the tree has no
+    catalogueable Python/JS manifests (Cargo/Go-only or empty). Timeouts and
+    other failures stay ``unreachable`` with a plain-language lead-in.
+    """
+    supported, unsupported = _ossprey_detect_ecosystems(workdir)
+    hint = _ossprey_ecosystem_hint(supported, unsupported)
+    seconds = _ossprey_timeout_seconds(raw)
+    if seconds is not None:
+        detail = (
+            f"Ossprey timed out after {seconds}s while cataloguing or submitting "
+            f"the SBOM (OSSPREY_TIMEOUT={OSSPREY_TIMEOUT}). Large npm/Python trees "
+            f"often need a longer budget. {hint}"
+        )
+        return "unreachable", detail
+    if _ossprey_is_no_sbom_failure(raw):
+        detail = (
+            "Ossprey produced no SBOM — it only catalogues Python and JavaScript "
+            f"dependency manifests. {hint}"
+        )
+        if not supported:
+            return "not_applicable", detail
+        return "unreachable", detail
+    lead = "Ossprey scan failed."
+    clipped = (raw or "").strip()
+    if clipped:
+        lead = f"{lead} Vendor detail: {clipped[:500]}"
+    return "unreachable", f"{lead} {hint}".strip()
+
+
+def _ossprey_verdict(source, code, out, err, findings, n_packages, console, workdir=""):
     """Disambiguate the exit code (0 = clean, 1 = malware OR failure) into a row.
 
     exit 0 → completed clean (the exit code is authoritative; parsed findings are
     surfaced only when the nonzero exit corroborates them). Nonzero with a
     positive malware signal → completed with the red finding(s). Nonzero with no
-    signal → unreachable (scan failure), never a phantom finding.
+    signal → unreachable or not_applicable (operator-facing detail), never a
+    phantom finding.
     """
     checks = n_packages or 1
     if code == 0:
@@ -2362,7 +2560,11 @@ def _ossprey_verdict(source, code, out, err, findings, n_packages, console):
             ]
     if findings:
         return findings, [_completed(source, checks, findings, console_output=console)]
-    return [], [_unreachable(source, err or out or f"exit {code}", console_output=console)]
+    raw = _ossprey_raw_failure_text(out, err, code)
+    status, detail = _ossprey_operator_failure(raw, workdir)
+    if status == "not_applicable":
+        return [], [_skipped(source, "not_applicable", detail=detail, console_output=console)]
+    return [], [_unreachable(source, detail, console_output=console)]
 
 
 def run_ossprey(workdir, item_type="mcp_server"):
@@ -2406,7 +2608,7 @@ def run_ossprey(workdir, item_type="mcp_server"):
         except OSError:
             pass
 
-    return _ossprey_verdict(source, code, out, err, findings, n_packages, console)
+    return _ossprey_verdict(source, code, out, err, findings, n_packages, console, workdir=workdir)
 
 
 def _collapse_severity(raw):

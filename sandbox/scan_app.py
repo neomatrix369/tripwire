@@ -58,6 +58,9 @@ image = (
         "ln -sf /root/.local/bin/uvx /usr/local/bin/uvx",
         "uv tool install snyk-agent-scan",
         "ln -sf /root/.local/bin/snyk-agent-scan /usr/local/bin/snyk-agent-scan",
+        # Snyk SCA CLI for package targets (`snyk test`). Agent Scan does not audit manifests.
+        "npm install -g snyk",
+        "ln -sf /usr/local/lib/node_modules/snyk/bin/snyk /usr/local/bin/snyk || true",
         # DepShield stdio MCP server (npm/PyPI dependency audit) — pinned so cold `npx` is not the path.
         "npm install -g depshield-mcp@1.0.0",
         # Ossprey CLI (linux amd64 release binary; sudo-less). Warn loudly when the
@@ -66,7 +69,7 @@ image = (
         f"(curl -fsSL https://github.com/OSSPREY/ossprey-cli/releases/download/{_OSSPREY_VERSION}/ossprey-linux-amd64 "
         "-o /usr/local/bin/ossprey && chmod +x /usr/local/bin/ossprey && test -x /usr/local/bin/ossprey) "
         f'|| echo "WARNING: Ossprey {_OSSPREY_VERSION} binary missing — run_ossprey will report unreachable" >&2',
-        "node --version && test -x /usr/local/bin/snyk-agent-scan",
+        "node --version && test -x /usr/local/bin/snyk-agent-scan && command -v snyk",
     )
     .pip_install(
         "supabase",

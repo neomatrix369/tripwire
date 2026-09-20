@@ -9,8 +9,10 @@ Scope: credential gate (skipped_missing_credential — the DEFAULT runtime path
        unreachable, exit-code disambiguation (0=clean / 1=malware vs failure),
        OSSBOM parsing for list + {"components":[...]} shapes and a missing file,
        stdout verdict-line detection with negation guard, temp OSSBOM cleanup,
-       and registry integration (Ossprey appended last, both item types). NO
-       network — the CLI is stubbed by patching _run / _which / os.environ.
+       operator-facing unreachable/not_applicable detail (timeout, No SBOM,
+       Cargo-only), and registry integration (Ossprey appended last, both item
+       types). NO network — the CLI is stubbed by patching _run / _which /
+       os.environ.
 
 RESEARCH label: the OSSBOM schema and verdict wording are UNVERIFIED (taken from
 vendor docs, not a live CLI), so these tests lock the adapter's *contract*
@@ -360,8 +362,15 @@ def test_given_timeout_when_run_ossprey_then_unreachable(tmp_path: Path) -> None
     """
     Scenario: A timed-out scan (code None) with no signal → unreachable.
     Slice: run_ossprey — timeout
+
+    Given Ossprey hits the wall-clock budget on an npm tree,
+    When run_ossprey finishes,
+    Then the row is unreachable with an operator-facing timeout explanation.
     """
-    ### Given / When
+    ### Given
+    (tmp_path / "package.json").write_text('{"name":"demo"}', encoding="utf-8")
+
+    ### When
     with (
         patch.dict(scanners.os.environ, {"OSSPREY_API_KEY": "ospy_test"}, clear=True),
         patch.object(scanners, "_which", return_value=True),
@@ -372,7 +381,76 @@ def test_given_timeout_when_run_ossprey_then_unreachable(tmp_path: Path) -> None
     ### Then
     assert findings == []
     assert rows[0]["status"] == "unreachable"
-    assert "timeout" in rows[0]["detail"]
+    detail = rows[0]["detail"]
+    assert "timed out after 100s" in detail
+    assert "OSSPREY_TIMEOUT" in detail
+    assert "package.json" in detail
+
+
+def test_given_no_sbom_cargo_only_when_run_ossprey_then_not_applicable(
+    tmp_path: Path,
+) -> None:
+    """
+    Scenario: Cargo-only tree yields No SBOM → not_applicable, not unreachable.
+    Slice: run_ossprey — ecosystem-aware No SBOM
+
+    Given a Rust-only workdir and Ossprey API error 'No SBOM provided',
+    When run_ossprey runs,
+    Then the row is not_applicable with a Rust/Cargo ecosystem explanation.
+    """
+    ### Given
+    (tmp_path / "Cargo.toml").write_text('[package]\nname = "demo"\n', encoding="utf-8")
+    stderr = (
+        'error: submit failed (status 400): {"status": "FAILED", '
+        '"error": "No SBOM provided", "message": "No SBOM provided"}'
+    )
+
+    ### When
+    with (
+        patch.dict(scanners.os.environ, {"OSSPREY_API_KEY": "ospy_test"}, clear=True),
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", side_effect=_fake_run(1, stderr=stderr)),
+    ):
+        findings, rows = scanners.run_ossprey(str(tmp_path), "package")
+
+    ### Then
+    assert findings == []
+    assert rows[0]["status"] == "not_applicable"
+    detail = rows[0]["detail"]
+    assert "no sbom" in detail.lower()
+    assert "Rust/Cargo" in detail
+    assert "Python and JavaScript" in detail
+
+
+def test_given_no_sbom_with_package_json_when_run_ossprey_then_unreachable(
+    tmp_path: Path,
+) -> None:
+    """
+    Scenario: No SBOM despite JS manifests stays unreachable (unexpected failure).
+    Slice: run_ossprey — No SBOM with catalogueable manifests
+
+    Given package.json is present but Ossprey still returns No SBOM,
+    When run_ossprey runs,
+    Then the row is unreachable (not not_applicable) with a clear explanation.
+    """
+    ### Given
+    (tmp_path / "package.json").write_text('{"name":"demo"}', encoding="utf-8")
+    stderr = 'error: submit failed (status 400): {"message": "No SBOM provided"}'
+
+    ### When
+    with (
+        patch.dict(scanners.os.environ, {"OSSPREY_API_KEY": "ospy_test"}, clear=True),
+        patch.object(scanners, "_which", return_value=True),
+        patch.object(scanners, "_run", side_effect=_fake_run(1, stderr=stderr)),
+    ):
+        findings, rows = scanners.run_ossprey(str(tmp_path), "package")
+
+    ### Then
+    assert findings == []
+    assert rows[0]["status"] == "unreachable"
+    detail = rows[0]["detail"]
+    assert "no sbom" in detail.lower()
+    assert "package.json" in detail
 
 
 def test_given_run_ossprey_when_finished_then_temp_ossbom_removed(tmp_path: Path) -> None:

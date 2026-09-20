@@ -82,6 +82,13 @@ As an operator, I want `tripwire scan https://github.com/org/repo` to scan skill
 **Then** `identifier` is under `org/repo` (see Identity contract)
 **And** card/list can show `org/repo` signature consistent with slice 62
 
+### GWT-64.7 — Ossprey failure detail is operator-facing (soft-amend 2026-09-20)
+**Given** Ossprey returns a raw timeout or “No SBOM provided” failure
+**When** `run_ossprey` maps the row
+**Then** `detail` explains the failure in plain language (timeout budget / Python+JS catalogue only)
+**And** Cargo-/Go-only (or otherwise non-catalogueable) trees with No SBOM are `not_applicable`, not opaque `unreachable`
+**And** catalogueable npm/Python trees that time out remain `unreachable` with an `OSSPREY_TIMEOUT` explanation
+
 ## Identity contract (Accepted 2026-09-20)
 
 | Field | Value |

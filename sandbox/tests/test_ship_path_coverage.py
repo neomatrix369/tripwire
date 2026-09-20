@@ -782,6 +782,284 @@ def test_given_no_snyk_binaries_when_cmd_then_none() -> None:
     assert cmd is None
 
 
+def test_given_package_item_when_snyk_cmd_then_snyk_test_not_agent_scan() -> None:
+    """
+    Scenario: Package targets invoke Snyk SCA (`snyk test`), not Agent Scan.
+    Slice: slice-64 — package Snyk SCA
+
+    Given a package item type and the Snyk CLI on PATH,
+    When `_snyk_cmd` builds the command,
+    Then the command is `snyk test --json --all-projects` and does not call snyk-agent-scan.
+    """
+    ### Given / When
+    with patch.object(scanners, "_which", side_effect=lambda b: b == "snyk"):
+        cmd = scanners._snyk_cmd("/tmp/scan-target", "package")
+
+    ### Then
+    assert cmd is not None, "package type must resolve a Snyk SCA command"
+    assert cmd[0] == "snyk", f"expected snyk CLI, got {cmd}"
+    assert "test" in cmd
+    assert "--json" in cmd
+    assert "--all-projects" in cmd
+    assert "snyk-agent-scan" not in cmd
+    assert "--dangerously-run-mcp-servers" not in cmd
+
+
+def test_given_package_snyk_test_vulns_when_run_then_dependency_findings() -> None:
+    """
+    Scenario: Snyk SCA JSON maps high/medium vulns onto package findings.
+    Slice: slice-64 — package Snyk SCA
+
+    Given `snyk test --json` reports a high-severity open-source vuln,
+    When run_snyk runs for item_type=package,
+    Then a dependency_vulnerability finding is stored and the scanner completes.
+    """
+    ### Given
+    payload = {
+        "ok": False,
+        "dependencyCount": 12,
+        "displayTargetFile": "package.json",
+        "packageManager": "npm",
+        "vulnerabilities": [
+            {
+                "id": "SNYK-JS-ADMZIP-123",
+                "title": "Arbitrary File Write",
+                "severity": "high",
+                "packageName": "adm-zip",
+                "version": "0.5.16",
+                "identifiers": {"CVE": ["CVE-2025-0001"], "CWE": ["CWE-22"]},
+            }
+        ],
+    }
+
+    ### When
+    with (
+        patch.dict("os.environ", {"SNYK_TOKEN": "t"}, clear=False),
+        patch.object(scanners, "_which", side_effect=lambda b: b == "snyk"),
+        patch.object(scanners, "_run", return_value=(1, json.dumps(payload), "")),
+    ):
+        findings, rows = scanners.run_snyk("/tmp/scan-target", item_type="package")
+
+    ### Then
+    assert len(findings) == 1, f"expected 1 SCA finding, got {findings}"
+    assert findings[0]["severity"] == "red"
+    assert findings[0]["category"] == "dependency_vulnerability"
+    assert "adm-zip@0.5.16" in findings[0]["message"]
+    assert findings[0]["scanner_source"] == "Snyk"
+    assert findings[0]["file_path"] == "package.json"
+    assert rows[0]["status"] == "completed"
+    assert rows[0]["checks_run"] == 12
+
+
+def test_given_package_snyk_test_clean_when_run_then_completed_no_findings() -> None:
+    """
+    Scenario: Clean Snyk SCA scan is completed, not a fake Agent Scan pass.
+    Slice: slice-64 — package Snyk SCA
+
+    Given `snyk test --json` reports zero vulnerabilities and a dependency count,
+    When run_snyk runs for item_type=package,
+    Then the scanner completes with that check count and no findings.
+    """
+    ### Given
+    payload = {
+        "ok": True,
+        "dependencyCount": 4,
+        "displayTargetFile": "Cargo.toml",
+        "packageManager": "cargo",
+        "vulnerabilities": [],
+    }
+
+    ### When
+    with (
+        patch.dict("os.environ", {"SNYK_TOKEN": "t"}, clear=False),
+        patch.object(scanners, "_which", side_effect=lambda b: b == "snyk"),
+        patch.object(scanners, "_run", return_value=(0, json.dumps(payload), "")),
+    ):
+        findings, rows = scanners.run_snyk("/tmp/scan-target", item_type="package")
+
+    ### Then
+    assert findings == []
+    assert rows[0]["status"] == "completed"
+    assert rows[0]["checks_run"] == 4
+
+
+def test_given_package_snyk_test_no_supported_projects_when_run_then_not_applicable() -> None:
+    """
+    Scenario: Snyk SCA exit 3 (no supported manifests) is not_applicable.
+    Slice: slice-64 — package Snyk SCA
+
+    Given snyk test exits 3 with no supported projects,
+    When run_snyk runs for item_type=package,
+    Then the scanner row is not_applicable rather than a clean completed pass.
+    """
+    ### Given
+    payload = {
+        "ok": False,
+        "error": "Could not detect supported target files in /tmp/scan-target.",
+        "path": "/tmp/scan-target",
+    }
+
+    ### When
+    with (
+        patch.dict("os.environ", {"SNYK_TOKEN": "t"}, clear=False),
+        patch.object(scanners, "_which", side_effect=lambda b: b == "snyk"),
+        patch.object(scanners, "_run", return_value=(3, json.dumps(payload), "")),
+    ):
+        findings, rows = scanners.run_snyk("/tmp/scan-target", item_type="package")
+
+    ### Then
+    assert findings == []
+    assert rows[0]["status"] == "not_applicable"
+
+
+def test_given_package_snyk_test_all_projects_when_run_then_merges_project_vulns() -> None:
+    """
+    Scenario: `--all-projects` JSON array merges per-manifest SCA results.
+    Slice: slice-64 — package Snyk SCA
+
+    Given snyk test --json --all-projects returns two project objects,
+    When run_snyk runs for item_type=package,
+    Then findings and dependency counts from both projects are combined.
+    """
+    ### Given
+    payload = [
+        {
+            "ok": False,
+            "dependencyCount": 3,
+            "displayTargetFile": "package.json",
+            "vulnerabilities": [
+                {
+                    "id": "SNYK-JS-LODASH-1",
+                    "title": "Prototype Pollution",
+                    "severity": "medium",
+                    "packageName": "lodash",
+                    "version": "4.17.21",
+                }
+            ],
+        },
+        {
+            "ok": True,
+            "dependencyCount": 2,
+            "displayTargetFile": "Cargo.toml",
+            "vulnerabilities": [],
+        },
+    ]
+
+    ### When
+    with (
+        patch.dict("os.environ", {"SNYK_TOKEN": "t"}, clear=False),
+        patch.object(scanners, "_which", side_effect=lambda b: b == "snyk"),
+        patch.object(scanners, "_run", return_value=(1, json.dumps(payload), "")),
+    ):
+        findings, rows = scanners.run_snyk("/tmp/scan-target", item_type="package")
+
+    ### Then
+    assert len(findings) == 1
+    assert findings[0]["severity"] == "amber"
+    assert findings[0]["file_path"] == "package.json"
+    assert rows[0]["status"] == "completed"
+    assert rows[0]["checks_run"] == 5
+
+
+def test_given_package_without_snyk_cli_when_run_then_unreachable() -> None:
+    """
+    Scenario: Package SCA cannot run when the Snyk CLI is missing from the image.
+    Slice: slice-64 — package Snyk SCA
+
+    Given SNYK_TOKEN is set but `snyk` is not on PATH,
+    When run_snyk runs for item_type=package,
+    Then the scanner is unreachable rather than falling back to Agent Scan.
+    """
+    ### Given / When
+    with (
+        patch.dict("os.environ", {"SNYK_TOKEN": "t"}, clear=False),
+        patch.object(scanners, "_which", return_value=False),
+    ):
+        findings, rows = scanners.run_snyk("/tmp/scan-target", item_type="package")
+
+    ### Then
+    assert findings == []
+    assert rows[0]["status"] == "unreachable"
+    assert "snyk CLI" in rows[0]["detail"]
+
+
+def test_given_package_snyk_test_error_exit_when_run_then_unreachable() -> None:
+    """
+    Scenario: Snyk SCA exit 2 with an error body is unreachable, not a clean pass.
+    Slice: slice-64 — package Snyk SCA
+
+    Given snyk test exits 2 with an error object and no vulnerabilities,
+    When run_snyk runs for item_type=package,
+    Then the scanner row is unreachable.
+    """
+    ### Given
+    payload = {"ok": False, "error": "Could not find authentication token"}
+
+    ### When
+    with (
+        patch.dict("os.environ", {"SNYK_TOKEN": "t"}, clear=False),
+        patch.object(scanners, "_which", side_effect=lambda b: b == "snyk"),
+        patch.object(scanners, "_run", return_value=(2, json.dumps(payload), "")),
+    ):
+        findings, rows = scanners.run_snyk("/tmp/scan-target", item_type="package")
+
+    ### Then
+    assert findings == []
+    assert rows[0]["status"] == "unreachable"
+
+
+def test_given_package_snyk_test_vulns_without_dep_count_when_run_then_checks_match_vulns() -> None:
+    """
+    Scenario: Missing dependencyCount still counts listed vulnerabilities as checks.
+    Slice: slice-64 — package Snyk SCA
+
+    Given SCA JSON omits dependencyCount but lists two vulns,
+    When run_snyk maps it,
+    Then checks_run equals the vulnerability count.
+    """
+    ### Given
+    payload = {
+        "ok": False,
+        "displayTargetFile": "requirements.txt",
+        "vulnerabilities": [
+            {
+                "id": "SNYK-PY-A",
+                "title": "a",
+                "severity": "low",
+                "packageName": "a",
+                "version": "1",
+            },
+            "not-a-dict",
+        ],
+    }
+
+    ### When
+    with (
+        patch.dict("os.environ", {"SNYK_TOKEN": "t"}, clear=False),
+        patch.object(scanners, "_which", side_effect=lambda b: b == "snyk"),
+        patch.object(scanners, "_run", return_value=(1, json.dumps(payload), "")),
+    ):
+        findings, rows = scanners.run_snyk("/tmp/scan-target", item_type="package")
+
+    ### Then
+    assert len(findings) == 1
+    assert rows[0]["checks_run"] == 2
+
+
+def test_given_invalid_snyk_sca_root_when_parsed_then_zero_findings() -> None:
+    """
+    Scenario: Non-project SCA payloads produce no findings.
+    Slice: slice-64 — package Snyk SCA
+
+    Given a non-dict root or a project whose vulnerabilities field is not a list,
+    When `_snyk_parse_sca` maps it,
+    Then findings and checks are zero.
+    """
+    ### Given / When / Then
+    assert scanners._snyk_parse_sca("nope", "Snyk") == ([], 0)
+    assert scanners._snyk_parse_sca({"vulnerabilities": "x"}, "Snyk") == ([], 0)
+
+
 def test_given_tessl_score_shapes_when_extracted_then_numeric() -> None:
     """
     Scenario: Tessl quality score accepts score / review / judge shapes.
