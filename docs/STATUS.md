@@ -56,8 +56,8 @@ Reachable through production entry points / config:
   `cli/src/ensureSchema.js`
 - `./scripts/setup-modal.sh` secret sync + deploy
 - Scanner adapters shell out to upstream CLIs (`skill-scanner`, `mcp-scanner`,
-  `snyk-agent-scan`, `tessl`) with real flags and parse documented output shapes —
-  `sandbox/scanners.py`
+  `snyk-agent-scan` for skills/MCP, `snyk test` SCA for `package`, `tessl`) with
+  real flags and parse documented output shapes — `sandbox/scanners.py`
 - DepShield dependency-audit adapter (`depshield-mcp` over MCP stdio;
   npm + PyPI via OSV.dev; zero credentials — nothing synced to
   `tripwire-scan-secrets`; runs for skill, mcp_server, and package
@@ -341,6 +341,8 @@ repo) plus `org/repo` signature (`identifier` = `org/repo/<relpath>`); re-scan r
 `items.name` even on content-hash hits. **Slice 64 (🔨):** when package manifests exist at
 scope root, also emit a **`package`** target (`items.type=package`, Accepted) so DepShield /
 Ossprey / Snyk run — not a fake skill; Cisco Skill / Tessl / Cisco MCP do **not** apply;
+package Snyk uses **`snyk test` SCA** (Agent Scan only covers skills/MCP and reports
+empty `skill_risks`/`server_risks` on application repos);
 repos with neither skill/MCP **nor** manifests still fail closed. **Slice 63 (🔀):** CLI
 prints scanner inventory + rollup after scan / zero-artifact (package expected sources =
 Snyk/DepShield/Ossprey). Slices 62–64 ship together on
