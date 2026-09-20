@@ -1,30 +1,27 @@
 {
   "primitive": "load-slice-spec",
-  "slice_id": "slice-70",
-  "invocation_id": "43CDE808-9790-4704-8B7A-764E2F6D2790",
+  "slice_id": "slice-75",
+  "invocation_id": "A167FB0F-C26A-48F7-8BDC-BC10805D3C49",
   "status": "passed",
-  "timestamp": "2026-09-20T16:43:42Z",
+  "timestamp": "2026-09-20T20:55:38Z",
   "evidence": {
-    "spec_path": "docs/plan/slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md",
-    "sections_found": ["## Session bootstrap", "## Context", "## Non-goals", "## Output contract", "## Exit criteria"],
+    "spec_path": "docs/plan/slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md",
+    "sections_found": ["## Context", "## Output contract", "## Exit criteria", "## Non-goals", "## Depends-on"],
     "missing_sections": [],
-    "note": "Stub lists Exit criteria under Slice Workflow Bundle (GWT-70.* green) rather than standalone ## Exit criteria; treated as present.",
     "context_bundle": {
-      "name": "Verify Fix via Worktree Re-Check",
-      "outcome": "Verify step shows finding gone | still present | unable to verify + scanner actions that ran",
-      "non_goals": ["Claiming fixed solely because patch generated (69)", "Expert export (71)", "New ecosystem scanners (72)"],
-      "exit_criteria": [
-        "GWT-70.1 Finding gone",
-        "GWT-70.2 Still present",
-        "GWT-70.3 Unable to verify (never shown as finding gone)"
-      ],
+      "name": "Operator-Visible Pipeline (R-UX-1)",
+      "outcome": "Workflow UI narrates scanners/judges/coverage/evidence with honest absent states",
+      "non_goals": ["ADR-0016 changes", "judge algorithm changes", "default-on panel without HITL", "charts", "Fix/Verify deep redesign", "full Triage IA redesign"],
+      "exit_criteria": ["GWT-75.1", "GWT-75.2", "GWT-75.3", "GWT-75.4", "GWT-75.5", "GWT-75.6", "GWT-75.7", "GWT-75.8", "Doc Audit STATUS R-UX-1 closed"],
       "depends_on": [
-        "prototypes/dc-dashboard/tripwire-apply-clean.js",
-        "prototypes/dc-dashboard/tripwire-fix-propose.js",
-        "prototypes/dc-dashboard/tripwire-fix-controls.js",
-        "prototypes/dc-dashboard/tripwire-workflow-stepper.js",
+        "cli/src/judgePanel.js",
+        "prototypes/dc-dashboard/tripwire-run-progress.js",
+        "prototypes/dc-dashboard/tripwire-triage.js",
+        "prototypes/dc-dashboard/tripwire-investigate.js",
         "prototypes/dc-dashboard/Tripwire.dc.html",
-        "docs/plan/slices/18-R-approved-repo-workflow/slice-69-fix-propose-apply-clean.md"
+        "docs/plan/slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md",
+        "docs/plan/slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md",
+        "docs/plan/invariants.md"
       ]
     }
   }

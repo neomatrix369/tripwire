@@ -7,6 +7,7 @@
  *   headline / filter / severity (split); GWT-68.4 investigate section order +
  *   source_sink + how_we_decided null cases; GWT-68.5 simple vs expert raw IDs +
  *   storage isolation; GWT-68.6 triage persistence; GWT-71.1 expert fields;
+ *   GWT-75.2 investigate final-judge + disagreement; GWT-75.4 evidence honesty;
  *   Gate-4 edge paths
  */
 import test from 'node:test';
@@ -349,7 +350,11 @@ test('GWT-68.5 given expertMode false when buildInvestigateView then raw IDs hid
   );
 
   assert.match(simpleBlob, /High|Medium|Low|SQL injection/i, 'severity and title remain in simple');
-  assert.match(simpleBlob, /2 of 3 agree|agreement|Likely exploitable/i, 'agreement/verdict remain');
+  assert.match(
+    simpleBlob,
+    /Final verdict:|Judges agreed|2 of 3 agree|agreement|Likely exploitable/i,
+    'agreement/verdict remain'
+  );
 });
 
 test('GWT-68.5 given expertMode true when buildInvestigateView then raw judge IDs appear in how_we_decided', () => {
@@ -578,6 +583,181 @@ test('GWT-71.1 given judgePanel slots only when expertMode true then model and c
   assert.match(how.body, /Judges:.*a=true_positive/);
   assert.match(how.body, /Model IDs: sie-gen/);
   assert.match(how.body, /Confidence: 0\.77/);
+});
+
+// ── GWT-75.2 / GWT-75.4 Investigate honesty ──────────────────────────────────
+
+test('GWT-75.2 given final verdict and disagreement when simple investigate then plain final and weighed-reasons line', () => {
+  // -- Given --
+  const finding = {
+    title: 'SSRF via allowlist',
+    severity: 'High',
+    disagreement: true,
+    finalReason: 'Conflict on severity warrants review',
+    howWeDecided: {
+      final: 'needs_review',
+      judges: [
+        { slot: 'j1', verdict: 'true_positive' },
+        { slot: 'j2', verdict: 'false_positive' },
+      ],
+    },
+    agreement: '1 of 3 agree',
+  };
+
+  // -- When --
+  const simple = buildInvestigateView({ finding, expertMode: false });
+
+  // -- Then --
+  const verdict = simple.sections.find((s) => s.id === 'verdict');
+  assert.ok(verdict, 'verdict section required when final judge present');
+  assert.match(verdict.body, /Final verdict:\s*needs_review/);
+  assert.match(
+    verdict.body,
+    /Judges disagreed — final judge weighed reasons \(not vote count alone\)/
+  );
+  assert.equal(
+    verdict.body.includes('1 of 3'),
+    false,
+    'Simple verdict must not rely on vote count alone'
+  );
+
+  const how = simple.sections.find((s) => s.id === 'how_we_decided');
+  assert.ok(how, 'how_we_decided surfaces final judge in simple mode');
+  assert.match(how.body, /Final verdict:\s*needs_review/);
+  assert.match(how.body, /weighed reasons/);
+
+  const title = simple.sections.find((s) => s.id === 'title_severity');
+  assert.equal(
+    String(title?.body ?? '').includes('1 of 3'),
+    false,
+    'title must not lead with vote-count agreement when final judge narrates'
+  );
+});
+
+test('GWT-75.2 given agreeing final verdict when simple investigate then agreed line without models', () => {
+  // -- Given --
+  const finding = {
+    title: 'Hardcoded secret',
+    severity: 'High',
+    disagreement: false,
+    finalModel: 'qwen3.8-max',
+    howWeDecided: { final: 'true_positive', judges: [{ slot: 'j1', verdict: 'true_positive' }] },
+  };
+
+  // -- When --
+  const simple = buildInvestigateView({ finding, expertMode: false });
+  const expert = buildInvestigateView({ finding, expertMode: true });
+
+  // -- Then --
+  const simpleVerdict = simple.sections.find((s) => s.id === 'verdict');
+  assert.match(simpleVerdict.body, /Final verdict:\s*true_positive/);
+  assert.match(simpleVerdict.body, /Judges agreed on the verdict/);
+  assert.equal(
+    simpleVerdict.body.includes('qwen3.8-max'),
+    false,
+    'Simple view must omit final-judge model id'
+  );
+
+  const expertHow = expert.sections.find((s) => s.id === 'how_we_decided');
+  assert.match(expertHow.body, /qwen3\.8-max/, 'Expert may keep final model');
+  assert.match(expertHow.body, /Confidence:|Model IDs:|Judges:/);
+});
+
+test('GWT-75.2 given no panel final when investigate then no fabricated final-verdict narration', () => {
+  // -- Given --
+  const finding = {
+    title: 'Scanner-only finding',
+    severity: 'Medium',
+    verdictLine: 'Judgement pending — judge panel fields not present yet',
+    explanation: 'No panel yet',
+  };
+
+  // -- When --
+  const view = buildInvestigateView({ finding, expertMode: false });
+
+  // -- Then --
+  const verdict = view.sections.find((s) => s.id === 'verdict');
+  assert.ok(verdict);
+  assert.match(verdict.body, /Judgement pending/);
+  assert.equal(
+    verdict.body.includes('Final verdict:'),
+    false,
+    'absent panel must not invent a final verdict line'
+  );
+});
+
+test('GWT-75.4 given evidence statuses when buildInvestigateView then plain verified unverified not run', () => {
+  // -- Given / When / Then --
+  const cases = [
+    { evidenceVerification: 'verified', expect: /^verified$/ },
+    { evidenceVerification: 'unverified', expect: /^unverified$/ },
+    { evidenceVerification: 'not_run', expect: /^not run$/ },
+    { evidence_status: 'pass', expect: /^verified$/ },
+  ];
+
+  for (const tc of cases) {
+    const view = buildInvestigateView({
+      finding: { title: 'Ev', severity: 'Low', ...tc },
+      expertMode: false,
+    });
+    const section = view.sections.find((s) => s.id === 'evidence_verification');
+    assert.ok(section, `evidence_verification required for ${JSON.stringify(tc)}`);
+    assert.match(section.body, tc.expect);
+  }
+});
+
+test('GWT-75.4 given judge-panel-pending placeholders when buildInvestigateView then honest absent copy', () => {
+  // -- Given --
+  const finding = {
+    title: 'Legacy mapper copy',
+    severity: 'Medium',
+    attackPath: 'Not available yet (judge panel pending)',
+    prerequisites: 'Not available yet (judge panel pending)',
+    evidenceVerification: 'Not available yet (judge panel pending)',
+  };
+
+  // -- When --
+  const view = buildInvestigateView({ finding, expertMode: false });
+
+  // -- Then --
+  const attack = view.sections.find((s) => s.id === 'attack_path');
+  const prereq = view.sections.find((s) => s.id === 'prerequisites');
+  const evidence = view.sections.find((s) => s.id === 'evidence_verification');
+
+  assert.equal(attack.body, 'Not provided by scanner');
+  assert.equal(prereq.body, 'Not provided by scanner');
+  assert.equal(evidence.body, 'not run');
+  assert.equal(attack.body.includes('judge panel pending'), false);
+  assert.equal(prereq.body.includes('judge panel pending'), false);
+  assert.equal(evidence.body.includes('judge panel pending'), false);
+});
+
+test('GWT-75.4 given honestAbsentCopy strings when buildInvestigateView then preserves mapper wording', () => {
+  // -- Given --
+  const finding = {
+    title: 'Honest mapper',
+    severity: 'Low',
+    attackPath: 'Not provided by scanner',
+    prerequisites: 'Not provided by scanner',
+    evidenceVerification: 'Evidence verification not run',
+  };
+
+  // -- When --
+  const view = buildInvestigateView({ finding, expertMode: false });
+
+  // -- Then --
+  assert.equal(
+    view.sections.find((s) => s.id === 'attack_path').body,
+    'Not provided by scanner'
+  );
+  assert.equal(
+    view.sections.find((s) => s.id === 'prerequisites').body,
+    'Not provided by scanner'
+  );
+  assert.equal(
+    view.sections.find((s) => s.id === 'evidence_verification').body,
+    'Evidence verification not run'
+  );
 });
 
 // ── Gate 4 edge / error paths ────────────────────────────────────────────────

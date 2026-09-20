@@ -35,9 +35,9 @@ node scripts/serve-dashboard.mjs
 
 Open [http://127.0.0.1:8765/](http://127.0.0.1:8765/). Use **Mock (demo data)** in Guard.
 Click **Open Dashboard →** past the landing intro if shown (inventory is the default
-tab; use **Workflow** for Run → Report phases). Workflow chrome exists today;
-honest live judge/coverage narration is still **PLANNED** (slice 75) — see
-[STATUS.md](docs/STATUS.md).
+tab; use **Workflow** for Run → Report phases). Workflow chrome + core judge/coverage
+narration helpers are on branch (unit); L→R soft-amend (parent meta, multi-select,
+role models) is still **open** — see [STATUS.md](docs/STATUS.md).
 
 More commands: [setup-commands.md](docs/user-guide/setup-commands.md).
 

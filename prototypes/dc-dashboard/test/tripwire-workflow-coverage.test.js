@@ -166,7 +166,7 @@ test('coverage: buildInvestigateView expertMode formats judges string and rawIds
   // -- Then --
   const how = expert.sections.find((s) => s.id === 'how_we_decided');
   assert.ok(how);
-  assert.match(how.body, /Final: true_positive/);
+  assert.match(how.body, /Final(?: verdict)?: true_positive/);
   assert.match(how.body, /Judges: j1=tp/);
   assert.match(how.body, /Raw IDs: raw-as-string/);
 

@@ -7,7 +7,7 @@
 |-----:|--------|-------|--------|---------|
 | 15 | [`15-O-…`](slices/15-O-monk-kit-live-packaging/) | **O — Monk Kit Live packaging** | **O0** → **58**→**59** Must · **60**–**61** Should | 📋 plan-only (ADR-0001 + PoC; branch `docs/monk-kit-wave-o`) |
 | 16 | [`16-P-…`](slices/16-P-git-repo-scan/) | **P — Git repo discover + fan-out** | **62**→**64** | ✅ landed main (#145/#146) |
-| 18 | [`18-R-…`](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** | **65**→**69** Must · **70**–**71**/**73**–**75** Should · **72** Could | **65–66** ✅ · **67** 🔨 · **68**–**69** ✅ · **70** ✅ · **71** ✅ · **72** ✅ · **75** 📋 |
+| 18 | [`18-R-…`](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** | **65**→**69** Must · **70**–**71**/**73**–**75** Should · **72** Could | **65–66** ✅ · **67** 🔨 · **68**–**69** ✅ · **70** ✅ · **71** ✅ · **72** ✅ · **75** 🔀 |
 | 12 | [`12-L-…`](slices/12-L-tessl-5-row-expansion/) | **L — Tessl 5-row expansion** | 45 ✅ · 46 ✅ · 47 ✅ · 48 ✅ · 49 ✅ · 50 ✅ · **51** 🔀 · 52 📋 | 45–50 ✅ · **51** 🔀 |
 | 13 | [`13-M-…`](slices/13-M-llm-usage-tracking/) | **M — LLM usage / cost observability** | **53** | 📋 plan-only (ADR-0016 follow-on; not J/L/G) |
 | 11 | [`11-K-…`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** | 🔀 |
@@ -28,7 +28,7 @@
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| 0 (planned) | R | **75** | **Operator-visible pipeline (R-UX-1)** | Should | 📋 PLANNED · narrate judge panel / coverage / evidence in Workflow UI · depends 67; 68 · `slice/75-operator-visible-pipeline` |
+| 0 (branch) | R | **75** | **Operator-visible pipeline (R-UX-1)** | Should | 🔀 ON BRANCH · GWT-75.1–75.8 unit green on this PR; L→R soft-amend (75.9–75.11) still open · `/verify-slice` pending · depends 67; 68 |
 | 0 (landed) | R | **70** | **Verify fix via worktree rescan** | Should | ✅ landed `main` (#155) · finding gone / still present / unable; temp worktree |
 | 0 (landed) | R | **69** | **Fix propose + apply-clean** | Must | ✅ landed `main` (#154) · next 70 |
 | 0 (active) | R | **67** | **SIE judge panel + final judge** | Must | 🔨 IN PROGRESS on `slice/67-sie-judge-panel-final` · inventory + CLI + panel/tests; gate close pending |
@@ -253,8 +253,9 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 | 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Could | ✅ VERIFIED ON BRANCH | 2026-09-20 | — | ~50 min |
 | 73 | [slice-73-triage-target-filters](slices/18-R-approved-repo-workflow/slice-73-triage-target-filters.md) | Should | 🔨 IN PROGRESS | 2026-09-20 | — | ~40 min |
 | 74 | [slice-74-workflow-model-labels](slices/18-R-approved-repo-workflow/slice-74-workflow-model-labels.md) | Should | 🔨 IN PROGRESS | 2026-09-20 | — | ~35 min |
+| 75 | [slice-75-operator-visible-pipeline](slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md) | Should | 🔀 ON BRANCH (`slice/75-operator-visible-pipeline`) · unit green; `/verify-slice` pending | 2026-09-20 | — | ~50 min [Walking Skeleton] |
 
-**Group note:** Wave R = approved local repo+commit security workflow. UI **1A** extend dashboard. Reuse Wave P + ADR-0016. Cargo honesty VERIFIED on `fix/cargo-package-scan-error-status` → absorb ledger into **65**; Rust/Cargo via RustSec **Cargo Audit** (**IMPLEMENTED** on `main`) — slice **72** formalizes that gap path. Slice **73** adds inventory-style type/quality + per-target chips on Triage. Slice **74** surfaces default + actual model names on workflow tabs/panels. **Nav (2026-09-20):** inventory is the default **Dashboard** primary tab; Run→Report phases live on secondary **Workflow** (`feat/inventory-default-workflow-tab`).
+**Group note:** Wave R = approved local repo+commit security workflow. UI **1A** extend dashboard. Reuse Wave P + ADR-0016. Cargo honesty VERIFIED on `fix/cargo-package-scan-error-status` → absorb ledger into **65**; Rust/Cargo via RustSec **Cargo Audit** (**IMPLEMENTED** on `main`) — slice **72** formalizes that gap path. Slice **73** adds inventory-style type/quality + per-target chips on Triage. Slice **74** surfaces default + actual model names on workflow tabs/panels. Slice **75** narrates judge/coverage/evidence honesty (R-UX-1) — 🔀 ON BRANCH (unit green; gate close pending). **Nav (2026-09-20):** inventory is the default **Dashboard** primary tab; Run→Report phases live on secondary **Workflow** (`feat/inventory-default-workflow-tab`).
 
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 
