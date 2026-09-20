@@ -1063,4 +1063,3 @@ test('GWT-69.4 given dashboard html when operator marks fixed then copy says not
     'Fix and Report are live; only Verify stays stubbed (slice 70)'
   );
 });
-
