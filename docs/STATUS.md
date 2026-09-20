@@ -433,5 +433,6 @@ for a future live/demo release. Wave M (slice 53) LLM usage log / cost tips is
 Wave O (Monk Kit, ADR-0001 Proposed / plan **O0**+58–61) is **DECIDED**
 plan-only — not current deploy behaviour; workstation Live remains supported.
 Wave P (slices 62–64) git repo skill+MCP fan-out, CLI scanner inventory, and
-package/DepShield/Ossprey targets is **IN PROGRESS / PLANNED** — see DECIDED above; not
-all of that is current `tripwire scan` behaviour on `main`.
+package/DepShield/Ossprey targets is ✅ on `main` (#145/#146). Cargo-only SCA
+honesty (all-N/A → UNSCANNED) is VERIFIED on `fix/cargo-package-scan-error-status`
+and feeds Wave R slice 65 — see DECIDED above.

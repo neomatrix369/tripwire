@@ -228,22 +228,23 @@ clock before Modal's 300s kill — operators reconcile stranded `running` rows w
   [plan/TRAIL.md](./plan/TRAIL.md) Wave 15-O. **Not IMPLEMENTED** — no Kit
   artifacts on `main`; workstation Live remains the supported path. See
   [ADR-0001](./adr/0001-monk-deployment-and-packaging.md) · [STATUS.md](./STATUS.md).
-- **Wave P (Git repo discover + fan-out, slices 62–64 IN PROGRESS):** GitHub
+- **Wave P (Git repo discover + fan-out, slices 62–64 ✅ on `main`):** GitHub
   browse URLs (`/tree/…`, `/blob/…`) normalize to cloneable repo root; host
   discover of skills **and** MCPs fans out to N separate Modal scans (scanners
   by `item_type`); dashboard cards titled by skill/MCP name + `org/repo`
   signatures (`identifier` `org/repo/<relpath>`); re-scan refreshes `items.name`
   even when content hash matches (spawn still skipped unless `--force`).
   **Slice 64:** package manifests at scope root also emit one `items.type=package`
-  target (Snyk / DepShield / Ossprey only — not Cisco Skill / Tessl / Cisco MCP).
+  target (Snyk `snyk test` SCA / DepShield / Ossprey only — not Cisco Skill /
+  Tessl / Cisco MCP). Cargo-only trees: unsupported engines → `not_applicable`;
+  complete runs with zero completed engines → **UNSCANNED** (grey), not green.
   **Slice 63:** CLI prints `[scanners]` inventory + rollup after scan / zero-artifact.
   Repos with neither skill/MCP **nor** package manifests fail closed. Spec:
   [slice 62](./plan/slices/16-P-git-repo-scan/slice-62-git-repo-discover-fanout.md) ·
   [slice 63](./plan/slices/16-P-git-repo-scan/slice-63-cli-scanner-inventory.md) ·
   [slice 64](./plan/slices/16-P-git-repo-scan/slice-64-git-repo-package-scan.md) ·
-  [plan/TRAIL.md](./plan/TRAIL.md) Wave 16-P. **Not on `main` until Wave P
-  merges** — until then a git URL is one `cloneable` target; browse URLs fail at
-  clone. Operator taxonomy: [prerequisites — What can Tripwire scan?](./user-guide/prerequisites.md#what-can-tripwire-scan). See
+  [plan/TRAIL.md](./plan/TRAIL.md) Wave 16-P. Operator taxonomy:
+  [prerequisites — What can Tripwire scan?](./user-guide/prerequisites.md#what-can-tripwire-scan). See
   [STATUS.md](./STATUS.md).
 
 ---
