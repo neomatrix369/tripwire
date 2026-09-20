@@ -1,9 +1,27 @@
 {
-  "primitive": "collect-gate-evidence",
+  "primitive": "execute-slice-phase-2-formal-close",
   "slice_id": "slice-75",
-  "invocation_id": "48f53727-91f7-4311-bf5e-40f03eccb82c",
+  "invocation_id": "E49536DF-607C-46BB-B2B9-E4F8EBAD7972",
   "status": "passed",
-  "timestamp": "2026-09-20T22:17:40Z",
+  "timestamp": "2026-09-20T22:30:00Z",
+  "merge": {
+    "pr": 163,
+    "sha": "8e3a57f9235a37b10b6cd4f27676cddf60f7f7f2",
+    "confirmed_on_main": true
+  },
+  "re_verify": {
+    "command": "cd prototypes/dc-dashboard && node --test test/tripwire-workflow-pipeline.test.js test/tripwire-workflow-models.test.js",
+    "result": "passed",
+    "tests": 33,
+    "fail": 0,
+    "note": "GWT-75.* (and related GWT-74.*) green on main post-merge"
+  },
+  "gate4_light": {
+    "nw-software-crafter-reviewer": "APPROVED — formal PASS after merge #163 appropriate; pre-merge craft APPROVED on stub; re-verify 33/33 green",
+    "nw-acceptance-designer-reviewer": "APPROVED — formal PASS after merge #163 appropriate; GWT-75.* already green on main; AT completeness pre-ticked",
+    "nw-solution-architect-reviewer": "NOT_APPLICABLE — docs-close only; pre-merge APPROVED cited on stub Closing Gates",
+    "nw-ddd-architect-reviewer": "NOT_APPLICABLE — docs-close only; stub already marks ddd NOT_APPLICABLE"
+  },
   "evidence": {
     "primitives": [
       {
@@ -20,6 +38,11 @@
         "name": "run-coverage",
         "status": "passed",
         "timestamp": "2026-09-20T22:17:40Z"
+      },
+      {
+        "name": "post-merge-re-verify",
+        "status": "passed",
+        "timestamp": "2026-09-20T22:30:00Z"
       }
     ],
     "blocking": [],

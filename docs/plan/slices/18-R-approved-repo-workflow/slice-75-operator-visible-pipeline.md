@@ -174,4 +174,4 @@ As an operator, I want the Workflow tab to walk me left→right through Run→Re
 - [x] `/verify-slice` — holistic evidence verdict COMPLETE (final closing gate)
 
 ## Gate Status
-✅ PASSED — 2026-09-20 · `/verify-slice` COMPLETE · Gate 4 APPROVED · merged `main` via [#163](https://github.com/neomatrix369/tripwire/pull/163)
+✅ PASSED — 2026-09-20 · `/verify-slice` COMPLETE · Gate 4 APPROVED · merged `main` via [#163](https://github.com/neomatrix369/tripwire/pull/163) (`8e3a57f`)
