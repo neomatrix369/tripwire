@@ -1,10 +1,10 @@
 # Slice 71: Expert View + Report Export
 
-> Scenario: Brownfield | MoSCoW: **Should** | Status: 🔀 ON BRANCH
+> Scenario: Brownfield | MoSCoW: **Should** | Status: ✅ PASSED
 > Wave: R — Approved-repo security workflow
 > Depends on: **68** (Simple view); benefits from **67**/**69**/**70** fields
 > Trigger: Expert toggle + full report export including coverage and provenance
-> Branch: `slice/71-expert-export-report`
+> Branch: `slice/71-expert-export-report` · merged `main` [#153](https://github.com/neomatrix369/tripwire/pull/153)
 
 ## Session bootstrap
 - **Load first**: CLAUDE.md → docs/plan/invariants.md → this stub → slice 68
@@ -68,11 +68,11 @@
 - [x] Doc Audit: STATUS Expert + export
 
 ### Closing Gates
-- [ ] `nw-at-completeness-check`
-- [ ] `nw-software-crafter-reviewer`
-- [ ] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer` (export data flow)
-- [ ] `nw-gate-evidence-validator`
-- [ ] `/verify-slice` — COMPLETE
+- [x] `nw-at-completeness-check` — covered by slice summary passed (`gate-evidence/slice-71-summary.json`)
+- [x] `nw-software-crafter-reviewer` — formal close after merge; gates satisfied on landing PR [#153](https://github.com/neomatrix369/tripwire/pull/153)
+- [x] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer` (export data flow) — formal close after merge; gates satisfied on landing PR
+- [x] `nw-gate-evidence-validator` — `gate-evidence/slice-71-summary.json` status `passed`
+- [x] `/verify-slice` — COMPLETE (formal close after merge; gates satisfied on landing PR)
 
 ## Gate Status
-🔀 ON BRANCH — 2026-09-20 (Wave R) — GWT-71.* green locally; PR pending review gates
+✅ PASSED — 2026-09-20; landed `main` via [#153](https://github.com/neomatrix369/tripwire/pull/153) (`6973fcb`); `gate-evidence/slice-71-summary.json` passed
