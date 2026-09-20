@@ -74,7 +74,7 @@ disagree or coverage looks incomplete ([ADR-0016](docs/adr/0016-tiered-router-si
 | Platform | **Modal** | Isolated scan sandbox (Docker image + Python adapters) |
 | Platform | **Supabase** | Postgres + Realtime store for runs, scanners, findings |
 | Scanner | **Cisco** Skill Scanner / MCP Scanner / AI Defense | Skill and MCP security inspection |
-| Scanner | **Snyk** (`snyk-agent-scan`) | Depth / agent scan for skills, MCP servers, and packages |
+| Scanner | **Snyk** | Skills/MCP: `snyk-agent-scan`. Packages: `snyk test` SCA (npm/Python/Go/… — **not** Rust/Cargo; unsupported trees → `not_applicable`) |
 | Scanner | **Tessl** | Five skill capabilities: Lint (auth-free), Review (Quality), Scenario Generation, Eval, Review (Security) |
 | Scanner | **DepShield** (`depshield-mcp`) | Dependency audit (npm + PyPI via OSV.dev); **no credentials**; skills, MCP, and packages |
 | Scanner | **Ossprey** (`ossprey-cli`) | Malware / malicious-package scan (skills, MCP, packages); needs `OSSPREY_API_KEY` |
@@ -84,6 +84,8 @@ disagree or coverage looks incomplete ([ADR-0016](docs/adr/0016-tiered-router-si
 Missing Snyk / Cisco / Tessl / Ossprey keys → that scanner reports skipped /
 `needs_setup` / `skipped_missing_credential` rather than claiming a complete scan.
 DepShield always runs when the sandbox image includes it (no secret sync).
+When every package scanner is `not_applicable` or skipped (e.g. Cargo-only
+repos), the card is **UNSCANNED**, not green.
 Capability honesty and evidence states: [docs/STATUS.md](docs/STATUS.md) ·
 inventory: [ARCHITECTURE §0](docs/ARCHITECTURE.md#0-external-services-inventory) ·
 Ossprey key allowlist: [OPTIONAL_SCANNER_KEYS](fixtures/OPTIONAL_SCANNER_KEYS.md).

@@ -313,15 +313,23 @@ Missing SIE credentials → warn and skip (scan unaffected). See
 `tripwire_rollup_item` aggregates **scanner** findings only. Rows with
 `scanner_source = 'tiered_router'` are excluded so triage does not inflate
 red/amber counts or `risk_score`. Card `heatmap_status` is worst-of actionable
-scanner severities; finding-count chips are density, not colour
-([ADR-0004](./adr/0004-supabase-system-of-record.md),
+scanner severities when ≥1 engine **completed**; finding-count chips are density,
+not colour ([ADR-0004](./adr/0004-supabase-system-of-record.md),
 [ADR-0016](./adr/0016-tiered-router-sie-model-studio.md)).
+
+**Zero completed engines:** a `complete` run where every applicable scanner is
+`not_applicable` / skipped (e.g. Cargo-only package targets — DepShield npm/PyPI
+only, Ossprey Python/JS only, `snyk test` without Rust) rolls up to
+`heatmap_status=grey` (UNSCANNED) with `risk_score` null — never a false green.
+A `partial-failed` run with zero completed engines still rolls up to `error`.
+Live dashboard `resolveItemStatus` mirrors this when `completedScannerCount === 0`.
 
 `risk_score` (sort/trend only) =
 
 `(3 × red_findings + 1 × amber_findings) / Σ checks_run` on completed scanners
-for the latest run. Range ≥ 0 and unbounded; `null` when unscored. Dashboard
-card colour must not be inferred from this number alone.
+for the latest run. Range ≥ 0 and unbounded; `null` when unscored (including
+all-N/A complete). Dashboard card colour must not be inferred from this number
+alone.
 
 `quality_score` is the Tessl skill-review axis (0–100, higher better), written
 by `run_tessl` / `_tessl_quality_score` and mapped into Live as `item.quality`
