@@ -1,0 +1,23 @@
+{
+  "primitive": "run-tests",
+  "slice_id": "slice-72",
+  "invocation_id": "73D85B48-7DA9-40EA-AE0E-FFBF2712BC27",
+  "status": "passed",
+  "timestamp": "2026-09-20T15:17:56Z",
+  "evidence": {
+    "stacks_detected": [
+      "node",
+      "python"
+    ],
+    "commands_run": [
+      "node --test test/coverageLedger.test.js test/scannerInventory.test.js",
+      "pytest sandbox/tests/test_slice72_gap_ecosystem.py sandbox/tests/test_scanners_cargo_audit.py -q"
+    ],
+    "total": 54,
+    "passed_count": 54,
+    "failed_count": 0,
+    "failed_tests": [],
+    "coverage_pct": null,
+    "detail": "CLI 21/21 + pytest 33/33 (GWT-72 + cargo_audit)"
+  }
+}

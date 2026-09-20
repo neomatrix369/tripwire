@@ -1,0 +1,14 @@
+{
+  "primitive": "run-coverage",
+  "slice_id": "slice-72",
+  "invocation_id": "73D85B48-7DA9-40EA-AE0E-FFBF2712BC27",
+  "status": "passed",
+  "timestamp": "2026-09-20T15:17:56Z",
+  "evidence": {
+    "coverage_pct": 17.6,
+    "threshold": 0.0,
+    "stack": "python",
+    "report_path": null,
+    "note": "Focused cargo_audit suite cover of scanners.py (module-wide % expected low; --cov-fail-under=0)"
+  }
+}

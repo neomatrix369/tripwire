@@ -1,0 +1,17 @@
+{
+  "primitive": "collect-gate-evidence",
+  "slice_id": "slice-66",
+  "invocation_id": "FC000B13-E1D8-4F97-B329-F3D3E506E967",
+  "status": "passed",
+  "timestamp": "2026-09-20T16:12:00Z",
+  "evidence": {
+    "primitives": [
+      {"name": "load-slice-spec", "status": "passed", "timestamp": "2026-09-20T15:05:00Z"},
+      {"name": "run-tests", "status": "passed", "timestamp": "2026-09-20T16:12:00Z"},
+      {"name": "run-lint", "status": "passed", "timestamp": "2026-09-20T16:12:00Z"},
+      {"name": "run-coverage", "status": "passed", "timestamp": "2026-09-20T16:12:00Z"}
+    ],
+    "blocking": [],
+    "missing": []
+  }
+}
