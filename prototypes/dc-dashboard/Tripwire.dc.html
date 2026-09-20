@@ -491,11 +491,71 @@
     color: var(--text-muted);
     margin-bottom: 6px;
   }
+  /* Slice 76 — shared Workflow panel chrome (display / sans / mono) */
+  .tw-panel-kicker {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 4px;
+  }
+  .tw-panel-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+    line-height: 1.25;
+  }
+  .tw-panel-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    margin: 0 0 6px;
+    line-height: 1.4;
+  }
+  .tw-panel-body {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    margin: 0 0 8px;
+  }
+  .tw-panel-filter-label {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    min-width: 3.5rem;
+    flex-shrink: 0;
+    padding-top: 4px;
+  }
+  .tw-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 6px 8px;
+    margin: 2px 0;
+  }
+  .tw-filter-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 0px;
+    flex: 1;
+    min-width: 0;
+  }
+  /* Legacy class kept as alias for any external references */
   .tw-triage-tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin: 8px 0;
+    gap: 4px;
+    margin: 2px 0;
   }
 </style>
 </helmet>
@@ -543,18 +603,19 @@
 
     <sc-if value="{{ workflowIsRun }}" hint-placeholder-val="{{ true }}">
       <div class="tw-workflow-panel" aria-label="Run progress">
-        <div style="font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--text-secondary);margin-bottom:8px">{{ workflowRun.judgesSummary }}</div>
+        <div class="tw-panel-kicker">Run</div>
+        <div class="tw-panel-title">{{ workflowRun.judgesSummary }}</div>
         <sc-if value="{{ workflowRun.processLine }}">
-          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:8px">{{ workflowRun.processLine }}</div>
+          <div class="tw-panel-body">{{ workflowRun.processLine }}</div>
         </sc-if>
         <sc-if value="{{ workflowRun.finalLine }}">
-          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-primary);margin-bottom:4px">{{ workflowRun.finalLine }}</div>
+          <div class="tw-panel-body">{{ workflowRun.finalLine }}</div>
         </sc-if>
         <sc-if value="{{ workflowRun.disagreementLine }}">
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:8px">{{ workflowRun.disagreementLine }}</div>
+          <div class="tw-panel-meta">{{ workflowRun.disagreementLine }}</div>
         </sc-if>
         <sc-if value="{{ workflowRun.modelsUsedLine }}">
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:8px">{{ workflowRun.modelsUsedLine }}</div>
+          <div class="tw-panel-meta">{{ workflowRun.modelsUsedLine }}</div>
         </sc-if>
         <sc-for list="{{ workflowRun.scannerRows }}" as="row" hint-placeholder-count="2">
           <div style="display:grid;grid-template-columns:1.2fr 1.4fr 0.9fr 0.7fr 0.7fr;gap:8px;padding:6px 8px;margin-bottom:4px;border:1px solid var(--border-subtle);border-radius:4px;background:var(--bg-surface);font-family:var(--font-mono);font-size:11px;color:var(--text-secondary)">
@@ -576,32 +637,45 @@
 
     <sc-if value="{{ workflowIsTriage }}" hint-placeholder-val="{{ false }}">
       <div class="tw-workflow-panel" aria-label="Triage">
-        <div style="font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:4px">{{ workflowTriage.headline }}</div>
+        <div class="tw-panel-kicker">Triage</div>
+        <div class="tw-panel-title">{{ workflowTriage.headline }}</div>
         <sc-if value="{{ workflowTriage.modelsUsedLine }}">
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:4px">{{ workflowTriage.modelsUsedLine }}</div>
+          <div class="tw-panel-meta">{{ workflowTriage.modelsUsedLine }}</div>
         </sc-if>
-        <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:6px">
+        <div class="tw-panel-meta">
           Coverage · discovered {{ workflowTriage.coverageHonesty.discovered }} · scanned {{ workflowTriage.coverageHonesty.scanned }} · failed {{ workflowTriage.coverageHonesty.failed }} · skipped {{ workflowTriage.coverageHonesty.skipped }}
         </div>
-        <div class="tw-triage-tabs" role="tablist" aria-label="Target type filters">
-          <sc-for list="{{ workflowTriage.typeTabs }}" as="tab" hint-placeholder-count="4">
-            <button type="button" role="tab" onClick="{{ tab.onClick }}" aria-selected="{{ tab.ariaSelected }}" style="{{ tab.style }}">{{ tab.label }} ({{ tab.count }})</button>
-          </sc-for>
+        <div class="tw-filter-row">
+          <span class="tw-panel-filter-label">Type</span>
+          <div class="tw-filter-toolbar" role="tablist" aria-label="Target type filters">
+            <sc-for list="{{ workflowTriage.typeTabs }}" as="tab" hint-placeholder-count="4">
+              <button type="button" role="tab" onClick="{{ tab.onClick }}" aria-selected="{{ tab.ariaSelected }}" style="{{ tab.style }}">{{ tab.label }} ({{ tab.count }})</button>
+            </sc-for>
+          </div>
         </div>
-        <div class="tw-triage-tabs" role="tablist" aria-label="Quality filters">
-          <sc-for list="{{ workflowTriage.qualityTabs }}" as="tab" hint-placeholder-count="4">
-            <button type="button" role="tab" onClick="{{ tab.onClick }}" aria-selected="{{ tab.ariaSelected }}" style="{{ tab.style }}">{{ tab.label }} ({{ tab.count }})</button>
-          </sc-for>
+        <div class="tw-filter-row">
+          <span class="tw-panel-filter-label">Quality</span>
+          <div class="tw-filter-toolbar" role="tablist" aria-label="Quality filters">
+            <sc-for list="{{ workflowTriage.qualityTabs }}" as="tab" hint-placeholder-count="4">
+              <button type="button" role="tab" onClick="{{ tab.onClick }}" aria-selected="{{ tab.ariaSelected }}" style="{{ tab.style }}">{{ tab.label }} ({{ tab.count }})</button>
+            </sc-for>
+          </div>
         </div>
-        <div class="tw-triage-tabs" role="tablist" aria-label="Target filters">
-          <sc-for list="{{ workflowTriage.targetChips }}" as="tab" hint-placeholder-count="3">
-            <button type="button" role="tab" onClick="{{ tab.onClick }}" aria-selected="{{ tab.ariaSelected }}" style="{{ tab.style }}">{{ tab.label }} ({{ tab.count }})</button>
-          </sc-for>
+        <div class="tw-filter-row">
+          <span class="tw-panel-filter-label">Target</span>
+          <div class="tw-filter-toolbar" role="tablist" aria-label="Target filters">
+            <sc-for list="{{ workflowTriage.targetChips }}" as="tab" hint-placeholder-count="3">
+              <button type="button" role="tab" onClick="{{ tab.onClick }}" aria-selected="{{ tab.ariaSelected }}" style="{{ tab.style }}">{{ tab.label }} ({{ tab.count }})</button>
+            </sc-for>
+          </div>
         </div>
-        <div class="tw-triage-tabs" role="tablist" aria-label="Triage status filters">
-          <sc-for list="{{ workflowTriage.tabs }}" as="tab" hint-placeholder-count="4">
-            <button type="button" role="tab" onClick="{{ tab.onClick }}" aria-selected="{{ tab.ariaSelected }}" style="{{ tab.style }}">{{ tab.label }} ({{ tab.count }})</button>
-          </sc-for>
+        <div class="tw-filter-row">
+          <span class="tw-panel-filter-label">Status</span>
+          <div class="tw-filter-toolbar" role="tablist" aria-label="Triage status filters">
+            <sc-for list="{{ workflowTriage.tabs }}" as="tab" hint-placeholder-count="4">
+              <button type="button" role="tab" onClick="{{ tab.onClick }}" aria-selected="{{ tab.ariaSelected }}" style="{{ tab.style }}">{{ tab.label }} ({{ tab.count }})</button>
+            </sc-for>
+          </div>
         </div>
         <sc-for list="{{ workflowTriage.filteredFindings }}" as="f" hint-placeholder-count="2">
           <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:stretch;margin-bottom:6px" class="{{ f.rowClass }}">
@@ -620,9 +694,9 @@
               <span style="font-family:var(--font-mono);font-size:10px;color:var(--cta-ink)">Investigate →</span>
             </button>
             <div style="display:flex;flex-direction:column;gap:4px" role="group" aria-label="Override triage status">
-              <button type="button" onClick="{{ f.setToFix }}" style="{{ f.toFixStyle }}">to_fix</button>
-              <button type="button" onClick="{{ f.setNeedsReview }}" style="{{ f.needsReviewStyle }}">needs_review</button>
-              <button type="button" onClick="{{ f.setDismissed }}" style="{{ f.dismissedStyle }}">dismissed</button>
+              <button type="button" onClick="{{ f.setToFix }}" style="{{ f.toFixStyle }}">To fix</button>
+              <button type="button" onClick="{{ f.setNeedsReview }}" style="{{ f.needsReviewStyle }}">Needs review</button>
+              <button type="button" onClick="{{ f.setDismissed }}" style="{{ f.dismissedStyle }}">Dismiss</button>
             </div>
           </div>
         </sc-for>
@@ -631,41 +705,42 @@
 
     <sc-if value="{{ workflowIsInvestigate }}" hint-placeholder-val="{{ false }}">
       <div class="tw-workflow-panel" aria-label="Investigate">
+        <div class="tw-panel-kicker">Investigate</div>
         <sc-if value="{{ workflowInvestigateEmpty }}" hint-placeholder-val="{{ false }}">
-          <div style="font-size:12px;color:var(--text-secondary)">Select a finding from Triage to investigate.</div>
+          <div class="tw-panel-body" style="color:var(--text-secondary)">Select a finding from Triage to investigate.</div>
         </sc-if>
         <sc-if value="{{ workflowInvestigateReady }}" hint-placeholder-val="{{ false }}">
           <sc-if value="{{ workflowInvestigate.parentMetaLine }}">
-            <div class="tw-parent-meta" style="display:block;margin-bottom:4px">{{ workflowInvestigate.parentMetaLine }}</div>
+            <div class="tw-panel-meta" style="display:block">{{ workflowInvestigate.parentMetaLine }}</div>
           </sc-if>
           <sc-if value="{{ workflowInvestigate.selectionProgressLabel }}">
             <div class="tw-selection-progress">{{ workflowInvestigate.selectionProgressLabel }}</div>
           </sc-if>
           <sc-if value="{{ workflowInvestigate.modelsUsedLine }}">
-            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:8px">{{ workflowInvestigate.modelsUsedLine }}</div>
+            <div class="tw-panel-meta">{{ workflowInvestigate.modelsUsedLine }}</div>
           </sc-if>
           <sc-if value="{{ workflowInvestigate.finalLine }}">
-            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-primary);margin-bottom:4px">{{ workflowInvestigate.finalLine }}</div>
+            <div class="tw-panel-title" style="font-size:16px">{{ workflowInvestigate.finalLine }}</div>
           </sc-if>
           <sc-if value="{{ workflowInvestigate.disagreementLine }}">
-            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-bottom:8px">{{ workflowInvestigate.disagreementLine }}</div>
+            <div class="tw-panel-meta">{{ workflowInvestigate.disagreementLine }}</div>
           </sc-if>
           <sc-if value="{{ workflowInvestigate.agreementLine }}">
-            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:8px">Agreement: {{ workflowInvestigate.agreementLine }}</div>
+            <div class="tw-panel-body">Agreement: {{ workflowInvestigate.agreementLine }}</div>
           </sc-if>
           <sc-for list="{{ workflowInvestigate.sections }}" as="sec" hint-placeholder-count="4">
             <div style="margin-bottom:10px;padding:8px 10px;border:1px solid var(--border-subtle);border-radius:4px;background:var(--bg-surface)">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-                <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em">{{ sec.title }}</div>
+                <div class="tw-panel-kicker" style="margin:0">{{ sec.title }}</div>
                 <sc-if value="{{ sec.isHowWeDecided }}">
                   <button type="button" onClick="{{ sec.onToggle }}" style="font-family:var(--font-mono);font-size:10px;padding:3px 8px;border-radius:3px;cursor:pointer;border:1px solid var(--border-default);background:transparent;color:var(--text-secondary)" aria-expanded="{{ sec.ariaExpanded }}">{{ sec.toggleLabel }}</button>
                 </sc-if>
               </div>
               <sc-if value="{{ sec.showBody }}">
-                <div style="font-size:12px;color:var(--text-primary);white-space:pre-wrap;margin-top:6px;line-height:1.45">{{ sec.body }}</div>
+                <div class="tw-panel-body" style="white-space:pre-wrap;margin-top:6px">{{ sec.body }}</div>
               </sc-if>
               <sc-if value="{{ sec.showCollapsedHint }}">
-                <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);margin-top:6px">Collapsed — expand for decision detail</div>
+                <div class="tw-panel-meta" style="margin-top:6px">Collapsed — expand for decision detail</div>
               </sc-if>
             </div>
           </sc-for>
@@ -675,19 +750,19 @@
 
     <sc-if value="{{ workflowIsFix }}" hint-placeholder-val="{{ false }}">
       <div class="tw-workflow-panel" aria-label="Fix">
-        <div class="tw-fix-kicker">{{ workflowFix.progressLabel }}</div>
-        <h2 class="tw-fix-title">Propose a fix</h2>
+        <div class="tw-panel-kicker tw-fix-kicker">{{ workflowFix.progressLabel }}</div>
+        <h2 class="tw-panel-title tw-fix-title">Propose a fix</h2>
         <sc-if value="{{ workflowFix.parentMetaLine }}">
-          <div class="tw-parent-meta" style="display:block;margin-bottom:4px">{{ workflowFix.parentMetaLine }}</div>
+          <div class="tw-panel-meta tw-parent-meta" style="display:block;margin-bottom:4px">{{ workflowFix.parentMetaLine }}</div>
         </sc-if>
         <sc-if value="{{ workflowFix.selectionProgressLabel }}">
           <div class="tw-selection-progress">{{ workflowFix.selectionProgressLabel }}</div>
         </sc-if>
         <sc-if value="{{ workflowFix.modelsUsedLine }}">
-          <div class="tw-fix-hint">{{ workflowFix.modelsUsedLine }}</div>
+          <div class="tw-panel-meta tw-fix-hint">{{ workflowFix.modelsUsedLine }}</div>
         </sc-if>
         <sc-if value="{{ workflowFixEmpty }}" hint-placeholder-val="{{ false }}">
-          <div class="tw-fix-body" style="color:var(--text-secondary)">{{ workflowFix.emptyMessage }}</div>
+          <div class="tw-panel-body tw-fix-body" style="color:var(--text-secondary)">{{ workflowFix.emptyMessage }}</div>
         </sc-if>
         <sc-if value="{{ workflowFixReady }}" hint-placeholder-val="{{ false }}">
           <div class="tw-fix-panes">
@@ -724,19 +799,19 @@
     <sc-if value="{{ workflowIsVerify }}" hint-placeholder-val="{{ false }}">
       <div class="tw-workflow-panel" aria-label="Verify">
         <sc-if value="{{ workflowVerifyEmpty }}" hint-placeholder-val="{{ false }}">
-          <div style="font-size:12px;color:var(--text-secondary)">{{ workflowVerify.emptyMessage }}</div>
+          <div class="tw-panel-body" style="color:var(--text-secondary)">{{ workflowVerify.emptyMessage }}</div>
         </sc-if>
         <sc-if value="{{ workflowVerifyReady }}" hint-placeholder-val="{{ false }}">
-          <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Verify</div>
-          <div style="font-family:var(--font-mono);font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:8px" role="status">{{ workflowVerify.outcomeLabel }}</div>
+          <div class="tw-panel-kicker">Verify</div>
+          <div class="tw-panel-title" role="status">{{ workflowVerify.outcomeLabel }}</div>
           <sc-if value="{{ workflowVerify.showReason }}">
-            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px">Reason: {{ workflowVerify.reasonText }}</div>
+            <div class="tw-panel-body" style="color:var(--text-secondary)">Reason: {{ workflowVerify.reasonText }}</div>
           </sc-if>
-          <div style="font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Scanner actions</div>
+          <div class="tw-panel-kicker">Scanner actions</div>
           <sc-for list="{{ workflowVerify.scannerActionsLines }}" as="line" hint-placeholder-count="2">
-            <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:4px">{{ line.text }}</div>
+            <div class="tw-panel-meta">{{ line.text }}</div>
           </sc-for>
-          <div style="font-size:12px;color:var(--text-primary);margin-top:10px;margin-bottom:10px">{{ workflowVerify.honestyLine }}</div>
+          <div class="tw-panel-body" style="margin-top:10px">{{ workflowVerify.honestyLine }}</div>
           <button type="button" onClick="{{ workflowVerify.runVerify }}" style="{{ workflowVerify.runVerifyStyle }}">Re-run verify</button>
         </sc-if>
       </div>
@@ -746,8 +821,8 @@
       <div class="tw-workflow-panel" aria-label="Report">
         <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
           <div>
-            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Report</div>
-            <div style="font-family:var(--font-mono);font-size:14px;font-weight:600;color:var(--text-primary)">{{ workflowReport.headline }}</div>
+            <div class="tw-panel-kicker">Report</div>
+            <div class="tw-panel-title">{{ workflowReport.headline }}</div>
           </div>
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px" role="group" aria-label="Export actions">
             <button type="button" onClick="{{ exportReportPrimary }}" style="{{ exportPrimaryBtnStyle }}">{{ workflowReport.primaryExportLabel }}</button>
@@ -758,11 +833,11 @@
             </label>
           </div>
         </div>
-        <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);margin-bottom:8px">
+        <div class="tw-panel-meta">
           Coverage: discovered {{ workflowReport.coverage.discovered }} · scanned {{ workflowReport.coverage.scanned }} · failed {{ workflowReport.coverage.failed }} · skipped {{ workflowReport.coverage.skipped }}
         </div>
         <sc-if value="{{ exportStatusVisible }}">
-          <div role="status" style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);padding:8px;border:1px solid var(--border-subtle);border-radius:4px;background:var(--bg-surface);white-space:pre-wrap;max-height:160px;overflow:auto">{{ exportStatusMessage }}</div>
+          <div role="status" class="tw-panel-body" style="padding:8px;border:1px solid var(--border-subtle);border-radius:4px;background:var(--bg-surface);white-space:pre-wrap;max-height:160px;overflow:auto">{{ exportStatusMessage }}</div>
         </sc-if>
       </div>
     </sc-if>

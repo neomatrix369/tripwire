@@ -1,0 +1,12 @@
+{
+  "primitive": "run-tests",
+  "slice_id": "slice-76",
+  "invocation_id": "78e268fb-da05-4be7-a168-7946390af7d7",
+  "status": "passed",
+  "timestamp": "2026-09-20T22:50:48Z",
+  "evidence": {
+    "command": "cd prototypes/dc-dashboard && node --test test/tripwire-chrome-polish.test.js test/tripwire-triage-filters.test.js test/tripwire-workflow*.test.js test/tripwire-fix.test.js",
+    "exit_code": 0,
+    "summary": "185 related tests pass (GWT-76.* 5/5; 73/75 regression green)"
+  }
+}

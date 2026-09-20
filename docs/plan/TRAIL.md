@@ -96,7 +96,7 @@ Groups are ordered by when the wave ran (or will run), not by slice number.
 | 15 | [`slices/15-O-monk-kit-live-packaging/`](slices/15-O-monk-kit-live-packaging/) | **O — Monk Kit Live packaging** | **O0** → **58**→**59** Must · **60**–**61** Should | 📋 plan-only · ADR-0001 + PoC |
 | 16 | [`slices/16-P-git-repo-scan/`](slices/16-P-git-repo-scan/) | **P — Git repo discover + fan-out** | **62**→**64** | ✅ landed `main` (#145/#146); formal gate-evidence close optional |
 | 17 | [`slices/17-Q-ci-hygiene/`](slices/17-Q-ci-hygiene/) | **Q — CI hygiene** | (reserved empty) | 📋 placeholder folder only |
-| 18 | [`slices/18-R-approved-repo-workflow/`](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** | **65**→**69** Must · **70**–**71**/**73**–**75** Should · **72** Could | ✅ **65–75** on `main` · optional **76** HITL |
+| 18 | [`slices/18-R-approved-repo-workflow/`](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** | **65**→**69** Must · **70**–**71**/**73**–**76** Should · **72** Could | ✅ **65–75** on `main` · **76** 📋 HITL-authorized |
 
 **Status legend**: `📋 PLANNED · 🔨 IN PROGRESS · ✅ PASSED · 🔀 ON BRANCH · 🔴 BLOCKED · 📦 CLOSED — DEFERRED/WON'T`
 
@@ -408,6 +408,7 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 | 73 | [slice-73-triage-target-filters](slices/18-R-approved-repo-workflow/slice-73-triage-target-filters.md) | Triage Type + Per-Target Filters | Should | ✅ | 68 | — | ~3 min |
 | 74 | [slice-74-workflow-model-labels](slices/18-R-approved-repo-workflow/slice-74-workflow-model-labels.md) | Workflow Model Labels (Defaults + Actuals) | Should | ✅ | 68; 67/69 fields | — | ~3 min |
 | 75 | [slice-75-operator-visible-pipeline](slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md) | Operator-Visible Pipeline (R-UX-1) | Should | ✅ | 67; 68 (benefits 74) | — | ~5 min |
+| 76 | [slice-76-workflow-chrome-polish](slices/18-R-approved-repo-workflow/slice-76-workflow-chrome-polish.md) | Workflow Chrome Polish (Filters + Typography) | Should | 🔀 | 75; benefits 73/74 | — | ~3 min |
 
 ## Supporting Artifacts
 | File | Status |
@@ -437,7 +438,7 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 2. **Active Frontline branch:** Wave **H** Musts **23 → 32** (phase-gated H1→H2→H3). Human test after 25 and 30; **HARD GATE** at 32 before any Should 33+.
 3. Wave **H** Should 33–38 after 32 PASS (35 stays 🔴 until Ossprey access in DECISIONS). Slice 39 stays 📦 unless pulled in.
 4. Wave **G** (18–22) remains 📋 — do **not** start while H1–H3 is active unless explicitly resumed. Prefer one active slice per shared code area.
-5. **2026-09-20 addendum:** Wave **R** (approved-repo security workflow, slices **65→69** Must) is the next product stream after Wave P landed. **65–75** ✅ on `main` — **67** (#151) · **68** (#152) · **69** · **70** (#155) · **71** (#153) · **72** (#150) · **73–74** unit-VERIFIED on `main` · **75** (#163, Gate 4 APPROVED). Optional **76** chrome polish = HITL.
+5. **2026-09-20 addendum:** Wave **R** (approved-repo security workflow, slices **65→69** Must) is the next product stream after Wave P landed. **65–75** ✅ on `main` — **67** (#151) · **68** (#152) · **69** · **70** (#155) · **71** (#153) · **72** (#150) · **73–74** unit-VERIFIED on `main` · **75** (#163, Gate 4 APPROVED). Optional **76** chrome polish = HITL-authorized 2026-09-20 (📋 on `slice/76-workflow-chrome-polish`).
 6. **2026-09-20 improvement (R-UX-1):** Operator-visible pipeline — Workflow UI must narrate judge panel (≥3 parallel + final `gen-27b`), coverage, evidence-verify, and stage progress/outcomes in plain language (not silent b/g). → **Slice 75** ✅ on `main` (#163); soft-amends 67/68/69/74 absorbed.
 7. **2026-09-20 soft-amend (Workflow L→R):** Slice **75** expands to parent target meta + multi-select + role-labelled models per step/target (skill/mcp/package) + visible background. Soft-amends **74** (Fix `gen-27b` when LLM propose), **67** (panel light/mid · final stronger), **69** (stronger fix model + parent meta). **L→R GWT-75.9–75.11 IMPLEMENTED / unit-VERIFIED** on `main` (#163).
 
