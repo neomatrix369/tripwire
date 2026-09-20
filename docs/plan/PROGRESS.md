@@ -28,7 +28,7 @@
 
 | Order | Wave | # | Slice | MoSCoW | Status |
 |------:|-----:|---|-------|--------|--------|
-| 0 (branch) | R | **75** | **Operator-visible pipeline (R-UX-1)** | Should | 🔀 ON BRANCH · GWT-75.1–75.8 unit green on this PR; L→R soft-amend (75.9–75.11) still open · `/verify-slice` pending · depends 67; 68 |
+| 0 (landed) | R | **75** | **Operator-visible pipeline (R-UX-1)** | Should | ✅ VERIFIED / PASSED on `main` via #163 (`8e3a57f`) · GWT-75.1–75.11 · depends 67; 68 |
 | 0 (landed) | R | **70** | **Verify fix via worktree rescan** | Should | ✅ landed `main` (#155) · finding gone / still present / unable; temp worktree |
 | 0 (landed) | R | **69** | **Fix propose + apply-clean** | Must | ✅ landed `main` (#154) · next 70 |
 | 0 (active) | R | **67** | **SIE judge panel + final judge** | Must | 🔨 IN PROGRESS on `slice/67-sie-judge-panel-final` · inventory + CLI + panel/tests; gate close pending |
@@ -253,9 +253,9 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 | 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Could | ✅ VERIFIED ON BRANCH | 2026-09-20 | — | ~50 min |
 | 73 | [slice-73-triage-target-filters](slices/18-R-approved-repo-workflow/slice-73-triage-target-filters.md) | Should | 🔨 IN PROGRESS | 2026-09-20 | — | ~40 min |
 | 74 | [slice-74-workflow-model-labels](slices/18-R-approved-repo-workflow/slice-74-workflow-model-labels.md) | Should | 🔨 IN PROGRESS | 2026-09-20 | — | ~35 min |
-| 75 | [slice-75-operator-visible-pipeline](slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md) | Should | 🔀 ON BRANCH (`slice/75-operator-visible-pipeline`) · GWT-75.1–75.11 unit-VERIFIED (L→R incl.); Gate 4 pending | 2026-09-20 | — | ~50 min [Walking Skeleton] |
+| 75 | [slice-75-operator-visible-pipeline](slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md) | Should | ✅ VERIFIED / PASSED on `main` via #163 (`8e3a57f`) · GWT-75.1–75.11 | 2026-09-20 | 2026-09-20 | ~50 min [Walking Skeleton] |
 
-**Group note:** Wave R = approved local repo+commit security workflow. UI **1A** extend dashboard. Reuse Wave P + ADR-0016. Cargo honesty VERIFIED on `fix/cargo-package-scan-error-status` → absorb ledger into **65**; Rust/Cargo via RustSec **Cargo Audit** (**IMPLEMENTED** on `main`) — slice **72** formalizes that gap path. Slice **73** adds inventory-style type/quality + per-target chips on Triage. Slice **74** surfaces default + actual model names on workflow tabs/panels. Slice **75** narrates judge/coverage/evidence honesty (R-UX-1) — 🔀 ON BRANCH (unit green; gate close pending). **Nav (2026-09-20):** inventory is the default **Dashboard** primary tab; Run→Report phases live on secondary **Workflow** (`feat/inventory-default-workflow-tab`).
+**Group note:** Wave R = approved local repo+commit security workflow. UI **1A** extend dashboard. Reuse Wave P + ADR-0016. Cargo honesty VERIFIED on `fix/cargo-package-scan-error-status` → absorb ledger into **65**; Rust/Cargo via RustSec **Cargo Audit** (**IMPLEMENTED** on `main`) — slice **72** formalizes that gap path. Slice **73** adds inventory-style type/quality + per-target chips on Triage. Slice **74** surfaces default + actual model names on workflow tabs/panels. Slice **75** narrates judge/coverage/evidence honesty (R-UX-1) — ✅ VERIFIED / PASSED on `main` via #163. **Nav (2026-09-20):** inventory is the default **Dashboard** primary tab; Run→Report phases live on secondary **Workflow** (`feat/inventory-default-workflow-tab`).
 
 **Status legend**: [EMOJI_LEGEND.md](EMOJI_LEGEND.md)
 
