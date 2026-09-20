@@ -7,7 +7,7 @@
 |-----:|--------|-------|--------|---------|
 | 15 | [`15-O-…`](slices/15-O-monk-kit-live-packaging/) | **O — Monk Kit Live packaging** | **O0** → **58**→**59** Must · **60**–**61** Should | 📋 plan-only (ADR-0001 + PoC; branch `docs/monk-kit-wave-o`) |
 | 16 | [`16-P-…`](slices/16-P-git-repo-scan/) | **P — Git repo discover + fan-out** | **62**→**64** | ✅ landed main (#145/#146) |
-| 18 | [`18-R-…`](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** | **65**→**69** Must · **70**–**71** Should · **72** Could | **65–66** ✅ · **67** 🔨 · **68**–**69** ✅ · **70** 🔨 · **71** ✅ · **72** ✅ |
+| 18 | [`18-R-…`](slices/18-R-approved-repo-workflow/) | **R — Approved-repo security workflow** | **65**→**69** Must · **70**–**71** Should · **72** Could | **65–66** ✅ · **67** 🔨 · **68**–**69** ✅ · **70** ✅ · **71** ✅ · **72** ✅ |
 | 12 | [`12-L-…`](slices/12-L-tessl-5-row-expansion/) | **L — Tessl 5-row expansion** | 45 ✅ · 46 ✅ · 47 ✅ · 48 ✅ · 49 ✅ · 50 ✅ · **51** 🔀 · 52 📋 | 45–50 ✅ · **51** 🔀 |
 | 13 | [`13-M-…`](slices/13-M-llm-usage-tracking/) | **M — LLM usage / cost observability** | **53** | 📋 plan-only (ADR-0016 follow-on; not J/L/G) |
 | 11 | [`11-K-…`](slices/11-K-docs-ux-plain-language/) | **K — Docs UX plain language + compaction** | **44** | 🔀 |
@@ -247,7 +247,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 | 67 | [slice-67-sie-judge-panel-final](slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md) | Must | 🔨 IN PROGRESS | 2026-09-20 | — | ~50 min [Walking Skeleton] |
 | 68 | [slice-68-workflow-run-triage-investigate](slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md) | Must | ✅ VERIFIED ON BRANCH (`slice/68-workflow-run-triage-investigate`) | 2026-09-20 | — | ~50 min [Walking Skeleton] |
 | 69 | [slice-69-fix-propose-apply-clean](slices/18-R-approved-repo-workflow/slice-69-fix-propose-apply-clean.md) | Must | ✅ VERIFIED ON BRANCH (`slice/69-fix-propose-apply-clean`) | 2026-09-20 | 2026-09-20 | ~40 min |
-| 70 | [slice-70-verify-worktree-rescan](slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md) | Should | 🔨 IN PROGRESS (`slice/70-verify-worktree-rescan`) | 2026-09-20 | — | ~40 min |
+| 70 | [slice-70-verify-worktree-rescan](slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md) | Should | ✅ VERIFIED ON BRANCH (`slice/70-verify-worktree-rescan`) (`slice/70-verify-worktree-rescan`) | 2026-09-20 | — | ~40 min |
 | 71 | [slice-71-expert-export-report](slices/18-R-approved-repo-workflow/slice-71-expert-export-report.md) | Should | 🔀 ON BRANCH (`slice/71-expert-export-report`) | 2026-09-20 | — | ~40 min |
 | 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Could | ✅ VERIFIED ON BRANCH | 2026-09-20 | — | ~50 min |
 
@@ -266,7 +266,7 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 ## Forward Roadmap
 - Wave **O** (**O0** + slices 58–61) Monk Kit Live packaging is **📋 plan-only** — ADR-0001 + PoC; O0 governance first for Accept/open Qs; product execute via `slice/58-land-poc-monk-kit` (prototyping OK while O0 open).
 - Wave **P** (slices **62–64**) git repo scan: ✅ landed `main` (#145/#146). Cargo SCA unsupported honesty follow-up: `fix/cargo-package-scan-error-status` → Wave **R** slice 65.
-- Wave **R** (slices **65–72**) approved-repo security workflow: **65–66** ✅ · **67** 🔨 · **68**–**69** ✅ (#152/#154) · **70** 🔨 on `slice/70-verify-worktree-rescan` · **71** ✅ (#153) · **72** ✅ (#150). UI 1A.
+- Wave **R** (slices **65–72**) approved-repo security workflow: **65–66** ✅ · **67** 🔨 · **68**–**69** ✅ (#152/#154) · **70** ✅ on `slice/70-verify-worktree-rescan` · **71** ✅ (#153) · **72** ✅ (#150). UI 1A.
 - Wave **M** (slice 53) LLM usage / cost observability is **📋 plan-only** — ADR-0016 follow-on; execute when explicitly started (`slice/53-llm-usage-tracking`).
 - Waves **A–C**, coverage Slice 14, and Slice 17 are merged and closed. Slice 15 is retained as a deferred claim-audit artifact, not active work.
 - **Wave H (Frontline):** plan-only stubs 23–39 on branch `frontline-hackathon-london-2026-agent-hooks`. Execute Musts 23→32 with human tests after H1/H2 and HARD GATE at 32 before Should work.
