@@ -83,4 +83,4 @@
 - [ ] `/verify-slice` — COMPLETE
 
 ## Gate Status
-🔨 IN PROGRESS — branch `slice/74-workflow-model-labels`
+🔨 IN PROGRESS — GWT-74.* green on `slice/74-workflow-model-labels`; Closing Gates open
