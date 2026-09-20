@@ -606,7 +606,9 @@ def _snyk_package_result(source, code, out, err, console):
     findings, checks = _snyk_parse_sca(root, source)
     if code not in (0, 1, None) and not findings:
         detail = root.get("error") if isinstance(root, dict) else None
-        return [], [_unreachable(source, detail or err or out or f"exit {code}", console_output=console)]
+        return [], [
+            _unreachable(source, detail or err or out or f"exit {code}", console_output=console)
+        ]
     return findings, [_completed(source, checks or 1, findings, console_output=console)]
 
 
@@ -2498,9 +2500,7 @@ def _ossprey_ecosystem_hint(supported, unsupported):
             "No Python/JavaScript manifests found for Ossprey to catalogue "
             "(needs package.json / requirements / pyproject / locks)."
         )
-    return (
-        f"Detected catalogueable manifests: {', '.join(supported)}."
-    )
+    return f"Detected catalogueable manifests: {', '.join(supported)}."
 
 
 def _ossprey_operator_failure(raw, workdir):
@@ -2563,9 +2563,7 @@ def _ossprey_verdict(source, code, out, err, findings, n_packages, console, work
     raw = _ossprey_raw_failure_text(out, err, code)
     status, detail = _ossprey_operator_failure(raw, workdir)
     if status == "not_applicable":
-        return [], [
-            _skipped(source, "not_applicable", detail=detail, console_output=console)
-        ]
+        return [], [_skipped(source, "not_applicable", detail=detail, console_output=console)]
     return [], [_unreachable(source, detail, console_output=console)]
 
 
@@ -2610,9 +2608,7 @@ def run_ossprey(workdir, item_type="mcp_server"):
         except OSError:
             pass
 
-    return _ossprey_verdict(
-        source, code, out, err, findings, n_packages, console, workdir=workdir
-    )
+    return _ossprey_verdict(source, code, out, err, findings, n_packages, console, workdir=workdir)
 
 
 def _collapse_severity(raw):
