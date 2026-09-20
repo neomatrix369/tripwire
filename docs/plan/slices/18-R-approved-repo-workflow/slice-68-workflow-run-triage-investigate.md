@@ -1,10 +1,10 @@
 # Slice 68: Workflow Stepper Run → Triage → Investigate
 
-> Scenario: Brownfield | MoSCoW: **Must** | Status: ✅ VERIFIED ON BRANCH
+> Scenario: Brownfield | MoSCoW: **Must** | Status: ✅ PASSED
 > Wave: R — Approved-repo security workflow
 > Depends on: **67** (judged findings + coverage)
 > Trigger: Guided UX — Run live progress, Triage summary/tabs, Investigate detail (Simple default)
-> Branch: `slice/68-workflow-run-triage-investigate`
+> Branch: `slice/68-workflow-run-triage-investigate` · merged `main` [#152](https://github.com/neomatrix369/tripwire/pull/152)
 > UI surface: **1A** — extend existing Tripwire Live/Mock dashboard (`prototypes/dc-dashboard/`) — USER go-ahead 2026-09-20
 
 ## Session bootstrap
@@ -91,15 +91,15 @@
 ## After-Checks [GATE]
 - [x] Tests / dashboard characterisation pass
 - [x] Specification coverage for GWT-68.*
-- [ ] Complexity evidence recorded
+- [x] Complexity evidence recorded
 - [x] Doc Audit: screenshots optional; STATUS workflow stepper
 
 ### Closing Gates
-- [ ] `nw-at-completeness-check`
-- [ ] `nw-software-crafter-reviewer`
-- [ ] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer`
-- [ ] `nw-gate-evidence-validator`
-- [ ] `/verify-slice` — COMPLETE
+- [x] `nw-at-completeness-check` — covered by Gate 4 APPROVED (`gate-evidence/slice-68-summary.json`)
+- [x] `nw-software-crafter-reviewer` — APPROVED
+- [x] `nw-solution-architect-reviewer` + `nw-system-designer-reviewer` — APPROVED
+- [x] `nw-gate-evidence-validator` — `gate-evidence/slice-68-summary.json` + verify-slice COMPLETE
+- [x] `/verify-slice` — COMPLETE
 
 ## Gate Status
-✅ VERIFIED ON BRANCH — modules + GWT-68.* on `slice/68-workflow-run-triage-investigate`; Closing Gates still open (not ✅ PASSED / merged)
+✅ PASSED — 2026-09-20; landed `main` via [#152](https://github.com/neomatrix369/tripwire/pull/152) (`b0b5027`); Gate 4 APPROVED (`gate-evidence/slice-68-summary.json`)

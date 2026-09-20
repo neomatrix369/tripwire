@@ -31,7 +31,9 @@
 | 0 (landed) | R | **75** | **Operator-visible pipeline (R-UX-1)** | Should | ✅ landed `main` (#163) · GWT-75.1–75.11 unit-VERIFIED · Gate 4 APPROVED |
 | 0 (landed) | R | **73–74** | **Triage filters + model labels** | Should | ✅ unit-VERIFIED on `main` · soft-amend roles/Fix/per-target IMPLEMENTED |
 | 0 (landed) | R | **70** | **Verify fix via worktree rescan** | Should | ✅ landed `main` (#155) · finding gone / still present / unable; temp worktree |
+| 0 (landed) | R | **71** | **Expert view + report export** | Should | ✅ landed `main` (#153) · Expert toggle + coverage/provenance export |
 | 0 (landed) | R | **69** | **Fix propose + apply-clean** | Must | ✅ landed `main` (#154) · next 70 |
+| 0 (landed) | R | **68** | **Stepper Run → Triage → Investigate** | Must | ✅ landed `main` (#152) · UI 1A workflow stepper |
 | 0 (landed) | R | **67** | **SIE judge panel + final judge** | Must | ✅ landed `main` (#151) · CLI panel + inventory; opt-in `TRIPWIRE_JUDGE_PANEL=1` |
 | 0 (landed) | R | **66** | **Evidence verify + injection guard** | Must | ✅ VERIFIED on `slice/66-evidence-verify-injection-guard` · next 67 |
 | 0 (landed) | R | **65** | **Language/ecosystem coverage ledger** | Must | ✅ landed `main` (#148) · next 66 |
@@ -246,11 +248,11 @@ Wave H product stubs live under `slices/08-H-frontline-agent-hooks/`. Governance
 |---|-------|--------|--------|---------|-----------|-----------|
 | 65 | [slice-65-lang-ecosystem-coverage-ledger](slices/18-R-approved-repo-workflow/slice-65-lang-ecosystem-coverage-ledger.md) | Must | ✅ VERIFIED ON BRANCH | — | — | ~50 min [Walking Skeleton] |
 | 66 | [slice-66-evidence-verify-injection-guard](slices/18-R-approved-repo-workflow/slice-66-evidence-verify-injection-guard.md) | Must | ✅ VERIFIED ON BRANCH | 2026-09-20 | 2026-09-20 | ~40 min |
-| 67 | [slice-67-sie-judge-panel-final](slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md) | Must | ✅ VERIFIED ON MAIN (#151) | 2026-09-20 | 2026-09-20 | ~50 min [Walking Skeleton] |
-| 68 | [slice-68-workflow-run-triage-investigate](slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md) | Must | ✅ VERIFIED ON MAIN (#152) | 2026-09-20 | 2026-09-20 | ~50 min [Walking Skeleton] |
+| 67 | [slice-67-sie-judge-panel-final](slices/18-R-approved-repo-workflow/slice-67-sie-judge-panel-final.md) | Must | ✅ PASSED (`main` #151) | 2026-09-20 | 2026-09-20 | ~50 min [Walking Skeleton] |
+| 68 | [slice-68-workflow-run-triage-investigate](slices/18-R-approved-repo-workflow/slice-68-workflow-run-triage-investigate.md) | Must | ✅ PASSED (`main` #152) | 2026-09-20 | 2026-09-20 | ~50 min [Walking Skeleton] |
 | 69 | [slice-69-fix-propose-apply-clean](slices/18-R-approved-repo-workflow/slice-69-fix-propose-apply-clean.md) | Must | ✅ VERIFIED ON BRANCH (`slice/69-fix-propose-apply-clean`) | 2026-09-20 | 2026-09-20 | ~40 min |
 | 70 | [slice-70-verify-worktree-rescan](slices/18-R-approved-repo-workflow/slice-70-verify-worktree-rescan.md) | Should | ✅ VERIFIED ON BRANCH (`slice/70-verify-worktree-rescan`) (`slice/70-verify-worktree-rescan`) | 2026-09-20 | — | ~40 min |
-| 71 | [slice-71-expert-export-report](slices/18-R-approved-repo-workflow/slice-71-expert-export-report.md) | Should | ✅ VERIFIED ON MAIN (#153) | 2026-09-20 | 2026-09-20 | ~40 min |
+| 71 | [slice-71-expert-export-report](slices/18-R-approved-repo-workflow/slice-71-expert-export-report.md) | Should | ✅ PASSED (`main` #153) | 2026-09-20 | 2026-09-20 | ~40 min |
 | 72 | [slice-72-gap-ecosystem-scanners](slices/18-R-approved-repo-workflow/slice-72-gap-ecosystem-scanners.md) | Could | ✅ VERIFIED ON BRANCH | 2026-09-20 | — | ~50 min |
 | 73 | [slice-73-triage-target-filters](slices/18-R-approved-repo-workflow/slice-73-triage-target-filters.md) | Should | ✅ PASSED / VERIFIED (merged-on-main; formal close 2026-09-20) | 2026-09-20 | 2026-09-20 | ~40 min |
 | 74 | [slice-74-workflow-model-labels](slices/18-R-approved-repo-workflow/slice-74-workflow-model-labels.md) | Should | ✅ PASSED (`docs/slice-74-formal-close`) · soft-amend VERIFIED | 2026-09-20 | 2026-09-20 | ~35 min |
