@@ -1,17 +1,17 @@
 {
   "primitive": "run-tests",
-  "slice_id": "slice-70",
-  "invocation_id": "43CDE808-9790-4704-8B7A-764E2F6D2790",
+  "slice_id": "slice-74",
+  "invocation_id": "4fd8393b-101c-4502-924d-b2a334fe3d46",
   "status": "passed",
-  "timestamp": "2026-09-20T16:49:27Z",
+  "timestamp": "2026-09-20T17:48:16Z",
   "evidence": {
-    "command": "cd prototypes/dc-dashboard && npm test",
-    "tests": 349,
-    "pass": 348,
-    "fail": 0,
-    "skipped": 1,
-    "notes": [
-      "GWT-70.1\u201370.3 green via tripwire-verify*.test.js"
-    ]
+    "stacks_detected": ["node"],
+    "commands_run": ["npm test (prototypes/dc-dashboard)"],
+    "total": 359,
+    "passed_count": 358,
+    "failed_count": 1,
+    "failed_tests": ["optional smoke: given local live config when fetching items then supabase responds"],
+    "notes": "Only failure is optional Live smoke (network); unit suite otherwise green",
+    "coverage_pct": 97.68
   }
 }

@@ -1,20 +1,12 @@
 {
   "primitive": "run-coverage",
-  "slice_id": "slice-70",
-  "invocation_id": "43CDE808-9790-4704-8B7A-764E2F6D2790",
+  "slice_id": "slice-74",
+  "invocation_id": "4fd8393b-101c-4502-924d-b2a334fe3d46",
   "status": "passed",
-  "timestamp": "2026-09-20T16:49:27Z",
+  "timestamp": "2026-09-20T17:48:16Z",
   "evidence": {
-    "command": "npm run test:coverage",
-    "statements": 98.51,
-    "branches": 85.14,
-    "functions": 98.36,
-    "lines": 98.51,
-    "thresholds": {
-      "lines": 95,
-      "functions": 85,
-      "branches": 80,
-      "statements": 95
-    }
+    "coverage_pct": 97.68,
+    "threshold": 95,
+    "command": "npm run test:coverage (prototypes/dc-dashboard)"
   }
 }

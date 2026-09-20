@@ -9,12 +9,15 @@
  *   PARALLEL-RATIONALE: SLICE-74-CONTRACT owns stage model display
  */
 
-/** Configured default aliases per workflow step (product SSOT). */
+/** Configured default aliases per workflow step (product SSOT).
+ * Fix stays empty until an LLM propose path is the product default — today
+ * propose is heuristic, so advertising gen-27b on the tab contradicted the panel.
+ */
 export const STAGE_DEFAULT_MODELS = Object.freeze({
   run: Object.freeze(["gen-4b", "gen-27b"]),
   triage: Object.freeze(["gen-4b"]),
   investigate: Object.freeze(["gen-4b", "qwen3.8-max"]),
-  fix: Object.freeze(["gen-27b"]),
+  fix: Object.freeze([]),
   verify: Object.freeze([]),
   report: Object.freeze([]),
 });
@@ -185,11 +188,9 @@ export function buildModelsUsedLine({
   if (stepId === "fix") {
     const modelId = extractFixModelId(finding, proposedFix);
     if (modelId) return `Models used: ${modelId}`;
-    const source = proposedFix?.source ?? finding?.proposedPatch?.source;
-    if (source === "heuristic") return "Models used: heuristic (no LLM)";
-    if (!fallbackToDefaults) return "";
-    const hint = defaultModelHintForStep("fix");
-    return hint ? `Models (default): ${hint}` : "";
+    // Heuristic / provided patches did not call an LLM — do not invent a model line
+    // that fights an empty Fix tab hint (or a future configured default).
+    return "";
   }
 
   // verify / report — only when actuals exist
