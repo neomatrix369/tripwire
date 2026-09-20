@@ -1,6 +1,6 @@
 # Slice 75: Operator-Visible Pipeline (R-UX-1)
 
-> Scenario: Brownfield | MoSCoW: **Should** | Status: 🔨 IN PROGRESS
+> Scenario: Brownfield | MoSCoW: **Should** | Status: 🔀 ON BRANCH
 > Wave: R — Approved-repo security workflow
 > Depends on: **67** (panel fields); **68** (stepper panels); benefits from **74** (model labels); consumes **69** fix provenance
 > Trigger: USER 2026-09-20 — backend/CLI judging + honesty must not stay silent in Workflow UI; USER follow-on — L→R flow must show parent meta, multi-select, role-labelled models, background process
@@ -156,15 +156,15 @@ As an operator, I want the Workflow tab to walk me left→right through Run→Re
 **And** Simple: one short models line; Expert: optional per-slot / per-role expansion
 
 ## Before-Checks [GATE]
-- [ ] Branch created (`slice/75-operator-visible-pipeline`)
-- [ ] Soft amendments on slices 67/68/69/74 noted (UI narration + L→R contract owned here)
-- [ ] GWT RED tests planned against run-progress / triage / investigate builders + selection state
+- [x] Branch created (`slice/75-operator-visible-pipeline`)
+- [x] Soft amendments on slices 67/68/69/74 noted (UI narration + L→R contract owned here)
+- [x] GWT RED tests planned against run-progress / triage / investigate builders + selection state
 
 ## After-Checks [GATE]
-- [ ] Tests pass
-- [ ] Specification coverage: every GWT-75.* clause has ≥1 test
+- [x] Tests pass
+- [x] Specification coverage: every GWT-75.* clause has ≥1 test
 - [ ] Complexity evidence recorded (reporting or enforcing — repository-native)
-- [ ] Doc Audit: STATUS — R-UX-1 closed; DECISIONS row APPLIED
+- [x] Doc Audit: STATUS — R-UX-1 L→R IMPLEMENTED/VERIFIED (unit); DECISIONS soft-amend APPLIED
 
 ### Closing Gates
 - [ ] `nw-at-completeness-check` — AT completeness audit (slice close gate #8)
@@ -174,4 +174,4 @@ As an operator, I want the Workflow tab to walk me left→right through Run→Re
 - [ ] `/verify-slice` — holistic evidence verdict COMPLETE (final closing gate)
 
 ## Gate Status
-🔨 IN PROGRESS — 2026-09-20 · helpers + Investigate + UI bind unit-green (`e3e1d71`/`c5b9edb`/`e30772f`) · L→R soft-amend (GWT-75.9–75.11) still open · `/verify-slice` pending
+🔀 ON BRANCH — 2026-09-20 · GWT-75.1–75.11 unit green (incl. L→R parent meta / multi-select / role models) · docs synced · Gate 4 + `/verify-slice` in progress

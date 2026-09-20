@@ -1,13 +1,13 @@
 {
   "primitive": "run-lint",
-  "slice_id": "slice-74",
-  "invocation_id": "4fd8393b-101c-4502-924d-b2a334fe3d46",
+  "slice_id": "slice-75",
+  "invocation_id": "48f53727-91f7-4311-bf5e-40f03eccb82c",
   "status": "passed",
-  "timestamp": "2026-09-20T17:48:16Z",
+  "timestamp": "2026-09-20T22:17:40Z",
   "evidence": {
-    "command": "npm run lint (prototypes/dc-dashboard)",
-    "errors": 0,
-    "warnings": 1,
-    "notes": "no-unused-vars warning in dirty WIP tree; committed lint path green for PR scope"
+    "linter": "eslint",
+    "command_run": "npm run lint (prototypes/dc-dashboard)",
+    "findings_count": 0,
+    "blocking_findings": []
   }
 }
