@@ -669,6 +669,7 @@
             </sc-for>
           </div>
         </div>
+        <div class="tw-panel-meta" style="margin:4px 0 8px">Focus one skill / MCP / package via Target, then select a single finding to Investigate → Fix → Verify.</div>
         <div class="tw-filter-row">
           <span class="tw-panel-filter-label">Status</span>
           <div class="tw-filter-toolbar" role="tablist" aria-label="Triage status filters">
@@ -1834,39 +1835,42 @@ class Component extends DCLogic {
 
   setTriageFilter = (filterId) => this.setState({ triageFilter: filterId });
   setTriageQualityTab = (v) => this.setState({ triageQualityTab: v, triageTargetFilter: 'all' });
-  setTriageTargetFilter = (v) => this.setState({ triageTargetFilter: v });
+  setTriageTargetFilter = (v) => {
+    // Focusing one skill/mcp/package clears cross-target multi selection.
+    this.setState({
+      triageTargetFilter: v,
+      workflowSelectedFindingIds: [],
+      workflowSelectedFindingId: null
+    });
+  };
   setTriageTypeFilter = (v) => this.setState({ typeFilter: v, triageTargetFilter: 'all' });
 
-  selectWorkflowFinding = (findingId) => {
+  selectWorkflowFinding = (findingId, itemId) => {
     const pipeline = this._workflow?.pipeline;
-    const prev = this.state.workflowSelectedFindingIds || [];
     const nextIds = pipeline
-      ? pipeline.normalizeSelectionIds(
-        prev.includes(findingId) ? prev : [...prev, findingId],
-      )
-      : [findingId];
-    this.setState({
+      ? pipeline.selectSingleFinding([], findingId, { toggleOff: false })
+      : (findingId ? [findingId] : []);
+    const patch = {
       workflowSelectedFindingId: findingId,
       workflowSelectedFindingIds: nextIds,
       currentStep: 'investigate',
       investigateHowExpanded: false
-    });
+    };
+    if (itemId) patch.triageTargetFilter = itemId;
+    this.setState(patch);
   };
 
   toggleWorkflowFindingSelection = (findingId) => {
     const pipeline = this._workflow?.pipeline;
     if (!pipeline) return;
-    const next = pipeline.toggleFindingSelection(
+    const next = pipeline.selectSingleFinding(
       this.state.workflowSelectedFindingIds,
       findingId,
+      { toggleOff: true },
     );
-    const active = this.state.workflowSelectedFindingId;
-    const nextActive = next.includes(active)
-      ? active
-      : (next[0] || null);
     this.setState({
       workflowSelectedFindingIds: next,
-      workflowSelectedFindingId: nextActive
+      workflowSelectedFindingId: next[0] || null
     });
   };
 
@@ -1894,7 +1898,10 @@ class Component extends DCLogic {
     if (!wf?.fixPropose) return [];
     const raw = this.collectWorkflowFindings(this.state.data);
     const findings = wf.prefs ? wf.prefs.applyPersistedTriage(raw, localStorage) : raw;
-    return findings.filter(wf.fixPropose.isFixCandidate);
+    const scoped = wf.pipeline?.scopeFindingsToTarget
+      ? wf.pipeline.scopeFindingsToTarget(findings, this.state.triageTargetFilter)
+      : findings;
+    return scoped.filter(wf.fixPropose.isFixCandidate);
   }
 
   handleFixKeydown = (e) => {
@@ -2069,12 +2076,31 @@ class Component extends DCLogic {
 
   evaluateMemoryVerify(finding, patch) {
     const rescan = this._workflow?.verifyRescan;
+    const controls = this._workflow?.fixControls;
     if (!rescan) return null;
+    const marked = controls?.loadFixDecision?.(finding?.id, localStorage);
+    const markedFixed = marked?.status === 'fixed';
+    const matchFinding = {
+      id: finding?.id,
+      title: finding?.title,
+      source: finding?.source
+    };
+    const scanResult = markedFixed
+      ? {
+        status: 'ok',
+        findings: [],
+        actions: [{ name: 'memory-scanner', status: 'ok', detail: 'no match after mark fixed' }]
+      }
+      : {
+        status: 'ok',
+        findings: [matchFinding],
+        actions: [{ name: 'memory-scanner', status: 'ok', detail: 'pattern still present — mark fixed after apply' }]
+      };
     return rescan.verifyFixOnWorktree({
       finding,
       patch,
       approvedRepoPath: 'approved',
-      verifyPort: rescan.createMemoryVerifyPort()
+      verifyPort: rescan.createMemoryVerifyPort({ scanResult })
     });
   }
 
@@ -2082,7 +2108,13 @@ class Component extends DCLogic {
     const wf = this._workflow;
     const empty = this.emptyVerifyView();
     const stepIsVerify = (s.currentStep || 'run') === 'verify';
-    const isCandidate = !!(selectedFinding && wf?.fixPropose?.isFixCandidate(selectedFinding));
+    const marked = selectedFinding && wf?.fixControls
+      ? wf.fixControls.loadFixDecision(selectedFinding.id, localStorage)
+      : null;
+    const isCandidate = !!(selectedFinding && (
+      wf?.fixPropose?.isFixCandidate(selectedFinding)
+      || marked?.status === 'fixed'
+    ));
     if (!stepIsVerify || !isCandidate || !wf?.verifyRescan || !wf?.verifyView) {
       empty.emptyMessage = selectedFinding
         ? 'Selected finding is not a fix candidate (needs true_positive or to_fix).'
@@ -2263,10 +2295,13 @@ class Component extends DCLogic {
         out.push(this.mapItemFindingToWorkflow(item, f, index));
       });
     }
-    return out;
+    const pipeline = this._workflow?.pipeline;
+    return pipeline?.dedupeFindingsById ? pipeline.dedupeFindingsById(out) : out;
   }
 
   collectWorkflowScanners(data) {
+    const pipeline = this._workflow?.pipeline;
+    if (pipeline?.collectScannerRows) return pipeline.collectScannerRows(data);
     if (!data?.items) return [];
     const rows = [];
     for (const item of data.items) {
@@ -2470,24 +2505,39 @@ class Component extends DCLogic {
       : '';
 
     const hasFindings = findings.length > 0;
-    const scannersComplete = scanners.length > 0 && scanners.every((r) => {
-      const st = String(r.status ?? '').toLowerCase();
-      return ['done', 'completed', 'failed', 'skipped', 'timed_out', 'unreachable'].includes(st);
-    });
+    const readiness = wf.pipeline?.buildRunReadiness
+      ? wf.pipeline.buildRunReadiness({
+        scanners,
+        hasFindings,
+        judgesState: judges
+      })
+      : null;
+    const scannersComplete = readiness
+      ? readiness.scannersComplete
+      : (wf.pipeline?.scannersReadyForTriage
+        ? wf.pipeline.scannersReadyForTriage(scanners)
+        : (scanners.length > 0 && scanners.every((r) => {
+          const st = String(r.status ?? '').toLowerCase();
+          return ['done', 'completed', 'failed', 'skipped', 'timed_out', 'unreachable', 'not_applicable', 'blocked'].includes(st);
+        })));
     const runProgress = wf.run.buildRunProgressView({ scanners, judges });
-    const processLine = wf.pipeline
-      ? wf.pipeline.buildProcessLine({ scanners, judgesState: judges, hasFindings })
-      : '';
+    const processLine = readiness
+      ? readiness.processLine
+      : (wf.pipeline
+        ? wf.pipeline.buildProcessLine({ scanners, judgesState: judges, hasFindings })
+        : '');
     const runNarration = wf.pipeline
       ? wf.pipeline.buildFinalJudgeNarration(judges)
       : { finalLine: '', disagreementLine: '' };
-    const primaryCta = wf.pipeline
-      ? wf.pipeline.buildPrimaryCta({
-        scannersComplete,
-        hasFindings,
-        panelMode: judges.mode
-      })
-      : { label: 'Review findings', visible: false };
+    const primaryCta = readiness
+      ? { label: 'Review findings', visible: readiness.ctaVisible }
+      : (wf.pipeline
+        ? wf.pipeline.buildPrimaryCta({
+          scannersComplete,
+          hasFindings,
+          panelMode: judges.mode
+        })
+        : { label: 'Review findings', visible: false });
     const workflowRun = {
       ...runProgress,
       judgesSummary: judges.statusLine || runProgress.judgesSummary,
@@ -2562,7 +2612,7 @@ class Component extends DCLogic {
             f.triageStatus || '',
             (f.duplicateCount || 1) > 1 ? `×${f.duplicateCount}` : ''
           ].filter(Boolean).join(' · '),
-          onInvestigate: () => this.selectWorkflowFinding(f.id),
+          onInvestigate: () => this.selectWorkflowFinding(f.id, f.itemId),
           setToFix: () => this.setWorkflowTriageStatus(f.id, 'to_fix'),
           setNeedsReview: () => this.setWorkflowTriageStatus(f.id, 'needs_review'),
           setDismissed: () => this.setWorkflowTriageStatus(f.id, 'dismissed'),

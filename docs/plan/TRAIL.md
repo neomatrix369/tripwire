@@ -409,6 +409,7 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 | 74 | [slice-74-workflow-model-labels](slices/18-R-approved-repo-workflow/slice-74-workflow-model-labels.md) | Workflow Model Labels (Defaults + Actuals) | Should | ✅ | 68; 67/69 fields | — | ~3 min |
 | 75 | [slice-75-operator-visible-pipeline](slices/18-R-approved-repo-workflow/slice-75-operator-visible-pipeline.md) | Operator-Visible Pipeline (R-UX-1) | Should | ✅ | 67; 68 (benefits 74) | — | ~5 min |
 | 76 | [slice-76-workflow-chrome-polish](slices/18-R-approved-repo-workflow/slice-76-workflow-chrome-polish.md) | Workflow Chrome Polish (Filters + Typography) | Should | ✅ | 75; benefits 73/74 | — | ~3 min |
+| 77 | [slice-77-workflow-smoke-fix-target-flow](slices/18-R-approved-repo-workflow/slice-77-workflow-smoke-fix-target-flow.md) | Smoke FAIL/PARTIAL + Target-Scoped Fix→Verify | Must | 🔨 | 75; 69; 70; 76 | — | ~5 min |
 
 ## Supporting Artifacts
 | File | Status |
@@ -441,6 +442,7 @@ Audit report: [`docs/plan/docs-gap-bridge-audit.md`](docs-gap-bridge-audit.md).
 5. **2026-09-20 addendum:** Wave **R** (approved-repo security workflow, slices **65→69** Must) is the next product stream after Wave P landed. **65–76** ✅ on `main` — **67** (#151) · **68** (#152) · **69** · **70** (#155) · **71** (#153) · **72** (#150) · **73–74** unit-VERIFIED on `main` · **75** (#163) · **76** chrome polish (#165).
 6. **2026-09-20 improvement (R-UX-1):** Operator-visible pipeline — Workflow UI must narrate judge panel (≥3 parallel + final `gen-27b`), coverage, evidence-verify, and stage progress/outcomes in plain language (not silent b/g). → **Slice 75** ✅ on `main` (#163); soft-amends 67/68/69/74 absorbed.
 7. **2026-09-20 soft-amend (Workflow L→R):** Slice **75** expands to parent target meta + multi-select + role-labelled models per step/target (skill/mcp/package) + visible background. Soft-amends **74** (Fix `gen-27b` when LLM propose), **67** (panel light/mid · final stronger), **69** (stronger fix model + parent meta). **L→R GWT-75.9–75.11 IMPLEMENTED / unit-VERIFIED** on `main` (#163).
+8. **2026-09-21 smoke follow-on:** Slice **77** closes Run CTA / process-line FAIL, Live count drift, Verify false “Finding gone”, triage disposition prefs (idempotent `stableFindingId`), and target-scoped single-item Fix→Verify (soft-amends 75 multi-select toward one target + one finding). VERIFIED unit + browser on branch; formal close pending.
 
 ## Wave G source-finding map
 

@@ -2,6 +2,8 @@
 
 | Date | Topic | Decision | Notes |
 |------|-------|----------|-------|
+| 2026-09-21 | planning | Added slice 77 | Smoke FAIL/PARTIAL + target-scoped Fix→Verify; soft-amends 75 multi-select toward one target + one finding |
+| 2026-09-21 | slice-77 | `stableFindingId` must be idempotent | Re-prefixing `gen:…` or already `itemId:…` ids broke Triage disposition save→apply (counts frozen). Keep item-scope for raw DB ids only; hashes already bake `itemId` into material. DECIDED / IMPLEMENTED |
 | 2026-08-01 | routing | Brownfield / Flow D | Horizon A first; ask about 1+C after A |
 | 2026-08-01 | horizon | A = 3-lite + demo video (2b) | GWT-1/2/3 accepted |
 | 2026-08-01 | spec-level | Upgraded PRD→GWT for A | GWT-1 Detection, GWT-2 Sandbox, GWT-3 VO/Remotion |
