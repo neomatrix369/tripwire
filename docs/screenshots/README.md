@@ -11,8 +11,9 @@ captures** from the current CLI.
 Skill cards show compact **`R`** (risk density) and **`Q`** (Tessl quality)
 badges; card colour is worst-of finding status — **colour ≠ density**.
 
-> **Note (2026-08-20):** Gallery PNGs regenerated for slice-43 paper/tan visual
-> identity v2 (and slice-42 metric badges). Re-run the commands below after further
+> **Note (2026-09-20):** Gallery PNGs regenerated from Mock demo data on current
+> `main` chrome (Workflow tab, quality floors, R/Q badges, pathway strips). CLI
+> shots include `judge` / `setup-agent-hooks` / `status`. Re-run after further
 > chrome changes.
 
 Regenerate frontend shots with:
@@ -42,7 +43,9 @@ Help output (including `route`) and discovery / live scan feedback.
 ## 2. Dashboard
 
 Heatmap grid, severity filters, tiered-router filters, type views, and list
-layout (Mock demo). Card colour is worst-of actionable finding severity; chips
+layout (Mock demo). Default skill view uses **Quality ≥ 80**; Red/Amber skill
+drill-downs and severity filters that need low-Q fixtures switch to
+**Quality < 80**. Card colour is worst-of actionable finding severity; chips
 show finding counts. Compare with the live [hosted dashboard](https://neomatrix369.github.io/demos/tripwire-dashboard/) or the [YouTube walkthrough](https://youtu.be/omGOw9ruN3Y).
 
 ### Overview grid

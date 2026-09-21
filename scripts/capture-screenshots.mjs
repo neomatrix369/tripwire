@@ -132,17 +132,38 @@ async function shot(page, relPath) {
 async function resetFilters(page) {
   await clickButtonByText(page, "All items");
   await clickButtonByText(page, "Total items");
+  // Product default: Quality ≥ 80 (skills below the floor stay hidden).
+  await clickButtonByText(page, "Quality ≥ 80");
   await clickButtonByText(page, "Grid");
   await sleep(300);
+}
+
+async function setQualityFloor(page, which) {
+  if (which === "high") {
+    await clickButtonByText(page, "Quality ≥ 80");
+  } else if (which === "low") {
+    await clickButtonByText(page, "Quality < 80");
+  } else if (which === "unscored") {
+    await clickButtonByText(page, "No quality score");
+  } else {
+    throw new Error(`Unknown quality floor: ${which}`);
+  }
+  await sleep(400);
 }
 
 async function main() {
   console.log(`Opening ${baseUrl}`);
   const browser = await puppeteer.launch({
     executablePath: chrome,
-    headless: true,
+    headless: "new",
     defaultViewport: { width: 1600, height: 900, deviceScaleFactor: 2 },
-    args: ["--no-sandbox", "--disable-gpu"],
+    args: [
+      "--no-sandbox",
+      "--disable-gpu",
+      "--disable-dev-shm-usage",
+      `--user-data-dir=/tmp/tw-chrome-gallery-${Date.now()}`,
+    ],
+    timeout: 60000,
   });
 
   try {
@@ -168,12 +189,17 @@ async function main() {
     await shot(page, "02-dashboard/02-dashboard-overview-grid.png");
 
     await clickButtonByText(page, "Red");
+    // Red Mock skills sit under Quality < 80 (Tessl Q); MCPs ignore the quality tab.
+    await setQualityFloor(page, "low");
     await shot(page, "02-dashboard/03-filter-red.png");
     await clickButtonByText(page, "Total items");
+    await setQualityFloor(page, "high");
 
     await clickButtonByText(page, "Amber");
+    await setQualityFloor(page, "low");
     await shot(page, "02-dashboard/05-filter-amber.png");
     await clickButtonByText(page, "Total items");
+    await setQualityFloor(page, "high");
 
     await clickButtonByText(page, "Green");
     await shot(page, "02-dashboard/07-filter-green.png");
@@ -209,7 +235,9 @@ async function main() {
     await resetFilters(page);
     await clickButtonByText(page, "Skills");
     await sleep(700);
-    console.log("Skills visible:", (await listVisibleItemNames(page)).join(", "));
+    // Red / amber gallery fixtures have Tessl Q < 80.
+    await setQualityFloor(page, "low");
+    console.log("Skills (Q<80) visible:", (await listVisibleItemNames(page)).join(", "));
     await clickItemByName(page, "vuln-prompt-injection-notes");
     await shot(page, "03-skills/04-red-skill-detail-vuln-prompt-injection.png");
     await closeDetail(page);
@@ -221,6 +249,8 @@ async function main() {
     );
     await closeDetail(page);
 
+    await setQualityFloor(page, "high");
+    console.log("Skills (Q≥80) visible:", (await listVisibleItemNames(page)).join(", "));
     await clickItemByName(page, "safe-csv-cleaner");
     await shot(page, "03-skills/08-green-skill-detail-safe-csv-cleaner.png");
     await closeDetail(page);

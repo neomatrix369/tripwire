@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Docs
+- Screenshot gallery regenerated 2026-09-20: Mock UI (Workflow tab, quality
+  floors, R/Q badges, pathway strips) + live CLI (`judge` / hooks / `status`);
+  capture script switches Quality < 80 for Red/Amber skill fixtures
+
 ### Fixed
 - Workflow L→R smoke FAIL/PARTIAL (slice 77, on
   `slice/77-workflow-smoke-fix-target-flow`): Run “Review findings” CTA treats

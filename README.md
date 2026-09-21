@@ -189,7 +189,7 @@ remembered in `sessionStorage`.
 
 > **Visual identity v2:** cream paper, tan primary CTA, and AA-readable ink tokens
 > (Fraunces display headings) — shipped via [PR #96](https://github.com/neomatrix369/tripwire/pull/96).
-> Screenshots in [docs/screenshots/](docs/screenshots/README.md) regenerated 2026-08-20.
+> Screenshots in [docs/screenshots/](docs/screenshots/README.md) regenerated 2026-09-20.
 
 After installing the CLI, you can also validate target discovery locally without
 accounts or a scan:
