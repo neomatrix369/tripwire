@@ -303,7 +303,7 @@ test('GWT-77.6 given mark-fixed scan when verify then finding_gone', () => {
 function collectMockWorkflowFindings(data) {
   const out = [];
   for (const item of data.items || []) {
-    (item.findings || []).forEach((f, index) => {
+    (item.findings || []).forEach((f, _index) => {
       if (f.scanner === 'tiered_router') return;
       const severity =
         f.severity === 'red' || f.severity === 'high'
