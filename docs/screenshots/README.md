@@ -2,18 +2,18 @@
 
 Product UI and CLI captures, grouped by surface. Paths are relative to this folder.
 
-**Dashboard, skill, and MCP shots use Mock (demo data)** so Red / Amber / Green
-and Escalated / SIE-only examples stay stable. **CLI shots are live terminal
-captures** from the current CLI.
+**Dashboard, skill, MCP, and Workflow shots use Mock (demo data)** so Red /
+Amber / Green, Escalated / SIE-only, and Run→Report examples stay stable.
+**CLI shots are live terminal captures** from the current CLI.
 
 **Try the UI without cloning:** [hosted dashboard](https://neomatrix369.github.io/demos/tripwire-dashboard/) (Mock on GitHub Pages) · [demo walkthrough video](https://youtu.be/omGOw9ruN3Y).
 
 Skill cards show compact **`R`** (risk density) and **`Q`** (Tessl quality)
 badges; card colour is worst-of finding status — **colour ≠ density**.
 
-> **Note (2026-09-20):** Gallery PNGs regenerated from Mock demo data on current
-> `main` chrome (Workflow tab, quality floors, R/Q badges, pathway strips). CLI
-> shots include `judge` / `setup-agent-hooks` / `status`. Re-run after further
+> **Note (2026-09-21):** Gallery PNGs regenerated after rebase onto `main`
+> (Workflow Run/Triage/Verify steps, quality floors, R/Q badges, pathway strips).
+> CLI shots include `judge` / `setup-agent-hooks` / `status`. Re-run after further
 > chrome changes.
 
 Regenerate frontend shots with:
@@ -129,3 +129,22 @@ Drill-down detail for MCP server findings by heatmap severity.
 ### Green — safe time server
 
 ![Green MCP detail: safe-time-server](04-mcp-servers/12-green-mcp-detail-safe-time-server.png)
+
+---
+
+## 5. Workflow
+
+Run → Triage → Investigate → Fix → Verify → Report chrome (Mock). Stepper shows
+configured default model aliases; panels show scanner / judge / verify state.
+
+### Run
+
+![Workflow Run step](05-workflow/18-workflow-run.png)
+
+### Triage
+
+![Workflow Triage step](05-workflow/19-workflow-triage.png)
+
+### Verify
+
+![Workflow Verify step](05-workflow/20-workflow-verify.png)

@@ -96,7 +96,8 @@ Same `severity` column, different meaning by `category`:
 1. Mock dashboard already includes `tiered_router` fixtures — open
    [http://127.0.0.1:8765/Tripwire.dc.html](http://127.0.0.1:8765/Tripwire.dc.html)
    with `node scripts/serve-dashboard.mjs` and toggle **Escalated** / **SIE-only**.
-2. Gallery shots: [screenshots README](../screenshots/README.md) (router section).
+2. Gallery shots: [screenshots README](../screenshots/README.md)
+   (dashboard router filters + Workflow Run/Triage/Verify).
 3. Live conflict / timeout fixtures (needs Supabase `.env`):
 
 ```bash

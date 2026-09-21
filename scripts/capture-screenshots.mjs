@@ -278,7 +278,18 @@ async function main() {
     await shot(page, "04-mcp-servers/12-green-mcp-detail-safe-time-server.png");
     await closeDetail(page);
 
-    console.log("Done — replaced all dashboard/skill/MCP screenshots.");
+    // 05 — Workflow (Run → Report chrome from main)
+    await clickButtonByText(page, "Workflow");
+    await sleep(800);
+    await shot(page, "05-workflow/18-workflow-run.png");
+    await clickButtonByText(page, "Triage");
+    await sleep(600);
+    await shot(page, "05-workflow/19-workflow-triage.png");
+    await clickButtonByText(page, "Verify");
+    await sleep(600);
+    await shot(page, "05-workflow/20-workflow-verify.png");
+
+    console.log("Done — replaced all dashboard/skill/MCP/workflow screenshots.");
   } finally {
     await browser.close();
   }

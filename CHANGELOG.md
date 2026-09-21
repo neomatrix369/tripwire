@@ -8,9 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Docs
-- Screenshot gallery regenerated 2026-09-20: Mock UI (Workflow tab, quality
-  floors, R/Q badges, pathway strips) + live CLI (`judge` / hooks / `status`);
-  capture script switches Quality < 80 for Red/Amber skill fixtures
+- Screenshot gallery regenerated 2026-09-21 (post-rebase onto `main`): Mock
+  Dashboard + new Workflow Run/Triage/Verify shots, quality floors, R/Q badges;
+  live CLI scan refresh; capture script covers `05-workflow/`
 
 ### Fixed
 - Workflow L→R smoke FAIL/PARTIAL (slice 77, on
