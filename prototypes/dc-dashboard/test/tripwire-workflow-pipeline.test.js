@@ -357,7 +357,7 @@ test('GWT-75.5 given present judgePanel when resolve then present mode with slot
 test('GWT-75.6 given scanners complete and findings when buildPrimaryCta then Review findings visible', () => {
   /**
    * Scenario: Primary CTA advances to Triage when ready.
-   * Slice: GWT-75.6
+   * Slice: GWT-75.6 / soft-amend 77 (absent panel + findings also unlocks)
    */
   // -- Given / When --
   const ready = buildPrimaryCta({
@@ -370,16 +370,28 @@ test('GWT-75.6 given scanners complete and findings when buildPrimaryCta then Re
     hasFindings: true,
     panelMode: 'off',
   });
+  const absentEarly = buildPrimaryCta({
+    scannersComplete: false,
+    hasFindings: true,
+    panelMode: 'absent',
+  });
   const noFindings = buildPrimaryCta({
     scannersComplete: true,
     hasFindings: false,
+    panelMode: 'present',
+  });
+  const presentStillRunning = buildPrimaryCta({
+    scannersComplete: false,
+    hasFindings: true,
     panelMode: 'present',
   });
 
   // -- Then --
   assert.deepEqual(ready, { label: 'Review findings', visible: true });
   assert.deepEqual(panelOffReady, { label: 'Review findings', visible: true });
+  assert.equal(absentEarly.visible, true, 'absent panel + findings unlocks early triage');
   assert.equal(noFindings.visible, false);
+  assert.equal(presentStillRunning.visible, false, 'present panel still waits for scanners when incomplete');
 });
 
 test('GWT-75.6 given explicit processLine when buildRunProgressView then caller value preserved', () => {
@@ -531,10 +543,10 @@ test('GWT-75.10 given ids when normalizeSelectionIds then unique string ids', ()
   assert.deepEqual(normalizeSelectionIds(undefined), []);
 });
 
-test('GWT-75.10 given selection when toggleFindingSelection then add or remove id', () => {
+test('GWT-75.10 given selection when toggleFindingSelection then single-select replaces prior', () => {
   /**
-   * Scenario: Checkbox toggle adds or removes a finding id.
-   * Slice: GWT-75.10
+   * Scenario: Selection is one finding at a time (slice 77 soft-amend of multi-select).
+   * Slice: GWT-75.10 / GWT-77.3
    */
   // -- Given --
   const empty = [];
@@ -542,12 +554,12 @@ test('GWT-75.10 given selection when toggleFindingSelection then add or remove i
   // -- When --
   const one = toggleFindingSelection(empty, 'f1');
   const two = toggleFindingSelection(one, 'f2');
-  const back = toggleFindingSelection(two, 'f1');
+  const back = toggleFindingSelection(two, 'f2');
 
   // -- Then --
   assert.deepEqual(one, ['f1']);
-  assert.deepEqual(two, ['f1', 'f2']);
-  assert.deepEqual(back, ['f2']);
+  assert.deepEqual(two, ['f2'], 'selecting f2 replaces f1');
+  assert.deepEqual(back, [], 'toggling active id clears selection');
 });
 
 test('GWT-75.10 given multi selection when selectionProgressLabel then k of N selected', () => {

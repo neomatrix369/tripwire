@@ -126,6 +126,14 @@ Reachable through production entry points / config:
   Type/Quality/Target/Status labels; plain-language override buttons. Filter
   semantics unchanged. Spec:
   [plan/slices/18-R-approved-repo-workflow/slice-76-workflow-chrome-polish.md](./plan/slices/18-R-approved-repo-workflow/slice-76-workflow-chrome-polish.md).
+- Wave R **Workflow smoke fixes + target-scoped Fix→Verify** (slice 77):
+  IMPLEMENTED / VERIFIED (unit GWT-77.* + Mock/Live browser smoke 2026-09-21)
+  on branch `slice/77-workflow-smoke-fix-target-flow` (not yet on `main`) —
+  Run CTA unlocks for terminal `not_applicable`/`blocked`; process line matches
+  active scanner rows; Triage/Fix/Report share one deduped universe; triage
+  disposition buttons persist via idempotent `stableFindingId`; target focus +
+  single-select; Verify honesty before/after Mark fixed. Spec:
+  [plan/slices/18-R-approved-repo-workflow/slice-77-workflow-smoke-fix-target-flow.md](./plan/slices/18-R-approved-repo-workflow/slice-77-workflow-smoke-fix-target-flow.md).
 - CLI **`tripwire judge --batch-id`** + SIE judge panel module (slice 67, Wave R):
   `cli/src/judgePanel.js` (panel + final judge; open-weight SIE generate models).
   Optional soft-fail post-route hook only when `TRIPWIRE_JUDGE_PANEL=1` (default

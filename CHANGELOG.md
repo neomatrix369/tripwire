@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- Workflow L→R smoke FAIL/PARTIAL (slice 77, on
+  `slice/77-workflow-smoke-fix-target-flow`): Run “Review findings” CTA treats
+  `not_applicable` / `blocked` as finished; process line only says “running”
+  when active statuses exist; finding stable ids include target identity +
+  dedupe so Triage/Fix/Report share one universe; `stableFindingId` is
+  idempotent so Triage To fix / Needs review / Dismiss prefs apply after save;
+  single finding select after focusing one skill/MCP/package; Verify no longer
+  claims “Finding gone” for heuristic patches until Mark fixed. VERIFIED
+  (unit GWT-77.* + Mock/Live browser smoke 2026-09-21). Spec:
+  `docs/plan/slices/18-R-approved-repo-workflow/slice-77-workflow-smoke-fix-target-flow.md`.
 - Triage SCA rows: show lockfile path in the title (`pkg@ver · CVE · path`) and
   collapse exact duplicate inserts (`×N`) so monorepo package findings are
   distinguishable — vibe-kanban braces/adm-zip no longer look identical.

@@ -43,17 +43,39 @@ export function saveExpertMode(enabled, storage) {
 }
 
 /**
- * Prefer finding.id; else deterministic id from title|severity|evidenceHighlight.
- * @param {{ id?: string, title?: string, severity?: string, evidenceHighlight?: string }|null|undefined} finding
+ * Prefer finding.id scoped by itemId; else deterministic hash from
+ * target + title|severity|evidence|source|scanner.
+ * Target identity prevents cross-item collisions (slice 77).
+ * @param {{
+ *   id?: string,
+ *   title?: string,
+ *   severity?: string,
+ *   evidenceHighlight?: string,
+ *   itemId?: string,
+ *   source?: string,
+ *   scanner?: string
+ * }|null|undefined} finding
  * @returns {string}
  */
 export function stableFindingId(finding) {
-  const id = finding?.id;
-  if (id != null && String(id) !== "") return String(id);
+  const raw = finding?.id;
+  const item = finding?.itemId != null ? String(finding.itemId) : "";
+  if (raw != null && String(raw) !== "") {
+    const s = String(raw);
+    // Generated hashes already bake itemId into the material — do not re-prefix
+    // (re-prefix broke triage save→apply: save used gen:X, load looked up item:gen:X).
+    if (s.startsWith("gen:")) return s;
+    // Idempotent when id is already item-scoped from a prior stableFindingId pass.
+    if (item && s.startsWith(`${item}:`)) return s;
+    return item ? `${item}:${s}` : s;
+  }
   const material = [
+    item,
     finding?.title ?? "",
     finding?.severity ?? "",
     finding?.evidenceHighlight ?? "",
+    finding?.source ?? "",
+    finding?.scanner ?? "",
   ].join("|");
   return `gen:${fnv1aHex(material)}`;
 }

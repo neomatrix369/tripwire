@@ -262,13 +262,59 @@ export function formatEvidenceVerification(value) {
   return String(value).trim();
 }
 
+/** Terminal / finished scanner statuses (not still running). Slice 77. */
+const TERMINAL_SCANNER_STATUSES = Object.freeze(
+  new Set([
+    'done',
+    'completed',
+    'failed',
+    'skipped',
+    'timed_out',
+    'timedout',
+    'unreachable',
+    'not_applicable',
+    'blocked',
+    'not_run',
+    'n/a',
+    'na',
+    'absent',
+    'error',
+  ]),
+);
+
+const ACTIVE_SCANNER_STATUSES = Object.freeze(
+  new Set(['running', 'pending', 'queued', 'not_started', 'in_progress', 'active']),
+);
+
+/**
+ * Normalize scanner status tokens (spaces/hyphens → underscore).
+ * @param {unknown} status
+ * @returns {string}
+ */
+export function normalizeScannerStatus(status) {
+  return String(status ?? '')
+    .toLowerCase()
+    .trim()
+    .replace(/[\s-]+/g, '_');
+}
+
 /**
  * @param {unknown} status
  * @returns {boolean}
  */
 function scannerIsActive(status) {
-  const s = String(status ?? '').toLowerCase();
-  return s === 'running' || s === 'pending' || s === 'queued' || s === 'not_started';
+  const s = normalizeScannerStatus(status);
+  return ACTIVE_SCANNER_STATUSES.has(s);
+}
+
+/**
+ * @param {unknown} status
+ * @returns {boolean}
+ */
+export function scannerIsTerminal(status) {
+  const s = normalizeScannerStatus(status);
+  if (!s) return false;
+  return TERMINAL_SCANNER_STATUSES.has(s);
 }
 
 /**
@@ -276,15 +322,89 @@ function scannerIsActive(status) {
  * @returns {boolean}
  */
 function scannerIsComplete(status) {
-  const s = String(status ?? '').toLowerCase();
-  return (
-    s === 'done' ||
-    s === 'completed' ||
-    s === 'failed' ||
-    s === 'skipped' ||
-    s === 'timed_out' ||
-    s === 'unreachable'
-  );
+  return scannerIsTerminal(status);
+}
+
+/**
+ * True when every scanner row is finished (or there are no rows).
+ * `not_applicable` / `blocked` count as finished so Run CTA can advance.
+ *
+ * @param {Array<{ status?: unknown }>|null|undefined} scanners
+ * @returns {boolean}
+ */
+export function areScannersFinished(scanners) {
+  const rows = Array.isArray(scanners) ? scanners : [];
+  if (rows.length === 0) return false;
+  return rows.every((r) => scannerIsTerminal(r?.status));
+}
+
+/**
+ * Prefer finished rows for Run advancement; active rows block completion.
+ *
+ * @param {Array<{ status?: unknown }>|null|undefined} scanners
+ * @returns {boolean}
+ */
+export function scannersReadyForTriage(scanners) {
+  const rows = Array.isArray(scanners) ? scanners : [];
+  if (rows.length === 0) return false;
+  if (rows.some((r) => scannerIsActive(r?.status))) return false;
+  return rows.every((r) => scannerIsTerminal(r?.status));
+}
+
+/**
+ * Collect scanner rows the same way the dashboard Run panel does.
+ * @param {{ items?: Array<{ name?: string, identifier?: string, findings?: unknown[], scanners?: Array<{ source?: string, scanner?: string, status?: string, output?: Record<string, unknown> }> }> }} data
+ * @returns {Array<{ target: string, scanner: string, status: string, candidates: number, errors: number }>}
+ */
+export function collectScannerRows(data) {
+  if (!data?.items) return [];
+  const rows = [];
+  for (const item of data.items) {
+    for (const sc of item.scanners || []) {
+      const out = sc.output || {};
+      rows.push({
+        target: item.name || item.identifier || '',
+        scanner: sc.source || sc.scanner || '',
+        status: sc.status || '',
+        candidates:
+          out.candidates ??
+          out.findings_count ??
+          (item.findings || []).filter((f) => f.scanner === sc.source).length,
+        errors:
+          out.errors ??
+          (sc.status === 'failed' || sc.status === 'unreachable' ? 1 : 0),
+      });
+    }
+  }
+  return rows;
+}
+
+/**
+ * Run-panel readiness: process line + primary CTA from scanner rows + findings.
+ * @param {{
+ *   scanners?: Array<{ status?: unknown }>,
+ *   hasFindings?: boolean,
+ *   judgesState?: { mode?: string, panelOff?: boolean }
+ * }} [input]
+ * @returns {{ processLine: string, ctaVisible: boolean, scannersComplete: boolean }}
+ */
+export function buildRunReadiness({ scanners, hasFindings, judgesState } = {}) {
+  const scannersComplete = scannersReadyForTriage(scanners);
+  const processLine = buildProcessLine({
+    scanners,
+    judgesState: judgesState ?? { mode: 'absent' },
+    hasFindings: !!hasFindings,
+  });
+  const cta = buildPrimaryCta({
+    scannersComplete,
+    hasFindings: !!hasFindings,
+    panelMode: judgesState?.mode ?? 'absent',
+  });
+  return {
+    processLine,
+    ctaVisible: !!cta.visible,
+    scannersComplete,
+  };
 }
 
 /**
@@ -346,12 +466,67 @@ export function buildProcessLine({ scanners, judgesState, hasFindings } = {}) {
  * @returns {{ label: string, visible: boolean }}
  */
 export function buildPrimaryCta({ scannersComplete, hasFindings, panelMode } = {}) {
+  if (!hasFindings) {
+    return { label: 'Review findings', visible: false };
+  }
+  // Findings exist → allow Triage. scannersComplete preferred but not required when
+  // panel is off/absent (operator can review while stragglers run). Terminal
+  // statuses (not_applicable/blocked) count toward scannersComplete via
+  // scannersReadyForTriage — never block solely on N/A rows.
   const ready =
-    !!hasFindings && (!!scannersComplete || panelMode === 'off');
+    !!scannersComplete ||
+    panelMode === 'off' ||
+    panelMode === 'absent';
   return {
     label: 'Review findings',
     visible: ready,
   };
+}
+
+/**
+ * Deduplicate workflow findings by stable id (first wins).
+ * @param {Array<{ id?: unknown }>|null|undefined} findings
+ * @returns {Array<object>}
+ */
+export function dedupeFindingsById(findings) {
+  if (!Array.isArray(findings)) return [];
+  const seen = new Set();
+  const out = [];
+  for (const f of findings) {
+    const id = f?.id != null ? String(f.id) : '';
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    out.push(f);
+  }
+  return out;
+}
+
+/**
+ * Scope findings to one skill / mcp / package target.
+ * @param {Array<{ itemId?: unknown }>|null|undefined} findings
+ * @param {string|null|undefined} targetId
+ * @returns {Array<object>}
+ */
+export function scopeFindingsToTarget(findings, targetId) {
+  if (!Array.isArray(findings)) return [];
+  if (targetId == null || targetId === '' || targetId === 'all') return findings.slice();
+  const id = String(targetId);
+  return findings.filter((f) => String(f?.itemId ?? '') === id);
+}
+
+/**
+ * Single-select: replace selection with one id (or clear if same id toggled off).
+ * @param {unknown} ids
+ * @param {unknown} findingId
+ * @param {{ toggleOff?: boolean }} [opts]
+ * @returns {string[]}
+ */
+export function selectSingleFinding(ids, findingId, { toggleOff = true } = {}) {
+  if (findingId == null || findingId === '') return normalizeSelectionIds(ids);
+  const id = String(findingId);
+  const current = normalizeSelectionIds(ids);
+  if (toggleOff && current.length === 1 && current[0] === id) return [];
+  return [id];
 }
 
 /**
@@ -406,19 +581,14 @@ export function normalizeSelectionIds(ids) {
 }
 
 /**
+ * Single-select (slice 77): selecting a finding replaces the previous selection.
+ * Toggle-off when the same id is selected again.
  * @param {unknown} ids
  * @param {unknown} findingId
  * @returns {string[]}
  */
 export function toggleFindingSelection(ids, findingId) {
-  const current = normalizeSelectionIds(ids);
-  if (findingId == null || findingId === '') return current;
-  const id = String(findingId);
-  const idx = current.indexOf(id);
-  if (idx >= 0) {
-    return current.filter((_, i) => i !== idx);
-  }
-  return [...current, id];
+  return selectSingleFinding(ids, findingId, { toggleOff: true });
 }
 
 /**
