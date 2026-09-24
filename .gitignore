@@ -65,3 +65,6 @@ cli/.stryker-tmp/
 cli/reports/
 prototypes/model-studio/out
 .worktrees/
+
+# Misc
+.omc/
