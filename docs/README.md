@@ -43,7 +43,7 @@ Start here: [QUICKSTART](../QUICKSTART.md) · Repo entry: [README](../README.md)
 | [STATUS.md](./STATUS.md) | Evidence-labelled capability claims |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Services inventory, C4, operator journey + dependency diagrams, key flows |
 | [adr/README.md](./adr/README.md) | Formal architecture decision records |
-| [screenshots/](./screenshots/README.md) | CLI + dashboard gallery |
+| [screenshots/](./screenshots/README.md) | CLI + dashboard + Workflow gallery |
 | [agent-hooks/README.md](../agent-hooks/README.md) | Claude Code hooks + `/tw-*` skills |
 | [SECURITY.md](../SECURITY.md) | Vulnerability reporting |
 

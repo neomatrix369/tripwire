@@ -189,7 +189,7 @@ remembered in `sessionStorage`.
 
 > **Visual identity v2:** cream paper, tan primary CTA, and AA-readable ink tokens
 > (Fraunces display headings) — shipped via [PR #96](https://github.com/neomatrix369/tripwire/pull/96).
-> Screenshots in [docs/screenshots/](docs/screenshots/README.md) regenerated 2026-08-20.
+> Screenshots in [docs/screenshots/](docs/screenshots/README.md) regenerated 2026-09-21.
 
 After installing the CLI, you can also validate target discovery locally without
 accounts or a scan:
@@ -209,7 +209,7 @@ stack (same names as the badges above):
 | Scan | Adapters run in an isolated sandbox; CLI prints scanner inventory, coverage ledger, and `[evidence]` honesty rows (slices 63/65/66); optional `tripwire judge` panel (slice 67) | Modal (+ Docker), Cisco / Snyk / Tessl / DepShield / Cargo Audit / Ossprey | [modal-setup](docs/user-guide/modal-setup.md) · [env-vars](docs/user-guide/env-vars.md) |
 | Store | Findings and scan_run rows land for the dashboard | Supabase / Postgres | [supabase-setup](docs/user-guide/supabase-setup.md) |
 | Route (optional) | Every item through SIE; escalate only when signaled | Superlinked SIE → Alibaba Cloud Model Studio via `tripwire route` / auto-route | [sie-setup](docs/user-guide/sie-setup.md) · [model-studio-setup](docs/user-guide/model-studio-setup.md) |
-| Review | Heatmap, drawers, pathway strips, Escalated / SIE-only filters; Run→Report chrome on **Workflow** tab (slices 75–76 on `main` #163/#165; slice 77 smoke/target-flow on branch) | Dashboard (Live or Mock) | [reading-router-results](docs/user-guide/reading-router-results.md) · [screenshots](docs/screenshots/README.md) |
+| Review | Heatmap, drawers, pathway strips, Escalated / SIE-only filters; Run→Report chrome on **Workflow** tab (slices 75–77 on `main` #163/#165/#169) | Dashboard (Live or Mock) | [reading-router-results](docs/user-guide/reading-router-results.md) · [screenshots](docs/screenshots/README.md) |
 
 Mock skips Discover→Scan→Store and still shows Review (plus router fixtures).
 Without SIE keys, Route warns and skips; scanner results still store. Sample CLIs
@@ -245,10 +245,10 @@ How to read strips and filters after Route:
     <sub><b>Dashboard</b> — Mock overview</sub>
   </td>
   <td align="center" width="20%">
-    <a href="docs/screenshots/02-dashboard/14-filter-escalated.png">
-      <img src="docs/screenshots/02-dashboard/14-filter-escalated.png" width="100%" alt="Dashboard Escalated filter (Mock)">
+    <a href="docs/screenshots/05-workflow/18-workflow-run.png">
+      <img src="docs/screenshots/05-workflow/18-workflow-run.png" width="100%" alt="Workflow Run step (Mock)">
     </a>
-    <sub><b>Router</b> — Escalated (Mock)</sub>
+    <sub><b>Workflow</b> — Run (Mock)</sub>
   </td>
   <td align="center" width="20%">
     <a href="docs/screenshots/03-skills/04-red-skill-detail-vuln-prompt-injection.png">
@@ -265,7 +265,7 @@ How to read strips and filters after Route:
 </tr>
 </table>
 
-> Full gallery (SIE-only, severity filters, list view) → [docs/screenshots/](docs/screenshots/README.md)
+> Full gallery (Escalated / SIE-only, Workflow Triage/Verify, severity filters, list view) → [docs/screenshots/](docs/screenshots/README.md)
 
 ## Find the right guide
 
@@ -280,7 +280,7 @@ How to read strips and filters after Route:
 | Preview Mock UI or dry-discover locally | [Optional local validation](QUICKSTART.md#validate-locally-optional) |
 | Enable SIE / Model Studio routing | [SIE setup](docs/user-guide/sie-setup.md) · [Model Studio setup](docs/user-guide/model-studio-setup.md) · [`tripwire route`](docs/user-guide/setup-commands.md#tiered-router-optional) |
 | Interpret pathway strips / Escalated / SIE-only | [Reading router results](docs/user-guide/reading-router-results.md) |
-| Browse CLI / dashboard screenshots | [Screenshot gallery](docs/screenshots/README.md) |
+| Browse CLI / dashboard / Workflow screenshots | [Screenshot gallery](docs/screenshots/README.md) |
 | Smoke-test SIE or Model Studio alone | [SIE sample CLI](prototypes/sie-studio/README.md) · [Model Studio sample CLI](prototypes/model-studio/README.md) |
 | Understand results and system shape | [Capability status](docs/STATUS.md) · [Architecture](docs/ARCHITECTURE.md) · [ADRs](docs/adr/README.md) |
 | Contribute or maintain | [Contributing](CONTRIBUTING.md) · [command catalog](docs/user-guide/setup-commands.md) |
